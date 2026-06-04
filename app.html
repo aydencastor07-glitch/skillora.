@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Skillora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #04060d; --bg2: #070b16; --surface: #0b1020; --surface2: #111831;
+    --blue: #2f7bff; --blue-light: #5e9bff; --white: #eef2fb;
+    --muted: #8a97b4; --muted2: #56627e;
+    --border: rgba(255,255,255,0.07); --border2: rgba(47,123,255,0.25);
+    --green: #3ddc84; --orange: #ff9f4a; --max: 480px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body {
+    background: var(--bg); color: var(--white);
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400; line-height: 1.5;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  h1,h2,h3,h4,.display { font-family:'Fraunces','Sora',serif; font-weight:600; letter-spacing:-0.01em; line-height:1.08; }
+  #starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .bg-glow { position: fixed; z-index: 0; pointer-events: none; border-radius: 50%; filter: blur(80px); opacity: 0.5; }
+  .bg-glow.g1 { top:-120px; left:-80px; width:320px; height:320px; background:radial-gradient(circle,rgba(47,123,255,0.35),transparent 70%); animation:float1 14s ease-in-out infinite; }
+  .bg-glow.g2 { bottom:80px; right:-100px; width:300px; height:300px; background:radial-gradient(circle,rgba(94,155,255,0.22),transparent 70%); animation:float2 18s ease-in-out infinite; }
+  @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+  @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-40px)} }
+  .phone { position: relative; z-index: 1; max-width: var(--max); margin: 0 auto; min-height: 100vh; padding-bottom: 88px; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 14px; background: rgba(4,6,13,0.72);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family:'Fraunces',serif; font-weight:700; font-size:1.55rem; letter-spacing:-0.02em; color:var(--white); }
+  .logo span { color: var(--blue); }
+  .top-icons { display: flex; gap: 10px; }
+  .icon-btn { width:42px; height:42px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.05rem; position:relative; transition:transform .2s; }
+  .icon-btn:active { transform: scale(0.92); }
+  .icon-btn .dot { position:absolute; top:10px; right:11px; width:7px; height:7px; background:var(--orange); border-radius:50%; box-shadow:0 0 8px var(--orange); }
+  .view { display: none; padding: 24px 20px 20px; animation: viewIn .45s cubic-bezier(.2,.7,.3,1); }
+  .view.active { display: block; }
+  @keyframes viewIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  .page-title { font-size: 2.1rem; margin-bottom: 6px; }
+  .page-sub { color: var(--muted); font-size: .98rem; margin-bottom: 22px; max-width: 90%; }
+  .reveal { opacity: 0; transform: translateY(16px); animation: reveal .6s cubic-bezier(.2,.7,.3,1) forwards; }
+  @keyframes reveal { to { opacity: 1; transform: none; } }
+  .card { background: linear-gradient(160deg,var(--surface),var(--bg2)); border:1px solid var(--border); border-radius:22px; padding:22px; margin-bottom:18px; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent); }
+  .email-icon-wrap { width:54px; height:54px; border-radius:16px; background:linear-gradient(135deg,var(--blue),#1857c4); display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:16px; box-shadow:0 8px 26px rgba(47,123,255,0.4); position:relative; }
+  .email-icon-wrap::after { content:''; position:absolute; inset:-3px; border-radius:18px; border:1px solid var(--border2); animation:pulseRing 2.6s ease-out infinite; }
+  @keyframes pulseRing { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(1.35);opacity:0} }
+  .email-hero h3 { font-size:1.35rem; margin-bottom:8px; }
+  .email-hero p.lead { color:var(--muted); font-size:.95rem; margin-bottom:20px; }
+  .feat-row { display:flex; align-items:center; gap:11px; margin-bottom:12px; font-size:.9rem; color:var(--white); }
+  .feat-row .chk { flex:0 0 22px; width:22px; height:22px; border-radius:50%; background:rgba(61,220,132,0.14); color:var(--green); display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; }
+  .email-field { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:15px 16px; color:var(--white); font-family:'Sora',sans-serif; font-size:.95rem; margin:18px 0 14px; transition:border-color .25s, box-shadow .25s; }
+  .email-field:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(47,123,255,0.16); }
+  .email-field::placeholder { color: var(--muted2); }
+  .btn-primary { width:100%; background:linear-gradient(135deg,var(--blue),#1857c4); color:#fff; border:none; border-radius:14px; padding:16px; font-family:'Fraunces',serif; font-weight:700; font-size:1.02rem; letter-spacing:-0.01em; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 10px 30px rgba(47,123,255,0.35); transition:transform .15s, box-shadow .25s; }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-primary::after { content:''; position:absolute; top:0; left:-120%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent); transform:skewX(-20deg); animation:sheen 3.4s ease-in-out infinite; }
+  @keyframes sheen { 0%{left:-120%} 55%{left:140%} 100%{left:140%} }
+  .status-msg { margin-top:14px; font-size:.88rem; min-height:20px; text-align:center; transition:color .2s; }
+  .success-burst { display:none; flex-direction:column; align-items:center; text-align:center; padding:8px 0 4px; }
+  .success-burst.show { display:flex; animation:reveal .5s ease forwards; }
+  .check-circle { width:64px; height:64px; border-radius:50%; background:rgba(61,220,132,0.14); display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+  .check-circle svg { width:34px; height:34px; }
+  .check-circle svg path { stroke-dasharray:30; stroke-dashoffset:30; animation:draw .5s .15s forwards cubic-bezier(.6,.1,.2,1); }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .tiktok-connect.connected { border-color: rgba(61,220,132,0.3); }
+  .tk-head { display:flex; align-items:flex-start; gap:14px; margin-bottom:18px; }
+  .tk-icon { flex:0 0 52px; width:52px; height:52px; border-radius:15px; background:#000; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); }
+  .tk-text h3 { font-size:1.22rem; margin-bottom:5px; }
+  .tk-text p { color:var(--muted); font-size:.88rem; line-height:1.45; }
+  .btn-ghost { width:100%; background:#fff; color:#04060d; border:none; border-radius:14px; padding:15px; font-family:'Fraunces',serif; font-weight:700; font-size:1rem; cursor:pointer; transition:transform .15s, opacity .2s; display:flex; align-items:center; justify-content:center; gap:9px; }
+  .btn-ghost:active { transform: scale(0.97); }
+  .tk-foot { display:flex; align-items:center; gap:7px; margin-top:13px; font-size:.8rem; color:var(--muted2); }
+  .ia-tool { display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:12px; cursor:pointer; transition:border-color .2s, transform .15s, background .2s; }
+  .ia-tool:active { transform: scale(0.98); }
+  .ia-tool.selected { border-color:var(--blue); background:var(--surface2); }
+  .ia-tool .t-ico { flex:0 0 44px; width:44px; height:44px; border-radius:12px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+  .ia-tool .t-txt h4 { font-size:1rem; margin-bottom:3px; font-family:'Sora'; font-weight:600; letter-spacing:0; }
+  .ia-tool .t-txt p { font-size:.82rem; color:var(--muted); }
+  .stat-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:18px; }
+  .stat-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; }
+  .stat-box .v { font-family:'Fraunces',serif; font-weight:600; font-size:1.7rem; }
+  .stat-box .l { font-size:.78rem; color:var(--muted); margin-top:2px; }
+  .pill-row { display:flex; gap:9px; flex-wrap:wrap; margin-bottom:8px; }
+  .platform-pill { display:flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:9px 15px; font-size:.85rem; cursor:pointer; transition:border-color .2s, background .2s; }
+  .platform-pill.active { border-color:var(--blue); background:var(--surface2); }
+  .platform-pill svg { display: block; }
+  .progress-card { background:linear-gradient(135deg,rgba(47,123,255,0.16),rgba(47,123,255,0.03)); border:1px solid var(--border2); }
+  .progress-bar { height:9px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden; margin-top:12px; }
+  .progress-fill { height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--blue-light)); border-radius:999px; animation:fillBar 1.4s .3s cubic-bezier(.2,.7,.3,1) forwards; }
+  @keyframes fillBar { to { width: 68%; } }
+  .book-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .book { border-radius:16px; overflow:hidden; position:relative; aspect-ratio:3/4; background:var(--surface2); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:flex-end; padding:14px; cursor:pointer; transition:transform .2s; }
+  .book:active { transform: scale(0.97); }
+  .book .b-plat { position:absolute; top:12px; left:12px; width:30px; height:30px; border-radius:8px; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; }
+  .book h4 { font-size:.98rem; line-height:1.2; position:relative; z-index:2; }
+  .book .b-grad { position:absolute; inset:0; background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,0.75)); }
+  .book.locked::after { content:'🔒 ' attr(data-plan); position:absolute; inset:0; z-index:3; background:rgba(4,6,13,0.74); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; font-size:.82rem; font-family:'Fraunces',serif; font-weight:700; color:var(--white); }
+  .book.b1 { background:linear-gradient(150deg,#1857c4,#0b1020); }
+  .book.b2 { background:linear-gradient(150deg,#c41857,#0b1020); }
+  .book.b3 { background:linear-gradient(150deg,#18c4a0,#0b1020); }
+  .book.b4 { background:linear-gradient(150deg,#7a18c4,#0b1020); }
+  .section-h { font-size:1.15rem; margin:6px 0 14px; }
+  .bottomnav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:var(--max); z-index:50; display:flex; justify-content:space-between; align-items:flex-end; padding:10px 8px calc(10px + env(safe-area-inset-bottom)); background:rgba(7,11,22,0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-top:1px solid var(--border); }
+  .nav-btn { flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:3px; background:none; border:none; color:var(--muted2); font-size:.68rem; font-family:'Sora'; cursor:pointer; padding:4px 2px; transition:color .2s; }
+  .nav-btn .ni { font-size:1.25rem; line-height:1; height:28px; display:flex; align-items:center; justify-content:center; transition:transform .2s; }
+  .nav-btn.active { color: var(--blue-light); }
+  .nav-btn.active .ni { transform: translateY(-2px); }
+  .nav-btn.center { position: relative; justify-content: flex-end; }
+  .nav-btn.center .ni { width:58px; height:58px; border-radius:18px; margin-top:-30px; margin-bottom:4px; background:linear-gradient(135deg,var(--blue),#1857c4); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 28px rgba(47,123,255,0.55), 0 0 0 5px rgba(4,6,13,1); color:#fff; font-size:1.6rem; line-height:1; transition:transform .2s; }
+  .nav-btn.center:active .ni { transform: scale(0.92); }
+  .nav-btn.center.active .ni { transform: translateY(-2px); box-shadow:0 12px 32px rgba(47,123,255,0.7), 0 0 0 5px rgba(4,6,13,1); }
+  .nav-btn.center::before { content:''; position:absolute; top:-34px; left:50%; transform:translateX(-50%); width:66px; height:66px; border-radius:50%; background:radial-gradient(circle,rgba(47,123,255,0.4),transparent 70%); filter:blur(8px); z-index:-1; animation:navPulse 2.8s ease-in-out infinite; }
+  @keyframes navPulse { 0%,100%{opacity:.5;transform:translateX(-50%) scale(1)} 50%{opacity:.9;transform:translateX(-50%) scale(1.12)} }
+  .modal { position:fixed; inset:0; z-index:80; background:rgba(4,6,13,0.7); backdrop-filter:blur(6px); display:none; align-items:flex-end; }
+  .modal.open { display:flex; animation:reveal .25s ease; }
+  .modal-sheet { width:100%; max-width:var(--max); margin:0 auto; background:var(--surface); border-radius:22px 22px 0 0; border:1px solid var(--border); padding:22px; }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div class="bg-glow g1"></div>
+<div class="bg-glow g2"></div>
+
+<div class="phone">
+  <div class="topbar">
+    <div class="logo">Skill<span>ora</span></div>
+    <div class="top-icons">
+      <div class="icon-btn">🔍</div>
+      <div class="icon-btn">🔔<span class="dot"></span></div>
+    </div>
+  </div>
+
+  <div class="view active" id="view-home">
+    <h1 class="page-title reveal" style="animation-delay:.05s">Bonjour 👋</h1>
+    <p class="page-sub reveal" style="animation-delay:.12s">Voici ton tableau de bord. Continue sur ta lancée.</p>
+    <div class="pill-row reveal" style="animation-delay:.18s">
+      <div class="platform-pill active"><span id="pill-tt"></span> TikTok</div>
+      <div class="platform-pill"><span id="pill-yt"></span> YouTube</div>
+      <div class="platform-pill"><span id="pill-ig"></span> Instagram</div>
+    </div>
+    <div class="card progress-card reveal" style="animation-delay:.24s">
+      <h3 style="font-size:1.1rem;">Ta progression</h3>
+      <p style="color:var(--muted);font-size:.86rem;margin-top:4px;">Module 2 sur 3 — TikTok Rémunération</p>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+    </div>
+    <div class="stat-grid reveal" style="animation-delay:.3s">
+      <div class="stat-box"><div class="v">7</div><div class="l">🔥 Jours d'affilée</div></div>
+      <div class="stat-box"><div class="v">12</div><div class="l">Leçons terminées</div></div>
+      <div class="stat-box"><div class="v">+1.2K</div><div class="l">Abonnés ce mois</div></div>
+      <div class="stat-box"><div class="v">284K</div><div class="l">Vues générées</div></div>
+    </div>
+    <div class="card reveal" style="animation-delay:.36s">
+      <h3 style="font-size:1.05rem;margin-bottom:6px;">🎯 Mission du jour</h3>
+      <p style="color:var(--muted);font-size:.9rem;">Poste 1 vidéo « storytime » avec un hook dans les 2 premières secondes. Va dans l'onglet IA pour générer ton script.</p>
+    </div>
+  </div>
+
+  <div class="view" id="view-community">
+    <h1 class="page-title">Communauté</h1>
+    <p class="page-sub">Partage tes résultats, pose tes questions, progresse avec les autres.</p>
+    <button class="btn-primary" style="margin-bottom:18px;" onclick="openComposer()">✍️ Publier quelque chose</button>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:11px;margin-bottom:10px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;">A</div>
+        <div><div style="font-weight:600;font-size:.92rem;">Ashley</div><div style="font-size:.74rem;color:var(--muted2);">il y a 2h</div></div>
+      </div>
+      <p style="font-size:.92rem;">J'ai gagné mes premiers 3 000 € en 6 semaines grâce à la méthode TikTok 🙌 Merci Skillora !</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:11px;margin-bottom:10px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;">J</div>
+        <div><div style="font-weight:600;font-size:.92rem;">John</div><div style="font-size:.74rem;color:var(--muted2);">il y a 5h</div></div>
+      </div>
+      <p style="font-size:.92rem;">1 000 $ en 30 jours. Le module sur les hooks a tout changé pour moi.</p>
+    </div>
+  </div>
+
+  <div class="view" id="view-library">
+    <h1 class="page-title">Tes guides</h1>
+    <p class="page-sub">Des méthodes illustrées, mises à jour en continu.</p>
+    <div class="book-grid">
+      <div class="book b1"><div class="b-plat" id="lib-tt1"></div><div class="b-grad"></div><h4>TikTok Rémunération</h4></div>
+      <div class="book b2 locked" data-plan="Growth"><div class="b-plat" id="lib-ig"></div><div class="b-grad"></div><h4>Instagram Croissance</h4></div>
+      <div class="book b3 locked" data-plan="Growth"><div class="b-plat" id="lib-yt"></div><div class="b-grad"></div><h4>YouTube Monétisation</h4></div>
+      <div class="book b4 locked" data-plan="Elite"><div class="b-plat" id="lib-tt2"></div><div class="b-grad"></div><h4>Scaling & Automatisation</h4></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-ia">
+    <h1 class="page-title reveal" style="animation-delay:.05s">Assistant IA 🤖</h1>
+    <p class="page-sub reveal" style="animation-delay:.12s">Analyse ton compte, génère tes scripts, reçois ton plan chaque jour.</p>
+    <div class="card tiktok-connect reveal" id="tiktokConnect" style="animation-delay:.18s">
+      <div class="tk-head">
+        <div class="tk-icon" id="tkConnectIcon"></div>
+        <div class="tk-text"><h3>Connecte ton compte TikTok</h3><p>Analyse tes vraies statistiques : abonnés, vues, engagement.</p></div>
+      </div>
+      <button class="btn-ghost" onclick="connectTikTok()">Connecter mon TikTok</button>
+      <div class="tk-foot">🔒 Accès sécurisé. Tu peux te déconnecter à tout moment.</div>
+    </div>
+    <div class="card email-hero reveal" style="animation-delay:.24s">
+      <div id="emailForm">
+        <div class="email-icon-wrap">📬</div>
+        <h3>Active ton plan quotidien</h3>
+        <p class="lead">Reçois chaque matin, par email, ta mission du jour, ton script prêt à filmer et tes rappels — automatiquement.</p>
+        <div class="feat-row"><span class="chk">✓</span> Ta mission TikTok personnalisée</div>
+        <div class="feat-row"><span class="chk">✓</span> Un script prêt à filmer</div>
+        <div class="feat-row"><span class="chk">✓</span> Tes rappels pour garder ta série 🔥</div>
+        <input type="email" id="emailInput" class="email-field" placeholder="ton@email.com">
+        <button class="btn-primary" onclick="sendTestEmail()">Activer mon plan quotidien</button>
+        <div class="status-msg" id="emailStatus"></div>
+      </div>
+      <div class="success-burst" id="emailSuccess">
+        <div class="check-circle"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5l5 5L20 6.5" stroke="#3ddc84" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3 style="font-size:1.2rem;margin-bottom:8px;">Plan activé ✨</h3>
+        <p style="color:var(--muted);font-size:.92rem;">On vient de t'envoyer un premier email. À partir de maintenant, ton plan arrive chaque jour. Pense à vérifier tes spams la première fois.</p>
+      </div>
+    </div>
+    <h3 class="section-h reveal" style="animation-delay:.3s">Outils IA</h3>
+    <div class="reveal" style="animation-delay:.34s">
+      <div class="ia-tool" onclick="selectIATool('script', this)"><div class="t-ico">✍️</div><div class="t-txt"><h4>Générateur de script</h4><p>Un script viral en 30 secondes</p></div></div>
+      <div class="ia-tool" onclick="selectIATool('analyze', this)"><div class="t-ico">📊</div><div class="t-txt"><h4>Analyse de vidéo</h4><p>Pourquoi ça marche ou pas</p></div></div>
+      <div class="ia-tool" onclick="selectIATool('ideas', this)"><div class="t-ico">💡</div><div class="t-txt"><h4>Idées de contenu</h4><p>10 idées adaptées à ta niche</p></div></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-profile">
+    <h1 class="page-title">Profil</h1>
+    <p class="page-sub">Ton compte et ton abonnement.</p>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1857c4);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:800;font-size:1.5rem;" id="avatarInitial">S</div>
+        <div><h3 style="font-size:1.2rem;" id="profileName">Créateur</h3><p style="color:var(--muted);font-size:.85rem;" id="profileEmail">—</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><h4 style="font-family:'Sora';font-weight:600;">Abonnement</h4><p style="color:var(--muted);font-size:.85rem;margin-top:3px;">Plan Starter</p></div>
+        <button class="btn-primary" style="width:auto;padding:11px 18px;font-size:.9rem;">Améliorer</button>
+      </div>
+    </div>
+    <button class="btn-ghost" style="background:var(--surface);color:var(--white);border:1px solid var(--border);" onclick="signOut()">Se déconnecter</button>
+  </div>
+
+  <div class="modal" id="composerModal" onclick="closeComposer(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <h3 style="font-size:1.2rem;margin-bottom:14px;">Nouvelle publication</h3>
+      <textarea class="email-field" rows="4" placeholder="Partage tes résultats, une question..." style="resize:none;"></textarea>
+      <button class="btn-primary" onclick="closeComposer()">Publier</button>
+    </div>
+  </div>
+</div>
+
+<div class="bottomnav">
+  <button class="nav-btn active" onclick="switchView('home', this)"><span class="ni">🏠</span>Accueil</button>
+  <button class="nav-btn" onclick="switchView('community', this)"><span class="ni">💬</span>Communauté</button>
+  <button class="nav-btn center" onclick="switchView('library', this)"><span class="ni"><span style="font-size:1.5rem;line-height:1;display:block;transform:translateY(1px);">📚</span></span>Guides</button>
+  <button class="nav-btn" onclick="switchView('ia', this)"><span class="ni">🤖</span>IA</button>
+  <button class="nav-btn" onclick="switchView('profile', this)"><span class="ni">👤</span>Profil</button>
+</div>
+
+<script>
+  (function() {
+    const c = document.getElementById('starfield');
+    const ctx = c.getContext('2d');
+    let w, h, stars = [], dpr = Math.min(window.devicePixelRatio || 1, 2);
+    function resize() {
+      w = c.width = window.innerWidth * dpr; h = c.height = window.innerHeight * dpr;
+      c.style.width = window.innerWidth + 'px'; c.style.height = window.innerHeight + 'px';
+      const count = Math.min(90, Math.floor(window.innerWidth / 6)); stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({ x:Math.random()*w, y:Math.random()*h, r:(Math.random()*1.3+0.3)*dpr, a:Math.random()*0.6+0.2, tw:Math.random()*0.02+0.004, dir:Math.random()>0.5?1:-1, vy:(Math.random()*0.12+0.02)*dpr });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      for (const s of stars) {
+        s.a += s.tw * s.dir; if (s.a > 0.85 || s.a < 0.15) s.dir *= -1;
+        s.y += s.vy; if (s.y > h) { s.y = 0; s.x = Math.random() * w; }
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fillStyle = 'rgba(160,190,255,' + s.a + ')'; ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+    resize(); window.addEventListener('resize', resize); draw();
+  })();
+
+  const SB_URL = 'https://fkjqlmtugzdluzshxqsk.supabase.co';
+  const SB_KEY = 'sb_publishable_u8BiBh7ciFGr13GPQHLnGQ_f17a_5aA';
+  const sb = window.supabase.createClient(SB_URL, SB_KEY, {
+    auth: { detectSessionInUrl: true, flowType: 'implicit', persistSession: true, autoRefreshToken: true }
+  });
+
+  (async function checkSession() {
+    try {
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        await new Promise(r => setTimeout(r, 800));
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        await new Promise(r => setTimeout(r, 600));
+        const retry = await sb.auth.getSession();
+        if (!retry.data.session) { window.location.href = 'signup.html'; return; }
+        applyUser(retry.data.session.user); return;
+      }
+      applyUser(session.user);
+    } catch (e) { console.log('Session check error', e); }
+  })();
+
+  function applyUser(user) {
+    const name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email ? user.email.split('@')[0] : 'Créateur');
+    const greetEl = document.querySelector('#view-home .page-title');
+    if (greetEl) greetEl.textContent = 'Bonjour ' + name + ' 👋';
+    const emailInput = document.getElementById('emailInput');
+    if (emailInput && user.email) emailInput.value = user.email;
+    const pn = document.getElementById('profileName'); if (pn) pn.textContent = name;
+    const pe = document.getElementById('profileEmail'); if (pe && user.email) pe.textContent = user.email;
+    const av = document.getElementById('avatarInitial'); if (av) av.textContent = (name[0] || 'S').toUpperCase();
+  }
+
+  async function signOut() { try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
+
+  const tiktok = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.3 0 .59.04.86.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" fill="#fff"/></svg>';
+  const youtube = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.51A3.02 3.02 0 0 0 .5 6.2C0 8.08 0 12 0 12s0 3.92.5 5.8a3.02 3.02 0 0 0 2.12 2.14c1.88.51 9.38.51 9.38.51s7.5 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.14C24 15.92 24 12 24 12s0-3.92-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z" fill="#FF0000"/></svg>';
+  const instagram = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><defs><radialGradient id="igx" cx="0.3" cy="1" r="1"><stop offset="0" stop-color="#fdf497"/><stop offset="0.05" stop-color="#fdf497"/><stop offset="0.45" stop-color="#fd5949"/><stop offset="0.6" stop-color="#d6249f"/><stop offset="0.9" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igx)"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.3" fill="#fff"/></svg>';
+
+  ['pill-tt','lib-tt1','lib-tt2'].forEach(id => { const e = document.getElementById(id); if(e) e.innerHTML = tiktok; });
+  ['pill-yt','lib-yt'].forEach(id => { const e = document.getElementById(id); if(e) e.innerHTML = youtube; });
+  ['pill-ig','lib-ig'].forEach(id => { const e = document.getElementById(id); if(e) e.innerHTML = instagram; });
+
+  function switchView(name, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  document.querySelectorAll('.platform-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.platform-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+
+  function openComposer() { document.getElementById('composerModal').classList.add('open'); }
+  function closeComposer(e) { document.getElementById('composerModal').classList.remove('open'); }
+  function selectIATool(tool, el) {
+    document.querySelectorAll('.ia-tool').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const tkIcon = document.getElementById('tkConnectIcon');
+    if (tkIcon && typeof tiktok !== 'undefined') tkIcon.innerHTML = tiktok;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) handleTikTokCallback(code);
+  });
+
+  function connectTikTok() {
+    const CLIENT_KEY = 'aw2rx2ayvehjdgny';
+    const REDIRECT_URI = encodeURIComponent('https://skillora.me/app.html');
+    const SCOPE = 'user.info.basic,user.info.profile,user.info.stats,video.list';
+    const STATE = Math.random().toString(36).substring(2);
+    localStorage_safe_set('tiktok_state', STATE);
+    const authUrl = 'https://www.tiktok.com/v2/auth/authorize/' +
+      '?client_key=' + CLIENT_KEY + '&scope=' + SCOPE + '&response_type=code' +
+      '&redirect_uri=' + REDIRECT_URI + '&state=' + STATE;
+    window.location.href = authUrl;
+  }
+
+  async function handleTikTokCallback(code) {
+    const card = document.getElementById('tiktokConnect');
+    if (card) card.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--white);">⏳ Connexion à TikTok en cours...</div>';
+    try {
+      const res = await fetch(SB_URL + '/functions/v1/tiktok-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY, 'apikey': SB_KEY },
+        body: JSON.stringify({ code: code })
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        const u = data.user;
+        if (card) {
+          card.classList.add('connected');
+          card.innerHTML =
+            '<div class="tk-head"><div class="tk-icon">' + (typeof tiktok !== 'undefined' ? tiktok : '✅') + '</div>' +
+            '<div class="tk-text"><h3>' + (u.display_name || 'Compte TikTok') + ' ✅</h3><p>Compte connecté avec succès</p></div></div>' +
+            '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;margin-top:1rem;">' +
+              tkStat('👥', u.follower_count, 'Abonnés') + tkStat('❤️', u.likes_count, 'Likes') +
+              tkStat('🎬', u.video_count, 'Vidéos') + tkStat('➡️', u.following_count, 'Abonnements') + '</div>';
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else {
+        if (card) card.innerHTML = '<div style="text-align:center;padding:1rem;color:#ff6b4a;">❌ Erreur : ' + (data.error || 'connexion échouée') + '</div>';
+      }
+    } catch (err) {
+      if (card) card.innerHTML = '<div style="text-align:center;padding:1rem;color:#ff6b4a;">❌ Erreur de connexion. Réessaie.</div>';
+    }
+  }
+
+  function tkStat(icon, value, label) {
+    return '<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:.8rem;text-align:center;">' +
+      '<div style="font-size:1.2rem;">' + icon + '</div>' +
+      '<div style="font-family:\'Fraunces\',serif;font-weight:800;font-size:1.2rem;">' + (value != null ? value.toLocaleString() : '—') + '</div>' +
+      '<div style="font-size:.7rem;color:var(--muted);">' + label + '</div></div>';
+  }
+
+  function localStorage_safe_set(k, v) { try { window.localStorage.setItem(k, v); } catch(e){} }
+
+  async function sendTestEmail() {
+    const email = document.getElementById('emailInput').value.trim();
+    const status = document.getElementById('emailStatus');
+    if (!email || !email.includes('@')) {
+      status.style.color = '#ff6b4a'; status.textContent = 'Entre une adresse email valide.'; return;
+    }
+    status.style.color = 'var(--muted)'; status.textContent = '⏳ Activation en cours...';
+    try {
+      const res = await fetch(SB_URL + '/functions/v1/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY, 'apikey': SB_KEY },
+        body: JSON.stringify({
+          to: email,
+          subject: '🎯 Ton plan du jour Skillora',
+          message: '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#0b1020;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">'
+            + '<div style="background:linear-gradient(135deg,#2f7bff,#1857c4);padding:28px 24px;"><div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">Skillora</div></div>'
+            + '<div style="padding:28px 24px;color:#eef2fb;">'
+            + '<h1 style="font-size:22px;margin:0 0 14px;color:#fff;">Bienvenue, ' + email.split('@')[0] + ' 🎉</h1>'
+            + '<p style="color:#aab4cc;line-height:1.6;margin:0 0 16px;">Ton plan quotidien est activé. À partir de maintenant, tu recevras ici chaque jour :</p>'
+            + '<p style="color:#eef2fb;line-height:1.9;margin:0 0 20px;">🎯 Ta mission TikTok du jour<br>✍️ Un script prêt à filmer<br>🔥 Tes rappels pour garder ta série</p>'
+            + '<div style="background:rgba(47,123,255,0.12);border:1px solid rgba(47,123,255,0.25);border-radius:12px;padding:16px;color:#9bc0ff;font-size:14px;line-height:1.6;">Astuce : ouvre l\'app chaque matin pour cocher ta mission et faire grimper ta série.</div>'
+            + '<p style="color:#56627e;font-size:13px;margin:24px 0 0;">— L\'équipe Skillora</p>'
+            + '</div></div>'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('emailForm').style.display = 'none';
+        document.getElementById('emailSuccess').classList.add('show');
+      } else {
+        status.style.color = '#ff6b4a'; status.textContent = '❌ ' + (data.error || JSON.stringify(data));
+      }
+    } catch (err) {
+      status.style.color = '#ff6b4a'; status.textContent = '❌ Erreur de connexion. Réessaie.';
+    }
+  }
+</script>
+</body>
+</html>

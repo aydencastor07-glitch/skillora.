@@ -1,0 +1,83 @@
+<section class="sk-proof">
+  <div class="sk-proof-head">
+    <span class="sk-proof-kicker">Résultats réels</span>
+    <h2 class="sk-proof-title">Ils ont appliqué nos stratégies.</h2>
+    <p class="sk-proof-sub">Des vidéos qui explosent. Voici quelques résultats obtenus avec la méthode Skillora.</p>
+  </div>
+
+  <div class="sk-fan" id="skFan">
+    <div class="sk-fan-card" style="--i:0">
+      <div class="sk-shot">
+        <img src="https://raw.githubusercontent.com/aydencastor07-glitch/skillora./main/Screenshot.jpg" alt="Résultat Skillora" loading="lazy">
+        <div class="sk-views"><span class="eye">👁</span> 14M</div>
+      </div>
+      <div class="sk-tag">A appliqué nos stratégies</div>
+    </div>
+    <div class="sk-fan-card sk-featured" style="--i:1">
+      <div class="sk-shot">
+        <img src="https://raw.githubusercontent.com/aydencastor07-glitch/skillora./main/Screenshot4.jpg" alt="Résultat Skillora" loading="lazy">
+        <div class="sk-views"><span class="eye">👁</span> 30,2M</div>
+      </div>
+      <div class="sk-tag">A appliqué nos stratégies</div>
+    </div>
+    <div class="sk-fan-card" style="--i:2">
+      <div class="sk-shot">
+        <img src="https://raw.githubusercontent.com/aydencastor07-glitch/skillora./main/Screenshot3.jpg" alt="Résultat Skillora" loading="lazy">
+        <div class="sk-views"><span class="eye">👁</span> 15,5M</div>
+      </div>
+      <div class="sk-tag">A appliqué nos stratégies</div>
+    </div>
+    <div class="sk-fan-card" style="--i:3">
+      <div class="sk-shot">
+        <img src="https://raw.githubusercontent.com/aydencastor07-glitch/skillora./main/Screenshot2.jpg" alt="Résultat Skillora" loading="lazy">
+        <div class="sk-views"><span class="eye">👁</span> 5,1M</div>
+      </div>
+      <div class="sk-tag">A appliqué nos stratégies</div>
+    </div>
+    <div class="sk-fan-card" style="--i:4">
+      <div class="sk-shot">
+        <img src="https://raw.githubusercontent.com/aydencastor07-glitch/skillora./main/Screenshot5.png" alt="Résultat Skillora" loading="lazy">
+        <div class="sk-views"><span class="eye">👁</span> 2,1M</div>
+      </div>
+      <div class="sk-tag">A appliqué nos stratégies</div>
+    </div>
+  </div>
+
+  <p class="sk-proof-foot">Résultats obtenus par des membres ayant appliqué la méthode. Les résultats varient selon le travail fourni.</p>
+</section>
+
+<style>
+  .sk-proof { max-width: 1100px; margin: 0 auto; padding: 70px 20px 80px; text-align: center; font-family: 'Sora', sans-serif; }
+  .sk-proof-kicker { display:inline-block; font-size:.72rem; letter-spacing:0.16em; text-transform:uppercase; color:#5e9bff; font-weight:600; margin-bottom:14px; padding:6px 14px; border:1px solid rgba(47,123,255,0.3); border-radius:999px; }
+  .sk-proof-title { font-family:'Fraunces',serif; font-weight:700; font-size:2.1rem; line-height:1.1; letter-spacing:-0.02em; color:#eef2fb; margin-bottom:12px; }
+  .sk-proof-sub { color:#8a97b4; font-size:1rem; max-width:520px; margin:0 auto 50px; line-height:1.5; }
+  .sk-fan { display:flex; justify-content:center; align-items:flex-end; gap:0; padding:30px 0 10px; perspective:1400px; }
+  .sk-fan-card { position:relative; width:200px; flex:0 0 auto; margin-left:-46px; transform: rotate(calc((var(--i) - 2) * 7deg)) translateY(calc(var(--dist, 0) * 1px)); transform-origin:bottom center; transition: transform .45s cubic-bezier(.2,.7,.3,1), box-shadow .45s; z-index: calc(10 - var(--i)); cursor:pointer; }
+  .sk-fan-card:first-child { margin-left:0; }
+  .sk-fan-card:nth-child(1){ --dist:18; }
+  .sk-fan-card:nth-child(2){ --dist:4; }
+  .sk-fan-card:nth-child(3){ --dist:0; }
+  .sk-fan-card:nth-child(4){ --dist:4; }
+  .sk-fan-card:nth-child(5){ --dist:18; }
+  .sk-shot { position:relative; border-radius:20px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); box-shadow:0 18px 45px rgba(0,0,0,0.5); background:#0b1020; aspect-ratio:9/16; }
+  .sk-shot img { width:100%; height:100%; object-fit:cover; display:block; }
+  .sk-views { position:absolute; bottom:10px; right:10px; display:flex; align-items:center; gap:5px; background:rgba(0,0,0,0.62); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); color:#fff; font-weight:700; font-size:.9rem; padding:6px 11px; border-radius:999px; border:1px solid rgba(255,255,255,0.14); }
+  .sk-views .eye { font-size:.85rem; }
+  .sk-tag { margin-top:12px; font-size:.74rem; color:#8a97b4; opacity:0; transition:opacity .4s; }
+  .sk-featured { width:228px; z-index:20; }
+  .sk-featured .sk-shot { border-color:rgba(47,123,255,0.55); box-shadow:0 22px 60px rgba(47,123,255,0.35); }
+  .sk-featured .sk-views { background:linear-gradient(135deg,#2f7bff,#1857c4); border-color:rgba(255,255,255,0.25); }
+  .sk-fan-card:hover { transform: rotate(0deg) translateY(-22px) scale(1.06); z-index:50; }
+  .sk-fan-card:hover .sk-tag { opacity:1; }
+  .sk-fan-card:hover .sk-shot { box-shadow:0 30px 70px rgba(47,123,255,0.4); border-color:rgba(94,155,255,0.6); }
+  .sk-proof-foot { margin-top:48px; font-size:.78rem; color:#56627e; max-width:480px; margin-left:auto; margin-right:auto; line-height:1.5; }
+  @media (max-width: 720px) {
+    .sk-proof-title { font-size:1.6rem; }
+    .sk-fan { justify-content:flex-start; align-items:stretch; gap:14px; overflow-x:auto; padding:10px 20px 24px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; perspective:none; }
+    .sk-fan::-webkit-scrollbar { display:none; }
+    .sk-fan-card { margin-left:0 !important; width:150px; transform:none !important; scroll-snap-align:center; z-index:1 !important; }
+    .sk-featured { width:150px; }
+    .sk-fan-card .sk-tag { opacity:1; }
+    .sk-fan-card:hover { transform:none !important; }
+  }
+</style>

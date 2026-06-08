@@ -540,6 +540,26 @@
         </select>
       </div>
 
+      <div class="field">
+        <label>Ton niveau en montage vidéo ?</label>
+        <select id="montageLevel">
+          <option value="">Sélectionne ton niveau</option>
+          <option value="jamais">Jamais fait de montage</option>
+          <option value="debutant">Débutant (quelques essais)</option>
+          <option value="ok">Je me débrouille</option>
+          <option value="expert">Expert</option>
+        </select>
+        <div class="error-msg" id="montageError">Merci de sélectionner ton niveau.</div>
+      </div>
+
+      <div class="field">
+        <label>Dans quel pays vis-tu ?</label>
+        <select id="country">
+          <option value="">Sélectionne ton pays</option>
+        </select>
+        <div class="error-msg" id="countryError">Merci de sélectionner ton pays.</div>
+      </div>
+
       <button class="btn-primary" onclick="validateStep3()">Voir mes recommandations →</button>
     </div>
 
@@ -573,6 +593,29 @@
   let currentStep = 1;
   const totalSteps = 4;
   let selectedTime = null;
+
+  // Pays éligibles TikTok Shop (2026) + monétisation directe (Creator Rewards)
+  const SHOP_COUNTRIES = ['US','GB','DE','FR','IT','ES','IE','JP','SG','ID','MY','TH','VN','PH','MX','BR','AT','BE','NL','PL'];
+  const REWARDS_COUNTRIES = ['US','GB','DE','FR','BR','JP','KR','AU','CA','MX','ES','IT'];
+  const COUNTRIES = [
+    ['FR','France'],['BE','Belgique'],['CH','Suisse'],['CA','Canada'],['US','États-Unis'],
+    ['GB','Royaume-Uni'],['DE','Allemagne'],['ES','Espagne'],['IT','Italie'],['IE','Irlande'],
+    ['NL','Pays-Bas'],['AT','Autriche'],['PL','Pologne'],['PT','Portugal'],['LU','Luxembourg'],
+    ['MA','Maroc'],['DZ','Algérie'],['TN','Tunisie'],['SN','Sénégal'],['CI','Côte d\'Ivoire'],
+    ['CM','Cameroun'],['CD','RD Congo'],['ML','Mali'],['BF','Burkina Faso'],['GN','Guinée'],
+    ['JP','Japon'],['KR','Corée du Sud'],['SG','Singapour'],['ID','Indonésie'],['MY','Malaisie'],
+    ['TH','Thaïlande'],['VN','Vietnam'],['PH','Philippines'],['MX','Mexique'],['BR','Brésil'],
+    ['AU','Australie'],['AE','Émirats arabes unis'],['SA','Arabie saoudite'],['OTHER','Autre pays']
+  ];
+  function fillCountries() {
+    var sel = document.getElementById('country');
+    if (!sel) return;
+    COUNTRIES.forEach(function(c){
+      var o = document.createElement('option');
+      o.value = c[0]; o.textContent = c[1];
+      sel.appendChild(o);
+    });
+  }
 
   function updateProgress() {
     const pct = ((currentStep - 1) / (totalSteps - 1)) * 100;
@@ -672,44 +715,77 @@
   function validateStep3() {
     const income = document.getElementById('incomeGoal').value;
     const time = document.getElementById('timeGoal').value;
+    const montage = document.getElementById('montageLevel').value;
+    const country = document.getElementById('country').value;
     let valid = true;
 
     document.getElementById('incomeError').style.display = !income ? 'block' : 'none';
     document.getElementById('timeGoalError').style.display = !time ? 'block' : 'none';
+    document.getElementById('montageError').style.display = !montage ? 'block' : 'none';
+    document.getElementById('countryError').style.display = !country ? 'block' : 'none';
 
-    if (!income || !time) return;
+    if (!income || !time || !montage || !country) return;
 
-    generateRecommendations(income, time);
+    // map du temps choisi (étape 2) vers un code simple
+    var timeCode = 'moyen';
+    if (selectedTime && selectedTime.indexOf("Moins") >= 0) timeCode = 'peu';
+    else if (selectedTime && selectedTime.indexOf("Plus de 3") >= 0) timeCode = 'beaucoup';
+
+    var shopOk = SHOP_COUNTRIES.indexOf(country) >= 0;
+    var rewardsOk = REWARDS_COUNTRIES.indexOf(country) >= 0;
+
+    // Stocke le profil pour que l'app personnalise les suggestions
+    var onboarding = {
+      montage: montage,           // jamais | debutant | ok | expert
+      time: timeCode,             // peu | moyen | beaucoup
+      country: country,
+      shop_eligible: shopOk,
+      rewards_eligible: rewardsOk,
+      country_eligible: (shopOk || rewardsOk),
+      income_goal: income
+    };
+    try { localStorage.setItem('skillora_onboarding', JSON.stringify(onboarding)); } catch(e){}
+
+    generateRecommendations(income, time, onboarding);
     nextStep();
   }
 
-  function generateRecommendations(income, timeGoal) {
+  function generateRecommendations(income, timeGoal, onboarding) {
     const name = document.getElementById('fullName').value.split(' ')[0];
     document.getElementById('recommendTitle').textContent = `Parfait ${name} ! Voici ton plan 🎯`;
+    onboarding = onboarding || {};
 
-    const models = [
-      {
-        recommended: true,
-        icon: '📱',
-        title: 'TikTok Shop + Contenu Faceless',
-        desc: 'Crée du contenu sans te montrer, vends des produits directement sur TikTok. Idéal pour démarrer rapidement avec peu de temps.',
-        tags: ['Faceless', 'Tendance 2026', 'Revenu rapide', 'Sans caméra']
-      },
-      {
-        recommended: false,
-        icon: '🎬',
-        title: 'YouTube Automation',
-        desc: 'Lance une chaîne YouTube automatisée sur une niche rentable. Tu délègues la création, tu encaisses les revenus publicitaires.',
-        tags: ['Passif', 'Long terme', 'Évolutif', 'Sans se montrer']
-      },
-      {
-        recommended: false,
-        icon: '📸',
-        title: 'Instagram Reels Monétisation',
-        desc: 'Construis une audience sur Instagram avec des Reels viraux et monétise via les partenariats de marques et le programme bonus.',
-        tags: ['Viral', 'Partenariats', 'Bonus Meta', 'Croissance rapide']
-      }
-    ];
+    var models;
+    if (onboarding.country_eligible === false) {
+      // Pays NON éligible : on met en avant les modèles qui marchent partout
+      document.getElementById('recommendSubtitle').textContent =
+        'Ton pays n\'a pas encore la monétisation directe TikTok — pas grave, voici les modèles qui marchent partout pour toi.';
+      models = [
+        { recommended:true, icon:'🤝', title:'Partenariats de marques + Contenu Faceless',
+          desc:'Construis une audience sur une niche rentable et gagne via les partenariats de marques — ça marche dans tous les pays, sans programme officiel.',
+          tags:['Partout','Faceless','Partenariats','Sans pays éligible'] },
+        { recommended:false, icon:'🎁', title:'TikTok LIVE (cadeaux)',
+          desc:'Les cadeaux LIVE sont dispos dans 90+ pays. Anime des lives sur ta passion et reçois des cadeaux convertibles en argent.',
+          tags:['90+ pays','Direct','Communauté'] },
+        { recommended:false, icon:'🎬', title:'YouTube Automation',
+          desc:'Chaîne YouTube automatisée sur une niche rentable. Revenus publicitaires accessibles dans la plupart des pays.',
+          tags:['Passif','Mondial','Évolutif'] }
+      ];
+    } else {
+      document.getElementById('recommendSubtitle').textContent =
+        'Bonne nouvelle : ton pays est éligible ! Voici les 3 modèles parfaits pour toi.';
+      models = [
+        { recommended:true, icon:'📱', title:'TikTok Shop + Contenu Faceless',
+          desc:'Crée du contenu sans te montrer, vends des produits directement sur TikTok. Idéal pour démarrer vite avec peu de temps.',
+          tags:['Faceless','Tendance 2026','Revenu rapide','Sans caméra'] },
+        { recommended:false, icon:'🎬', title:'YouTube Automation',
+          desc:'Lance une chaîne YouTube automatisée sur une niche rentable. Tu délègues la création, tu encaisses les revenus publicitaires.',
+          tags:['Passif','Long terme','Évolutif'] },
+        { recommended:false, icon:'📸', title:'Instagram Reels Monétisation',
+          desc:'Construis une audience avec des Reels viraux et monétise via les partenariats et le programme bonus.',
+          tags:['Viral','Partenariats','Croissance rapide'] }
+      ];
+    }
 
     const container = document.getElementById('resultCards');
     container.innerHTML = models.map(m => `
@@ -725,6 +801,9 @@
   function goToDashboard() {
     window.location.href = 'app.html';
   }
+
+  // Init
+  fillCountries();
 </script>
 </body>
 </html>

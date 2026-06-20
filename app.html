@@ -1100,8 +1100,8 @@
   .pub-restart{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:20px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Sora';font-weight:600;font-size:.86rem;padding:13px;border-radius:13px;cursor:pointer;transition:border-color .15s,color .15s;}
   .pub-restart:active{transform:scale(0.99);}
   .pub-restart:hover{border-color:var(--border2);color:#fff;}
-  .pub-cap[contenteditable]{outline:none;border-radius:8px;transition:background .15s;}
-  .pub-cap[contenteditable]:focus{background:rgba(47,123,255,0.08);box-shadow:0 0 0 1px rgba(47,123,255,0.3);padding:6px 8px;margin-left:-8px;margin-right:-8px;}
+  .pub-cap[contenteditable],.pub-tags[contenteditable]{outline:none;border-radius:8px;transition:background .15s;cursor:text;}
+  .pub-cap[contenteditable]:focus,.pub-tags[contenteditable]:focus{background:rgba(47,123,255,0.08);box-shadow:0 0 0 1px rgba(47,123,255,0.3);padding:6px 8px;margin-left:-8px;margin-right:-8px;}
 
   /* --- Toast --- */
   .pub-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(18px);background:#10182c;border:1px solid var(--border2);color:#fff;font-family:'Sora';font-weight:500;font-size:.88rem;padding:13px 19px;border-radius:13px;box-shadow:0 14px 34px rgba(0,0,0,0.55);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:300;max-width:88%;text-align:center;}
@@ -1543,10 +1543,10 @@
       <!-- Description (légende) -->
       <div class="pub-card">
         <div class="pub-ey">Description de ta vidéo</div>
-        <p class="pub-hint2">C'est le texte qui accompagnera ta vidéo (la description sous la vidéo). Skillora te la propose — appuie dessus pour la modifier.</p>
+        <p class="pub-hint2">C'est le texte qui accompagnera ta vidéo. Skillora te le propose — appuie sur la description <b>ou les hashtags</b> pour les modifier.</p>
         <div class="pub-capbox">
           <p class="pub-cap" id="pubCap" contenteditable="true" spellcheck="false"></p>
-          <p class="pub-tags" id="pubTags"></p>
+          <p class="pub-tags" id="pubTags" contenteditable="true" spellcheck="false"></p>
         </div>
         <button class="pub-mini" onclick="pubCopyDesc()">📋 Copier la description</button>
       </div>
@@ -4566,8 +4566,8 @@
 
   /* ── Plateformes (sélection cliquable) ── */
   var PUB_PLATS = [
-    { key: 'tiktok', name: 'TikTok', bg: '#010101', connected: false, selected: true },
-    { key: 'instagram', name: 'Instagram', bg: 'linear-gradient(135deg,#feda75,#d62976 45%,#962fbf 75%,#4f5bd5)', connected: false, selected: true },
+    { key: 'tiktok', name: 'TikTok', bg: '#010101', connected: false, selected: false },
+    { key: 'instagram', name: 'Instagram', bg: 'linear-gradient(135deg,#feda75,#d62976 45%,#962fbf 75%,#4f5bd5)', connected: false, selected: false },
     { key: 'facebook', name: 'Facebook', bg: '#1877F2', connected: false, selected: false },
     { key: 'youtube', name: 'YouTube', bg: '#FF0000', connected: false, selected: false }
   ];
@@ -4595,8 +4595,13 @@
     }).join('');
     pubSyncPublishBtn();
   }
-  function pubTogglePlat(i) { PUB_PLATS[i].selected = !PUB_PLATS[i].selected; pubRenderPlatforms(); }
-  function pubConnectSoon(e) { if (e) e.stopPropagation(); pubToast('🔗 La connexion de tes comptes arrive bientôt !'); }
+  function pubTogglePlat(i) {
+    var p = PUB_PLATS[i];
+    if (!p.connected) { pubConnectSoon(); return; } // pas connecté → on demande la connexion avant de sélectionner
+    p.selected = !p.selected;
+    pubRenderPlatforms();
+  }
+  function pubConnectSoon(e) { if (e) e.stopPropagation(); pubToast('🔗 Connecte ton compte pour pouvoir publier — bientôt avec les forfaits Skillora !'); }
 
   function pubSyncPublishBtn() {
     var sel = PUB_PLATS.filter(function (p) { return p.selected; });

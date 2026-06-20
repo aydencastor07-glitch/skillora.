@@ -967,6 +967,109 @@
     box-shadow:0 10px 30px rgba(47,123,255,0.5); -webkit-tap-highlight-color:transparent; }
   .eb-cover-deco { position:absolute; bottom:24px; font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(200,214,240,0.4); }
 
+  /* ═══════════ COMPTE / PROFIL PRO ═══════════ */
+  .acc-hero { position:relative; border-radius:24px; overflow:hidden; margin-bottom:16px; border:1px solid var(--border); background:linear-gradient(165deg,#0c1430,#070b16); }
+  .acc-hero-cover { height:96px; background:linear-gradient(120deg,#1857c4,#2f7bff 45%,#3ddc84); position:relative; }
+  .acc-hero-cover::after { content:''; position:absolute; inset:0; background:radial-gradient(120px 120px at 80% 0,rgba(255,255,255,0.25),transparent 70%); }
+  .acc-hero-body { padding:0 18px 18px; margin-top:-40px; position:relative; }
+  .acc-av { width:84px; height:84px; border-radius:24px; background:linear-gradient(135deg,var(--blue),#1857c4); display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:800; font-size:2rem; color:#fff; border:3px solid var(--bg); box-shadow:0 12px 30px rgba(0,0,0,0.45); }
+  .acc-name-row { display:flex; align-items:center; gap:9px; margin-top:13px; }
+  .acc-name { font-family:'Fraunces',serif; font-weight:800; font-size:1.45rem; color:var(--white); line-height:1.1; }
+  .acc-edit { flex:0 0 auto; width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--muted); font-size:.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+  .acc-edit:active { transform:scale(0.9); } .acc-edit:hover { color:var(--white); border-color:var(--blue); }
+  .acc-email { font-size:.85rem; color:var(--muted); margin-top:3px; }
+  .acc-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .acc-chip { display:inline-flex; align-items:center; gap:6px; font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; padding:6px 11px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:var(--muted); }
+  .acc-chip.plan-starter { color:var(--blue-light); border-color:rgba(47,123,255,0.4); background:rgba(47,123,255,0.1); }
+  .acc-chip.plan-growth { color:var(--blue-light); border-color:rgba(47,123,255,0.5); background:rgba(47,123,255,0.16); }
+  .acc-chip.plan-elite { color:#ffd479; border-color:rgba(245,166,35,0.45); background:rgba(245,166,35,0.12); }
+
+  .acc-name-edit { display:none; gap:8px; margin-top:13px; }
+  .acc-name-edit.on { display:flex; }
+  .acc-name-edit input { flex:1; min-width:0; background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:10px 13px; color:var(--white); font-family:'Sora',sans-serif; font-size:.95rem; outline:none; }
+  .acc-name-edit input:focus { border-color:var(--blue); }
+  .acc-name-edit button { flex:0 0 auto; border:none; border-radius:11px; padding:0 15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; cursor:pointer; }
+  .acc-save { background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; }
+  .acc-cancel { background:rgba(255,255,255,0.06); color:var(--muted); }
+
+  .acc-card { background:linear-gradient(160deg,var(--surface),var(--bg2)); border:1px solid var(--border); border-radius:20px; padding:18px; margin-bottom:14px; }
+  .acc-card-h { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .acc-card-t { font-family:'Fraunces',serif; font-weight:800; font-size:1.08rem; color:var(--white); display:flex; align-items:center; gap:8px; }
+  .acc-card-link { background:none; border:none; color:var(--blue-light); font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; cursor:pointer; }
+  .acc-card-link:active { transform:scale(0.96); }
+
+  /* Plan card */
+  .acc-plan { background:linear-gradient(160deg,rgba(47,123,255,0.14),rgba(8,13,26,0.9)); border-color:var(--border2); }
+  .acc-plan.elite { background:linear-gradient(160deg,rgba(245,166,35,0.12),rgba(8,13,26,0.9)); border-color:rgba(245,166,35,0.35); }
+  .acc-plan-top { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; }
+  .acc-plan-ic { flex:0 0 46px; width:46px; height:46px; border-radius:14px; background:linear-gradient(135deg,var(--blue),#1857c4); display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 8px 22px rgba(47,123,255,0.35); }
+  .acc-plan.elite .acc-plan-ic { background:linear-gradient(135deg,#f5c043,#e0962a); box-shadow:0 8px 22px rgba(245,166,35,0.35); }
+  .acc-plan-name { font-family:'Fraunces',serif; font-weight:800; font-size:1.25rem; color:var(--white); }
+  .acc-plan-sub { font-size:.82rem; color:var(--muted); margin-top:2px; }
+  .acc-plan-cta { width:100%; margin-top:4px; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:13px; padding:14px; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; cursor:pointer; box-shadow:0 8px 24px rgba(47,123,255,0.3); }
+  .acc-plan-cta:active { transform:scale(0.98); }
+  .acc-plan-cta.manage { background:rgba(255,255,255,0.06); color:var(--white); border:1px solid var(--border); box-shadow:none; }
+
+  /* Usage meters */
+  .acc-usage { display:flex; flex-direction:column; gap:14px; margin-bottom:16px; }
+  .acc-use-row { }
+  .acc-use-top { display:flex; align-items:center; justify-content:space-between; font-size:.84rem; margin-bottom:7px; }
+  .acc-use-l { color:var(--white); font-family:'Sora',sans-serif; font-weight:600; display:flex; align-items:center; gap:7px; }
+  .acc-use-v { font-family:'Sora',sans-serif; font-weight:700; color:var(--muted); font-size:.8rem; }
+  .acc-use-v b { color:var(--white); }
+  .acc-use-bar { height:8px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden; }
+  .acc-use-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#4d8fff,#1a6fff); transition:width .8s cubic-bezier(.2,.7,.3,1); }
+  .acc-use-fill.green { background:linear-gradient(90deg,#3ddc84,#1ba85f); }
+  .acc-use-fill.orange { background:linear-gradient(90deg,#ffb86b,#ff9f4a); }
+  .acc-use-fill.full { background:linear-gradient(90deg,#ff7a59,#ff4d4d); }
+  .acc-use-inf { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; color:#ffd479; }
+
+  /* Streak / stats */
+  .acc-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .acc-stat { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:15px; padding:14px 8px; text-align:center; }
+  .acc-stat-v { font-family:'Fraunces',serif; font-weight:800; font-size:1.5rem; color:var(--white); line-height:1; }
+  .acc-stat-v .fl { font-size:1.1rem; }
+  .acc-stat-l { font-size:.68rem; color:var(--muted); margin-top:6px; line-height:1.25; }
+  .acc-streak-banner { display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,rgba(255,159,74,0.14),rgba(255,77,77,0.06)); border:1px solid rgba(255,159,74,0.3); border-radius:14px; padding:13px 14px; margin-top:14px; }
+  .acc-streak-fire { font-size:1.7rem; }
+  .acc-streak-tx { flex:1; min-width:0; font-size:.82rem; color:var(--white); line-height:1.4; }
+  .acc-streak-tx b { color:var(--orange); }
+
+  /* Settings toggles */
+  .acc-set { display:flex; align-items:center; gap:13px; padding:13px 0; border-bottom:1px solid var(--border); }
+  .acc-set:last-child { border-bottom:none; padding-bottom:0; }
+  .acc-set:first-child { padding-top:0; }
+  .acc-set-ic { flex:0 0 38px; width:38px; height:38px; border-radius:11px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .acc-set-tx { flex:1; min-width:0; }
+  .acc-set-t { font-family:'Sora',sans-serif; font-weight:600; font-size:.92rem; color:var(--white); }
+  .acc-set-s { font-size:.76rem; color:var(--muted); margin-top:2px; line-height:1.35; }
+  .acc-toggle { flex:0 0 auto; width:48px; height:28px; border-radius:99px; background:rgba(255,255,255,0.1); border:1px solid var(--border); position:relative; cursor:pointer; transition:background .25s; }
+  .acc-toggle::after { content:''; position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%; background:#fff; transition:transform .25s; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
+  .acc-toggle.on { background:linear-gradient(135deg,#4d8fff,#1a6fff); border-color:transparent; }
+  .acc-toggle.on::after { transform:translateX(20px); }
+
+  /* Referral */
+  .acc-ref { background:linear-gradient(160deg,rgba(61,220,132,0.1),rgba(8,13,26,0.9)); border-color:rgba(61,220,132,0.3); }
+  .acc-ref-code { display:flex; align-items:center; gap:9px; background:var(--bg); border:1px dashed rgba(61,220,132,0.45); border-radius:12px; padding:12px 14px; margin-bottom:12px; }
+  .acc-ref-code code { flex:1; min-width:0; font-family:'Sora',sans-serif; font-weight:800; font-size:1rem; color:var(--green); letter-spacing:.05em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .acc-ref-copy { flex:0 0 auto; background:rgba(61,220,132,0.16); border:1px solid rgba(61,220,132,0.4); color:var(--green); border-radius:9px; padding:7px 13px; font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; cursor:pointer; }
+  .acc-ref-copy:active { transform:scale(0.95); }
+  .acc-ref-share { width:100%; background:linear-gradient(135deg,#3ddc84,#1ba85f); color:#04240f; border:none; border-radius:13px; padding:13px; font-family:'Sora',sans-serif; font-weight:800; font-size:.92rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .acc-ref-share:active { transform:scale(0.98); }
+
+  /* Links list */
+  .acc-links { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; margin-bottom:14px; }
+  .acc-link { display:flex; align-items:center; gap:13px; padding:15px 16px; border-bottom:1px solid var(--border); color:var(--white); font-family:'Sora',sans-serif; font-weight:600; font-size:.92rem; cursor:pointer; text-decoration:none; transition:background .15s; }
+  .acc-link:last-child { border-bottom:none; }
+  .acc-link:active { background:rgba(255,255,255,0.03); }
+  .acc-link-ic { flex:0 0 22px; font-size:1.15rem; text-align:center; }
+  .acc-link-arr { margin-left:auto; color:var(--muted2); font-size:1.05rem; }
+  .acc-signout { width:100%; background:rgba(255,77,77,0.08); color:#ff6b6b; border:1px solid rgba(255,77,77,0.25); border-radius:14px; padding:15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; cursor:pointer; transition:all .15s; }
+  .acc-signout:active { transform:scale(0.98); }
+  .acc-version { text-align:center; font-size:.72rem; color:var(--muted2); margin-top:16px; }
+  .acc-toast { position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); z-index:200; background:var(--surface2); border:1px solid var(--border2); color:var(--white); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; padding:11px 18px; border-radius:99px; box-shadow:0 12px 30px rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; }
+  .acc-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
 </style>
 </head>
 <body>
@@ -1275,21 +1378,40 @@
   </div>
 
   <div class="view" id="view-profile">
-    <h1 class="page-title">Profil</h1>
-    <p class="page-sub">Ton compte et ton abonnement.</p>
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1857c4);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:800;font-size:1.5rem;" id="avatarInitial">S</div>
-        <div><h3 style="font-size:1.2rem;" id="profileName">Créateur</h3><p style="color:var(--muted);font-size:.85rem;" id="profileEmail">—</p></div>
+    <h1 class="page-title">Compte</h1>
+    <p class="page-sub">Ton profil, ton abonnement et tes réglages.</p>
+
+    <!-- En-tête premium -->
+    <div class="acc-hero">
+      <div class="acc-hero-cover"></div>
+      <div class="acc-hero-body">
+        <div class="acc-av" id="avatarInitial">S</div>
+        <div class="acc-name-row">
+          <div class="acc-name" id="profileName">Créateur</div>
+          <button class="acc-edit" onclick="toggleNameEdit(true)" title="Modifier mon nom">✎</button>
+        </div>
+        <div class="acc-name-edit" id="accNameEdit">
+          <input type="text" id="accNameInput" placeholder="Ton nom" maxlength="40" autocomplete="off">
+          <button class="acc-save" onclick="saveProfileName()">OK</button>
+          <button class="acc-cancel" onclick="toggleNameEdit(false)">✕</button>
+        </div>
+        <div class="acc-email" id="profileEmail">—</div>
+        <div class="acc-chips" id="accChips"></div>
       </div>
     </div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div><h4 style="font-family:'Sora';font-weight:600;">Abonnement</h4><p style="color:var(--muted);font-size:.85rem;margin-top:3px;">Plan Starter</p></div>
-        <button class="btn-primary" style="width:auto;padding:11px 18px;font-size:.9rem;" onclick="openUpgrade()">Améliorer</button>
-      </div>
+
+    <!-- Contenu dynamique : plan, usage, série, réglages, parrainage -->
+    <div id="accDynamic"></div>
+
+    <!-- Liens -->
+    <div class="acc-links">
+      <a class="acc-link" href="terms.html"><span class="acc-link-ic">📄</span> Conditions d'utilisation <span class="acc-link-arr">→</span></a>
+      <a class="acc-link" href="privacy.html"><span class="acc-link-ic">🔒</span> Confidentialité <span class="acc-link-arr">→</span></a>
+      <div class="acc-link" onclick="openCoachContact()"><span class="acc-link-ic">💬</span> Aide &amp; support <span class="acc-link-arr">→</span></div>
     </div>
-    <button class="btn-ghost" style="background:var(--surface);color:var(--white);border:1px solid var(--border);" onclick="signOut()">Se déconnecter</button>
+
+    <button class="acc-signout" onclick="signOut()">Se déconnecter</button>
+    <div class="acc-version">Skillora · v2.0</div>
   </div>
 
   <div class="modal" id="composerModal" onclick="closeComposer(event)">
@@ -1497,6 +1619,7 @@
   })();
 
   function applyUser(user) {
+    window._authUser = user;
     const name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email ? user.email.split('@')[0] : 'Créateur');
     const greetEl = document.querySelector('#view-home .page-title');
     if (greetEl) greetEl.textContent = 'Bonjour ' + name + ' 👋';
@@ -1505,6 +1628,7 @@
     const pn = document.getElementById('profileName'); if (pn) pn.textContent = name;
     const pe = document.getElementById('profileEmail'); if (pe && user.email) pe.textContent = user.email;
     const av = document.getElementById('avatarInitial'); if (av) av.textContent = (name[0] || 'S').toUpperCase();
+    try { bumpStreak(); } catch(e){}
     checkOnboarding(user);
     loadHomeDashboard();
     loadUserPlan();        // charge le plan réel depuis Stripe/Supabase
@@ -1542,6 +1666,7 @@
       if (typeof updateQuotaLabel === 'function') updateQuotaLabel();
       if (typeof updateCoachLock === 'function') updateCoachLock();
       if (typeof renderProfiles === 'function') { try { renderProfiles(); } catch(e){} }
+      if (typeof renderProfilePage === 'function' && document.getElementById('view-profile') && document.getElementById('view-profile').classList.contains('active')) { try { renderProfilePage(); } catch(e){} }
     } catch(e){}
   }
 
@@ -2338,6 +2463,7 @@
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { redrawWorkflowSoon(); }
+    if (name === 'profile') { try { renderProfilePage(); } catch(e){} }
     window.scrollTo(0, 0);
   }
 
@@ -2349,6 +2475,220 @@
         switchView(v, null);
       }
     } catch(e) {}
+  }
+
+  /* ═══════════ COMPTE / PROFIL PRO ═══════════ */
+
+  // ── Série d'activité (streak) ──
+  function _dayStamp(d) { d = d || new Date(); return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
+  function getStreak() {
+    try { return JSON.parse(localStorage.getItem('skillora_streak') || '{"count":0,"last":"","best":0}'); }
+    catch(e){ return { count:0, last:'', best:0 }; }
+  }
+  // Incrémente la série une fois par jour (jours consécutifs)
+  function bumpStreak() {
+    var s = getStreak();
+    var today = _dayStamp();
+    if (s.last === today) return s; // déjà compté aujourd'hui
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    s.count = (s.last === _dayStamp(y)) ? (s.count || 0) + 1 : 1;
+    s.last = today;
+    s.best = Math.max(s.best || 0, s.count);
+    try { localStorage.setItem('skillora_streak', JSON.stringify(s)); } catch(e){}
+    return s;
+  }
+
+  // ── Réglages persistés ──
+  var DEFAULT_SETTINGS = { dailyEmail:true, streakReminder:true, tips:false };
+  function getSettings() {
+    try { return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(localStorage.getItem('skillora_settings') || '{}')); }
+    catch(e){ return Object.assign({}, DEFAULT_SETTINGS); }
+  }
+  function toggleSetting(key, el) {
+    var s = getSettings();
+    s[key] = !s[key];
+    try { localStorage.setItem('skillora_settings', JSON.stringify(s)); } catch(e){}
+    if (el) el.classList.toggle('on', s[key]);
+    accToast(s[key] ? 'Activé ✓' : 'Désactivé');
+  }
+
+  // ── Édition du nom ──
+  function toggleNameEdit(on) {
+    var box = document.getElementById('accNameEdit');
+    var input = document.getElementById('accNameInput');
+    if (!box) return;
+    if (on) {
+      input.value = (document.getElementById('profileName').textContent || '').trim();
+      box.classList.add('on');
+      setTimeout(function(){ input.focus(); }, 50);
+    } else { box.classList.remove('on'); }
+  }
+  async function saveProfileName() {
+    var input = document.getElementById('accNameInput');
+    var name = (input.value || '').trim();
+    if (name.length < 2) { accToast('Nom trop court'); return; }
+    document.getElementById('profileName').textContent = name;
+    var av = document.getElementById('avatarInitial'); if (av) av.textContent = name[0].toUpperCase();
+    var greet = document.querySelector('#view-home .page-title'); if (greet) greet.textContent = 'Bonjour ' + name + ' 👋';
+    toggleNameEdit(false);
+    accToast('Nom mis à jour ✓');
+    try { await sb.auth.updateUser({ data: { full_name: name } }); } catch(e){}
+  }
+
+  // ── Parrainage / partage ──
+  function referralCode() {
+    var u = window._authUser || {};
+    var base = (u.email ? u.email.split('@')[0] : 'creator').replace(/[^a-z0-9]/gi,'').toUpperCase().slice(0,6);
+    var suf = (u.id || 'x').replace(/[^a-z0-9]/gi,'').slice(-3).toUpperCase();
+    return (base || 'SKILL') + suf;
+  }
+  function copyReferral() {
+    var code = referralCode();
+    var link = location.origin + '/signup.html?ref=' + code;
+    try {
+      navigator.clipboard.writeText(link);
+      accToast('Lien copié ✓');
+    } catch(e){ accToast(link); }
+  }
+  function shareApp() {
+    var code = referralCode();
+    var link = location.origin + '/signup.html?ref=' + code;
+    var txt = 'Rejoins-moi sur Skillora pour apprendre à monétiser tes vidéos 🚀';
+    if (navigator.share) {
+      navigator.share({ title:'Skillora', text:txt, url:link }).catch(function(){});
+    } else { copyReferral(); }
+  }
+
+  // ── Petit toast ──
+  function accToast(msg) {
+    var t = document.getElementById('accToast');
+    if (!t) { t = document.createElement('div'); t.id = 'accToast'; t.className = 'acc-toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._accToastT);
+    window._accToastT = setTimeout(function(){ t.classList.remove('show'); }, 1900);
+  }
+
+  // ── Rendu de la page ──
+  function renderProfilePage() {
+    var planKey = userPlan || 'starter';
+    var planName = PLAN_NAMES[planKey] || 'Starter';
+
+    // Badges en-tête
+    var chips = document.getElementById('accChips');
+    if (chips) {
+      var since = '';
+      var u = window._authUser || {};
+      if (u.created_at) {
+        var d = new Date(u.created_at);
+        var months = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+        since = months[d.getMonth()] + ' ' + d.getFullYear();
+      }
+      var planIco = planKey === 'elite' ? '👑' : (planKey === 'growth' ? '⚡' : '✦');
+      chips.innerHTML =
+        '<span class="acc-chip plan-' + planKey + '">' + planIco + ' Plan ' + planName + '</span>' +
+        (since ? '<span class="acc-chip">📅 Membre depuis ' + since + '</span>' : '') +
+        '<span class="acc-chip">🔥 ' + (getStreak().count || 0) + ' j de série</span>';
+    }
+
+    var dyn = document.getElementById('accDynamic');
+    if (!dyn) return;
+
+    // ── Carte plan ──
+    var isElite = planKey === 'elite';
+    var planDesc = planKey === 'elite' ? 'Accès maximum : tout est débloqué.'
+                 : planKey === 'growth' ? 'Tu scales sérieusement. Pense à passer Elite pour le coach dédié.'
+                 : 'Plan de départ. Passe au niveau supérieur pour débloquer plus.';
+    var html = '<div class="acc-card acc-plan' + (isElite ? ' elite' : '') + '">' +
+      '<div class="acc-plan-top">' +
+        '<div class="acc-plan-ic">' + (isElite ? '👑' : (planKey === 'growth' ? '⚡' : '✦')) + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div class="acc-plan-name">Plan ' + planName + '</div>' +
+          '<div class="acc-plan-sub">' + planDesc + '</div>' +
+        '</div>' +
+      '</div>' +
+      (isElite
+        ? '<button class="acc-plan-cta manage" onclick="openUpgrade()">Gérer mon abonnement</button>'
+        : '<button class="acc-plan-cta" onclick="openUpgrade()">' + (planKey === 'starter' ? 'Voir les offres →' : 'Passer à Elite →') + '</button>') +
+    '</div>';
+
+    // ── Carte utilisation (jauges réelles) ──
+    var aUsed = getAnalysesToday(), aMax = analysesLimit();
+    var pUsed = (typeof profiles !== 'undefined' && profiles) ? profiles.length : 0;
+    var pMax = (typeof maxProfiles !== 'undefined') ? maxProfiles : (PLAN_PROFILES[planKey] || 1);
+    var bUsed = (FREE_BOOKS.length) + chosenBooks().length;
+    var bMax = isElite ? Object.keys(BOOK_TITLES).length : (FREE_BOOKS.length + (CHOICE_LIMIT[planKey] || 2));
+
+    html += '<div class="acc-card">' +
+      '<div class="acc-card-h"><div class="acc-card-t">📊 Ton utilisation</div></div>' +
+      '<div class="acc-usage">' +
+        accMeter('✍️ Analyses du jour', aUsed, aMax, false) +
+        accMeter('🎯 Profils de niche', pUsed, pMax, isElite && pMax >= 99) +
+        accMeter('📚 Ebooks débloqués', bUsed, bMax, isElite) +
+      '</div>' +
+      (aUsed >= aMax
+        ? '<div class="acc-streak-banner" style="margin-top:4px;background:linear-gradient(135deg,rgba(47,123,255,0.12),rgba(47,123,255,0.04));border-color:var(--border2);"><div class="acc-streak-fire">⏳</div><div class="acc-streak-tx">Tu as utilisé toutes tes analyses du jour. <b style="color:var(--blue-light);cursor:pointer;" onclick="openUpgrade()">Augmenter ma limite →</b></div></div>'
+        : '') +
+    '</div>';
+
+    // ── Carte série / stats ──
+    var st = getStreak();
+    html += '<div class="acc-card">' +
+      '<div class="acc-card-h"><div class="acc-card-t">🔥 Ton activité</div></div>' +
+      '<div class="acc-stats">' +
+        '<div class="acc-stat"><div class="acc-stat-v">' + (st.count||0) + '<span class="fl"> j</span></div><div class="acc-stat-l">Série en cours</div></div>' +
+        '<div class="acc-stat"><div class="acc-stat-v">' + (st.best||st.count||0) + '<span class="fl"> j</span></div><div class="acc-stat-l">Record</div></div>' +
+        '<div class="acc-stat"><div class="acc-stat-v">' + aUsed + '</div><div class="acc-stat-l">Analyses aujourd\'hui</div></div>' +
+      '</div>' +
+      '<div class="acc-streak-banner"><div class="acc-streak-fire">🔥</div><div class="acc-streak-tx">' +
+        (st.count >= 2
+          ? 'Tu es en série de <b>' + st.count + ' jours</b> ! Reviens demain pour ne pas la perdre.'
+          : 'Reviens chaque jour pour bâtir ta série et garder le rythme.') +
+      '</div></div>' +
+    '</div>';
+
+    // ── Carte parrainage ──
+    html += '<div class="acc-card acc-ref">' +
+      '<div class="acc-card-h"><div class="acc-card-t">🎁 Invite un ami</div></div>' +
+      '<p style="font-size:.84rem;color:var(--muted);margin-bottom:13px;line-height:1.45;">Partage Skillora avec ton code. Tes amis te remercieront.</p>' +
+      '<div class="acc-ref-code"><code>' + referralCode() + '</code><button class="acc-ref-copy" onclick="copyReferral()">Copier</button></div>' +
+      '<button class="acc-ref-share" onclick="shareApp()">📤 Partager mon lien</button>' +
+    '</div>';
+
+    // ── Carte réglages ──
+    var set = getSettings();
+    html += '<div class="acc-card">' +
+      '<div class="acc-card-h"><div class="acc-card-t">⚙️ Réglages</div></div>' +
+      accSetting('dailyEmail', '📬', 'Plan quotidien par email', 'Ta mission et ton script chaque matin.', set.dailyEmail) +
+      accSetting('streakReminder', '🔔', 'Rappels de série', 'On te prévient avant de perdre ta série.', set.streakReminder) +
+      accSetting('tips', '💡', 'Conseils & nouveautés', 'Astuces de croissance de temps en temps.', set.tips) +
+    '</div>';
+
+    dyn.innerHTML = html;
+    // anime les jauges après insertion
+    requestAnimationFrame(function(){
+      document.querySelectorAll('#accDynamic .acc-use-fill[data-w]').forEach(function(f){ f.style.width = f.getAttribute('data-w') + '%'; });
+    });
+  }
+
+  function accMeter(label, used, max, infinite) {
+    var pct = infinite ? 100 : (max > 0 ? Math.min(100, Math.round((used/max)*100)) : 0);
+    var cls = infinite ? 'green' : (pct >= 100 ? 'full' : (pct >= 70 ? 'orange' : ''));
+    var valTxt = infinite
+      ? '<span class="acc-use-inf">✦ Illimité</span>'
+      : '<b>' + used + '</b> / ' + max;
+    return '<div class="acc-use-row">' +
+      '<div class="acc-use-top"><span class="acc-use-l">' + label + '</span><span class="acc-use-v">' + valTxt + '</span></div>' +
+      '<div class="acc-use-bar"><div class="acc-use-fill ' + cls + '" data-w="' + pct + '" style="width:0%"></div></div>' +
+    '</div>';
+  }
+
+  function accSetting(key, ic, title, sub, on) {
+    return '<div class="acc-set">' +
+      '<div class="acc-set-ic">' + ic + '</div>' +
+      '<div class="acc-set-tx"><div class="acc-set-t">' + title + '</div><div class="acc-set-s">' + sub + '</div></div>' +
+      '<div class="acc-toggle' + (on ? ' on' : '') + '" onclick="toggleSetting(\'' + key + '\', this)"></div>' +
+    '</div>';
   }
 
   /* ===== Email activation state & popup ===== */

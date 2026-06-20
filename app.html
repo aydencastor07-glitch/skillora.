@@ -443,10 +443,11 @@
   .nav-btn.active { color: var(--blue-light); }
   .nav-btn.active .ni { transform: translateY(-2px); }
   .nav-btn.center { position: relative; justify-content: flex-end; }
-  .nav-btn.center .ni { width:58px; height:58px; border-radius:18px; margin-top:-30px; margin-bottom:4px; background:linear-gradient(135deg,var(--blue),#1857c4); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 28px rgba(47,123,255,0.55), 0 0 0 5px rgba(4,6,13,1); color:#fff; font-size:1.6rem; line-height:1; transition:transform .2s; }
-  .nav-btn.center:active .ni { transform: scale(0.92); }
-  .nav-btn.center.active .ni { transform: translateY(-2px); box-shadow:0 12px 32px rgba(47,123,255,0.7), 0 0 0 5px rgba(4,6,13,1); }
-  .nav-btn.center::before { content:''; position:absolute; top:-34px; left:50%; transform:translateX(-50%); width:66px; height:66px; border-radius:50%; background:radial-gradient(circle,rgba(47,123,255,0.4),transparent 70%); filter:blur(8px); z-index:-1; animation:navPulse 2.8s ease-in-out infinite; }
+  .nav-btn.center .ni { width:60px; height:60px; border-radius:21px; margin-top:-32px; margin-bottom:4px; background:linear-gradient(157deg,#62a0ff 0%,#2f7bff 46%,#1659d8 100%); display:flex; align-items:center; justify-content:center; color:#fff; line-height:1; transition:transform .22s, box-shadow .22s; box-shadow:0 16px 30px -6px rgba(47,123,255,0.55), 0 6px 14px rgba(8,12,28,0.5), inset 0 1.6px 0 rgba(255,255,255,0.5), inset 0 -5px 12px rgba(7,28,82,0.55), 0 0 0 5px var(--bg); }
+  .nav-btn.center .ni svg { filter: drop-shadow(0 1px 1px rgba(6,20,60,0.45)); }
+  .nav-btn.center:active .ni { transform: scale(0.93); }
+  .nav-btn.center.active .ni { transform: translateY(-2px); box-shadow:0 20px 36px -6px rgba(47,123,255,0.7), 0 6px 14px rgba(8,12,28,0.5), inset 0 1.6px 0 rgba(255,255,255,0.55), inset 0 -5px 12px rgba(7,28,82,0.55), 0 0 0 5px var(--bg); }
+  .nav-btn.center::before { content:''; position:absolute; top:-30px; left:50%; transform:translateX(-50%); width:74px; height:74px; border-radius:26px; background:radial-gradient(circle,rgba(47,123,255,0.32),transparent 68%); filter:blur(11px); z-index:-1; }
   @keyframes navPulse { 0%,100%{opacity:.5;transform:translateX(-50%) scale(1)} 50%{opacity:.9;transform:translateX(-50%) scale(1.12)} }
   .modal { position:fixed; inset:0; z-index:80; background:rgba(4,6,13,0.7); backdrop-filter:blur(6px); display:none; align-items:flex-end; }
   .modal.open { display:flex; animation:reveal .25s ease; }
@@ -1033,6 +1034,38 @@
   .pub-publish .ava i:first-child{margin-left:0;}
   .pub-publish .pl{flex:1;text-align:center;font-weight:600;font-size:.98rem;letter-spacing:.01em;}
   .pub-publish .arr{flex:0 0 auto;}
+  .pub-publish{cursor:pointer;transition:transform .15s;padding:14px 16px;}
+  .pub-publish:active{transform:scale(0.99);}
+
+  /* --- Etat zero : import --- */
+  .pub-up{width:100%;display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;padding:42px 24px;border:1.5px dashed rgba(120,160,255,0.28);border-radius:24px;background:radial-gradient(130% 130% at 50% 0%,rgba(47,123,255,0.12),rgba(255,255,255,0.015));cursor:pointer;transition:border-color .2s,transform .15s,background .2s;-webkit-tap-highlight-color:transparent;}
+  .pub-up:hover{border-color:rgba(47,123,255,0.55);background:radial-gradient(130% 130% at 50% 0%,rgba(47,123,255,0.18),rgba(255,255,255,0.02));}
+  .pub-up:active{transform:scale(0.99);}
+  .pub-up-ic{width:66px;height:66px;border-radius:21px;display:flex;align-items:center;justify-content:center;background:linear-gradient(157deg,#62a0ff,#1659d8);box-shadow:0 14px 28px -4px rgba(47,123,255,0.5),inset 0 1.6px 0 rgba(255,255,255,0.45);margin-bottom:5px;}
+  .pub-up-t{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;color:#fff;}
+  .pub-up-s{font-size:.88rem;color:var(--muted);line-height:1.5;max-width:310px;}
+  .pub-up-btn{margin-top:11px;background:linear-gradient(135deg,#4d8fff,#1a6fff);color:#fff;font-family:'Sora';font-weight:600;font-size:.92rem;padding:12px 28px;border-radius:13px;box-shadow:0 10px 24px -4px rgba(47,123,255,0.45);}
+  .pub-up-hint{text-align:center;font-size:.76rem;color:var(--muted2);margin-top:15px;}
+
+  /* --- Etat analyse --- */
+  .pub-loading{display:flex;gap:18px;align-items:center;padding:26px 0;}
+  .pub-loadvid{flex:0 0 auto;width:86px;height:152px;border-radius:15px;object-fit:cover;background:#0a1330;border:1px solid var(--border);}
+  .pub-loading-tx{flex:1;min-width:0;}
+  .pub-loading-t{font-family:'Fraunces',serif;font-size:1.18rem;color:#fff;margin:13px 0 5px;}
+  .pub-loading-s{font-size:.84rem;color:var(--muted);line-height:1.5;}
+
+  /* --- Resultat --- */
+  #pubResult{animation:reveal .45s ease;}
+  .pub-vid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .pub-restart{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:20px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Sora';font-weight:600;font-size:.86rem;padding:13px;border-radius:13px;cursor:pointer;transition:border-color .15s,color .15s;}
+  .pub-restart:active{transform:scale(0.99);}
+  .pub-restart:hover{border-color:var(--border2);color:#fff;}
+  .pub-cap[contenteditable]{outline:none;border-radius:8px;transition:background .15s;}
+  .pub-cap[contenteditable]:focus{background:rgba(47,123,255,0.08);box-shadow:0 0 0 1px rgba(47,123,255,0.3);padding:6px 8px;margin-left:-8px;margin-right:-8px;}
+
+  /* --- Toast --- */
+  .pub-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(18px);background:#10182c;border:1px solid var(--border2);color:#fff;font-family:'Sora';font-weight:500;font-size:.88rem;padding:13px 19px;border-radius:13px;box-shadow:0 14px 34px rgba(0,0,0,0.55);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:300;max-width:88%;text-align:center;}
+  .pub-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 </style>
 </head>
@@ -1403,6 +1436,33 @@
     <h1 class="page-title">Publier</h1>
     <p class="page-sub">Une vidéo, toutes tes plateformes — au bon moment.</p>
 
+    <!-- ÉTAT ZÉRO : import de la vidéo -->
+    <div id="pubZero">
+      <input type="file" id="pubFile" accept="video/*" style="display:none" onchange="pubPickVideo(this)">
+      <div class="pub-up" onclick="document.getElementById('pubFile').click()">
+        <div class="pub-up-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg></div>
+        <div class="pub-up-t">Importe ta vidéo</div>
+        <div class="pub-up-s">Skillora l'analyse en quelques secondes : note, légende et meilleur moment — avant que tu publies.</div>
+        <div class="pub-up-btn">Choisir une vidéo</div>
+      </div>
+      <p class="pub-up-hint">Format vertical 9:16 conseillé · MP4 · jusqu'à 300 Mo</p>
+    </div>
+
+    <!-- ÉTAT ANALYSE -->
+    <div id="pubLoading" style="display:none;">
+      <div class="pub-loading">
+        <video id="pubLoadVid" class="pub-loadvid" playsinline muted loop></video>
+        <div class="pub-loading-tx">
+          <div class="ai-loader"><span></span><span></span><span></span></div>
+          <div class="pub-loading-t">Analyse de ta vidéo…</div>
+          <div class="pub-loading-s">Skillora regarde ton hook, ton rythme et ta légende.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAT RÉSULTAT (apparaît après l'analyse) -->
+    <div id="pubResult" style="display:none;">
+
     <div class="pub-ey">Où publier</div>
     <div class="pub-plats" id="pubPlatforms">
       <div class="pub-plat">
@@ -1427,30 +1487,30 @@
     <div class="pub-div"></div>
 
     <div class="pub-vrow">
-      <div class="pub-vid"><div class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div><div class="dur">0:32</div></div>
-      <div class="pub-vmeta"><div class="vt">Ta vidéo</div><div class="vl">Format vertical · 0:32<br>Sujet : <b>Astuces d'épargne</b></div><div class="an">✦ Analysée par Skillora</div></div>
+      <div class="pub-vid"><video id="pubResVid" playsinline muted loop></video><div class="dur" id="pubDur">0:00</div></div>
+      <div class="pub-vmeta"><div class="vt">Ta vidéo</div><div class="vl" id="pubVMeta">Format vertical<br>Sujet : <b>—</b></div><div class="an">✦ Analysée par Skillora</div></div>
     </div>
 
     <div class="pub-div"></div>
 
     <div class="pub-ey">Potentiel viral</div>
     <div class="pub-score">
-      <div class="pub-big"><div class="n">8.0</div><div class="o">sur 10</div></div>
+      <div class="pub-big"><div class="n" id="pubScoreN">0.0</div><div class="o">sur 10</div></div>
       <div class="pub-bars">
-        <div class="pub-brow"><div class="bn">Accroche</div><div class="pub-bt"><div class="pub-bf" style="width:86%;background:var(--green);"></div></div><div class="pub-bv" style="color:var(--green);">8.6</div></div>
-        <div class="pub-brow"><div class="bn">Format</div><div class="pub-bt"><div class="pub-bf" style="width:89%;background:var(--green);"></div></div><div class="pub-bv" style="color:var(--green);">8.9</div></div>
-        <div class="pub-brow"><div class="bn">Rétention</div><div class="pub-bt"><div class="pub-bf" style="width:69%;background:var(--orange);"></div></div><div class="pub-bv" style="color:var(--orange);">6.9</div></div>
-        <div class="pub-brow"><div class="bn">Légende</div><div class="pub-bt"><div class="pub-bf" style="width:84%;background:var(--green);"></div></div><div class="pub-bv" style="color:var(--green);">8.4</div></div>
+        <div class="pub-brow"><div class="bn">Accroche</div><div class="bt"><div class="bf" id="pubBarAccroche" style="width:0%;"></div></div><div class="bv" id="pubValAccroche">–</div></div>
+        <div class="pub-brow"><div class="bn">Format</div><div class="bt"><div class="bf" id="pubBarFormat" style="width:0%;"></div></div><div class="bv" id="pubValFormat">–</div></div>
+        <div class="pub-brow"><div class="bn">Rétention</div><div class="bt"><div class="bf" id="pubBarRetention" style="width:0%;"></div></div><div class="bv" id="pubValRetention">–</div></div>
+        <div class="pub-brow"><div class="bn">Légende</div><div class="bt"><div class="bf" id="pubBarLegende" style="width:0%;"></div></div><div class="bv" id="pubValLegende">–</div></div>
       </div>
     </div>
-    <p class="pub-tip">💡 Coupe 2 s d'intro pour accrocher plus vite et viser <b>9/10</b>.</p>
+    <p class="pub-tip" id="pubTip">💡 …</p>
 
     <div class="pub-div"></div>
 
     <div class="pub-ey">Légende</div>
-    <p class="pub-cap">3 réflexes pour mettre 100 € de côté ce mois-ci sans t'en rendre compte 💸 Le n°2 change tout.</p>
-    <p class="pub-tags">#FinancePerso #ÉpargneFacile #AstucesArgent #pourtoi #fyp</p>
-    <p class="pub-edit">✎ Proposé par Skillora · appuie pour modifier</p>
+    <p class="pub-cap" id="pubCap" contenteditable="true" spellcheck="false"></p>
+    <p class="pub-tags" id="pubTags"></p>
+    <p class="pub-edit">✎ Proposé par Skillora · appuie sur la légende pour la modifier</p>
 
     <div class="pub-div"></div>
 
@@ -1460,7 +1520,7 @@
 
     <div class="pub-ai"><div class="t"><b>Contenu IA</b> · détecté, déclaré aux plateformes</div><div class="pub-sw"></div></div>
 
-    <button class="pub-publish" id="publishBtn">
+    <button class="pub-publish" id="publishBtn" onclick="pubPublishSoon()">
       <span class="ava">
         <i style="background:#010101;"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M16.5 3c.3 2 1.7 3.7 3.7 4v2.5c-1.4 0-2.7-.4-3.8-1.2v6.4a5.3 5.3 0 1 1-5.3-5.3c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.5V3h2.6z" fill="#fff"/></svg></i>
         <i style="background:linear-gradient(135deg,#feda75,#d62976 45%,#962fbf 75%,#4f5bd5);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.2"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.6" cy="7.4" r="1" fill="#fff" stroke="none"/></svg></i>
@@ -1468,6 +1528,10 @@
       <span class="pl">Publier au bon moment</span>
       <svg class="arr" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
+
+    <button class="pub-restart" onclick="pubReset()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg> Changer de vidéo</button>
+
+    </div><!-- /pubResult -->
   </div>
 
   <!-- Upgrade popup (for non-subscribers, ready for later) -->
@@ -1582,7 +1646,7 @@
 <div class="bottomnav">
   <button class="nav-btn active" onclick="switchView('home', this)"><span class="ni">🏠</span>Accueil</button>
   <button class="nav-btn" onclick="switchView('ia', this)"><span class="ni"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5l3 3L7 17l-3.5.5L4 14z"/><path d="M11.5 6.5l3 3"/><path d="M18.6 2.4l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="currentColor" stroke="none"/></svg></span>Studio</button>
-  <button class="nav-btn center" onclick="switchView('publish', this)"><span class="ni"><span style="font-size:1.5rem;line-height:1;display:block;transform:translateY(1px);">+</span></span>Publier</button>
+  <button class="nav-btn center" onclick="switchView('publish', this)"><span class="ni"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M12 5.5v13M5.5 12h13"/></svg></span>Publier</button>
   <button class="nav-btn" onclick="switchView('community', this)"><span class="ni">💬</span>Communauté</button>
   <button class="nav-btn" onclick="switchView('profile', this)"><span class="ni">👤</span>Profil</button>
 </div>
@@ -4221,6 +4285,152 @@
     } catch (err) {
       status.style.color = '#ff6b4a'; status.textContent = '❌ Erreur de connexion. Réessaie.';
     }
+  }
+
+  /* ═══════════ PAGE PUBLIER : analyse réelle d'une vidéo ═══════════ */
+  var pubUrl = null;
+
+  function pubPickVideo(input) {
+    var f = input.files && input.files[0];
+    if (!f) return;
+    if (!/^video\//.test(f.type)) { pubToast('Choisis un fichier vidéo'); input.value = ''; return; }
+    if (f.size > 300 * 1024 * 1024) { pubToast('Vidéo trop lourde (max 300 Mo)'); input.value = ''; return; }
+    if (pubUrl) { try { URL.revokeObjectURL(pubUrl); } catch (e) {} }
+    pubUrl = URL.createObjectURL(f);
+    document.getElementById('pubZero').style.display = 'none';
+    document.getElementById('pubResult').style.display = 'none';
+    document.getElementById('pubLoading').style.display = 'block';
+    var lv = document.getElementById('pubLoadVid');
+    lv.src = pubUrl; lv.load(); try { lv.play(); } catch (e) {}
+    pubAnalyze(lv);
+  }
+
+  async function pubAnalyze(video) {
+    try {
+      await pubVideoReady(video);
+      var dur = (video.duration && isFinite(video.duration)) ? video.duration : 0;
+      var frames = await pubExtractFrames(video, 4);
+      if (!frames.length) { pubToast('Impossible de lire cette vidéo, réessaie.'); pubReset(); return; }
+
+      var niche = '', tags = [];
+      try {
+        var a = window._lastAnalysis && window._lastAnalysis.summary;
+        if (a && a.insights) { niche = a.insights.niche || ''; tags = a.insights.top_hashtags || a.insights.hashtags || []; }
+      } catch (e) {}
+
+      var sess = await sb.auth.getSession();
+      if (!sess.data.session) { window.location.href = 'signup.html'; return; }
+
+      var res = await fetch(SB_URL + '/functions/v1/grade-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sess.data.session.access_token, 'apikey': SB_KEY },
+        body: JSON.stringify({ platform: 'tiktok', niche: niche, duration_s: Math.round(dur), top_hashtags: Array.isArray(tags) ? tags : [], frames: frames })
+      });
+      var data = await res.json();
+      if (!res.ok || data.error) { pubToast(data.error || 'Analyse impossible, réessaie.'); pubReset(); return; }
+
+      pubRenderGrade(data.grade || {}, dur);
+      var rv = document.getElementById('pubResVid');
+      rv.src = pubUrl; rv.load(); try { rv.play(); } catch (e) {}
+      document.getElementById('pubLoading').style.display = 'none';
+      document.getElementById('pubResult').style.display = 'block';
+      try { document.getElementById('view-publish').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+    } catch (e) {
+      pubToast('Erreur pendant l\'analyse, réessaie.'); pubReset();
+    }
+  }
+
+  function pubVideoReady(video) {
+    return new Promise(function (res) {
+      if (video.readyState >= 2 && video.duration) return res();
+      var done = false;
+      var go = function () { if (done) return; done = true; res(); };
+      video.addEventListener('loadeddata', go, { once: true });
+      video.addEventListener('canplay', go, { once: true });
+      setTimeout(go, 6000);
+    });
+  }
+
+  function pubSeek(video, t) {
+    return new Promise(function (res) {
+      var done = false;
+      var go = function () { if (done) return; done = true; video.removeEventListener('seeked', go); res(); };
+      video.addEventListener('seeked', go);
+      try { video.currentTime = t; } catch (e) { go(); }
+      setTimeout(go, 1800);
+    });
+  }
+
+  async function pubExtractFrames(video, count) {
+    var dur = (video.duration && isFinite(video.duration)) ? video.duration : 0;
+    var vw = video.videoWidth || 720, vh = video.videoHeight || 1280;
+    var W = 360, scale = W / vw;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = Math.round(vh * scale);
+    var ctx = canvas.getContext('2d');
+    var frames = [];
+    var times = [];
+    if (dur > 0) {
+      times.push(Math.min(0.2, dur * 0.02)); // le tout début (hook)
+      for (var i = 1; i < count; i++) times.push(Math.min(dur * 0.97, (dur * i) / (count - 1)));
+    } else { times = [0]; }
+    for (var k = 0; k < times.length; k++) {
+      await pubSeek(video, times[k]);
+      try { ctx.drawImage(video, 0, 0, canvas.width, canvas.height); frames.push(canvas.toDataURL('image/jpeg', 0.7)); } catch (e) {}
+    }
+    return frames;
+  }
+
+  function pubScoreColor(v) { return v >= 7.5 ? 'var(--green)' : (v >= 5 ? 'var(--orange)' : '#ff5d5d'); }
+  function pubFmtDur(s) { s = Math.round(s || 0); var m = Math.floor(s / 60); return m + ':' + String(s % 60).padStart(2, '0'); }
+  function pubSetBar(metric, val) {
+    var v = Math.max(0, Math.min(10, Number(val) || 0));
+    var bf = document.getElementById('pubBar' + metric), bv = document.getElementById('pubVal' + metric);
+    var c = pubScoreColor(v);
+    if (bf) { bf.style.width = Math.max(4, v * 10) + '%'; bf.style.background = c; }
+    if (bv) { bv.textContent = v.toFixed(1); bv.style.color = c; }
+  }
+
+  function pubRenderGrade(g, dur) {
+    var score = Math.max(0, Math.min(10, Number(g.score) || 0));
+    var n = document.getElementById('pubScoreN');
+    if (n) { n.textContent = score.toFixed(1); n.style.color = pubScoreColor(score); }
+    var sc = g.scores || {};
+    pubSetBar('Accroche', sc.accroche);
+    pubSetBar('Format', sc.format);
+    pubSetBar('Retention', sc.retention);
+    pubSetBar('Legende', sc.legende);
+    var meta = document.getElementById('pubVMeta');
+    if (meta) meta.innerHTML = 'Format vertical · ' + pubFmtDur(dur) + '<br>Sujet : <b>' + escapeHtml(g.subject || 'ta vidéo') + '</b>';
+    var d = document.getElementById('pubDur'); if (d) d.textContent = pubFmtDur(dur);
+    var tip = document.getElementById('pubTip'); if (tip) tip.innerHTML = '💡 ' + escapeHtml(g.tip || 'Continue comme ça !');
+    var cap = document.getElementById('pubCap'); if (cap) cap.textContent = g.caption || '';
+    var tg = document.getElementById('pubTags');
+    if (tg) tg.textContent = (g.hashtags || []).map(function (t) { return '#' + String(t).replace(/^#/, ''); }).join(' ');
+  }
+
+  function pubReset() {
+    if (pubUrl) { try { URL.revokeObjectURL(pubUrl); } catch (e) {} pubUrl = null; }
+    var fi = document.getElementById('pubFile'); if (fi) fi.value = '';
+    var lv = document.getElementById('pubLoadVid'); if (lv) { try { lv.pause(); lv.removeAttribute('src'); lv.load(); } catch (e) {} }
+    var rv = document.getElementById('pubResVid'); if (rv) { try { rv.pause(); rv.removeAttribute('src'); rv.load(); } catch (e) {} }
+    document.getElementById('pubLoading').style.display = 'none';
+    document.getElementById('pubResult').style.display = 'none';
+    document.getElementById('pubZero').style.display = 'block';
+  }
+
+  function pubPublishSoon() {
+    pubToast('🚀 La publication automatique arrive très bientôt !');
+  }
+
+  var _pubToastT = null;
+  function pubToast(msg) {
+    var t = document.getElementById('pubToast');
+    if (!t) { t = document.createElement('div'); t.id = 'pubToast'; t.className = 'pub-toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(_pubToastT);
+    _pubToastT = setTimeout(function () { t.classList.remove('show'); }, 2800);
   }
 </script>
 <div id="npConnectOverlay" class="npc-overlay" style="display:none;">

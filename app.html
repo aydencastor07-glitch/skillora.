@@ -974,7 +974,8 @@
   
   .pub-plats{display:flex;gap:12px;margin-bottom:13px;}
   .pub-plat{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;}
-  .pub-ptile{width:100%;max-width:54px;aspect-ratio:1;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;}
+  .pub-ptile{width:100%;max-width:54px;aspect-ratio:1;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+  .pub-ptile:active{transform:scale(0.93);}
   .pub-ptile.sel{box-shadow:0 0 0 2px #05070f,0 0 0 4px var(--blue);}
   .pub-ptile.off{opacity:.38;}
   .pub-badge{position:absolute;top:-6px;right:-6px;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2.5px #05070f;}
@@ -985,7 +986,7 @@
   .pub-pname{font-size:.72rem;color:#aeb9d2;font-weight:500;}
   .pub-pstat{font-size:.6rem;font-weight:600;}
   .pub-pstat.on{color:#586a8e;}
-  .pub-pstat.off{color:var(--blue-light);}
+  .pub-pstat.off{color:var(--blue-light);cursor:pointer;}
   .pub-phelp{font-size:.76rem;color:var(--muted2);line-height:1.5;margin:0 2px;}
   
   .pub-vrow{display:flex;gap:16px;align-items:center;}
@@ -1016,17 +1017,21 @@
   .pub-tags{font-size:.88rem;color:#6f82a8;line-height:1.6;margin:0 0 12px;}
   .pub-edit{font-size:.74rem;color:var(--muted2);}
   
-  .pub-when{display:flex;gap:22px;align-items:center;margin-bottom:6px;}
-  .pub-opt{font-size:.95rem;color:var(--muted);font-weight:500;padding-bottom:7px;border-bottom:2px solid transparent;}
-  .pub-opt.on{color:#fff;border-color:var(--blue);font-weight:600;}
+  .pub-when{display:flex;gap:10px;align-items:center;margin-bottom:12px;}
+  .pub-opt{flex:1;font-size:.92rem;color:var(--muted);font-weight:600;font-family:'Sora';padding:12px;border:1px solid var(--border);background:var(--bg);border-radius:12px;cursor:pointer;transition:all .15s;}
+  .pub-opt.on{color:#fff;border-color:var(--blue);background:rgba(47,123,255,0.12);}
+  .pub-opt:active{transform:scale(0.98);}
   .pub-besttime{font-size:.82rem;color:#9aa7c6;margin-top:14px;line-height:1.5;}
   .pub-besttime b{color:var(--green);}
   
-  .pub-ai{display:flex;align-items:center;gap:12px;margin-top:26px;}
-  .pub-ai .t{flex:1;font-size:.82rem;color:var(--muted);}
-  .pub-ai .t b{color:#c6d0e6;font-weight:600;}
-  .pub-sw{width:38px;height:23px;border-radius:99px;background:var(--green);position:relative;flex:0 0 auto;}
-  .pub-sw::after{content:'';position:absolute;top:3px;left:18px;width:17px;height:17px;border-radius:50%;background:#fff;}
+  .pub-ai{display:flex;align-items:center;gap:14px;}
+  .pub-ai .t{flex:1;font-size:.92rem;color:#fff;font-weight:600;}
+  .pub-ai .t b{color:#fff;font-weight:700;}
+  .pub-ai .t span{display:block;font-size:.78rem;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.4;}
+  .pub-sw{width:48px;height:28px;border-radius:99px;background:#2a3350;position:relative;flex:0 0 auto;border:none;cursor:pointer;padding:0;transition:background .2s;}
+  .pub-sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .22s cubic-bezier(.22,1,.36,1);}
+  .pub-sw.on{background:var(--green);}
+  .pub-sw.on::after{left:23px;}
   
   .pub-publish{display:flex;align-items:center;gap:13px;width:100%;border:none;border-radius:16px;padding:11px 15px;margin-top:28px;font-family:'Sora';color:#fff;background:linear-gradient(180deg,#4c93ff,#1d59cf);box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 16px 34px rgba(47,123,255,.34);}
   .pub-publish .ava{display:flex;flex:0 0 auto;}
@@ -1034,8 +1039,22 @@
   .pub-publish .ava i:first-child{margin-left:0;}
   .pub-publish .pl{flex:1;text-align:center;font-weight:600;font-size:.98rem;letter-spacing:.01em;}
   .pub-publish .arr{flex:0 0 auto;}
-  .pub-publish{cursor:pointer;transition:transform .15s;padding:14px 16px;}
+  .pub-publish{cursor:pointer;transition:transform .15s;padding:15px 16px;margin-top:4px;}
   .pub-publish:active{transform:scale(0.99);}
+
+  /* --- Cartes / sections (look pro, desencombre) --- */
+  .pub-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px;}
+  .pub-card .pub-ey{margin-bottom:12px;}
+  .pub-hint2{font-size:.82rem;color:var(--muted);line-height:1.5;margin:-2px 0 15px;}
+  .pub-capbox{background:var(--bg);border:1px solid var(--border);border-radius:13px;padding:14px 15px;}
+  .pub-capbox .pub-cap{margin:0 0 9px;}
+  .pub-capbox .pub-tags{margin:0;}
+  .pub-mini{margin-top:13px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#fff;font-family:'Sora';font-weight:600;font-size:.82rem;padding:10px 16px;border-radius:11px;cursor:pointer;transition:transform .12s;}
+  .pub-mini:active{transform:scale(0.98);}
+  .pub-change{margin-top:13px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);font-family:'Sora';font-weight:600;font-size:.8rem;padding:8px 14px;border-radius:10px;cursor:pointer;transition:transform .12s,color .15s;}
+  .pub-change:active{transform:scale(0.96);}
+  .pub-change:hover{color:#fff;}
+  .pub-pubnote{text-align:center;font-size:.76rem;color:var(--muted2);margin:10px 0 0;}
 
   /* --- Etat zero : import --- */
   .pub-up{width:100%;display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;padding:42px 24px;border:1.5px dashed rgba(120,160,255,0.28);border-radius:24px;background:radial-gradient(130% 130% at 50% 0%,rgba(47,123,255,0.12),rgba(255,255,255,0.015));cursor:pointer;transition:border-color .2s,transform .15s,background .2s;-webkit-tap-highlight-color:transparent;}
@@ -1469,73 +1488,77 @@
     <!-- ÉTAT RÉSULTAT (apparaît après l'analyse) -->
     <div id="pubResult" style="display:none;">
 
-    <div class="pub-ey">Où publier</div>
-    <div class="pub-plats" id="pubPlatforms">
-      <div class="pub-plat">
-        <div class="pub-ptile sel" style="background:#010101;"><svg viewBox="0 0 24 24" width="23" height="23"><path d="M16.5 3c.3 2 1.7 3.7 3.7 4v2.5c-1.4 0-2.7-.4-3.8-1.2v6.4a5.3 5.3 0 1 1-5.3-5.3c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.5V3h2.6z" fill="#fff"/></svg><div class="pub-badge sel"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></div></div>
-        <div class="pub-pname">TikTok</div><div class="pub-pstat on">Connecté</div>
+      <!-- Ta vidéo + changer -->
+      <div class="pub-card">
+        <div class="pub-vrow">
+          <div class="pub-vid"><video id="pubResVid" playsinline muted loop></video><div class="dur" id="pubDur">0:00</div></div>
+          <div class="pub-vmeta">
+            <div class="vt">Ta vidéo</div>
+            <div class="vl" id="pubVMeta">Format vertical<br>Sujet : <b>—</b></div>
+            <div class="an">✦ Analysée par Skillora</div>
+            <button class="pub-change" onclick="pubReset()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg> Changer de vidéo</button>
+          </div>
+        </div>
       </div>
-      <div class="pub-plat">
-        <div class="pub-ptile sel" style="background:linear-gradient(135deg,#feda75,#d62976 45%,#962fbf 75%,#4f5bd5);"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="#fff" stroke-width="1.9"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.6" cy="7.4" r="1" fill="#fff" stroke="none"/></svg><div class="pub-badge sel"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></div></div>
-        <div class="pub-pname">Instagram</div><div class="pub-pstat on">Connecté</div>
+
+      <!-- Potentiel viral -->
+      <div class="pub-card">
+        <div class="pub-ey">Potentiel viral</div>
+        <div class="pub-score">
+          <div class="pub-big"><div class="n" id="pubScoreN">0.0</div><div class="o">sur 10</div></div>
+          <div class="pub-bars">
+            <div class="pub-brow"><div class="bn">Accroche</div><div class="bt"><div class="bf" id="pubBarAccroche" style="width:0%;"></div></div><div class="bv" id="pubValAccroche">–</div></div>
+            <div class="pub-brow"><div class="bn">Format</div><div class="bt"><div class="bf" id="pubBarFormat" style="width:0%;"></div></div><div class="bv" id="pubValFormat">–</div></div>
+            <div class="pub-brow"><div class="bn">Rétention</div><div class="bt"><div class="bf" id="pubBarRetention" style="width:0%;"></div></div><div class="bv" id="pubValRetention">–</div></div>
+            <div class="pub-brow"><div class="bn">Légende</div><div class="bt"><div class="bf" id="pubBarLegende" style="width:0%;"></div></div><div class="bv" id="pubValLegende">–</div></div>
+          </div>
+        </div>
+        <p class="pub-tip" id="pubTip">💡 …</p>
       </div>
-      <div class="pub-plat">
-        <div class="pub-ptile" style="background:#1877F2;"><svg viewBox="0 0 24 24" width="21" height="21"><path d="M15 8.5h2V5.6c-.4 0-1.5-.1-2.4-.1-2.3 0-3.8 1.4-3.8 4v2.3H8.2V15h2.6v7h3.1v-7h2.6l.4-3.2h-3V9.4c0-.6.2-.9 1.1-.9z" fill="#fff"/></svg><div class="pub-badge empty"></div></div>
-        <div class="pub-pname">Facebook</div><div class="pub-pstat on">Connecté</div>
+
+      <!-- Description (légende) -->
+      <div class="pub-card">
+        <div class="pub-ey">Description de ta vidéo</div>
+        <p class="pub-hint2">C'est le texte qui accompagnera ta vidéo (la description sous la vidéo). Skillora te la propose — appuie dessus pour la modifier.</p>
+        <div class="pub-capbox">
+          <p class="pub-cap" id="pubCap" contenteditable="true" spellcheck="false"></p>
+          <p class="pub-tags" id="pubTags"></p>
+        </div>
+        <button class="pub-mini" onclick="pubCopyDesc()">📋 Copier la description</button>
       </div>
-      <div class="pub-plat">
-        <div class="pub-ptile off" style="background:#FF0000;"><svg viewBox="0 0 24 24" width="23" height="23"><path d="M21.5 8.2c-.2-1.1-.9-1.9-2-2.1C17.7 5.7 12 5.7 12 5.7s-5.7 0-7.5.4c-1.1.2-1.8 1-2 2.1C2.1 10 2.1 12 2.1 12s0 2 .4 3.8c.2 1.1.9 1.9 2 2.1 1.8.4 7.5.4 7.5.4s5.7 0 7.5-.4c1.1-.2 1.8-1 2-2.1.4-1.8.4-3.8.4-3.8s0-2-.4-3.8z" fill="#fff"/><path d="M10 15l5-3-5-3z" fill="#FF0000"/></svg><div class="pub-badge add">+</div></div>
-        <div class="pub-pname">YouTube</div><div class="pub-pstat off">Connecter</div>
+
+      <!-- Où publier -->
+      <div class="pub-card">
+        <div class="pub-ey">Où publier</div>
+        <p class="pub-hint2">Touche une plateforme pour la choisir (tu peux en sélectionner plusieurs). Une plateforme non connectée devra d'abord être liée.</p>
+        <div class="pub-plats" id="pubPlatforms"></div>
       </div>
-    </div>
-    <p class="pub-phelp"><b style="color:#6ba0ff;font-weight:600;">Anneau bleu</b> = sélectionné · <b style="color:#586a8e;font-weight:600;">cercle vide</b> = à ajouter · <b style="color:#6ba0ff;font-weight:600;">+</b> = à connecter.</p>
 
-    <div class="pub-div"></div>
-
-    <div class="pub-vrow">
-      <div class="pub-vid"><video id="pubResVid" playsinline muted loop></video><div class="dur" id="pubDur">0:00</div></div>
-      <div class="pub-vmeta"><div class="vt">Ta vidéo</div><div class="vl" id="pubVMeta">Format vertical<br>Sujet : <b>—</b></div><div class="an">✦ Analysée par Skillora</div></div>
-    </div>
-
-    <div class="pub-div"></div>
-
-    <div class="pub-ey">Potentiel viral</div>
-    <div class="pub-score">
-      <div class="pub-big"><div class="n" id="pubScoreN">0.0</div><div class="o">sur 10</div></div>
-      <div class="pub-bars">
-        <div class="pub-brow"><div class="bn">Accroche</div><div class="bt"><div class="bf" id="pubBarAccroche" style="width:0%;"></div></div><div class="bv" id="pubValAccroche">–</div></div>
-        <div class="pub-brow"><div class="bn">Format</div><div class="bt"><div class="bf" id="pubBarFormat" style="width:0%;"></div></div><div class="bv" id="pubValFormat">–</div></div>
-        <div class="pub-brow"><div class="bn">Rétention</div><div class="bt"><div class="bf" id="pubBarRetention" style="width:0%;"></div></div><div class="bv" id="pubValRetention">–</div></div>
-        <div class="pub-brow"><div class="bn">Légende</div><div class="bt"><div class="bf" id="pubBarLegende" style="width:0%;"></div></div><div class="bv" id="pubValLegende">–</div></div>
+      <!-- Quand -->
+      <div class="pub-card">
+        <div class="pub-ey">Quand publier</div>
+        <div class="pub-when">
+          <button class="pub-opt on" id="pubWhenBest" onclick="pubSetWhen('best')">Au bon moment</button>
+          <button class="pub-opt" id="pubWhenNow" onclick="pubSetWhen('now')">Maintenant</button>
+        </div>
+        <p class="pub-besttime" id="pubWhenDesc">« Au bon moment » : Skillora publiera quand <b>ton audience est la plus active</b>.</p>
       </div>
-    </div>
-    <p class="pub-tip" id="pubTip">💡 …</p>
 
-    <div class="pub-div"></div>
+      <!-- Contenu IA -->
+      <div class="pub-card">
+        <div class="pub-ai">
+          <div class="t"><b>Contenu IA</b><span>Déclarer que cette vidéo est faite avec l'IA (demandé par les plateformes).</span></div>
+          <button class="pub-sw on" id="pubAISwitch" onclick="pubToggleAI()" aria-label="Déclarer contenu IA"></button>
+        </div>
+      </div>
 
-    <div class="pub-ey">Légende</div>
-    <p class="pub-cap" id="pubCap" contenteditable="true" spellcheck="false"></p>
-    <p class="pub-tags" id="pubTags"></p>
-    <p class="pub-edit">✎ Proposé par Skillora · appuie sur la légende pour la modifier</p>
-
-    <div class="pub-div"></div>
-
-    <div class="pub-ey">Quand</div>
-    <div class="pub-when"><div class="pub-opt on">Au bon moment</div><div class="pub-opt">Maintenant</div></div>
-    <p class="pub-besttime">Un seul créneau idéal pour <b>tes 3 plateformes</b> : aujourd'hui <b>19 h 12</b>.</p>
-
-    <div class="pub-ai"><div class="t"><b>Contenu IA</b> · détecté, déclaré aux plateformes</div><div class="pub-sw"></div></div>
-
-    <button class="pub-publish" id="publishBtn" onclick="pubPublishSoon()">
-      <span class="ava">
-        <i style="background:#010101;"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M16.5 3c.3 2 1.7 3.7 3.7 4v2.5c-1.4 0-2.7-.4-3.8-1.2v6.4a5.3 5.3 0 1 1-5.3-5.3c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.5V3h2.6z" fill="#fff"/></svg></i>
-        <i style="background:linear-gradient(135deg,#feda75,#d62976 45%,#962fbf 75%,#4f5bd5);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.2"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.6" cy="7.4" r="1" fill="#fff" stroke="none"/></svg></i>
-      </span>
-      <span class="pl">Publier au bon moment</span>
-      <svg class="arr" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
-
-    <button class="pub-restart" onclick="pubReset()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg> Changer de vidéo</button>
+      <!-- Publier -->
+      <button class="pub-publish" id="publishBtn" onclick="pubPublishSoon()">
+        <span class="ava" id="pubPubAva"></span>
+        <span class="pl" id="pubPubLabel">Publier au bon moment</span>
+        <svg class="arr" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <p class="pub-pubnote">🔒 La publication automatique arrive bientôt — l'analyse, elle, marche déjà.</p>
 
     </div><!-- /pubResult -->
   </div>
@@ -4455,6 +4478,71 @@
     var cap = document.getElementById('pubCap'); if (cap) cap.textContent = g.caption || '';
     var tg = document.getElementById('pubTags');
     if (tg) tg.textContent = (g.hashtags || []).map(function (t) { return '#' + String(t).replace(/^#/, ''); }).join(' ');
+    pubRenderPlatforms();
+    pubSetWhen(pubWhen);
+  }
+
+  /* ── Plateformes (sélection cliquable) ── */
+  var PUB_PLATS = [
+    { key: 'tiktok', name: 'TikTok', bg: '#010101', connected: false, selected: true },
+    { key: 'instagram', name: 'Instagram', bg: 'linear-gradient(135deg,#feda75,#d62976 45%,#962fbf 75%,#4f5bd5)', connected: false, selected: true },
+    { key: 'facebook', name: 'Facebook', bg: '#1877F2', connected: false, selected: false },
+    { key: 'youtube', name: 'YouTube', bg: '#FF0000', connected: false, selected: false }
+  ];
+  var pubWhen = 'best';
+  var pubAI = true;
+
+  function pubPlatSVG(key, s) {
+    if (key === 'tiktok') return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '"><path d="M16.5 3c.3 2 1.7 3.7 3.7 4v2.5c-1.4 0-2.7-.4-3.8-1.2v6.4a5.3 5.3 0 1 1-5.3-5.3c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.5V3h2.6z" fill="#fff"/></svg>';
+    if (key === 'instagram') return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="none" stroke="#fff" stroke-width="1.9"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.6" cy="7.4" r="1" fill="#fff" stroke="none"/></svg>';
+    if (key === 'facebook') return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '"><path d="M15 8.5h2V5.6c-.4 0-1.5-.1-2.4-.1-2.3 0-3.8 1.4-3.8 4v2.3H8.2V15h2.6v7h3.1v-7h2.6l.4-3.2h-3V9.4c0-.6.2-.9 1.1-.9z" fill="#fff"/></svg>';
+    return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '"><path d="M21.5 8.2c-.2-1.1-.9-1.9-2-2.1C17.7 5.7 12 5.7 12 5.7s-5.7 0-7.5.4c-1.1.2-1.8 1-2 2.1C2.1 10 2.1 12 2.1 12s0 2 .4 3.8c.2 1.1.9 1.9 2 2.1 1.8.4 7.5.4 7.5.4s5.7 0 7.5-.4c1.1-.2 1.8-1 2-2.1.4-1.8.4-3.8.4-3.8s0-2-.4-3.8z" fill="#fff"/><path d="M10 15l5-3-5-3z" fill="#FF0000"/></svg>';
+  }
+  function pubRenderPlatforms() {
+    var box = document.getElementById('pubPlatforms'); if (!box) return;
+    box.innerHTML = PUB_PLATS.map(function (p, i) {
+      var check = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>';
+      return '<div class="pub-plat">'
+        + '<div class="pub-ptile' + (p.selected ? ' sel' : '') + '" style="background:' + p.bg + ';" onclick="pubTogglePlat(' + i + ')">'
+        + pubPlatSVG(p.key, 22)
+        + '<div class="pub-badge ' + (p.selected ? 'sel' : 'empty') + '">' + (p.selected ? check : '') + '</div>'
+        + '</div>'
+        + '<div class="pub-pname">' + p.name + '</div>'
+        + (p.connected ? '<div class="pub-pstat on">✓ Connecté</div>' : '<div class="pub-pstat off" onclick="pubConnectSoon(event)">Connecter</div>')
+        + '</div>';
+    }).join('');
+    pubSyncPublishBtn();
+  }
+  function pubTogglePlat(i) { PUB_PLATS[i].selected = !PUB_PLATS[i].selected; pubRenderPlatforms(); }
+  function pubConnectSoon(e) { if (e) e.stopPropagation(); pubToast('🔗 La connexion de tes comptes arrive bientôt !'); }
+
+  function pubSyncPublishBtn() {
+    var sel = PUB_PLATS.filter(function (p) { return p.selected; });
+    var ava = document.getElementById('pubPubAva');
+    if (ava) ava.innerHTML = sel.map(function (p) { return '<i style="background:' + p.bg + ';">' + pubPlatSVG(p.key, 15) + '</i>'; }).join('');
+    var label = document.getElementById('pubPubLabel');
+    if (label) {
+      if (!sel.length) label.textContent = 'Choisis une plateforme';
+      else label.textContent = (pubWhen === 'now' ? 'Publier maintenant' : 'Publier au bon moment');
+    }
+  }
+  function pubSetWhen(w) {
+    pubWhen = w;
+    var b = document.getElementById('pubWhenBest'), n = document.getElementById('pubWhenNow');
+    if (b) b.classList.toggle('on', w === 'best');
+    if (n) n.classList.toggle('on', w === 'now');
+    var d = document.getElementById('pubWhenDesc');
+    if (d) d.innerHTML = (w === 'best')
+      ? '« Au bon moment » : Skillora publiera quand <b>ton audience est la plus active</b>.'
+      : 'Ta vidéo sera publiée <b>tout de suite</b> sur les plateformes choisies.';
+    pubSyncPublishBtn();
+  }
+  function pubToggleAI() { pubAI = !pubAI; var s = document.getElementById('pubAISwitch'); if (s) s.classList.toggle('on', pubAI); }
+  function pubCopyDesc() {
+    var cap = (document.getElementById('pubCap').textContent || '').trim();
+    var tags = (document.getElementById('pubTags').textContent || '').trim();
+    var txt = (cap + '\n\n' + tags).trim();
+    try { navigator.clipboard.writeText(txt); pubToast('Description copiée ✓'); } catch (e) {}
   }
 
   function pubReset() {
@@ -4468,6 +4556,10 @@
   }
 
   function pubPublishSoon() {
+    var sel = PUB_PLATS.filter(function (p) { return p.selected; });
+    if (!sel.length) { pubToast('Choisis au moins une plateforme'); return; }
+    var notLinked = sel.filter(function (p) { return !p.connected; });
+    if (notLinked.length) { pubToast('🔗 Connecte d\'abord : ' + notLinked.map(function (p) { return p.name; }).join(', ') + ' (bientôt)'); return; }
     pubToast('🚀 La publication automatique arrive très bientôt !');
   }
 

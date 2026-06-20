@@ -1007,7 +1007,7 @@
   .pub-brow:last-child{margin-bottom:0;}
   .pub-brow .bn{flex:0 0 72px;font-size:.78rem;color:var(--muted);}
   .pub-brow .bt{flex:1;height:3px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;}
-  .pub-brow .bf{height:100%;border-radius:99px;}
+  .pub-brow .bf{height:100%;border-radius:99px;transition:width 1.05s cubic-bezier(.22,1,.36,1);}
   .pub-brow .bv{flex:0 0 24px;text-align:right;font-weight:600;font-size:.78rem;}
   .pub-tip{font-size:.82rem;color:#9aa7c6;line-height:1.5;margin-top:18px;}
   .pub-tip b{color:var(--green);font-weight:600;}
@@ -1055,7 +1055,9 @@
   .pub-loading-s{font-size:.84rem;color:var(--muted);line-height:1.5;}
 
   /* --- Resultat --- */
-  #pubResult{animation:reveal .45s ease;}
+  #pubResult{animation:pubUp .55s cubic-bezier(.22,1,.36,1) both;}
+  @keyframes pubUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  #pubLoading{animation:pubUp .4s ease both;}
   .pub-vid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .pub-restart{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:20px;background:none;border:1px solid var(--border);color:var(--muted);font-family:'Sora';font-weight:600;font-size:.86rem;padding:13px;border-radius:13px;cursor:pointer;transition:border-color .15s,color .15s;}
   .pub-restart:active{transform:scale(0.99);}
@@ -4307,6 +4309,7 @@
     loading.innerHTML = PUB_LOADER_HTML;
     loading.style.display = 'block';
     var lv = document.getElementById('pubLoadVid');
+    lv.onerror = function () { pubShowError("Impossible de lire ce fichier vidéo. Essaie un MP4 (H.264). Aucun crédit n'a été utilisé."); };
     lv.src = pubUrl; lv.load(); try { lv.play(); } catch (e) {}
     pubAnalyze(lv);
   }
@@ -4325,8 +4328,17 @@
     try {
       await pubVideoReady(video);
       var dur = (video.duration && isFinite(video.duration)) ? video.duration : 0;
+      // Garde-fou anti-gaspillage de crédits : on n'appelle l'IA que si la vidéo est VRAIMENT lisible.
+      if (!video.videoWidth || !video.videoHeight || dur <= 0) {
+        pubShowError("Cette vidéo n'a pas pu être lue (format non supporté par le navigateur). Essaie un fichier MP4 (H.264). Aucun crédit n'a été utilisé.");
+        return;
+      }
       var frames = await pubExtractFrames(video, 4);
-      if (!frames.length) { pubShowError('Impossible de lire les images de cette vidéo. Essaie un fichier MP4.'); return; }
+      // Vérifie que les images extraites ne sont pas vides (sinon l'IA analyserait du noir et gâcherait des crédits).
+      if (frames.length < 2 || !pubFramesLookValid(frames)) {
+        pubShowError("Impossible d'extraire les images de cette vidéo. Essaie un fichier MP4. Aucun crédit n'a été utilisé.");
+        return;
+      }
 
       var niche = '', tags = [];
       try {
@@ -4397,20 +4409,40 @@
     return frames;
   }
 
+  // Une image noire/vide compresse en quelques centaines d'octets ; une vraie image fait des dizaines de Ko.
+  function pubFramesLookValid(frames) {
+    var max = 0;
+    for (var i = 0; i < frames.length; i++) { var L = (frames[i] || '').length; if (L > max) max = L; }
+    return max > 3000;
+  }
+
   function pubScoreColor(v) { return v >= 7.5 ? 'var(--green)' : (v >= 5 ? 'var(--orange)' : '#ff5d5d'); }
   function pubFmtDur(s) { s = Math.round(s || 0); var m = Math.floor(s / 60); return m + ':' + String(s % 60).padStart(2, '0'); }
   function pubSetBar(metric, val) {
     var v = Math.max(0, Math.min(10, Number(val) || 0));
     var bf = document.getElementById('pubBar' + metric), bv = document.getElementById('pubVal' + metric);
     var c = pubScoreColor(v);
-    if (bf) { bf.style.width = Math.max(4, v * 10) + '%'; bf.style.background = c; }
+    if (bf) {
+      bf.style.background = c; bf.style.width = '0%';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { bf.style.width = Math.max(4, v * 10) + '%'; }); });
+    }
     if (bv) { bv.textContent = v.toFixed(1); bv.style.color = c; }
+  }
+  function pubAnimateScore(target) {
+    var el = document.getElementById('pubScoreN'); if (!el) return;
+    el.style.color = pubScoreColor(target);
+    var dur = 800, t0 = performance.now();
+    function step(now) {
+      var p = Math.min(1, (now - t0) / dur);
+      el.textContent = (target * (1 - Math.pow(1 - p, 3))).toFixed(1);
+      if (p < 1) requestAnimationFrame(step); else el.textContent = target.toFixed(1);
+    }
+    requestAnimationFrame(step);
   }
 
   function pubRenderGrade(g, dur) {
     var score = Math.max(0, Math.min(10, Number(g.score) || 0));
-    var n = document.getElementById('pubScoreN');
-    if (n) { n.textContent = score.toFixed(1); n.style.color = pubScoreColor(score); }
+    pubAnimateScore(score);
     var sc = g.scores || {};
     pubSetBar('Accroche', sc.accroche);
     pubSetBar('Format', sc.format);

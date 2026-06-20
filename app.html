@@ -967,205 +967,72 @@
     box-shadow:0 10px 30px rgba(47,123,255,0.5); -webkit-tap-highlight-color:transparent; }
   .eb-cover-deco { position:absolute; bottom:24px; font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(200,214,240,0.4); }
 
-  /* ═══════════ COMPTE / PROFIL PRO ═══════════ */
-  .acc-hero { position:relative; border-radius:24px; overflow:hidden; margin-bottom:16px; border:1px solid var(--border); background:linear-gradient(165deg,#0c1430,#070b16); }
-  .acc-hero-cover { height:96px; background:linear-gradient(120deg,#1857c4,#2f7bff 45%,#3ddc84); position:relative; }
-  .acc-hero-cover::after { content:''; position:absolute; inset:0; background:radial-gradient(120px 120px at 80% 0,rgba(255,255,255,0.25),transparent 70%); }
-  .acc-hero-body { padding:0 18px 18px; margin-top:-40px; position:relative; }
-  .acc-av { width:84px; height:84px; border-radius:24px; background:linear-gradient(135deg,var(--blue),#1857c4); display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:800; font-size:2rem; color:#fff; border:3px solid var(--bg); box-shadow:0 12px 30px rgba(0,0,0,0.45); }
-  .acc-name-row { display:flex; align-items:center; gap:9px; margin-top:13px; }
-  .acc-name { font-family:'Fraunces',serif; font-weight:800; font-size:1.45rem; color:var(--white); line-height:1.1; }
-  .acc-edit { flex:0 0 auto; width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--muted); font-size:.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
-  .acc-edit:active { transform:scale(0.9); } .acc-edit:hover { color:var(--white); border-color:var(--blue); }
-  .acc-email { font-size:.85rem; color:var(--muted); margin-top:3px; }
-  .acc-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
-  .acc-chip { display:inline-flex; align-items:center; gap:6px; font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; padding:6px 11px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:var(--muted); }
-  .acc-chip.plan-starter { color:var(--blue-light); border-color:rgba(47,123,255,0.4); background:rgba(47,123,255,0.1); }
-  .acc-chip.plan-growth { color:var(--blue-light); border-color:rgba(47,123,255,0.5); background:rgba(47,123,255,0.16); }
-  .acc-chip.plan-elite { color:#ffd479; border-color:rgba(245,166,35,0.45); background:rgba(245,166,35,0.12); }
-
-  .acc-name-edit { display:none; gap:8px; margin-top:13px; }
-  .acc-name-edit.on { display:flex; }
-  .acc-name-edit input { flex:1; min-width:0; background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:10px 13px; color:var(--white); font-family:'Sora',sans-serif; font-size:.95rem; outline:none; }
-  .acc-name-edit input:focus { border-color:var(--blue); }
-  .acc-name-edit button { flex:0 0 auto; border:none; border-radius:11px; padding:0 15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; cursor:pointer; }
-  .acc-save { background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; }
-  .acc-cancel { background:rgba(255,255,255,0.06); color:var(--muted); }
-
-  .acc-card { background:linear-gradient(160deg,var(--surface),var(--bg2)); border:1px solid var(--border); border-radius:20px; padding:18px; margin-bottom:14px; }
-  .acc-card-h { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-  .acc-card-t { font-family:'Fraunces',serif; font-weight:800; font-size:1.08rem; color:var(--white); display:flex; align-items:center; gap:8px; }
-  .acc-card-link { background:none; border:none; color:var(--blue-light); font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; cursor:pointer; }
-  .acc-card-link:active { transform:scale(0.96); }
-
-  /* Plan card */
-  .acc-plan { background:linear-gradient(160deg,rgba(47,123,255,0.14),rgba(8,13,26,0.9)); border-color:var(--border2); }
-  .acc-plan.elite { background:linear-gradient(160deg,rgba(245,166,35,0.12),rgba(8,13,26,0.9)); border-color:rgba(245,166,35,0.35); }
-  .acc-plan-top { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; }
-  .acc-plan-ic { flex:0 0 46px; width:46px; height:46px; border-radius:14px; background:linear-gradient(135deg,var(--blue),#1857c4); display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 8px 22px rgba(47,123,255,0.35); }
-  .acc-plan.elite .acc-plan-ic { background:linear-gradient(135deg,#f5c043,#e0962a); box-shadow:0 8px 22px rgba(245,166,35,0.35); }
-  .acc-plan-name { font-family:'Fraunces',serif; font-weight:800; font-size:1.25rem; color:var(--white); }
-  .acc-plan-sub { font-size:.82rem; color:var(--muted); margin-top:2px; }
-  .acc-plan-cta { width:100%; margin-top:4px; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:13px; padding:14px; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; cursor:pointer; box-shadow:0 8px 24px rgba(47,123,255,0.3); }
-  .acc-plan-cta:active { transform:scale(0.98); }
-  .acc-plan-cta.manage { background:rgba(255,255,255,0.06); color:var(--white); border:1px solid var(--border); box-shadow:none; }
-
-  /* Usage meters */
-  .acc-usage { display:flex; flex-direction:column; gap:14px; margin-bottom:16px; }
-  .acc-use-row { }
-  .acc-use-top { display:flex; align-items:center; justify-content:space-between; font-size:.84rem; margin-bottom:7px; }
-  .acc-use-l { color:var(--white); font-family:'Sora',sans-serif; font-weight:600; display:flex; align-items:center; gap:7px; }
-  .acc-use-v { font-family:'Sora',sans-serif; font-weight:700; color:var(--muted); font-size:.8rem; }
-  .acc-use-v b { color:var(--white); }
-  .acc-use-bar { height:8px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden; }
-  .acc-use-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#4d8fff,#1a6fff); transition:width .8s cubic-bezier(.2,.7,.3,1); }
-  .acc-use-fill.green { background:linear-gradient(90deg,#3ddc84,#1ba85f); }
-  .acc-use-fill.orange { background:linear-gradient(90deg,#ffb86b,#ff9f4a); }
-  .acc-use-fill.full { background:linear-gradient(90deg,#ff7a59,#ff4d4d); }
-  .acc-use-inf { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; color:#ffd479; }
-
-  /* Streak / stats */
-  .acc-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  .acc-stat { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:15px; padding:14px 8px; text-align:center; }
-  .acc-stat-v { font-family:'Fraunces',serif; font-weight:800; font-size:1.5rem; color:var(--white); line-height:1; }
-  .acc-stat-v .fl { font-size:1.1rem; }
-  .acc-stat-l { font-size:.68rem; color:var(--muted); margin-top:6px; line-height:1.25; }
-  .acc-streak-banner { display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,rgba(255,159,74,0.14),rgba(255,77,77,0.06)); border:1px solid rgba(255,159,74,0.3); border-radius:14px; padding:13px 14px; margin-top:14px; }
-  .acc-streak-fire { font-size:1.7rem; }
-  .acc-streak-tx { flex:1; min-width:0; font-size:.82rem; color:var(--white); line-height:1.4; }
-  .acc-streak-tx b { color:var(--orange); }
-
-  /* Settings toggles */
-  .acc-set { display:flex; align-items:center; gap:13px; padding:13px 0; border-bottom:1px solid var(--border); }
-  .acc-set:last-child { border-bottom:none; padding-bottom:0; }
-  .acc-set:first-child { padding-top:0; }
-  .acc-set-ic { flex:0 0 38px; width:38px; height:38px; border-radius:11px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
-  .acc-set-tx { flex:1; min-width:0; }
-  .acc-set-t { font-family:'Sora',sans-serif; font-weight:600; font-size:.92rem; color:var(--white); }
-  .acc-set-s { font-size:.76rem; color:var(--muted); margin-top:2px; line-height:1.35; }
-  .acc-toggle { flex:0 0 auto; width:48px; height:28px; border-radius:99px; background:rgba(255,255,255,0.1); border:1px solid var(--border); position:relative; cursor:pointer; transition:background .25s; }
-  .acc-toggle::after { content:''; position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%; background:#fff; transition:transform .25s; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
-  .acc-toggle.on { background:linear-gradient(135deg,#4d8fff,#1a6fff); border-color:transparent; }
-  .acc-toggle.on::after { transform:translateX(20px); }
-
-  /* Referral */
-  .acc-ref { background:linear-gradient(160deg,rgba(61,220,132,0.1),rgba(8,13,26,0.9)); border-color:rgba(61,220,132,0.3); }
-  .acc-ref-code { display:flex; align-items:center; gap:9px; background:var(--bg); border:1px dashed rgba(61,220,132,0.45); border-radius:12px; padding:12px 14px; margin-bottom:12px; }
-  .acc-ref-code code { flex:1; min-width:0; font-family:'Sora',sans-serif; font-weight:800; font-size:1rem; color:var(--green); letter-spacing:.05em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .acc-ref-copy { flex:0 0 auto; background:rgba(61,220,132,0.16); border:1px solid rgba(61,220,132,0.4); color:var(--green); border-radius:9px; padding:7px 13px; font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; cursor:pointer; }
-  .acc-ref-copy:active { transform:scale(0.95); }
-  .acc-ref-share { width:100%; background:linear-gradient(135deg,#3ddc84,#1ba85f); color:#04240f; border:none; border-radius:13px; padding:13px; font-family:'Sora',sans-serif; font-weight:800; font-size:.92rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
-  .acc-ref-share:active { transform:scale(0.98); }
-
-  /* Links list */
-  .acc-links { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; margin-bottom:14px; }
-  .acc-link { display:flex; align-items:center; gap:13px; padding:15px 16px; border-bottom:1px solid var(--border); color:var(--white); font-family:'Sora',sans-serif; font-weight:600; font-size:.92rem; cursor:pointer; text-decoration:none; transition:background .15s; }
-  .acc-link:last-child { border-bottom:none; }
-  .acc-link:active { background:rgba(255,255,255,0.03); }
-  .acc-link-ic { flex:0 0 22px; font-size:1.15rem; text-align:center; }
-  .acc-link-arr { margin-left:auto; color:var(--muted2); font-size:1.05rem; }
-  .acc-signout { width:100%; background:rgba(255,77,77,0.08); color:#ff6b6b; border:1px solid rgba(255,77,77,0.25); border-radius:14px; padding:15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; cursor:pointer; transition:all .15s; }
-  .acc-signout:active { transform:scale(0.98); }
-  .acc-version { text-align:center; font-size:.72rem; color:var(--muted2); margin-top:16px; }
-  .acc-toast { position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); z-index:200; background:var(--surface2); border:1px solid var(--border2); color:var(--white); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; padding:11px 18px; border-radius:99px; box-shadow:0 12px 30px rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; }
-  .acc-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-  /* ═══════════ STUDIO VIDÉO (publier) ═══════════ */
-  .vs-drop { width:100%; border:1.5px dashed var(--border2); background:rgba(47,123,255,0.04); border-radius:16px; padding:28px 16px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; transition:border-color .2s, background .2s; }
-  .vs-drop:active { transform:scale(0.99); }
-  .vs-drop:hover { border-color:var(--blue); background:rgba(47,123,255,0.08); }
-  .vs-drop-ic { font-size:1.9rem; }
-  .vs-drop-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.98rem; color:var(--white); }
-  .vs-drop-s { font-size:.78rem; color:var(--muted); }
-  .vs-preview-wrap { position:relative; border-radius:16px; overflow:hidden; background:#000; border:1px solid var(--border); }
-  .vs-preview { width:100%; max-height:340px; display:block; background:#000; }
-  .vs-remove { position:absolute; top:8px; right:8px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.6); color:#fff; border:none; font-size:1rem; cursor:pointer; z-index:2; }
-  .vs-remove:active { transform:scale(0.92); }
-  .vs-res-score { display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.025); border:1px solid var(--border); border-radius:18px; padding:16px; margin-bottom:14px; }
-  .vs-ring { flex:0 0 84px; width:84px; height:84px; position:relative; }
-  .vs-ring-n { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .vs-ring-v { font-family:'Fraunces',serif; font-weight:800; font-size:1.5rem; color:var(--white); line-height:1; }
-  .vs-ring-s { font-size:.6rem; color:var(--muted); }
-  .vs-res-verdict { flex:1; min-width:0; }
-  .vs-res-verdict h4 { font-family:'Fraunces',serif; font-weight:800; font-size:1.05rem; color:var(--white); margin-bottom:4px; }
-  .vs-res-verdict p { font-size:.84rem; color:var(--muted); line-height:1.4; }
-  .vs-block { background:rgba(255,255,255,0.025); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:12px; }
-  .vs-block-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; margin-bottom:9px; display:flex; align-items:center; gap:6px; }
-  .vs-block-t.good { color:var(--green); } .vs-block-t.bad { color:var(--orange); } .vs-block-t.blue { color:var(--blue-light); }
-  .vs-li { font-size:.86rem; color:var(--white); line-height:1.45; padding:5px 0 5px 18px; position:relative; }
-  .vs-li::before { content:''; position:absolute; left:2px; top:11px; width:6px; height:6px; border-radius:50%; background:var(--blue-light); }
-  .vs-block.good .vs-li::before { background:var(--green); }
-  .vs-block.bad .vs-li::before { background:var(--orange); }
-  .vs-hook { display:flex; align-items:center; gap:12px; }
-  .vs-hook-score { flex:0 0 auto; font-family:'Fraunces',serif; font-weight:800; font-size:1.4rem; color:var(--blue-light); }
-  .vs-hook-score small { font-size:.7rem; color:var(--muted); }
-  .vs-hashtags { display:flex; flex-wrap:wrap; gap:7px; margin-top:2px; }
-  .vs-htag { background:rgba(47,123,255,0.1); border:1px solid var(--border2); color:var(--blue-light); font-size:.78rem; font-weight:600; padding:5px 11px; border-radius:999px; font-family:'Sora',sans-serif; }
-  .vs-copy { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--white); border-radius:9px; padding:7px 12px; font-family:'Sora',sans-serif; font-weight:600; font-size:.76rem; cursor:pointer; margin-top:10px; }
-  .vs-copy:active { transform:scale(0.96); }
-  .vs-cap-sug { font-size:.86rem; color:var(--white); line-height:1.5; background:rgba(47,123,255,0.06); border:1px solid var(--border2); border-radius:11px; padding:11px 13px; }
-  .vs-besttime { display:flex; align-items:center; gap:10px; }
-  .vs-besttime-v { font-family:'Fraunces',serif; font-weight:800; font-size:1.15rem; color:var(--white); }
-  .vs-publish { width:100%; background:linear-gradient(135deg,#3ddc84,#1ba85f); color:#04240f; border:none; border-radius:14px; padding:15px; font-family:'Sora',sans-serif; font-weight:800; font-size:.98rem; cursor:pointer; margin-top:6px; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 8px 24px rgba(61,220,132,0.25); }
-  .vs-publish:active { transform:scale(0.98); }
-  .vs-phase2 { margin-top:10px; background:rgba(255,159,74,0.08); border:1px solid rgba(255,159,74,0.25); border-radius:11px; padding:11px 13px; font-size:.8rem; color:var(--white); line-height:1.45; }
-  .vs-phase2 b { color:var(--orange); }
-
-  /* ═══════════ FLUX DE PUBLICATION (plein écran) ═══════════ */
-  .pf-overlay { position:fixed; inset:0; z-index:9998; background:var(--bg); display:none; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-  .pf-overlay.open { display:block; }
-  .pf-shell { max-width:var(--max); margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding-bottom:110px; }
-  .pf-top { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:14px; padding:16px 18px 14px; background:rgba(4,6,13,0.88); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
-  .pf-close { flex:0 0 auto; width:38px; height:38px; border-radius:50%; background:var(--surface); border:1px solid var(--border); color:var(--white); font-size:1rem; cursor:pointer; }
-  .pf-close:active { transform:scale(0.92); }
-  .pf-head-tx { flex:1; min-width:0; }
-  .pf-progress { height:5px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
-  .pf-progress-fill { height:100%; width:25%; background:linear-gradient(90deg,#4d8fff,#1a6fff); border-radius:99px; transition:width .4s ease; }
-  .pf-step-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.66rem; letter-spacing:.1em; color:var(--muted); margin-top:7px; text-transform:uppercase; }
-  .pf-body { flex:1; padding:22px 18px 0; animation:obIn .35s ease; }
-  .pf-h { font-family:'Fraunces',serif; font-weight:800; font-size:1.55rem; color:var(--white); margin-bottom:6px; }
-  .pf-sub { font-size:.9rem; color:var(--muted); line-height:1.5; margin-bottom:20px; }
-  .pf-foot { position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:100%; max-width:var(--max); display:flex; gap:10px; padding:14px 18px calc(16px + env(safe-area-inset-bottom)); background:rgba(7,11,22,0.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-top:1px solid var(--border); z-index:6; }
-  .pf-btn { flex:1; border:none; border-radius:13px; padding:15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.96rem; cursor:pointer; transition:transform .12s; }
-  .pf-btn:active { transform:scale(0.99); }
-  .pf-btn-primary { background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; box-shadow:0 8px 24px rgba(47,123,255,0.3); }
-  .pf-btn-primary:disabled { opacity:.5; box-shadow:none; }
-  .pf-btn-ghost { flex:0 0 auto; background:var(--surface); color:var(--white); border:1px solid var(--border); padding:15px 20px; }
-  .pf-publish { background:linear-gradient(135deg,#3ddc84,#1ba85f); color:#04240f; box-shadow:0 8px 24px rgba(61,220,132,0.28); }
-  .pf-drop { width:100%; aspect-ratio:9/12; max-height:52vh; border:1.5px dashed var(--border2); background:rgba(47,123,255,0.04); border-radius:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:border-color .2s,background .2s; }
-  .pf-drop:active { transform:scale(0.99); }
-  .pf-drop:hover { border-color:var(--blue); background:rgba(47,123,255,0.08); }
-  .pf-drop-ic { font-size:2.4rem; }
-  .pf-drop-t { font-family:'Sora',sans-serif; font-weight:700; font-size:1rem; color:var(--white); }
-  .pf-drop-s { font-size:.8rem; color:var(--muted); }
-  .pf-preview-wrap { position:relative; border-radius:20px; overflow:hidden; background:#000; border:1px solid var(--border); }
-  .pf-preview { width:100%; max-height:52vh; display:block; background:#000; }
-  .pf-replace { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.6); color:#fff; border:none; border-radius:99px; padding:8px 14px; font-family:'Sora',sans-serif; font-weight:600; font-size:.78rem; cursor:pointer; z-index:2; }
-  .pf-label { font-size:.72rem; color:var(--muted); margin:18px 0 9px; text-transform:uppercase; letter-spacing:.05em; }
-  .pf-loading { text-align:center; padding:54px 0; }
-  .pf-tags { display:flex; flex-wrap:wrap; gap:8px; }
-  .pf-tag { background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; padding:8px 13px; border-radius:999px; cursor:pointer; transition:all .15s; }
-  .pf-tag.on { background:rgba(47,123,255,0.14); border-color:var(--border2); color:var(--blue-light); }
-  .pf-tag-add { display:flex; gap:8px; margin-top:12px; }
-  .pf-tag-add input { flex:1; min-width:0; background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:11px 13px; color:var(--white); font-family:'Sora',sans-serif; font-size:.9rem; outline:none; }
-  .pf-tag-add input:focus { border-color:var(--blue); }
-  .pf-tag-add button { flex:0 0 auto; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--white); border-radius:11px; padding:0 16px; font-size:1.1rem; font-weight:700; cursor:pointer; }
-  .pf-acc { display:flex; align-items:center; gap:13px; background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:14px; margin-bottom:10px; cursor:pointer; transition:border-color .15s,background .15s; }
-  .pf-acc.on { border-color:var(--blue); background:rgba(47,123,255,0.07); }
-  .pf-acc-ic { flex:0 0 40px; width:40px; height:40px; border-radius:11px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
-  .pf-acc-tx { flex:1; min-width:0; }
-  .pf-acc-n { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--white); }
-  .pf-acc-p { font-size:.76rem; color:var(--muted); }
-  .pf-acc-check { flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; color:transparent; font-size:.7rem; font-weight:800; transition:all .15s; }
-  .pf-acc.on .pf-acc-check { background:var(--blue); border-color:var(--blue); color:#fff; }
-  .pf-when { display:flex; gap:10px; }
-  .pf-when-opt { flex:1; background:var(--surface); border:1.5px solid var(--border); border-radius:13px; padding:14px; cursor:pointer; text-align:center; transition:all .15s; }
-  .pf-when-opt.on { border-color:var(--blue); background:rgba(47,123,255,0.08); }
-  .pf-when-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem; color:var(--white); }
-  .pf-when-s { font-size:.74rem; color:var(--muted); margin-top:3px; }
-  .pf-notice { background:rgba(255,159,74,0.08); border:1px solid rgba(255,159,74,0.25); border-radius:12px; padding:13px; font-size:.84rem; color:var(--white); line-height:1.5; margin-top:14px; }
-  .pf-notice b { color:var(--orange); }
-  .pf-empty { text-align:center; color:var(--muted); font-size:.86rem; padding:18px; background:var(--surface); border:1px solid var(--border); border-radius:14px; }
+  /* === PUBLISH SCREEN === */
+  .pub-ey{font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);font-weight:700;margin-bottom:15px;}
+  .pub-div{height:1px;background:rgba(255,255,255,0.06);margin:28px 0;}
+  
+  .pub-plats{display:flex;gap:12px;margin-bottom:13px;}
+  .pub-plat{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;}
+  .pub-ptile{width:100%;max-width:54px;aspect-ratio:1;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;}
+  .pub-ptile.sel{box-shadow:0 0 0 2px #05070f,0 0 0 4px var(--blue);}
+  .pub-ptile.off{opacity:.38;}
+  .pub-badge{position:absolute;top:-6px;right:-6px;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2.5px #05070f;}
+  .pub-badge.sel{background:var(--blue);}
+  .pub-badge.sel svg{width:9px;height:9px;}
+  .pub-badge.empty{background:#141d38;box-shadow:0 0 0 2.5px #05070f,inset 0 0 0 1.5px rgba(255,255,255,.28);}
+  .pub-badge.add{background:#2a3350;color:#cdd8ef;font-size:.82rem;font-weight:700;line-height:1;}
+  .pub-pname{font-size:.72rem;color:#aeb9d2;font-weight:500;}
+  .pub-pstat{font-size:.6rem;font-weight:600;}
+  .pub-pstat.on{color:#586a8e;}
+  .pub-pstat.off{color:var(--blue-light);}
+  .pub-phelp{font-size:.76rem;color:var(--muted2);line-height:1.5;margin:0 2px;}
+  
+  .pub-vrow{display:flex;gap:16px;align-items:center;}
+  .pub-vid{flex:0 0 auto;width:80px;height:142px;border-radius:13px;position:relative;overflow:hidden;background:linear-gradient(160deg,#1b2553,#0a1330);display:flex;align-items:center;justify-content:center;}
+  .pub-vid .play{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;}
+  .pub-vid .play svg{width:13px;height:13px;margin-left:2px;}
+  .pub-vid .dur{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.55);font-size:.62rem;padding:2px 5px;border-radius:4px;color:#fff;}
+  .pub-vmeta .vt{font-family:'Fraunces',serif;font-weight:600;font-size:1.1rem;color:#fff;margin-bottom:6px;}
+  .pub-vmeta .vl{font-size:.84rem;color:var(--muted);line-height:1.7;}
+  .pub-vmeta .vl b{color:#c6d0e6;font-weight:600;}
+  .pub-vmeta .an{display:inline-block;margin-top:8px;font-size:.74rem;font-weight:600;color:var(--green);}
+  
+  .pub-score{display:flex;gap:22px;align-items:center;}
+  .pub-big{flex:0 0 auto;text-align:center;}
+  .pub-big .n{font-family:'Fraunces',serif;font-weight:600;font-size:3.5rem;line-height:.85;color:var(--green);}
+  .pub-big .o{font-size:.95rem;color:var(--muted);font-weight:500;}
+  .pub-bars{flex:1;}
+  .pub-brow{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .pub-brow:last-child{margin-bottom:0;}
+  .pub-brow .bn{flex:0 0 72px;font-size:.78rem;color:var(--muted);}
+  .pub-brow .bt{flex:1;height:3px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;}
+  .pub-brow .bf{height:100%;border-radius:99px;}
+  .pub-brow .bv{flex:0 0 24px;text-align:right;font-weight:600;font-size:.78rem;}
+  .pub-tip{font-size:.82rem;color:#9aa7c6;line-height:1.5;margin-top:18px;}
+  .pub-tip b{color:var(--green);font-weight:600;}
+  
+  .pub-cap{font-size:.96rem;line-height:1.6;color:#e4ebf7;margin:0 0 11px;}
+  .pub-tags{font-size:.88rem;color:#6f82a8;line-height:1.6;margin:0 0 12px;}
+  .pub-edit{font-size:.74rem;color:var(--muted2);}
+  
+  .pub-when{display:flex;gap:22px;align-items:center;margin-bottom:6px;}
+  .pub-opt{font-size:.95rem;color:var(--muted);font-weight:500;padding-bottom:7px;border-bottom:2px solid transparent;}
+  .pub-opt.on{color:#fff;border-color:var(--blue);font-weight:600;}
+  .pub-besttime{font-size:.82rem;color:#9aa7c6;margin-top:14px;line-height:1.5;}
+  .pub-besttime b{color:var(--green);}
+  
+  .pub-ai{display:flex;align-items:center;gap:12px;margin-top:26px;}
+  .pub-ai .t{flex:1;font-size:.82rem;color:var(--muted);}
+  .pub-ai .t b{color:#c6d0e6;font-weight:600;}
+  .pub-sw{width:38px;height:23px;border-radius:99px;background:var(--green);position:relative;flex:0 0 auto;}
+  .pub-sw::after{content:'';position:absolute;top:3px;left:18px;width:17px;height:17px;border-radius:50%;background:#fff;}
+  
+  .pub-publish{display:flex;align-items:center;gap:13px;width:100%;border:none;border-radius:16px;padding:11px 15px;margin-top:28px;font-family:'Sora';color:#fff;background:linear-gradient(180deg,#4c93ff,#1d59cf);box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 16px 34px rgba(47,123,255,.34);}
+  .pub-publish .ava{display:flex;flex:0 0 auto;}
+  .pub-publish .ava i{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-left:-10px;box-shadow:0 0 0 2px #2f6fe0;}
+  .pub-publish .ava i:first-child{margin-left:0;}
+  .pub-publish .pl{flex:1;text-align:center;font-weight:600;font-size:.98rem;letter-spacing:.01em;}
+  .pub-publish .arr{flex:0 0 auto;}
 
 </style>
 </head>
@@ -1179,7 +1046,6 @@
   <div class="topbar">
     <div class="logo">Skill<span>ora</span></div>
     <div class="top-icons">
-      <div class="icon-btn" onclick="switchView('community')" title="Communauté">💬</div>
       <div class="icon-btn">🔍</div>
       <div class="icon-btn">🔔<span class="dot"></span></div>
     </div>
@@ -1199,20 +1065,6 @@
   </div>
 
   <div id="connectOverlay" class="cx-overlay"></div>
-
-  <!-- ═══ FLUX DE PUBLICATION (plein écran, par étapes) ═══ -->
-  <div id="pubFlow" class="pf-overlay">
-    <div class="pf-shell">
-      <div class="pf-top">
-        <button class="pf-close" onclick="closePubFlow()" aria-label="Fermer">✕</button>
-        <div class="pf-head-tx">
-          <div class="pf-progress"><div class="pf-progress-fill" id="pfProgress"></div></div>
-          <div class="pf-step-label" id="pfStepLabel">Étape 1 / 4</div>
-        </div>
-      </div>
-      <div class="pf-body" id="pfBody"></div>
-    </div>
-  </div>
 
   <div class="view active" id="view-home">
     <h1 class="page-title reveal" style="animation-delay:.05s">Bonjour 👋</h1>
@@ -1345,7 +1197,7 @@
   </div>
 
   <div class="view" id="view-ia">
-    <h1 class="page-title reveal" style="animation-delay:.05s">Ton coach 🎯</h1>
+    <h1 class="page-title reveal" style="animation-delay:.05s">Ton studio 🎯</h1>
     <p class="page-sub reveal" style="animation-delay:.12s">Ton studio de création personnalisé.</p>
 
     <!-- ===== Studio : profils de niche ===== -->
@@ -1490,40 +1342,21 @@
   </div>
 
   <div class="view" id="view-profile">
-    <h1 class="page-title">Compte</h1>
-    <p class="page-sub">Ton profil, ton abonnement et tes réglages.</p>
-
-    <!-- En-tête premium -->
-    <div class="acc-hero">
-      <div class="acc-hero-cover"></div>
-      <div class="acc-hero-body">
-        <div class="acc-av" id="avatarInitial">S</div>
-        <div class="acc-name-row">
-          <div class="acc-name" id="profileName">Créateur</div>
-          <button class="acc-edit" onclick="toggleNameEdit(true)" title="Modifier mon nom">✎</button>
-        </div>
-        <div class="acc-name-edit" id="accNameEdit">
-          <input type="text" id="accNameInput" placeholder="Ton nom" maxlength="40" autocomplete="off">
-          <button class="acc-save" onclick="saveProfileName()">OK</button>
-          <button class="acc-cancel" onclick="toggleNameEdit(false)">✕</button>
-        </div>
-        <div class="acc-email" id="profileEmail">—</div>
-        <div class="acc-chips" id="accChips"></div>
+    <h1 class="page-title">Profil</h1>
+    <p class="page-sub">Ton compte et ton abonnement.</p>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1857c4);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:800;font-size:1.5rem;" id="avatarInitial">S</div>
+        <div><h3 style="font-size:1.2rem;" id="profileName">Créateur</h3><p style="color:var(--muted);font-size:.85rem;" id="profileEmail">—</p></div>
       </div>
     </div>
-
-    <!-- Contenu dynamique : plan, usage, série, réglages, parrainage -->
-    <div id="accDynamic"></div>
-
-    <!-- Liens -->
-    <div class="acc-links">
-      <a class="acc-link" href="terms.html"><span class="acc-link-ic">📄</span> Conditions d'utilisation <span class="acc-link-arr">→</span></a>
-      <a class="acc-link" href="privacy.html"><span class="acc-link-ic">🔒</span> Confidentialité <span class="acc-link-arr">→</span></a>
-      <div class="acc-link" onclick="openCoachContact()"><span class="acc-link-ic">💬</span> Aide &amp; support <span class="acc-link-arr">→</span></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><h4 style="font-family:'Sora';font-weight:600;">Abonnement</h4><p style="color:var(--muted);font-size:.85rem;margin-top:3px;">Plan Starter</p></div>
+        <button class="btn-primary" style="width:auto;padding:11px 18px;font-size:.9rem;" onclick="openUpgrade()">Améliorer</button>
+      </div>
     </div>
-
-    <button class="acc-signout" onclick="signOut()">Se déconnecter</button>
-    <div class="acc-version">Skillora · v2.0</div>
+    <button class="btn-ghost" style="background:var(--surface);color:var(--white);border:1px solid var(--border);" onclick="signOut()">Se déconnecter</button>
   </div>
 
   <div class="modal" id="composerModal" onclick="closeComposer(event)">
@@ -1563,6 +1396,78 @@
         <button class="btn-primary" style="margin-top:18px;" onclick="closeEmailPopupSuccess()">Parfait, merci !</button>
       </div>
     </div>
+  </div>
+
+  <!-- Publish Screen -->
+  <div class="view" id="view-publish">
+    <h1 class="page-title">Publier</h1>
+    <p class="page-sub">Une vidéo, toutes tes plateformes — au bon moment.</p>
+
+    <div class="pub-ey">Où publier</div>
+    <div class="pub-plats" id="pubPlatforms">
+      <div class="pub-plat">
+        <div class="pub-ptile sel" style="background:#010101;"><svg viewBox="0 0 24 24" width="23" height="23"><path d="M16.5 3c.3 2 1.7 3.7 3.7 4v2.5c-1.4 0-2.7-.4-3.8-1.2v6.4a5.3 5.3 0 1 1-5.3-5.3c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.5V3h2.6z" fill="#fff"/></svg><div class="pub-badge sel"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></div></div>
+        <div class="pub-pname">TikTok</div><div class="pub-pstat on">Connecté</div>
+      </div>
+      <div class="pub-plat">
+        <div class="pub-ptile sel" style="background:linear-gradient(135deg,#feda75,#d62976 45%,#962fbf 75%,#4f5bd5);"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="#fff" stroke-width="1.9"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.6" cy="7.4" r="1" fill="#fff" stroke="none"/></svg><div class="pub-badge sel"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg></div></div>
+        <div class="pub-pname">Instagram</div><div class="pub-pstat on">Connecté</div>
+      </div>
+      <div class="pub-plat">
+        <div class="pub-ptile" style="background:#1877F2;"><svg viewBox="0 0 24 24" width="21" height="21"><path d="M15 8.5h2V5.6c-.4 0-1.5-.1-2.4-.1-2.3 0-3.8 1.4-3.8 4v2.3H8.2V15h2.6v7h3.1v-7h2.6l.4-3.2h-3V9.4c0-.6.2-.9 1.1-.9z" fill="#fff"/></svg><div class="pub-badge empty"></div></div>
+        <div class="pub-pname">Facebook</div><div class="pub-pstat on">Connecté</div>
+      </div>
+      <div class="pub-plat">
+        <div class="pub-ptile off" style="background:#FF0000;"><svg viewBox="0 0 24 24" width="23" height="23"><path d="M21.5 8.2c-.2-1.1-.9-1.9-2-2.1C17.7 5.7 12 5.7 12 5.7s-5.7 0-7.5.4c-1.1.2-1.8 1-2 2.1C2.1 10 2.1 12 2.1 12s0 2 .4 3.8c.2 1.1.9 1.9 2 2.1 1.8.4 7.5.4 7.5.4s5.7 0 7.5-.4c1.1-.2 1.8-1 2-2.1.4-1.8.4-3.8.4-3.8s0-2-.4-3.8z" fill="#fff"/><path d="M10 15l5-3-5-3z" fill="#FF0000"/></svg><div class="pub-badge add">+</div></div>
+        <div class="pub-pname">YouTube</div><div class="pub-pstat off">Connecter</div>
+      </div>
+    </div>
+    <p class="pub-phelp"><b style="color:#6ba0ff;font-weight:600;">Anneau bleu</b> = sélectionné · <b style="color:#586a8e;font-weight:600;">cercle vide</b> = à ajouter · <b style="color:#6ba0ff;font-weight:600;">+</b> = à connecter.</p>
+
+    <div class="pub-div"></div>
+
+    <div class="pub-vrow">
+      <div class="pub-vid"><div class="play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div><div class="dur">0:32</div></div>
+      <div class="pub-vmeta"><div class="vt">Ta vidéo</div><div class="vl">Format vertical · 0:32<br>Sujet : <b>Astuces d'épargne</b></div><div class="an">✦ Analysée par Skillora</div></div>
+    </div>
+
+    <div class="pub-div"></div>
+
+    <div class="pub-ey">Potentiel viral</div>
+    <div class="pub-score">
+      <div class="pub-big"><div class="n">8.0</div><div class="o">sur 10</div></div>
+      <div class="pub-bars">
+        <div class="pub-brow"><div class="bn">Accroche</div><div class="pub-bt"><div class="pub-bf" style="width:86%;background:var(--green);"></div></div><div class="pub-bv" style="color:var(--green);">8.6</div></div>
+        <div class="pub-brow"><div class="bn">Format</div><div class="pub-bt"><div class="pub-bf" style="width:89%;background:var(--green);"></div></div><div class="pub-bv" style="color:var(--green);">8.9</div></div>
+        <div class="pub-brow"><div class="bn">Rétention</div><div class="pub-bt"><div class="pub-bf" style="width:69%;background:var(--orange);"></div></div><div class="pub-bv" style="color:var(--orange);">6.9</div></div>
+        <div class="pub-brow"><div class="bn">Légende</div><div class="pub-bt"><div class="pub-bf" style="width:84%;background:var(--green);"></div></div><div class="pub-bv" style="color:var(--green);">8.4</div></div>
+      </div>
+    </div>
+    <p class="pub-tip">💡 Coupe 2 s d'intro pour accrocher plus vite et viser <b>9/10</b>.</p>
+
+    <div class="pub-div"></div>
+
+    <div class="pub-ey">Légende</div>
+    <p class="pub-cap">3 réflexes pour mettre 100 € de côté ce mois-ci sans t'en rendre compte 💸 Le n°2 change tout.</p>
+    <p class="pub-tags">#FinancePerso #ÉpargneFacile #AstucesArgent #pourtoi #fyp</p>
+    <p class="pub-edit">✎ Proposé par Skillora · appuie pour modifier</p>
+
+    <div class="pub-div"></div>
+
+    <div class="pub-ey">Quand</div>
+    <div class="pub-when"><div class="pub-opt on">Au bon moment</div><div class="pub-opt">Maintenant</div></div>
+    <p class="pub-besttime">Un seul créneau idéal pour <b>tes 3 plateformes</b> : aujourd'hui <b>19 h 12</b>.</p>
+
+    <div class="pub-ai"><div class="t"><b>Contenu IA</b> · détecté, déclaré aux plateformes</div><div class="pub-sw"></div></div>
+
+    <button class="pub-publish" id="publishBtn">
+      <span class="ava">
+        <i style="background:#010101;"><svg viewBox="0 0 24 24" width="15" height="15"><path d="M16.5 3c.3 2 1.7 3.7 3.7 4v2.5c-1.4 0-2.7-.4-3.8-1.2v6.4a5.3 5.3 0 1 1-5.3-5.3c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.5V3h2.6z" fill="#fff"/></svg></i>
+        <i style="background:linear-gradient(135deg,#feda75,#d62976 45%,#962fbf 75%,#4f5bd5);"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.2"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.6" cy="7.4" r="1" fill="#fff" stroke="none"/></svg></i>
+      </span>
+      <span class="pl">Publier au bon moment</span>
+      <svg class="arr" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
   </div>
 
   <!-- Upgrade popup (for non-subscribers, ready for later) -->
@@ -1676,9 +1581,9 @@
 
 <div class="bottomnav">
   <button class="nav-btn active" onclick="switchView('home', this)"><span class="ni">🏠</span>Accueil</button>
-  <button class="nav-btn" onclick="switchView('library', this)"><span class="ni">📚</span>Guides</button>
-  <button class="nav-btn center" onclick="openPubFlow()" title="Créer / Publier"><span class="ni">+</span>Créer</button>
-  <button class="nav-btn" onclick="switchView('ia', this)"><span class="ni"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6.5" r="3"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/><path d="M17.5 9.5l1.8-1.8M19.3 7.7H17M19.3 7.7v2.3"/></svg></span>Coach</button>
+  <button class="nav-btn" onclick="switchView('ia', this)"><span class="ni"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5l3 3L7 17l-3.5.5L4 14z"/><path d="M11.5 6.5l3 3"/><path d="M18.6 2.4l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="currentColor" stroke="none"/></svg></span>Studio</button>
+  <button class="nav-btn center" onclick="switchView('publish', this)"><span class="ni"><span style="font-size:1.5rem;line-height:1;display:block;transform:translateY(1px);">+</span></span>Publier</button>
+  <button class="nav-btn" onclick="switchView('community', this)"><span class="ni">💬</span>Communauté</button>
   <button class="nav-btn" onclick="switchView('profile', this)"><span class="ni">👤</span>Profil</button>
 </div>
 
@@ -1731,7 +1636,6 @@
   })();
 
   function applyUser(user) {
-    window._authUser = user;
     const name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email ? user.email.split('@')[0] : 'Créateur');
     const greetEl = document.querySelector('#view-home .page-title');
     if (greetEl) greetEl.textContent = 'Bonjour ' + name + ' 👋';
@@ -1740,7 +1644,6 @@
     const pn = document.getElementById('profileName'); if (pn) pn.textContent = name;
     const pe = document.getElementById('profileEmail'); if (pe && user.email) pe.textContent = user.email;
     const av = document.getElementById('avatarInitial'); if (av) av.textContent = (name[0] || 'S').toUpperCase();
-    try { bumpStreak(); } catch(e){}
     checkOnboarding(user);
     loadHomeDashboard();
     loadUserPlan();        // charge le plan réel depuis Stripe/Supabase
@@ -1778,7 +1681,6 @@
       if (typeof updateQuotaLabel === 'function') updateQuotaLabel();
       if (typeof updateCoachLock === 'function') updateCoachLock();
       if (typeof renderProfiles === 'function') { try { renderProfiles(); } catch(e){} }
-      if (typeof renderProfilePage === 'function' && document.getElementById('view-profile') && document.getElementById('view-profile').classList.contains('active')) { try { renderProfilePage(); } catch(e){} }
     } catch(e){}
   }
 
@@ -2575,7 +2477,6 @@
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { redrawWorkflowSoon(); }
-    if (name === 'profile') { try { renderProfilePage(); } catch(e){} }
     window.scrollTo(0, 0);
   }
 
@@ -2587,608 +2488,6 @@
         switchView(v, null);
       }
     } catch(e) {}
-  }
-
-  /* ═══════════ COMPTE / PROFIL PRO ═══════════ */
-
-  // ── Série d'activité (streak) ──
-  function _dayStamp(d) { d = d || new Date(); return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
-  function getStreak() {
-    try { return JSON.parse(localStorage.getItem('skillora_streak') || '{"count":0,"last":"","best":0}'); }
-    catch(e){ return { count:0, last:'', best:0 }; }
-  }
-  // Incrémente la série une fois par jour (jours consécutifs)
-  function bumpStreak() {
-    var s = getStreak();
-    var today = _dayStamp();
-    if (s.last === today) return s; // déjà compté aujourd'hui
-    var y = new Date(); y.setDate(y.getDate() - 1);
-    s.count = (s.last === _dayStamp(y)) ? (s.count || 0) + 1 : 1;
-    s.last = today;
-    s.best = Math.max(s.best || 0, s.count);
-    try { localStorage.setItem('skillora_streak', JSON.stringify(s)); } catch(e){}
-    return s;
-  }
-
-  // ── Réglages persistés ──
-  var DEFAULT_SETTINGS = { dailyEmail:true, streakReminder:true, tips:false };
-  function getSettings() {
-    try { return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(localStorage.getItem('skillora_settings') || '{}')); }
-    catch(e){ return Object.assign({}, DEFAULT_SETTINGS); }
-  }
-  function toggleSetting(key, el) {
-    var s = getSettings();
-    s[key] = !s[key];
-    try { localStorage.setItem('skillora_settings', JSON.stringify(s)); } catch(e){}
-    if (el) el.classList.toggle('on', s[key]);
-    accToast(s[key] ? 'Activé ✓' : 'Désactivé');
-  }
-
-  // ── Édition du nom ──
-  function toggleNameEdit(on) {
-    var box = document.getElementById('accNameEdit');
-    var input = document.getElementById('accNameInput');
-    if (!box) return;
-    if (on) {
-      input.value = (document.getElementById('profileName').textContent || '').trim();
-      box.classList.add('on');
-      setTimeout(function(){ input.focus(); }, 50);
-    } else { box.classList.remove('on'); }
-  }
-  async function saveProfileName() {
-    var input = document.getElementById('accNameInput');
-    var name = (input.value || '').trim();
-    if (name.length < 2) { accToast('Nom trop court'); return; }
-    document.getElementById('profileName').textContent = name;
-    var av = document.getElementById('avatarInitial'); if (av) av.textContent = name[0].toUpperCase();
-    var greet = document.querySelector('#view-home .page-title'); if (greet) greet.textContent = 'Bonjour ' + name + ' 👋';
-    toggleNameEdit(false);
-    accToast('Nom mis à jour ✓');
-    try { await sb.auth.updateUser({ data: { full_name: name } }); } catch(e){}
-  }
-
-  // ── Parrainage / partage ──
-  function referralCode() {
-    var u = window._authUser || {};
-    var base = (u.email ? u.email.split('@')[0] : 'creator').replace(/[^a-z0-9]/gi,'').toUpperCase().slice(0,6);
-    var suf = (u.id || 'x').replace(/[^a-z0-9]/gi,'').slice(-3).toUpperCase();
-    return (base || 'SKILL') + suf;
-  }
-  function copyReferral() {
-    var code = referralCode();
-    var link = location.origin + '/signup.html?ref=' + code;
-    try {
-      navigator.clipboard.writeText(link);
-      accToast('Lien copié ✓');
-    } catch(e){ accToast(link); }
-  }
-  function shareApp() {
-    var code = referralCode();
-    var link = location.origin + '/signup.html?ref=' + code;
-    var txt = 'Rejoins-moi sur Skillora pour apprendre à monétiser tes vidéos 🚀';
-    if (navigator.share) {
-      navigator.share({ title:'Skillora', text:txt, url:link }).catch(function(){});
-    } else { copyReferral(); }
-  }
-
-  // ── Petit toast ──
-  function accToast(msg) {
-    var t = document.getElementById('accToast');
-    if (!t) { t = document.createElement('div'); t.id = 'accToast'; t.className = 'acc-toast'; document.body.appendChild(t); }
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(window._accToastT);
-    window._accToastT = setTimeout(function(){ t.classList.remove('show'); }, 1900);
-  }
-
-  // ── Rendu de la page ──
-  function renderProfilePage() {
-    var planKey = userPlan || 'starter';
-    var planName = PLAN_NAMES[planKey] || 'Starter';
-
-    // Badges en-tête
-    var chips = document.getElementById('accChips');
-    if (chips) {
-      var since = '';
-      var u = window._authUser || {};
-      if (u.created_at) {
-        var d = new Date(u.created_at);
-        var months = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-        since = months[d.getMonth()] + ' ' + d.getFullYear();
-      }
-      var planIco = planKey === 'elite' ? '👑' : (planKey === 'growth' ? '⚡' : '✦');
-      chips.innerHTML =
-        '<span class="acc-chip plan-' + planKey + '">' + planIco + ' Plan ' + planName + '</span>' +
-        (since ? '<span class="acc-chip">📅 Membre depuis ' + since + '</span>' : '') +
-        '<span class="acc-chip">🔥 ' + (getStreak().count || 0) + ' j de série</span>';
-    }
-
-    var dyn = document.getElementById('accDynamic');
-    if (!dyn) return;
-
-    // ── Carte plan ──
-    var isElite = planKey === 'elite';
-    var planDesc = planKey === 'elite' ? 'Accès maximum : tout est débloqué.'
-                 : planKey === 'growth' ? 'Tu scales sérieusement. Pense à passer Elite pour le coach dédié.'
-                 : 'Plan de départ. Passe au niveau supérieur pour débloquer plus.';
-    var html = '<div class="acc-card acc-plan' + (isElite ? ' elite' : '') + '">' +
-      '<div class="acc-plan-top">' +
-        '<div class="acc-plan-ic">' + (isElite ? '👑' : (planKey === 'growth' ? '⚡' : '✦')) + '</div>' +
-        '<div style="flex:1;min-width:0;">' +
-          '<div class="acc-plan-name">Plan ' + planName + '</div>' +
-          '<div class="acc-plan-sub">' + planDesc + '</div>' +
-        '</div>' +
-      '</div>' +
-      (isElite
-        ? '<button class="acc-plan-cta manage" onclick="openUpgrade()">Gérer mon abonnement</button>'
-        : '<button class="acc-plan-cta" onclick="openUpgrade()">' + (planKey === 'starter' ? 'Voir les offres →' : 'Passer à Elite →') + '</button>') +
-    '</div>';
-
-    // ── Carte utilisation (jauges réelles) ──
-    var aUsed = getAnalysesToday(), aMax = analysesLimit();
-    var pUsed = (typeof profiles !== 'undefined' && profiles) ? profiles.length : 0;
-    var pMax = (typeof maxProfiles !== 'undefined') ? maxProfiles : (PLAN_PROFILES[planKey] || 1);
-    var bUsed = (FREE_BOOKS.length) + chosenBooks().length;
-    var bMax = isElite ? Object.keys(BOOK_TITLES).length : (FREE_BOOKS.length + (CHOICE_LIMIT[planKey] || 2));
-
-    html += '<div class="acc-card">' +
-      '<div class="acc-card-h"><div class="acc-card-t">📊 Ton utilisation</div></div>' +
-      '<div class="acc-usage">' +
-        accMeter('✍️ Analyses du jour', aUsed, aMax, false) +
-        accMeter('🎯 Profils de niche', pUsed, pMax, isElite && pMax >= 99) +
-        accMeter('📚 Ebooks débloqués', bUsed, bMax, isElite) +
-      '</div>' +
-      (aUsed >= aMax
-        ? '<div class="acc-streak-banner" style="margin-top:4px;background:linear-gradient(135deg,rgba(47,123,255,0.12),rgba(47,123,255,0.04));border-color:var(--border2);"><div class="acc-streak-fire">⏳</div><div class="acc-streak-tx">Tu as utilisé toutes tes analyses du jour. <b style="color:var(--blue-light);cursor:pointer;" onclick="openUpgrade()">Augmenter ma limite →</b></div></div>'
-        : '') +
-    '</div>';
-
-    // ── Carte série / stats ──
-    var st = getStreak();
-    html += '<div class="acc-card">' +
-      '<div class="acc-card-h"><div class="acc-card-t">🔥 Ton activité</div></div>' +
-      '<div class="acc-stats">' +
-        '<div class="acc-stat"><div class="acc-stat-v">' + (st.count||0) + '<span class="fl"> j</span></div><div class="acc-stat-l">Série en cours</div></div>' +
-        '<div class="acc-stat"><div class="acc-stat-v">' + (st.best||st.count||0) + '<span class="fl"> j</span></div><div class="acc-stat-l">Record</div></div>' +
-        '<div class="acc-stat"><div class="acc-stat-v">' + aUsed + '</div><div class="acc-stat-l">Analyses aujourd\'hui</div></div>' +
-      '</div>' +
-      '<div class="acc-streak-banner"><div class="acc-streak-fire">🔥</div><div class="acc-streak-tx">' +
-        (st.count >= 2
-          ? 'Tu es en série de <b>' + st.count + ' jours</b> ! Reviens demain pour ne pas la perdre.'
-          : 'Reviens chaque jour pour bâtir ta série et garder le rythme.') +
-      '</div></div>' +
-    '</div>';
-
-    // ── Carte parrainage ──
-    html += '<div class="acc-card acc-ref">' +
-      '<div class="acc-card-h"><div class="acc-card-t">🎁 Invite un ami</div></div>' +
-      '<p style="font-size:.84rem;color:var(--muted);margin-bottom:13px;line-height:1.45;">Partage Skillora avec ton code. Tes amis te remercieront.</p>' +
-      '<div class="acc-ref-code"><code>' + referralCode() + '</code><button class="acc-ref-copy" onclick="copyReferral()">Copier</button></div>' +
-      '<button class="acc-ref-share" onclick="shareApp()">📤 Partager mon lien</button>' +
-    '</div>';
-
-    // ── Carte réglages ──
-    var set = getSettings();
-    html += '<div class="acc-card">' +
-      '<div class="acc-card-h"><div class="acc-card-t">⚙️ Réglages</div></div>' +
-      accSetting('dailyEmail', '📬', 'Plan quotidien par email', 'Ta mission et ton script chaque matin.', set.dailyEmail) +
-      accSetting('streakReminder', '🔔', 'Rappels de série', 'On te prévient avant de perdre ta série.', set.streakReminder) +
-      accSetting('tips', '💡', 'Conseils & nouveautés', 'Astuces de croissance de temps en temps.', set.tips) +
-    '</div>';
-
-    dyn.innerHTML = html;
-    // anime les jauges après insertion
-    requestAnimationFrame(function(){
-      document.querySelectorAll('#accDynamic .acc-use-fill[data-w]').forEach(function(f){ f.style.width = f.getAttribute('data-w') + '%'; });
-    });
-  }
-
-  function accMeter(label, used, max, infinite) {
-    var pct = infinite ? 100 : (max > 0 ? Math.min(100, Math.round((used/max)*100)) : 0);
-    var cls = infinite ? 'green' : (pct >= 100 ? 'full' : (pct >= 70 ? 'orange' : ''));
-    var valTxt = infinite
-      ? '<span class="acc-use-inf">✦ Illimité</span>'
-      : '<b>' + used + '</b> / ' + max;
-    return '<div class="acc-use-row">' +
-      '<div class="acc-use-top"><span class="acc-use-l">' + label + '</span><span class="acc-use-v">' + valTxt + '</span></div>' +
-      '<div class="acc-use-bar"><div class="acc-use-fill ' + cls + '" data-w="' + pct + '" style="width:0%"></div></div>' +
-    '</div>';
-  }
-
-  function accSetting(key, ic, title, sub, on) {
-    return '<div class="acc-set">' +
-      '<div class="acc-set-ic">' + ic + '</div>' +
-      '<div class="acc-set-tx"><div class="acc-set-t">' + title + '</div><div class="acc-set-s">' + sub + '</div></div>' +
-      '<div class="acc-toggle' + (on ? ' on' : '') + '" onclick="toggleSetting(\'' + key + '\', this)"></div>' +
-    '</div>';
-  }
-
-  /* ═══════════ STUDIO VIDÉO — note + publication (Phase 1) ═══════════ */
-  var vsPlatform = 'tiktok';
-  var vsDuration = 0;
-
-  function vsPickPlat(btn) {
-    document.querySelectorAll('#vsPlat .ps-btn').forEach(function(b){ b.classList.remove('active'); });
-    btn.classList.add('active');
-    vsPlatform = btn.getAttribute('data-plat') || 'tiktok';
-  }
-
-  function onVideoPick(input) {
-    var f = input.files && input.files[0];
-    if (!f) return;
-    if (f.size > 300 * 1024 * 1024) { accToast('Vidéo trop lourde (max 300 Mo)'); input.value = ''; return; }
-    var v = document.getElementById('vsVideo');
-    try { if (v.src) URL.revokeObjectURL(v.src); } catch(e){}
-    v.src = URL.createObjectURL(f);
-    v.load();
-    window._vsFile = f;
-    document.getElementById('vsUpload').style.display = 'none';
-    document.getElementById('vsConfig').style.display = 'block';
-    document.getElementById('vsResult').style.display = 'none';
-    document.getElementById('vsStatus').textContent = '';
-  }
-
-  function clearVideo() {
-    var v = document.getElementById('vsVideo');
-    try { if (v.src) URL.revokeObjectURL(v.src); } catch(e){}
-    v.removeAttribute('src'); try { v.load(); } catch(e){}
-    window._vsFile = null;
-    document.getElementById('vsConfig').style.display = 'none';
-    document.getElementById('vsResult').style.display = 'none';
-    document.getElementById('vsUpload').style.display = 'block';
-    document.getElementById('vsFile').value = '';
-    document.getElementById('vsStatus').textContent = '';
-  }
-
-  // Extrait quelques images de la vidéo (hook + réparties) en base64 JPEG
-  function extractFrames(video, count) {
-    return new Promise(function(resolve) {
-      var dur = video.duration || 0;
-      vsDuration = (dur && isFinite(dur)) ? Math.round(dur) : 0;
-      if (!dur || !isFinite(dur)) { resolve([]); return; }
-      var times = [Math.min(0.5, dur * 0.02)];
-      for (var k = 1; k < count; k++) times.push(dur * (k / count));
-      var canvas = document.createElement('canvas');
-      var ctx = null, frames = [], i = 0, W = 480;
-      function onSeek() {
-        try {
-          var vw = video.videoWidth, vh = video.videoHeight;
-          if (vw && vh) {
-            var scale = W / vw;
-            canvas.width = W; canvas.height = Math.round(vh * scale);
-            ctx = ctx || canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            frames.push(canvas.toDataURL('image/jpeg', 0.7));
-          }
-        } catch(e){}
-        i++;
-        if (i >= times.length) { video.removeEventListener('seeked', onSeek); resolve(frames); }
-        else video.currentTime = Math.min(times[i], dur - 0.05);
-      }
-      video.addEventListener('seeked', onSeek);
-      video.currentTime = Math.min(times[0], dur - 0.05);
-      // sécurité : timeout au cas où 'seeked' ne se déclenche pas
-      setTimeout(function(){ if (frames.length < times.length) { video.removeEventListener('seeked', onSeek); resolve(frames); } }, 9000);
-    });
-  }
-
-  // Contexte niche + hashtags qui marchent (depuis la dernière analyse / profil)
-  function vsNicheContext() {
-    var niche = '', tags = [];
-    try {
-      var a = window._lastAnalysis && window._lastAnalysis.summary;
-      if (a) {
-        if (a.insights && a.insights.niche) niche = a.insights.niche;
-        (a.best_videos || a.top_videos || []).forEach(function(v){ (v.hashtags || []).forEach(function(t){ if (t) tags.push(('' + t).replace(/^#/, '')); }); });
-      }
-    } catch(e){}
-    if ((!niche || !tags.length) && typeof profiles !== 'undefined' && profiles && profiles.length) {
-      if (!niche) niche = profiles[0].niche || '';
-      if (profiles[0].tags && profiles[0].tags.length) tags = tags.concat(profiles[0].tags);
-    }
-    var seen = {}, out = [];
-    tags.forEach(function(t){ t = ('' + t).toLowerCase().trim(); if (t && !seen[t]) { seen[t] = 1; out.push(t); } });
-    return { niche: niche, hashtags: out.slice(0, 30) };
-  }
-
-  // Meilleur moment : déduit de l'heure de publication des meilleures vidéos
-  function vsBestTime() {
-    try {
-      var a = window._lastAnalysis && window._lastAnalysis.summary;
-      var vids = a && (a.best_videos || a.top_videos);
-      if (vids && vids.length) {
-        var hours = {}, bestH = null, bestC = 0;
-        vids.forEach(function(v){ if (v.create_time) { var h = new Date(v.create_time * 1000).getHours(); hours[h] = (hours[h] || 0) + 1; } });
-        Object.keys(hours).forEach(function(h){ if (hours[h] > bestC) { bestC = hours[h]; bestH = +h; } });
-        if (bestH != null) return bestH + 'h – ' + ((bestH + 1) % 24) + 'h';
-      }
-    } catch(e){}
-    return null;
-  }
-  function vsDefaultTime(plat) {
-    return plat === 'shorts' ? '17h – 20h' : (plat === 'reels' ? '12h – 13h ou 19h – 21h' : '18h – 22h');
-  }
-
-  async function gradeVideo() {
-    var btn = document.getElementById('vsAnalyzeBtn');
-    var v = document.getElementById('vsVideo');
-    var status = document.getElementById('vsStatus');
-    status.textContent = '';
-    if (!window._vsFile) { status.textContent = 'Choisis une vidéo d\'abord.'; return; }
-    document.getElementById('vsResult').style.display = 'none';
-    document.getElementById('vsLoader').style.display = 'block';
-    setVsLoader('Extraction des images...');
-    btn.disabled = true;
-    try {
-      if (v.readyState < 2) {
-        await new Promise(function(res){ var done=false; v.addEventListener('loadeddata', function(){done=true;res();}, { once:true }); setTimeout(function(){ if(!done) res(); }, 5000); });
-      }
-      var frames = await extractFrames(v, 4);
-      setVsLoader('Analyse par Skillora...');
-      var caption = (document.getElementById('vsCaption').value || '').trim();
-      var ctx = vsNicheContext();
-      var sess = await sb.auth.getSession();
-      var session = sess.data.session;
-      if (!session) { document.getElementById('vsLoader').style.display='none'; btn.disabled=false; status.textContent='Session expirée, recharge la page.'; return; }
-      var res = await fetch(SB_URL + '/functions/v1/grade-video', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey': SB_KEY },
-        body: JSON.stringify({ caption: caption, platform: vsPlatform, niche: ctx.niche, duration_s: vsDuration, top_hashtags: ctx.hashtags, frames: frames })
-      });
-      var data = await res.json();
-      document.getElementById('vsLoader').style.display = 'none';
-      btn.disabled = false;
-      if (!res.ok || data.error) { status.textContent = data.error || 'Erreur, réessaie.'; return; }
-      renderVsResult(data.grade || {});
-    } catch (e) {
-      document.getElementById('vsLoader').style.display = 'none';
-      btn.disabled = false;
-      status.textContent = 'Erreur, réessaie.';
-    }
-  }
-
-  function setVsLoader(t) { var el = document.getElementById('vsLoaderLabel'); if (el) el.textContent = t; }
-
-  function renderVsResult(g) {
-    var score = Math.max(0, Math.min(100, parseInt(g.score, 10) || 0));
-    var color = score >= 75 ? '#3ddc84' : (score >= 50 ? '#5e9bff' : '#ff9f4a');
-    var circ = 232.5, off = circ - (score / 100) * circ;
-    var bt = vsBestTime() || vsDefaultTime(vsPlatform);
-    var head = score >= 75 ? 'Prête à cartonner' : (score >= 50 ? 'Du potentiel' : 'À retravailler');
-    var html = '<div class="vs-res-score">' +
-      '<div class="vs-ring"><svg width="84" height="84"><circle cx="42" cy="42" r="37" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7"/>' +
-        '<circle cx="42" cy="42" r="37" fill="none" stroke="' + color + '" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + off + '" transform="rotate(-90 42 42)"/></svg>' +
-        '<div class="vs-ring-n"><div class="vs-ring-v">' + score + '</div><div class="vs-ring-s">/100</div></div></div>' +
-      '<div class="vs-res-verdict"><h4>' + head + '</h4><p>' + escapeHtml(g.verdict || '') + '</p></div>' +
-    '</div>';
-
-    if (g.hook) {
-      html += '<div class="vs-block"><div class="vs-block-t blue">🎬 Hook (premières secondes)</div>' +
-        '<div class="vs-hook"><span class="vs-hook-score">' + (parseInt(g.hook.score, 10) || 0) + '<small>/10</small></span>' +
-        '<span style="font-size:.86rem;color:var(--white);line-height:1.45;">' + escapeHtml(g.hook.note || '') + '</span></div></div>';
-    }
-    if (g.strengths && g.strengths.length) {
-      html += '<div class="vs-block good"><div class="vs-block-t good">✓ Points forts</div>' +
-        g.strengths.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
-    }
-    if (g.weaknesses && g.weaknesses.length) {
-      html += '<div class="vs-block bad"><div class="vs-block-t bad">△ À améliorer</div>' +
-        g.weaknesses.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
-    }
-    if (g.fixes && g.fixes.length) {
-      html += '<div class="vs-block"><div class="vs-block-t blue">🔧 Correctifs prioritaires</div>' +
-        g.fixes.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
-    }
-    if (g.caption_suggestion) {
-      html += '<div class="vs-block"><div class="vs-block-t blue">✍️ Description suggérée</div>' +
-        '<div class="vs-cap-sug" id="vsCapSug">' + escapeHtml(g.caption_suggestion) + '</div>' +
-        '<button class="vs-copy" onclick="vsCopy(\'vsCapSug\')">Copier la description</button></div>';
-    }
-    var tags = (g.hashtags || []).map(function(t){ return ('' + t).replace(/^#/, ''); }).filter(Boolean).slice(0, 5);
-    if (tags.length) {
-      window._vsTags = tags;
-      html += '<div class="vs-block"><div class="vs-block-t blue"># Hashtags conseillés</div>' +
-        '<div class="vs-hashtags">' + tags.map(function(t){ return '<span class="vs-htag">#' + escapeHtml(t) + '</span>'; }).join('') + '</div>' +
-        '<button class="vs-copy" onclick="vsCopyTags()">Copier les hashtags</button></div>';
-    }
-    if (bt) {
-      html += '<div class="vs-block"><div class="vs-block-t blue">⏰ Meilleur moment pour publier</div>' +
-        '<div class="vs-besttime"><span style="font-size:1.3rem;">⏰</span><span class="vs-besttime-v">' + escapeHtml(bt) + '</span></div></div>';
-    }
-    html += '<button class="vs-publish" onclick="vsPublish()">🚀 Publier sur mes comptes</button>';
-    html += '<div class="vs-phase2"><b>Bientôt :</b> connecte tes comptes via Post for Me pour publier (ou programmer) cette vidéo automatiquement sur TikTok, Instagram et YouTube en un clic.</div>';
-
-    var r = document.getElementById('vsResult');
-    r.innerHTML = html;
-    r.style.display = 'block';
-    try { r.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(e){}
-  }
-
-  function vsCopy(id) {
-    var el = document.getElementById(id); if (!el) return;
-    try { navigator.clipboard.writeText(el.textContent); accToast('Copié ✓'); } catch(e){}
-  }
-  function vsCopyTags() {
-    var t = (window._vsTags || []).map(function(x){ return '#' + x; }).join(' ');
-    try { navigator.clipboard.writeText(t); accToast('Hashtags copiés ✓'); } catch(e){}
-  }
-  function vsPublish() { accToast('Publication réelle : bientôt via Post for Me 🚀'); }
-
-  /* ═══════════ FLUX DE PUBLICATION plein écran (4 étapes) ═══════════ */
-  var pf = null;
-  function pfReset() { pf = { step:1, file:null, _url:null, platform:'tiktok', grade:null, caption:'', hashtags:[], tagsOn:{}, accounts:[], selAcc:{}, when:'best' }; }
-
-  function openPubFlow() {
-    pfReset();
-    document.getElementById('pubFlow').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    renderPf();
-  }
-  function closePubFlow() {
-    document.getElementById('pubFlow').classList.remove('open');
-    document.body.style.overflow = '';
-    try { if (pf && pf._url) URL.revokeObjectURL(pf._url); } catch(e){}
-  }
-
-  function renderPf() {
-    var pct = (pf.step / 4) * 100;
-    document.getElementById('pfProgress').style.width = pct + '%';
-    document.getElementById('pfStepLabel').textContent = 'Étape ' + pf.step + ' / 4';
-    var b = document.getElementById('pfBody');
-    if (pf.step === 1) {
-      b.innerHTML = pfStepUpload();
-      if (pf.file && pf._url) { var v = document.getElementById('pfVideo'); if (v) { v.src = pf._url; try { v.load(); } catch(e){} } }
-    } else if (pf.step === 2) b.innerHTML = pfStepNote();
-    else if (pf.step === 3) b.innerHTML = pfStepOptimize();
-    else if (pf.step === 4) { b.innerHTML = pfStepAccounts(); pfLoadAccounts(); }
-    try { document.getElementById('pubFlow').scrollTop = 0; } catch(e){}
-  }
-  function pfGo(n) { pf.step = n; renderPf(); }
-
-  function pfFoot(backAction, nextLabel, nextAction, disabled) {
-    var back = backAction ? '<button class="pf-btn pf-btn-ghost" onclick="' + backAction + '">←</button>' : '';
-    var cls = (nextAction && nextAction.indexOf('pfPublish') >= 0) ? 'pf-btn pf-publish' : 'pf-btn pf-btn-primary';
-    return '<div class="pf-foot">' + back + '<button class="' + cls + '"' + (disabled ? ' disabled' : '') + ' onclick="' + (nextAction || '') + '">' + nextLabel + '</button></div>';
-  }
-
-  // ── Étape 1 : upload ──
-  function pfStepUpload() {
-    var preview = pf.file
-      ? '<div class="pf-preview-wrap"><video id="pfVideo" class="pf-preview" playsinline muted preload="metadata" controls></video><button class="pf-replace" onclick="document.getElementById(\'pfFile\').click()">Changer</button></div>'
-      : '<button class="pf-drop" type="button" onclick="document.getElementById(\'pfFile\').click()"><span class="pf-drop-ic">⬆️</span><span class="pf-drop-t">Choisir une vidéo</span><span class="pf-drop-s">MP4 vertical 9:16 conseillé</span></button>';
-    return '<div class="pf-h">Ta vidéo</div><div class="pf-sub">Importe ta vidéo, choisis la plateforme et ajoute une description.</div>' +
-      '<input type="file" id="pfFile" accept="video/*" style="display:none" onchange="pfPick(this)">' +
-      preview +
-      '<div class="pf-label">Plateforme cible</div><div class="plat-select" id="pfPlat">' +
-        pfPlatBtn('tiktok','TikTok') + pfPlatBtn('reels','Reels') + pfPlatBtn('shorts','Shorts') +
-      '</div>' +
-      '<div class="pf-label">Description (optionnel)</div>' +
-      '<textarea id="pfCaption" class="email-field" rows="3" placeholder="Décris ta vidéo..." style="resize:none;margin:0;" oninput="pf.caption=this.value">' + escapeHtml(pf.caption || '') + '</textarea>' +
-      pfFoot('', pf.file ? 'Analyser ma vidéo →' : 'Choisis une vidéo', pf.file ? 'pfRunGrade()' : '', !pf.file);
-  }
-  function pfPlatBtn(p, label) { return '<button class="ps-btn' + (pf.platform === p ? ' active' : '') + '" onclick="pf.platform=\'' + p + '\';pfSyncPlat(this)">' + label + '</button>'; }
-  function pfSyncPlat(btn) { document.querySelectorAll('#pfPlat .ps-btn').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
-  function pfPick(input) {
-    var f = input.files && input.files[0];
-    if (!f) return;
-    if (f.size > 300 * 1024 * 1024) { accToast('Vidéo trop lourde (max 300 Mo)'); input.value = ''; return; }
-    try { if (pf._url) URL.revokeObjectURL(pf._url); } catch(e){}
-    pf.file = f; pf._url = URL.createObjectURL(f);
-    renderPf();
-  }
-
-  // ── Étape 1→2 : extraction + note ──
-  async function pfRunGrade() {
-    var v = document.getElementById('pfVideo');
-    if (!pf.file || !v) { accToast('Choisis une vidéo'); return; }
-    var cap = document.getElementById('pfCaption'); if (cap) pf.caption = cap.value || '';
-    document.getElementById('pfBody').innerHTML = '<div class="pf-loading"><div class="ai-loader"><span></span><span></span><span></span></div><div id="pfLoadLbl" style="color:var(--blue-light);font-family:\'Fraunces\',serif;margin-top:14px;">Extraction des images...</div><div style="color:var(--muted2);font-size:.8rem;margin-top:6px;">Skillora regarde ta vidéo</div></div>';
-    try {
-      if (v.readyState < 2) await new Promise(function(res){ var d=false; v.addEventListener('loadeddata', function(){ d=true; res(); }, { once:true }); setTimeout(function(){ if(!d) res(); }, 5000); });
-      var frames = await extractFrames(v, 4);
-      var lbl = document.getElementById('pfLoadLbl'); if (lbl) lbl.textContent = 'Analyse par Skillora...';
-      var ctx = vsNicheContext();
-      var sess = await sb.auth.getSession();
-      if (!sess.data.session) { accToast('Session expirée'); pf.step = 1; renderPf(); return; }
-      var res = await fetch(SB_URL + '/functions/v1/grade-video', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + sess.data.session.access_token, 'apikey': SB_KEY },
-        body: JSON.stringify({ caption: pf.caption, platform: pf.platform, niche: ctx.niche, duration_s: vsDuration, top_hashtags: ctx.hashtags, frames: frames })
-      });
-      var data = await res.json();
-      if (!res.ok || data.error) { accToast(data.error || 'Erreur, réessaie.'); pf.step = 1; renderPf(); return; }
-      pf.grade = data.grade || {};
-      pf.hashtags = (pf.grade.hashtags || []).map(function(t){ return ('' + t).replace(/^#/, ''); }).filter(Boolean).slice(0, 8);
-      pf.tagsOn = {}; pf.hashtags.forEach(function(t){ pf.tagsOn[t] = true; });
-      if (!pf.caption && pf.grade.caption_suggestion) pf.caption = pf.grade.caption_suggestion;
-      pf.step = 2; renderPf();
-    } catch(e) { accToast('Erreur, réessaie.'); pf.step = 1; renderPf(); }
-  }
-
-  // ── Étape 2 : note ──
-  function pfStepNote() {
-    var g = pf.grade || {};
-    var score = Math.max(0, Math.min(100, parseInt(g.score, 10) || 0));
-    var color = score >= 75 ? '#3ddc84' : (score >= 50 ? '#5e9bff' : '#ff9f4a');
-    var circ = 232.5, off = circ - (score / 100) * circ;
-    var head = score >= 75 ? 'Prête à cartonner' : (score >= 50 ? 'Du potentiel' : 'À retravailler');
-    var html = '<div class="pf-h">Note de ta vidéo</div><div class="pf-sub">Avant de publier, voici ce que Skillora en pense.</div>';
-    html += '<div class="vs-res-score"><div class="vs-ring"><svg width="84" height="84"><circle cx="42" cy="42" r="37" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7"/><circle cx="42" cy="42" r="37" fill="none" stroke="' + color + '" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + off + '" transform="rotate(-90 42 42)"/></svg><div class="vs-ring-n"><div class="vs-ring-v">' + score + '</div><div class="vs-ring-s">/100</div></div></div><div class="vs-res-verdict"><h4>' + head + '</h4><p>' + escapeHtml(g.verdict || '') + '</p></div></div>';
-    if (g.hook) html += '<div class="vs-block"><div class="vs-block-t blue">🎬 Hook</div><div class="vs-hook"><span class="vs-hook-score">' + (parseInt(g.hook.score, 10) || 0) + '<small>/10</small></span><span style="font-size:.86rem;color:var(--white);line-height:1.45;">' + escapeHtml(g.hook.note || '') + '</span></div></div>';
-    if (g.strengths && g.strengths.length) html += '<div class="vs-block good"><div class="vs-block-t good">✓ Points forts</div>' + g.strengths.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
-    if (g.weaknesses && g.weaknesses.length) html += '<div class="vs-block bad"><div class="vs-block-t bad">△ À améliorer</div>' + g.weaknesses.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
-    if (g.fixes && g.fixes.length) html += '<div class="vs-block"><div class="vs-block-t blue">🔧 Correctifs</div>' + g.fixes.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
-    html += pfFoot('pfGo(1)', 'Optimiser →', 'pfGo(3)', false);
-    return html;
-  }
-
-  // ── Étape 3 : optimiser (description + hashtags) ──
-  function pfStepOptimize() {
-    var chips = (pf.hashtags || []).map(function(t){ return '<span class="pf-tag' + (pf.tagsOn[t] ? ' on' : '') + '" onclick="pfToggleTag(\'' + t.replace(/'/g, '') + '\')">#' + escapeHtml(t) + '</span>'; }).join('');
-    return '<div class="pf-h">Optimise ta publication</div><div class="pf-sub">Ajuste la description et choisis tes hashtags.</div>' +
-      '<div class="pf-label">Description</div>' +
-      '<textarea id="pfCaption2" class="email-field" rows="4" style="resize:none;margin:0;" oninput="pf.caption=this.value">' + escapeHtml(pf.caption || '') + '</textarea>' +
-      '<div class="pf-label">Hashtags conseillés</div>' +
-      '<div class="pf-tags">' + (chips || '<span style="color:var(--muted);font-size:.85rem;">Aucun hashtag suggéré.</span>') + '</div>' +
-      '<div class="pf-tag-add"><input id="pfTagInput" placeholder="Ajouter un hashtag" onkeydown="if(event.key===\'Enter\'){event.preventDefault();pfAddTag();}"><button onclick="pfAddTag()">＋</button></div>' +
-      pfFoot('pfGo(2)', 'Continuer →', 'pfGo(4)', false);
-  }
-  function pfToggleTag(t) { pf.tagsOn[t] = !pf.tagsOn[t]; renderPf(); }
-  function pfAddTag() {
-    var i = document.getElementById('pfTagInput'); if (!i) return;
-    var t = (i.value || '').trim().replace(/^#/, '').replace(/\s+/g, '');
-    if (!t) return;
-    if (pf.hashtags.indexOf(t) < 0) pf.hashtags.push(t);
-    pf.tagsOn[t] = true; i.value = ''; renderPf();
-  }
-
-  // ── Étape 4 : comptes & moment ──
-  function pfStepAccounts() {
-    var bt = vsBestTime() || vsDefaultTime(pf.platform);
-    var html = '<div class="pf-h">Comptes & moment</div><div class="pf-sub">Choisis où et quand publier.</div>';
-    html += '<div class="pf-label">Publier sur</div><div id="pfAccList"><div class="pf-empty">Chargement…</div></div>';
-    html += '<div class="pf-label">Quand</div><div class="pf-when">' +
-      '<div class="pf-when-opt' + (pf.when === 'now' ? ' on' : '') + '" onclick="pf.when=\'now\';renderPf()"><div class="pf-when-t">Maintenant</div><div class="pf-when-s">Publier tout de suite</div></div>' +
-      '<div class="pf-when-opt' + (pf.when === 'best' ? ' on' : '') + '" onclick="pf.when=\'best\';renderPf()"><div class="pf-when-t">Meilleur moment</div><div class="pf-when-s">' + escapeHtml(bt) + '</div></div>' +
-    '</div>';
-    html += '<div class="pf-notice"><b>Pour activer la publication :</b> connecte tes comptes via Post for Me (intégration en cours). En attendant, copie ta description + hashtags optimisés.</div>';
-    html += '<button class="vs-copy" onclick="pfCopyFinal()" style="margin-top:12px;">Copier description + hashtags</button>';
-    html += pfFoot('pfGo(3)', '🚀 Publier', 'pfPublish()', false);
-    return html;
-  }
-  async function pfLoadAccounts() {
-    var box = document.getElementById('pfAccList'); if (!box) return;
-    try {
-      var r = await sb.from('connected_accounts').select('platform,username,is_active').order('created_at', { ascending: true });
-      var rows = (r && r.data) || [];
-      var seen = {}, list = [];
-      rows.forEach(function(a){ var k = a.platform + '|' + a.username; if (!seen[k]) { seen[k] = 1; list.push(a); } });
-      if (!list.length && typeof profiles !== 'undefined' && profiles && profiles.length) {
-        profiles.forEach(function(p){ list.push({ platform: p.platform, username: p.account }); });
-      }
-      pf.accounts = list;
-      if (!list.length) { box.innerHTML = '<div class="pf-empty">Aucun compte connecté. Connecte un compte depuis l\'accueil pour publier.</div>'; return; }
-      box.innerHTML = list.map(function(a, i) {
-        if (pf.selAcc[i] === undefined) pf.selAcc[i] = true;
-        var ic = a.platform === 'youtube' || a.platform === 'shorts' ? '▶️' : (a.platform === 'instagram' || a.platform === 'reels' ? '📸' : (a.platform === 'facebook' ? '👥' : '🎵'));
-        return '<div class="pf-acc' + (pf.selAcc[i] ? ' on' : '') + '" onclick="pfToggleAcc(' + i + ')"><div class="pf-acc-ic">' + ic + '</div><div class="pf-acc-tx"><div class="pf-acc-n">@' + escapeHtml(a.username || '') + '</div><div class="pf-acc-p">' + escapeHtml(pfPlatLabel(a.platform)) + '</div></div><div class="pf-acc-check">✓</div></div>';
-      }).join('');
-    } catch(e) { box.innerHTML = '<div class="pf-empty">Impossible de charger les comptes.</div>'; }
-  }
-  function pfToggleAcc(i) {
-    pf.selAcc[i] = !pf.selAcc[i];
-    var box = document.getElementById('pfAccList'); var el = box && box.children[i];
-    if (el) el.classList.toggle('on', pf.selAcc[i]);
-  }
-  function pfPlatLabel(p) { return p === 'youtube' || p === 'shorts' ? 'YouTube' : (p === 'instagram' || p === 'reels' ? 'Instagram' : (p === 'facebook' ? 'Facebook' : 'TikTok')); }
-  function pfCopyFinal() {
-    var tags = (pf.hashtags || []).filter(function(t){ return pf.tagsOn[t]; }).map(function(t){ return '#' + t; }).join(' ');
-    var txt = ((pf.caption || '').trim() + '\n\n' + tags).trim();
-    try { navigator.clipboard.writeText(txt); accToast('Copié ✓'); } catch(e){}
-  }
-  function pfPublish() {
-    // Phase 2 : Post for Me. En attendant la clé API, on informe l'utilisateur.
-    accToast('Publication réelle : bientôt via Post for Me 🚀');
   }
 
   /* ===== Email activation state & popup ===== */

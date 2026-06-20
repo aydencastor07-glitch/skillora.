@@ -4318,6 +4318,7 @@
 
   /* ═══════════ PAGE PUBLIER : analyse réelle d'une vidéo ═══════════ */
   var pubUrl = null;
+  var pubFile = null;
 
   function pubPickVideo(input) {
     var f = input.files && input.files[0];
@@ -4326,6 +4327,7 @@
     if (f.size > 300 * 1024 * 1024) { pubToast('Vidéo trop lourde (max 300 Mo)'); input.value = ''; return; }
     if (pubUrl) { try { URL.revokeObjectURL(pubUrl); } catch (e) {} }
     pubUrl = URL.createObjectURL(f);
+    pubFile = f;
     document.getElementById('pubZero').style.display = 'none';
     document.getElementById('pubResult').style.display = 'none';
     var loading = document.getElementById('pubLoading');
@@ -4356,7 +4358,7 @@
         pubShowError("Cette vidéo n'a pas pu être lue (format non supporté par le navigateur). Essaie un fichier MP4 (H.264). Aucun crédit n'a été utilisé.");
         return;
       }
-      var frames = await pubExtractFrames(video, 4);
+      var frames = await pubExtractFrames(video, 8);
       // Vérifie que les images extraites ne sont pas vides (sinon l'IA analyserait du noir et gâcherait des crédits).
       if (frames.length < 2 || !pubFramesLookValid(frames)) {
         pubShowError("Impossible d'extraire les images de cette vidéo. Essaie un fichier MP4. Aucun crédit n'a été utilisé.");
@@ -4371,11 +4373,24 @@
 
       var sess = await sb.auth.getSession();
       if (!sess.data.session) { window.location.href = 'signup.html'; return; }
+      var token = sess.data.session.access_token;
+
+      // SON : transcription best-effort (Groq Whisper). Sans clé / trop lourd / erreur → on continue sans le son.
+      var transcript = '';
+      try {
+        var lbl = document.querySelector('#pubLoading .pub-loading-t'); if (lbl) lbl.textContent = 'Analyse image + son…';
+        if (pubFile && pubFile.size <= 25 * 1024 * 1024) {
+          var fd = new FormData();
+          fd.append('file', pubFile, pubFile.name || 'video.mp4');
+          var trsp = await fetch(SB_URL + '/functions/v1/transcribe-audio', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY }, body: fd });
+          if (trsp.ok) { var trd = await trsp.json(); transcript = trd.text || ''; }
+        }
+      } catch (e) {}
 
       var res = await fetch(SB_URL + '/functions/v1/grade-video', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sess.data.session.access_token, 'apikey': SB_KEY },
-        body: JSON.stringify({ platform: 'tiktok', niche: niche, duration_s: Math.round(dur), top_hashtags: Array.isArray(tags) ? tags : [], frames: frames })
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY },
+        body: JSON.stringify({ platform: 'tiktok', niche: niche, duration_s: Math.round(dur), top_hashtags: Array.isArray(tags) ? tags : [], frames: frames, transcript: transcript })
       });
       var data = await res.json();
       if (!res.ok || data.error) { pubShowError((data.error || ('Erreur ' + res.status)) + (data.detail ? ' — ' + data.detail : '')); return; }
@@ -4422,8 +4437,11 @@
     var frames = [];
     var times = [];
     if (dur > 0) {
-      times.push(Math.min(0.2, dur * 0.02)); // le tout début (hook)
-      for (var i = 1; i < count; i++) times.push(Math.min(dur * 0.97, (dur * i) / (count - 1)));
+      // hook dense sur les ~2 premières secondes, puis réparti sur le reste
+      var hook = [0.1, 0.6, 1.2, 1.9].filter(function (x) { return x < dur; });
+      times = hook.slice(0, count);
+      var n = count - times.length;
+      for (var i = 1; i <= n; i++) times.push(Math.min(dur * 0.98, (dur * i) / (n + 1)));
     } else { times = [0]; }
     for (var k = 0; k < times.length; k++) {
       await pubSeek(video, times[k]);
@@ -4547,6 +4565,7 @@
 
   function pubReset() {
     if (pubUrl) { try { URL.revokeObjectURL(pubUrl); } catch (e) {} pubUrl = null; }
+    pubFile = null;
     var fi = document.getElementById('pubFile'); if (fi) fi.value = '';
     var lv = document.getElementById('pubLoadVid'); if (lv) { try { lv.pause(); lv.removeAttribute('src'); lv.load(); } catch (e) {} }
     var rv = document.getElementById('pubResVid'); if (rv) { try { rv.pause(); rv.removeAttribute('src'); rv.load(); } catch (e) {} }

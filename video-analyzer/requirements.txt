@@ -1,0 +1,21 @@
+# ── Pipeline d'analyse vidéo multimodale locale (Skillora) ──
+# Audio (transcription)
+faster-whisper>=1.0.0
+
+# Vision locale (Moondream2 / LLaVA) + LLM
+torch>=2.1.0
+transformers>=4.44.0
+accelerate>=0.30.0
+einops>=0.7.0
+pillow>=10.0.0
+
+# Appels HTTP (Ollama) + utilitaires
+requests>=2.31.0
+
+# (Optionnel) Raisonnement via Claude au lieu d'un LLM local
+anthropic>=0.39.0
+
+# (Optionnel) Exposer le pipeline en API web pour ton site
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9

@@ -826,12 +826,13 @@
   .an-ring .ring-num { position:absolute; inset:0; display:flex; align-items:baseline; justify-content:center; gap:1px; font-family:'Fraunces',serif; font-weight:700; }
   .an-ring .ring-num b { font-size:1.7rem; }
   .an-ring .ring-num span { font-size:.72rem; color:var(--muted); }
-  .an-verdict { font-size:1.02rem; font-weight:600; line-height:1.4; }
-  .an-verdict small { display:block; font-size:.74rem; color:var(--muted); font-weight:400; margin-bottom:4px; text-transform:uppercase; letter-spacing:.06em; }
+  .an-verdict { font-size:.98rem; font-weight:500; line-height:1.5; color:#e4ebf7; }
+  .an-verdict small { display:block; font-size:.64rem; color:var(--muted2); font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:.2em; }
 
-  .crit-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
-  .crit-row .cn { flex:0 0 96px; font-size:.82rem; color:var(--muted); }
-  .crit-bar { flex:1; height:7px; background:rgba(255,255,255,0.07); border-radius:999px; overflow:hidden; }
+  .crit-row { display:flex; align-items:center; gap:10px; margin-bottom:11px; }
+  .crit-row:last-child { margin-bottom:0; }
+  .crit-row .cn { flex:0 0 90px; font-size:.78rem; color:var(--muted); }
+  .crit-bar { flex:1; height:3px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden; }
   .ai-loader { display:inline-flex; gap:8px; align-items:center; justify-content:center; }
   .ai-loader span { width:13px; height:13px; border-radius:50%; background:var(--blue); display:inline-block; animation:aiBounce 1.2s infinite ease-in-out both; }
   .ai-loader span:nth-child(1){ animation-delay:-.24s; }
@@ -840,30 +841,30 @@
   .btn-upload { width:100%; background:var(--surface2); border:1px dashed var(--border2); color:var(--blue-light); border-radius:13px; padding:13px; font-family:'Fraunces',serif; font-weight:600; font-size:.9rem; cursor:pointer; transition:background .2s; }
   .btn-upload:active { transform:scale(0.98); background:rgba(47,123,255,0.12); }
   @keyframes aiBounce { 0%,80%,100%{ transform:scale(.5); opacity:.4; } 40%{ transform:scale(1.1); opacity:1; } }
-  .crit-fill { height:100%; border-radius:999px; width:0; transition:width 1s cubic-bezier(.2,.7,.3,1); }
-  .crit-row .cv { flex:0 0 34px; text-align:right; font-size:.8rem; font-family:'Fraunces',serif; font-weight:600; }
+  .crit-fill { height:100%; border-radius:999px; width:0; transition:width 1.05s cubic-bezier(.22,1,.36,1); }
+  .crit-row .cv { flex:0 0 30px; text-align:right; font-size:.8rem; font-weight:600; }
 
-  .an-block { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:15px; margin-bottom:12px; }
-  .an-block .ab-title { font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:11px; display:flex; align-items:center; gap:7px; }
-  .an-chip { display:flex; gap:9px; align-items:flex-start; font-size:.9rem; line-height:1.4; margin-bottom:8px; }
+  .an-block { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:18px; margin-bottom:14px; }
+  .an-block .ab-title { font-size:.64rem; text-transform:uppercase; letter-spacing:.2em; color:var(--muted2); font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+  .an-chip { display:flex; gap:9px; align-items:flex-start; font-size:.9rem; line-height:1.5; margin-bottom:10px; color:#e4ebf7; }
   .an-chip:last-child { margin-bottom:0; }
-  .an-chip .dot { flex:0 0 18px; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.6rem; margin-top:1px; }
+  .an-chip .dot { flex:0 0 18px; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.6rem; margin-top:2px; }
 
-  .tl-row { display:flex; gap:12px; margin-bottom:11px; }
+  .tl-row { display:flex; gap:12px; margin-bottom:12px; }
   .tl-row:last-child { margin-bottom:0; }
-  .tl-time { flex:0 0 58px; font-family:'Fraunces',serif; font-weight:600; font-size:.8rem; color:var(--blue-light); padding-top:1px; }
-  .tl-line { flex:1; font-size:.88rem; line-height:1.4; padding-left:13px; border-left:2px solid var(--border2); }
+  .tl-time { flex:0 0 54px; font-weight:600; font-size:.76rem; color:var(--blue-light); padding-top:1px; }
+  .tl-line { flex:1; font-size:.88rem; line-height:1.5; padding-left:13px; border-left:2px solid var(--border2); color:#e4ebf7; }
 
-  .htag { display:inline-block; background:var(--surface2); border:1px solid var(--border); border-radius:999px; padding:5px 11px; font-size:.8rem; margin:0 6px 6px 0; color:var(--blue-light); }
+  .htag { display:inline-block; background:var(--bg); border:1px solid var(--border); border-radius:999px; padding:6px 12px; font-size:.8rem; margin:0 6px 6px 0; color:var(--blue-light); }
 
-  .ver-card { background:linear-gradient(160deg,var(--surface),var(--bg2)); border:1px solid var(--border2); border-radius:16px; padding:16px; margin-bottom:12px; }
-  .ver-num { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px; background:linear-gradient(135deg,var(--blue),#1857c4); font-family:'Fraunces',serif; font-weight:700; font-size:.82rem; margin-right:9px; }
-  .ver-title { font-family:'Fraunces',serif; font-weight:600; font-size:1rem; display:flex; align-items:center; margin-bottom:12px; }
-  .ver-hook { background:rgba(47,123,255,0.12); border:1px solid var(--border2); border-radius:11px; padding:11px 13px; font-size:.9rem; line-height:1.4; margin-bottom:11px; }
-  .ver-hook small { display:block; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--blue-light); margin-bottom:4px; }
-  .ver-script { font-size:.9rem; line-height:1.55; white-space:pre-wrap; color:var(--white); }
-  .ver-copy { margin-top:12px; width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--white); border-radius:11px; padding:11px; font-family:'Sora',sans-serif; font-size:.86rem; cursor:pointer; transition:background .2s; }
-  .ver-copy:active { background:var(--surface); }
+  .ver-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:18px; margin-bottom:14px; }
+  .ver-num { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px; background:linear-gradient(135deg,var(--blue),#1857c4); font-family:'Fraunces',serif; font-weight:700; font-size:.82rem; margin-right:9px; color:#fff; }
+  .ver-title { font-family:'Fraunces',serif; font-weight:600; font-size:1rem; display:flex; align-items:center; margin-bottom:13px; color:#fff; }
+  .ver-hook { background:rgba(47,123,255,0.1); border:1px solid var(--border2); border-radius:12px; padding:12px 14px; font-size:.92rem; line-height:1.5; margin-bottom:12px; color:#e9effb; }
+  .ver-hook small { display:block; font-size:.62rem; text-transform:uppercase; letter-spacing:.2em; color:var(--blue-light); font-weight:700; margin-bottom:5px; }
+  .ver-script { background:var(--bg); border:1px solid var(--border); border-radius:13px; padding:14px 15px; font-size:.92rem; line-height:1.6; white-space:pre-wrap; color:#e4ebf7; }
+  .ver-copy { margin-top:13px; width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:#fff; border-radius:11px; padding:12px; font-family:'Sora',sans-serif; font-weight:600; font-size:.84rem; cursor:pointer; transition:transform .12s,background .2s; }
+  .ver-copy:active { transform:scale(0.98); }
 
   /* ============ LECTEUR D'EBOOK PREMIUM (feuilletage 3D) ============ */
   .eb-reader { position:fixed; inset:0; z-index:4000; display:none; background:
@@ -4257,7 +4258,7 @@
     // 3 versions
     if (a.versions && a.versions.length) {
       window.__verScripts = window.__verScripts || {};
-      html += '<h3 class="section-h" style="margin:22px 0 12px;">🚀 3 versions optimisées</h3>';
+      html += '<h3 class="section-h" style="margin:22px 0 12px;">🚀 ' + a.versions.length + (a.versions.length > 1 ? ' versions optimisées' : ' version optimisée') + '</h3>';
       a.versions.forEach(function(v, i) {
         var cleanScript = (v.script || '').replace(/[\u200B\u200C\u200D\u2060\u2061\u2062\u2063\u2064\uFEFF\u034F\u2066]/g, '');
         var vid = 'ver' + i;

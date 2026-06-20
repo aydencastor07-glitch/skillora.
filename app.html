@@ -4358,7 +4358,7 @@
         pubShowError("Cette vidéo n'a pas pu être lue (format non supporté par le navigateur). Essaie un fichier MP4 (H.264). Aucun crédit n'a été utilisé.");
         return;
       }
-      var frames = await pubExtractFrames(video, 8);
+      var frames = await pubExtractFrames(video, 6);
       // Vérifie que les images extraites ne sont pas vides (sinon l'IA analyserait du noir et gâcherait des crédits).
       if (frames.length < 2 || !pubFramesLookValid(frames)) {
         pubShowError("Impossible d'extraire les images de cette vidéo. Essaie un fichier MP4. Aucun crédit n'a été utilisé.");
@@ -4437,8 +4437,8 @@
     var frames = [];
     var times = [];
     if (dur > 0) {
-      // hook dense sur les ~2 premières secondes, puis réparti sur le reste
-      var hook = [0.1, 0.6, 1.2, 1.9].filter(function (x) { return x < dur; });
+      // hook dense sur la 1re seconde, puis réparti sur le reste (peu d'images : le son porte le contenu)
+      var hook = [0.1, 0.7, 1.4].filter(function (x) { return x < dur; });
       times = hook.slice(0, count);
       var n = count - times.length;
       for (var i = 1; i <= n; i++) times.push(Math.min(dur * 0.98, (dur * i) / (n + 1)));

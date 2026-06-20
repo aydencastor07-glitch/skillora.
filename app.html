@@ -1070,6 +1070,47 @@
   .acc-toast { position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(20px); z-index:200; background:var(--surface2); border:1px solid var(--border2); color:var(--white); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; padding:11px 18px; border-radius:99px; box-shadow:0 12px 30px rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; }
   .acc-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+  /* ═══════════ STUDIO VIDÉO (publier) ═══════════ */
+  .vs-drop { width:100%; border:1.5px dashed var(--border2); background:rgba(47,123,255,0.04); border-radius:16px; padding:28px 16px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; transition:border-color .2s, background .2s; }
+  .vs-drop:active { transform:scale(0.99); }
+  .vs-drop:hover { border-color:var(--blue); background:rgba(47,123,255,0.08); }
+  .vs-drop-ic { font-size:1.9rem; }
+  .vs-drop-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.98rem; color:var(--white); }
+  .vs-drop-s { font-size:.78rem; color:var(--muted); }
+  .vs-preview-wrap { position:relative; border-radius:16px; overflow:hidden; background:#000; border:1px solid var(--border); }
+  .vs-preview { width:100%; max-height:340px; display:block; background:#000; }
+  .vs-remove { position:absolute; top:8px; right:8px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.6); color:#fff; border:none; font-size:1rem; cursor:pointer; z-index:2; }
+  .vs-remove:active { transform:scale(0.92); }
+  .vs-res-score { display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.025); border:1px solid var(--border); border-radius:18px; padding:16px; margin-bottom:14px; }
+  .vs-ring { flex:0 0 84px; width:84px; height:84px; position:relative; }
+  .vs-ring-n { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .vs-ring-v { font-family:'Fraunces',serif; font-weight:800; font-size:1.5rem; color:var(--white); line-height:1; }
+  .vs-ring-s { font-size:.6rem; color:var(--muted); }
+  .vs-res-verdict { flex:1; min-width:0; }
+  .vs-res-verdict h4 { font-family:'Fraunces',serif; font-weight:800; font-size:1.05rem; color:var(--white); margin-bottom:4px; }
+  .vs-res-verdict p { font-size:.84rem; color:var(--muted); line-height:1.4; }
+  .vs-block { background:rgba(255,255,255,0.025); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:12px; }
+  .vs-block-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; margin-bottom:9px; display:flex; align-items:center; gap:6px; }
+  .vs-block-t.good { color:var(--green); } .vs-block-t.bad { color:var(--orange); } .vs-block-t.blue { color:var(--blue-light); }
+  .vs-li { font-size:.86rem; color:var(--white); line-height:1.45; padding:5px 0 5px 18px; position:relative; }
+  .vs-li::before { content:''; position:absolute; left:2px; top:11px; width:6px; height:6px; border-radius:50%; background:var(--blue-light); }
+  .vs-block.good .vs-li::before { background:var(--green); }
+  .vs-block.bad .vs-li::before { background:var(--orange); }
+  .vs-hook { display:flex; align-items:center; gap:12px; }
+  .vs-hook-score { flex:0 0 auto; font-family:'Fraunces',serif; font-weight:800; font-size:1.4rem; color:var(--blue-light); }
+  .vs-hook-score small { font-size:.7rem; color:var(--muted); }
+  .vs-hashtags { display:flex; flex-wrap:wrap; gap:7px; margin-top:2px; }
+  .vs-htag { background:rgba(47,123,255,0.1); border:1px solid var(--border2); color:var(--blue-light); font-size:.78rem; font-weight:600; padding:5px 11px; border-radius:999px; font-family:'Sora',sans-serif; }
+  .vs-copy { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--white); border-radius:9px; padding:7px 12px; font-family:'Sora',sans-serif; font-weight:600; font-size:.76rem; cursor:pointer; margin-top:10px; }
+  .vs-copy:active { transform:scale(0.96); }
+  .vs-cap-sug { font-size:.86rem; color:var(--white); line-height:1.5; background:rgba(47,123,255,0.06); border:1px solid var(--border2); border-radius:11px; padding:11px 13px; }
+  .vs-besttime { display:flex; align-items:center; gap:10px; }
+  .vs-besttime-v { font-family:'Fraunces',serif; font-weight:800; font-size:1.15rem; color:var(--white); }
+  .vs-publish { width:100%; background:linear-gradient(135deg,#3ddc84,#1ba85f); color:#04240f; border:none; border-radius:14px; padding:15px; font-family:'Sora',sans-serif; font-weight:800; font-size:.98rem; cursor:pointer; margin-top:6px; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 8px 24px rgba(61,220,132,0.25); }
+  .vs-publish:active { transform:scale(0.98); }
+  .vs-phase2 { margin-top:10px; background:rgba(255,159,74,0.08); border:1px solid rgba(255,159,74,0.25); border-radius:11px; padding:11px 13px; font-size:.8rem; color:var(--white); line-height:1.45; }
+  .vs-phase2 b { color:var(--orange); }
+
 </style>
 </head>
 <body>
@@ -1235,6 +1276,53 @@
   <div class="view" id="view-ia">
     <h1 class="page-title reveal" style="animation-delay:.05s">Ton coach 🎯</h1>
     <p class="page-sub reveal" style="animation-delay:.12s">Ton studio de création personnalisé.</p>
+
+    <!-- ===== Studio vidéo : noter + publier ===== -->
+    <div class="coach-sec reveal" style="animation-delay:.14s">
+      <span class="sec-kicker">Publier</span>
+    </div>
+    <div class="card vs-card reveal" id="videoStudioCard" style="animation-delay:.16s">
+      <div class="lab-header">
+        <div class="lab-header-ic">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="6" width="13" height="12" rx="2" stroke="#5e9bff" stroke-width="1.5"/><path d="M16 10l5-3v10l-5-3" stroke="#5e9bff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="lab-title">Publier une vidéo</h3>
+        <p class="lab-subtitle">Note ta vidéo avant de la poster + hashtags et meilleur moment</p>
+      </div>
+
+      <div id="vsUpload">
+        <input type="file" id="vsFile" accept="video/*" style="display:none" onchange="onVideoPick(this)">
+        <button class="vs-drop" type="button" onclick="document.getElementById('vsFile').click()">
+          <span class="vs-drop-ic">⬆️</span>
+          <span class="vs-drop-t">Choisir une vidéo</span>
+          <span class="vs-drop-s">MP4 vertical 9:16 conseillé</span>
+        </button>
+      </div>
+
+      <div id="vsConfig" style="display:none;">
+        <div class="vs-preview-wrap">
+          <video id="vsVideo" class="vs-preview" playsinline muted preload="metadata" controls></video>
+          <button type="button" class="vs-remove" onclick="clearVideo()" title="Retirer">✕</button>
+        </div>
+        <div style="font-size:.78rem;color:var(--muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.05em;">Plateforme cible</div>
+        <div class="plat-select" id="vsPlat" style="margin-bottom:14px;">
+          <button class="ps-btn active" data-plat="tiktok" onclick="vsPickPlat(this)">TikTok</button>
+          <button class="ps-btn" data-plat="reels" onclick="vsPickPlat(this)">Reels</button>
+          <button class="ps-btn" data-plat="shorts" onclick="vsPickPlat(this)">Shorts</button>
+        </div>
+        <textarea id="vsCaption" class="email-field" rows="3" placeholder="Ta description / légende (optionnel mais conseillé)..." style="resize:none;margin:0 0 14px;"></textarea>
+        <button class="btn-primary" id="vsAnalyzeBtn" onclick="gradeVideo()">✨ Noter ma vidéo</button>
+        <div class="status-msg" id="vsStatus"></div>
+      </div>
+
+      <div id="vsLoader" style="display:none;margin-top:18px;text-align:center;">
+        <div class="ai-loader"><span></span><span></span><span></span></div>
+        <div id="vsLoaderLabel" style="color:var(--blue-light);font-size:.9rem;margin-top:12px;font-family:'Fraunces',serif;">Extraction des images...</div>
+        <div style="color:var(--muted2);font-size:.78rem;margin-top:4px;">Skillora regarde ta vidéo — quelques secondes</div>
+      </div>
+
+      <div id="vsResult" style="display:none;margin-top:20px;"></div>
+    </div>
 
     <!-- ===== Studio : profils de niche ===== -->
     <div class="coach-sec reveal" style="animation-delay:.18s">
@@ -2690,6 +2778,217 @@
       '<div class="acc-toggle' + (on ? ' on' : '') + '" onclick="toggleSetting(\'' + key + '\', this)"></div>' +
     '</div>';
   }
+
+  /* ═══════════ STUDIO VIDÉO — note + publication (Phase 1) ═══════════ */
+  var vsPlatform = 'tiktok';
+  var vsDuration = 0;
+
+  function vsPickPlat(btn) {
+    document.querySelectorAll('#vsPlat .ps-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    vsPlatform = btn.getAttribute('data-plat') || 'tiktok';
+  }
+
+  function onVideoPick(input) {
+    var f = input.files && input.files[0];
+    if (!f) return;
+    if (f.size > 300 * 1024 * 1024) { accToast('Vidéo trop lourde (max 300 Mo)'); input.value = ''; return; }
+    var v = document.getElementById('vsVideo');
+    try { if (v.src) URL.revokeObjectURL(v.src); } catch(e){}
+    v.src = URL.createObjectURL(f);
+    v.load();
+    window._vsFile = f;
+    document.getElementById('vsUpload').style.display = 'none';
+    document.getElementById('vsConfig').style.display = 'block';
+    document.getElementById('vsResult').style.display = 'none';
+    document.getElementById('vsStatus').textContent = '';
+  }
+
+  function clearVideo() {
+    var v = document.getElementById('vsVideo');
+    try { if (v.src) URL.revokeObjectURL(v.src); } catch(e){}
+    v.removeAttribute('src'); try { v.load(); } catch(e){}
+    window._vsFile = null;
+    document.getElementById('vsConfig').style.display = 'none';
+    document.getElementById('vsResult').style.display = 'none';
+    document.getElementById('vsUpload').style.display = 'block';
+    document.getElementById('vsFile').value = '';
+    document.getElementById('vsStatus').textContent = '';
+  }
+
+  // Extrait quelques images de la vidéo (hook + réparties) en base64 JPEG
+  function extractFrames(video, count) {
+    return new Promise(function(resolve) {
+      var dur = video.duration || 0;
+      vsDuration = (dur && isFinite(dur)) ? Math.round(dur) : 0;
+      if (!dur || !isFinite(dur)) { resolve([]); return; }
+      var times = [Math.min(0.5, dur * 0.02)];
+      for (var k = 1; k < count; k++) times.push(dur * (k / count));
+      var canvas = document.createElement('canvas');
+      var ctx = null, frames = [], i = 0, W = 480;
+      function onSeek() {
+        try {
+          var vw = video.videoWidth, vh = video.videoHeight;
+          if (vw && vh) {
+            var scale = W / vw;
+            canvas.width = W; canvas.height = Math.round(vh * scale);
+            ctx = ctx || canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            frames.push(canvas.toDataURL('image/jpeg', 0.7));
+          }
+        } catch(e){}
+        i++;
+        if (i >= times.length) { video.removeEventListener('seeked', onSeek); resolve(frames); }
+        else video.currentTime = Math.min(times[i], dur - 0.05);
+      }
+      video.addEventListener('seeked', onSeek);
+      video.currentTime = Math.min(times[0], dur - 0.05);
+      // sécurité : timeout au cas où 'seeked' ne se déclenche pas
+      setTimeout(function(){ if (frames.length < times.length) { video.removeEventListener('seeked', onSeek); resolve(frames); } }, 9000);
+    });
+  }
+
+  // Contexte niche + hashtags qui marchent (depuis la dernière analyse / profil)
+  function vsNicheContext() {
+    var niche = '', tags = [];
+    try {
+      var a = window._lastAnalysis && window._lastAnalysis.summary;
+      if (a) {
+        if (a.insights && a.insights.niche) niche = a.insights.niche;
+        (a.best_videos || a.top_videos || []).forEach(function(v){ (v.hashtags || []).forEach(function(t){ if (t) tags.push(('' + t).replace(/^#/, '')); }); });
+      }
+    } catch(e){}
+    if ((!niche || !tags.length) && typeof profiles !== 'undefined' && profiles && profiles.length) {
+      if (!niche) niche = profiles[0].niche || '';
+      if (profiles[0].tags && profiles[0].tags.length) tags = tags.concat(profiles[0].tags);
+    }
+    var seen = {}, out = [];
+    tags.forEach(function(t){ t = ('' + t).toLowerCase().trim(); if (t && !seen[t]) { seen[t] = 1; out.push(t); } });
+    return { niche: niche, hashtags: out.slice(0, 30) };
+  }
+
+  // Meilleur moment : déduit de l'heure de publication des meilleures vidéos
+  function vsBestTime() {
+    try {
+      var a = window._lastAnalysis && window._lastAnalysis.summary;
+      var vids = a && (a.best_videos || a.top_videos);
+      if (vids && vids.length) {
+        var hours = {}, bestH = null, bestC = 0;
+        vids.forEach(function(v){ if (v.create_time) { var h = new Date(v.create_time * 1000).getHours(); hours[h] = (hours[h] || 0) + 1; } });
+        Object.keys(hours).forEach(function(h){ if (hours[h] > bestC) { bestC = hours[h]; bestH = +h; } });
+        if (bestH != null) return bestH + 'h – ' + ((bestH + 1) % 24) + 'h';
+      }
+    } catch(e){}
+    return null;
+  }
+  function vsDefaultTime(plat) {
+    return plat === 'shorts' ? '17h – 20h' : (plat === 'reels' ? '12h – 13h ou 19h – 21h' : '18h – 22h');
+  }
+
+  async function gradeVideo() {
+    var btn = document.getElementById('vsAnalyzeBtn');
+    var v = document.getElementById('vsVideo');
+    var status = document.getElementById('vsStatus');
+    status.textContent = '';
+    if (!window._vsFile) { status.textContent = 'Choisis une vidéo d\'abord.'; return; }
+    document.getElementById('vsResult').style.display = 'none';
+    document.getElementById('vsLoader').style.display = 'block';
+    setVsLoader('Extraction des images...');
+    btn.disabled = true;
+    try {
+      if (v.readyState < 2) {
+        await new Promise(function(res){ var done=false; v.addEventListener('loadeddata', function(){done=true;res();}, { once:true }); setTimeout(function(){ if(!done) res(); }, 5000); });
+      }
+      var frames = await extractFrames(v, 4);
+      setVsLoader('Analyse par Skillora...');
+      var caption = (document.getElementById('vsCaption').value || '').trim();
+      var ctx = vsNicheContext();
+      var sess = await sb.auth.getSession();
+      var session = sess.data.session;
+      if (!session) { document.getElementById('vsLoader').style.display='none'; btn.disabled=false; status.textContent='Session expirée, recharge la page.'; return; }
+      var res = await fetch(SB_URL + '/functions/v1/grade-video', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey': SB_KEY },
+        body: JSON.stringify({ caption: caption, platform: vsPlatform, niche: ctx.niche, duration_s: vsDuration, top_hashtags: ctx.hashtags, frames: frames })
+      });
+      var data = await res.json();
+      document.getElementById('vsLoader').style.display = 'none';
+      btn.disabled = false;
+      if (!res.ok || data.error) { status.textContent = data.error || 'Erreur, réessaie.'; return; }
+      renderVsResult(data.grade || {});
+    } catch (e) {
+      document.getElementById('vsLoader').style.display = 'none';
+      btn.disabled = false;
+      status.textContent = 'Erreur, réessaie.';
+    }
+  }
+
+  function setVsLoader(t) { var el = document.getElementById('vsLoaderLabel'); if (el) el.textContent = t; }
+
+  function renderVsResult(g) {
+    var score = Math.max(0, Math.min(100, parseInt(g.score, 10) || 0));
+    var color = score >= 75 ? '#3ddc84' : (score >= 50 ? '#5e9bff' : '#ff9f4a');
+    var circ = 232.5, off = circ - (score / 100) * circ;
+    var bt = vsBestTime() || vsDefaultTime(vsPlatform);
+    var head = score >= 75 ? 'Prête à cartonner' : (score >= 50 ? 'Du potentiel' : 'À retravailler');
+    var html = '<div class="vs-res-score">' +
+      '<div class="vs-ring"><svg width="84" height="84"><circle cx="42" cy="42" r="37" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7"/>' +
+        '<circle cx="42" cy="42" r="37" fill="none" stroke="' + color + '" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + off + '" transform="rotate(-90 42 42)"/></svg>' +
+        '<div class="vs-ring-n"><div class="vs-ring-v">' + score + '</div><div class="vs-ring-s">/100</div></div></div>' +
+      '<div class="vs-res-verdict"><h4>' + head + '</h4><p>' + escapeHtml(g.verdict || '') + '</p></div>' +
+    '</div>';
+
+    if (g.hook) {
+      html += '<div class="vs-block"><div class="vs-block-t blue">🎬 Hook (premières secondes)</div>' +
+        '<div class="vs-hook"><span class="vs-hook-score">' + (parseInt(g.hook.score, 10) || 0) + '<small>/10</small></span>' +
+        '<span style="font-size:.86rem;color:var(--white);line-height:1.45;">' + escapeHtml(g.hook.note || '') + '</span></div></div>';
+    }
+    if (g.strengths && g.strengths.length) {
+      html += '<div class="vs-block good"><div class="vs-block-t good">✓ Points forts</div>' +
+        g.strengths.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
+    }
+    if (g.weaknesses && g.weaknesses.length) {
+      html += '<div class="vs-block bad"><div class="vs-block-t bad">△ À améliorer</div>' +
+        g.weaknesses.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
+    }
+    if (g.fixes && g.fixes.length) {
+      html += '<div class="vs-block"><div class="vs-block-t blue">🔧 Correctifs prioritaires</div>' +
+        g.fixes.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
+    }
+    if (g.caption_suggestion) {
+      html += '<div class="vs-block"><div class="vs-block-t blue">✍️ Description suggérée</div>' +
+        '<div class="vs-cap-sug" id="vsCapSug">' + escapeHtml(g.caption_suggestion) + '</div>' +
+        '<button class="vs-copy" onclick="vsCopy(\'vsCapSug\')">Copier la description</button></div>';
+    }
+    var tags = (g.hashtags || []).map(function(t){ return ('' + t).replace(/^#/, ''); }).filter(Boolean).slice(0, 5);
+    if (tags.length) {
+      window._vsTags = tags;
+      html += '<div class="vs-block"><div class="vs-block-t blue"># Hashtags conseillés</div>' +
+        '<div class="vs-hashtags">' + tags.map(function(t){ return '<span class="vs-htag">#' + escapeHtml(t) + '</span>'; }).join('') + '</div>' +
+        '<button class="vs-copy" onclick="vsCopyTags()">Copier les hashtags</button></div>';
+    }
+    if (bt) {
+      html += '<div class="vs-block"><div class="vs-block-t blue">⏰ Meilleur moment pour publier</div>' +
+        '<div class="vs-besttime"><span style="font-size:1.3rem;">⏰</span><span class="vs-besttime-v">' + escapeHtml(bt) + '</span></div></div>';
+    }
+    html += '<button class="vs-publish" onclick="vsPublish()">🚀 Publier sur mes comptes</button>';
+    html += '<div class="vs-phase2"><b>Bientôt :</b> connecte tes comptes via Post for Me pour publier (ou programmer) cette vidéo automatiquement sur TikTok, Instagram et YouTube en un clic.</div>';
+
+    var r = document.getElementById('vsResult');
+    r.innerHTML = html;
+    r.style.display = 'block';
+    try { r.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(e){}
+  }
+
+  function vsCopy(id) {
+    var el = document.getElementById(id); if (!el) return;
+    try { navigator.clipboard.writeText(el.textContent); accToast('Copié ✓'); } catch(e){}
+  }
+  function vsCopyTags() {
+    var t = (window._vsTags || []).map(function(x){ return '#' + x; }).join(' ');
+    try { navigator.clipboard.writeText(t); accToast('Hashtags copiés ✓'); } catch(e){}
+  }
+  function vsPublish() { accToast('Publication réelle : bientôt via Post for Me 🚀'); }
 
   /* ===== Email activation state & popup ===== */
   // Stripe est live : par défaut non abonné. loadUserPlan() active si un plan est actif.

@@ -1066,12 +1066,31 @@
   .pub-up-btn{margin-top:11px;background:linear-gradient(135deg,#4d8fff,#1a6fff);color:#fff;font-family:'Sora';font-weight:600;font-size:.92rem;padding:12px 28px;border-radius:13px;box-shadow:0 10px 24px -4px rgba(47,123,255,0.45);}
   .pub-up-hint{text-align:center;font-size:.76rem;color:var(--muted2);margin-top:15px;}
 
-  /* --- Etat analyse --- */
-  .pub-loading{display:flex;gap:18px;align-items:center;padding:26px 0;}
-  .pub-loadvid{flex:0 0 auto;width:86px;height:152px;border-radius:15px;object-fit:cover;background:#0a1330;border:1px solid var(--border);}
-  .pub-loading-tx{flex:1;min-width:0;}
-  .pub-loading-t{font-family:'Fraunces',serif;font-size:1.18rem;color:#fff;margin:13px 0 5px;}
-  .pub-loading-s{font-size:.84rem;color:var(--muted);line-height:1.5;}
+  /* --- Etat analyse : scanner centre, pro & anime --- */
+  #pubLoading{animation:pubUp .4s ease both;}
+  #pubLoading.pub-done .pub-scan{animation:scanOut .42s cubic-bezier(.4,0,.2,1) forwards;}
+  @keyframes scanOut{to{opacity:0;transform:translateY(-12px) scale(.94);}}
+  .pub-scan{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 0 18px;}
+  .pub-scan-stage{position:relative;width:212px;height:377px;border-radius:22px;overflow:hidden;background:#0a1330;box-shadow:0 34px 80px -22px rgba(47,123,255,0.55);}
+  .pub-scan-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .pub-scan-stage::before{content:'';position:absolute;inset:0;z-index:2;border-radius:22px;border:1.5px solid rgba(91,155,255,0.55);animation:scanPulse 1.7s ease-in-out infinite;pointer-events:none;}
+  @keyframes scanPulse{0%,100%{box-shadow:inset 0 0 0 0 rgba(91,155,255,0);opacity:.45;}50%{box-shadow:inset 0 0 26px 1px rgba(91,155,255,0.45);opacity:1;}}
+  .pub-scan-line{position:absolute;left:0;right:0;height:64px;z-index:3;background:linear-gradient(180deg,transparent,rgba(95,160,255,0.5) 55%,rgba(150,200,255,0.85) 80%,transparent);box-shadow:0 0 28px 4px rgba(91,155,255,0.6);animation:scanMove 2.1s cubic-bezier(.55,0,.45,1) infinite;}
+  @keyframes scanMove{0%{transform:translateY(-64px);}100%{transform:translateY(377px);}}
+  .pub-scan-cnr{position:absolute;z-index:4;width:26px;height:26px;border:2.5px solid #6aa6ff;filter:drop-shadow(0 0 6px rgba(91,155,255,0.8));}
+  .pub-scan-cnr.tl{top:11px;left:11px;border-right:none;border-bottom:none;border-radius:8px 0 0 0;}
+  .pub-scan-cnr.tr{top:11px;right:11px;border-left:none;border-bottom:none;border-radius:0 8px 0 0;}
+  .pub-scan-cnr.bl{bottom:11px;left:11px;border-right:none;border-top:none;border-radius:0 0 0 8px;}
+  .pub-scan-cnr.br{bottom:11px;right:11px;border-left:none;border-top:none;border-radius:0 0 8px 0;}
+  .pub-scan-tag{position:absolute;z-index:4;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:7px;background:rgba(6,12,28,0.78);backdrop-filter:blur(6px);border:1px solid rgba(91,155,255,0.4);color:#cfe0ff;font-family:'Sora';font-weight:600;font-size:.72rem;padding:6px 12px;border-radius:999px;white-space:nowrap;}
+  .pub-scan-tag i{width:7px;height:7px;border-radius:50%;background:#5b9bff;box-shadow:0 0 8px #5b9bff;animation:scanBlink 1s ease-in-out infinite;}
+  @keyframes scanBlink{0%,100%{opacity:.3;}50%{opacity:1;}}
+  .pub-scan-info{margin-top:24px;max-width:300px;}
+  .pub-scan-t{font-family:'Fraunces',serif;font-size:1.28rem;color:#fff;margin:0 0 6px;transition:opacity .3s,transform .3s;}
+  .pub-scan-s{font-size:.86rem;color:var(--muted);line-height:1.5;transition:opacity .3s;}
+  .pub-scan-prog{width:200px;height:4px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;margin:20px auto 0;}
+  .pub-scan-prog>i{display:block;height:100%;width:35%;border-radius:999px;background:linear-gradient(90deg,#4d8fff,#8ab4ff);animation:scanProg 2.4s ease-in-out infinite;}
+  @keyframes scanProg{0%{transform:translateX(-120%);}100%{transform:translateX(420%);}}
 
   /* --- Resultat --- */
   #pubResult{animation:pubUp .55s cubic-bezier(.22,1,.36,1) both;}
@@ -1475,13 +1494,18 @@
 
     <!-- ÉTAT ANALYSE -->
     <div id="pubLoading" style="display:none;">
-      <div class="pub-loading">
-        <video id="pubLoadVid" class="pub-loadvid" playsinline muted loop></video>
-        <div class="pub-loading-tx">
-          <div class="ai-loader"><span></span><span></span><span></span></div>
-          <div class="pub-loading-t">Analyse de ta vidéo…</div>
-          <div class="pub-loading-s">Skillora regarde ton hook, ton rythme et ta légende.</div>
+      <div class="pub-scan">
+        <div class="pub-scan-stage">
+          <video id="pubLoadVid" class="pub-scan-vid" playsinline muted loop></video>
+          <div class="pub-scan-line"></div>
+          <div class="pub-scan-cnr tl"></div><div class="pub-scan-cnr tr"></div><div class="pub-scan-cnr bl"></div><div class="pub-scan-cnr br"></div>
+          <div class="pub-scan-tag"><i></i><span id="pubScanTag">Scan…</span></div>
         </div>
+        <div class="pub-scan-info">
+          <div class="pub-scan-t" id="pubScanT">Analyse de ta vidéo…</div>
+          <div class="pub-scan-s" id="pubScanS">Skillora regarde ta vidéo image par image.</div>
+        </div>
+        <div class="pub-scan-prog"><i></i></div>
       </div>
     </div>
 
@@ -4332,16 +4356,50 @@
     document.getElementById('pubResult').style.display = 'none';
     var loading = document.getElementById('pubLoading');
     loading.innerHTML = PUB_LOADER_HTML;
+    loading.classList.remove('pub-done');
     loading.style.display = 'block';
+    pubStartScanSteps();
     var lv = document.getElementById('pubLoadVid');
     lv.onerror = function () { pubShowError("Impossible de lire ce fichier vidéo. Essaie un MP4 (H.264). Aucun crédit n'a été utilisé."); };
     lv.src = pubUrl; lv.load(); try { lv.play(); } catch (e) {}
     pubAnalyze(lv);
   }
 
-  var PUB_LOADER_HTML = '<div class="pub-loading"><video id="pubLoadVid" class="pub-loadvid" playsinline muted loop></video><div class="pub-loading-tx"><div class="ai-loader"><span></span><span></span><span></span></div><div class="pub-loading-t">Analyse de ta vidéo…</div><div class="pub-loading-s">Skillora regarde ton hook, ton rythme et ta légende.</div></div></div>';
+  var PUB_LOADER_HTML = '<div class="pub-scan"><div class="pub-scan-stage"><video id="pubLoadVid" class="pub-scan-vid" playsinline muted loop></video><div class="pub-scan-line"></div><div class="pub-scan-cnr tl"></div><div class="pub-scan-cnr tr"></div><div class="pub-scan-cnr bl"></div><div class="pub-scan-cnr br"></div><div class="pub-scan-tag"><i></i><span id="pubScanTag">Scan…</span></div></div><div class="pub-scan-info"><div class="pub-scan-t" id="pubScanT">Analyse de ta vidéo…</div><div class="pub-scan-s" id="pubScanS">Skillora regarde ta vidéo image par image.</div></div><div class="pub-scan-prog"><i></i></div></div>';
+
+  /* ── Étapes animées du scan (cycle visuel pro pendant l'analyse) ── */
+  var PUB_SCAN_STEPS = [
+    { tag: 'Lecture des images', t: 'Lecture des images…', s: 'Skillora regarde ta vidéo image par image.' },
+    { tag: 'Écoute du son', t: 'Écoute du son…', s: 'Transcription de ce qui est dit dans ta vidéo.' },
+    { tag: 'Analyse du hook', t: 'Analyse du hook…', s: 'Est-ce que la 1re seconde donne envie de rester ?' },
+    { tag: 'Calcul de la rétention', t: 'Calcul de la rétention…', s: 'Capacité à garder le spectateur jusqu\'au bout.' },
+    { tag: 'Génération de la légende', t: 'Génération de la légende…', s: 'Une description prête à publier, dans la bonne langue.' },
+    { tag: 'Potentiel viral', t: 'Calcul du potentiel viral…', s: 'On assemble ta note finale…' }
+  ];
+  var pubScanTimer = null, pubScanIdx = 0;
+  function pubStartScanSteps() {
+    pubStopScanSteps();
+    pubScanIdx = 0;
+    pubApplyScanStep();
+    pubScanTimer = setInterval(function () {
+      pubScanIdx = (pubScanIdx + 1) % PUB_SCAN_STEPS.length;
+      pubApplyScanStep();
+    }, 1900);
+  }
+  function pubApplyScanStep() {
+    var st = PUB_SCAN_STEPS[pubScanIdx];
+    var t = document.getElementById('pubScanT'), s = document.getElementById('pubScanS'), tag = document.getElementById('pubScanTag');
+    if (tag) tag.textContent = st.tag;
+    [t, s].forEach(function (el) { if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(4px)'; } });
+    setTimeout(function () {
+      if (t) { t.textContent = st.t; t.style.opacity = '1'; t.style.transform = 'none'; }
+      if (s) { s.textContent = st.s; s.style.opacity = '1'; }
+    }, 200);
+  }
+  function pubStopScanSteps() { if (pubScanTimer) { clearInterval(pubScanTimer); pubScanTimer = null; } }
 
   function pubShowError(msg) {
+    pubStopScanSteps();
     document.getElementById('pubZero').style.display = 'none';
     document.getElementById('pubResult').style.display = 'none';
     var l = document.getElementById('pubLoading');
@@ -4378,7 +4436,6 @@
       // SON : transcription best-effort (Groq Whisper). Sans clé / trop lourd / erreur → on continue sans le son.
       var transcript = '';
       try {
-        var lbl = document.querySelector('#pubLoading .pub-loading-t'); if (lbl) lbl.textContent = 'Analyse image + son…';
         if (pubFile && pubFile.size <= 25 * 1024 * 1024) {
           var fd = new FormData();
           fd.append('file', pubFile, pubFile.name || 'video.mp4');
@@ -4395,12 +4452,19 @@
       var data = await res.json();
       if (!res.ok || data.error) { pubShowError((data.error || ('Erreur ' + res.status)) + (data.detail ? ' — ' + data.detail : '')); return; }
 
+      pubStopScanSteps();
       pubRenderGrade(data.grade || {}, dur);
       var rv = document.getElementById('pubResVid');
       rv.src = pubUrl; rv.load(); try { rv.play(); } catch (e) {}
-      document.getElementById('pubLoading').style.display = 'none';
-      document.getElementById('pubResult').style.display = 'block';
-      try { document.getElementById('view-publish').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+      // Transition : le scanner se replie, puis la vidéo passe sur le côté avec les résultats.
+      var loader = document.getElementById('pubLoading');
+      loader.classList.add('pub-done');
+      setTimeout(function () {
+        loader.style.display = 'none';
+        loader.classList.remove('pub-done');
+        document.getElementById('pubResult').style.display = 'block';
+        try { document.getElementById('view-publish').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+      }, 430);
     } catch (e) {
       pubShowError('Erreur pendant l\'analyse : ' + (e && e.message ? e.message : String(e)));
     }
@@ -4564,6 +4628,7 @@
   }
 
   function pubReset() {
+    pubStopScanSteps();
     if (pubUrl) { try { URL.revokeObjectURL(pubUrl); } catch (e) {} pubUrl = null; }
     pubFile = null;
     var fi = document.getElementById('pubFile'); if (fi) fi.value = '';

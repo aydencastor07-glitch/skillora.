@@ -1111,6 +1111,62 @@
   .vs-phase2 { margin-top:10px; background:rgba(255,159,74,0.08); border:1px solid rgba(255,159,74,0.25); border-radius:11px; padding:11px 13px; font-size:.8rem; color:var(--white); line-height:1.45; }
   .vs-phase2 b { color:var(--orange); }
 
+  /* ═══════════ FLUX DE PUBLICATION (plein écran) ═══════════ */
+  .pf-overlay { position:fixed; inset:0; z-index:9998; background:var(--bg); display:none; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .pf-overlay.open { display:block; }
+  .pf-shell { max-width:var(--max); margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding-bottom:110px; }
+  .pf-top { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:14px; padding:16px 18px 14px; background:rgba(4,6,13,0.88); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
+  .pf-close { flex:0 0 auto; width:38px; height:38px; border-radius:50%; background:var(--surface); border:1px solid var(--border); color:var(--white); font-size:1rem; cursor:pointer; }
+  .pf-close:active { transform:scale(0.92); }
+  .pf-head-tx { flex:1; min-width:0; }
+  .pf-progress { height:5px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+  .pf-progress-fill { height:100%; width:25%; background:linear-gradient(90deg,#4d8fff,#1a6fff); border-radius:99px; transition:width .4s ease; }
+  .pf-step-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.66rem; letter-spacing:.1em; color:var(--muted); margin-top:7px; text-transform:uppercase; }
+  .pf-body { flex:1; padding:22px 18px 0; animation:obIn .35s ease; }
+  .pf-h { font-family:'Fraunces',serif; font-weight:800; font-size:1.55rem; color:var(--white); margin-bottom:6px; }
+  .pf-sub { font-size:.9rem; color:var(--muted); line-height:1.5; margin-bottom:20px; }
+  .pf-foot { position:fixed; left:50%; transform:translateX(-50%); bottom:0; width:100%; max-width:var(--max); display:flex; gap:10px; padding:14px 18px calc(16px + env(safe-area-inset-bottom)); background:rgba(7,11,22,0.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-top:1px solid var(--border); z-index:6; }
+  .pf-btn { flex:1; border:none; border-radius:13px; padding:15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.96rem; cursor:pointer; transition:transform .12s; }
+  .pf-btn:active { transform:scale(0.99); }
+  .pf-btn-primary { background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; box-shadow:0 8px 24px rgba(47,123,255,0.3); }
+  .pf-btn-primary:disabled { opacity:.5; box-shadow:none; }
+  .pf-btn-ghost { flex:0 0 auto; background:var(--surface); color:var(--white); border:1px solid var(--border); padding:15px 20px; }
+  .pf-publish { background:linear-gradient(135deg,#3ddc84,#1ba85f); color:#04240f; box-shadow:0 8px 24px rgba(61,220,132,0.28); }
+  .pf-drop { width:100%; aspect-ratio:9/12; max-height:52vh; border:1.5px dashed var(--border2); background:rgba(47,123,255,0.04); border-radius:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; cursor:pointer; transition:border-color .2s,background .2s; }
+  .pf-drop:active { transform:scale(0.99); }
+  .pf-drop:hover { border-color:var(--blue); background:rgba(47,123,255,0.08); }
+  .pf-drop-ic { font-size:2.4rem; }
+  .pf-drop-t { font-family:'Sora',sans-serif; font-weight:700; font-size:1rem; color:var(--white); }
+  .pf-drop-s { font-size:.8rem; color:var(--muted); }
+  .pf-preview-wrap { position:relative; border-radius:20px; overflow:hidden; background:#000; border:1px solid var(--border); }
+  .pf-preview { width:100%; max-height:52vh; display:block; background:#000; }
+  .pf-replace { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.6); color:#fff; border:none; border-radius:99px; padding:8px 14px; font-family:'Sora',sans-serif; font-weight:600; font-size:.78rem; cursor:pointer; z-index:2; }
+  .pf-label { font-size:.72rem; color:var(--muted); margin:18px 0 9px; text-transform:uppercase; letter-spacing:.05em; }
+  .pf-loading { text-align:center; padding:54px 0; }
+  .pf-tags { display:flex; flex-wrap:wrap; gap:8px; }
+  .pf-tag { background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; padding:8px 13px; border-radius:999px; cursor:pointer; transition:all .15s; }
+  .pf-tag.on { background:rgba(47,123,255,0.14); border-color:var(--border2); color:var(--blue-light); }
+  .pf-tag-add { display:flex; gap:8px; margin-top:12px; }
+  .pf-tag-add input { flex:1; min-width:0; background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:11px 13px; color:var(--white); font-family:'Sora',sans-serif; font-size:.9rem; outline:none; }
+  .pf-tag-add input:focus { border-color:var(--blue); }
+  .pf-tag-add button { flex:0 0 auto; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--white); border-radius:11px; padding:0 16px; font-size:1.1rem; font-weight:700; cursor:pointer; }
+  .pf-acc { display:flex; align-items:center; gap:13px; background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:14px; margin-bottom:10px; cursor:pointer; transition:border-color .15s,background .15s; }
+  .pf-acc.on { border-color:var(--blue); background:rgba(47,123,255,0.07); }
+  .pf-acc-ic { flex:0 0 40px; width:40px; height:40px; border-radius:11px; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+  .pf-acc-tx { flex:1; min-width:0; }
+  .pf-acc-n { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--white); }
+  .pf-acc-p { font-size:.76rem; color:var(--muted); }
+  .pf-acc-check { flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; color:transparent; font-size:.7rem; font-weight:800; transition:all .15s; }
+  .pf-acc.on .pf-acc-check { background:var(--blue); border-color:var(--blue); color:#fff; }
+  .pf-when { display:flex; gap:10px; }
+  .pf-when-opt { flex:1; background:var(--surface); border:1.5px solid var(--border); border-radius:13px; padding:14px; cursor:pointer; text-align:center; transition:all .15s; }
+  .pf-when-opt.on { border-color:var(--blue); background:rgba(47,123,255,0.08); }
+  .pf-when-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem; color:var(--white); }
+  .pf-when-s { font-size:.74rem; color:var(--muted); margin-top:3px; }
+  .pf-notice { background:rgba(255,159,74,0.08); border:1px solid rgba(255,159,74,0.25); border-radius:12px; padding:13px; font-size:.84rem; color:var(--white); line-height:1.5; margin-top:14px; }
+  .pf-notice b { color:var(--orange); }
+  .pf-empty { text-align:center; color:var(--muted); font-size:.86rem; padding:18px; background:var(--surface); border:1px solid var(--border); border-radius:14px; }
+
 </style>
 </head>
 <body>
@@ -1123,6 +1179,7 @@
   <div class="topbar">
     <div class="logo">Skill<span>ora</span></div>
     <div class="top-icons">
+      <div class="icon-btn" onclick="switchView('community')" title="Communauté">💬</div>
       <div class="icon-btn">🔍</div>
       <div class="icon-btn">🔔<span class="dot"></span></div>
     </div>
@@ -1142,6 +1199,20 @@
   </div>
 
   <div id="connectOverlay" class="cx-overlay"></div>
+
+  <!-- ═══ FLUX DE PUBLICATION (plein écran, par étapes) ═══ -->
+  <div id="pubFlow" class="pf-overlay">
+    <div class="pf-shell">
+      <div class="pf-top">
+        <button class="pf-close" onclick="closePubFlow()" aria-label="Fermer">✕</button>
+        <div class="pf-head-tx">
+          <div class="pf-progress"><div class="pf-progress-fill" id="pfProgress"></div></div>
+          <div class="pf-step-label" id="pfStepLabel">Étape 1 / 4</div>
+        </div>
+      </div>
+      <div class="pf-body" id="pfBody"></div>
+    </div>
+  </div>
 
   <div class="view active" id="view-home">
     <h1 class="page-title reveal" style="animation-delay:.05s">Bonjour 👋</h1>
@@ -1276,53 +1347,6 @@
   <div class="view" id="view-ia">
     <h1 class="page-title reveal" style="animation-delay:.05s">Ton coach 🎯</h1>
     <p class="page-sub reveal" style="animation-delay:.12s">Ton studio de création personnalisé.</p>
-
-    <!-- ===== Studio vidéo : noter + publier ===== -->
-    <div class="coach-sec reveal" style="animation-delay:.14s">
-      <span class="sec-kicker">Publier</span>
-    </div>
-    <div class="card vs-card reveal" id="videoStudioCard" style="animation-delay:.16s">
-      <div class="lab-header">
-        <div class="lab-header-ic">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><rect x="3" y="6" width="13" height="12" rx="2" stroke="#5e9bff" stroke-width="1.5"/><path d="M16 10l5-3v10l-5-3" stroke="#5e9bff" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        </div>
-        <h3 class="lab-title">Publier une vidéo</h3>
-        <p class="lab-subtitle">Note ta vidéo avant de la poster + hashtags et meilleur moment</p>
-      </div>
-
-      <div id="vsUpload">
-        <input type="file" id="vsFile" accept="video/*" style="display:none" onchange="onVideoPick(this)">
-        <button class="vs-drop" type="button" onclick="document.getElementById('vsFile').click()">
-          <span class="vs-drop-ic">⬆️</span>
-          <span class="vs-drop-t">Choisir une vidéo</span>
-          <span class="vs-drop-s">MP4 vertical 9:16 conseillé</span>
-        </button>
-      </div>
-
-      <div id="vsConfig" style="display:none;">
-        <div class="vs-preview-wrap">
-          <video id="vsVideo" class="vs-preview" playsinline muted preload="metadata" controls></video>
-          <button type="button" class="vs-remove" onclick="clearVideo()" title="Retirer">✕</button>
-        </div>
-        <div style="font-size:.78rem;color:var(--muted);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.05em;">Plateforme cible</div>
-        <div class="plat-select" id="vsPlat" style="margin-bottom:14px;">
-          <button class="ps-btn active" data-plat="tiktok" onclick="vsPickPlat(this)">TikTok</button>
-          <button class="ps-btn" data-plat="reels" onclick="vsPickPlat(this)">Reels</button>
-          <button class="ps-btn" data-plat="shorts" onclick="vsPickPlat(this)">Shorts</button>
-        </div>
-        <textarea id="vsCaption" class="email-field" rows="3" placeholder="Ta description / légende (optionnel mais conseillé)..." style="resize:none;margin:0 0 14px;"></textarea>
-        <button class="btn-primary" id="vsAnalyzeBtn" onclick="gradeVideo()">✨ Noter ma vidéo</button>
-        <div class="status-msg" id="vsStatus"></div>
-      </div>
-
-      <div id="vsLoader" style="display:none;margin-top:18px;text-align:center;">
-        <div class="ai-loader"><span></span><span></span><span></span></div>
-        <div id="vsLoaderLabel" style="color:var(--blue-light);font-size:.9rem;margin-top:12px;font-family:'Fraunces',serif;">Extraction des images...</div>
-        <div style="color:var(--muted2);font-size:.78rem;margin-top:4px;">Skillora regarde ta vidéo — quelques secondes</div>
-      </div>
-
-      <div id="vsResult" style="display:none;margin-top:20px;"></div>
-    </div>
 
     <!-- ===== Studio : profils de niche ===== -->
     <div class="coach-sec reveal" style="animation-delay:.18s">
@@ -1652,8 +1676,8 @@
 
 <div class="bottomnav">
   <button class="nav-btn active" onclick="switchView('home', this)"><span class="ni">🏠</span>Accueil</button>
-  <button class="nav-btn" onclick="switchView('community', this)"><span class="ni">💬</span>Communauté</button>
-  <button class="nav-btn center" onclick="switchView('library', this)"><span class="ni"><span style="font-size:1.5rem;line-height:1;display:block;transform:translateY(1px);">📚</span></span>Guides</button>
+  <button class="nav-btn" onclick="switchView('library', this)"><span class="ni">📚</span>Guides</button>
+  <button class="nav-btn center" onclick="openPubFlow()" title="Créer / Publier"><span class="ni">+</span>Créer</button>
   <button class="nav-btn" onclick="switchView('ia', this)"><span class="ni"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6.5" r="3"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/><path d="M17.5 9.5l1.8-1.8M19.3 7.7H17M19.3 7.7v2.3"/></svg></span>Coach</button>
   <button class="nav-btn" onclick="switchView('profile', this)"><span class="ni">👤</span>Profil</button>
 </div>
@@ -2989,6 +3013,183 @@
     try { navigator.clipboard.writeText(t); accToast('Hashtags copiés ✓'); } catch(e){}
   }
   function vsPublish() { accToast('Publication réelle : bientôt via Post for Me 🚀'); }
+
+  /* ═══════════ FLUX DE PUBLICATION plein écran (4 étapes) ═══════════ */
+  var pf = null;
+  function pfReset() { pf = { step:1, file:null, _url:null, platform:'tiktok', grade:null, caption:'', hashtags:[], tagsOn:{}, accounts:[], selAcc:{}, when:'best' }; }
+
+  function openPubFlow() {
+    pfReset();
+    document.getElementById('pubFlow').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    renderPf();
+  }
+  function closePubFlow() {
+    document.getElementById('pubFlow').classList.remove('open');
+    document.body.style.overflow = '';
+    try { if (pf && pf._url) URL.revokeObjectURL(pf._url); } catch(e){}
+  }
+
+  function renderPf() {
+    var pct = (pf.step / 4) * 100;
+    document.getElementById('pfProgress').style.width = pct + '%';
+    document.getElementById('pfStepLabel').textContent = 'Étape ' + pf.step + ' / 4';
+    var b = document.getElementById('pfBody');
+    if (pf.step === 1) {
+      b.innerHTML = pfStepUpload();
+      if (pf.file && pf._url) { var v = document.getElementById('pfVideo'); if (v) { v.src = pf._url; try { v.load(); } catch(e){} } }
+    } else if (pf.step === 2) b.innerHTML = pfStepNote();
+    else if (pf.step === 3) b.innerHTML = pfStepOptimize();
+    else if (pf.step === 4) { b.innerHTML = pfStepAccounts(); pfLoadAccounts(); }
+    try { document.getElementById('pubFlow').scrollTop = 0; } catch(e){}
+  }
+  function pfGo(n) { pf.step = n; renderPf(); }
+
+  function pfFoot(backAction, nextLabel, nextAction, disabled) {
+    var back = backAction ? '<button class="pf-btn pf-btn-ghost" onclick="' + backAction + '">←</button>' : '';
+    var cls = (nextAction && nextAction.indexOf('pfPublish') >= 0) ? 'pf-btn pf-publish' : 'pf-btn pf-btn-primary';
+    return '<div class="pf-foot">' + back + '<button class="' + cls + '"' + (disabled ? ' disabled' : '') + ' onclick="' + (nextAction || '') + '">' + nextLabel + '</button></div>';
+  }
+
+  // ── Étape 1 : upload ──
+  function pfStepUpload() {
+    var preview = pf.file
+      ? '<div class="pf-preview-wrap"><video id="pfVideo" class="pf-preview" playsinline muted preload="metadata" controls></video><button class="pf-replace" onclick="document.getElementById(\'pfFile\').click()">Changer</button></div>'
+      : '<button class="pf-drop" type="button" onclick="document.getElementById(\'pfFile\').click()"><span class="pf-drop-ic">⬆️</span><span class="pf-drop-t">Choisir une vidéo</span><span class="pf-drop-s">MP4 vertical 9:16 conseillé</span></button>';
+    return '<div class="pf-h">Ta vidéo</div><div class="pf-sub">Importe ta vidéo, choisis la plateforme et ajoute une description.</div>' +
+      '<input type="file" id="pfFile" accept="video/*" style="display:none" onchange="pfPick(this)">' +
+      preview +
+      '<div class="pf-label">Plateforme cible</div><div class="plat-select" id="pfPlat">' +
+        pfPlatBtn('tiktok','TikTok') + pfPlatBtn('reels','Reels') + pfPlatBtn('shorts','Shorts') +
+      '</div>' +
+      '<div class="pf-label">Description (optionnel)</div>' +
+      '<textarea id="pfCaption" class="email-field" rows="3" placeholder="Décris ta vidéo..." style="resize:none;margin:0;" oninput="pf.caption=this.value">' + escapeHtml(pf.caption || '') + '</textarea>' +
+      pfFoot('', pf.file ? 'Analyser ma vidéo →' : 'Choisis une vidéo', pf.file ? 'pfRunGrade()' : '', !pf.file);
+  }
+  function pfPlatBtn(p, label) { return '<button class="ps-btn' + (pf.platform === p ? ' active' : '') + '" onclick="pf.platform=\'' + p + '\';pfSyncPlat(this)">' + label + '</button>'; }
+  function pfSyncPlat(btn) { document.querySelectorAll('#pfPlat .ps-btn').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); }
+  function pfPick(input) {
+    var f = input.files && input.files[0];
+    if (!f) return;
+    if (f.size > 300 * 1024 * 1024) { accToast('Vidéo trop lourde (max 300 Mo)'); input.value = ''; return; }
+    try { if (pf._url) URL.revokeObjectURL(pf._url); } catch(e){}
+    pf.file = f; pf._url = URL.createObjectURL(f);
+    renderPf();
+  }
+
+  // ── Étape 1→2 : extraction + note ──
+  async function pfRunGrade() {
+    var v = document.getElementById('pfVideo');
+    if (!pf.file || !v) { accToast('Choisis une vidéo'); return; }
+    var cap = document.getElementById('pfCaption'); if (cap) pf.caption = cap.value || '';
+    document.getElementById('pfBody').innerHTML = '<div class="pf-loading"><div class="ai-loader"><span></span><span></span><span></span></div><div id="pfLoadLbl" style="color:var(--blue-light);font-family:\'Fraunces\',serif;margin-top:14px;">Extraction des images...</div><div style="color:var(--muted2);font-size:.8rem;margin-top:6px;">Skillora regarde ta vidéo</div></div>';
+    try {
+      if (v.readyState < 2) await new Promise(function(res){ var d=false; v.addEventListener('loadeddata', function(){ d=true; res(); }, { once:true }); setTimeout(function(){ if(!d) res(); }, 5000); });
+      var frames = await extractFrames(v, 4);
+      var lbl = document.getElementById('pfLoadLbl'); if (lbl) lbl.textContent = 'Analyse par Skillora...';
+      var ctx = vsNicheContext();
+      var sess = await sb.auth.getSession();
+      if (!sess.data.session) { accToast('Session expirée'); pf.step = 1; renderPf(); return; }
+      var res = await fetch(SB_URL + '/functions/v1/grade-video', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + sess.data.session.access_token, 'apikey': SB_KEY },
+        body: JSON.stringify({ caption: pf.caption, platform: pf.platform, niche: ctx.niche, duration_s: vsDuration, top_hashtags: ctx.hashtags, frames: frames })
+      });
+      var data = await res.json();
+      if (!res.ok || data.error) { accToast(data.error || 'Erreur, réessaie.'); pf.step = 1; renderPf(); return; }
+      pf.grade = data.grade || {};
+      pf.hashtags = (pf.grade.hashtags || []).map(function(t){ return ('' + t).replace(/^#/, ''); }).filter(Boolean).slice(0, 8);
+      pf.tagsOn = {}; pf.hashtags.forEach(function(t){ pf.tagsOn[t] = true; });
+      if (!pf.caption && pf.grade.caption_suggestion) pf.caption = pf.grade.caption_suggestion;
+      pf.step = 2; renderPf();
+    } catch(e) { accToast('Erreur, réessaie.'); pf.step = 1; renderPf(); }
+  }
+
+  // ── Étape 2 : note ──
+  function pfStepNote() {
+    var g = pf.grade || {};
+    var score = Math.max(0, Math.min(100, parseInt(g.score, 10) || 0));
+    var color = score >= 75 ? '#3ddc84' : (score >= 50 ? '#5e9bff' : '#ff9f4a');
+    var circ = 232.5, off = circ - (score / 100) * circ;
+    var head = score >= 75 ? 'Prête à cartonner' : (score >= 50 ? 'Du potentiel' : 'À retravailler');
+    var html = '<div class="pf-h">Note de ta vidéo</div><div class="pf-sub">Avant de publier, voici ce que Skillora en pense.</div>';
+    html += '<div class="vs-res-score"><div class="vs-ring"><svg width="84" height="84"><circle cx="42" cy="42" r="37" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7"/><circle cx="42" cy="42" r="37" fill="none" stroke="' + color + '" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + off + '" transform="rotate(-90 42 42)"/></svg><div class="vs-ring-n"><div class="vs-ring-v">' + score + '</div><div class="vs-ring-s">/100</div></div></div><div class="vs-res-verdict"><h4>' + head + '</h4><p>' + escapeHtml(g.verdict || '') + '</p></div></div>';
+    if (g.hook) html += '<div class="vs-block"><div class="vs-block-t blue">🎬 Hook</div><div class="vs-hook"><span class="vs-hook-score">' + (parseInt(g.hook.score, 10) || 0) + '<small>/10</small></span><span style="font-size:.86rem;color:var(--white);line-height:1.45;">' + escapeHtml(g.hook.note || '') + '</span></div></div>';
+    if (g.strengths && g.strengths.length) html += '<div class="vs-block good"><div class="vs-block-t good">✓ Points forts</div>' + g.strengths.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
+    if (g.weaknesses && g.weaknesses.length) html += '<div class="vs-block bad"><div class="vs-block-t bad">△ À améliorer</div>' + g.weaknesses.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
+    if (g.fixes && g.fixes.length) html += '<div class="vs-block"><div class="vs-block-t blue">🔧 Correctifs</div>' + g.fixes.map(function(x){ return '<div class="vs-li">' + escapeHtml(x) + '</div>'; }).join('') + '</div>';
+    html += pfFoot('pfGo(1)', 'Optimiser →', 'pfGo(3)', false);
+    return html;
+  }
+
+  // ── Étape 3 : optimiser (description + hashtags) ──
+  function pfStepOptimize() {
+    var chips = (pf.hashtags || []).map(function(t){ return '<span class="pf-tag' + (pf.tagsOn[t] ? ' on' : '') + '" onclick="pfToggleTag(\'' + t.replace(/'/g, '') + '\')">#' + escapeHtml(t) + '</span>'; }).join('');
+    return '<div class="pf-h">Optimise ta publication</div><div class="pf-sub">Ajuste la description et choisis tes hashtags.</div>' +
+      '<div class="pf-label">Description</div>' +
+      '<textarea id="pfCaption2" class="email-field" rows="4" style="resize:none;margin:0;" oninput="pf.caption=this.value">' + escapeHtml(pf.caption || '') + '</textarea>' +
+      '<div class="pf-label">Hashtags conseillés</div>' +
+      '<div class="pf-tags">' + (chips || '<span style="color:var(--muted);font-size:.85rem;">Aucun hashtag suggéré.</span>') + '</div>' +
+      '<div class="pf-tag-add"><input id="pfTagInput" placeholder="Ajouter un hashtag" onkeydown="if(event.key===\'Enter\'){event.preventDefault();pfAddTag();}"><button onclick="pfAddTag()">＋</button></div>' +
+      pfFoot('pfGo(2)', 'Continuer →', 'pfGo(4)', false);
+  }
+  function pfToggleTag(t) { pf.tagsOn[t] = !pf.tagsOn[t]; renderPf(); }
+  function pfAddTag() {
+    var i = document.getElementById('pfTagInput'); if (!i) return;
+    var t = (i.value || '').trim().replace(/^#/, '').replace(/\s+/g, '');
+    if (!t) return;
+    if (pf.hashtags.indexOf(t) < 0) pf.hashtags.push(t);
+    pf.tagsOn[t] = true; i.value = ''; renderPf();
+  }
+
+  // ── Étape 4 : comptes & moment ──
+  function pfStepAccounts() {
+    var bt = vsBestTime() || vsDefaultTime(pf.platform);
+    var html = '<div class="pf-h">Comptes & moment</div><div class="pf-sub">Choisis où et quand publier.</div>';
+    html += '<div class="pf-label">Publier sur</div><div id="pfAccList"><div class="pf-empty">Chargement…</div></div>';
+    html += '<div class="pf-label">Quand</div><div class="pf-when">' +
+      '<div class="pf-when-opt' + (pf.when === 'now' ? ' on' : '') + '" onclick="pf.when=\'now\';renderPf()"><div class="pf-when-t">Maintenant</div><div class="pf-when-s">Publier tout de suite</div></div>' +
+      '<div class="pf-when-opt' + (pf.when === 'best' ? ' on' : '') + '" onclick="pf.when=\'best\';renderPf()"><div class="pf-when-t">Meilleur moment</div><div class="pf-when-s">' + escapeHtml(bt) + '</div></div>' +
+    '</div>';
+    html += '<div class="pf-notice"><b>Pour activer la publication :</b> connecte tes comptes via Post for Me (intégration en cours). En attendant, copie ta description + hashtags optimisés.</div>';
+    html += '<button class="vs-copy" onclick="pfCopyFinal()" style="margin-top:12px;">Copier description + hashtags</button>';
+    html += pfFoot('pfGo(3)', '🚀 Publier', 'pfPublish()', false);
+    return html;
+  }
+  async function pfLoadAccounts() {
+    var box = document.getElementById('pfAccList'); if (!box) return;
+    try {
+      var r = await sb.from('connected_accounts').select('platform,username,is_active').order('created_at', { ascending: true });
+      var rows = (r && r.data) || [];
+      var seen = {}, list = [];
+      rows.forEach(function(a){ var k = a.platform + '|' + a.username; if (!seen[k]) { seen[k] = 1; list.push(a); } });
+      if (!list.length && typeof profiles !== 'undefined' && profiles && profiles.length) {
+        profiles.forEach(function(p){ list.push({ platform: p.platform, username: p.account }); });
+      }
+      pf.accounts = list;
+      if (!list.length) { box.innerHTML = '<div class="pf-empty">Aucun compte connecté. Connecte un compte depuis l\'accueil pour publier.</div>'; return; }
+      box.innerHTML = list.map(function(a, i) {
+        if (pf.selAcc[i] === undefined) pf.selAcc[i] = true;
+        var ic = a.platform === 'youtube' || a.platform === 'shorts' ? '▶️' : (a.platform === 'instagram' || a.platform === 'reels' ? '📸' : (a.platform === 'facebook' ? '👥' : '🎵'));
+        return '<div class="pf-acc' + (pf.selAcc[i] ? ' on' : '') + '" onclick="pfToggleAcc(' + i + ')"><div class="pf-acc-ic">' + ic + '</div><div class="pf-acc-tx"><div class="pf-acc-n">@' + escapeHtml(a.username || '') + '</div><div class="pf-acc-p">' + escapeHtml(pfPlatLabel(a.platform)) + '</div></div><div class="pf-acc-check">✓</div></div>';
+      }).join('');
+    } catch(e) { box.innerHTML = '<div class="pf-empty">Impossible de charger les comptes.</div>'; }
+  }
+  function pfToggleAcc(i) {
+    pf.selAcc[i] = !pf.selAcc[i];
+    var box = document.getElementById('pfAccList'); var el = box && box.children[i];
+    if (el) el.classList.toggle('on', pf.selAcc[i]);
+  }
+  function pfPlatLabel(p) { return p === 'youtube' || p === 'shorts' ? 'YouTube' : (p === 'instagram' || p === 'reels' ? 'Instagram' : (p === 'facebook' ? 'Facebook' : 'TikTok')); }
+  function pfCopyFinal() {
+    var tags = (pf.hashtags || []).filter(function(t){ return pf.tagsOn[t]; }).map(function(t){ return '#' + t; }).join(' ');
+    var txt = ((pf.caption || '').trim() + '\n\n' + tags).trim();
+    try { navigator.clipboard.writeText(txt); accToast('Copié ✓'); } catch(e){}
+  }
+  function pfPublish() {
+    // Phase 2 : Post for Me. En attendant la clé API, on informe l'utilisateur.
+    accToast('Publication réelle : bientôt via Post for Me 🚀');
+  }
 
   /* ===== Email activation state & popup ===== */
   // Stripe est live : par défaut non abonné. loadUserPlan() active si un plan est actif.

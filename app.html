@@ -4145,10 +4145,8 @@
         renderAnalysis(data.analysis);
         setTimeout(function(){ scrollToResult(result); }, 200);
       } else if (data.success && data.raw) {
-        status.textContent = '';
-        result.style.display = 'block';
-        result.innerHTML = '<div class="card" style="margin:0;">' + data.raw.replace(/\n/g, '<br>') + '</div>';
-        setTimeout(function(){ scrollToResult(result); }, 200);
+        status.style.color = '#ff6b4a';
+        status.textContent = '❌ L\'analyse n\'a pas pu être finalisée. Réessaie.';
       } else {
         status.style.color = '#ff6b4a';
         status.textContent = '❌ ' + (data.error || 'Analyse échouée');

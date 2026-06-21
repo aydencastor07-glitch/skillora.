@@ -2440,14 +2440,21 @@
 
   // Carte profil façon réseau natif
   function homeProfileCard(platform, prof, s, username) {
-    var av = prof.avatar ? '<div class="home-pf-av" style="background-image:url(\'' + prof.avatar.replace(/'/g,'') + '\')"></div>' : '<div class="home-pf-av home-pf-av-empty">' + (prof.nickname||username||'?').charAt(0).toUpperCase() + '</div>';
+    // Photo & nom : on prend ceux du scraping si dispo, sinon ceux de Post for Me (connexion)
+    var ci = (window.__connInfo && window.__connInfo[platform]) || {};
+    var photo = prof.avatar || ci.photo || '';
+    var name = prof.nickname || ci.name || username || '';
+    var av = photo ? '<div class="home-pf-av" style="background-image:url(\'' + (''+photo).replace(/'/g,'') + '\')"></div>' : '<div class="home-pf-av home-pf-av-empty">' + (name||'?').charAt(0).toUpperCase() + '</div>';
     var logo = platform === 'youtube' ? youtube : (platform === 'instagram' ? instagram : tiktok);
     var likesBlock = (platform === 'tiktok') ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(prof.total_likes||0) + '</div><div class="home-pf-l">Likes</div></div>' : '';
     var audLabel = platform === 'youtube' ? 'Abonnés' : 'Abonnés';
+    // n'affiche le @ que si c'est un vrai identifiant (pas un nom d'affichage avec espaces/emoji)
+    var handleStr = (prof.handle || ci.handle || '').trim();
+    var showHandle = handleStr && /^[a-zA-Z0-9._-]+$/.test(handleStr);
     return '<div class="home-pf home-pf-' + platform + '">' +
       '<div class="home-pf-top">' + av + '<span class="home-pf-badge">' + logo + '</span></div>' +
-      '<div class="home-pf-name">' + escapeHtml(prof.nickname || username || '') + '</div>' +
-      '<div class="home-pf-handle">@' + escapeHtml(username || prof.handle || '') + '</div>' +
+      '<div class="home-pf-name">' + escapeHtml(name) + '</div>' +
+      (showHandle ? '<div class="home-pf-handle">@' + escapeHtml(handleStr) + '</div>' : '') +
       '<div class="home-pf-stats">' +
         '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.audience||0) + '</div><div class="home-pf-l">' + audLabel + '</div></div>' +
         likesBlock +
@@ -4505,7 +4512,9 @@
     try {
       if (window.__autoAnalyzeRan) return;
       var cp = window.__connectedPlats || {};
-      var plat = (typeof cp.tiktok === 'string') ? 'tiktok' : ((typeof cp.youtube === 'string') ? 'youtube' : null);
+      // on n'analyse QUE si on a un vrai @handle (Post for Me donne parfois le nom d'affichage)
+      var valid = function(v){ return typeof v === 'string' && /^[a-zA-Z0-9._-]+$/.test(v); };
+      var plat = valid(cp.youtube) ? 'youtube' : (valid(cp.tiktok) ? 'tiktok' : null);
       if (!plat) return;
       window.__autoAnalyzeRan = true;
       const { data:{ session } } = await sb.auth.getSession();

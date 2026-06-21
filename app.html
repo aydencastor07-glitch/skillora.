@@ -4118,7 +4118,11 @@
 
   function scrollToResult(el) {
     if (!el) return;
-    var y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+    // on s'arrete pile sur le HAUT du resultat (la note + le verdict),
+    // juste sous la barre du haut. La personne scrolle ensuite pour le reste.
+    var tb = document.querySelector('.topbar');
+    var off = (tb ? tb.offsetHeight : 64) + 12;
+    var y = el.getBoundingClientRect().top + window.pageYOffset - off;
     window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   }
 

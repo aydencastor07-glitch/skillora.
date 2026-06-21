@@ -4633,9 +4633,10 @@
 
   async function pfmHandleReturn() {
     var params = new URLSearchParams(window.location.search);
-    if (params.get('pfm') !== 'connected') return;
-    try { window.history.replaceState({}, '', window.location.pathname); } catch(e){}
     var pend = null; try { pend = localStorage.getItem('pfm_pending'); } catch(e){}
+    // retour de connexion = soit ?pfm=connected dans l'URL, soit un clic "connecter" memorise
+    if (params.get('pfm') !== 'connected' && !pend) return;
+    try { window.history.replaceState({}, '', window.location.pathname); } catch(e){}
     var plat = pend || 'tiktok';
     showPfmConnecting(plat);              // <-- ecran anime tout de suite (plus de "rien ne se passe")
     try {

@@ -865,6 +865,14 @@
   .ver-script { background:var(--bg); border:1px solid var(--border); border-radius:13px; padding:14px 15px; font-size:.92rem; line-height:1.6; white-space:pre-wrap; color:#e4ebf7; }
   .ver-copy { margin-top:13px; width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:#fff; border-radius:11px; padding:12px; font-family:'Sora',sans-serif; font-weight:600; font-size:.84rem; cursor:pointer; transition:transform .12s,background .2s; }
   .ver-copy:active { transform:scale(0.98); }
+  /* Refonte page resultats : hierarchie claire + aide debutant */
+  .ab-sub { font-size:.82rem; color:var(--muted); line-height:1.5; margin:-9px 0 16px; }
+  .hero-head { margin:26px 0 12px; }
+  .hero-head h3 { font-family:'Fraunces',serif; font-size:1.2rem; color:#fff; margin:0 0 5px; display:flex; align-items:center; gap:8px; }
+  .hero-head p { font-size:.86rem; color:var(--muted); margin:0; line-height:1.5; }
+  .ver-card.hero { border-color:var(--blue); box-shadow:0 0 0 1px rgba(47,123,255,0.5), 0 10px 34px rgba(47,123,255,0.2); background:linear-gradient(180deg, rgba(47,123,255,0.08), var(--surface)); }
+  .ver-script-label { font-size:.62rem; text-transform:uppercase; letter-spacing:.2em; color:var(--blue-light); font-weight:700; margin:14px 0 6px; }
+  .ver-copy.primary { background:linear-gradient(135deg,var(--blue),#1857c4); border:none; font-size:.92rem; padding:14px; box-shadow:0 8px 24px rgba(47,123,255,0.3); }
 
   /* ============ LECTEUR D'EBOOK PREMIUM (feuilletage 3D) ============ */
   .eb-reader { position:fixed; inset:0; z-index:4000; display:none; background:
@@ -4197,83 +4205,81 @@
       html += '</div></div>';
     }
 
-    // Score ring + verdict
+    // ===== 1) Note de TON script (point de depart) =====
     html += '<div class="an-score-wrap">';
     html += '<div class="an-ring"><svg viewBox="0 0 86 86"><circle cx="43" cy="43" r="38" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6"/><circle cx="43" cy="43" r="38" fill="none" stroke="' + noteColor + '" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + circ + '" style="transition:stroke-dashoffset 1.1s cubic-bezier(.2,.7,.3,1);" id="scoreCircle"/></svg>';
     html += '<div class="ring-num" style="color:' + noteColor + '"><b>' + note + '</b><span>/10</span></div></div>';
-    html += '<div class="an-verdict"><small>Verdict</small>' + (a.verdict || '') + '</div>';
+    html += '<div class="an-verdict"><small>Note de ton script</small>' + (a.verdict || '') + '</div>';
     html += '</div>';
 
     if (a.deja_optimise) {
       html += '<div class="an-block" style="background:rgba(61,220,132,0.1);border-color:rgba(61,220,132,0.3);"><div style="font-size:.92rem;line-height:1.5;">✅ Ce script a déjà été optimisé par Skillora. Il est prêt à filmer — ne change rien !</div></div>';
     }
 
-    // Criteria bars
-    if (a.criteres && a.criteres.length) {
-      html += '<div class="an-block"><div class="ab-title">📊 Détail de la note</div>';
-      a.criteres.forEach(function(c) {
-        var s = c.score != null ? c.score : 0;
-        var col = s >= 7.5 ? '#3ddc84' : (s >= 5 ? '#ff9f4a' : '#ff6b4a');
-        html += '<div class="crit-row"><div class="cn">' + c.nom + '</div>';
-        html += '<div class="crit-bar"><div class="crit-fill" data-w="' + (s*10) + '" style="background:' + col + ';"></div></div>';
-        html += '<div class="cv" style="color:' + col + '">' + s + '</div></div>';
-      });
-      html += '</div>';
-    }
-
-    // What works
-    if (a.ce_qui_marche && a.ce_qui_marche.length) {
-      html += '<div class="an-block"><div class="ab-title">✅ Ce qui marche</div>';
-      a.ce_qui_marche.forEach(function(p){ html += '<div class="an-chip"><span class="dot" style="background:rgba(61,220,132,0.16);color:#3ddc84;">✓</span><span>' + p + '</span></div>'; });
-      html += '</div>';
-    }
-    // To avoid
-    if (a.a_eviter && a.a_eviter.length) {
-      html += '<div class="an-block"><div class="ab-title">⛔ À éviter</div>';
-      a.a_eviter.forEach(function(p){ html += '<div class="an-chip"><span class="dot" style="background:rgba(255,107,74,0.16);color:#ff6b4a;">✕</span><span>' + p + '</span></div>'; });
-      html += '</div>';
-    }
-
-    // Montage timeline
-    if (a.montage && a.montage.length) {
-      html += '<div class="an-block"><div class="ab-title">🎬 Plan de montage</div>';
-      a.montage.forEach(function(m){ html += '<div class="tl-row"><div class="tl-time">' + (m.t||'') + '</div><div class="tl-line">' + (m.a||'') + '</div></div>'; });
-      html += '</div>';
-    }
-
-    // Best time + hashtags (side info)
-    if (a.meilleur_moment || (a.hashtags && a.hashtags.length)) {
-      html += '<div class="an-block">';
-      if (a.meilleur_moment) html += '<div class="ab-title">⏰ Meilleur moment</div><div style="font-size:.95rem;font-family:\'Fraunces\',serif;font-weight:600;margin-bottom:' + (a.hashtags ? '14px' : '0') + ';">' + a.meilleur_moment + '</div>';
-      if (a.hashtags && a.hashtags.length) {
-        html += '<div class="ab-title"># Hashtags</div><div>';
-        a.hashtags.forEach(function(t){ html += '<span class="htag">#' + (''+t).replace(/^#/,'') + '</span>'; });
-        html += '</div>';
-      }
-      html += '</div>';
-    }
-
-    // 3 versions
+    // ===== 2) LE HÉROS : la version optimisée, prête à filmer =====
     if (a.versions && a.versions.length) {
       window.__verScripts = window.__verScripts || {};
-      html += '<h3 class="section-h" style="margin:22px 0 12px;">🚀 ' + a.versions.length + (a.versions.length > 1 ? ' versions optimisées' : ' version optimisée') + '</h3>';
+      html += '<div class="hero-head"><h3>✅ Ta version optimisée</h3><p>Voici ton script réécrit pour faire un maximum de vues. Copie-le, c\'est prêt à filmer.</p></div>';
       a.versions.forEach(function(v, i) {
-        var cleanScript = (v.script || '').replace(/[\u200B\u200C\u200D\u2060\u2061\u2062\u2063\u2064\uFEFF\u034F\u2066]/g, '');
+        var cleanScript = (v.script || '').replace(/[​‌‍⁠⁡⁢⁣⁤﻿͏⁦]/g, '');
         var vid = 'ver' + i;
         window.__verScripts[vid] = v.script || ''; // version AVEC marque (note stable)
-        html += '<div class="ver-card">';
+        html += '<div class="ver-card hero">';
         var vnoteBadge = '';
         if (v.note != null) {
           var vcol = v.note >= 7.5 ? '#3ddc84' : (v.note >= 5 ? '#ff9f4a' : '#ff6b4a');
           vnoteBadge = '<span style="margin-left:auto;font-family:\'Fraunces\',serif;font-weight:700;font-size:.92rem;color:' + vcol + ';background:rgba(255,255,255,0.05);border:1px solid ' + vcol + ';border-radius:999px;padding:3px 11px;">' + v.note + '/10</span>';
         }
-        html += '<div class="ver-title"><span class="ver-num">' + (i+1) + '</span>' + (v.titre || ('Version ' + (i+1))) + vnoteBadge + '</div>';
-        if (v.hook) html += '<div class="ver-hook"><small>Hook</small>' + v.hook + '</div>';
+        html += '<div class="ver-title">' + (v.titre || 'Version optimisée') + vnoteBadge + '</div>';
+        if (v.hook) html += '<div class="ver-hook"><small>🎯 Les 3 premières secondes (l\'accroche)</small>' + v.hook + '</div>';
+        html += '<div class="ver-script-label">📝 Le script complet (texte à dire)</div>';
         html += '<div class="ver-script" id="' + vid + '">' + cleanScript + '</div>';
-        if (v.cta) html += '<div style="margin-top:10px;font-size:.84rem;color:var(--muted);"><span style="color:var(--green);">📣 CTA :</span> ' + v.cta + '</div>';
-        html += '<button class="ver-copy" onclick="copyVersion(\'' + vid + '\', this)">📋 Copier cette version</button>';
+        if (v.cta) html += '<div style="margin-top:12px;font-size:.86rem;color:var(--muted);line-height:1.5;"><span style="color:var(--green);font-weight:600;">📣 Phrase de fin :</span> ' + v.cta + '</div>';
+        html += '<button class="ver-copy primary" onclick="copyVersion(\'' + vid + '\', this)">📋 Copier le script</button>';
         html += '</div>';
       });
+    }
+
+    // ===== 3) POURQUOI cette note : forces + faiblesses + détail =====
+    var hasWhy = (a.ce_qui_marche && a.ce_qui_marche.length) || (a.a_eviter && a.a_eviter.length) || (a.criteres && a.criteres.length);
+    if (hasWhy) {
+      html += '<div class="an-block"><div class="ab-title">📊 Pourquoi cette note</div>';
+      html += '<div class="ab-sub">Ce qui va et ce qui bloque dans ton script de départ, pour progresser.</div>';
+      if (a.ce_qui_marche && a.ce_qui_marche.length) {
+        a.ce_qui_marche.forEach(function(p){ html += '<div class="an-chip"><span class="dot" style="background:rgba(61,220,132,0.16);color:#3ddc84;">✓</span><span>' + p + '</span></div>'; });
+      }
+      if (a.a_eviter && a.a_eviter.length) {
+        a.a_eviter.forEach(function(p){ html += '<div class="an-chip"><span class="dot" style="background:rgba(255,107,74,0.16);color:#ff6b4a;">✕</span><span>' + p + '</span></div>'; });
+      }
+      if (a.criteres && a.criteres.length) {
+        html += '<div style="margin-top:16px;">';
+        a.criteres.forEach(function(c) {
+          var s = c.score != null ? c.score : 0;
+          var col = s >= 7.5 ? '#3ddc84' : (s >= 5 ? '#ff9f4a' : '#ff6b4a');
+          html += '<div class="crit-row"><div class="cn">' + c.nom + '</div>';
+          html += '<div class="crit-bar"><div class="crit-fill" data-w="' + (s*10) + '" style="background:' + col + ';"></div></div>';
+          html += '<div class="cv" style="color:' + col + '">' + s + '</div></div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    // ===== 4) PASSER À L'ACTION : filmer + publier + hashtags =====
+    var hasAction = (a.montage && a.montage.length) || a.meilleur_moment || (a.hashtags && a.hashtags.length);
+    if (hasAction) {
+      html += '<div class="an-block"><div class="ab-title">🎬 Comment la filmer</div>';
+      html += '<div class="ab-sub">Le déroulé seconde par seconde pour tourner ta vidéo.</div>';
+      if (a.montage && a.montage.length) {
+        a.montage.forEach(function(m){ html += '<div class="tl-row"><div class="tl-time">' + (m.t||'') + '</div><div class="tl-line">' + (m.a||'') + '</div></div>'; });
+      }
+      if (a.meilleur_moment) html += '<div style="margin-top:18px;font-size:.9rem;line-height:1.5;"><span style="color:var(--blue-light);font-weight:600;">⏰ Quand publier :</span> ' + a.meilleur_moment + '</div>';
+      if (a.hashtags && a.hashtags.length) {
+        html += '<div style="margin-top:16px;"><div class="ab-sub" style="margin:0 0 8px;"># Hashtags à copier</div>';
+        a.hashtags.forEach(function(t){ html += '<span class="htag">#' + (''+t).replace(/^#/,'') + '</span>'; });
+        html += '</div>';
+      }
+      html += '</div>';
     }
 
     result.innerHTML = html;

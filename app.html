@@ -1826,7 +1826,7 @@
     loadHomeDashboard();
     loadUserPlan();        // charge le plan réel depuis Stripe/Supabase
     handleCheckoutReturn(); // détecte le retour après paiement
-    if (typeof refreshConnections === 'function') refreshConnections(); // etat des comptes connectes
+    if (typeof refreshConnections === 'function') refreshConnections(true); // etat + resync Post for Me
     if (typeof pfmHandleReturn === 'function') pfmHandleReturn(); // retour connexion Post for Me
     // restaurer la dernière vue ouverte (après le chargement des profils/workflow)
     setTimeout(restoreLastView, 700);
@@ -2193,8 +2193,14 @@
 
       let html = homeProfileCard(platform, prof, s, mine.username);
 
+      // Stats reelles disponibles ? (sinon on n'affiche pas les graphiques/chiffres vides)
+      var hasStats = (Number(s.audience) > 0) || (Number(s.video_count) > 0) || (Number(s.total_views) > 0) || (Number(s.avg_views) > 0);
+      if (!hasStats) {
+        html += '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.5;">⏳ Tes statistiques arrivent. Appuie sur <b>Actualiser</b> sur ta carte de profil si elles ne s\'affichent pas.</div>';
+      }
+
       // Barre objectif
-      if (goal > 0) {
+      if (hasStats && goal > 0) {
         const cur = s.audience || 0;
         const pct = Math.min(100, Math.round((cur / goal) * 100));
         html += '<div class="card home-goal" style="margin-bottom:14px;">' +
@@ -2203,8 +2209,8 @@
           '<div class="home-goal-sub">' + fmtNum(cur) + ' / ' + fmtNum(goal) + ' abonnés</div></div>';
       }
 
-      // Graphique d'évolution (premium) — se remplit jour après jour
-      html += renderGrowthGraph(s);
+      // Graphique d'évolution — seulement quand il y a de vraies stats
+      if (hasStats) html += renderGrowthGraph(s);
 
       // Score viral
       if (ins.scorecard) {
@@ -2218,11 +2224,11 @@
 
       // Cartes méta : Vues totales + Engagement en haut, Niche (avec note) + Type en bas
       var totalViews = (typeof s.total_views === 'number' && s.total_views > 0) ? s.total_views : ((s.avg_views||0) * (s.video_count||0));
-      html += '<div class="home-meta-grid">' +
+      if (hasStats) html += '<div class="home-meta-grid">' +
         '<div class="home-meta"><div class="home-meta-l">Vues totales</div><div class="home-meta-v">' + fmtNum(totalViews) + '</div></div>' +
         '<div class="home-meta"><div class="home-meta-l">Engagement moyen</div><div class="home-meta-v">' + (s.avg_engagement_rate||0) + '%</div></div>' +
       '</div>';
-      if (ins.niche) {
+      if (hasStats && ins.niche) {
         var nsc = nicheScore(ins.niche);
         html += '<div class="home-meta-grid">' +
           '<div class="home-meta niche"><div class="home-meta-l">Niche détectée</div>' +
@@ -4500,16 +4506,27 @@
     } catch(e){}
   }
 
-  // Charge les plateformes connectees (depuis social_connections) et rafraichit l'UI
+  // Charge les plateformes connectees (depuis social_connections) et rafraichit l'UI.
+  // force=true -> resynchronise d'abord depuis Post for Me (handle, photo, metadata).
   window.__connectedPlats = window.__connectedPlats || {};
-  async function refreshConnections() {
+  window.__connInfo = window.__connInfo || {};
+  async function refreshConnections(force) {
     try {
       const { data:{ session } } = await sb.auth.getSession();
       if (!session) return;
-      const { data } = await sb.from('social_connections').select('platform,username').eq('user_id', session.user.id);
-      var map = {};
-      (data || []).forEach(function(c){ var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform; map[k] = c.username || true; });
+      if (force || !window.__pfmSynced) {
+        window.__pfmSynced = true;
+        try { await fetch(SB_URL + '/functions/v1/pfm-sync', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY } }); } catch(e){}
+      }
+      const { data } = await sb.from('social_connections').select('platform,username,handle,profile_photo_url').eq('user_id', session.user.id);
+      var map = {}, info = {};
+      (data || []).forEach(function(c){
+        var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform;
+        map[k] = c.handle || c.username || true;            // pour l'analyse (le @handle si dispo)
+        info[k] = { handle: c.handle, name: c.username, photo: c.profile_photo_url };
+      });
       window.__connectedPlats = map;
+      window.__connInfo = info;
       if (typeof pubRenderPlatforms === 'function') { try { pubRenderPlatforms(); } catch(e){} }
       if (typeof loadHomeDashboard === 'function') { try { loadHomeDashboard(); } catch(e){} }
     } catch(e){}

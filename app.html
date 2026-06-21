@@ -1482,13 +1482,6 @@
         <button class="btn-primary" style="width:auto;padding:11px 18px;font-size:.9rem;" onclick="openUpgrade()">Améliorer</button>
       </div>
     </div>
-    <!-- Connexion des comptes pour la publication automatique (Post for Me) -->
-    <div class="card">
-      <h4 style="font-family:'Sora';font-weight:600;margin-bottom:4px;">📲 Publication automatique <span style="font-size:.68rem;background:rgba(47,123,255,.15);color:var(--blue-light);border-radius:999px;padding:2px 8px;margin-left:4px;vertical-align:middle;">Bêta</span></h4>
-      <p style="color:var(--muted);font-size:.85rem;line-height:1.5;margin-bottom:14px;">Connecte tes réseaux pour que Skillora puisse publier tes vidéos à ta place.</p>
-      <div id="pfmList" style="margin-bottom:12px;"></div>
-      <button class="btn-primary" style="width:100%;" onclick="openPfmPicker()">+ Connecter un compte</button>
-    </div>
     <button class="btn-ghost" style="background:var(--surface);color:var(--white);border:1px solid var(--border);" onclick="signOut()">Se déconnecter</button>
   </div>
 
@@ -1821,6 +1814,7 @@
     loadHomeDashboard();
     loadUserPlan();        // charge le plan réel depuis Stripe/Supabase
     handleCheckoutReturn(); // détecte le retour après paiement
+    if (typeof refreshConnections === 'function') refreshConnections(); // etat des comptes connectes
     if (typeof pfmHandleReturn === 'function') pfmHandleReturn(); // retour connexion Post for Me
     // restaurer la dernière vue ouverte (après le chargement des profils/workflow)
     setTimeout(restoreLastView, 700);
@@ -2294,7 +2288,9 @@
       '<div class="home-skel-note">Tes statistiques apparaîtront ici une fois ton compte connecté.</div>';
   }
   function homeConnBtn(plat, ic, label) {
-    return '<button class="home-conn-btn" onclick="openConnectFlow(\'' + plat + '\')"><span class="home-conn-ic">' + ic + '</span><span>' + label + '</span></button>';
+    var connected = window.__connectedPlats && window.__connectedPlats[plat];
+    var stat = connected ? '<span style="display:block;font-size:.58rem;color:var(--green);margin-top:3px;font-weight:600;">✓ connecté</span>' : '';
+    return '<button class="home-conn-btn' + (connected ? ' is-conn' : '') + '" onclick="connectAccount(\'' + plat + '\')"><span class="home-conn-ic">' + ic + '</span><span>' + label + '</span>' + stat + '</button>';
   }
   function homeSkel(v, l) {
     return '<div class="stat-box home-skel"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
@@ -2652,7 +2648,7 @@
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { redrawWorkflowSoon(); }
-    if (name === 'profile' && typeof pfmSyncAndLoad === 'function') pfmSyncAndLoad();
+    if (name === 'publish' && typeof refreshConnections === 'function') refreshConnections();
     window.scrollTo(0, 0);
   }
 
@@ -4447,25 +4443,41 @@
   }
   function closePfmPicker(){ var ov=document.getElementById('pfmPicker'); if(ov){ ov.classList.remove('open'); ov.style.display='none'; } }
 
-  async function pfmConnect(platform) {
+  // Connexion UNIFIEE d'un compte (Post for Me). Utilisee sur l'Accueil et Publier.
+  async function connectAccount(platform) {
     try {
       const { data:{ session } } = await sb.auth.getSession();
       if (!session) { alert('Connecte-toi d\'abord.'); return; }
-      var redirect = window.location.origin + window.location.pathname + '?pfm=connected';
+      try { localStorage.setItem('pfm_pending', platform); } catch(e){} // pour relancer l'analyse au retour
       var res = await fetch(SB_URL + '/functions/v1/pfm-connect', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-        body: JSON.stringify({ platform: platform, redirect: redirect })
+        body: JSON.stringify({ platform: platform })
       });
       var data = await res.json();
       if (data.success && data.url) { window.location.href = data.url; }
       else {
         var detail = data.error || 'erreur inconnue';
         if (data.status) detail += ' (code ' + data.status + ')';
-        if (data.raw && typeof data.raw === 'object') detail += '\n' + JSON.stringify(data.raw).slice(0, 300);
         alert('Connexion impossible :\n' + detail);
       }
     } catch(e){ alert('Erreur de connexion : ' + (e && e.message ? e.message : e)); }
+  }
+  function pfmConnect(platform){ return connectAccount(platform); } // alias (ancien selecteur)
+
+  // Charge les plateformes connectees (depuis social_connections) et rafraichit l'UI
+  window.__connectedPlats = window.__connectedPlats || {};
+  async function refreshConnections() {
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session) return;
+      const { data } = await sb.from('social_connections').select('platform,username').eq('user_id', session.user.id);
+      var map = {};
+      (data || []).forEach(function(c){ var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform; map[k] = c.username || true; });
+      window.__connectedPlats = map;
+      if (typeof pubRenderPlatforms === 'function') { try { pubRenderPlatforms(); } catch(e){} }
+      if (typeof loadHomeDashboard === 'function') { try { loadHomeDashboard(); } catch(e){} }
+    } catch(e){}
   }
 
   async function loadSocialConnections() {
@@ -4513,10 +4525,25 @@
     try {
       const { data:{ session } } = await sb.auth.getSession();
       if (session) {
+        // 1) recupere les comptes connectes cote Post for Me et les enregistre
         await fetch(SB_URL + '/functions/v1/pfm-sync', {
           method:'POST',
           headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY }
         });
+        await refreshConnections();
+        // 2) UNE seule connexion sert aussi aux STATS : on relance l'analyse du compte
+        //    avec le nom d'utilisateur recupere (TikTok/YouTube, ou le scraping est supporte)
+        var pend = null; try { pend = localStorage.getItem('pfm_pending'); localStorage.removeItem('pfm_pending'); } catch(e){}
+        if (pend === 'tiktok' || pend === 'youtube') {
+          var uname = window.__connectedPlats && window.__connectedPlats[pend];
+          if (uname && typeof uname === 'string') {
+            fetch(SB_URL + '/functions/v1/analyze-account', {
+              method:'POST',
+              headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
+              body: JSON.stringify({ platform: pend, username: uname, owner: 'self' })
+            }).then(function(){ if (typeof loadHomeDashboard==='function') try{ loadHomeDashboard(); }catch(e){} }).catch(function(){});
+          }
+        }
       }
     } catch(e){}
     loadSocialConnections();
@@ -4804,6 +4831,8 @@
   }
   function pubRenderPlatforms() {
     var box = document.getElementById('pubPlatforms'); if (!box) return;
+    // etat connecte reel (depuis Post for Me / social_connections)
+    PUB_PLATS.forEach(function (p) { p.connected = !!(window.__connectedPlats && window.__connectedPlats[p.key]); if (!p.connected) p.selected = false; });
     box.innerHTML = PUB_PLATS.map(function (p, i) {
       var check = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>';
       return '<div class="pub-plat">'
@@ -4812,18 +4841,25 @@
         + '<div class="pub-badge ' + (p.selected ? 'sel' : 'empty') + '">' + (p.selected ? check : '') + '</div>'
         + '</div>'
         + '<div class="pub-pname">' + p.name + '</div>'
-        + (p.connected ? '<div class="pub-pstat on">✓ Connecté</div>' : '<div class="pub-pstat off" onclick="pubConnectSoon(event)">Connecter</div>')
+        + (p.connected ? '<div class="pub-pstat on">✓ Connecté</div>' : '<div class="pub-pstat off" onclick="pubConnectPlat(' + i + ',event)">Connecter</div>')
         + '</div>';
     }).join('');
     pubSyncPublishBtn();
   }
   function pubTogglePlat(i) {
     var p = PUB_PLATS[i];
-    if (!p.connected) { pubConnectSoon(); return; } // pas connecté → on demande la connexion avant de sélectionner
+    if (!p.connected) { pubConnectPlat(i); return; } // pas connecté → on propose de le connecter
     p.selected = !p.selected;
     pubRenderPlatforms();
   }
-  function pubConnectSoon(e) { if (e) e.stopPropagation(); pubToast('🔗 Connecte ton compte pour pouvoir publier — bientôt avec les forfaits Skillora !'); }
+  // Clic sur une plateforme non connectee -> message pro + redirection vers la connexion
+  function pubConnectPlat(i, e) {
+    if (e) e.stopPropagation();
+    var p = PUB_PLATS[i];
+    if (confirm(p.name + " n'est pas encore connecté à Skillora.\n\nVeux-tu le connecter maintenant pour pouvoir publier dessus ?")) {
+      connectAccount(p.key);
+    }
+  }
 
   function pubSyncPublishBtn() {
     var sel = PUB_PLATS.filter(function (p) { return p.selected; });

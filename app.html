@@ -828,6 +828,10 @@
   .an-ring .ring-num span { font-size:.72rem; color:var(--muted); }
   .an-verdict { font-size:.98rem; font-weight:500; line-height:1.5; color:#e4ebf7; }
   .an-verdict small { display:block; font-size:.64rem; color:var(--muted2); font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:.2em; }
+  /* Secteur note unifie : note + verdict + sous-notes dans le meme bloc */
+  .an-top { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:16px; }
+  .an-score-row { display:flex; align-items:center; gap:22px; }
+  .an-crits { margin-top:20px; padding-top:18px; border-top:1px solid var(--border); }
 
   .crit-row { display:flex; align-items:center; gap:10px; margin-bottom:11px; }
   .crit-row:last-child { margin-bottom:0; }
@@ -4240,19 +4244,32 @@
       html += '</div></div>';
     }
 
-    // ===== 1) Note de TON script (point de depart) =====
-    html += '<div class="an-score-wrap">';
+    // ===== 1) Secteur NOTE : note globale + verdict + detail des sous-notes (meme bloc) =====
+    html += '<div class="an-top">';
+    html += '<div class="an-score-row">';
     html += '<div class="an-ring"><svg viewBox="0 0 86 86"><circle cx="43" cy="43" r="38" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6"/><circle cx="43" cy="43" r="38" fill="none" stroke="' + noteColor + '" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + circ + '" style="transition:stroke-dashoffset 1.1s cubic-bezier(.2,.7,.3,1);" id="scoreCircle"/></svg>';
     html += '<div class="ring-num" style="color:' + noteColor + '"><b>' + note + '</b><span>/10</span></div></div>';
     html += '<div class="an-verdict"><small>Note de ton script</small>' + (a.verdict || '') + '</div>';
+    html += '</div>';
+    if (a.criteres && a.criteres.length) {
+      html += '<div class="an-crits">';
+      a.criteres.forEach(function(c) {
+        var s = c.score != null ? c.score : 0;
+        var col = s >= 7.5 ? '#3ddc84' : (s >= 5 ? '#ff9f4a' : '#ff6b4a');
+        html += '<div class="crit-row"><div class="cn">' + c.nom + '</div>';
+        html += '<div class="crit-bar"><div class="crit-fill" data-w="' + (s*10) + '" style="background:' + col + ';"></div></div>';
+        html += '<div class="cv" style="color:' + col + '">' + s + '</div></div>';
+      });
+      html += '</div>';
+    }
     html += '</div>';
 
     if (a.deja_optimise) {
       html += '<div class="an-block" style="background:rgba(61,220,132,0.1);border-color:rgba(61,220,132,0.3);"><div style="font-size:.92rem;line-height:1.5;">✅ Ce script a déjà été optimisé par Skillora. Il est prêt à filmer — ne change rien !</div></div>';
     }
 
-    // ===== 2) POURQUOI cette note : ce qui marche + a eviter + detail =====
-    var hasWhy = (a.ce_qui_marche && a.ce_qui_marche.length) || (a.a_eviter && a.a_eviter.length) || (a.criteres && a.criteres.length);
+    // ===== 2) Ce qui marche + a eviter (le detail des notes est deja en haut) =====
+    var hasWhy = (a.ce_qui_marche && a.ce_qui_marche.length) || (a.a_eviter && a.a_eviter.length);
     if (hasWhy) {
       html += '<div class="an-block"><div class="ab-title">📊 Pourquoi cette note</div>';
       html += '<div class="ab-sub">Ce qui marche déjà et ce qu\'il faut éviter dans ton script de départ.</div>';
@@ -4261,17 +4278,6 @@
       }
       if (a.a_eviter && a.a_eviter.length) {
         a.a_eviter.forEach(function(p){ html += '<div class="an-chip"><span class="dot" style="background:rgba(255,107,74,0.16);color:#ff6b4a;">✕</span><span>' + p + '</span></div>'; });
-      }
-      if (a.criteres && a.criteres.length) {
-        html += '<div style="margin-top:16px;">';
-        a.criteres.forEach(function(c) {
-          var s = c.score != null ? c.score : 0;
-          var col = s >= 7.5 ? '#3ddc84' : (s >= 5 ? '#ff9f4a' : '#ff6b4a');
-          html += '<div class="crit-row"><div class="cn">' + c.nom + '</div>';
-          html += '<div class="crit-bar"><div class="crit-fill" data-w="' + (s*10) + '" style="background:' + col + ';"></div></div>';
-          html += '<div class="cv" style="color:' + col + '">' + s + '</div></div>';
-        });
-        html += '</div>';
       }
       html += '</div>';
     }

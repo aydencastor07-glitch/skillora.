@@ -1150,6 +1150,18 @@
   /* --- Toast --- */
   .pub-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(18px);background:#10182c;border:1px solid var(--border2);color:#fff;font-family:'Sora';font-weight:500;font-size:.88rem;padding:13px 19px;border-radius:13px;box-shadow:0 14px 34px rgba(0,0,0,0.55);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:300;max-width:88%;text-align:center;}
   .pub-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  /* Modale premium reutilisable (remplace alert/confirm/toasts moches) */
+  .sk-modal-ov{position:fixed;inset:0;z-index:9000;background:rgba(2,4,10,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:22px;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .sk-modal-ov.open{opacity:1;pointer-events:auto;}
+  .sk-modal{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:24px 22px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.55);transform:translateY(14px) scale(.97);transition:transform .24s cubic-bezier(.2,.8,.3,1);}
+  .sk-modal-ov.open .sk-modal{transform:none;}
+  .sk-modal-ic{width:60px;height:60px;border-radius:18px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;background:rgba(47,123,255,.14);}
+  .sk-modal-t{font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:#fff;margin-bottom:8px;line-height:1.25;}
+  .sk-modal-m{font-size:.92rem;color:var(--muted);line-height:1.55;margin-bottom:20px;}
+  .sk-modal-btns{display:flex;flex-direction:column;gap:9px;}
+  .sk-modal-primary{width:100%;background:linear-gradient(135deg,var(--blue),#1857c4);border:none;color:#fff;border-radius:13px;padding:14px;font-family:'Sora',sans-serif;font-weight:600;font-size:.95rem;cursor:pointer;box-shadow:0 8px 22px rgba(47,123,255,.32);transition:transform .12s;}
+  .sk-modal-ghost{width:100%;background:transparent;border:none;color:var(--muted);border-radius:13px;padding:10px;font-family:'Sora',sans-serif;font-size:.9rem;cursor:pointer;}
+  .sk-modal-primary:active,.sk-modal-ghost:active{transform:scale(.98);}
   .pub-err{padding:30px 22px;text-align:center;border:1px solid rgba(255,93,93,0.3);background:rgba(255,93,93,0.06);border-radius:18px;}
   .pub-err-t{font-family:'Fraunces',serif;font-size:1.12rem;color:#fff;margin-bottom:8px;}
   .pub-err-m{font-size:.86rem;color:#ffb4b4;line-height:1.5;word-break:break-word;}
@@ -2169,7 +2181,7 @@
       let mine = null;
       if (analyses && analyses.length) mine = analyses.find(a => a.summary && a.summary.owner === 'self') || null;
 
-      if (!mine) { dyn.innerHTML = homeConnectBlock(); return; }
+      if (!mine) { dyn.innerHTML = homeConnectBlock(); maybeAutoAnalyze(); return; }
 
       const s = mine.summary || {};
       const ins = s.insights || {};
@@ -4455,15 +4467,38 @@
         body: JSON.stringify({ platform: platform })
       });
       var data = await res.json();
-      if (data.success && data.url) { window.location.href = data.url; }
-      else {
-        var detail = data.error || 'erreur inconnue';
-        if (data.status) detail += ' (code ' + data.status + ')';
-        alert('Connexion impossible :\n' + detail);
+      if (data.success && data.url) { window.location.href = data.url; return; }
+      try { localStorage.removeItem('pfm_pending'); } catch(e){}
+      var detail = data.error || 'Une erreur est survenue.';
+      // 404 = plateforme pas encore activee dans le dashboard Post for Me
+      if (data.status === 404 || /not found/i.test(detail)) {
+        detail = 'Cette plateforme n\'est pas encore activée côté Skillora. Active-la dans ton espace Post for Me, puis réessaie.';
       }
-    } catch(e){ alert('Erreur de connexion : ' + (e && e.message ? e.message : e)); }
+      skModal({ icon:'⚠️', iconBg:'rgba(255,159,74,.16)', title:'Connexion impossible', message: detail, cancelText:'Fermer' });
+    } catch(e){ skModal({ icon:'⚠️', iconBg:'rgba(255,107,74,.16)', title:'Erreur de connexion', message:'Vérifie ta connexion internet et réessaie.', cancelText:'Fermer' }); }
   }
   function pfmConnect(platform){ return connectAccount(platform); } // alias (ancien selecteur)
+
+  // Si un compte TikTok/YouTube est connecte (Post for Me) mais pas encore analyse,
+  // lance l'analyse UNE fois pour afficher le tableau de bord (profil + abonnes + stats).
+  async function maybeAutoAnalyze() {
+    try {
+      if (window.__autoAnalyzeRan) return;
+      var cp = window.__connectedPlats || {};
+      var plat = (typeof cp.tiktok === 'string') ? 'tiktok' : ((typeof cp.youtube === 'string') ? 'youtube' : null);
+      if (!plat) return;
+      window.__autoAnalyzeRan = true;
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session) return;
+      var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
+        body: JSON.stringify({ platform: plat, username: cp[plat], owner: 'self' })
+      });
+      var d = await res.json().catch(function(){ return {}; });
+      if (res.ok && !d.error) { loadHomeDashboard(); }
+    } catch(e){}
+  }
 
   // Charge les plateformes connectees (depuis social_connections) et rafraichit l'UI
   window.__connectedPlats = window.__connectedPlats || {};
@@ -4856,9 +4891,14 @@
   function pubConnectPlat(i, e) {
     if (e) e.stopPropagation();
     var p = PUB_PLATS[i];
-    if (confirm(p.name + " n'est pas encore connecté à Skillora.\n\nVeux-tu le connecter maintenant pour pouvoir publier dessus ?")) {
-      connectAccount(p.key);
-    }
+    skModal({
+      icon: '🔗',
+      title: 'Connecter ' + p.name,
+      message: '<b>' + p.name + '</b> n\'est pas encore relié à Skillora. Connecte-le pour pouvoir publier tes vidéos dessus automatiquement.',
+      confirmText: 'Connecter ' + p.name,
+      cancelText: 'Plus tard',
+      onConfirm: function(){ connectAccount(p.key); }
+    });
   }
 
   function pubSyncPublishBtn() {
@@ -4904,10 +4944,34 @@
 
   function pubPublishSoon() {
     var sel = PUB_PLATS.filter(function (p) { return p.selected; });
-    if (!sel.length) { pubToast('Choisis au moins une plateforme'); return; }
-    var notLinked = sel.filter(function (p) { return !p.connected; });
-    if (notLinked.length) { pubToast('🔗 Connecte d\'abord : ' + notLinked.map(function (p) { return p.name; }).join(', ') + ' (bientôt)'); return; }
-    pubToast('🚀 La publication automatique arrive très bientôt !');
+    if (!sel.length) { skModal({ icon:'📲', title:'Choisis une plateforme', message:'Sélectionne au moins une plateforme où publier ta vidéo.', cancelText:'OK' }); return; }
+    var names = sel.map(function (p) { return p.name; }).join(', ');
+    skModal({
+      icon:'🚀',
+      title:'Bientôt disponible',
+      message:'La <b>publication automatique</b> sur ' + names + ' arrive très bientôt. Ton compte est connecté et prêt — dès que la fonction sera activée, Skillora publiera pour toi au bon moment.',
+      cancelText:'J\'ai compris'
+    });
+  }
+
+  // Modale premium reutilisable (remplace alert/confirm/toasts natifs)
+  function skModal(opts) {
+    opts = opts || {};
+    var ov = document.getElementById('skModalOv');
+    if (!ov) { ov = document.createElement('div'); ov.id = 'skModalOv'; ov.className = 'sk-modal-ov'; document.body.appendChild(ov); }
+    var btns = '';
+    if (opts.confirmText) btns += '<button class="sk-modal-primary" id="skModalOk">' + opts.confirmText + '</button>';
+    btns += '<button class="sk-modal-ghost" id="skModalCancel">' + (opts.cancelText || 'Fermer') + '</button>';
+    ov.innerHTML = '<div class="sk-modal">' +
+      (opts.icon ? '<div class="sk-modal-ic"' + (opts.iconBg ? ' style="background:' + opts.iconBg + '"' : '') + '>' + opts.icon + '</div>' : '') +
+      (opts.title ? '<div class="sk-modal-t">' + opts.title + '</div>' : '') +
+      (opts.message ? '<div class="sk-modal-m">' + opts.message + '</div>' : '') +
+      '<div class="sk-modal-btns">' + btns + '</div></div>';
+    function close(){ ov.classList.remove('open'); setTimeout(function(){ if (ov) ov.innerHTML = ''; }, 220); }
+    var ok = document.getElementById('skModalOk'); if (ok) ok.onclick = function(){ close(); if (opts.onConfirm) opts.onConfirm(); };
+    var cc = document.getElementById('skModalCancel'); if (cc) cc.onclick = function(){ close(); if (opts.onCancel) opts.onCancel(); };
+    ov.onclick = function(e){ if (e.target === ov) close(); };
+    requestAnimationFrame(function(){ ov.classList.add('open'); });
   }
 
   var _pubToastT = null;

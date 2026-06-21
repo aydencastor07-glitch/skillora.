@@ -838,6 +838,19 @@
   .ai-loader span:nth-child(1){ animation-delay:-.24s; }
   .ai-loader span:nth-child(2){ animation-delay:-.12s; background:var(--blue-light); }
   .ai-loader span:nth-child(3){ background:#7c3aed; }
+  /* === Analyseur premium (scan du script) === */
+  .sk-analyzer { background:linear-gradient(180deg, rgba(47,123,255,0.07), var(--surface)); border:1px solid var(--border2); border-radius:18px; padding:20px; box-shadow:0 14px 40px rgba(8,20,55,0.4); animation:skFade .4s ease both; }
+  .sk-scan-doc { position:relative; background:rgba(8,14,30,0.6); border:1px solid var(--border); border-radius:13px; padding:17px 16px; overflow:hidden; }
+  .sk-line { display:block; height:9px; border-radius:6px; margin-bottom:12px; background:linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0.05) 100%); background-size:220% 100%; animation:skShimmer 1.5s linear infinite; }
+  .sk-line:last-of-type { margin-bottom:0; }
+  .sk-line.short { width:56%; }
+  .sk-scanbar { position:absolute; left:0; right:0; top:-44px; height:44px; background:linear-gradient(180deg, rgba(47,123,255,0) 0%, rgba(47,123,255,0.22) 55%, rgba(47,123,255,0) 100%); border-bottom:1.5px solid rgba(120,170,255,0.9); box-shadow:0 0 22px rgba(47,123,255,0.6); animation:skScan 1.9s cubic-bezier(.5,.05,.5,.95) infinite; }
+  @keyframes skScan { 0%{ top:-44px; } 100%{ top:100%; } }
+  @keyframes skShimmer { 0%{ background-position:220% 0; } 100%{ background-position:-220% 0; } }
+  @keyframes skFade { from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .sk-anlabel { text-align:center; color:#cfe0ff; font-family:'Fraunces',serif; font-size:1rem; margin-top:17px; min-height:1.3em; animation:skPulse 1.6s ease-in-out infinite; }
+  @keyframes skPulse { 0%,100%{ opacity:.65; } 50%{ opacity:1; } }
+  .sk-ansub { text-align:center; color:var(--muted2); font-size:.76rem; margin-top:5px; }
   .btn-upload { width:100%; background:var(--surface2); border:1px dashed var(--border2); color:var(--blue-light); border-radius:13px; padding:13px; font-family:'Fraunces',serif; font-weight:600; font-size:.9rem; cursor:pointer; transition:background .2s; }
   .btn-upload:active { transform:scale(0.98); background:rgba(47,123,255,0.12); }
   @keyframes aiBounce { 0%,80%,100%{ transform:scale(.5); opacity:.4; } 40%{ transform:scale(1.1); opacity:1; } }
@@ -871,8 +884,21 @@
   .hero-head h3 { font-family:'Fraunces',serif; font-size:1.2rem; color:#fff; margin:0 0 5px; display:flex; align-items:center; gap:8px; }
   .hero-head p { font-size:.86rem; color:var(--muted); margin:0; line-height:1.5; }
   .ver-card.hero { border-color:var(--blue); box-shadow:0 0 0 1px rgba(47,123,255,0.5), 0 10px 34px rgba(47,123,255,0.2); background:linear-gradient(180deg, rgba(47,123,255,0.08), var(--surface)); }
-  .ver-script-label { font-size:.62rem; text-transform:uppercase; letter-spacing:.2em; color:var(--blue-light); font-weight:700; margin:14px 0 6px; }
+  .ver-script-label { font-size:.62rem; text-transform:uppercase; letter-spacing:.2em; color:var(--blue-light); font-weight:700; margin:18px 0 7px; }
   .ver-copy.primary { background:linear-gradient(135deg,var(--blue),#1857c4); border:none; font-size:.92rem; padding:14px; box-shadow:0 8px 24px rgba(47,123,255,0.3); }
+  /* === Script-heros (le livrable, presentation premium) === */
+  .hero-card { position:relative; overflow:hidden; margin:26px 0 16px; padding:24px 22px 22px; border-radius:20px; border:1px solid rgba(47,123,255,0.45); background:linear-gradient(180deg, rgba(47,123,255,0.10), rgba(124,58,237,0.05) 60%, var(--surface)); box-shadow:0 1px 0 rgba(255,255,255,0.05) inset, 0 18px 50px rgba(10,30,80,0.45); }
+  .hero-glow { position:absolute; top:-60px; right:-40px; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle, rgba(47,123,255,0.35), transparent 70%); filter:blur(20px); pointer-events:none; }
+  .hero-top { position:relative; display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .hero-eyebrow { font-size:.64rem; text-transform:uppercase; letter-spacing:.22em; font-weight:800; background:linear-gradient(90deg,#7fb0ff,#c9a4ff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero-note { margin-left:auto; font-family:'Fraunces',serif; font-weight:800; font-size:1.15rem; border:1.5px solid; border-radius:14px; padding:5px 13px; background:rgba(255,255,255,0.04); line-height:1; }
+  .hero-note small { font-size:.62rem; opacity:.7; font-weight:600; }
+  .hero-title { position:relative; font-family:'Fraunces',serif; font-weight:700; font-size:1.35rem; line-height:1.25; color:#fff; margin:0 0 8px; letter-spacing:-.01em; }
+  .hero-desc { position:relative; font-size:.88rem; color:var(--muted); line-height:1.55; margin:0 0 16px; }
+  .hero-card .ver-hook, .hero-card .ver-script, .hero-card .ver-script-label, .hero-card .ver-copy { position:relative; }
+  .hero-card .ver-script { background:rgba(8,14,30,0.65); border-color:var(--border2); }
+  .hero-cta { position:relative; margin-top:14px; padding:12px 14px; border-radius:12px; background:rgba(61,220,132,0.08); border:1px solid rgba(61,220,132,0.25); font-size:.88rem; line-height:1.5; color:#dff7e8; }
+  .hero-cta span { display:block; font-size:.6rem; text-transform:uppercase; letter-spacing:.2em; color:var(--green); font-weight:700; margin-bottom:4px; }
 
   /* ============ LECTEUR D'EBOOK PREMIUM (feuilletage 3D) ============ */
   .eb-reader { position:fixed; inset:0; z-index:4000; display:none; background:
@@ -1417,10 +1443,15 @@
       <button class="btn-primary" id="analyzeBtn" onclick="analyzeScript()">✨ Analyser mon script</button>
       <div id="quotaLabel" style="text-align:center;font-size:.8rem;color:var(--muted2);margin-top:10px;">3/3 analyses aujourd'hui</div>
       <div class="status-msg" id="analyzeStatus"></div>
-      <div id="analyzeLoader" style="display:none;margin-top:18px;text-align:center;">
-        <div class="ai-loader"><span></span><span></span><span></span></div>
-        <div id="loaderLabel" style="color:var(--blue-light);font-size:.9rem;margin-top:12px;font-family:'Fraunces',serif;">Analyse en cours...</div>
-        <div style="color:var(--muted2);font-size:.78rem;margin-top:4px;">Analyse par Skillora — quelques secondes</div>
+      <div id="analyzeLoader" style="display:none;margin-top:18px;">
+        <div class="sk-analyzer">
+          <div class="sk-scan-doc">
+            <span class="sk-line"></span><span class="sk-line"></span><span class="sk-line short"></span><span class="sk-line"></span><span class="sk-line short"></span>
+            <div class="sk-scanbar"></div>
+          </div>
+          <div id="loaderLabel" class="sk-anlabel">Analyse en cours…</div>
+          <div class="sk-ansub">Skillora optimise ton script — quelques secondes</div>
+        </div>
       </div>
       <div id="analyzeResult" style="display:none;margin-top:20px;"></div>
       </div>
@@ -4216,35 +4247,11 @@
       html += '<div class="an-block" style="background:rgba(61,220,132,0.1);border-color:rgba(61,220,132,0.3);"><div style="font-size:.92rem;line-height:1.5;">✅ Ce script a déjà été optimisé par Skillora. Il est prêt à filmer — ne change rien !</div></div>';
     }
 
-    // ===== 2) LE HÉROS : la version optimisée, prête à filmer =====
-    if (a.versions && a.versions.length) {
-      window.__verScripts = window.__verScripts || {};
-      html += '<div class="hero-head"><h3>✅ Ta version optimisée</h3><p>Voici ton script réécrit pour faire un maximum de vues. Copie-le, c\'est prêt à filmer.</p></div>';
-      a.versions.forEach(function(v, i) {
-        var cleanScript = (v.script || '').replace(/[​‌‍⁠⁡⁢⁣⁤﻿͏⁦]/g, '');
-        var vid = 'ver' + i;
-        window.__verScripts[vid] = v.script || ''; // version AVEC marque (note stable)
-        html += '<div class="ver-card hero">';
-        var vnoteBadge = '';
-        if (v.note != null) {
-          var vcol = v.note >= 7.5 ? '#3ddc84' : (v.note >= 5 ? '#ff9f4a' : '#ff6b4a');
-          vnoteBadge = '<span style="margin-left:auto;font-family:\'Fraunces\',serif;font-weight:700;font-size:.92rem;color:' + vcol + ';background:rgba(255,255,255,0.05);border:1px solid ' + vcol + ';border-radius:999px;padding:3px 11px;">' + v.note + '/10</span>';
-        }
-        html += '<div class="ver-title">' + (v.titre || 'Version optimisée') + vnoteBadge + '</div>';
-        if (v.hook) html += '<div class="ver-hook"><small>🎯 Les 3 premières secondes (l\'accroche)</small>' + v.hook + '</div>';
-        html += '<div class="ver-script-label">📝 Le script complet (texte à dire)</div>';
-        html += '<div class="ver-script" id="' + vid + '">' + cleanScript + '</div>';
-        if (v.cta) html += '<div style="margin-top:12px;font-size:.86rem;color:var(--muted);line-height:1.5;"><span style="color:var(--green);font-weight:600;">📣 Phrase de fin :</span> ' + v.cta + '</div>';
-        html += '<button class="ver-copy primary" onclick="copyVersion(\'' + vid + '\', this)">📋 Copier le script</button>';
-        html += '</div>';
-      });
-    }
-
-    // ===== 3) POURQUOI cette note : forces + faiblesses + détail =====
+    // ===== 2) POURQUOI cette note : ce qui marche + a eviter + detail =====
     var hasWhy = (a.ce_qui_marche && a.ce_qui_marche.length) || (a.a_eviter && a.a_eviter.length) || (a.criteres && a.criteres.length);
     if (hasWhy) {
       html += '<div class="an-block"><div class="ab-title">📊 Pourquoi cette note</div>';
-      html += '<div class="ab-sub">Ce qui va et ce qui bloque dans ton script de départ, pour progresser.</div>';
+      html += '<div class="ab-sub">Ce qui marche déjà et ce qu\'il faut éviter dans ton script de départ.</div>';
       if (a.ce_qui_marche && a.ce_qui_marche.length) {
         a.ce_qui_marche.forEach(function(p){ html += '<div class="an-chip"><span class="dot" style="background:rgba(61,220,132,0.16);color:#3ddc84;">✓</span><span>' + p + '</span></div>'; });
       }
@@ -4265,20 +4272,40 @@
       html += '</div>';
     }
 
-    // ===== 4) PASSER À L'ACTION : filmer + publier + hashtags =====
-    var hasAction = (a.montage && a.montage.length) || a.meilleur_moment || (a.hashtags && a.hashtags.length);
-    if (hasAction) {
-      html += '<div class="an-block"><div class="ab-title">🎬 Comment la filmer</div>';
-      html += '<div class="ab-sub">Le déroulé seconde par seconde pour tourner ta vidéo.</div>';
-      if (a.montage && a.montage.length) {
-        a.montage.forEach(function(m){ html += '<div class="tl-row"><div class="tl-time">' + (m.t||'') + '</div><div class="tl-line">' + (m.a||'') + '</div></div>'; });
-      }
-      if (a.meilleur_moment) html += '<div style="margin-top:18px;font-size:.9rem;line-height:1.5;"><span style="color:var(--blue-light);font-weight:600;">⏰ Quand publier :</span> ' + a.meilleur_moment + '</div>';
-      if (a.hashtags && a.hashtags.length) {
-        html += '<div style="margin-top:16px;"><div class="ab-sub" style="margin:0 0 8px;"># Hashtags à copier</div>';
-        a.hashtags.forEach(function(t){ html += '<span class="htag">#' + (''+t).replace(/^#/,'') + '</span>'; });
+    // ===== 3) LE LIVRABLE : ton script optimisé (la star, presentation premium) =====
+    if (a.versions && a.versions.length) {
+      window.__verScripts = window.__verScripts || {};
+      a.versions.forEach(function(v, i) {
+        var cleanScript = (v.script || '').replace(/[​‌‍⁠⁡⁢⁣⁤﻿͏⁦]/g, '');
+        var vid = 'ver' + i;
+        window.__verScripts[vid] = v.script || ''; // version AVEC marque (note stable)
+        var vcol = (v.note != null && v.note >= 7.5) ? '#3ddc84' : '#2f7bff';
+        html += '<div class="hero-card">';
+        html += '<div class="hero-glow"></div>';
+        html += '<div class="hero-top"><span class="hero-eyebrow">✦ Optimisé par Skillora</span>';
+        if (v.note != null) html += '<span class="hero-note" style="color:' + vcol + ';border-color:' + vcol + ';box-shadow:0 0 18px ' + vcol + '33;">' + v.note + '<small>/10</small></span>';
         html += '</div>';
-      }
+        html += '<h3 class="hero-title">' + (v.titre || 'Ton script, prêt à percer') + '</h3>';
+        html += '<p class="hero-desc">Réécrit pour capter l\'attention dès la première seconde et garder ton audience jusqu\'au bout.</p>';
+        if (v.hook) html += '<div class="ver-hook"><small>🎯 L\'accroche — tes 3 premières secondes</small>' + v.hook + '</div>';
+        html += '<div class="ver-script-label">📝 Ton script complet</div>';
+        html += '<div class="ver-script" id="' + vid + '">' + cleanScript + '</div>';
+        if (v.cta) html += '<div class="hero-cta"><span>📣 Phrase de fin</span>' + v.cta + '</div>';
+        html += '<button class="ver-copy primary" onclick="copyVersion(\'' + vid + '\', this)">📋 Copier mon script</button>';
+        html += '</div>';
+      });
+    }
+
+    // ===== 4) HASHTAGS (tout en bas, sous le script) =====
+    if (a.hashtags && a.hashtags.length) {
+      var htags = a.hashtags.map(function(t){ return '#' + (''+t).replace(/^#/,''); });
+      window.__lastHashtags = htags.join(' ');
+      html += '<div class="an-block"><div class="ab-title"># Hashtags à ajouter</div>';
+      html += '<div class="ab-sub">Colle-les sous ta vidéo pour gagner en portée.</div>';
+      html += '<div style="margin-bottom:14px;">';
+      htags.forEach(function(t){ html += '<span class="htag">' + t + '</span>'; });
+      html += '</div>';
+      html += '<button class="ver-copy" onclick="copyHashtags(this)">📋 Copier les hashtags</button>';
       html += '</div>';
     }
 
@@ -4300,6 +4327,16 @@
     if (navigator.clipboard) {
       navigator.clipboard.writeText(txt).then(function(){
         var old = btn.textContent; btn.textContent = '✅ Copié !';
+        setTimeout(function(){ btn.textContent = old; }, 1800);
+      });
+    }
+  }
+
+  function copyHashtags(btn) {
+    var txt = window.__lastHashtags || '';
+    if (txt && navigator.clipboard) {
+      navigator.clipboard.writeText(txt).then(function(){
+        var old = btn.textContent; btn.textContent = '✅ Hashtags copiés !';
         setTimeout(function(){ btn.textContent = old; }, 1800);
       });
     }

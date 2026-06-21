@@ -2462,6 +2462,7 @@
       '</div>' +
       '<button class="home-pf-refresh" onclick="silentReanalyze(\'' + platform + '\',\'' + (username||prof.handle||'').replace(/'/g,'') + '\')" id="homePfRefreshBtn">Actualiser</button>' +
       '<button class="home-pf-add" onclick="addAccount()" title="Ajouter un compte">+</button>' +
+      '<button onclick="disconnectAccount(\'' + platform + '\')" style="display:block;margin:12px auto 0;background:none;border:none;color:var(--muted2);font-family:\'Sora\',sans-serif;font-size:.78rem;cursor:pointer;text-decoration:underline;">Déconnecter ce compte</button>' +
     '</div>';
   }
 
@@ -4505,6 +4506,32 @@
     } catch(e){ skModal({ icon:'⚠️', iconBg:'rgba(255,107,74,.16)', title:'Erreur de connexion', message:'Vérifie ta connexion internet et réessaie.', cancelText:'Fermer' }); }
   }
   function pfmConnect(platform){ return connectAccount(platform); } // alias (ancien selecteur)
+
+  // Deconnecte un compte (le delie de Skillora ET cote Post for Me, pour pouvoir le remettre ailleurs)
+  function disconnectAccount(platform) {
+    var name = connectName(platform);
+    skModal({
+      icon: '🔌', iconBg: 'rgba(255,107,74,.16)',
+      title: 'Déconnecter ' + name + ' ?',
+      message: 'Ce compte sera délié de Skillora. Tu pourras le reconnecter quand tu veux — ici ou sur un autre compte.',
+      confirmText: 'Déconnecter', cancelText: 'Annuler',
+      onConfirm: async function(){
+        try {
+          const { data:{ session } } = await sb.auth.getSession();
+          if (session) {
+            await fetch(SB_URL + '/functions/v1/pfm-disconnect', {
+              method:'POST',
+              headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
+              body: JSON.stringify({ platform: platform })
+            });
+          }
+        } catch(e){}
+        window.__autoAnalyzeRan = false; window.__pfmSynced = false;
+        try { await refreshConnections(true); } catch(e){}
+        try { if (typeof loadHomeDashboard === 'function') loadHomeDashboard(); } catch(e){}
+      }
+    });
+  }
 
   // Si un compte TikTok/YouTube est connecte (Post for Me) mais pas encore analyse,
   // lance l'analyse UNE fois pour afficher le tableau de bord (profil + abonnes + stats).

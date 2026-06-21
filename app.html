@@ -903,6 +903,11 @@
   .hero-card .ver-script { background:rgba(8,14,30,0.65); border-color:var(--border2); }
   .hero-cta { position:relative; margin-top:14px; padding:12px 14px; border-radius:12px; background:rgba(61,220,132,0.08); border:1px solid rgba(61,220,132,0.25); font-size:.88rem; line-height:1.5; color:#dff7e8; }
   .hero-cta span { display:block; font-size:.6rem; text-transform:uppercase; letter-spacing:.2em; color:var(--green); font-weight:700; margin-bottom:4px; }
+  /* Selecteur de plateformes (connexion Post for Me) */
+  .pfm-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .pfm-pick { display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--border); color:#fff; border-radius:11px; padding:11px 12px; font-family:'Sora',sans-serif; font-size:.86rem; cursor:pointer; transition:transform .12s, border-color .2s; }
+  .pfm-pick:hover { border-color:var(--blue); }
+  .pfm-pick:active { transform:scale(.97); }
 
   /* ============ LECTEUR D'EBOOK PREMIUM (feuilletage 3D) ============ */
   .eb-reader { position:fixed; inset:0; z-index:4000; display:none; background:
@@ -1477,6 +1482,13 @@
         <button class="btn-primary" style="width:auto;padding:11px 18px;font-size:.9rem;" onclick="openUpgrade()">Améliorer</button>
       </div>
     </div>
+    <!-- Connexion des comptes pour la publication automatique (Post for Me) -->
+    <div class="card">
+      <h4 style="font-family:'Sora';font-weight:600;margin-bottom:4px;">📲 Publication automatique <span style="font-size:.68rem;background:rgba(47,123,255,.15);color:var(--blue-light);border-radius:999px;padding:2px 8px;margin-left:4px;vertical-align:middle;">Bêta</span></h4>
+      <p style="color:var(--muted);font-size:.85rem;line-height:1.5;margin-bottom:14px;">Connecte tes réseaux pour que Skillora puisse publier tes vidéos à ta place.</p>
+      <div id="pfmList" style="margin-bottom:12px;"></div>
+      <button class="btn-primary" style="width:100%;" onclick="openPfmPicker()">+ Connecter un compte</button>
+    </div>
     <button class="btn-ghost" style="background:var(--surface);color:var(--white);border:1px solid var(--border);" onclick="signOut()">Se déconnecter</button>
   </div>
 
@@ -1809,6 +1821,7 @@
     loadHomeDashboard();
     loadUserPlan();        // charge le plan réel depuis Stripe/Supabase
     handleCheckoutReturn(); // détecte le retour après paiement
+    if (typeof pfmHandleReturn === 'function') pfmHandleReturn(); // retour connexion Post for Me
     // restaurer la dernière vue ouverte (après le chargement des profils/workflow)
     setTimeout(restoreLastView, 700);
   }
@@ -2639,6 +2652,7 @@
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { redrawWorkflowSoon(); }
+    if (name === 'profile' && typeof loadSocialConnections === 'function') loadSocialConnections();
     window.scrollTo(0, 0);
   }
 
@@ -4395,6 +4409,97 @@
         setTimeout(function(){ btn.textContent = old; }, 1800);
       });
     }
+  }
+
+  /* ===== Connexion des comptes via Post for Me (publication auto) ===== */
+  var PFM_PLATFORMS = [
+    {id:'tiktok', name:'TikTok', emo:'🎵'},
+    {id:'instagram', name:'Instagram', emo:'📸'},
+    {id:'youtube', name:'YouTube', emo:'▶️'},
+    {id:'x', name:'X (Twitter)', emo:'✖️'},
+    {id:'facebook', name:'Facebook', emo:'📘'},
+    {id:'linkedin', name:'LinkedIn', emo:'💼'},
+    {id:'pinterest', name:'Pinterest', emo:'📌'},
+    {id:'threads', name:'Threads', emo:'🧵'},
+    {id:'bluesky', name:'Bluesky', emo:'🦋'}
+  ];
+  var PFM_EMOJI = {tiktok:'🎵',tiktok_business:'🎵',instagram:'📸',youtube:'▶️',x:'✖️',facebook:'📘',linkedin:'💼',pinterest:'📌',threads:'🧵',bluesky:'🦋'};
+
+  function openPfmPicker() {
+    var ov = document.getElementById('pfmPicker');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'pfmPicker';
+      ov.className = 'popup-overlay';
+      var btns = PFM_PLATFORMS.map(function(p){
+        return '<button class="pfm-pick" onclick="pfmConnect(\'' + p.id + '\')"><span style="font-size:1.25rem;">' + p.emo + '</span> ' + p.name + '</button>';
+      }).join('');
+      ov.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px;max-width:400px;width:100%;">' +
+        '<h3 style="font-family:\'Fraunces\',serif;font-size:1.2rem;margin-bottom:4px;">Connecter un compte</h3>' +
+        '<p style="color:var(--muted);font-size:.85rem;margin-bottom:16px;line-height:1.5;">Choisis la plateforme. Tu seras redirigé pour autoriser Skillora à publier.</p>' +
+        '<div class="pfm-grid">' + btns + '</div>' +
+        '<button class="btn-ghost" style="margin-top:14px;background:var(--bg);border:1px solid var(--border);color:#fff;" onclick="closePfmPicker()">Annuler</button>' +
+        '</div>';
+      document.body.appendChild(ov);
+    }
+    ov.classList.add('open');
+    ov.style.display = 'flex';
+  }
+  function closePfmPicker(){ var ov=document.getElementById('pfmPicker'); if(ov){ ov.classList.remove('open'); ov.style.display='none'; } }
+
+  async function pfmConnect(platform) {
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session) { alert('Connecte-toi d\'abord.'); return; }
+      var redirect = window.location.origin + window.location.pathname + '?pfm=connected';
+      var res = await fetch(SB_URL + '/functions/v1/pfm-connect', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
+        body: JSON.stringify({ platform: platform, redirect: redirect })
+      });
+      var data = await res.json();
+      if (data.success && data.url) { window.location.href = data.url; }
+      else { alert('Connexion impossible : ' + (data.error || 'erreur inconnue')); }
+    } catch(e){ alert('Erreur de connexion. Réessaie.'); }
+  }
+
+  async function loadSocialConnections() {
+    var el = document.getElementById('pfmList');
+    if (!el) return;
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (!session) return;
+      const { data, error } = await sb.from('social_connections').select('*')
+        .eq('user_id', session.user.id).order('created_at', { ascending:false });
+      if (error) return;
+      if (!data || !data.length) {
+        el.innerHTML = '<div style="color:var(--muted2);font-size:.82rem;">Aucun compte connecté pour l\'instant.</div>';
+        return;
+      }
+      el.innerHTML = data.map(function(c){
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:11px;margin-bottom:8px;">' +
+          '<span style="font-size:1.15rem;">' + (PFM_EMOJI[c.platform]||'🔗') + '</span>' +
+          '<div style="flex:1;min-width:0;"><div style="font-size:.9rem;font-weight:600;">' + (c.username || c.platform) + '</div>' +
+          '<div style="font-size:.72rem;color:var(--muted2);text-transform:capitalize;">' + c.platform + '</div></div>' +
+          '<span style="font-size:.7rem;color:var(--green);">● connecté</span></div>';
+      }).join('');
+    } catch(e){}
+  }
+
+  async function pfmHandleReturn() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('pfm') !== 'connected') return;
+    try { window.history.replaceState({}, '', window.location.pathname); } catch(e){}
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (session) {
+        await fetch(SB_URL + '/functions/v1/pfm-sync', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY }
+        });
+      }
+    } catch(e){}
+    loadSocialConnections();
   }
 
   /* ===== Calendrier de contenu ===== */

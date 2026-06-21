@@ -2242,14 +2242,28 @@
       // 3 MEILLEURES vidéos = le modèle à refaire
       const best = s.best_videos || [];
       if (best.length) {
-        html += '<div class="home-sec-h">À refaire — tes vidéos qui cartonnent</div>';
-        html += '<div class="home-sec-sub">Reproduis ce modèle (sans copier le clip exact).</div>';
-        best.forEach(v => {
-          const cover = v.cover ? '<div class="home-rv-thumb" style="background-image:url(\'' + v.cover.replace(/'/g,'') + '\')"></div>' : '<div class="home-rv-thumb"></div>';
+        // moyenne de vues du compte (pour juger ce qui "cartonne" VRAIMENT)
+        var avgViews = Number(s.avg_views) || 0;
+        if (!avgViews) { var tv = 0, nv = 0; best.concat(s.worst_videos || []).forEach(function(x){ if (Number(x.views) > 0) { tv += Number(x.views); nv++; } }); avgViews = nv ? tv / nv : 0; }
+        var anyViews = best.some(function(v){ return Number(v.views) > 0; });
+        if (anyViews) {
+          html += '<div class="home-sec-h">À refaire — tes vidéos qui cartonnent</div>';
+          html += '<div class="home-sec-sub">Reproduis ce modèle (sans copier le clip exact).</div>';
+        } else {
+          html += '<div class="home-sec-h">Tes vidéos récentes</div>';
+          html += '<div class="home-sec-sub">On mettra en avant tes meilleures dès qu\'on aura récupéré tes vues.</div>';
+        }
+        best.forEach(function(v){
+          var views = Number(v.views) || 0, likes = Number(v.likes) || 0;
+          var cover = v.cover ? '<div class="home-rv-thumb" style="background-image:url(\'' + v.cover.replace(/'/g,'') + '\')"></div>' : '<div class="home-rv-thumb"></div>';
+          // "gagnant" UNIQUEMENT si la vidéo surperforme nettement la moyenne du compte
+          var isWin = views > 0 && avgViews > 0 && views >= avgViews * 1.5;
+          var statsLine = (views > 0 || likes > 0) ? ('👁 ' + fmtNum(views) + ' · ❤️ ' + fmtNum(likes)) : '';
+          var badge = isWin ? '<span class="home-rv-tag good">Modèle gagnant</span>' : '';
           html += '<div class="home-rv">' + cover +
             '<div class="home-rv-body"><div class="home-rv-desc">' + escapeHtml((v.description||'Sans titre').slice(0,55)) + '</div>' +
-            '<div class="home-rv-stats">👁 ' + fmtNum(v.views) + ' · ❤️ ' + fmtNum(v.likes) + '</div>' +
-            '<span class="home-rv-tag good">Modèle gagnant</span></div></div>';
+            (statsLine ? '<div class="home-rv-stats">' + statsLine + '</div>' : '') +
+            badge + '</div></div>';
         });
         html += '<button class="home-rv-cta" onclick="switchView(\'coach\')">Voir le blueprint complet →</button>';
       }

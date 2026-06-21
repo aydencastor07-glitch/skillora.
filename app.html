@@ -4459,8 +4459,13 @@
       });
       var data = await res.json();
       if (data.success && data.url) { window.location.href = data.url; }
-      else { alert('Connexion impossible : ' + (data.error || 'erreur inconnue')); }
-    } catch(e){ alert('Erreur de connexion. Réessaie.'); }
+      else {
+        var detail = data.error || 'erreur inconnue';
+        if (data.status) detail += ' (code ' + data.status + ')';
+        if (data.raw && typeof data.raw === 'object') detail += '\n' + JSON.stringify(data.raw).slice(0, 300);
+        alert('Connexion impossible :\n' + detail);
+      }
+    } catch(e){ alert('Erreur de connexion : ' + (e && e.message ? e.message : e)); }
   }
 
   async function loadSocialConnections() {

@@ -4593,35 +4593,83 @@
     loadSocialConnections();
   }
 
+  // Ecran de connexion anime (logo Skillora x plateforme) pendant que le social vault travaille
+  var _pfmStepTimer = null;
+  function showPfmConnecting(plat) {
+    var ov = document.getElementById('connectOverlay');
+    if (!ov) { ov = document.createElement('div'); ov.id = 'connectOverlay'; ov.className = 'cx-overlay'; document.body.appendChild(ov); }
+    ov.classList.add('open');
+    var name = connectName(plat);
+    ov.innerHTML = '<div class="cx-shell cx-loading">' +
+      '<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:26px;">' +
+        '<span style="font-family:\'Fraunces\',serif;font-weight:800;font-size:1.25rem;color:#fff;">Skill<span style="color:var(--blue)">ora</span></span>' +
+        '<span style="color:var(--muted2);font-size:1.1rem;">×</span>' +
+        '<span class="cx-logo-' + plat + '" style="width:34px;height:34px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;">' + connectLogo(plat) + '</span>' +
+      '</div>' +
+      '<div class="cx-orbit"><div class="cx-orbit-ring"></div><div class="cx-orbit-logo cx-logo-' + plat + '">' + connectLogo(plat) + '</div></div>' +
+      '<div class="cx-title">Connexion à ' + name + '…</div>' +
+      '<div class="cx-sub">Skillora récupère ton profil et tes statistiques. Quelques secondes…</div>' +
+      '<div class="cx-steps" id="cxSteps" style="margin-top:18px;"></div>' +
+    '</div>';
+    var steps = ['Connexion à ' + name, 'Récupération de ton profil', 'Analyse de tes vidéos', 'Calcul de tes statistiques', 'Préparation de ton tableau de bord'];
+    var i = 0;
+    function render() {
+      var el = document.getElementById('cxSteps'); if (!el) return;
+      el.innerHTML = steps.map(function(s, k){ var st = k < i ? 'done' : (k === i ? 'active' : ''); return '<div class="cx-step ' + st + '"><span class="cx-step-dot">' + (k < i ? '✓' : '') + '</span>' + s + '</div>'; }).join('');
+    }
+    render();
+    clearInterval(_pfmStepTimer);
+    _pfmStepTimer = setInterval(function(){ i++; if (i >= steps.length) i = steps.length - 1; render(); }, 1600);
+  }
+  function hidePfmConnecting(plat, ok) {
+    clearInterval(_pfmStepTimer);
+    var ov = document.getElementById('connectOverlay'); if (!ov) return;
+    var name = connectName(plat || 'tiktok');
+    ov.innerHTML = '<div class="cx-shell"><div class="cx-success"><div class="cx-success-ring cx-logo-' + (plat||'tiktok') + '">' + connectLogo(plat||'tiktok') + '</div><div class="cx-check">✓</div></div>' +
+      '<div class="cx-title">' + (ok ? (name + ' connecté') : 'Compte connecté') + '</div>' +
+      '<div class="cx-sub">Ton tableau de bord est prêt.</div></div>';
+    setTimeout(function(){ ov.classList.remove('open'); ov.innerHTML = ''; }, 1200);
+  }
+
   async function pfmHandleReturn() {
     var params = new URLSearchParams(window.location.search);
     if (params.get('pfm') !== 'connected') return;
     try { window.history.replaceState({}, '', window.location.pathname); } catch(e){}
+    var pend = null; try { pend = localStorage.getItem('pfm_pending'); } catch(e){}
+    var plat = pend || 'tiktok';
+    showPfmConnecting(plat);              // <-- ecran anime tout de suite (plus de "rien ne se passe")
     try {
       const { data:{ session } } = await sb.auth.getSession();
       if (session) {
-        // 1) recupere les comptes connectes cote Post for Me et les enregistre
+        // 1) enregistre le compte + extrait le vrai @ depuis le feed
         await fetch(SB_URL + '/functions/v1/pfm-sync', {
           method:'POST',
           headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY }
         });
-        await refreshConnections();
-        // 2) UNE seule connexion sert aussi aux STATS : on relance l'analyse du compte
-        //    avec le nom d'utilisateur recupere (TikTok/YouTube, ou le scraping est supporte)
-        var pend = null; try { pend = localStorage.getItem('pfm_pending'); localStorage.removeItem('pfm_pending'); } catch(e){}
-        if (pend === 'tiktok' || pend === 'youtube') {
-          var uname = window.__connectedPlats && window.__connectedPlats[pend];
-          if (uname && typeof uname === 'string') {
-            fetch(SB_URL + '/functions/v1/analyze-account', {
+        // 2) relit l'etat (avec le handle extrait)
+        const { data } = await sb.from('social_connections').select('platform,username,handle,profile_photo_url').eq('user_id', session.user.id);
+        var map = {}, info = {};
+        (data || []).forEach(function(c){ var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform; map[k] = c.handle || c.username || true; info[k] = { handle:c.handle, name:c.username, photo:c.profile_photo_url }; });
+        window.__connectedPlats = map; window.__connInfo = info; window.__pfmSynced = true;
+        // 3) lance l'analyse AVEC le vrai @ et on ATTEND (l'animation tourne pendant ce temps)
+        var h = map[plat];
+        if (h && typeof h === 'string' && /^[A-Za-z0-9._-]+$/.test(h)) {
+          window.__autoAnalyzeRan = true;
+          try {
+            await fetch(SB_URL + '/functions/v1/analyze-account', {
               method:'POST',
               headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-              body: JSON.stringify({ platform: pend, username: uname, owner: 'self' })
-            }).then(function(){ if (typeof loadHomeDashboard==='function') try{ loadHomeDashboard(); }catch(e){} }).catch(function(){});
-          }
+              body: JSON.stringify({ platform: plat, username: h, owner: 'self' })
+            });
+          } catch(e){}
         }
       }
     } catch(e){}
-    loadSocialConnections();
+    try { localStorage.removeItem('pfm_pending'); } catch(e){}
+    hidePfmConnecting(plat, true);        // <-- petit etat "succes" puis fermeture
+    if (typeof pubRenderPlatforms === 'function') { try { pubRenderPlatforms(); } catch(e){} }
+    if (typeof loadHomeDashboard === 'function') { try { loadHomeDashboard(); } catch(e){} }
+    if (typeof switchView === 'function') { try { switchView('home'); } catch(e){} }
   }
 
   /* ===== Calendrier de contenu ===== */

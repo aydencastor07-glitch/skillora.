@@ -1840,6 +1840,7 @@
       // rafraîchir l'affichage
       if (typeof applyBookLocks === 'function') applyBookLocks();
       if (typeof updateQuotaLabel === 'function') updateQuotaLabel();
+      if (typeof fetchUsageToday === 'function') fetchUsageToday(); // conso reelle (serveur)
       if (typeof updateCoachLock === 'function') updateCoachLock();
       if (typeof renderProfiles === 'function') { try { renderProfiles(); } catch(e){} }
     } catch(e){}
@@ -2891,16 +2892,35 @@
     var d = new Date();
     return 'skillora_analyses_' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
   }
+  // Compteur d'analyses : la SOURCE DE VERITE est le serveur (table usage_daily).
+  // serverUsedToday est synchronise via fetchUsageToday() et apres chaque analyse.
+  // Le localStorage ne sert plus que de repli d'affichage avant la 1ere synchro.
+  var serverUsedToday = null;
   function getAnalysesToday() {
+    if (serverUsedToday != null) return serverUsedToday;
     try { return parseInt(localStorage.getItem(todayKey()) || '0', 10) || 0; }
     catch (e) { return window.__analysesToday || 0; }
   }
   function incAnalysesToday() {
     var n = getAnalysesToday() + 1;
-    try { localStorage.setItem(todayKey(), String(n)); }
-    catch (e) { window.__analysesToday = n; }
+    serverUsedToday = n;
+    try { localStorage.setItem(todayKey(), String(n)); } catch (e) { window.__analysesToday = n; }
     updateQuotaLabel();
     return n;
+  }
+  // Lit la consommation reelle du jour depuis le serveur (par compte)
+  async function fetchUsageToday() {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      const d = new Date();
+      const today = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      const { data, error } = await sb.from('usage_daily')
+        .select('script_analyses').eq('user_id', session.user.id).eq('usage_date', today).maybeSingle();
+      if (error) return;
+      serverUsedToday = (data && data.script_analyses != null) ? data.script_analyses : 0;
+      updateQuotaLabel();
+    } catch (e) {}
   }
   function analysesLimit() { return PLAN_LIMITS[userPlan] || 3; }
   function analysesLeft() { return Math.max(0, analysesLimit() - getAnalysesToday()); }
@@ -4130,6 +4150,19 @@
     window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   }
 
+  // Carte "limite du jour atteinte" (reutilisee en pre-check et au refus serveur)
+  function showLimitCard(limit) {
+    var result = document.getElementById('analyzeResult');
+    if (!result) return;
+    result.style.display = 'block';
+    result.innerHTML = '<div class="card" style="margin:0;text-align:center;">' +
+      '<div style="font-size:2rem;margin-bottom:8px;">🚀</div>' +
+      '<h3 style="font-size:1.15rem;margin-bottom:8px;">Limite du jour atteinte</h3>' +
+      '<p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tu as utilisé tes ' + limit + ' analyses du jour (plan ' + (PLAN_NAMES[userPlan]||'Starter') + '). Reviens demain ou passe à un abonnement supérieur pour en faire plus.</p>' +
+      '<button class="btn-primary" onclick="openUpgrade()">Voir les abonnements</button></div>';
+    setTimeout(function(){ scrollToResult(result); }, 150);
+  }
+
   async function analyzeScript() {
     const input = document.getElementById('scriptInput');
     const status = document.getElementById('analyzeStatus');
@@ -4146,13 +4179,7 @@
     var alreadyOptimized = /[\u200B][\u2060][\u200B]/.test(script);
     if (!alreadyOptimized && analysesLeft() <= 0) {
       status.innerHTML = '';
-      result.style.display = 'block';
-      result.innerHTML = '<div class="card" style="margin:0;text-align:center;">' +
-        '<div style="font-size:2rem;margin-bottom:8px;">🚀</div>' +
-        '<h3 style="font-size:1.15rem;margin-bottom:8px;">Limite du jour atteinte</h3>' +
-        '<p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">Tu as utilisé tes ' + analysesLimit() + ' analyses du jour (plan ' + PLAN_NAMES[userPlan] + '). Reviens demain ou passe à un abonnement supérieur pour en faire plus.</p>' +
-        '<button class="btn-primary" onclick="openUpgrade()">Voir les abonnements</button></div>';
-      setTimeout(function(){ scrollToResult(result); }, 150);
+      showLimitCard(analysesLimit());
       return;
     }
     result.style.display = 'none';
@@ -4178,17 +4205,35 @@
     }, 2200);
     function stopLoader(){ clearInterval(loadTimer); if (loader) loader.style.display = 'none'; }
     try {
+      // Token UTILISATEUR (et non la cle anon) pour que le serveur identifie le
+      // compte et applique le quota par compte (anti-contournement multi-appareils).
+      var sess = null;
+      try { sess = (await sb.auth.getSession()).data.session; } catch(e){}
+      var authTok = (sess && sess.access_token) ? sess.access_token : SB_KEY;
       const res = await fetch(SB_URL + '/functions/v1/analyze-script', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SB_KEY, 'apikey': SB_KEY },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authTok, 'apikey': SB_KEY },
         body: JSON.stringify({ script: script, platform: selectedPlatform, duration: scriptDuration, goal: 'gagner des abonnés et des vues', niche: (activeProfileIndex >= 0 && profiles[activeProfileIndex]) ? profiles[activeProfileIndex].niche : '', account: (activeProfileIndex >= 0 && profiles[activeProfileIndex]) ? profiles[activeProfileIndex].account : '', image: hasShopImage ? shopImageData : null, imageType: shopImageType })
       });
       const data = await res.json();
       btn.disabled = false;
       stopLoader();
+      // Limite refusee par le SERVEUR (source de verite) -> carte d'upgrade
+      if (data && data.limit_reached) {
+        serverUsedToday = (data.used != null) ? data.used : analysesLimit();
+        updateQuotaLabel();
+        showLimitCard(data.limit != null ? data.limit : analysesLimit());
+        return;
+      }
       if (data.success && data.analysis) {
         status.textContent = '';
-        if (!data.analysis.deja_optimise) incAnalysesToday();
+        // Synchronise le compteur depuis le SERVEUR
+        if (!data.analysis.deja_optimise) {
+          if (data.remaining != null && data.limit != null) serverUsedToday = data.limit - data.remaining;
+          else serverUsedToday = getAnalysesToday() + 1;
+          try { localStorage.setItem(todayKey(), String(serverUsedToday)); } catch(e){}
+          updateQuotaLabel();
+        }
         renderAnalysis(data.analysis);
         setTimeout(function(){ scrollToResult(result); }, 200);
       } else if (data.success && data.raw) {

@@ -2652,7 +2652,7 @@
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { redrawWorkflowSoon(); }
-    if (name === 'profile' && typeof loadSocialConnections === 'function') loadSocialConnections();
+    if (name === 'profile' && typeof pfmSyncAndLoad === 'function') pfmSyncAndLoad();
     window.scrollTo(0, 0);
   }
 
@@ -4489,6 +4489,21 @@
           '<span style="font-size:.7rem;color:var(--green);">● connecté</span></div>';
       }).join('');
     } catch(e){}
+  }
+
+  // Synchronise depuis Post for Me puis affiche (utilise a l'ouverture du Profil :
+  // recupere les comptes meme si la redirection ne renvoie pas ?pfm=connected)
+  async function pfmSyncAndLoad() {
+    try {
+      const { data:{ session } } = await sb.auth.getSession();
+      if (session) {
+        await fetch(SB_URL + '/functions/v1/pfm-sync', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY }
+        });
+      }
+    } catch(e){}
+    loadSocialConnections();
   }
 
   async function pfmHandleReturn() {

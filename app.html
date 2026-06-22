@@ -4557,8 +4557,9 @@
             });
           }
         } catch(e){}
-        window.__autoAnalyzeRan = false; window.__pfmSynced = false;
-        try { await refreshConnections(true); } catch(e){}
+        // on relit la base SANS re-synchroniser Post for Me (sinon la liaison serait recréée)
+        window.__autoAnalyzeRan = false; window.__pfmSynced = true;
+        try { await refreshConnections(); } catch(e){}
         try { if (typeof loadHomeDashboard === 'function') loadHomeDashboard(); } catch(e){}
       }
     });

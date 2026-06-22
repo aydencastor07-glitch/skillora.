@@ -2193,7 +2193,15 @@
       let mine = null;
       if (analyses && analyses.length) mine = analyses.find(a => a.summary && a.summary.owner === 'self') || null;
 
-      if (!mine) { dyn.innerHTML = homeConnectBlock(); maybeAutoAnalyze(); return; }
+      // Sécurité : on n'affiche les stats QUE si elles proviennent d'un compte VÉRIFIÉ.
+      // (sinon on pourrait montrer le compte de quelqu'un d'autre mal extrait)
+      var ciAll = window.__connInfo || {};
+      var pfmKeys = Object.keys(ciAll);
+      var vHandles = pfmKeys.filter(function(k){ return ciAll[k] && ciAll[k].verified && ciAll[k].handle; }).map(function(k){ return String(ciAll[k].handle).toLowerCase(); });
+      var mineOk;
+      if (!pfmKeys.length) mineOk = !!mine;   // pas de connexion Post for Me -> ancien comportement
+      else mineOk = !!(mine && mine.username && vHandles.indexOf(String(mine.username).toLowerCase()) >= 0);
+      if (!mine || !mineOk) { dyn.innerHTML = homeConnectBlock(); maybeAutoAnalyze(); return; }
 
       const s = mine.summary || {};
       const ins = s.insights || {};
@@ -4561,10 +4569,10 @@
   async function maybeAutoAnalyze() {
     try {
       if (window.__autoAnalyzeRan) return;
-      var cp = window.__connectedPlats || {};
-      // on n'analyse QUE si on a un vrai @handle (Post for Me donne parfois le nom d'affichage)
-      var valid = function(v){ return typeof v === 'string' && /^[a-zA-Z0-9._-]+$/.test(v); };
-      var plat = valid(cp.youtube) ? 'youtube' : (valid(cp.tiktok) ? 'tiktok' : null);
+      var ci = window.__connInfo || {};
+      // on n'analyse QUE si le @ est VERIFIE (sinon risque de scraper le mauvais compte)
+      var ok = function(p){ return ci[p] && ci[p].verified && ci[p].handle; };
+      var plat = ok('youtube') ? 'youtube' : (ok('tiktok') ? 'tiktok' : null);
       if (!plat) return;
       window.__autoAnalyzeRan = true;
       const { data:{ session } } = await sb.auth.getSession();
@@ -4572,7 +4580,7 @@
       var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-        body: JSON.stringify({ platform: plat, username: cp[plat], owner: 'self' })
+        body: JSON.stringify({ platform: plat, username: ci[plat].handle, owner: 'self' })
       });
       var d = await res.json().catch(function(){ return {}; });
       if (res.ok && !d.error) { loadHomeDashboard(); }
@@ -4591,12 +4599,12 @@
         window.__pfmSynced = true;
         try { await fetch(SB_URL + '/functions/v1/pfm-sync', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY } }); } catch(e){}
       }
-      const { data } = await sb.from('social_connections').select('platform,username,handle,profile_photo_url').eq('user_id', session.user.id);
+      const { data } = await sb.from('social_connections').select('platform,username,handle,handle_verified,profile_photo_url').eq('user_id', session.user.id);
       var map = {}, info = {};
       (data || []).forEach(function(c){
         var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform;
-        map[k] = c.handle || c.username || true;            // pour l'analyse (le @handle si dispo)
-        info[k] = { handle: c.handle, name: c.username, photo: c.profile_photo_url };
+        map[k] = c.handle || c.username || true;            // statut "connecté"
+        info[k] = { handle: c.handle, name: c.username, photo: c.profile_photo_url, verified: !!c.handle_verified };
       });
       window.__connectedPlats = map;
       window.__connInfo = info;
@@ -4699,19 +4707,19 @@
           headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY }
         });
         // 2) relit l'etat (avec le handle extrait)
-        const { data } = await sb.from('social_connections').select('platform,username,handle,profile_photo_url').eq('user_id', session.user.id);
+        const { data } = await sb.from('social_connections').select('platform,username,handle,handle_verified,profile_photo_url').eq('user_id', session.user.id);
         var map = {}, info = {};
-        (data || []).forEach(function(c){ var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform; map[k] = c.handle || c.username || true; info[k] = { handle:c.handle, name:c.username, photo:c.profile_photo_url }; });
+        (data || []).forEach(function(c){ var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform; map[k] = c.handle || c.username || true; info[k] = { handle:c.handle, name:c.username, photo:c.profile_photo_url, verified:!!c.handle_verified }; });
         window.__connectedPlats = map; window.__connInfo = info; window.__pfmSynced = true;
-        // 3) lance l'analyse AVEC le vrai @ et on ATTEND (l'animation tourne pendant ce temps)
-        var h = map[plat];
-        if (h && typeof h === 'string' && /^[A-Za-z0-9._-]+$/.test(h)) {
+        // 3) analyse AVEC le @ VERIFIE uniquement (jamais un compte non confirme) ; on ATTEND
+        var ci = info[plat];
+        if (ci && ci.verified && ci.handle) {
           window.__autoAnalyzeRan = true;
           try {
             await fetch(SB_URL + '/functions/v1/analyze-account', {
               method:'POST',
               headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-              body: JSON.stringify({ platform: plat, username: h, owner: 'self' })
+              body: JSON.stringify({ platform: plat, username: ci.handle, owner: 'self' })
             });
           } catch(e){}
         }

@@ -2320,6 +2320,9 @@
       }
 
       dyn.innerHTML = html;
+      // compte courant (pour filtrer le graphique sur CE compte uniquement)
+      window._lastPlatform = platform;
+      window._lastUsername = mine.username;
       // Réanalyse auto 1×/jour (silencieuse, protégée par le cache serveur)
       autoDailyRefresh(platform, mine.username);
       // Charge l'historique pour le graphique (1 fois par chargement)
@@ -2541,7 +2544,7 @@
 
   // Graphique d'évolution premium (SVG, courbe néon). Se remplit jour après jour.
   // P\u00e9riode active du graphique
-  if (!window._graphPeriod) window._graphPeriod = '30';
+  if (!window._graphPeriod) window._graphPeriod = '7';
 
   function setGraphPeriod(d) {
     window._graphPeriod = d;
@@ -2549,7 +2552,14 @@
   }
 
   function renderGrowthGraph(s) {
-    var hist = (window._growthHistory || []).filter(function(h){ return h.platform === (window._lastPlatform||'tiktok'); });
+    // IMPORTANT : on filtre sur LE compte courant (plateforme + username) pour ne pas
+    // mélanger les relevés d'anciens comptes (ce qui créait de faux pics de vues).
+    var _curU = (window._lastUsername || '').toLowerCase();
+    var hist = (window._growthHistory || []).filter(function(h){
+      if (h.platform !== (window._lastPlatform||'tiktok')) return false;
+      if (_curU && String(h.username||'').toLowerCase() !== _curU) return false;
+      return true;
+    });
     // Construire la s\u00e9rie "vues gagn\u00e9es par jour" = diff\u00e9rence de total_views entre deux relev\u00e9s
     var latestTotal = hist.length ? (Number(hist[hist.length-1].total_views)||0) : 0;
     var daily = [];
@@ -2561,9 +2571,9 @@
       daily.push({ d: hist[i].snapshot_date, v: gained });
     }
 
-    // Filtre de p\u00e9riode
-    var periods = [['7','7j'],['30','30j'],['90','3 mois'],['365','1 an']];
-    var pdays = parseInt(window._graphPeriod || '30', 10);
+    // Filtre de p\u00e9riode (plus court & plus pertinent : Hier / 7j / 30j / 3 mois)
+    var periods = [['1','Hier'],['7','7 jours'],['30','30 jours'],['90','3 mois']];
+    var pdays = parseInt(window._graphPeriod || '7', 10);
     var cutoff = new Date(Date.now() - pdays*864e5).toISOString().slice(0,10);
     var view = daily.filter(function(x){ return x.d >= cutoff; });
 

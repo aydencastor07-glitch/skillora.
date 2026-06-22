@@ -201,6 +201,9 @@
   .idea-tag { font-size:.68rem; color:var(--muted); background:rgba(255,255,255,0.05); border-radius:6px; padding:3px 7px; }
   .idea-btn { width:100%; background:rgba(47,123,255,0.14); border:1px solid rgba(47,123,255,0.4); color:var(--blue-light); border-radius:10px; padding:9px; font-family:'Sora',sans-serif; font-weight:600; font-size:.8rem; cursor:pointer; transition:all .15s; }
   .idea-btn:active { transform:scale(0.98); }
+  .idea-email-btn { width:100%; margin-top:4px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--muted); border-radius:11px; padding:11px; font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; cursor:pointer; transition:all .15s; }
+  .idea-email-btn.on { background:rgba(61,220,132,0.12); border-color:rgba(61,220,132,0.4); color:#3ddc84; }
+  .idea-email-btn:active { transform:scale(0.99); }
   .home-graph-tooltip { margin-top:9px; background:rgba(47,123,255,0.08); border:1px solid rgba(47,123,255,0.22); border-radius:9px; padding:8px 12px; font-size:.78rem; color:var(--white); text-align:center; }
   .home-graph-tooltip strong { color:var(--blue-light); }
 
@@ -2699,34 +2702,75 @@
   }
 
   /* ===== Idées du jour ===== */
-  function dailyIdeasShell(inner) {
+  function dailyIdeasShell(inner, emailActive) {
+    var lbl = emailActive ? '📩 Idées par email activées ✓' : '📩 Recevoir mes idées par email';
     return '<div class="card aurora" style="margin-bottom:14px;">' +
       '<div class="home-graph-top" style="margin-bottom:10px;"><span>💡 Idées du jour</span>' +
       '<button class="gtab" onclick="regenIdeas()">Régénérer</button></div>' +
-      inner + '</div>';
+      inner +
+      '<button class="idea-email-btn' + (emailActive?' on':'') + '" onclick="toggleIdeasEmail()">' + lbl + '</button>' +
+    '</div>';
   }
   async function loadDailyIdeas(platform, username, force) {
     var box = document.getElementById('dailyIdeasBox');
     if (!box) return;
-    box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">Préparation de tes idées du jour…</div>');
+    box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">Préparation de tes idées du jour…</div>', false);
     try {
       var { data: { session } } = await sb.auth.getSession();
+      // état d'abonnement email (par compte) en parallèle des idées
+      var emailP = sb.from('idea_email_subs').select('active').eq('platform', platform).eq('username', username).maybeSingle();
       var res = await fetch(SB_URL + '/functions/v1/daily-ideas', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SB_KEY},
         body: JSON.stringify({ platform: platform, username: username, force: !!force })
       });
       var data = await res.json();
+      var em = await emailP;
+      var emailActive = !!(em && em.data && em.data.active);
+      window._ideasEmailActive = emailActive;
       if (!res.ok || data.error || !data.ideas || !data.ideas.length) {
         var msg = (data && data.message) ? data.message : 'Tes idées arrivent après une analyse de ton compte.';
-        box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">' + escapeHtml(msg) + '</div>');
+        window._dailyIdeas = [];
+        box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">' + escapeHtml(msg) + '</div>', emailActive);
         return;
       }
       window._dailyIdeas = data.ideas;
-      box.innerHTML = dailyIdeasShell(renderIdeasList(data.ideas));
+      box.innerHTML = dailyIdeasShell(renderIdeasList(data.ideas), emailActive);
     } catch(e) {
-      box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">Idées indisponibles pour le moment. Réessaie plus tard.</div>');
+      box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">Idées indisponibles pour le moment. Réessaie plus tard.</div>', false);
     }
+  }
+  async function toggleIdeasEmail() {
+    var platform = window._lastPlatform, username = window._lastUsername;
+    if (!platform || !username) return;
+    var next = !window._ideasEmailActive;
+    try {
+      var { data: { session } } = await sb.auth.getSession();
+      var u = session.user;
+      await sb.from('idea_email_subs').upsert(
+        { user_id: u.id, platform: platform, username: username, email: u.email, active: next, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id,platform,username' }
+      );
+      window._ideasEmailActive = next;
+      var box = document.getElementById('dailyIdeasBox');
+      var inner = (window._dailyIdeas && window._dailyIdeas.length) ? renderIdeasList(window._dailyIdeas) : '<div class="home-graph-note" style="text-align:center;">Tes idées du jour.</div>';
+      if (box) box.innerHTML = dailyIdeasShell(inner, next);
+      // À l'activation : envoi immédiat d'un 1er email avec les idées du jour (preuve que ça marche)
+      if (next && window._dailyIdeas && window._dailyIdeas.length && u.email) {
+        var rows = window._dailyIdeas.slice(0,3).map(function(it,i){
+          return '<div style="background:#0f1830;border:1px solid #1e2a4a;border-radius:12px;padding:12px 14px;margin-bottom:10px;"><div style="font-size:12px;color:#7aa2ff;font-weight:700;text-transform:uppercase;">Idée ' + (i+1) + ' · ' + escapeHtml(it.format||'TikTok') + '</div><div style="font-size:16px;color:#fff;font-weight:700;margin:4px 0 6px;">' + escapeHtml(it.title||'') + '</div><div style="font-size:14px;color:#cdd6f4;"><b style="color:#7aa2ff;">Hook :</b> ' + escapeHtml(it.hook||'') + '</div></div>';
+        }).join('');
+        var msg = '<div style="font-size:20px;font-weight:800;color:#fff;">Tes idées du jour 💡</div><div style="color:#8b9bc4;margin:4px 0 14px;">Pour @' + escapeHtml(username) + '</div>' + rows + '<a href="https://skillora.me/app.html" style="display:block;text-align:center;background:#2f7bff;color:#fff;text-decoration:none;font-weight:700;padding:12px;border-radius:12px;margin-top:8px;">Voir toutes mes idées →</a>';
+        try {
+          await fetch(SB_URL + '/functions/v1/send-email', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','apikey':SB_KEY},
+            body: JSON.stringify({ to: u.email, subject: 'Tes idées du jour pour @' + username, message: msg })
+          });
+        } catch(e2) {}
+        alert('Activé ✓ Tu recevras tes idées chaque matin par email. Un premier email vient de t’être envoyé.');
+      }
+    } catch(e) {}
   }
   function renderIdeasList(ideas) {
     return ideas.map(function(it, i){

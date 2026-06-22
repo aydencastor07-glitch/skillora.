@@ -2334,7 +2334,18 @@
   function homeConnBtn(plat, ic, label) {
     var connected = window.__connectedPlats && window.__connectedPlats[plat];
     var stat = connected ? '<span style="display:block;font-size:.58rem;color:var(--green);margin-top:3px;font-weight:600;">✓ connecté</span>' : '';
-    return '<button class="home-conn-btn' + (connected ? ' is-conn' : '') + '" onclick="connectAccount(\'' + plat + '\')"><span class="home-conn-ic">' + ic + '</span><span>' + label + '</span>' + stat + '</button>';
+    var act = connected ? ('connectedPlatMenu(\'' + plat + '\')') : ('connectAccount(\'' + plat + '\')');
+    return '<button class="home-conn-btn' + (connected ? ' is-conn' : '') + '" onclick="' + act + '"><span class="home-conn-ic">' + ic + '</span><span>' + label + '</span>' + stat + '</button>';
+  }
+  // Clic sur une plateforme DEJA connectee -> on ne reconnecte PAS, on propose un menu
+  function connectedPlatMenu(platform) {
+    skModal({
+      icon: (PFM_EMOJI[platform] || '🔗'), iconBg: 'rgba(61,220,132,.16)',
+      title: connectName(platform) + ' est déjà connecté',
+      message: 'Ton compte est relié à Skillora. Tu peux le déconnecter si tu veux le retirer.',
+      confirmText: 'Déconnecter ce compte', cancelText: 'Fermer',
+      onConfirm: function(){ disconnectAccount(platform); }
+    });
   }
   function homeSkel(v, l) {
     return '<div class="stat-box home-skel"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
@@ -4640,8 +4651,9 @@
     ov.classList.add('open');
     var name = connectName(plat);
     ov.innerHTML = '<div class="cx-shell cx-loading">' +
+      '<div style="font-family:\'Fraunces\',serif;font-weight:800;font-size:1.55rem;letter-spacing:-.02em;color:#fff;margin-bottom:24px;">Skill<span style="color:var(--blue)">ora</span></div>' +
       '<div class="pfm-xfer">' +
-        '<div class="pfm-node skillora pulse">S</div>' +
+        '<div class="pfm-node skillora pulse"><img src="apple-touch-icon.png" alt="S" style="width:100%;height:100%;border-radius:18px;object-fit:cover;" onerror="this.style.display=\'none\';this.parentNode.textContent=\'S\';"></div>' +
         '<div class="pfm-wire"><span></span><span></span><span></span></div>' +
         '<div class="pfm-node pulse cx-logo-' + plat + '">' + connectLogo(plat) + '</div>' +
       '</div>' +
@@ -4676,6 +4688,7 @@
     if (params.get('pfm') !== 'connected' && !pend) return;
     try { window.history.replaceState({}, '', window.location.pathname); } catch(e){}
     var plat = pend || 'tiktok';
+    var _t0 = Date.now();
     showPfmConnecting(plat);              // <-- ecran anime tout de suite (plus de "rien ne se passe")
     try {
       const { data:{ session } } = await sb.auth.getSession();
@@ -4705,6 +4718,9 @@
       }
     } catch(e){}
     try { localStorage.removeItem('pfm_pending'); } catch(e){}
+    // duree minimale d'animation (pour ne pas que ça "flashe")
+    var _el = Date.now() - _t0;
+    if (_el < 2600) { await new Promise(function(r){ setTimeout(r, 2600 - _el); }); }
     hidePfmConnecting(plat, true);        // <-- petit etat "succes" puis fermeture
     if (typeof pubRenderPlatforms === 'function') { try { pubRenderPlatforms(); } catch(e){} }
     if (typeof loadHomeDashboard === 'function') { try { loadHomeDashboard(); } catch(e){} }
@@ -5084,6 +5100,7 @@
   // Modale premium reutilisable (remplace alert/confirm/toasts natifs)
   function skModal(opts) {
     opts = opts || {};
+    if (window._skModalClearT) { clearTimeout(window._skModalClearT); window._skModalClearT = null; }
     var ov = document.getElementById('skModalOv');
     if (!ov) { ov = document.createElement('div'); ov.id = 'skModalOv'; ov.className = 'sk-modal-ov'; document.body.appendChild(ov); }
     var btns = '';
@@ -5094,7 +5111,7 @@
       (opts.title ? '<div class="sk-modal-t">' + opts.title + '</div>' : '') +
       (opts.message ? '<div class="sk-modal-m">' + opts.message + '</div>' : '') +
       '<div class="sk-modal-btns">' + btns + '</div></div>';
-    function close(){ ov.classList.remove('open'); setTimeout(function(){ if (ov) ov.innerHTML = ''; }, 220); }
+    function close(){ ov.classList.remove('open'); window._skModalClearT = setTimeout(function(){ if (ov) ov.innerHTML = ''; }, 220); }
     var ok = document.getElementById('skModalOk'); if (ok) ok.onclick = function(){ close(); if (opts.onConfirm) opts.onConfirm(); };
     var cc = document.getElementById('skModalCancel'); if (cc) cc.onclick = function(){ close(); if (opts.onCancel) opts.onCancel(); };
     ov.onclick = function(e){ if (e.target === ov) close(); };

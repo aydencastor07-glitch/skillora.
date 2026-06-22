@@ -4596,21 +4596,29 @@
     try {
       const { data:{ session } } = await sb.auth.getSession();
       if (!session) return;
+      async function readAndRender() {
+        const { data } = await sb.from('social_connections').select('platform,username,handle,handle_verified,profile_photo_url').eq('user_id', session.user.id);
+        var map = {}, info = {};
+        (data || []).forEach(function(c){
+          var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform;
+          map[k] = c.handle || c.username || true;            // statut "connecté"
+          info[k] = { handle: c.handle, name: c.username, photo: c.profile_photo_url, verified: !!c.handle_verified };
+        });
+        window.__connectedPlats = map;
+        window.__connInfo = info;
+        if (typeof pubRenderPlatforms === 'function') { try { pubRenderPlatforms(); } catch(e){} }
+        if (typeof loadHomeDashboard === 'function') { try { loadHomeDashboard(); } catch(e){} }
+      }
+      // 1) affichage IMMEDIAT de l'etat connecte (depuis la base) -> pas de clignotement
+      await readAndRender();
+      // 2) resync Post for Me en arriere-plan, puis re-render
       if (force || !window.__pfmSynced) {
         window.__pfmSynced = true;
-        try { await fetch(SB_URL + '/functions/v1/pfm-sync', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY } }); } catch(e){}
+        try {
+          await fetch(SB_URL + '/functions/v1/pfm-sync', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY } });
+          await readAndRender();
+        } catch(e){}
       }
-      const { data } = await sb.from('social_connections').select('platform,username,handle,handle_verified,profile_photo_url').eq('user_id', session.user.id);
-      var map = {}, info = {};
-      (data || []).forEach(function(c){
-        var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform;
-        map[k] = c.handle || c.username || true;            // statut "connecté"
-        info[k] = { handle: c.handle, name: c.username, photo: c.profile_photo_url, verified: !!c.handle_verified };
-      });
-      window.__connectedPlats = map;
-      window.__connInfo = info;
-      if (typeof pubRenderPlatforms === 'function') { try { pubRenderPlatforms(); } catch(e){} }
-      if (typeof loadHomeDashboard === 'function') { try { loadHomeDashboard(); } catch(e){} }
     } catch(e){}
   }
 

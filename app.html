@@ -2213,10 +2213,11 @@
 
       let html = homeProfileCard(platform, prof, s, mine.username);
 
-      // Stats reelles disponibles ? (sinon on n'affiche pas les graphiques/chiffres vides)
-      var hasStats = (Number(s.audience) > 0) || (Number(s.video_count) > 0) || (Number(s.total_views) > 0) || (Number(s.avg_views) > 0);
+      // Stats VIDÉO réellement récupérées ? (l'audience seule ne suffit pas : il faut les vidéos)
+      var nbBest = (s.best_videos && s.best_videos.length) ? s.best_videos.length : 0;
+      var hasStats = (Number(s.total_views) > 0) || (Number(s.video_count) > 0) || (Number(s.avg_views) > 0) || nbBest > 0;
       if (!hasStats) {
-        html += '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.5;">⏳ Tes statistiques arrivent. Appuie sur <b>Actualiser</b> sur ta carte de profil si elles ne s\'affichent pas.</div>';
+        html += '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.5;">⏳ On n\'a pas pu récupérer tes vidéos cette fois. Appuie sur <b>Actualiser</b> sur ta carte de profil pour réessayer.</div>';
       }
 
       // Barre objectif
@@ -2544,7 +2545,7 @@
 
   // Graphique d'évolution premium (SVG, courbe néon). Se remplit jour après jour.
   // P\u00e9riode active du graphique
-  if (!window._graphPeriod) window._graphPeriod = '7';
+  if (!window._graphPeriod) window._graphPeriod = '1';
 
   function setGraphPeriod(d) {
     window._graphPeriod = d;

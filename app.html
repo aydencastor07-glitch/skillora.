@@ -2435,7 +2435,9 @@
       var data = await res.json();
       clearInterval(tick);
       if (!res.ok || data.error) {
-        ov.innerHTML = '<div class="cx-shell"><div class="cx-logo cx-logo-'+plat+'">'+connectLogo(plat)+'</div><div class="cx-title">Connexion impossible</div><div class="cx-sub">'+escapeHtml(data.error==='upgrade_required'?(data.message||''):'Vérifie le nom d\u2019utilisateur et réessaie.')+'</div><button class="cx-btn" onclick="openConnectFlow(\''+plat+'\')">Réessayer</button><button class="cx-btn-ghost" onclick="closeConnectFlow()">Fermer</button></div>';
+        var emsg = data.message ? data.message : 'V\u00e9rifie le nom d\u2019utilisateur et r\u00e9essaie.';
+        var etitle = (data.error==='scrape_unavailable') ? 'Analyse momentan\u00e9ment indisponible' : 'Connexion impossible';
+        ov.innerHTML = '<div class="cx-shell"><div class="cx-logo cx-logo-'+plat+'">'+connectLogo(plat)+'</div><div class="cx-title">'+etitle+'</div><div class="cx-sub">'+escapeHtml(emsg)+'</div><button class="cx-btn" onclick="openConnectFlow(\''+plat+'\')">R\u00e9essayer</button><button class="cx-btn-ghost" onclick="closeConnectFlow()">Fermer</button></div>';
         return;
       }
       // succès

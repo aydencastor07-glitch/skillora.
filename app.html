@@ -2560,22 +2560,15 @@
       if (_curU && String(h.username||'').toLowerCase() !== _curU) return false;
       return true;
     });
-    // Construire la s\u00e9rie "vues gagn\u00e9es par jour" = diff\u00e9rence de total_views entre deux relev\u00e9s
-    var latestTotal = hist.length ? (Number(hist[hist.length-1].total_views)||0) : 0;
-    var daily = [];
-    for (var i = 1; i < hist.length; i++) {
-      var gained = (hist[i].total_views||0) - (hist[i-1].total_views||0);
-      if (gained < 0) gained = 0; // protection (compte re-scrap\u00e9 partiellement)
-      // anti-artefact : un gain sur UN jour ne peut pas d\u00e9passer le total de vues du compte
-      if (latestTotal > 0 && gained > latestTotal) gained = 0;
-      daily.push({ d: hist[i].snapshot_date, v: gained });
-    }
+    // Serie = VUES TOTALES par jour (vraies valeurs des releves, pas un calcul de difference)
+    var series = hist.map(function(h){ return { d: h.snapshot_date, v: Number(h.total_views) || 0 }; });
 
-    // Filtre de p\u00e9riode (plus court & plus pertinent : Hier / 7j / 30j / 3 mois)
+    // Filtre de periode (Hier / 7 jours / 30 jours / 3 mois)
     var periods = [['1','Hier'],['7','7 jours'],['30','30 jours'],['90','3 mois']];
     var pdays = parseInt(window._graphPeriod || '7', 10);
     var cutoff = new Date(Date.now() - pdays*864e5).toISOString().slice(0,10);
-    var view = daily.filter(function(x){ return x.d >= cutoff; });
+    var view = series.filter(function(x){ return x.d >= cutoff; });
+    if (view.length < 2 && series.length >= 2) view = series.slice(-2); // au moins le dernier segment
 
     var tabs = '<div class="home-graph-tabs">' + periods.map(function(pp){
       return '<button class="gtab' + (window._graphPeriod===pp[0]?' on':'') + '" onclick="setGraphPeriod(\'' + pp[0] + '\')">' + pp[1] + '</button>';
@@ -2585,37 +2578,34 @@
     var building = view.length < 2;
 
     if (building) {
+      var only = series.length ? fmtNum(series[series.length-1].v) : '0';
       return '<div class="home-graph card aurora">' +
-        '<div class="home-graph-top"><span>Vues gagn\u00e9es / jour</span><span class="home-graph-badge">En construction</span></div>' +
+        '<div class="home-graph-top"><span>Vues totales</span><span class="home-graph-badge">' + only + ' vues</span></div>' +
         tabs +
-        '<div class="home-graph-canvas">' + auroraSvg(W, H, [0.2,0.35,0.25,0.5,0.42,0.65,0.55,0.8,0.7,0.9], '#3ddc84', true, null) + '</div>' +
-        '<div class="home-graph-note">Ta courbe se construit chaque jour. On compare tes vues quotidiennes \u00e0 ta moyenne 7 jours : vert si tu acc\u00e9l\u00e8res, orange si tu ralentis.</div>' +
+        '<div class="home-graph-canvas">' + auroraSvg(W, H, [0.2,0.3,0.28,0.45,0.4,0.6,0.55,0.75,0.7,0.9], '#3ddc84', true, null) + '</div>' +
+        '<div class="home-graph-note">Ta courbe de vues totales se construit chaque jour. Reviens demain pour voir l\'evolution reelle.</div>' +
       '</div>';
     }
 
     var vals = view.map(function(p){ return p.v; });
-    // Moyenne 7 derniers jours vs 7 pr\u00e9c\u00e9dents pour la couleur
-    var recent = vals.slice(-7);
-    var prev = vals.slice(-14, -7);
-    var avgRecent = recent.length ? recent.reduce(function(a,b){return a+b;},0)/recent.length : 0;
-    var avgPrev = prev.length ? prev.reduce(function(a,b){return a+b;},0)/prev.length : avgRecent;
-    var up = avgRecent >= avgPrev;
+    var first = vals[0], lastV = vals[vals.length-1];
+    var up = lastV >= first;
     var color = up ? '#3ddc84' : '#ff7a59';
 
     var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
     var range = (max - min) || 1;
     var norm = vals.map(function(v){ return (v - min) / range; });
 
-    // total des vues gagn\u00e9es sur la p\u00e9riode + libell\u00e9 tendance
-    var totalGained = vals.reduce(function(a,b){return a+b;},0);
+    var gainedPeriod = lastV - first;
     var trendTxt = up ? 'En hausse' : 'En baisse';
+    var footTxt = fmtNum(lastV) + ' vues au total' + (gainedPeriod ? ' · ' + (gainedPeriod>0?'+':'') + fmtNum(gainedPeriod) + ' sur la periode' : '');
 
     return '<div class="home-graph card aurora">' +
-      '<div class="home-graph-top"><span>Vues gagn\u00e9es / jour</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
+      '<div class="home-graph-top"><span>Vues totales</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
       tabs +
       '<div class="home-graph-canvas">' + auroraSvg(W, H, norm, color, false, view) + '</div>' +
       '<div class="home-graph-tooltip" id="graphTooltip" style="display:none;"></div>' +
-      '<div class="home-graph-foot"><span>' + fmtNum(totalGained) + ' vues gagnées sur la période</span></div>' +
+      '<div class="home-graph-foot"><span>' + footTxt + '</span></div>' +
     '</div>';
   }
 
@@ -2676,7 +2666,7 @@
     var mois = ['jan','f\u00e9v','mar','avr','mai','juin','juil','ao\u00fbt','sep','oct','nov','d\u00e9c'];
     var label = jours[d.getDay()] + '. ' + d.getDate() + ' ' + mois[d.getMonth()];
     var box = document.getElementById('graphTooltip');
-    if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + fmtNum(views) + ' vues gagn\u00e9es ce jour'; }
+    if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + fmtNum(views) + ' vues au total'; }
     // surligner le point cliqué
     try {
       var svg = el && el.ownerSVGElement;

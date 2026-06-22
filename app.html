@@ -2563,30 +2563,45 @@
       if (_curU && String(h.username||'').toLowerCase() !== _curU) return false;
       return true;
     });
-    // Serie = VUES TOTALES par jour (vraies valeurs des releves, pas un calcul de difference)
+    // Serie = VUES TOTALES par jour (vraies valeurs des releves du compte courant)
     var series = hist.map(function(h){ return { d: h.snapshot_date, v: Number(h.total_views) || 0 }; });
 
-    // Filtre de periode (Hier / 7 jours / 30 jours / 3 mois)
     var periods = [['1','Hier'],['7','7 jours'],['30','30 jours'],['90','3 mois']];
-    var pdays = parseInt(window._graphPeriod || '7', 10);
-    var cutoff = new Date(Date.now() - pdays*864e5).toISOString().slice(0,10);
-    var view = series.filter(function(x){ return x.d >= cutoff; });
-    if (view.length < 2 && series.length >= 2) view = series.slice(-2); // au moins le dernier segment
+    var labelMap = { '1':'d’hier', '7':'7 jours', '30':'30 jours', '90':'3 mois' };
+    var pdays = parseInt(window._graphPeriod || '1', 10);
 
     var tabs = '<div class="home-graph-tabs">' + periods.map(function(pp){
       return '<button class="gtab' + (window._graphPeriod===pp[0]?' on':'') + '" onclick="setGraphPeriod(\'' + pp[0] + '\')">' + pp[1] + '</button>';
     }).join('') + '</div>';
 
     var W = 320, H = 120;
-    var building = view.length < 2;
 
-    if (building) {
-      var only = series.length ? fmtNum(series[series.length-1].v) : '0';
+    // Historique disponible (en jours) depuis le 1er releve du compte sur Skillora
+    var spanDays = 0;
+    if (series.length) {
+      var oldest = new Date(series[0].d + 'T00:00:00');
+      spanDays = Math.max(0, Math.round((Date.now() - oldest.getTime()) / 864e5));
+    }
+
+    var cutoff = new Date(Date.now() - pdays*864e5).toISOString().slice(0,10);
+    var view = series.filter(function(x){ return x.d >= cutoff; });
+
+    // "Pret" = au moins 2 points DANS la periode ET un historique qui couvre la periode demandee
+    var ready = view.length >= 2 && spanDays >= pdays;
+
+    if (!ready) {
+      var remaining = Math.max(1, pdays - spanDays);
+      var msg;
+      if (pdays === 1) {
+        msg = 'Reviens demain : tes vues d’hier apparaîtront ici. La courbe se construit chaque jour.';
+      } else {
+        msg = 'Ton compte a ' + spanDays + ' jour' + (spanDays>1?'s':'') + ' d’historique sur Skillora. Le graphique ' + labelMap[String(pdays)] + ' sera complet dans ' + remaining + ' jour' + (remaining>1?'s':'') + '.';
+      }
       return '<div class="home-graph card aurora">' +
-        '<div class="home-graph-top"><span>Vues totales</span><span class="home-graph-badge">' + only + ' vues</span></div>' +
+        '<div class="home-graph-top"><span>Évolution des vues</span><span class="home-graph-badge">En construction</span></div>' +
         tabs +
         '<div class="home-graph-canvas">' + auroraSvg(W, H, [0.2,0.3,0.28,0.45,0.4,0.6,0.55,0.75,0.7,0.9], '#3ddc84', true, null) + '</div>' +
-        '<div class="home-graph-note">Ta courbe de vues totales se construit chaque jour. Reviens demain pour voir l\'evolution reelle.</div>' +
+        '<div class="home-graph-note">' + msg + '</div>' +
       '</div>';
     }
 
@@ -2594,17 +2609,16 @@
     var first = vals[0], lastV = vals[vals.length-1];
     var up = lastV >= first;
     var color = up ? '#3ddc84' : '#ff7a59';
-
     var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
     var range = (max - min) || 1;
     var norm = vals.map(function(v){ return (v - min) / range; });
 
-    var gainedPeriod = lastV - first;
+    var gained = lastV - first;
     var trendTxt = up ? 'En hausse' : 'En baisse';
-    var footTxt = fmtNum(lastV) + ' vues au total' + (gainedPeriod ? ' · ' + (gainedPeriod>0?'+':'') + fmtNum(gainedPeriod) + ' sur la periode' : '');
+    var footTxt = (gained>0?'+':'') + fmtNum(gained) + ' vues ' + (pdays===1 ? 'depuis hier' : 'sur ' + labelMap[String(pdays)]);
 
     return '<div class="home-graph card aurora">' +
-      '<div class="home-graph-top"><span>Vues totales</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
+      '<div class="home-graph-top"><span>Évolution des vues</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
       tabs +
       '<div class="home-graph-canvas">' + auroraSvg(W, H, norm, color, false, view) + '</div>' +
       '<div class="home-graph-tooltip" id="graphTooltip" style="display:none;"></div>' +

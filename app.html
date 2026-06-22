@@ -185,6 +185,22 @@
   .gtab.on { background:rgba(47,123,255,0.14); border-color:rgba(47,123,255,0.4); color:var(--blue-light); }
   .gtab:active { transform:scale(0.96); }
   .home-graph-foot { display:flex; justify-content:space-between; font-size:.74rem; color:var(--muted); margin-top:10px; }
+  /* Idées du jour */
+  .idea { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; padding:13px 14px; margin-bottom:10px; }
+  .idea:last-child { margin-bottom:0; }
+  .idea-h { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .idea-fmt { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--blue-light); background:rgba(47,123,255,0.14); border:1px solid rgba(47,123,255,0.3); border-radius:6px; padding:3px 7px; flex-shrink:0; }
+  .idea-title { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--text); line-height:1.25; }
+  .idea-hook { font-size:.82rem; color:var(--text); line-height:1.45; margin-bottom:6px; }
+  .idea-l { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--blue-light); margin-right:5px; }
+  .idea-angle { font-size:.76rem; color:var(--muted); font-style:italic; line-height:1.4; margin-bottom:8px; }
+  .idea-steps { margin:0 0 8px; padding-left:18px; }
+  .idea-steps li { font-size:.78rem; color:var(--muted); line-height:1.5; margin-bottom:2px; }
+  .idea-src { font-size:.76rem; color:var(--muted); line-height:1.45; margin-bottom:8px; }
+  .idea-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:11px; }
+  .idea-tag { font-size:.68rem; color:var(--muted); background:rgba(255,255,255,0.05); border-radius:6px; padding:3px 7px; }
+  .idea-btn { width:100%; background:rgba(47,123,255,0.14); border:1px solid rgba(47,123,255,0.4); color:var(--blue-light); border-radius:10px; padding:9px; font-family:'Sora',sans-serif; font-weight:600; font-size:.8rem; cursor:pointer; transition:all .15s; }
+  .idea-btn:active { transform:scale(0.98); }
   .home-graph-tooltip { margin-top:9px; background:rgba(47,123,255,0.08); border:1px solid rgba(47,123,255,0.22); border-radius:9px; padding:8px 12px; font-size:.78rem; color:var(--white); text-align:center; }
   .home-graph-tooltip strong { color:var(--blue-light); }
 
@@ -2233,6 +2249,9 @@
       // Graphique d'évolution — seulement quand il y a de vraies stats
       if (hasStats) html += renderGrowthGraph(s);
 
+      // Idées du jour (placeholder rempli en asynchrone, 1 appel IA/jour max grâce au cache serveur)
+      if (hasStats) html += '<div id="dailyIdeasBox"></div>';
+
       // Score viral
       if (ins.scorecard) {
         const sc = ins.scorecard;
@@ -2324,6 +2343,8 @@
       // compte courant (pour filtrer le graphique sur CE compte uniquement)
       window._lastPlatform = platform;
       window._lastUsername = mine.username;
+      // Idées du jour (chargées après le rendu pour ne pas bloquer le dashboard)
+      if (hasStats) loadDailyIdeas(platform, mine.username);
       // Réanalyse auto 1×/jour (silencieuse, protégée par le cache serveur)
       autoDailyRefresh(platform, mine.username);
       // Charge l'historique pour le graphique (1 fois par chargement)
@@ -2675,6 +2696,74 @@
         return s;
       })() +
     '</svg>';
+  }
+
+  /* ===== Idées du jour ===== */
+  function dailyIdeasShell(inner) {
+    return '<div class="card aurora" style="margin-bottom:14px;">' +
+      '<div class="home-graph-top" style="margin-bottom:10px;"><span>💡 Idées du jour</span>' +
+      '<button class="gtab" onclick="regenIdeas()">Régénérer</button></div>' +
+      inner + '</div>';
+  }
+  async function loadDailyIdeas(platform, username, force) {
+    var box = document.getElementById('dailyIdeasBox');
+    if (!box) return;
+    box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">Préparation de tes idées du jour…</div>');
+    try {
+      var { data: { session } } = await sb.auth.getSession();
+      var res = await fetch(SB_URL + '/functions/v1/daily-ideas', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SB_KEY},
+        body: JSON.stringify({ platform: platform, username: username, force: !!force })
+      });
+      var data = await res.json();
+      if (!res.ok || data.error || !data.ideas || !data.ideas.length) {
+        var msg = (data && data.message) ? data.message : 'Tes idées arrivent après une analyse de ton compte.';
+        box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">' + escapeHtml(msg) + '</div>');
+        return;
+      }
+      window._dailyIdeas = data.ideas;
+      box.innerHTML = dailyIdeasShell(renderIdeasList(data.ideas));
+    } catch(e) {
+      box.innerHTML = dailyIdeasShell('<div class="home-graph-note" style="text-align:center;">Idées indisponibles pour le moment. Réessaie plus tard.</div>');
+    }
+  }
+  function renderIdeasList(ideas) {
+    return ideas.map(function(it, i){
+      var steps = (it.structure||[]).map(function(x){ return '<li>' + escapeHtml(x) + '</li>'; }).join('');
+      var tags = (it.hashtags||[]).map(function(h){ return '<span class="idea-tag">#' + escapeHtml(String(h).replace(/^#*/,'')) + '</span>'; }).join('');
+      return '<div class="idea">' +
+        '<div class="idea-h"><span class="idea-fmt">' + escapeHtml(it.format||'TikTok') + '</span><span class="idea-title">' + escapeHtml(it.title||'Idée') + '</span></div>' +
+        (it.hook ? '<div class="idea-hook"><span class="idea-l">Hook</span> ' + escapeHtml(it.hook) + '</div>' : '') +
+        (it.angle ? '<div class="idea-angle">' + escapeHtml(it.angle) + '</div>' : '') +
+        (steps ? '<ol class="idea-steps">' + steps + '</ol>' : '') +
+        (it.source ? '<div class="idea-src"><span class="idea-l">Où trouver</span> ' + escapeHtml(it.source) + '</div>' : '') +
+        (tags ? '<div class="idea-tags">' + tags + '</div>' : '') +
+        '<button class="idea-btn" onclick="sendIdeaToStudio(' + i + ')">Envoyer au Studio →</button>' +
+      '</div>';
+    }).join('');
+  }
+  function sendIdeaToStudio(i) {
+    var it = (window._dailyIdeas||[])[i];
+    if (!it) return;
+    var lines = [];
+    if (it.title) lines.push(it.title);
+    if (it.hook) lines.push('Hook : ' + it.hook);
+    if (it.structure && it.structure.length) lines.push('Structure : ' + it.structure.join(' → '));
+    if (it.source) lines.push('Source : ' + it.source);
+    if (it.hashtags && it.hashtags.length) lines.push(it.hashtags.map(function(h){ return '#'+String(h).replace(/^#*/,''); }).join(' '));
+    var txt = lines.join('\n');
+    var input = document.getElementById('scriptInput');
+    if (input) input.value = txt;
+    switchView('ia', null);
+    setTimeout(function(){
+      var card = document.getElementById('scriptLabCard');
+      if (card) card.scrollIntoView({ behavior:'smooth', block:'center' });
+      if (input) input.focus();
+    }, 220);
+  }
+  function regenIdeas() {
+    if (window._lastPlatform && window._lastUsername) loadDailyIdeas(window._lastPlatform, window._lastUsername, true);
   }
 
   function showGraphPoint(date, views, el) {

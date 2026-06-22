@@ -201,9 +201,18 @@
   .idea-tag { font-size:.68rem; color:var(--muted); background:rgba(255,255,255,0.05); border-radius:6px; padding:3px 7px; }
   .idea-btn { width:100%; background:rgba(47,123,255,0.14); border:1px solid rgba(47,123,255,0.4); color:var(--blue-light); border-radius:10px; padding:9px; font-family:'Sora',sans-serif; font-weight:600; font-size:.8rem; cursor:pointer; transition:all .15s; }
   .idea-btn:active { transform:scale(0.98); }
-  .idea-email-btn { width:100%; margin-top:4px; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--muted); border-radius:11px; padding:11px; font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; cursor:pointer; transition:all .15s; }
-  .idea-email-btn.on { background:rgba(61,220,132,0.12); border-color:rgba(61,220,132,0.4); color:#3ddc84; }
-  .idea-email-btn:active { transform:scale(0.99); }
+  .idea-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .idea-head-t { font-family:'Sora',sans-serif; font-weight:700; font-size:1rem; color:var(--text); white-space:nowrap; }
+  .idea-regen { flex-shrink:0; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--muted); border-radius:9px; padding:6px 12px; font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; cursor:pointer; transition:all .15s; }
+  .idea-regen:active { transform:scale(0.96); }
+  .idea-emailrow { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:6px; padding:11px 13px; background:rgba(255,255,255,0.025); border:1px solid var(--border); border-radius:12px; cursor:pointer; transition:all .15s; }
+  .idea-emailrow-l { font-size:.82rem; color:var(--muted); line-height:1.3; }
+  .idea-emailrow.on { background:rgba(61,220,132,0.08); border-color:rgba(61,220,132,0.35); }
+  .idea-emailrow.on .idea-emailrow-l { color:#3ddc84; }
+  .idea-switch { flex-shrink:0; width:40px; height:23px; border-radius:100px; background:rgba(255,255,255,0.12); position:relative; transition:background .2s; }
+  .idea-emailrow.on .idea-switch { background:#3ddc84; }
+  .idea-knob { position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%; background:#fff; transition:left .2s; }
+  .idea-emailrow.on .idea-knob { left:19px; }
   .home-graph-tooltip { margin-top:9px; background:rgba(47,123,255,0.08); border:1px solid rgba(47,123,255,0.22); border-radius:9px; padding:8px 12px; font-size:.78rem; color:var(--white); text-align:center; }
   .home-graph-tooltip strong { color:var(--blue-light); }
 
@@ -2703,12 +2712,14 @@
 
   /* ===== Idées du jour ===== */
   function dailyIdeasShell(inner, emailActive) {
-    var lbl = emailActive ? '📩 Idées par email activées ✓' : '📩 Recevoir mes idées par email';
     return '<div class="card aurora" style="margin-bottom:14px;">' +
-      '<div class="home-graph-top" style="margin-bottom:10px;"><span>💡 Idées du jour</span>' +
-      '<button class="gtab" onclick="regenIdeas()">Régénérer</button></div>' +
+      '<div class="idea-head"><span class="idea-head-t">💡 Idées du jour</span>' +
+      '<button class="idea-regen" onclick="regenIdeas()">↻ Régénérer</button></div>' +
       inner +
-      '<button class="idea-email-btn' + (emailActive?' on':'') + '" onclick="toggleIdeasEmail()">' + lbl + '</button>' +
+      '<div class="idea-emailrow' + (emailActive?' on':'') + '" onclick="toggleIdeasEmail()">' +
+        '<span class="idea-emailrow-l">Recevoir mes idées par email chaque matin</span>' +
+        '<span class="idea-switch"><span class="idea-knob"></span></span>' +
+      '</div>' +
     '</div>';
   }
   async function loadDailyIdeas(platform, username, force) {

@@ -115,6 +115,17 @@
   .home-pf-goal-bar { height:8px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; margin:9px 0 7px; }
   .home-pf-goal-fill { height:100%; background:linear-gradient(90deg,#4d8fff,#8b6cff); border-radius:99px; transition:width .9s cubic-bezier(.2,.8,.2,1); box-shadow:0 0 12px rgba(94,155,255,0.5); }
   .home-pf-goal-sub { font-size:.74rem; color:var(--muted); }
+  /* Objectif premium = anneau circulaire (sans bloc/carte) */
+  .home-ring { display:flex; flex-direction:column; align-items:center; gap:9px; margin:2px 0 18px; }
+  .home-ring-wrap { position:relative; width:108px; height:108px; }
+  .home-ring-svg { width:108px; height:108px; transform:rotate(-90deg); }
+  .home-ring-track { fill:none; stroke:rgba(255,255,255,0.08); stroke-width:9; }
+  .home-ring-fill { fill:none; stroke:url(#ringGrad); stroke-width:9; stroke-linecap:round; transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1); filter:drop-shadow(0 0 6px rgba(124,108,255,0.45)); }
+  .home-ring-pct { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .home-ring-pct .n { font-family:'Fraunces',serif; font-weight:800; font-size:1.55rem; color:#fff; line-height:1; }
+  .home-ring-pct .lbl { font-size:.55rem; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-top:3px; }
+  .home-ring-sub { font-size:.82rem; color:var(--muted); }
+  .home-ring-sub b { color:var(--text); font-family:'Sora',sans-serif; font-weight:700; }
 
   .home-viral-top { display:flex; justify-content:space-between; align-items:center; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:var(--white); margin-bottom:14px; }
   .home-viral-score { font-family:'Fraunces',serif; font-weight:800; font-size:1.6rem; color:var(--blue-light); }
@@ -2379,7 +2390,8 @@
         html += '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.5;">⏳ On n\'a pas pu récupérer tes vidéos cette fois. Appuie sur <b>Actualiser</b> sur ta carte de profil pour réessayer.</div>';
       }
 
-      // (La barre Objectif est désormais intégrée dans la carte du compte — voir homeGoalInline.)
+      // Objectif premium (anneau circulaire) — entre la carte du compte et le graphique
+      if (hasStats) html += homeGoalRing(s);
 
       // Graphique d'évolution — seulement quand il y a de vraies stats
       if (hasStats) html += renderGrowthGraph(s);
@@ -2612,18 +2624,25 @@
       '</div><button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:14px;">Annuler</button></div>';
   }
 
-  // Objectif (intégré dans la carte du compte). Plus tard : type d'objectif choisi à l'inscription (abonnés/vues/likes).
-  function homeGoalInline(s) {
+  // Objectif premium = anneau circulaire (sans bloc). Plus tard : type choisi à l'inscription (abonnés/vues/likes).
+  function homeGoalRing(s) {
     var up = window._userProfile || {};
     var ob = (typeof getOnboarding === 'function') ? getOnboarding() : {};
     var goal = parseInt(up.goal_followers || ob.goal_followers || 0, 10);
     if (!goal || goal <= 0) return '';
     var cur = Number(s.audience) || 0;
     var pct = Math.max(0, Math.min(100, Math.round((cur / goal) * 100)));
-    return '<div class="home-pf-goal">' +
-      '<div class="home-pf-goal-top"><span class="home-pf-goal-lbl">🎯 Objectif</span><span class="home-pf-goal-pct">' + pct + '%</span></div>' +
-      '<div class="home-pf-goal-bar"><div class="home-pf-goal-fill" style="width:' + pct + '%"></div></div>' +
-      '<div class="home-pf-goal-sub">' + fmtNum(cur) + ' / ' + fmtNum(goal) + ' abonnés</div>' +
+    var r = 46, C = 2 * Math.PI * r, off = C - (pct / 100) * C;
+    return '<div class="home-ring">' +
+      '<div class="home-ring-wrap">' +
+        '<svg class="home-ring-svg" viewBox="0 0 108 108">' +
+          '<defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e9bff"/><stop offset="1" stop-color="#9b6cff"/></linearGradient></defs>' +
+          '<circle class="home-ring-track" cx="54" cy="54" r="' + r + '"/>' +
+          '<circle class="home-ring-fill" cx="54" cy="54" r="' + r + '" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"/>' +
+        '</svg>' +
+        '<div class="home-ring-pct"><span class="n">' + pct + '%</span><span class="lbl">Objectif</span></div>' +
+      '</div>' +
+      '<div class="home-ring-sub">🎯 <b>' + fmtNum(cur) + '</b> / ' + fmtNum(goal) + ' abonnés</div>' +
     '</div>';
   }
 

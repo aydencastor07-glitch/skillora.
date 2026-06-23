@@ -213,31 +213,78 @@
   .idea-emailrow.on .idea-switch { background:#3ddc84; }
   .idea-knob { position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%; background:#fff; transition:left .2s; }
   .idea-emailrow.on .idea-knob { left:19px; }
-  /* Bannière Accueil -> page idées */
-  .ideas-banner { display:flex; align-items:center; gap:12px; margin-bottom:14px; padding:14px 16px; background:linear-gradient(135deg,rgba(47,123,255,0.12),rgba(124,58,237,0.10)); border:1px solid rgba(47,123,255,0.32); border-radius:16px; cursor:pointer; transition:all .15s; }
-  .ideas-banner:active { transform:scale(0.99); }
-  .ideas-banner-ic { font-size:1.7rem; flex-shrink:0; }
-  .ideas-banner-tx { flex:1; min-width:0; }
-  .ideas-banner-t { font-family:'Sora',sans-serif; font-weight:700; font-size:1rem; color:var(--text); }
-  .ideas-banner-s { font-size:.78rem; color:var(--muted); line-height:1.35; margin-top:2px; }
-  .ideas-banner-go { flex-shrink:0; font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--blue-light); }
-  /* Page dédiée idées */
-  #view-ideas { padding:18px 16px 90px; }
-  .ideas-page-top { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
-  .ideas-back { width:38px; height:38px; flex-shrink:0; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); border-radius:50%; font-size:1.2rem; cursor:pointer; }
-  .ideas-back:active { transform:scale(0.94); }
-  .ideas-page-title { font-family:'Fraunces',serif; font-weight:800; font-size:1.3rem; color:var(--white); }
-  .ideas-loading, .ideas-empty { text-align:center; color:var(--muted); font-size:.86rem; line-height:1.5; padding:30px 14px; }
-  .ideas-day-h { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:6px 0 12px; }
-  .idea-score { font-size:.68rem; font-weight:800; border-radius:6px; padding:3px 8px; flex-shrink:0; }
-  .idea-score.hot { color:#ffd9b0; background:rgba(255,138,0,0.16); border:1px solid rgba(255,138,0,0.4); }
-  .idea-score.ok { color:#7ef0ab; background:rgba(61,220,132,0.14); border:1px solid rgba(61,220,132,0.36); }
-  .idea-score.low { color:var(--muted); background:rgba(255,255,255,0.05); border:1px solid var(--border); }
-  .ideas-hist { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; overflow:hidden; }
-  .ideas-hist summary { cursor:pointer; padding:12px 14px; font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; color:var(--text); list-style:none; }
+  /* ===== Bulle flottante "Idées" (style support client) ===== */
+  .idea-fab { position:fixed; right:16px; bottom:calc(90px + env(safe-area-inset-bottom)); z-index:60; width:58px; height:58px; border-radius:50%; border:none; cursor:pointer; background:linear-gradient(152deg,#8b6cff 0%,#2f7bff 58%,#1659d8 100%); box-shadow:0 16px 32px -8px rgba(47,123,255,0.6), inset 0 1.6px 0 rgba(255,255,255,0.45), inset 0 -5px 12px rgba(7,28,82,0.5); display:none; align-items:center; justify-content:center; font-size:1.5rem; animation:fabIn .45s cubic-bezier(.2,.8,.2,1); }
+  .idea-fab.show { display:flex; }
+  .idea-fab:active { transform:scale(0.9); }
+  @keyframes fabIn { from{transform:scale(0) translateY(20px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+  .idea-fab.has-new::after { content:''; position:absolute; inset:-5px; border-radius:50%; border:2px solid rgba(139,108,255,0.55); animation:fabPulse 2.4s ease-out infinite; }
+  @keyframes fabPulse { 0%{transform:scale(1);opacity:.7} 75%,100%{transform:scale(1.55);opacity:0} }
+  .idea-fab-badge { position:absolute; top:-3px; right:-3px; min-width:22px; height:22px; padding:0 6px; border-radius:11px; background:linear-gradient(135deg,#ff5b78,#e0143f); color:#fff; font-family:'Sora',sans-serif; font-weight:800; font-size:.72rem; display:none; align-items:center; justify-content:center; border:2px solid #070b16; box-shadow:0 4px 12px rgba(224,20,63,0.55); }
+  .idea-fab-badge.show { display:flex; }
+  /* ===== Panneau Idées (sheet premium qui glisse du bas) ===== */
+  .ideas-panel { position:fixed; inset:0; z-index:1000; display:none; }
+  .ideas-panel.open { display:block; }
+  .ideas-panel-bg { position:absolute; inset:0; background:rgba(4,6,13,0.62); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); animation:fadeIn .25s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .ideas-sheet { position:absolute; left:50%; bottom:0; width:100%; max-width:var(--max); max-height:90vh; transform:translateX(-50%); background:linear-gradient(180deg,#0e1626 0%,#080c16 100%); border:1px solid var(--border); border-bottom:none; border-radius:26px 26px 0 0; box-shadow:0 -24px 70px rgba(0,0,0,0.55); display:flex; flex-direction:column; overflow:hidden; animation:sheetUp .34s cubic-bezier(.2,.85,.25,1); }
+  @keyframes sheetUp { from{transform:translate(-50%,100%)} to{transform:translate(-50%,0)} }
+  .ideas-grip { width:38px; height:4px; border-radius:99px; background:rgba(255,255,255,0.18); margin:10px auto 4px; flex-shrink:0; }
+  .ideas-head { display:flex; align-items:center; gap:13px; padding:8px 18px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .ideas-head-ic { width:40px; height:40px; flex-shrink:0; border-radius:13px; background:linear-gradient(152deg,#8b6cff,#2f7bff); display:flex; align-items:center; justify-content:center; font-size:1.25rem; box-shadow:0 8px 18px -4px rgba(47,123,255,0.5); }
+  .ideas-head-tx { flex:1; min-width:0; }
+  .ideas-head-t { font-family:'Fraunces',serif; font-weight:800; font-size:1.18rem; color:var(--white); line-height:1.1; }
+  .ideas-head-s { font-family:'Sora',sans-serif; font-size:.74rem; color:var(--muted); margin-top:2px; }
+  .ideas-x { flex-shrink:0; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text); font-size:1.05rem; cursor:pointer; transition:transform .15s; }
+  .ideas-x:active { transform:scale(0.9); }
+  .ideas-body { overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 16px 30px; flex:1; }
+  .ideas-loading, .ideas-empty { text-align:center; color:var(--muted); font-size:.86rem; line-height:1.55; padding:34px 18px; }
+  .ideas-day-h { font-family:'Sora',sans-serif; font-weight:700; font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:4px 2px 11px; }
+  /* Toggle email — propre */
+  .idea-mail { display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:15px; background:rgba(255,255,255,0.025); border:1px solid var(--border); margin-bottom:18px; cursor:pointer; transition:all .2s; }
+  .idea-mail-ic { font-size:1.15rem; flex-shrink:0; }
+  .idea-mail-tx { flex:1; min-width:0; }
+  .idea-mail-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; color:var(--text); }
+  .idea-mail-s { font-size:.71rem; color:var(--muted); margin-top:2px; line-height:1.3; }
+  .idea-mail.on { background:rgba(61,220,132,0.07); border-color:rgba(61,220,132,0.34); }
+  .idea-mail.on .idea-mail-t { color:#3ddc84; }
+  .idea-switch { flex-shrink:0; width:42px; height:24px; border-radius:100px; background:rgba(255,255,255,0.14); position:relative; transition:background .2s; }
+  .idea-mail.on .idea-switch { background:#3ddc84; }
+  .idea-knob { position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; transition:left .2s; box-shadow:0 2px 4px rgba(0,0,0,0.3); }
+  .idea-mail.on .idea-knob { left:20px; }
+  /* Carte idée compacte & dépliable */
+  .idea2 { background:rgba(255,255,255,0.025); border:1px solid var(--border); border-radius:16px; margin-bottom:10px; overflow:hidden; transition:border-color .2s, background .2s; }
+  .idea2.open { border-color:rgba(47,123,255,0.42); background:rgba(47,123,255,0.045); }
+  .idea2-head { display:flex; align-items:center; gap:12px; padding:13px; cursor:pointer; }
+  .idea2-score { flex-shrink:0; width:44px; height:44px; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Fraunces',serif; line-height:1; }
+  .idea2-score .n { font-weight:800; font-size:1.1rem; }
+  .idea2-score .x { font-family:'Sora',sans-serif; font-size:.52rem; font-weight:600; opacity:.7; margin-top:1px; }
+  .idea2-score.hot { color:#ffc89e; background:rgba(255,138,0,0.14); border:1px solid rgba(255,138,0,0.4); }
+  .idea2-score.ok { color:#7ef0ab; background:rgba(61,220,132,0.12); border:1px solid rgba(61,220,132,0.34); }
+  .idea2-score.low { color:#9fb0d0; background:rgba(255,255,255,0.05); border:1px solid var(--border); }
+  .idea2-main { flex:1; min-width:0; }
+  .idea2-fmt { display:inline-block; font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--blue-light); background:rgba(47,123,255,0.14); border-radius:5px; padding:2px 6px; }
+  .idea2-title { font-family:'Sora',sans-serif; font-weight:700; font-size:.88rem; color:var(--text); line-height:1.3; margin-top:5px; }
+  .idea2-chev { flex-shrink:0; color:var(--muted); font-size:.8rem; transition:transform .25s; }
+  .idea2.open .idea2-chev { transform:rotate(180deg); }
+  .idea2-body { max-height:0; opacity:0; overflow:hidden; transition:max-height .3s ease, opacity .25s; }
+  .idea2.open .idea2-body { max-height:900px; opacity:1; }
+  .idea2-inner { padding:0 13px 13px; }
+  .idea2-block { font-size:.8rem; color:var(--text); line-height:1.5; margin-bottom:9px; }
+  .idea2-l { display:block; font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--blue-light); margin-bottom:3px; }
+  .idea2-steps { margin:0 0 9px; padding-left:17px; }
+  .idea2-steps li { font-size:.78rem; color:var(--muted); line-height:1.5; margin-bottom:2px; }
+  .idea2-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:11px; }
+  .idea2-tag { font-size:.67rem; color:var(--muted); background:rgba(255,255,255,0.05); border-radius:6px; padding:3px 7px; }
+  .idea2-go { width:100%; background:linear-gradient(135deg,#4d8fff,#1a6fff); border:none; color:#fff; border-radius:11px; padding:11px; font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; cursor:pointer; box-shadow:0 8px 20px -6px rgba(47,123,255,0.5); transition:transform .15s; }
+  .idea2-go:active { transform:scale(0.98); }
+  .ideas-hist { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:14px; margin-bottom:9px; overflow:hidden; }
+  .ideas-hist summary { cursor:pointer; padding:13px 14px; font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; color:var(--text); list-style:none; display:flex; justify-content:space-between; align-items:center; }
   .ideas-hist summary::-webkit-details-marker { display:none; }
+  .ideas-hist summary::after { content:'▾'; color:var(--muted); font-size:.75rem; }
   .ideas-hist[open] summary { border-bottom:1px solid var(--border); margin-bottom:10px; }
-  .ideas-hist .idea { margin:0 12px 10px; }
+  .ideas-hist[open] summary::after { content:'▴'; }
+  .ideas-hist .idea2 { margin:0 11px 10px; }
   .home-graph-tooltip { margin-top:9px; background:rgba(47,123,255,0.08); border:1px solid rgba(47,123,255,0.22); border-radius:9px; padding:8px 12px; font-size:.78rem; color:var(--white); text-align:center; }
   .home-graph-tooltip strong { color:var(--blue-light); }
 
@@ -1823,12 +1870,26 @@
 </div>
 
 <!-- ===== Idées du jour : page dédiée ===== -->
-<div class="view" id="view-ideas">
-  <div class="ideas-page-top">
-    <button class="ideas-back" onclick="closeIdeasPage()" aria-label="Retour">←</button>
-    <span class="ideas-page-title">💡 Idées du jour</span>
+<!-- Bulle flottante "Idées du jour" + badge nouveautés -->
+<button class="idea-fab" id="ideaFab" onclick="openIdeasPage()" aria-label="Idées du jour">
+  💡<span class="idea-fab-badge" id="ideaFabBadge"></span>
+</button>
+
+<!-- Panneau Idées (glisse du bas) -->
+<div class="ideas-panel" id="ideasPanel" onclick="closeIdeasPage(event)">
+  <div class="ideas-panel-bg"></div>
+  <div class="ideas-sheet" onclick="event.stopPropagation()">
+    <div class="ideas-grip"></div>
+    <div class="ideas-head">
+      <div class="ideas-head-ic">💡</div>
+      <div class="ideas-head-tx">
+        <div class="ideas-head-t">Idées du jour</div>
+        <div class="ideas-head-s">Prêtes-à-tourner, classées par potentiel viral</div>
+      </div>
+      <button class="ideas-x" onclick="closeIdeasPage()" aria-label="Fermer">✕</button>
+    </div>
+    <div class="ideas-body" id="ideasPanelBody"></div>
   </div>
-  <div id="ideasPageBody"></div>
 </div>
 
 <div class="bottomnav">
@@ -2295,22 +2356,8 @@
       // Graphique d'évolution — seulement quand il y a de vraies stats
       if (hasStats) html += renderGrowthGraph(s);
 
-      // Idées du jour : bannière qui ouvre la page dédiée (aucun appel IA sur l'Accueil)
-      if (hasStats) html += '<div class="ideas-banner" onclick="openIdeasPage()">' +
-        '<div class="ideas-banner-ic">💡</div>' +
-        '<div class="ideas-banner-tx"><div class="ideas-banner-t">Idées du jour</div>' +
-        '<div class="ideas-banner-s">Des idées prêtes-à-tourner dans ta niche, avec leur potentiel de viralité.</div></div>' +
-        '<div class="ideas-banner-go">Ouvrir →</div></div>';
-
-      // Score viral
-      if (ins.scorecard) {
-        const sc = ins.scorecard;
-        const vals = [sc.hook, sc.tension, sc.emotion, sc.sujet].map(x => Number(x)||0);
-        const global = Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10);
-        html += '<div class="card" style="margin-bottom:14px;">' +
-          '<div class="home-viral-top"><span>Score viral</span><span class="home-viral-score">' + global + '<small>/100</small></span></div>' +
-          '<div class="home-viral-cats">' + homeViralCat('Hook', vals[0]) + homeViralCat('Tension', vals[1]) + homeViralCat('Émotion', vals[2]) + homeViralCat('Sujet', vals[3]) + '</div></div>';
-      }
+      // (Les idées du jour vivent désormais dans la bulle flottante 💡 — pas sur l'Accueil.)
+      // (Le "potentiel viral" n'apparaît plus ici : il est réservé à chaque idée, dans la bulle.)
 
       // Cartes méta : Vues totales + Engagement en haut, Niche (avec note) + Type en bas
       var totalViews = (typeof s.total_views === 'number' && s.total_views > 0) ? s.total_views : ((s.avg_views||0) * (s.video_count||0));
@@ -2397,7 +2444,9 @@
       autoDailyRefresh(platform, mine.username);
       // Charge l'historique pour le graphique (1 fois par chargement)
       if (!window._growthLoaded) { window._growthLoaded = true; loadGrowthHistory(platform); }
-    } catch (e) { console.log('home err', e); dyn.innerHTML = homeConnectBlock(); }
+      // Affiche la bulle "Idées du jour" + rafraîchit le badge de nouveautés
+      if (hasStats) { showIdeaFab(true); refreshIdeaBadge(); } else { showIdeaFab(false); }
+    } catch (e) { console.log('home err', e); dyn.innerHTML = homeConnectBlock(); showIdeaFab(false); }
   }
 
   // Bloc "connecte ton compte" + squelette à zéro (avant connexion)
@@ -2679,8 +2728,10 @@
     var up = lastV >= first;
     var color = up ? '#3ddc84' : '#ff7a59';
     var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+    // Courbe plate (toutes les valeurs identiques) -> on la centre joliment au lieu de la coller en bas.
+    var flat = (max - min) === 0;
     var range = (max - min) || 1;
-    var norm = vals.map(function(v){ return (v - min) / range; });
+    var norm = flat ? vals.map(function(){ return 0.5; }) : vals.map(function(v){ return (v - min) / range; });
 
     var gained = lastV - first;
     var trendTxt = up ? 'En hausse' : 'En baisse';
@@ -2746,9 +2797,55 @@
     '</svg>';
   }
 
-  /* ===== Idées du jour : page dédiée ===== */
-  function openIdeasPage() { switchView('ideas', null); }
-  function closeIdeasPage() { switchView('home', document.querySelectorAll('.nav-btn')[0] || null); }
+  /* ===== Idées du jour : bulle flottante + panneau ===== */
+  function showIdeaFab(on) {
+    var f = document.getElementById('ideaFab');
+    if (f) f.classList.toggle('show', !!on);
+  }
+  function setIdeaBadge(n) {
+    var b = document.getElementById('ideaFabBadge'), f = document.getElementById('ideaFab');
+    if (!b || !f) return;
+    if (n > 0) { b.textContent = '+' + n; b.classList.add('show'); f.classList.add('has-new'); }
+    else { b.classList.remove('show'); f.classList.remove('has-new'); }
+  }
+  function ideasSeenKey(acc) { return 'skillora_ideas_seen_' + acc.platform + '_' + acc.username; }
+  function getIdeasSeen(acc) { try { return localStorage.getItem(ideasSeenKey(acc)) || ''; } catch(e) { return ''; } }
+  function markIdeasSeen(acc, date) { try { if (date) localStorage.setItem(ideasSeenKey(acc), date); } catch(e) {} }
+
+  // Récupère (cache serveur, 0 coût IA) les idées du jour pour alimenter le badge de nouveautés
+  async function refreshIdeaBadge() {
+    var acc = ideasActiveAccount();
+    if (!acc) { setIdeaBadge(0); return; }
+    try {
+      var { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY };
+      var r = await fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username }) });
+      var data = await r.json();
+      if (data && data.ideas && data.ideas.length) {
+        window._badgeIdeas = data.ideas; window._badgeDate = data.date;
+        var unseen = (data.date && data.date !== getIdeasSeen(acc)) ? data.ideas.length : 0;
+        setIdeaBadge(unseen);
+      } else { setIdeaBadge(0); }
+    } catch(e) {}
+  }
+
+  function openIdeasPage() {
+    var p = document.getElementById('ideasPanel');
+    if (!p) return;
+    p.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setIdeaBadge(0);
+    var acc = ideasActiveAccount();
+    if (acc && window._badgeDate) markIdeasSeen(acc, window._badgeDate);
+    loadIdeasPage();
+  }
+  function closeIdeasPage(e) {
+    if (e && e.target && e.target.id && e.target.id !== 'ideasPanel') return;
+    var p = document.getElementById('ideasPanel');
+    if (p) p.classList.remove('open');
+    document.body.style.overflow = '';
+  }
 
   function ideasActiveAccount() {
     var platform = window._lastPlatform, username = window._lastUsername;
@@ -2762,11 +2859,11 @@
   }
 
   async function loadIdeasPage() {
-    var body = document.getElementById('ideasPageBody');
+    var body = document.getElementById('ideasPanelBody');
     if (!body) return;
     var acc = ideasActiveAccount();
     if (!acc) { body.innerHTML = '<div class="ideas-empty">Connecte un compte pour recevoir tes idées du jour.</div>'; return; }
-    body.innerHTML = '<div class="ideas-loading">Préparation de tes idées du jour…</div>';
+    body.innerHTML = '<div class="ideas-loading">✨ Préparation de tes idées du jour…</div>';
     try {
       var { data: { session } } = await sb.auth.getSession();
       var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY };
@@ -2785,7 +2882,8 @@
         html += '<div class="ideas-empty">' + escapeHtml(msg) + '</div>';
       } else {
         window._dailyIdeas = data.ideas;
-        html += '<div class="ideas-day-h">Aujourd\'hui</div>' + renderIdeasList(data.ideas, false);
+        markIdeasSeen(acc, data.date);
+        html += '<div class="ideas-day-h">Aujourd\'hui · ' + data.ideas.length + ' idée' + (data.ideas.length>1?'s':'') + '</div>' + renderIdeasList(data.ideas, false);
       }
 
       var hist = await histP;
@@ -2806,27 +2904,38 @@
   }
 
   function renderEmailRow(active) {
-    return '<div class="idea-emailrow' + (active?' on':'') + '" onclick="toggleIdeasEmail()">' +
-      '<span class="idea-emailrow-l">📩 Recevoir mes idées par email chaque matin</span>' +
+    return '<div class="idea-mail' + (active?' on':'') + '" onclick="toggleIdeasEmail()">' +
+      '<span class="idea-mail-ic">📩</span>' +
+      '<span class="idea-mail-tx"><span class="idea-mail-t">Recevoir par email chaque matin</span>' +
+      '<span class="idea-mail-s">Une nouvelle idée à fort potentiel dans ta boîte mail.</span></span>' +
       '<span class="idea-switch"><span class="idea-knob"></span></span></div>';
+  }
+
+  function toggleIdea(el) {
+    if (el) el.classList.toggle('open');
   }
 
   function renderIdeasList(ideas, readonly) {
     return (ideas||[]).map(function(it, i){
       var sc = Number(it.viral_score) || 0;
       var scCls = sc >= 8 ? 'hot' : (sc >= 6 ? 'ok' : 'low');
-      var badge = sc >= 1 ? '<span class="idea-score ' + scCls + '">🔥 ' + sc + '/10</span>' : '';
+      var score = '<div class="idea2-score ' + scCls + '"><span class="n">' + (sc>=1?sc:'—') + '</span><span class="x">/10</span></div>';
       var steps = (it.structure||[]).map(function(x){ return '<li>' + escapeHtml(x) + '</li>'; }).join('');
-      var tags = (it.hashtags||[]).map(function(h){ return '<span class="idea-tag">#' + escapeHtml(String(h).replace(/^#*/,'')) + '</span>'; }).join('');
-      return '<div class="idea">' +
-        '<div class="idea-h">' + badge + '<span class="idea-fmt">' + escapeHtml(it.format||'TikTok') + '</span></div>' +
-        '<div class="idea-title">' + escapeHtml(it.title||'Idée') + '</div>' +
-        (it.hook ? '<div class="idea-hook"><span class="idea-l">Hook</span> ' + escapeHtml(it.hook) + '</div>' : '') +
-        (it.angle ? '<div class="idea-angle">' + escapeHtml(it.angle) + '</div>' : '') +
-        (steps ? '<ol class="idea-steps">' + steps + '</ol>' : '') +
-        (it.source ? '<div class="idea-src"><span class="idea-l">Où trouver</span> ' + escapeHtml(it.source) + '</div>' : '') +
-        (tags ? '<div class="idea-tags">' + tags + '</div>' : '') +
-        (readonly ? '' : '<button class="idea-btn" onclick="sendIdeaToStudio(' + i + ')">Envoyer au Studio →</button>') +
+      var tags = (it.hashtags||[]).map(function(h){ return '<span class="idea2-tag">#' + escapeHtml(String(h).replace(/^#*/,'')) + '</span>'; }).join('');
+      return '<div class="idea2" onclick="toggleIdea(this)">' +
+        '<div class="idea2-head">' + score +
+          '<div class="idea2-main"><span class="idea2-fmt">' + escapeHtml(it.format||'TikTok') + '</span>' +
+          '<div class="idea2-title">' + escapeHtml(it.title||'Idée') + '</div></div>' +
+          '<span class="idea2-chev">▾</span>' +
+        '</div>' +
+        '<div class="idea2-body"><div class="idea2-inner">' +
+          (it.hook ? '<div class="idea2-block"><span class="idea2-l">Hook</span>' + escapeHtml(it.hook) + '</div>' : '') +
+          (it.angle ? '<div class="idea2-block" style="color:var(--muted);font-style:italic;">' + escapeHtml(it.angle) + '</div>' : '') +
+          (steps ? '<div class="idea2-block"><span class="idea2-l">Structure</span></div><ol class="idea2-steps">' + steps + '</ol>' : '') +
+          (it.source ? '<div class="idea2-block"><span class="idea2-l">Où trouver</span>' + escapeHtml(it.source) + '</div>' : '') +
+          (tags ? '<div class="idea2-tags">' + tags + '</div>' : '') +
+          (readonly ? '' : '<button class="idea2-go" onclick="event.stopPropagation();sendIdeaToStudio(' + i + ')">Envoyer au Studio →</button>') +
+        '</div></div>' +
       '</div>';
     }).join('');
   }
@@ -2851,7 +2960,7 @@
         { onConflict: 'user_id,platform,username' }
       );
       window._ideasEmailActive = next;
-      var row = document.querySelector('#ideasPageBody .idea-emailrow');
+      var row = document.querySelector('#ideasPanelBody .idea-mail');
       if (row) row.outerHTML = renderEmailRow(next);
       // À l'activation : 1er email immédiat (preuve que ça marche)
       if (next && window._dailyIdeas && window._dailyIdeas.length && u.email) {
@@ -2881,6 +2990,7 @@
     var txt = lines.join('\n');
     var input = document.getElementById('scriptInput');
     if (input) input.value = txt;
+    closeIdeasPage();
     switchView('ia', null);
     setTimeout(function(){
       var card = document.getElementById('scriptLabCard');
@@ -2956,7 +3066,6 @@
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { redrawWorkflowSoon(); }
-    if (name === 'ideas' && typeof loadIdeasPage === 'function') loadIdeasPage();
     if (name === 'publish' && typeof refreshConnections === 'function') refreshConnections();
     window.scrollTo(0, 0);
   }

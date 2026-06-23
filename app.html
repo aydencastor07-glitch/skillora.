@@ -3014,6 +3014,16 @@
     if (el) el.classList.toggle('open');
   }
 
+  // La niche a-t-elle besoin d'un script ? (clipping = non, voix off/histoires/IA = oui)
+  function accountNeedsScript() {
+    var ins = (window._homeSummary && window._homeSummary.insights) || {};
+    if (typeof ins.needs_script === 'boolean') return ins.needs_script;
+    // Fallback pour les anciennes analyses (avant le drapeau IA)
+    var hay = ((ins.niche||'') + ' ' + (ins.content_type||'') + ' ' + (ins.production_kind||'')).toLowerCase();
+    if (/(clip|compil|repost|extrait|highlight|podcast|best of|moment|gameplay|react)/.test(hay)) return false;
+    return true;
+  }
+
   function renderIdeasList(ideas, readonly) {
     return (ideas||[]).map(function(it, i){
       var sc = Number(it.viral_score) || 0;
@@ -3033,7 +3043,7 @@
           (steps ? '<div class="idea2-block"><span class="idea2-l">Structure</span></div><ol class="idea2-steps">' + steps + '</ol>' : '') +
           (it.source ? '<div class="idea2-block"><span class="idea2-l">Où trouver</span>' + escapeHtml(it.source) + '</div>' : '') +
           (tags ? '<div class="idea2-tags">' + tags + '</div>' : '') +
-          (readonly ? '' : '<button class="idea2-go" onclick="event.stopPropagation();sendIdeaToStudio(' + i + ')">Envoyer au Studio →</button>') +
+          ((readonly || !accountNeedsScript()) ? '' : '<button class="idea2-go" onclick="event.stopPropagation();sendIdeaToStudio(' + i + ')">Envoyer au Studio →</button>') +
         '</div></div>' +
       '</div>';
     }).join('');

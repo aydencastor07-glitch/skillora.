@@ -1892,6 +1892,23 @@
   </div>
 </div>
 
+<!-- Panneau Blueprint (full analyse, données déjà générées = 0 crédit) -->
+<div class="ideas-panel" id="blueprintPanel" onclick="closeBlueprint(event)">
+  <div class="ideas-panel-bg"></div>
+  <div class="ideas-sheet" onclick="event.stopPropagation()">
+    <div class="ideas-grip"></div>
+    <div class="ideas-head">
+      <div class="ideas-head-ic">🧩</div>
+      <div class="ideas-head-tx">
+        <div class="ideas-head-t">Blueprint complet</div>
+        <div class="ideas-head-s">Le plan de production de tes vidéos qui marchent</div>
+      </div>
+      <button class="ideas-x" onclick="closeBlueprint()" aria-label="Fermer">✕</button>
+    </div>
+    <div class="ideas-body" id="blueprintBody"></div>
+  </div>
+</div>
+
 <div class="bottomnav">
   <button class="nav-btn active" onclick="switchView('home', this)"><span class="ni">🏠</span>Accueil</button>
   <button class="nav-btn" onclick="switchView('ia', this)"><span class="ni"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5l3 3L7 17l-3.5.5L4 14z"/><path d="M11.5 6.5l3 3"/><path d="M18.6 2.4l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="currentColor" stroke="none"/></svg></span>Studio</button>
@@ -2407,7 +2424,9 @@
             (statsLine ? '<div class="home-rv-stats">' + statsLine + '</div>' : '') +
             badge + '</div></div>';
         });
-        html += '<button class="home-rv-cta" onclick="switchView(\'coach\')">Voir le blueprint complet →</button>';
+        // Blueprint complet (données déjà générées -> aucun coût IA). Bouton seulement si on a de la matière.
+        var hasBp = !!(ins.scorecard || (ins.blueprints && ins.blueprints.length) || (ins.why && ins.why.length) || (ins.formula && (ins.formula.hook || (ins.formula.structure||[]).length)));
+        if (hasBp) html += '<button class="home-rv-cta" onclick="openBlueprint()">Voir le blueprint complet →</button>';
       }
 
       // 2 PIRES vidéos = à améliorer + COMMENT
@@ -2440,6 +2459,7 @@
       // compte courant (pour filtrer le graphique sur CE compte uniquement)
       window._lastPlatform = platform;
       window._lastUsername = mine.username;
+      window._homeSummary = s; // pour le panneau "blueprint complet" (sans nouvel appel IA)
       // Réanalyse auto 1×/jour (silencieuse, protégée par le cache serveur)
       autoDailyRefresh(platform, mine.username);
       // Charge l'historique pour le graphique (1 fois par chargement)
@@ -2845,6 +2865,76 @@
     var p = document.getElementById('ideasPanel');
     if (p) p.classList.remove('open');
     document.body.style.overflow = '';
+  }
+
+  /* ===== Blueprint complet (rendu depuis l'analyse déjà générée — 0 crédit IA) ===== */
+  function openBlueprint() {
+    var p = document.getElementById('blueprintPanel'), body = document.getElementById('blueprintBody');
+    if (!p || !body) return;
+    body.innerHTML = buildBlueprintHTML(window._homeSummary || {});
+    p.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeBlueprint(e) {
+    if (e && e.target && e.target.id && e.target.id !== 'blueprintPanel') return;
+    var p = document.getElementById('blueprintPanel');
+    if (p) p.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function buildBlueprintHTML(s) {
+    var ins = (s && s.insights) || {};
+    var html = '';
+    // 01 — Anatomie du succès (scorecard)
+    if (ins.scorecard) {
+      var sc = ins.scorecard;
+      html += '<div class="anl-section-h"><span class="anl-sec-num">01</span><span>Anatomie du succès</span></div><div class="anl-score">';
+      [['Hook', sc.hook], ['Tension', sc.tension], ['Émotion', sc.emotion], ['Sujet', sc.sujet]].forEach(function(pair){
+        var val = Number(pair[1]) || 0;
+        html += '<div class="anl-score-row"><span class="anl-score-l">' + pair[0] + '</span><div class="anl-score-bar"><div class="anl-score-fill" style="width:' + (val*10) + '%"></div></div><span class="anl-score-v">' + val + '/10</span></div>';
+      });
+      if (sc.explication) html += '<div class="anl-score-x">' + escapeHtml(sc.explication) + '</div>';
+      html += '</div>';
+    }
+    // 02 — Pourquoi ça marche
+    if (ins.why && ins.why.length) {
+      html += '<div class="anl-section-h"><span class="anl-sec-num">02</span><span>Pourquoi ça marche</span></div>';
+      ins.why.forEach(function(w){ html += '<div class="anl-why"><div class="anl-why-t">' + escapeHtml(w.video||'') + '</div><div class="anl-why-r">' + escapeHtml(w.raison||'') + '</div></div>'; });
+    }
+    // 03 — Blueprint de production
+    var bps = ins.blueprints || ins.reproduction || [];
+    if (bps.length) {
+      html += '<div class="anl-section-h"><span class="anl-sec-num">03</span><span>Blueprint de production</span></div>';
+      bps.forEach(function(r){
+        html += '<div class="anl-repro"><div class="anl-repro-head"><span class="anl-repro-t">' + escapeHtml(r.video||'') + '</span>' + ((r.mode||r.type) ? '<span class="anl-vtype">' + escapeHtml(r.mode||r.type) + '</span>' : '') + '</div>';
+        if (r.stack) html += '<div class="anl-repro-tool">STACK — ' + escapeHtml(r.stack) + '</div>';
+        if (r.difficulty || r.budget || r.time) {
+          html += '<div class="anl-bp-meta">';
+          if (r.difficulty) html += '<span class="anl-bp-chip">' + escapeHtml(r.difficulty) + '</span>';
+          if (r.budget) html += '<span class="anl-bp-chip">' + escapeHtml(r.budget) + '</span>';
+          if (r.time) html += '<span class="anl-bp-chip">' + escapeHtml(r.time) + '</span>';
+          html += '</div>';
+        }
+        (r.steps||[]).forEach(function(st,k){ html += '<div class="anl-f-row" style="margin-top:8px;"><span class="anl-f-num">' + (k+1) + '</span><span>' + escapeHtml(st) + '</span></div>'; });
+        if (r.prompt_example && r.prompt_example.length > 5) html += '<div class="anl-bp-prompt"><span class="anl-f-tag">PROMPT</span><span>' + escapeHtml(r.prompt_example) + '</span></div>';
+        if (r.sources) html += '<div class="anl-repro-src">SOURCES — ' + escapeHtml(r.sources) + '</div>';
+        html += '</div>';
+      });
+    }
+    // 04 — Ta formule gagnante
+    if (ins.formula && (ins.formula.hook || (ins.formula.structure||[]).length)) {
+      html += '<div class="anl-section-h"><span class="anl-sec-num">04</span><span>Ta formule gagnante</span></div><div class="anl-formula">';
+      if (ins.formula.hook) html += '<div class="anl-f-row"><span class="anl-f-tag">HOOK</span><span>' + escapeHtml(ins.formula.hook) + '</span></div>';
+      (ins.formula.structure || []).forEach(function(st,i){ html += '<div class="anl-f-row"><span class="anl-f-num">' + (i+1) + '</span><span>' + escapeHtml(st) + '</span></div>'; });
+      if (ins.formula.cta) html += '<div class="anl-f-row"><span class="anl-f-tag anl-f-cta">CTA</span><span>' + escapeHtml(ins.formula.cta) + '</span></div>';
+      html += '</div>';
+    }
+    // 05 — Patterns détectés
+    if (ins.patterns && ins.patterns.length) {
+      html += '<div class="anl-section-h"><span class="anl-sec-num">05</span><span>Patterns détectés</span></div>';
+      ins.patterns.forEach(function(p){ html += '<div class="anl-tip"><span class="anl-tip-ico">→</span><span>' + escapeHtml(p) + '</span></div>'; });
+    }
+    if (!html) html = '<div class="ideas-empty">Ton blueprint se construit après une analyse complète de ton compte. Reviens après ta prochaine actualisation.</div>';
+    return html;
   }
 
   function ideasActiveAccount() {

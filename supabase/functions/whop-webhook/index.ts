@@ -18,13 +18,21 @@ const PLAN_BY_WHOP_ID: Record<string, { plan: string; billing: string }> = {
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+  const ack = () => new Response(JSON.stringify({ received: true }), {
+    status: 200, headers: { "Content-Type": "application/json" },
+  });
   try {
     const SECRET = Deno.env.get("WHOP_WEBHOOK_SECRET");
-    if (!SECRET) return new Response("Webhook non configuré", { status: 500 });
-
     const rawBody = await req.text();
+
+    // Phase d'installation : tant que le secret n'est pas configuré, on répond 200
+    // pour que Whop puisse créer/valider le webhook (ping de test).
+    if (!SECRET) { console.log("[whop] ack ping (secret non configuré)"); return ack(); }
+
+    // Sécurité : on ne TRAITE que les events à signature valide. Sinon on ignore
+    // mais on répond 200 (pour que Whop ne désactive pas le webhook).
     const ok = await verifyWhopSignature(req.headers, rawBody, SECRET);
-    if (!ok) { console.log("[whop] signature invalide"); return new Response("Signature invalide", { status: 400 }); }
+    if (!ok) { console.log("[whop] signature invalide -> ignoré"); return ack(); }
 
     const event = JSON.parse(rawBody);
     const action = (event.action || event.type || "").toString();

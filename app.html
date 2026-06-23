@@ -141,7 +141,8 @@
   .home-header { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:8px; }
   .home-header-l { flex:1; min-width:0; }
   .home-header-goal { flex-shrink:0; }
-  .home-ring-mini { position:relative; width:66px; height:66px; }
+  .home-ring-mini { position:relative; width:66px; height:66px; background:none; border:none; padding:0; cursor:pointer; transition:transform .15s; }
+  .home-ring-mini:active { transform:scale(0.93); }
   .home-ring-mini svg { width:66px; height:66px; transform:rotate(-90deg); }
   .home-ring-mini .home-ring-track { stroke-width:7; }
   .home-ring-mini .home-ring-fill { stroke-width:7; }
@@ -1718,6 +1719,16 @@
     </div>
   </div>
 
+  <!-- Popup détail Objectif -->
+  <div class="popup-overlay" id="goalPopup" onclick="closeGoalInfo(event)">
+    <div class="popup-card" onclick="event.stopPropagation()" style="text-align:center;">
+      <button class="popup-close" onclick="closeGoalInfo()" aria-label="Fermer">✕</button>
+      <div style="font-size:2.2rem;margin-bottom:6px;">🎯</div>
+      <h3 style="font-size:1.25rem;margin-bottom:6px;">Ton objectif</h3>
+      <div id="goalPopupBody" style="color:var(--muted);font-size:.92rem;line-height:1.6;"></div>
+    </div>
+  </div>
+
   <!-- Email activation popup (centered) -->
   <div class="popup-overlay" id="emailPopup" onclick="dismissEmailPopup(event)">
     <div class="popup-card" onclick="event.stopPropagation()">
@@ -2442,6 +2453,23 @@
 
   async function signOut() { try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
 
+  // Détail clair de l'objectif (au clic sur l'anneau)
+  function openGoalInfo() {
+    var g = window._goalInfo || {};
+    var body = document.getElementById('goalPopupBody');
+    if (body) {
+      body.innerHTML =
+        'Atteindre <b style="color:var(--white);">' + fmtNum(g.goal || 0) + '</b> ' + (g.metric || 'abonnés') + '.<br>' +
+        'Tu es à <b style="color:var(--white);">' + fmtNum(g.cur || 0) + '</b> ' + (g.metric || 'abonnés') + ' — <b style="color:var(--blue-light);">' + (g.pct || 0) + '%</b> du chemin.' +
+        '<div style="margin-top:14px;font-size:.8rem;color:var(--muted2);">Tu pourras bientôt choisir ton objectif (abonnés, vues ou likes) et ta cible à l’inscription.</div>';
+    }
+    var p = document.getElementById('goalPopup'); if (p) p.classList.add('open');
+  }
+  function closeGoalInfo(e) {
+    if (e && e.target && e.target.id && e.target.id !== 'goalPopup') return;
+    var p = document.getElementById('goalPopup'); if (p) p.classList.remove('open');
+  }
+
   // Affiche le plan courant dans le profil
   function updateProfilePlan() {
     var el = document.getElementById('profilePlan');
@@ -2774,15 +2802,16 @@
     if (!goal || goal <= 0) return '';
     var cur = Number(s.audience) || 0;
     var pct = Math.max(0, Math.min(100, Math.round((cur / goal) * 100)));
+    window._goalInfo = { cur: cur, goal: goal, pct: pct, metric: 'abonnés' };
     var r = 29, C = 2 * Math.PI * r, off = C - (pct / 100) * C;
-    return '<div class="home-ring-mini" title="' + fmtNum(cur) + ' / ' + fmtNum(goal) + ' abonnés">' +
+    return '<button class="home-ring-mini" onclick="openGoalInfo()" aria-label="Voir mon objectif">' +
       '<svg viewBox="0 0 66 66">' +
         '<defs><linearGradient id="ringGradM" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e9bff"/><stop offset="1" stop-color="#9b6cff"/></linearGradient></defs>' +
         '<circle class="home-ring-track" cx="33" cy="33" r="' + r + '"/>' +
         '<circle class="home-ring-fill" cx="33" cy="33" r="' + r + '" stroke="url(#ringGradM)" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"/>' +
       '</svg>' +
-      '<div class="home-ring-pct"><span class="n">' + pct + '%</span><span class="lbl">Abonnés</span></div>' +
-    '</div>';
+      '<div class="home-ring-pct"><span class="n">' + pct + '%</span><span class="lbl">Objectif</span></div>' +
+    '</button>';
   }
 
   // Objectif premium = anneau circulaire (sans bloc). Plus tard : type choisi à l'inscription (abonnés/vues/likes).

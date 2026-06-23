@@ -2649,10 +2649,8 @@
         likesBlock +
         '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>' +
       '</div>' +
-      homeGoalInline(s) +
       '<button class="home-pf-refresh" onclick="silentReanalyze(\'' + platform + '\',\'' + (username||prof.handle||'').replace(/'/g,'') + '\')" id="homePfRefreshBtn">Actualiser</button>' +
       '<button class="home-pf-add" onclick="addAccount()" title="Ajouter un compte">+</button>' +
-      '<button onclick="disconnectAccount(\'' + platform + '\')" style="display:block;margin:12px auto 0;background:none;border:none;color:var(--muted2);font-family:\'Sora\',sans-serif;font-size:.78rem;cursor:pointer;text-decoration:underline;">Déconnecter ce compte</button>' +
     '</div>';
   }
 

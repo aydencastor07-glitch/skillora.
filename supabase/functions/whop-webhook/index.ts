@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     const plan = (meta.plan || mapped?.plan || "").toString().toLowerCase();
     const billing = (meta.billing || mapped?.billing || "monthly").toString().toLowerCase();
     const membershipId = data.id || data.membership_id || null;
-    const whopUserId = data.user_id || data.user?.id || null;
+    const whopUserId = data.user_id || (typeof data.user === "string" ? data.user : data.user?.id) || null;
 
     async function resolveUserId(): Promise<string | null> {
       if (meta.user_id) return meta.user_id;
@@ -59,8 +59,17 @@ Deno.serve(async (req) => {
       return null;
     }
 
-    const VALID = ["membership.went_valid", "membership.metadata_updated", "payment.succeeded"];
-    const INVALID = ["membership.went_invalid", "membership.cancelled", "membership.deleted", "membership.expired"];
+    // Noms d'events selon la version d'API Whop (V1 = underscores, V2 = points)
+    const VALID = [
+      "membership.went_valid", "membership_activated", "membership_went_valid",
+      "membership.metadata_updated", "membership_metadata_updated",
+      "payment.succeeded", "payment_succeeded",
+    ];
+    const INVALID = [
+      "membership.went_invalid", "membership_deactivated", "membership_went_invalid",
+      "membership.cancelled", "membership_canceled", "membership_cancelled",
+      "membership.expired", "membership_expired", "membership.deleted", "membership_deleted",
+    ];
 
     if (VALID.includes(action)) {
       const userId = await resolveUserId();

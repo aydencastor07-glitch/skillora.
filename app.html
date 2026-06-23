@@ -185,6 +185,9 @@
   .gtab.on { background:rgba(47,123,255,0.14); border-color:rgba(47,123,255,0.4); color:var(--blue-light); }
   .gtab:active { transform:scale(0.96); }
   .home-graph-foot { display:flex; justify-content:space-between; font-size:.74rem; color:var(--muted); margin-top:10px; }
+  .home-graph-stat { display:flex; flex-direction:column; align-items:flex-start; padding:10px 2px 4px; }
+  .home-graph-stat-n { font-family:'Fraunces',serif; font-weight:800; font-size:2.1rem; color:var(--green); line-height:1; }
+  .home-graph-stat-l { font-size:.78rem; color:var(--muted); margin-top:5px; }
   /* Idées du jour */
   .idea { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; padding:13px 14px; margin-bottom:10px; }
   .idea:last-child { margin-bottom:0; }
@@ -259,9 +262,10 @@
   .idea2-score { flex-shrink:0; width:44px; height:44px; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Fraunces',serif; line-height:1; }
   .idea2-score .n { font-weight:800; font-size:1.1rem; }
   .idea2-score .x { font-family:'Sora',sans-serif; font-size:.52rem; font-weight:600; opacity:.7; margin-top:1px; }
-  .idea2-score.hot { color:#ffc89e; background:rgba(255,138,0,0.14); border:1px solid rgba(255,138,0,0.4); }
-  .idea2-score.ok { color:#7ef0ab; background:rgba(61,220,132,0.12); border:1px solid rgba(61,220,132,0.34); }
-  .idea2-score.low { color:#9fb0d0; background:rgba(255,255,255,0.05); border:1px solid var(--border); }
+  /* Plus le score est haut, plus c'est vert (bon). */
+  .idea2-score.hot { color:#8affb4; background:rgba(61,220,132,0.18); border:1px solid rgba(61,220,132,0.5); }
+  .idea2-score.ok { color:#7ef0ab; background:rgba(61,220,132,0.10); border:1px solid rgba(61,220,132,0.30); }
+  .idea2-score.low { color:#ffc89e; background:rgba(255,138,0,0.12); border:1px solid rgba(255,138,0,0.34); }
   .idea2-main { flex:1; min-width:0; }
   .idea2-fmt { display:inline-block; font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--blue-light); background:rgba(47,123,255,0.14); border-radius:5px; padding:2px 6px; }
   .idea2-title { font-family:'Sora',sans-serif; font-weight:700; font-size:.88rem; color:var(--text); line-height:1.3; margin-top:5px; }
@@ -1329,11 +1333,6 @@
 
     <!-- Contenu dynamique injecté ici (profil connecté OU squelette + connexion) -->
     <div id="homeDynamic"></div>
-
-    <div class="card reveal" style="animation-delay:.36s" id="homeMission">
-      <h3 style="font-size:1.05rem;margin-bottom:6px;">🎯 Mission du jour</h3>
-      <p style="color:var(--muted);font-size:.9rem;" id="homeMissionText">Connecte ton compte pour recevoir ta mission personnalisée chaque jour.</p>
-    </div>
   </div>
 
   <div class="view" id="view-community">
@@ -1895,8 +1894,8 @@
     <div class="ideas-head">
       <div class="ideas-head-ic">💡</div>
       <div class="ideas-head-tx">
-        <div class="ideas-head-t" id="ideasHeadT">Idées virales</div>
-        <div class="ideas-head-s" id="ideasHeadS">Prêtes-à-tourner, classées par potentiel viral</div>
+        <div class="ideas-head-t" id="ideasHeadT">Idées de vidéos</div>
+        <div class="ideas-head-s" id="ideasHeadS">Des idées de vidéo à faire dans ta niche</div>
       </div>
       <button class="ideas-x" onclick="closeIdeasPage()" aria-label="Fermer">✕</button>
     </div>
@@ -2445,25 +2444,7 @@
           '<span class="home-bp-go">→</span></button>';
       }
 
-      // 2 PIRES vidéos = à améliorer + COMMENT
-      const worst = s.worst_videos || [];
-      const improve = ins.improve || [];
-      if (worst.length) {
-        html += '<div class="home-sec-h">À améliorer — et comment</div>';
-        html += '<div class="home-sec-sub">Tes vidéos sous la moyenne + l\'action n°1 à corriger sur la prochaine.</div>';
-        worst.forEach((v, idx) => {
-          const cover = v.cover ? '<div class="home-rv-thumb" style="background-image:url(\'' + v.cover.replace(/'/g,'') + '\')"></div>' : '<div class="home-rv-thumb"></div>';
-          // conseil correspondant (par titre ou par index)
-          let advice = '';
-          if (improve[idx] && improve[idx].conseil) advice = improve[idx].conseil;
-          else advice = 'Renforce le hook dans les 2 premières secondes et resserre le montage.';
-          html += '<div class="home-rv">' + cover +
-            '<div class="home-rv-body"><div class="home-rv-desc">' + escapeHtml((v.description||'Sans titre').slice(0,55)) + '</div>' +
-            '<div class="home-rv-stats">👁 ' + fmtNum(v.views) + ' · ❤️ ' + fmtNum(v.likes) + '</div>' +
-            '<span class="home-rv-tag bad">À améliorer</span>' +
-            '<div class="home-rv-fix"><span class="home-rv-fix-l">Comment</span> ' + escapeHtml(advice) + '</div></div></div>';
-        });
-      }
+      // (Section "À améliorer" retirée à la demande : on se concentre sur ce qui marche + le blueprint.)
 
       // (Les "leviers" vivent désormais dans le Blueprint complet — section "Patterns détectés" — pour ne pas
       //  surcharger le bas de l'Accueil et éviter le doublon.)
@@ -2706,72 +2687,67 @@
   }
 
   function renderGrowthGraph(s) {
-    // IMPORTANT : on filtre sur LE compte courant (plateforme + username) pour ne pas
-    // mélanger les relevés d'anciens comptes (ce qui créait de faux pics de vues).
+    // On filtre sur LE compte courant pour ne pas mélanger les relevés d'anciens comptes.
     var _curU = (window._lastUsername || '').toLowerCase();
     var hist = (window._growthHistory || []).filter(function(h){
       if (h.platform !== (window._lastPlatform||'tiktok')) return false;
       if (_curU && String(h.username||'').toLowerCase() !== _curU) return false;
       return true;
     });
-    // Serie = VUES TOTALES par jour (vraies valeurs des releves du compte courant)
-    var series = hist.map(function(h){ return { d: h.snapshot_date, v: Number(h.total_views) || 0 }; });
+    // Relevés de VUES TOTALES, triés du plus ancien au plus récent.
+    var totals = hist.map(function(h){ return { d: h.snapshot_date, v: Number(h.total_views) || 0 }; })
+                     .sort(function(a,b){ return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+    // Vues GAGNÉES par jour = écart avec le relevé précédent (jamais négatif). C'est la VRAIE perf du jour,
+    // pas le total cumulé (qui donnait l'illusion de "3000 vues" alors que 0 vue n'avait été gagnée).
+    var gains = [];
+    for (var i = 1; i < totals.length; i++) {
+      gains.push({ d: totals[i].d, v: Math.max(0, totals[i].v - totals[i-1].v) });
+    }
 
     var periods = [['1','Hier'],['7','7 jours'],['30','30 jours'],['90','3 mois']];
-    var labelMap = { '1':'d’hier', '7':'7 jours', '30':'30 jours', '90':'3 mois' };
+    var labelMap = { '1':'depuis hier', '7':'sur 7 jours', '30':'sur 30 jours', '90':'sur 3 mois' };
     var pdays = parseInt(window._graphPeriod || '1', 10);
-
     var tabs = '<div class="home-graph-tabs">' + periods.map(function(pp){
       return '<button class="gtab' + (window._graphPeriod===pp[0]?' on':'') + '" onclick="setGraphPeriod(\'' + pp[0] + '\')">' + pp[1] + '</button>';
     }).join('') + '</div>';
-
     var W = 320, H = 120;
 
-    // Historique disponible (en jours) depuis le 1er releve du compte sur Skillora
-    var spanDays = 0;
-    if (series.length) {
-      var oldest = new Date(series[0].d + 'T00:00:00');
-      spanDays = Math.max(0, Math.round((Date.now() - oldest.getTime()) / 864e5));
-    }
-
     var cutoff = new Date(Date.now() - pdays*864e5).toISOString().slice(0,10);
-    var view = series.filter(function(x){ return x.d >= cutoff; });
+    var view = gains.filter(function(x){ return x.d >= cutoff; });
+    var totalGained = view.reduce(function(a,b){ return a + b.v; }, 0);
 
-    // "Pret" = au moins 2 points DANS la periode ET un historique qui couvre la periode demandee
-    var ready = view.length >= 2 && spanDays >= pdays;
-
-    if (!ready) {
-      var remaining = Math.max(1, pdays - spanDays);
-      var msg;
-      if (pdays === 1) {
-        msg = 'Reviens demain : tes vues d’hier apparaîtront ici. La courbe se construit chaque jour.';
-      } else {
-        msg = 'Ton compte a ' + spanDays + ' jour' + (spanDays>1?'s':'') + ' d’historique sur Skillora. Le graphique ' + labelMap[String(pdays)] + ' sera complet dans ' + remaining + ' jour' + (remaining>1?'s':'') + '.';
+    // Il faut au moins 2 jours de gains pour tracer une courbe.
+    if (view.length < 2) {
+      // S'il y a déjà 1 jour de gain, on affiche le chiffre HONNÊTE (souvent 0) au lieu d'une fausse courbe.
+      if (gains.length >= 1) {
+        var lastGain = gains[gains.length-1].v;
+        return '<div class="home-graph card aurora">' +
+          '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">En construction</span></div>' +
+          tabs +
+          '<div class="home-graph-stat"><span class="home-graph-stat-n">' + (lastGain>0?'+':'') + fmtNum(lastGain) + '</span><span class="home-graph-stat-l">vues gagnées depuis hier</span></div>' +
+          '<div class="home-graph-note">La courbe complète apparaît après quelques jours de relevés. On enregistre tes vues chaque jour automatiquement.</div>' +
+        '</div>';
       }
       return '<div class="home-graph card aurora">' +
-        '<div class="home-graph-top"><span>Évolution des vues</span><span class="home-graph-badge">En construction</span></div>' +
+        '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">En construction</span></div>' +
         tabs +
         '<div class="home-graph-canvas">' + auroraSvg(W, H, [0.2,0.3,0.28,0.45,0.4,0.6,0.55,0.75,0.7,0.9], '#3ddc84', true, null) + '</div>' +
-        '<div class="home-graph-note">' + msg + '</div>' +
+        '<div class="home-graph-note">Reviens demain : tes vues gagnées apparaîtront ici. La courbe se construit chaque jour.</div>' +
       '</div>';
     }
 
     var vals = view.map(function(p){ return p.v; });
-    var first = vals[0], lastV = vals[vals.length-1];
-    var up = lastV >= first;
-    var color = up ? '#3ddc84' : '#ff7a59';
-    var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
-    // Courbe plate (toutes les valeurs identiques) -> on la centre joliment au lieu de la coller en bas.
-    var flat = (max - min) === 0;
-    var range = (max - min) || 1;
-    var norm = flat ? vals.map(function(){ return 0.5; }) : vals.map(function(v){ return (v - min) / range; });
-
-    var gained = lastV - first;
-    var trendTxt = up ? 'En hausse' : 'En baisse';
-    var footTxt = (gained>0?'+':'') + fmtNum(gained) + ' vues ' + (pdays===1 ? 'depuis hier' : 'sur ' + labelMap[String(pdays)]);
+    var maxV = Math.max.apply(null, vals), minV = Math.min.apply(null, vals);
+    var flat = (maxV - minV) === 0;
+    var range = (maxV - minV) || 1;
+    var norm = flat ? vals.map(function(){ return 0.5; }) : vals.map(function(v){ return (v - minV) / range; });
+    var up = totalGained > 0;
+    var color = up ? '#3ddc84' : '#8b9bc4';
+    var trendTxt = up ? 'En hausse' : 'Stable';
+    var footTxt = (totalGained>0?'+':'') + fmtNum(totalGained) + ' vues ' + (labelMap[String(pdays)] || '');
 
     return '<div class="home-graph card aurora">' +
-      '<div class="home-graph-top"><span>Évolution des vues</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
+      '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
       tabs +
       '<div class="home-graph-canvas">' + auroraSvg(W, H, norm, color, false, view) + '</div>' +
       '<div class="home-graph-tooltip" id="graphTooltip" style="display:none;"></div>' +
@@ -2870,15 +2846,8 @@
   }
   function updateIdeasHeader() {
     var t = document.getElementById('ideasHeadT'), s = document.getElementById('ideasHeadS');
-    var acc = ideasActiveAccount();
-    var niche = ideasNiche();
-    if (t) t.textContent = niche ? ('Idées ' + niche) : 'Idées virales';
-    if (s) {
-      var bits = [];
-      if (niche) bits.push('Niche ' + niche);
-      if (acc && acc.username) bits.push('@' + acc.username);
-      s.textContent = bits.length ? (bits.join(' · ') + ' — prêtes à tourner') : 'Prêtes-à-tourner, classées par potentiel viral';
-    }
+    if (t) t.textContent = 'Idées de vidéos';
+    if (s) s.textContent = 'Des idées de vidéo à faire dans ta niche';
   }
 
   function openIdeasPage() {
@@ -3111,12 +3080,12 @@
   function sendIdeaToStudio(i) {
     var it = (window._dailyIdeas||[])[i];
     if (!it) return;
+    // On envoie UNIQUEMENT ce qui sert à écrire le script (pas les hashtags ni la source).
     var lines = [];
     if (it.title) lines.push(it.title);
     if (it.hook) lines.push('Hook : ' + it.hook);
+    if (it.angle) lines.push('Angle : ' + it.angle);
     if (it.structure && it.structure.length) lines.push('Structure : ' + it.structure.join(' → '));
-    if (it.source) lines.push('Source : ' + it.source);
-    if (it.hashtags && it.hashtags.length) lines.push(it.hashtags.map(function(h){ return '#'+String(h).replace(/^#*/,''); }).join(' '));
     var txt = lines.join('\n');
     var input = document.getElementById('scriptInput');
     if (input) input.value = txt;
@@ -3135,7 +3104,7 @@
     var mois = ['jan','f\u00e9v','mar','avr','mai','juin','juil','ao\u00fbt','sep','oct','nov','d\u00e9c'];
     var label = jours[d.getDay()] + '. ' + d.getDate() + ' ' + mois[d.getMonth()];
     var box = document.getElementById('graphTooltip');
-    if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + fmtNum(views) + ' vues au total'; }
+    if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + fmtNum(views) + ' vues gagnées ce jour'; }
     // surligner le point cliqué
     try {
       var svg = el && el.ownerSVGElement;

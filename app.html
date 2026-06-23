@@ -244,8 +244,8 @@
   .idea-mail { display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:15px; background:rgba(255,255,255,0.025); border:1px solid var(--border); margin-bottom:18px; cursor:pointer; transition:all .2s; }
   .idea-mail-ic { font-size:1.15rem; flex-shrink:0; }
   .idea-mail-tx { flex:1; min-width:0; }
-  .idea-mail-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; color:var(--text); }
-  .idea-mail-s { font-size:.71rem; color:var(--muted); margin-top:2px; line-height:1.3; }
+  .idea-mail-t { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; color:var(--text); }
+  .idea-mail-s { display:block; font-size:.71rem; color:var(--muted); margin-top:2px; line-height:1.3; }
   .idea-mail.on { background:rgba(61,220,132,0.07); border-color:rgba(61,220,132,0.34); }
   .idea-mail.on .idea-mail-t { color:#3ddc84; }
   .idea-switch { flex-shrink:0; width:42px; height:24px; border-radius:100px; background:rgba(255,255,255,0.14); position:relative; transition:background .2s; }
@@ -301,6 +301,18 @@
   .home-sec-sub { font-size:.78rem; color:var(--muted); margin:-6px 0 10px; }
   .home-rv-cta { width:100%; background:rgba(47,123,255,0.1); border:1px solid rgba(47,123,255,0.3); color:var(--blue-light); border-radius:12px; padding:12px; font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; cursor:pointer; margin-top:4px; margin-bottom:6px; }
   .home-rv-cta:active { transform:scale(0.98); }
+  /* Bouton Blueprint (premium) */
+  .home-bp-btn { width:100%; display:flex; align-items:center; gap:13px; text-align:left; margin:6px 0 14px; padding:14px 15px; border-radius:16px; cursor:pointer; border:1px solid rgba(124,108,255,0.34); background:linear-gradient(135deg,rgba(124,108,255,0.14),rgba(47,123,255,0.10)); box-shadow:0 10px 26px -12px rgba(47,123,255,0.5); transition:transform .15s; }
+  .home-bp-btn:active { transform:scale(0.985); }
+  .home-bp-ic { width:42px; height:42px; flex-shrink:0; border-radius:13px; background:linear-gradient(152deg,#8b6cff,#2f7bff); display:flex; align-items:center; justify-content:center; font-size:1.25rem; box-shadow:0 8px 18px -5px rgba(47,123,255,0.55); }
+  .home-bp-tx { flex:1; min-width:0; }
+  .home-bp-t { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:var(--white); }
+  .home-bp-s { display:block; font-size:.74rem; color:var(--muted); margin-top:2px; line-height:1.3; }
+  .home-bp-go { flex-shrink:0; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; color:var(--blue-light); font-size:1rem; font-weight:700; }
+  /* Sous-titres explicatifs du panneau blueprint (pour débutants) */
+  .anl-sec-help { font-size:.76rem; color:var(--muted); line-height:1.5; margin:-4px 2px 12px; }
+  .bp-intro { background:linear-gradient(135deg,rgba(124,108,255,0.10),rgba(47,123,255,0.06)); border:1px solid rgba(124,108,255,0.28); border-radius:14px; padding:13px 14px; font-size:.8rem; color:var(--text); line-height:1.5; margin-bottom:18px; }
+  .bp-intro b { color:var(--white); }
   .home-rv-fix { margin-top:7px; background:rgba(255,159,74,0.08); border:1px solid rgba(255,159,74,0.22); border-radius:9px; padding:8px 11px; font-size:.78rem; color:var(--white); line-height:1.45; }
   .home-rv-fix-l { font-family:'Sora',sans-serif; font-weight:800; font-size:.64rem; letter-spacing:.06em; color:var(--orange); text-transform:uppercase; margin-right:4px; }
 
@@ -1871,7 +1883,7 @@
 
 <!-- ===== Idées du jour : page dédiée ===== -->
 <!-- Bulle flottante "Idées du jour" + badge nouveautés -->
-<button class="idea-fab" id="ideaFab" onclick="openIdeasPage()" aria-label="Idées du jour">
+<button class="idea-fab" id="ideaFab" onclick="openIdeasPage()" aria-label="Idées virales">
   💡<span class="idea-fab-badge" id="ideaFabBadge"></span>
 </button>
 
@@ -1883,8 +1895,8 @@
     <div class="ideas-head">
       <div class="ideas-head-ic">💡</div>
       <div class="ideas-head-tx">
-        <div class="ideas-head-t">Idées du jour</div>
-        <div class="ideas-head-s">Prêtes-à-tourner, classées par potentiel viral</div>
+        <div class="ideas-head-t" id="ideasHeadT">Idées virales</div>
+        <div class="ideas-head-s" id="ideasHeadS">Prêtes-à-tourner, classées par potentiel viral</div>
       </div>
       <button class="ideas-x" onclick="closeIdeasPage()" aria-label="Fermer">✕</button>
     </div>
@@ -2426,7 +2438,11 @@
         });
         // Blueprint complet (données déjà générées -> aucun coût IA). Bouton seulement si on a de la matière.
         var hasBp = !!(ins.scorecard || (ins.blueprints && ins.blueprints.length) || (ins.why && ins.why.length) || (ins.formula && (ins.formula.hook || (ins.formula.structure||[]).length)));
-        if (hasBp) html += '<button class="home-rv-cta" onclick="openBlueprint()">Voir le blueprint complet →</button>';
+        if (hasBp) html += '<button class="home-bp-btn" onclick="openBlueprint()">' +
+          '<span class="home-bp-ic">🧩</span>' +
+          '<span class="home-bp-tx"><span class="home-bp-t">Blueprint complet</span>' +
+          '<span class="home-bp-s">Le plan pas-à-pas pour reproduire tes vidéos qui marchent</span></span>' +
+          '<span class="home-bp-go">→</span></button>';
       }
 
       // 2 PIRES vidéos = à améliorer + COMMENT
@@ -2434,6 +2450,7 @@
       const improve = ins.improve || [];
       if (worst.length) {
         html += '<div class="home-sec-h">À améliorer — et comment</div>';
+        html += '<div class="home-sec-sub">Tes vidéos sous la moyenne + l\'action n°1 à corriger sur la prochaine.</div>';
         worst.forEach((v, idx) => {
           const cover = v.cover ? '<div class="home-rv-thumb" style="background-image:url(\'' + v.cover.replace(/'/g,'') + '\')"></div>' : '<div class="home-rv-thumb"></div>';
           // conseil correspondant (par titre ou par index)
@@ -2448,12 +2465,8 @@
         });
       }
 
-      // Leviers
-      if (ins.patterns && ins.patterns.length) {
-        html += '<div class="home-sec-h">Tes leviers du moment</div><div class="card">';
-        ins.patterns.slice(0,3).forEach(p => { html += '<div class="home-sugg">→ ' + escapeHtml(p) + '</div>'; });
-        html += '</div>';
-      }
+      // (Les "leviers" vivent désormais dans le Blueprint complet — section "Patterns détectés" — pour ne pas
+      //  surcharger le bas de l'Accueil et éviter le doublon.)
 
       dyn.innerHTML = html;
       // compte courant (pour filtrer le graphique sur CE compte uniquement)
@@ -2850,9 +2863,28 @@
     } catch(e) {}
   }
 
+  // Niche du compte courant (depuis l'analyse déjà chargée) — pour personnaliser l'en-tête.
+  function ideasNiche() {
+    var ins = (window._homeSummary && window._homeSummary.insights) || {};
+    return (ins.niche && String(ins.niche).trim()) || '';
+  }
+  function updateIdeasHeader() {
+    var t = document.getElementById('ideasHeadT'), s = document.getElementById('ideasHeadS');
+    var acc = ideasActiveAccount();
+    var niche = ideasNiche();
+    if (t) t.textContent = niche ? ('Idées ' + niche) : 'Idées virales';
+    if (s) {
+      var bits = [];
+      if (niche) bits.push('Niche ' + niche);
+      if (acc && acc.username) bits.push('@' + acc.username);
+      s.textContent = bits.length ? (bits.join(' · ') + ' — prêtes à tourner') : 'Prêtes-à-tourner, classées par potentiel viral';
+    }
+  }
+
   function openIdeasPage() {
     var p = document.getElementById('ideasPanel');
     if (!p) return;
+    updateIdeasHeader();
     p.classList.add('open');
     document.body.style.overflow = 'hidden';
     setIdeaBadge(0);
@@ -2884,10 +2916,14 @@
   function buildBlueprintHTML(s) {
     var ins = (s && s.insights) || {};
     var html = '';
+    // Intro débutant : à quoi sert ce blueprint et comment s'en servir.
+    html += '<div class="bp-intro">🧩 <b>C\'est ton mode d\'emploi.</b> Skillora a décortiqué tes vidéos qui marchent et te donne, étape par étape, <b>comment en refaire</b> : les ingrédients, les outils, le temps et le budget. Pas besoin d\'expérience — suis les étapes dans l\'ordre.</div>';
     // 01 — Anatomie du succès (scorecard)
     if (ins.scorecard) {
       var sc = ins.scorecard;
-      html += '<div class="anl-section-h"><span class="anl-sec-num">01</span><span>Anatomie du succès</span></div><div class="anl-score">';
+      html += '<div class="anl-section-h"><span class="anl-sec-num">01</span><span>Anatomie du succès</span></div>';
+      html += '<div class="anl-sec-help">Les 4 ingrédients qui rendent une vidéo virale, notés sur 10. Vise à garder tes points forts et à muscler les plus bas.</div>';
+      html += '<div class="anl-score">';
       [['Hook', sc.hook], ['Tension', sc.tension], ['Émotion', sc.emotion], ['Sujet', sc.sujet]].forEach(function(pair){
         var val = Number(pair[1]) || 0;
         html += '<div class="anl-score-row"><span class="anl-score-l">' + pair[0] + '</span><div class="anl-score-bar"><div class="anl-score-fill" style="width:' + (val*10) + '%"></div></div><span class="anl-score-v">' + val + '/10</span></div>';
@@ -2898,12 +2934,14 @@
     // 02 — Pourquoi ça marche
     if (ins.why && ins.why.length) {
       html += '<div class="anl-section-h"><span class="anl-sec-num">02</span><span>Pourquoi ça marche</span></div>';
+      html += '<div class="anl-sec-help">La vraie raison du succès de chaque vidéo. Comprends le « pourquoi » pour pouvoir le reproduire au lieu de copier au hasard.</div>';
       ins.why.forEach(function(w){ html += '<div class="anl-why"><div class="anl-why-t">' + escapeHtml(w.video||'') + '</div><div class="anl-why-r">' + escapeHtml(w.raison||'') + '</div></div>'; });
     }
     // 03 — Blueprint de production
     var bps = ins.blueprints || ins.reproduction || [];
     if (bps.length) {
       html += '<div class="anl-section-h"><span class="anl-sec-num">03</span><span>Blueprint de production</span></div>';
+      html += '<div class="anl-sec-help">La recette concrète pour refaire ce type de vidéo : les outils (STACK), les étapes dans l\'ordre, plus la difficulté, le budget et le temps à prévoir.</div>';
       bps.forEach(function(r){
         html += '<div class="anl-repro"><div class="anl-repro-head"><span class="anl-repro-t">' + escapeHtml(r.video||'') + '</span>' + ((r.mode||r.type) ? '<span class="anl-vtype">' + escapeHtml(r.mode||r.type) + '</span>' : '') + '</div>';
         if (r.stack) html += '<div class="anl-repro-tool">STACK — ' + escapeHtml(r.stack) + '</div>';
@@ -2922,7 +2960,8 @@
     }
     // 04 — Ta formule gagnante
     if (ins.formula && (ins.formula.hook || (ins.formula.structure||[]).length)) {
-      html += '<div class="anl-section-h"><span class="anl-sec-num">04</span><span>Ta formule gagnante</span></div><div class="anl-formula">';
+      html += '<div class="anl-section-h"><span class="anl-sec-num">04</span><span>Ta formule gagnante</span></div>';
+      html += '<div class="anl-sec-help">Le squelette à réutiliser sur CHAQUE vidéo : la phrase d\'accroche, l\'enchaînement, puis l\'appel à l\'action de fin.</div><div class="anl-formula">';
       if (ins.formula.hook) html += '<div class="anl-f-row"><span class="anl-f-tag">HOOK</span><span>' + escapeHtml(ins.formula.hook) + '</span></div>';
       (ins.formula.structure || []).forEach(function(st,i){ html += '<div class="anl-f-row"><span class="anl-f-num">' + (i+1) + '</span><span>' + escapeHtml(st) + '</span></div>'; });
       if (ins.formula.cta) html += '<div class="anl-f-row"><span class="anl-f-tag anl-f-cta">CTA</span><span>' + escapeHtml(ins.formula.cta) + '</span></div>';
@@ -2930,7 +2969,8 @@
     }
     // 05 — Patterns détectés
     if (ins.patterns && ins.patterns.length) {
-      html += '<div class="anl-section-h"><span class="anl-sec-num">05</span><span>Patterns détectés</span></div>';
+      html += '<div class="anl-section-h"><span class="anl-sec-num">05</span><span>Tes leviers (patterns)</span></div>';
+      html += '<div class="anl-sec-help">Les habitudes qui reviennent dans tes vidéos qui marchent. Applique-les à chaque nouvelle vidéo, ce sont tes raccourcis vers la viralité.</div>';
       ins.patterns.forEach(function(p){ html += '<div class="anl-tip"><span class="anl-tip-ico">→</span><span>' + escapeHtml(p) + '</span></div>'; });
     }
     if (!html) html = '<div class="ideas-empty">Ton blueprint se construit après une analyse complète de ton compte. Reviens après ta prochaine actualisation.</div>';

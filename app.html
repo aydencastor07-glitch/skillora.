@@ -1683,12 +1683,12 @@
     <!-- Parrainage -->
     <div class="card">
       <div class="prof-sec-h">🎁 Parraine tes amis</div>
-      <p class="prof-sec-p">Partage ton lien. Pour chaque ami qui s'abonne, tu gagnes <b>1 mois offert</b> — et lui aussi.</p>
+      <p class="prof-sec-p">Partage ton lien. Dès qu'un ami <b>s'abonne</b>, tu reçois <b>30% de son 1ᵉʳ paiement</b> en crédit sur ta prochaine facture.</p>
       <div class="prof-ref-row">
         <input type="text" id="refLink" class="prof-ref-input" readonly value="—">
         <button class="prof-ref-copy" id="refCopyBtn" onclick="copyRefLink()">Copier</button>
       </div>
-      <div class="prof-ref-stat">👥 <b id="refCount">0</b> filleul(s) · <b id="refRewards">0</b> mois gagné(s)</div>
+      <div class="prof-ref-stat">👥 <b id="refCount">0</b> filleul(s) · 💳 <b id="refRewards">0</b> abonné(s) payant(s)</div>
     </div>
 
     <!-- Sécurité (mot de passe) — seulement pour les comptes email -->
@@ -2101,10 +2101,10 @@
       : '<span class="prof-badge">✉️ Connecté par email</span>';
     // Changement de mot de passe : seulement pour les comptes email
     var sec = document.getElementById('profSecurity'); if (sec) sec.style.display = (prov === 'email') ? 'block' : 'none';
-    // Lien de parrainage (code court dérivé de l'id)
-    window._refCode = String(user.id || '').replace(/-/g, '').slice(0, 8);
+    // Lien de parrainage (l'id complet sert de code -> aucune table de correspondance nécessaire)
     var refIn = document.getElementById('refLink');
-    if (refIn) refIn.value = (location.origin || 'https://skillora.me') + '/signup.html?ref=' + window._refCode;
+    if (refIn) refIn.value = (location.origin || 'https://skillora.me') + '/signup.html?ref=' + user.id;
+    recordReferral(user);
     loadReferralStats();
     checkOnboarding(user);
     loadHomeDashboard();
@@ -2488,17 +2488,31 @@
     if (btn) { var old = btn.textContent; btn.textContent = 'Copié ✓'; setTimeout(function(){ btn.textContent = old; }, 1500); }
   }
 
-  // Stats de parrainage (table 'referrals' si présente ; sinon 0 sans erreur)
+  // Enregistre le filleul une fois le compte confirmé (RLS empêche l'auto-parrainage)
+  async function recordReferral(user) {
+    try {
+      var ref = localStorage.getItem('skillora_ref');
+      if (!ref) return;
+      if (!/^[0-9a-fA-F-]{30,40}$/.test(ref) || ref === user.id) { localStorage.removeItem('skillora_ref'); return; }
+      await sb.from('referrals').upsert(
+        { referrer_id: ref, referred_id: user.id, referred_email: user.email || null, status: 'pending' },
+        { onConflict: 'referred_id', ignoreDuplicates: true }
+      );
+    } catch(e) {}
+    finally { try { localStorage.removeItem('skillora_ref'); } catch(_){} }
+  }
+
+  // Stats de parrainage (filleuls + abonnés payants)
   async function loadReferralStats() {
     try {
       var { data: { session } } = await sb.auth.getSession();
       if (!session) return;
-      var { data, error } = await sb.from('referrals').select('id,rewarded').eq('referrer_id', session.user.id);
-      if (error) return; // table absente -> on garde 0
+      var { data, error } = await sb.from('referrals').select('id,status,rewarded').eq('referrer_id', session.user.id);
+      if (error) return;
       var n = (data || []).length;
-      var rewards = (data || []).filter(function(r){ return r.rewarded; }).length;
+      var paying = (data || []).filter(function(r){ return r.status === 'converted' || r.status === 'rewarded' || r.rewarded; }).length;
       var c = document.getElementById('refCount'); if (c) c.textContent = n;
-      var rw = document.getElementById('refRewards'); if (rw) rw.textContent = rewards;
+      var rw = document.getElementById('refRewards'); if (rw) rw.textContent = paying;
     } catch(e) {}
   }
 

@@ -495,6 +495,9 @@
     }
   });
 
+  // Parrainage : mémorise le code du parrain (?ref=) pour l'enregistrer une fois le compte confirmé (dans app.html)
+  try { var _rp = new URLSearchParams(location.search).get('ref'); if (_rp) localStorage.setItem('skillora_ref', _rp); } catch(e){}
+
   let currentStep = 1;
   const totalSteps = 2;
   let pendingEmail = null;

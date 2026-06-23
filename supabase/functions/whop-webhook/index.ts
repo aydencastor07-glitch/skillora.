@@ -8,8 +8,12 @@ const REFERRAL_PCT: Record<string, number> = { starter: 0.20, growth: 0.25, elit
 // Mapping plan Whop (plan_*) -> plan Skillora, utilisé seulement si metadata.plan
 // est absent. À remplir avec les mêmes IDs que dans whop-checkout (facultatif).
 const PLAN_BY_WHOP_ID: Record<string, { plan: string; billing: string }> = {
-  // "plan_xxx": { plan: "starter", billing: "monthly" },
-  // "plan_yyy": { plan: "starter", billing: "yearly"  },
+  "plan_oDCfFU7lLws8B": { plan: "starter", billing: "monthly" },
+  "plan_ecJbjbjlfxXOi": { plan: "starter", billing: "yearly"  },
+  "plan_PJc5IYlQNCBBs": { plan: "growth",  billing: "monthly" },
+  "plan_KZunBJm7YjLzC": { plan: "growth",  billing: "yearly"  },
+  "plan_L776Rw5hJcIin": { plan: "elite",   billing: "monthly" },
+  "plan_JePPrOlGknPbM": { plan: "elite",   billing: "yearly"  },
 };
 
 Deno.serve(async (req) => {

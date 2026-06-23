@@ -14,9 +14,9 @@ const cors = {
 // (Produits → un produit par plan → Pricing → un plan mensuel + un plan annuel).
 // Ce sont des IDs PUBLICS (pas des secrets) : on peut les mettre directement ici.
 const WHOP_PLANS: Record<string, { m: string; y: string }> = {
-  starter: { m: "PLAN_STARTER_MONTH", y: "PLAN_STARTER_YEAR" },
-  growth:  { m: "PLAN_GROWTH_MONTH",  y: "PLAN_GROWTH_YEAR"  },
-  elite:   { m: "PLAN_ELITE_MONTH",   y: "PLAN_ELITE_YEAR"   },
+  starter: { m: "plan_oDCfFU7lLws8B", y: "plan_ecJbjbjlfxXOi" },
+  growth:  { m: "plan_PJc5IYlQNCBBs", y: "plan_KZunBJm7YjLzC" },
+  elite:   { m: "plan_L776Rw5hJcIin", y: "plan_JePPrOlGknPbM" },
 };
 
 function isYearly(billing: string): boolean {

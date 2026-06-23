@@ -2151,7 +2151,7 @@
     } catch(e){}
   }
 
-  // Gère le retour depuis Stripe (?checkout=success ou ?checkout=cancel)
+  // Gère le retour depuis Whop (?checkout=success ou ?checkout=cancel)
   function handleCheckoutReturn() {
     var params = new URLSearchParams(window.location.search);
     var co = params.get('checkout');
@@ -2159,12 +2159,38 @@
     // nettoyer l'URL pour éviter de répéter le message au refresh
     try { window.history.replaceState({}, '', 'app.html'); } catch(e){}
     if (co === 'success') {
-      // Le webhook met à jour la base ; on attend un peu puis on recharge le plan.
+      // On vérifie directement auprès de Whop et on débloque l'accès.
       alert('✅ Paiement réussi ! Ton plan est en cours d\'activation...');
-      setTimeout(loadUserPlan, 2500);
-      setTimeout(loadUserPlan, 6000); // 2e tentative au cas où le webhook tarde
+      verifyWhopReturn();
     } else if (co === 'cancel') {
       alert('Paiement annulé. Tu peux réessayer quand tu veux.');
+    }
+  }
+
+  // Plan B (sans webhook) : interroge Whop via la fonction whop-verify, avec
+  // plusieurs tentatives (la membership peut mettre quelques secondes à exister).
+  async function verifyWhopReturn() {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return;
+      for (var i = 0; i < 6; i++) {
+        try {
+          const res = await fetch(SB_URL + '/functions/v1/whop-verify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + session.access_token,
+              'apikey': SB_KEY,
+            },
+          });
+          const data = await res.json();
+          if (data && data.active) break;
+        } catch (e) {}
+        await new Promise(function(r){ setTimeout(r, 2500); });
+      }
+      if (typeof loadUserPlan === 'function') loadUserPlan();
+    } catch (e) {
+      if (typeof loadUserPlan === 'function') loadUserPlan();
     }
   }
 
@@ -3862,7 +3888,7 @@
     });
   }
 
-  // Choix d'un plan : lance le vrai paiement Stripe via la fonction create-checkout.
+  // Choix d'un plan : lance le vrai paiement Whop via la fonction whop-checkout.
   async function choosePlan(plan) {
     var btn = document.querySelector('.sk-card[data-plan="' + plan + '"] .sk-btn');
     var oldLabel = btn ? btn.textContent : '';
@@ -3871,7 +3897,7 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'signup.html'; return; }
 
-      const res = await fetch(SB_URL + '/functions/v1/create-checkout', {
+      const res = await fetch(SB_URL + '/functions/v1/whop-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -3883,7 +3909,7 @@
       const data = await res.json();
 
       if (data.success && data.url) {
-        window.location.href = data.url; // redirection vers la page de paiement Stripe
+        window.location.href = data.url; // redirection vers la page de paiement Whop
       } else {
         alert('❌ ' + (data.error || 'Impossible de lancer le paiement. Réessaie.'));
         if (btn) { btn.disabled = false; btn.textContent = oldLabel; }

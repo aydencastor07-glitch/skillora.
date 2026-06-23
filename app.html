@@ -107,6 +107,14 @@
   .home-goal-bar { height:10px; background:rgba(255,255,255,0.07); border-radius:99px; overflow:hidden; margin:10px 0 8px; }
   .home-goal-fill { height:100%; background:linear-gradient(90deg,#4d8fff,#1a6fff); border-radius:99px; transition:width .8s ease; }
   .home-goal-sub { font-size:.78rem; color:var(--muted); }
+  /* Objectif intégré dans la carte du compte (slim, premium) */
+  .home-pf-goal { width:100%; margin:16px 0 4px; padding:13px 14px; border-radius:14px; background:linear-gradient(135deg,rgba(47,123,255,0.12),rgba(124,108,255,0.08)); border:1px solid rgba(47,123,255,0.28); }
+  .home-pf-goal-top { display:flex; justify-content:space-between; align-items:center; }
+  .home-pf-goal-lbl { font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; color:var(--white); display:flex; align-items:center; gap:6px; }
+  .home-pf-goal-pct { font-family:'Fraunces',serif; font-weight:800; font-size:1.15rem; background:linear-gradient(90deg,#5e9bff,#9b6cff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .home-pf-goal-bar { height:8px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; margin:9px 0 7px; }
+  .home-pf-goal-fill { height:100%; background:linear-gradient(90deg,#4d8fff,#8b6cff); border-radius:99px; transition:width .9s cubic-bezier(.2,.8,.2,1); box-shadow:0 0 12px rgba(94,155,255,0.5); }
+  .home-pf-goal-sub { font-size:.74rem; color:var(--muted); }
 
   .home-viral-top { display:flex; justify-content:space-between; align-items:center; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:var(--white); margin-bottom:14px; }
   .home-viral-score { font-family:'Fraunces',serif; font-weight:800; font-size:1.6rem; color:var(--blue-light); }
@@ -2371,15 +2379,7 @@
         html += '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.5;">⏳ On n\'a pas pu récupérer tes vidéos cette fois. Appuie sur <b>Actualiser</b> sur ta carte de profil pour réessayer.</div>';
       }
 
-      // Barre objectif
-      if (hasStats && goal > 0) {
-        const cur = s.audience || 0;
-        const pct = Math.min(100, Math.round((cur / goal) * 100));
-        html += '<div class="card home-goal" style="margin-bottom:14px;">' +
-          '<div class="home-goal-top"><span>Objectif</span><span class="home-goal-pct">' + pct + '%</span></div>' +
-          '<div class="home-goal-bar"><div class="home-goal-fill" style="width:' + pct + '%"></div></div>' +
-          '<div class="home-goal-sub">' + fmtNum(cur) + ' / ' + fmtNum(goal) + ' abonnés</div></div>';
-      }
+      // (La barre Objectif est désormais intégrée dans la carte du compte — voir homeGoalInline.)
 
       // Graphique d'évolution — seulement quand il y a de vraies stats
       if (hasStats) html += renderGrowthGraph(s);
@@ -2612,6 +2612,21 @@
       '</div><button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:14px;">Annuler</button></div>';
   }
 
+  // Objectif (intégré dans la carte du compte). Plus tard : type d'objectif choisi à l'inscription (abonnés/vues/likes).
+  function homeGoalInline(s) {
+    var up = window._userProfile || {};
+    var ob = (typeof getOnboarding === 'function') ? getOnboarding() : {};
+    var goal = parseInt(up.goal_followers || ob.goal_followers || 0, 10);
+    if (!goal || goal <= 0) return '';
+    var cur = Number(s.audience) || 0;
+    var pct = Math.max(0, Math.min(100, Math.round((cur / goal) * 100)));
+    return '<div class="home-pf-goal">' +
+      '<div class="home-pf-goal-top"><span class="home-pf-goal-lbl">🎯 Objectif</span><span class="home-pf-goal-pct">' + pct + '%</span></div>' +
+      '<div class="home-pf-goal-bar"><div class="home-pf-goal-fill" style="width:' + pct + '%"></div></div>' +
+      '<div class="home-pf-goal-sub">' + fmtNum(cur) + ' / ' + fmtNum(goal) + ' abonnés</div>' +
+    '</div>';
+  }
+
   // Carte profil façon réseau natif
   function homeProfileCard(platform, prof, s, username) {
     // Photo & nom : on prend ceux du scraping si dispo, sinon ceux de Post for Me (connexion)
@@ -2634,6 +2649,7 @@
         likesBlock +
         '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>' +
       '</div>' +
+      homeGoalInline(s) +
       '<button class="home-pf-refresh" onclick="silentReanalyze(\'' + platform + '\',\'' + (username||prof.handle||'').replace(/'/g,'') + '\')" id="homePfRefreshBtn">Actualiser</button>' +
       '<button class="home-pf-add" onclick="addAccount()" title="Ajouter un compte">+</button>' +
       '<button onclick="disconnectAccount(\'' + platform + '\')" style="display:block;margin:12px auto 0;background:none;border:none;color:var(--muted2);font-family:\'Sora\',sans-serif;font-size:.78rem;cursor:pointer;text-decoration:underline;">Déconnecter ce compte</button>' +

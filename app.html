@@ -115,6 +115,16 @@
   .home-pf-goal-bar { height:8px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; margin:9px 0 7px; }
   .home-pf-goal-fill { height:100%; background:linear-gradient(90deg,#4d8fff,#8b6cff); border-radius:99px; transition:width .9s cubic-bezier(.2,.8,.2,1); box-shadow:0 0 12px rgba(94,155,255,0.5); }
   .home-pf-goal-sub { font-size:.74rem; color:var(--muted); }
+  /* En-tête accueil : Bonjour à gauche, objectif (anneau) à droite */
+  .home-header { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:8px; }
+  .home-header-l { flex:1; min-width:0; }
+  .home-header-goal { flex-shrink:0; }
+  .home-ring-mini { position:relative; width:66px; height:66px; }
+  .home-ring-mini svg { width:66px; height:66px; transform:rotate(-90deg); }
+  .home-ring-mini .home-ring-track { stroke-width:7; }
+  .home-ring-mini .home-ring-fill { stroke-width:7; }
+  .home-ring-mini .n { font-family:'Fraunces',serif; font-weight:800; font-size:1rem; color:#fff; line-height:1; }
+  .home-ring-mini .lbl { font-size:.42rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
   /* Objectif premium = anneau circulaire (sans bloc/carte) */
   .home-ring { display:flex; flex-direction:column; align-items:center; gap:9px; margin:2px 0 18px; }
   .home-ring-wrap { position:relative; width:108px; height:108px; }
@@ -1347,8 +1357,13 @@
   <div id="connectOverlay" class="cx-overlay"></div>
 
   <div class="view active" id="view-home">
-    <h1 class="page-title reveal" style="animation-delay:.05s">Bonjour 👋</h1>
-    <p class="page-sub reveal" style="animation-delay:.12s" id="homeSub">Voici ton tableau de bord.</p>
+    <div class="home-header reveal" style="animation-delay:.05s">
+      <div class="home-header-l">
+        <h1 class="page-title" style="margin:0;">Bonjour 👋</h1>
+        <p class="page-sub" style="margin:2px 0 0;" id="homeSub">Voici ton tableau de bord.</p>
+      </div>
+      <div class="home-header-goal" id="homeHeaderGoal"></div>
+    </div>
 
     <!-- Contenu dynamique injecté ici (profil connecté OU squelette + connexion) -->
     <div id="homeDynamic"></div>
@@ -2354,6 +2369,7 @@
   async function loadHomeDashboard() {
     const dyn = document.getElementById('homeDynamic');
     if (!dyn) return;
+    var _hgReset = document.getElementById('homeHeaderGoal'); if (_hgReset) _hgReset.innerHTML = '';
     try {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) return;
@@ -2390,8 +2406,9 @@
         html += '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.5;">⏳ On n\'a pas pu récupérer tes vidéos cette fois. Appuie sur <b>Actualiser</b> sur ta carte de profil pour réessayer.</div>';
       }
 
-      // Objectif premium (anneau circulaire) — entre la carte du compte et le graphique
-      if (hasStats) html += homeGoalRing(s);
+      // Objectif (anneau mini) — dans l'en-tête, à droite du "Bonjour"
+      var hg = document.getElementById('homeHeaderGoal');
+      if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s) : '';
 
       // Graphique d'évolution — seulement quand il y a de vraies stats
       if (hasStats) html += renderGrowthGraph(s);
@@ -2622,6 +2639,25 @@
       homeConnBtn('tiktok', tiktok, 'TikTok') + homeConnBtn('youtube', youtube, 'YouTube') +
       homeConnBtn('instagram', instagram, 'Instagram') + homeConnBtn('facebook', facebook, 'Facebook') +
       '</div><button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:14px;">Annuler</button></div>';
+  }
+
+  // Objectif compact (anneau mini) pour l'en-tête, à droite du "Bonjour".
+  function homeGoalRingMini(s) {
+    var up = window._userProfile || {};
+    var ob = (typeof getOnboarding === 'function') ? getOnboarding() : {};
+    var goal = parseInt(up.goal_followers || ob.goal_followers || 0, 10);
+    if (!goal || goal <= 0) return '';
+    var cur = Number(s.audience) || 0;
+    var pct = Math.max(0, Math.min(100, Math.round((cur / goal) * 100)));
+    var r = 29, C = 2 * Math.PI * r, off = C - (pct / 100) * C;
+    return '<div class="home-ring-mini" title="' + fmtNum(cur) + ' / ' + fmtNum(goal) + ' abonnés">' +
+      '<svg viewBox="0 0 66 66">' +
+        '<defs><linearGradient id="ringGradM" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e9bff"/><stop offset="1" stop-color="#9b6cff"/></linearGradient></defs>' +
+        '<circle class="home-ring-track" cx="33" cy="33" r="' + r + '"/>' +
+        '<circle class="home-ring-fill" cx="33" cy="33" r="' + r + '" stroke="url(#ringGradM)" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"/>' +
+      '</svg>' +
+      '<div class="home-ring-pct"><span class="n">' + pct + '%</span><span class="lbl">Objectif</span></div>' +
+    '</div>';
   }
 
   // Objectif premium = anneau circulaire (sans bloc). Plus tard : type choisi à l'inscription (abonnés/vues/likes).

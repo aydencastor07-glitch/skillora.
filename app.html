@@ -4754,6 +4754,9 @@
       });
       var d = await res.json().catch(function(){ return {}; });
       if (res.ok && !d.error) { loadHomeDashboard(); }
+      else if (d && d.error === 'already_connected_elsewhere') {
+        alert(d.message || 'Ce compte est déjà connecté sur un autre compte Skillora.');
+      }
     } catch(e){}
   }
 

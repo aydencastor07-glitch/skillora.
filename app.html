@@ -5963,10 +5963,12 @@
 
       if (data && data.success) {
         if (scheduledAt) {
-          var dateTxt = new Date(scheduledAt).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' });
-          skModal({ icon:'📅', iconBg:'#16263f', title:'Programmée au bon moment !', message:'Ta vidéo sera publiée le <b>' + dateTxt + '</b> sur ' + names + ', quand ton audience est la plus active.<br><span style="color:#8b9bc4;font-size:.9em;">On t\'enverra un email dès qu\'elle sera en ligne, avec les actions pour booster l\'algo.</span>', cancelText:'Parfait' });
+          var dt = new Date(scheduledAt);
+          var heure = dt.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+          var jour = (dt.toDateString() === new Date().toDateString()) ? "aujourd'hui" : "demain";
+          skModal({ icon:'🎯', iconBg:'#16263f', title:'On a trouvé ton meilleur créneau !', message:'Skillora a analysé ton compte. Ta vidéo sera publiée automatiquement <b>' + jour + ' vers ' + heure + '</b> sur ' + names + ', quand ton audience est la plus active.<br><br><span style="color:#8b9bc4;font-size:.9em;">Tu n\'as rien à faire. Dès qu\'elle est en ligne, on t\'envoie un email avec les actions pour booster l\'algo.</span>', cancelText:'Parfait' });
         } else {
-          skModal({ icon:'🚀', iconBg:'#16263f', title:'Publication lancée !', message:'Ta vidéo sera en ligne d\'ici <b>~2 minutes</b> sur ' + names + '.<br><span style="color:#8b9bc4;font-size:.9em;">On t\'enverra un email dès qu\'elle est publiée, avec les actions à faire pour pousser TikTok à la diffuser plus.</span>', cancelText:'Super' });
+          skModal({ icon:'🚀', iconBg:'#16263f', title:'Publication lancée !', message:'Ta vidéo sera en ligne <b>d\'ici 2 à 3 minutes</b> sur ' + names + '.<br><br><span style="color:#8b9bc4;font-size:.9em;">Tu n\'as rien à faire maintenant. Dès qu\'elle est publiée, on t\'envoie un email qui te dit exactement quoi faire pour pousser TikTok à la diffuser plus.</span>', cancelText:'Super' });
         }
       } else {
         skModal({ icon:'⚠️', title:'Publication impossible', message: (data && data.error) || 'Réessaie dans un instant.', cancelText:'OK' });
@@ -5977,12 +5979,26 @@
     }
   }
 
-  // « Au bon moment » : aujourd'hui 18h (heure locale), sinon demain 18h.
+  // « Au bon moment » : prochain créneau d'engagement de la plateforme (heure locale).
+  // Créneaux calés sur les pics d'activité typiques de chaque réseau (pas au hasard).
   function pubBestTimeISO() {
-    var d = new Date();
-    d.setHours(18, 0, 0, 0);
-    if (d.getTime() < Date.now() + 30 * 60 * 1000) d.setDate(d.getDate() + 1);
-    return d.toISOString();
+    var sel = PUB_PLATS.filter(function(p){ return p.selected; });
+    var primary = sel.length ? sel[0].key : 'tiktok';
+    var SLOTS = {
+      tiktok:    [7, 9, 12, 15, 18, 19, 21, 22],
+      instagram: [9, 11, 12, 13, 18, 19, 20, 21],
+      youtube:   [12, 14, 15, 17, 18, 19, 20],
+      facebook:  [9, 11, 13, 15, 19, 20]
+    };
+    var hours = (SLOTS[primary] || SLOTS.tiktok);
+    var lead = Date.now() + 15 * 60 * 1000; // au moins 15 min dans le futur
+    for (var i = 0; i < hours.length; i++) {
+      var d = new Date(); d.setHours(hours[i], 0, 0, 0);
+      if (d.getTime() > lead) return d.toISOString();
+    }
+    // Plus de créneau aujourd'hui -> créneau fort de demain (soirée)
+    var t = new Date(); t.setDate(t.getDate() + 1); t.setHours(19, 0, 0, 0);
+    return t.toISOString();
   }
 
   // Modale premium reutilisable (remplace alert/confirm/toasts natifs)

@@ -3354,19 +3354,22 @@
       var row = document.querySelector('#ideasPanelBody .idea-mail');
       if (row) row.outerHTML = renderEmailRow(next);
       if (next) {
-        // À l'activation : email de confirmation immédiat (preuve que ça marche)
-        if (window._dailyIdeas && window._dailyIdeas.length && u.email) {
-          var rows = window._dailyIdeas.slice(0,3).map(function(it){
-            var sc = Number(it.viral_score)||0;
-            var b = sc>=1 ? '<span style="background:#1d6b3f;color:#7ef0ab;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;">Potentiel '+sc+'/10</span> ' : '';
-            return '<div style="background:#0f1830;border:1px solid #1e2a4a;border-radius:12px;padding:12px 14px;margin-bottom:10px;"><div style="margin-bottom:5px;">'+b+'<span style="font-size:12px;color:#7aa2ff;font-weight:700;text-transform:uppercase;">'+escapeHtml(it.format||'TikTok')+'</span></div><div style="font-size:16px;color:#fff;font-weight:700;margin:0 0 6px;">'+escapeHtml(it.title||'')+'</div><div style="font-size:14px;color:#cdd6f4;"><b style="color:#7aa2ff;">Hook :</b> '+escapeHtml(it.hook||'')+'</div></div>';
-          }).join('');
-          var msg = '<div style="font-size:20px;font-weight:800;color:#fff;">On a trouvé tes idées du jour 💡</div><div style="color:#8b9bc4;margin:4px 0 14px;">Pour @'+escapeHtml(acc.username)+'</div>'+rows+'<a href="https://skillora.me/app.html" style="display:block;text-align:center;background:#2f7bff;color:#fff;text-decoration:none;font-weight:700;padding:12px;border-radius:12px;margin-top:8px;">Voir mes idées →</a>';
+        // Email de BIENVENUE immédiat : on annonce la fonctionnalité.
+        if (u.email) {
+          var msg = ''
+            + '<div style="font-family:Arial,sans-serif;background:#070d1f;padding:30px 24px;border-radius:14px;color:#cdd6f4;text-align:center;">'
+            +   '<div style="font-size:42px;line-height:1;">🎉</div>'
+            +   '<div style="font-size:23px;font-weight:800;color:#fff;margin:10px 0 6px;">C\'est activé !</div>'
+            +   '<div style="font-size:15px;color:#9fb0d6;line-height:1.6;margin-bottom:8px;">À partir de maintenant, <b style="color:#fff;">chaque matin</b> on t\'enverra de nouvelles <b style="color:#fff;">idées de vidéos virales</b> taillées pour ta niche — prêtes à tourner dès aujourd\'hui.</div>'
+            +   '<div style="font-size:14px;color:#7aa2ff;margin:14px 0 20px;font-weight:700;">@' + escapeHtml(acc.username) + '</div>'
+            +   '<a href="https://skillora.me/app.html" style="display:inline-block;background:#2f7bff;color:#fff;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:12px;font-size:15px;">Ouvrir Skillora →</a>'
+            +   '<div style="font-size:12px;color:#6b7aa0;margin-top:24px;">Tu reçois cet email car tu viens d\'activer les idées quotidiennes dans Skillora. Tu peux te désinscrire à tout moment depuis l\'app.</div>'
+            + '</div>';
           try {
-            await fetch(SB_URL + '/functions/v1/send-email', { method:'POST', headers:{'Content-Type':'application/json','apikey':SB_KEY}, body: JSON.stringify({ to: u.email, subject: 'Tes idées du jour pour @' + acc.username, message: msg }) });
+            await fetch(SB_URL + '/functions/v1/send-email', { method:'POST', headers:{'Content-Type':'application/json','apikey':SB_KEY}, body: JSON.stringify({ to: u.email, subject: '🎉 Tes idées quotidiennes Skillora sont activées', message: msg }) });
           } catch(e2) {}
         }
-        skModal({ icon:'✅', iconBg:'#16351f', title:'Email quotidien activé', message:'Chaque matin, on t\'enverra un email dès que tes nouvelles idées sont prêtes.<br><span style="color:#8b9bc4;font-size:.9em;">Pense à vérifier tes spams la première fois.</span>', cancelText:'Parfait' });
+        skModal({ icon:'✅', iconBg:'#16351f', title:'Email quotidien activé', message:'On vient de t\'envoyer un email de confirmation. Chaque matin, tu recevras de nouvelles idées de vidéos virales dans ta niche.<br><span style="color:#8b9bc4;font-size:.9em;">Pense à vérifier tes spams la première fois.</span>', cancelText:'Parfait' });
       } else {
         skModal({ icon:'🔕', title:'Email désactivé', message:'Tu ne recevras plus l\'email quotidien d\'idées. Tu peux le réactiver quand tu veux.', cancelText:'OK' });
       }

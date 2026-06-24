@@ -2169,8 +2169,9 @@
 
   // Plan B (sans webhook) : interroge Whop via la fonction whop-verify, avec
   // plusieurs tentatives (la membership peut mettre quelques secondes à exister).
-  // Fournisseur de paiement actif. 'create-checkout' = Stripe (actif maintenant).
-  // Passe à 'whop-checkout' quand le compte Whop est réactivé (1 ligne).
+  // Paiements : OFF pour l'instant (ni Stripe ni Whop). Mettre true pour activer.
+  var PAYMENTS_ON = false;
+  // Fournisseur quand PAYMENTS_ON = true : 'create-checkout' = Stripe, 'whop-checkout' = Whop.
   var CHECKOUT_FN = 'create-checkout';
 
   async function verifyWhopReturn() {
@@ -3905,6 +3906,10 @@
 
   // Choix d'un plan : lance le paiement via CHECKOUT_FN (Stripe, ou Whop une fois réactivé).
   async function choosePlan(plan) {
+    if (!PAYMENTS_ON) {
+      skModal({ icon:'🚀', iconBg:'#16263f', title:'Abonnements bientôt disponibles', message:'Les paiements arrivent très bientôt. Tu pourras passer Premium dans quelques jours — profite des fonctionnalités en attendant !', cancelText:'OK' });
+      return;
+    }
     var btn = document.querySelector('.sk-card[data-plan="' + plan + '"] .sk-btn');
     var oldLabel = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Redirection...'; }

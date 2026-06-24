@@ -208,6 +208,19 @@
   .home-skel .v { color:var(--muted2); opacity:.5; }
   .home-skel-note { font-size:.76rem; color:var(--muted2); text-align:center; margin-bottom:18px; }
 
+  /* Carrousel de comptes (bascule entre profils connectés) */
+  .home-car-chips { display:flex; gap:9px; overflow-x:auto; padding:2px 2px 10px; margin-bottom:4px; -webkit-overflow-scrolling:touch; }
+  .home-car-chips::-webkit-scrollbar { height:0; }
+  .home-car-chip { flex:none; display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:5px 13px 5px 5px; cursor:pointer; transition:border-color .15s, background .15s, transform .12s; }
+  .home-car-chip:active { transform:scale(0.97); }
+  .home-car-chip.on { border-color:var(--blue); background:rgba(94,155,255,.12); }
+  .home-car-av { position:relative; width:30px; height:30px; border-radius:50%; overflow:visible; flex:none; background:var(--surface2); display:flex; align-items:center; justify-content:center; }
+  .home-car-av img { width:30px; height:30px; border-radius:50%; object-fit:cover; }
+  .home-car-av span { font-weight:700; font-size:.85rem; color:#cdd8ef; }
+  .home-car-plat { position:absolute; right:-3px; bottom:-3px; width:15px; height:15px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px var(--surface); }
+  .home-car-h { font-size:.8rem; font-weight:600; color:#cdd8ef; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .home-car-chip.on .home-car-h { color:#fff; }
+
   /* Dernières vidéos + verdict */
   .home-sec-h { font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; color:var(--white); margin:18px 0 10px; }
   .home-rv { display:flex; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px; margin-bottom:9px; }
@@ -2584,20 +2597,87 @@
       if (!session) return;
 
       const { data: analyses } = await sb.from('analyses').select('*')
-        .order('created_at', { ascending: false }).limit(10);
-      let mine = null;
-      if (analyses && analyses.length) mine = analyses.find(a => a.summary && a.summary.owner === 'self') || null;
+        .order('created_at', { ascending: false }).limit(20);
 
-      // Sécurité : on n'affiche les stats QUE si elles proviennent d'un compte VÉRIFIÉ.
-      // (sinon on pourrait montrer le compte de quelqu'un d'autre mal extrait)
+      // Sécurité : on n'affiche un compte QUE si son @ est VÉRIFIÉ (Post for Me).
       var ciAll = window.__connInfo || {};
       var pfmKeys = Object.keys(ciAll);
       var vHandles = pfmKeys.filter(function(k){ return ciAll[k] && ciAll[k].verified && ciAll[k].handle; }).map(function(k){ return String(ciAll[k].handle).toLowerCase(); });
-      var mineOk;
-      if (!pfmKeys.length) mineOk = !!mine;   // pas de connexion Post for Me -> ancien comportement
-      else mineOk = !!(mine && mine.username && vHandles.indexOf(String(mine.username).toLowerCase()) >= 0);
-      if (!mine || !mineOk) { dyn.innerHTML = homeConnectBlock(); maybeAutoAnalyze(); return; }
 
+      // Tous les comptes analysés (self), dédupliqués par (plateforme+username), le plus récent d'abord.
+      var seen = {}, accounts = [];
+      (analyses || []).forEach(function(a){
+        if (!a || !a.summary || a.summary.owner !== 'self' || !a.username) return;
+        var okVer = (!pfmKeys.length) ? true : (vHandles.indexOf(String(a.username).toLowerCase()) >= 0);
+        if (!okVer) return;
+        var key = (a.platform || 'tiktok') + '|' + String(a.username).toLowerCase();
+        if (seen[key]) return; seen[key] = 1;
+        accounts.push(a);
+      });
+      if (!accounts.length) { dyn.innerHTML = homeConnectBlock(); maybeAutoAnalyze(); return; }
+
+      // Coque carrousel : un bandeau de comptes + le tableau de bord du compte courant.
+      window._homeAccounts = accounts;
+      var idx = 0;
+      if (window._homeCurrentKey) {
+        for (var ai = 0; ai < accounts.length; ai++) {
+          if ((accounts[ai].platform + '|' + String(accounts[ai].username).toLowerCase()) === window._homeCurrentKey) { idx = ai; break; }
+        }
+      }
+      dyn.innerHTML = '<div id="homeCarHead"></div><div id="homeAcct"></div>';
+      attachHomeSwipe();
+      renderHomeAccount(idx);
+    } catch (e) { console.log('home err', e); dyn.innerHTML = homeConnectBlock(); window._ideaFabAllowed = false; showIdeaFab(false); }
+  }
+
+  // Bandeau de bascule entre comptes (carrousel). Vide si un seul compte.
+  function homeAccountChips(accounts, idx) {
+    if (!accounts || accounts.length < 2) return '';
+    return '<div class="home-car-chips">' + accounts.map(function(a, k){
+      var s = a.summary || {}, prof = s.profile || {};
+      var plat = a.platform || 'tiktok';
+      var h = String((prof.handle || a.username || '')).replace(/^@/, '');
+      var av = prof.avatar
+        ? '<img src="' + prof.avatar.replace(/"/g,'') + '" alt="">'
+        : '<span>' + escapeHtml((h || '?').charAt(0).toUpperCase()) + '</span>';
+      return '<button class="home-car-chip' + (k === idx ? ' on' : '') + '" onclick="goHomeAccount(' + k + ')">'
+        + '<span class="home-car-av">' + av + '<i class="home-car-plat" style="background:' + platBg(plat) + ';">' + pubPlatSVG(plat, 9) + '</i></span>'
+        + '<span class="home-car-h">@' + escapeHtml(h) + '</span>'
+        + '</button>';
+    }).join('') + '</div>';
+  }
+  function platBg(p){ return p==='youtube'?'#FF0000':(p==='instagram'?'#d62976':(p==='facebook'?'#1877F2':(p==='x'?'#000':(p==='linkedin'?'#0A66C2':'#010101')))); }
+  function goHomeAccount(k){ renderHomeAccount(k); }
+  // Swipe gauche/droite sur l'Accueil pour changer de compte.
+  function attachHomeSwipe(){
+    var stage = document.getElementById('homeDynamic');
+    if (!stage || stage._swipeBound) return;
+    stage._swipeBound = true;
+    var sx = 0, sy = 0, tracking = false;
+    stage.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; tracking = true; }, { passive:true });
+    stage.addEventListener('touchend', function(e){
+      if (!tracking) return; tracking = false;
+      var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4 && (window._homeAccounts || []).length > 1) {
+        goHomeAccount((window._homeIdx || 0) + (dx < 0 ? 1 : -1));
+      }
+    }, { passive:true });
+  }
+
+  // Rendu du tableau de bord d'UN compte du carrousel (index i, bouclé).
+  function renderHomeAccount(i) {
+    var accounts = window._homeAccounts || [];
+    if (!accounts.length) return;
+    i = ((i % accounts.length) + accounts.length) % accounts.length;
+    window._homeIdx = i;
+    var mine = accounts[i];
+    window._homeCurrentKey = (mine.platform || 'tiktok') + '|' + String(mine.username).toLowerCase();
+    var acct = document.getElementById('homeAcct');
+    var head = document.getElementById('homeCarHead');
+    if (!acct) return;
+    if (head) head.innerHTML = homeAccountChips(accounts, i);
+
+    try {
       const s = mine.summary || {};
       const ins = s.insights || {};
       const prof = s.profile || {};
@@ -2687,20 +2767,20 @@
       // (Les "leviers" vivent désormais dans le Blueprint complet — section "Patterns détectés" — pour ne pas
       //  surcharger le bas de l'Accueil et éviter le doublon.)
 
-      dyn.innerHTML = html;
-      // compte courant (pour filtrer le graphique sur CE compte uniquement)
+      acct.innerHTML = html;
+      // compte courant (idées, blueprint, graphique suivent CE compte)
       window._lastPlatform = platform;
       window._lastUsername = mine.username;
       window._homeSummary = s; // pour le panneau "blueprint complet" (sans nouvel appel IA)
       // Réanalyse auto 1×/jour (silencieuse, protégée par le cache serveur)
       autoDailyRefresh(platform, mine.username);
-      // Charge l'historique pour le graphique (1 fois par chargement)
-      if (!window._growthLoaded) { window._growthLoaded = true; loadGrowthHistory(platform); }
+      // Historique du graphique : rechargé seulement si on change de plateforme (évite la boucle)
+      if (window._growthPlatform !== platform) { window._growthPlatform = platform; loadGrowthHistory(platform); }
       // Bulle "Idées" autorisée seulement si compte connecté ET seulement sur l'Accueil (géré dans switchView)
       window._ideaFabAllowed = !!hasStats;
       var _onHome = document.getElementById('view-home') && document.getElementById('view-home').classList.contains('active');
       if (hasStats) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
-    } catch (e) { console.log('home err', e); dyn.innerHTML = homeConnectBlock(); window._ideaFabAllowed = false; showIdeaFab(false); }
+    } catch (e) { console.log('home acct err', e); if (acct) acct.innerHTML = '<div class="card" style="text-align:center;color:var(--muted);font-size:.9rem;">Une erreur est survenue. Réessaie.</div>'; }
   }
 
   // Bloc "connecte ton compte" + squelette à zéro (avant connexion)
@@ -5430,21 +5510,27 @@
       var ci = window.__connInfo || {};
       // on n'analyse QUE si le @ est VERIFIE (sinon risque de scraper le mauvais compte)
       var ok = function(p){ return ci[p] && ci[p].verified && ci[p].handle; };
-      var plat = ok('youtube') ? 'youtube' : (ok('tiktok') ? 'tiktok' : null);
-      if (!plat) return;
+      // analyze-account ne sait traiter QUE tiktok + youtube -> on analyse CHAQUE compte connecté.
+      var plats = ['tiktok', 'youtube'].filter(ok);
+      if (!plats.length) return;
       window.__autoAnalyzeRan = true;
       const { data:{ session } } = await sb.auth.getSession();
       if (!session) return;
-      var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-        body: JSON.stringify({ platform: plat, username: ci[plat].handle, owner: 'self' })
-      });
-      var d = await res.json().catch(function(){ return {}; });
-      if (res.ok && !d.error) { loadHomeDashboard(); }
-      else if (d && d.error === 'already_connected_elsewhere') {
-        alert(d.message || 'Ce compte est déjà connecté sur un autre compte Skillora.');
+      var any = false;
+      for (var pi = 0; pi < plats.length; pi++) {
+        var plat = plats[pi];
+        try {
+          var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
+            method:'POST',
+            headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
+            body: JSON.stringify({ platform: plat, username: ci[plat].handle, owner: 'self' })
+          });
+          var d = await res.json().catch(function(){ return {}; });
+          if (res.ok && !d.error) any = true;
+          // already_connected_elsewhere : on ignore silencieusement (compte lié ailleurs)
+        } catch(e){}
       }
+      if (any) loadHomeDashboard();
     } catch(e){}
   }
 

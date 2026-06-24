@@ -5962,10 +5962,12 @@
       pubSyncPublishBtn();
 
       if (data && data.success) {
-        var when = scheduledAt
-          ? ('programmée pour le <b>' + new Date(scheduledAt).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' }) + '</b>')
-          : '<b>en cours de publication</b>';
-        skModal({ icon:'✅', title:'C\'est parti !', message:'Ta vidéo est ' + when + ' sur ' + names + '.', cancelText:'Super' });
+        if (scheduledAt) {
+          var dateTxt = new Date(scheduledAt).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' });
+          skModal({ icon:'📅', iconBg:'#16263f', title:'Programmée au bon moment !', message:'Ta vidéo sera publiée le <b>' + dateTxt + '</b> sur ' + names + ', quand ton audience est la plus active.<br><span style="color:#8b9bc4;font-size:.9em;">On t\'enverra un email dès qu\'elle sera en ligne, avec les actions pour booster l\'algo.</span>', cancelText:'Parfait' });
+        } else {
+          skModal({ icon:'🚀', iconBg:'#16263f', title:'Publication lancée !', message:'Ta vidéo sera en ligne d\'ici <b>~2 minutes</b> sur ' + names + '.<br><span style="color:#8b9bc4;font-size:.9em;">On t\'enverra un email dès qu\'elle est publiée, avec les actions à faire pour pousser TikTok à la diffuser plus.</span>', cancelText:'Super' });
+        }
       } else {
         skModal({ icon:'⚠️', title:'Publication impossible', message: (data && data.error) || 'Réessaie dans un instant.', cancelText:'OK' });
       }

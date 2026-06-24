@@ -1874,7 +1874,7 @@
         <span class="pl" id="pubPubLabel">Publier au bon moment</span>
         <svg class="arr" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
-      <p class="pub-pubnote">🔒 La publication automatique arrive bientôt — l'analyse, elle, marche déjà.</p>
+      <p class="pub-pubnote">⚡ Skillora publie pour toi sur tes comptes connectés — maintenant ou au bon moment.</p>
 
     </div><!-- /pubResult -->
   </div>
@@ -5899,16 +5899,65 @@
     document.getElementById('pubZero').style.display = 'block';
   }
 
-  function pubPublishSoon() {
+  // Publication réelle via Post for Me (fonction pfm-publish).
+  async function pubPublishSoon() {
     var sel = PUB_PLATS.filter(function (p) { return p.selected; });
     if (!sel.length) { skModal({ icon:'📲', title:'Choisis une plateforme', message:'Sélectionne au moins une plateforme où publier ta vidéo.', cancelText:'OK' }); return; }
+    if (!pubFile) { skModal({ icon:'🎬', title:'Aucune vidéo', message:'Ajoute et analyse d\'abord une vidéo à publier.', cancelText:'OK' }); return; }
+    if (pubFile.size > 50 * 1024 * 1024) { skModal({ icon:'📦', title:'Vidéo trop lourde', message:'Pour la publication automatique, ta vidéo doit faire moins de 50 Mo. Compresse-la et réessaie.', cancelText:'OK' }); return; }
+
     var names = sel.map(function (p) { return p.name; }).join(', ');
-    skModal({
-      icon:'🚀',
-      title:'Bientôt disponible',
-      message:'La <b>publication automatique</b> sur ' + names + ' arrive très bientôt. Ton compte est connecté et prêt — dès que la fonction sera activée, Skillora publiera pour toi au bon moment.',
-      cancelText:'J\'ai compris'
-    });
+    var label = document.getElementById('pubPubLabel');
+    if (label) label.textContent = '⏳ Envoi en cours...';
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'signup.html'; return; }
+      var uid = session.user.id;
+
+      // 1) Héberge la vidéo (Post for Me a besoin d'une URL publique)
+      var safe = (pubFile.name || 'video.mp4').replace(/[^A-Za-z0-9._-]/g, '_');
+      var path = uid + '/' + Date.now() + '_' + safe;
+      var up = await sb.storage.from('post-media').upload(path, pubFile, { contentType: pubFile.type || 'video/mp4', upsert: false });
+      if (up.error) throw new Error('upload');
+      var mediaUrl = sb.storage.from('post-media').getPublicUrl(path).data.publicUrl;
+
+      // 2) Légende = description + hashtags
+      var cap = (document.getElementById('pubCap').textContent || '').trim();
+      var tags = (document.getElementById('pubTags').textContent || '').trim();
+      var caption = (cap + (tags ? '\n\n' + tags : '')).trim();
+
+      // 3) Moment : maintenant, ou « au bon moment » (heure d'activité)
+      var scheduledAt = (pubWhen === 'now') ? null : pubBestTimeISO();
+
+      var res = await fetch(SB_URL + '/functions/v1/pfm-publish', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey': SB_KEY },
+        body: JSON.stringify({ platforms: sel.map(function(p){return p.key;}), media_url: mediaUrl, caption: caption, scheduled_at: scheduledAt })
+      });
+      var data = await res.json();
+      pubSyncPublishBtn();
+
+      if (data && data.success) {
+        var when = scheduledAt
+          ? ('programmée pour le <b>' + new Date(scheduledAt).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' }) + '</b>')
+          : '<b>en cours de publication</b>';
+        skModal({ icon:'✅', title:'C\'est parti !', message:'Ta vidéo est ' + when + ' sur ' + names + '.', cancelText:'Super' });
+      } else {
+        skModal({ icon:'⚠️', title:'Publication impossible', message: (data && data.error) || 'Réessaie dans un instant.', cancelText:'OK' });
+      }
+    } catch (e) {
+      pubSyncPublishBtn();
+      skModal({ icon:'⚠️', title:'Erreur', message:'La publication a échoué (connexion ou vidéo). Réessaie.', cancelText:'OK' });
+    }
+  }
+
+  // « Au bon moment » : aujourd'hui 18h (heure locale), sinon demain 18h.
+  function pubBestTimeISO() {
+    var d = new Date();
+    d.setHours(18, 0, 0, 0);
+    if (d.getTime() < Date.now() + 30 * 60 * 1000) d.setDate(d.getDate() + 1);
+    return d.toISOString();
   }
 
   // Modale premium reutilisable (remplace alert/confirm/toasts natifs)

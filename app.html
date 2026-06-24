@@ -2634,7 +2634,7 @@
           accounts.push({ platform:a.platform||'tiktok', username:h, info:null, analysis:a });
         });
       }
-      if (!accounts.length) { dyn.innerHTML = homeConnectBlock(); maybeAutoAnalyze(); return; }
+      if (!accounts.length) { dyn.innerHTML = homeConnectBlock(); return; }
 
       // Coque carrousel : un bandeau de comptes + le tableau de bord du compte courant.
       window._homeAccounts = accounts;
@@ -2647,8 +2647,7 @@
       var pagesHtml = accounts.map(function(a, k){ return '<section class="home-car-page" data-i="' + k + '">' + accountPageHTML(a) + '</section>'; }).join('');
       dyn.innerHTML = '<div id="homeCarHead"></div><div class="home-car-track" id="homeCarTrack">' + pagesHtml + '</div>';
       var _head = document.getElementById('homeCarHead'); if (_head) _head.innerHTML = homeAccountChips(accounts, idx);
-      setupHomeCarousel(idx);
-      maybeAutoAnalyze(); // analyse les comptes analysables pas encore analysés
+      setupHomeCarousel(idx); // onHomePageChange -> ensureAnalyzed(compte affiché) : analyse paresseuse
       if (!window._growthHistory) loadGrowthHistory((accounts[idx] || {}).platform || 'tiktok'); // 1 appel = tout l'historique
     } catch (e) { console.log('home err', e); dyn.innerHTML = homeConnectBlock(); window._ideaFabAllowed = false; showIdeaFab(false); }
   }
@@ -2743,10 +2742,34 @@
     window._homeSummary = s;
     var hg = document.getElementById('homeHeaderGoal');
     if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s) : '';
-    if (s) autoDailyRefresh(platform, username);
+    // Analyse PARESSEUSE : on n'analyse que le compte affiché, et UNE seule fois (si pas déjà fait).
+    // -> zéro crédit gaspillé sur la navigation ou sur des comptes non regardés.
+    ensureAnalyzed(acc);
     window._ideaFabAllowed = !!hasStats;
     var _onHome = document.getElementById('view-home') && document.getElementById('view-home').classList.contains('active');
     if (hasStats) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
+  }
+
+  // Analyse un compte UNE fois, uniquement s'il n'a pas encore d'analyse (économie de crédits SociaVault).
+  window._analyzing = window._analyzing || {};
+  async function ensureAnalyzed(acc){
+    if (!acc || acc.analysis) return;                                  // déjà analysé -> 0 crédit
+    if (['tiktok','youtube','instagram'].indexOf(acc.platform) < 0) return; // non analysable
+    var k = acc.platform + '|' + String(acc.username).toLowerCase();
+    if (window._analyzing[k]) return;                                  // déjà en cours
+    window._analyzing[k] = true;
+    try {
+      var { data:{ session } } = await sb.auth.getSession();
+      if (!session) { window._analyzing[k] = false; return; }
+      var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
+        body: JSON.stringify({ platform: acc.platform, username: acc.username, owner: 'self' })
+      });
+      var d = await res.json().catch(function(){ return {}; });
+      if (res.ok && !d.error) { loadHomeDashboard(); }                 // recharge -> la fiche se remplit
+      else { window._analyzing[k] = false; }                           // échec -> autorise une nouvelle tentative
+    } catch(e){ window._analyzing[k] = false; }
   }
 
   // HTML du tableau de bord d'UN compte (chaîne pure, sans effet de bord) — une "page" du carrousel.
@@ -3057,7 +3080,8 @@
     '</div>';
   }
 
-  // Réanalyse silencieuse (pas de re-saisie du @). Le cache 24h côté serveur protège les crédits.
+  // Réanalyse MANUELLE (clic volontaire sur "Actualiser") -> force une vraie mise à jour.
+  // C'est le SEUL endroit qui force un nouveau scrape : la navigation, elle, ne coûte rien.
   async function silentReanalyze(platform, username) {
     var btn = document.getElementById('homePfRefreshBtn');
     if (btn) { btn.textContent = 'Actualisation…'; btn.disabled = true; }
@@ -3066,7 +3090,7 @@
       await fetch(SB_URL + '/functions/v1/analyze-account', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SB_KEY},
-        body: JSON.stringify({ platform: platform, username: username, owner: 'self' })
+        body: JSON.stringify({ platform: platform, username: username, owner: 'self', force: true })
       });
     } catch(e) {}
     loadHomeDashboard();

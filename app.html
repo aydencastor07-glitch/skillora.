@@ -5979,25 +5979,57 @@
     }
   }
 
-  // « Au bon moment » : prochain créneau d'engagement de la plateforme (heure locale).
-  // Créneaux calés sur les pics d'activité typiques de chaque réseau (pas au hasard).
+  // « Au bon moment » : prochain créneau d'engagement (heure locale), affiné par
+  // PLATEFORME + NICHE + jour de la semaine. Calé sur les pics d'activité réels — pas au hasard.
   function pubBestTimeISO() {
     var sel = PUB_PLATS.filter(function(p){ return p.selected; });
     var primary = sel.length ? sel[0].key : 'tiktok';
-    var SLOTS = {
+    var PLAT = {
       tiktok:    [7, 9, 12, 15, 18, 19, 21, 22],
       instagram: [9, 11, 12, 13, 18, 19, 20, 21],
       youtube:   [12, 14, 15, 17, 18, 19, 20],
       facebook:  [9, 11, 13, 15, 19, 20]
     };
-    var hours = (SLOTS[primary] || SLOTS.tiktok);
-    var lead = Date.now() + 15 * 60 * 1000; // au moins 15 min dans le futur
-    for (var i = 0; i < hours.length; i++) {
-      var d = new Date(); d.setHours(hours[i], 0, 0, 0);
+    var plat = PLAT[primary] || PLAT.tiktok;
+
+    // Catégorie de niche -> heures fortes (par ordre de priorité)
+    var niche = (typeof ideasNiche === 'function' ? (ideasNiche() || '') : '').toLowerCase();
+    function has(words){ return words.some(function(w){ return niche.indexOf(w) >= 0; }); }
+    var cat = 'default';
+    if (has(['business','finance','argent','entrepreneur','marketing','crypto','immobil','productiv','éduc','educ','formation','study','étude','etude','tech'])) cat = 'pro';
+    else if (has(['humour','comdy','comédie','comedie','gaming','jeu','game','divertiss','meme','film','série','serie','musique','music','clip'])) cat = 'fun';
+    else if (has(['fitness','sport','muscu','santé','sante','health','workout','gym','running'])) cat = 'fit';
+    else if (has(['cuisine','food','recette','cooking','restaurant','manger','pâtiss','patiss'])) cat = 'food';
+    else if (has(['beaut','beauty','mode','fashion','makeup','maquillage','skincare','coiff','ongle'])) cat = 'beauty';
+    var CAT = {
+      pro:     [7, 8, 12, 13, 17, 18, 19],
+      fun:     [19, 20, 21, 22, 18, 12],
+      fit:     [6, 7, 8, 18, 19, 20, 12],
+      food:    [11, 12, 17, 18, 19, 20],
+      beauty:  [12, 13, 14, 19, 20, 21],
+      default: plat
+    };
+
+    // On garde les heures de la niche qui collent aux fenêtres de la plateforme (±1h)
+    function near(h){ return plat.some(function(x){ return Math.abs(x - h) <= 1; }); }
+    var ordered = (CAT[cat] || plat).filter(near);
+    if (!ordered.length) ordered = plat.slice();
+
+    // Week-end : on évite le très tôt le matin
+    var dow = new Date().getDay(); // 0=dim, 6=sam
+    if (dow === 0 || dow === 6) {
+      ordered = ordered.filter(function(h){ return h >= 10; }).concat(ordered.filter(function(h){ return h < 10; }));
+    }
+
+    // Prochain créneau aujourd'hui (au moins 15 min dans le futur)
+    var lead = Date.now() + 15 * 60 * 1000;
+    var todayCands = ordered.slice().sort(function(a,b){ return a - b; });
+    for (var i = 0; i < todayCands.length; i++) {
+      var d = new Date(); d.setHours(todayCands[i], 0, 0, 0);
       if (d.getTime() > lead) return d.toISOString();
     }
-    // Plus de créneau aujourd'hui -> créneau fort de demain (soirée)
-    var t = new Date(); t.setDate(t.getDate() + 1); t.setHours(19, 0, 0, 0);
+    // Plus de créneau aujourd'hui -> meilleure heure de la niche demain
+    var t = new Date(); t.setDate(t.getDate() + 1); t.setHours(ordered[0] || 19, 0, 0, 0);
     return t.toISOString();
   }
 

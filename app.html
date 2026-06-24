@@ -1185,21 +1185,29 @@
   .pub-ey{font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);font-weight:700;margin-bottom:15px;}
   .pub-div{height:1px;background:rgba(255,255,255,0.06);margin:28px 0;}
   
-  .pub-plats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 6px;margin-bottom:13px;}
-  .pub-plats .pub-plat{flex:none;min-width:0;gap:8px;}
-  .pub-ptile{width:54px;max-width:100%;aspect-ratio:1;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .15s,filter .15s;}
+  .pub-plats{display:flex;gap:18px;overflow-x:auto;margin-bottom:6px;padding:4px 2px 8px;-webkit-overflow-scrolling:touch;}
+  .pub-plats::-webkit-scrollbar{height:0;}
+  .pub-plats .pub-plat{flex:none;min-width:0;gap:7px;width:62px;}
+  .pub-ptile{width:54px;aspect-ratio:1;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:transform .15s,box-shadow .15s;}
   .pub-ptile:active{transform:scale(0.93);}
   .pub-ptile.sel{box-shadow:0 0 0 2px #05070f,0 0 0 4px var(--blue);}
-  .pub-ptile.off{opacity:.4;filter:grayscale(.55);}
   .pub-badge{position:absolute;top:-6px;right:-6px;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2.5px #05070f;}
   .pub-badge.sel{background:var(--blue);}
-  .pub-badge.sel svg{width:9px;height:9px;}
-  .pub-badge.empty{background:#141d38;box-shadow:0 0 0 2.5px #05070f,inset 0 0 0 1.5px rgba(255,255,255,.28);}
-  .pub-badge.add{background:#2a3350;color:#cdd8ef;font-size:.82rem;font-weight:700;line-height:1;}
-  .pub-pname{font-size:.72rem;color:#aeb9d2;font-weight:600;text-align:center;line-height:1.15;max-width:100%;}
-  .pub-pstat{font-size:.58rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
-  .pub-pstat.on{color:#2ee6a6;background:rgba(46,230,166,.13);}
-  .pub-pstat.off{color:var(--blue-light);background:rgba(90,140,255,.15);cursor:pointer;}
+  .pub-badge.ok{background:#2ee6a6;}
+  .pub-badge svg{width:10px;height:10px;}
+  .pub-pname{font-size:.7rem;color:#e7ecf7;font-weight:600;text-align:center;line-height:1.12;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pub-phandle{font-size:.57rem;color:#2ee6a6;font-weight:600;text-align:center;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pub-addtile{width:54px;aspect-ratio:1;border-radius:16px;border:1.5px dashed #38436185;background:rgba(123,162,255,.08);display:flex;align-items:center;justify-content:center;color:#7aa2ff;font-size:1.7rem;font-weight:300;line-height:1;cursor:pointer;transition:transform .15s,background .15s;}
+  .pub-addtile:active{transform:scale(0.93);}
+  .pub-addname{font-size:.7rem;color:#7aa2ff;font-weight:700;text-align:center;}
+  .pub-noconn{display:flex;flex-direction:column;align-items:center;gap:13px;padding:10px 4px 6px;text-align:center;}
+  .pub-noconn p{color:var(--muted2);font-size:.85rem;margin:0;line-height:1.5;}
+  .pub-connect-cta{background:var(--blue);color:#fff;border:none;border-radius:13px;padding:12px 22px;font-weight:700;font-size:.95rem;cursor:pointer;transition:transform .15s,filter .15s;}
+  .pub-connect-cta:active{transform:scale(0.97);}
+  .pub-pickgrid{display:flex;flex-direction:column;gap:9px;}
+  .pub-pickbtn{display:flex;align-items:center;gap:11px;width:100%;background:var(--bg);border:1px solid var(--border);color:#fff;border-radius:12px;padding:11px 14px;font-size:.95rem;font-weight:600;cursor:pointer;transition:transform .12s,border-color .12s;}
+  .pub-pickbtn:active{transform:scale(0.98);}
+  .pub-pickbtn i{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none;}
   .pub-phelp{font-size:.76rem;color:var(--muted2);line-height:1.5;margin:0 2px;}
   
   .pub-vrow{display:flex;gap:16px;align-items:center;}
@@ -1848,8 +1856,7 @@
 
       <!-- Où publier -->
       <div class="pub-card">
-        <div class="pub-ey">Où publier</div>
-        <p class="pub-hint2">Touche une plateforme pour la choisir (tu peux en sélectionner plusieurs). En <b style="color:#2ee6a6;">vert ✓</b> = compte connecté ; les plateformes <b>grisées</b> doivent d'abord être connectées.</p>
+        <div class="pub-ey">Où publier ta vidéo ?</div>
         <div class="pub-plats" id="pubPlatforms"></div>
       </div>
 
@@ -2825,23 +2832,17 @@
   // Ancien goConnect conservé pour "Réanalyser" -> relance le flow direct
   function goConnect(plat) { openConnectFlow(plat); }
 
-  // Bouton "+" ajouter un compte (avec limite de plan)
+  // Bouton "+" ajouter un compte (avec limite de plan, controlee aussi cote serveur)
   function addAccount() {
-    var up = window._userProfile || {};
-    var plan = (up.plan || 'none').toLowerCase();
-    // plan starter/none = 1 seul compte
-    if (plan === 'none' || plan === 'starter') {
-      var ov = document.getElementById('connectOverlay');
-      ov.classList.add('open');
-      ov.innerHTML = '<div class="cx-shell"><div class="cx-lock">🔒</div><div class="cx-title">Un seul compte avec ton plan</div><div class="cx-sub">Le plan Starter permet de connecter 1 compte. Passe au plan Growth pour gérer plusieurs comptes et multiplier tes analyses.</div><a href="index.html#pricing" class="cx-btn" style="text-decoration:none;display:block;text-align:center;">Voir les plans</a><button class="cx-btn-ghost" onclick="closeConnectFlow()">Plus tard</button></div>';
-      return;
-    }
+    // Limite atteinte -> modale claire vers les plans
+    if (connectedAccountCount() >= maxConnectableAccounts()) { showAccountLimitModal(); return; }
     // sinon : choisir une plateforme à ajouter
     var ov = document.getElementById('connectOverlay');
     ov.classList.add('open');
     ov.innerHTML = '<div class="cx-shell"><div class="cx-title">Ajouter un compte</div><div class="cx-sub">Choisis la plateforme.</div><div class="home-connect-grid four" style="margin-top:8px;">' +
       homeConnBtn('tiktok', tiktok, 'TikTok') + homeConnBtn('youtube', youtube, 'YouTube') +
       homeConnBtn('instagram', instagram, 'Instagram') + homeConnBtn('facebook', facebook, 'Facebook') +
+      homeConnBtn('x', xtw, 'X') + homeConnBtn('linkedin', linkedin, 'LinkedIn') +
       '</div><button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:14px;">Annuler</button></div>';
   }
 
@@ -3539,6 +3540,29 @@
   }
   // Compat : anciens helpers
   function maxProfilesFor() { return curLimits().profiles; }
+
+  // Nombre de comptes sociaux connectables selon l'offre (gratuit = 1, sinon plan payant actif).
+  function maxConnectableAccounts() {
+    if (userIsSubscribed && PLAN_GRID[userPlan]) {
+      var cyc = (userCycle === 'annual') ? 'annual' : 'monthly';
+      return PLAN_GRID[userPlan][cyc].accounts || 1;
+    }
+    return 1; // compte gratuit
+  }
+  function connectedAccountCount() {
+    return Object.keys(window.__connectedPlats || {}).length;
+  }
+  // Modale claire "limite atteinte" -> renvoie vers les plans.
+  function showAccountLimitModal(max, msg) {
+    var m = max || maxConnectableAccounts();
+    skModal({
+      icon: '🔒', iconBg: 'rgba(123,162,255,.16)',
+      title: 'Limite de comptes atteinte',
+      message: (msg || ('Ton offre permet ' + m + ' compte' + (m > 1 ? 's' : '') + ' connecté' + (m > 1 ? 's' : '') + '.')) + '<br><br><span style="color:#8b9bc4;font-size:.9em;">Passe à un plan supérieur pour connecter plus de comptes et gérer plusieurs profils.</span>',
+      confirmText: 'Voir les plans', cancelText: 'Plus tard',
+      onConfirm: function () { window.location.href = 'index.html#pricing'; }
+    });
+  }
 
   /* ===== Système d'ebooks par plan =====
      - montage + premiere : offerts à TOUS (toujours débloqués)
@@ -5343,6 +5367,10 @@
     try {
       const { data:{ session } } = await sb.auth.getSession();
       if (!session) { alert('Connecte-toi d\'abord.'); return; }
+      // Pre-check limite (UX immediate). Reconnecter une plateforme deja liee reste autorise.
+      var normKey = (platform === 'tiktok_business') ? 'tiktok' : platform;
+      var already = !!(window.__connectedPlats && window.__connectedPlats[normKey]);
+      if (!already && connectedAccountCount() >= maxConnectableAccounts()) { showAccountLimitModal(); return; }
       try { localStorage.setItem('pfm_pending', platform); } catch(e){} // pour relancer l'analyse au retour
       var res = await fetch(SB_URL + '/functions/v1/pfm-connect', {
         method:'POST',
@@ -5352,6 +5380,11 @@
       var data = await res.json();
       if (data.success && data.url) { window.location.href = data.url; return; }
       try { localStorage.removeItem('pfm_pending'); } catch(e){}
+      // Limite atteinte / pas d'abonnement (controle backend) -> modale claire vers les plans
+      if (data.error === 'limit_reached' || data.error === 'no_subscription') {
+        showAccountLimitModal(data.max, data.message);
+        return;
+      }
       var detail = data.error || 'Une erreur est survenue.';
       // 404 = plateforme pas encore activee dans le dashboard Post for Me
       if (data.status === 404 || /not found/i.test(detail)) {
@@ -5859,25 +5892,62 @@
     var box = document.getElementById('pubPlatforms'); if (!box) return;
     // etat connecte reel (depuis Post for Me / social_connections)
     PUB_PLATS.forEach(function (p) { p.connected = !!(window.__connectedPlats && window.__connectedPlats[p.key]); if (!p.connected) p.selected = false; });
-    box.innerHTML = PUB_PLATS.map(function (p, i) {
-      var check = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>';
-      var shortName = (p.key === 'x') ? 'X' : p.name;
+    var connected = PUB_PLATS.filter(function (p) { return p.connected; });
+
+    // Aucun compte connecte -> CTA clair, pas de gros bloc de reseaux
+    if (!connected.length) {
+      box.innerHTML = '<div class="pub-noconn">'
+        + '<p>Connecte un compte pour publier ta vidéo en un clic.</p>'
+        + '<button class="pub-connect-cta" onclick="pubOpenConnect()">+ Connecter un compte</button>'
+        + '</div>';
+      pubSyncPublishBtn();
+      return;
+    }
+
+    var check = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>';
+    var html = connected.map(function (p) {
+      var i = PUB_PLATS.indexOf(p);
       var info = (window.__connInfo && window.__connInfo[p.key]) || {};
       var handle = (info.handle || info.name || '').toString().replace(/^@/, '');
-      var stat = p.connected
-        ? '<div class="pub-pstat on" title="Compte connecté">✓ ' + (handle ? ('@' + handle) : 'Connecté') + '</div>'
-        : '<div class="pub-pstat off" onclick="pubConnectPlat(' + i + ',event)">Connecter</div>';
+      var label = handle ? ('@' + handle) : ((p.key === 'x') ? 'X' : p.name);
       return '<div class="pub-plat">'
-        + '<div class="pub-ptile' + (p.selected ? ' sel' : '') + (p.connected ? '' : ' off') + '" style="background:' + p.bg + ';" onclick="pubTogglePlat(' + i + ')">'
+        + '<div class="pub-ptile' + (p.selected ? ' sel' : '') + '" style="background:' + p.bg + ';" onclick="pubTogglePlat(' + i + ')">'
         + pubPlatSVG(p.key, 22)
-        + (p.connected ? '<div class="pub-badge ' + (p.selected ? 'sel' : 'empty') + '">' + (p.selected ? check : '') + '</div>' : '')
+        + '<div class="pub-badge ' + (p.selected ? 'sel' : 'ok') + '">' + check + '</div>'
         + '</div>'
-        + '<div class="pub-pname">' + shortName + '</div>'
-        + stat
+        + '<div class="pub-pname">' + label + '</div>'
         + '</div>';
     }).join('');
+    // Tuile "Connecter" en bout de rangee (si on peut encore en ajouter)
+    if (connectedAccountCount() < maxConnectableAccounts()) {
+      html += '<div class="pub-plat">'
+        + '<div class="pub-addtile" onclick="pubOpenConnect()">+</div>'
+        + '<div class="pub-addname">Connecter</div>'
+        + '</div>';
+    }
+    box.innerHTML = html;
     pubSyncPublishBtn();
   }
+  // Ouvre un petit sélecteur des réseaux publiables encore non connectés.
+  function pubOpenConnect() {
+    if (connectedAccountCount() >= maxConnectableAccounts()) { showAccountLimitModal(); return; }
+    var unconn = PUB_PLATS.filter(function (p) { return !(window.__connectedPlats && window.__connectedPlats[p.key]); });
+    if (!unconn.length) { skModal({ icon:'✅', title:'Tout est connecté', message:'Tous les réseaux disponibles sont déjà reliés à ton compte.', cancelText:'OK' }); return; }
+    var ov = document.getElementById('pubConnPick');
+    if (!ov) { ov = document.createElement('div'); ov.id = 'pubConnPick'; ov.className = 'popup-overlay'; document.body.appendChild(ov); }
+    var btns = unconn.map(function (p) {
+      return '<button class="pub-pickbtn" onclick="closePubConnect();connectAccount(\'' + p.key + '\')">'
+        + '<i style="background:' + p.bg + ';">' + pubPlatSVG(p.key, 17) + '</i> ' + p.name + '</button>';
+    }).join('');
+    ov.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px;max-width:380px;width:100%;">'
+      + '<h3 style="font-family:\'Fraunces\',serif;font-size:1.2rem;margin-bottom:4px;">Connecter un compte</h3>'
+      + '<p style="color:var(--muted);font-size:.85rem;margin-bottom:16px;line-height:1.5;">Choisis le réseau. Tu seras redirigé pour autoriser Skillora à publier.</p>'
+      + '<div class="pub-pickgrid">' + btns + '</div>'
+      + '<button class="btn-ghost" style="margin-top:14px;background:var(--bg);border:1px solid var(--border);color:#fff;width:100%;border-radius:12px;padding:11px;" onclick="closePubConnect()">Annuler</button>'
+      + '</div>';
+    ov.classList.add('open'); ov.style.display = 'flex';
+  }
+  function closePubConnect() { var ov = document.getElementById('pubConnPick'); if (ov) { ov.classList.remove('open'); ov.style.display = 'none'; } }
   function pubTogglePlat(i) {
     var p = PUB_PLATS[i];
     if (!p.connected) { pubConnectPlat(i); return; } // pas connecté → on propose de le connecter

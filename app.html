@@ -3093,13 +3093,18 @@
       var { data: { session } } = await sb.auth.getSession();
       if (!session) return;
       var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY };
-      var r = await fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username }) });
+      var r = await fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username, cache_only: true }) });
       var data = await r.json();
       if (data && data.ideas && data.ideas.length) {
         window._badgeIdeas = data.ideas; window._badgeDate = data.date;
         var unseen = (data.date && data.date !== getIdeasSeen(acc)) ? data.ideas.length : 0;
         setIdeaBadge(unseen);
-      } else { setIdeaBadge(0); }
+      } else {
+        // Pas encore généré (on ne dépense aucun crédit) : on invite quand même
+        // si c'est un nouveau jour non encore consulté.
+        var todayB = new Date().toISOString().slice(0,10);
+        setIdeaBadge(getIdeasSeen(acc) === todayB ? 0 : 1);
+      }
     } catch(e) {}
   }
 
@@ -3226,7 +3231,7 @@
     if (!body) return;
     var acc = ideasActiveAccount();
     if (!acc) { body.innerHTML = '<div class="ideas-empty">Connecte un compte pour recevoir tes idées du jour.</div>'; return; }
-    body.innerHTML = '<div class="ideas-loading">✨ Préparation de tes idées du jour…</div>';
+    body.innerHTML = '<div class="ideas-loading">✨ On récupère tes idées du jour…</div>';
     try {
       var { data: { session } } = await sb.auth.getSession();
       var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY };

@@ -3101,6 +3101,7 @@
     var btn = document.getElementById('homePfRefreshBtn');
     if (btn) { btn.textContent = 'Actualisation…'; btn.disabled = true; }
     try { await analyzeOnce(platform, username, 'self', true); } catch(e) {}  // force -> vrai rafraîchissement
+    window._growthHistory = null;  // -> la courbe se recharge et enregistre le point du jour (0 crédit)
     loadHomeDashboard();
   }
 

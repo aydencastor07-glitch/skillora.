@@ -2750,26 +2750,46 @@
     if (hasStats) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
   }
 
-  // Analyse un compte UNE fois, uniquement s'il n'a pas encore d'analyse (économie de crédits SociaVault).
-  window._analyzing = window._analyzing || {};
-  async function ensureAnalyzed(acc){
-    if (!acc || acc.analysis) return;                                  // déjà analysé -> 0 crédit
-    if (['tiktok','youtube','instagram'].indexOf(acc.platform) < 0) return; // non analysable
-    var k = acc.platform + '|' + String(acc.username).toLowerCase();
-    if (window._analyzing[k]) return;                                  // déjà en cours
-    window._analyzing[k] = true;
-    try {
+  // ── ANALYSE UNIQUE (anti-doublon global) ─────────────────────────────────────
+  // TOUS les déclencheurs d'analyse passent par ici. Le résultat est mémorisé pour la session :
+  //  • plusieurs appels SIMULTANÉS sur le même compte  -> UN SEUL scrape (les autres attendent le même)
+  //  • appels SUIVANTS sur le même compte              -> résultat déjà en mémoire = 0 crédit SociaVault
+  //  • force=true (clic « Actualiser »)                -> on ignore le cache et on rafraîchit vraiment
+  // Le système fonctionne à l'identique : l'analyse se fait toujours, mais une seule fois.
+  window._analysisCache = window._analysisCache || {};
+  window._analysisInflight = window._analysisInflight || {};
+  async function analyzeOnce(platform, username, owner, force){
+    var k = platform + '|' + String(username||'').toLowerCase() + '|' + (owner||'self');
+    if (!force && window._analysisCache[k]) return window._analysisCache[k];   // déjà fait -> 0 crédit
+    if (window._analysisInflight[k]) return window._analysisInflight[k];        // déjà en cours -> même promesse
+    var p = (async function(){
       var { data:{ session } } = await sb.auth.getSession();
-      if (!session) { window._analyzing[k] = false; return; }
+      if (!session) return null;
       var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-        body: JSON.stringify({ platform: acc.platform, username: acc.username, owner: 'self' })
+        body: JSON.stringify({ platform: platform, username: username, owner: owner||'self', force: !!force })
       });
-      var d = await res.json().catch(function(){ return {}; });
-      if (res.ok && !d.error) { loadHomeDashboard(); }                 // recharge -> la fiche se remplit
-      else { window._analyzing[k] = false; }                           // échec -> autorise une nouvelle tentative
-    } catch(e){ window._analyzing[k] = false; }
+      var data = null; try { data = await res.json(); } catch(e){ data = {}; }
+      data._httpOk = res.ok;
+      return data;
+    })();
+    window._analysisInflight[k] = p;
+    try {
+      var out = await p;
+      if (out && out._httpOk && !out.error) window._analysisCache[k] = out;     // on ne mémorise que les vrais succès
+      return out;
+    } finally {
+      delete window._analysisInflight[k];
+    }
+  }
+
+  // Analyse paresseuse d'un compte affiché (carrousel) -> passe par le garde-fou unique.
+  async function ensureAnalyzed(acc){
+    if (!acc || acc.analysis) return;                                  // déjà analysé -> 0 crédit
+    if (['tiktok','youtube','instagram'].indexOf(acc.platform) < 0) return; // non analysable
+    var out = await analyzeOnce(acc.platform, acc.username, 'self', false);
+    if (out && out._httpOk && !out.error) loadHomeDashboard();         // recharge -> la fiche se remplit
   }
 
   // HTML du tableau de bord d'UN compte (chaîne pure, sans effet de bord) — une "page" du carrousel.
@@ -2963,15 +2983,10 @@
     var tick = setInterval(function(){ i++; if(i>=CX_STEPS.length) i=CX_STEPS.length-1; renderSteps(); }, 1400);
 
     try {
-      var { data: { session } } = await sb.auth.getSession();
-      var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SB_KEY},
-        body: JSON.stringify({ platform: plat, username: username, owner: 'self' })
-      });
-      var data = await res.json();
+      var data = await analyzeOnce(plat, username, 'self', false);
+      data = data || {};
       clearInterval(tick);
-      if (!res.ok || data.error) {
+      if (!data._httpOk || data.error) {
         var emsg = data.message ? data.message : 'V\u00e9rifie le nom d\u2019utilisateur et r\u00e9essaie.';
         var etitle = (data.error==='scrape_unavailable') ? 'Analyse momentan\u00e9ment indisponible' : 'Connexion impossible';
         ov.innerHTML = '<div class="cx-shell"><div class="cx-logo cx-logo-'+plat+'">'+connectLogo(plat)+'</div><div class="cx-title">'+etitle+'</div><div class="cx-sub">'+escapeHtml(emsg)+'</div><button class="cx-btn" onclick="openConnectFlow(\''+plat+'\')">R\u00e9essayer</button><button class="cx-btn-ghost" onclick="closeConnectFlow()">Fermer</button></div>';
@@ -3085,14 +3100,7 @@
   async function silentReanalyze(platform, username) {
     var btn = document.getElementById('homePfRefreshBtn');
     if (btn) { btn.textContent = 'Actualisation…'; btn.disabled = true; }
-    try {
-      var { data: { session } } = await sb.auth.getSession();
-      await fetch(SB_URL + '/functions/v1/analyze-account', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SB_KEY},
-        body: JSON.stringify({ platform: platform, username: username, owner: 'self', force: true })
-      });
-    } catch(e) {}
+    try { await analyzeOnce(platform, username, 'self', true); } catch(e) {}  // force -> vrai rafraîchissement
     loadHomeDashboard();
   }
 
@@ -3104,12 +3112,7 @@
       var today = new Date().toISOString().slice(0,10);
       if (last === today) return; // déjà fait aujourd'hui
       localStorage.setItem(key, today);
-      var { data: { session } } = await sb.auth.getSession();
-      await fetch(SB_URL + '/functions/v1/analyze-account', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SB_KEY},
-        body: JSON.stringify({ platform: platform, username: username, owner: 'self' })
-      });
+      await analyzeOnce(platform, username, 'self', false);
       loadHomeDashboard();
     } catch(e) {}
   }
@@ -4289,19 +4292,10 @@
     startAnlAnimation();
 
     try {
-      const res = await fetch(SB_URL + '/functions/v1/analyze-account', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + session.access_token,
-          'apikey': SB_KEY
-        },
-        body: JSON.stringify({ platform: anlPlatform, username: username, owner: owner })
-      });
-      const data = await res.json();
+      const data = (await analyzeOnce(anlPlatform, username, owner, false)) || {};
       stopAnlAnimation();
 
-      if (!res.ok || data.error) {
+      if (!data._httpOk || data.error) {
         if (data.error === 'upgrade_required') {
           result.style.display = 'block';
           result.innerHTML = '<div class="anl-upgrade"><div style="font-size:2rem;">\uD83D\uDC51</div><div class="anl-upgrade-t">Analyse des concurrents</div><div class="anl-upgrade-p">' + escapeHtml(data.message || 'R\u00e9serv\u00e9e au plan Elite.') + '</div><a href="index.html#pricing" class="anl-vbtn anl-vbtn-primary" style="display:inline-block;text-decoration:none;">Passer au plan Elite</a></div>';
@@ -5607,13 +5601,8 @@
       for (var pi = 0; pi < plats.length; pi++) {
         var plat = plats[pi];
         try {
-          var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
-            method:'POST',
-            headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-            body: JSON.stringify({ platform: plat, username: ci[plat].handle, owner: 'self' })
-          });
-          var d = await res.json().catch(function(){ return {}; });
-          if (res.ok && !d.error) any = true;
+          var d = await analyzeOnce(plat, ci[plat].handle, 'self', false);
+          if (d && d._httpOk && !d.error) any = true;
           // already_connected_elsewhere : on ignore silencieusement (compte lié ailleurs)
         } catch(e){}
       }
@@ -5757,13 +5746,7 @@
         var ci = info[plat];
         if (ci && ci.verified && ci.handle) {
           window.__autoAnalyzeRan = true;
-          try {
-            await fetch(SB_URL + '/functions/v1/analyze-account', {
-              method:'POST',
-              headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-              body: JSON.stringify({ platform: plat, username: ci.handle, owner: 'self' })
-            });
-          } catch(e){}
+          try { await analyzeOnce(plat, ci.handle, 'self', false); } catch(e){}
         }
       }
     } catch(e){}

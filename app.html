@@ -3095,14 +3095,41 @@
     '</div>';
   }
 
-  // Réanalyse MANUELLE (clic volontaire sur "Actualiser") -> force une vraie mise à jour.
+  // Limite d'actualisations MANUELLES par compte et par jour, selon le plan (contrôle des crédits).
+  // Starter = 1×/jour/compte ; Elite = illimité. (Modifiable ici en un coup d'œil.)
+  var REFRESH_LIMITS = { none: 1, free: 1, starter: 1, elite: 9999 };
+  function curPlan(){ return (typeof userPlan !== 'undefined' && userPlan ? String(userPlan) : 'none').toLowerCase(); }
+  function refreshLimit(){ var l = REFRESH_LIMITS[curPlan()]; return (typeof l === 'number') ? l : 1; }
+  function refreshKey(platform, username){ return 'sk_refresh_' + platform + '_' + String(username).toLowerCase() + '_' + new Date().toISOString().slice(0,10); }
+  function refreshesUsedToday(platform, username){ return parseInt(localStorage.getItem(refreshKey(platform, username)) || '0', 10) || 0; }
+  function refreshesLeft(platform, username){ return Math.max(0, refreshLimit() - refreshesUsedToday(platform, username)); }
+
+  // Réanalyse MANUELLE (clic volontaire sur "Actualiser") -> force une vraie mise à jour (coûte des crédits).
   // C'est le SEUL endroit qui force un nouveau scrape : la navigation, elle, ne coûte rien.
   async function silentReanalyze(platform, username) {
     var btn = document.getElementById('homePfRefreshBtn');
-    if (btn) { btn.textContent = 'Actualisation…'; btn.disabled = true; }
-    try { await analyzeOnce(platform, username, 'self', true); } catch(e) {}  // force -> vrai rafraîchissement
-    window._growthHistory = null;  // -> la courbe se recharge et enregistre le point du jour (0 crédit)
-    loadHomeDashboard();
+    var lim = refreshLimit();
+    // Limite par plan atteinte aujourd'hui -> on bloque (économie de crédits) et on propose l'upgrade.
+    if (refreshesUsedToday(platform, username) >= lim) {
+      var isElite = curPlan() === 'elite';
+      alert(isElite
+        ? 'Tu as déjà actualisé ce compte. Réessaie dans un moment.'
+        : 'Tu as utilisé ton actualisation du jour pour ce compte (plan ' + (curPlan()==='none'?'Gratuit':curPlan()) + ' : ' + lim + '×/jour). Passe au plan Elite pour des actualisations illimitées. Ta courbe continue de se remplir automatiquement.');
+      return;
+    }
+    if (btn) { btn.textContent = 'Actualisation…'; btn.disabled = true; btn.classList.add('refreshing'); }
+    var ok = false;
+    try { var out = await analyzeOnce(platform, username, 'self', true); ok = !!(out && out._httpOk && !out.error); } catch(e) {}
+    if (ok) {
+      // on décompte l'actualisation utilisée (par compte et par jour)
+      try { localStorage.setItem(refreshKey(platform, username), String(refreshesUsedToday(platform, username) + 1)); } catch(e){}
+      window._growthHistory = null;                 // la courbe se recharge + enregistre le point du jour (0 crédit)
+      try { localStorage.setItem('skillora_view', 'home'); } catch(e){}
+      location.reload();                            // la page se recharge pour afficher les nouveaux résultats
+    } else {
+      if (btn) { btn.textContent = 'Réessayer'; btn.disabled = false; btn.classList.remove('refreshing'); }
+      alert('L\'actualisation n\'a pas abouti cette fois. Réessaie dans un instant (aucun crédit ne t\'a été décompté).');
+    }
   }
 
   // Auto-refresh quotidien : 1×/jour à l'ouverture (le cache serveur évite la sur-conso)

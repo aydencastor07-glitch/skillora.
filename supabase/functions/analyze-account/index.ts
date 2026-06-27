@@ -1,5 +1,6 @@
-// SKILLORA — analyze-account v23 : ajoute l'analyse INSTAGRAM (profil + posts/reels) en plus de
-// TikTok/YouTube. Conserve : MAX_VIDEOS 60, blocage anti-doublon AVANT scraping, résilience, retry, 1 transcript.
+// SKILLORA — analyze-account v24 : VERROU anti-scrape concurrent (claim_scrape_lock) -> un seul scrape par
+// compte à la fois, fini le profil scrapé 2-3x = fini le gaspillage de crédits. Conserve : Instagram + TikTok
+// + YouTube, MAX_VIDEOS 60, anti-doublon AVANT scraping, cache 7 jours, résilience, retry, 1 transcript.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SV_BASE = "https://api.sociavault.com";
@@ -75,6 +76,20 @@ Deno.serve(async (req) => {
       return j({ success: true, analysis: recent, cached: true }, 200);
     }
 
+    // VERROU ANTI-SCRAPE CONCURRENT : un seul scrape par compte à la fois.
+    // Si 3 appels analyze-account partent en parallèle, UN SEUL scrape ; les autres renvoient la dernière analyse.
+    // -> fini le profil scrapé 2-3x pour une seule action = fini les crédits gaspillés.
+    const lockKey = `${user.id}|${platform}|${username.toLowerCase()}`;
+    let gotLock = false;
+    try { const { data: lk } = await admin.rpc("claim_scrape_lock", { p_key: lockKey, p_ttl: 150 }); gotLock = lk === true; }
+    catch (_e) { gotLock = true; /* si le RPC échoue, on ne bloque pas l'analyse */ }
+    if (!gotLock) {
+      const prev = await lastAnalysis();
+      if (prev) return j({ success: true, analysis: prev, cached: true, inflight: true }, 200);
+      return j({ success: false, error: "in_progress", message: "Analyse déjà en cours pour ce compte, réessaie dans un instant." }, 200);
+    }
+
+    try {
     let result;
     try {
       if (platform === "tiktok") result = await analyzeTikTok(username, SV_KEY, AI_KEY, owner);
@@ -113,6 +128,9 @@ Deno.serve(async (req) => {
     if (error) return j({ error: "Enregistrement: " + error.message }, 500);
 
     return j({ success: true, analysis }, 200);
+    } finally {
+      try { await admin.from("scrape_locks").delete().eq("lock_key", lockKey); } catch (_e) { /* libère le verrou */ }
+    }
   } catch (e) {
     return j({ error: "Erreur serveur: " + (e?.message ?? String(e)) }, 500);
   }

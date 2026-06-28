@@ -45,6 +45,27 @@ Deno.serve(async (req) => {
     if (!platforms.length) return json({ success: false, error: "Aucune plateforme sélectionnée." }, 400);
     if (!mediaUrl) return json({ success: false, error: "Vidéo manquante." }, 400);
 
+    // ── LIMITE DE PUBLICATION MENSUELLE (anti-abus / maîtrise des coûts) ────────────
+    // On compte les VIDÉOS distinctes (par media_url) publiées ce mois civil — une même vidéo
+    // envoyée sur 3 réseaux = 1 publication. Les échecs ne comptent pas.
+    const PUB_MONTH: Record<string, number> = { none: 5, starter: 60, growth: 150, elite: 400 };
+    const { data: subRow } = await admin.from("subscriptions").select("plan,status").eq("user_id", userId).maybeSingle();
+    const plan = String(subRow?.plan ?? "none").toLowerCase();
+    const maxMonth = PUB_MONTH[plan] ?? PUB_MONTH.none;
+    const monthStart = new Date(); monthStart.setUTCDate(1); monthStart.setUTCHours(0, 0, 0, 0);
+    const { data: monthRows } = await admin.from("scheduled_posts")
+      .select("media_url,status").eq("user_id", userId).gte("created_at", monthStart.toISOString());
+    const usedVideos = new Set((monthRows || [])
+      .filter((r: any) => String(r.status || "") !== "failed" && r.media_url)
+      .map((r: any) => r.media_url));
+    // Si la vidéo a déjà été publiée ce mois (re-publication même URL), on ne la recompte pas.
+    if (!usedVideos.has(mediaUrl) && usedVideos.size >= maxMonth) {
+      return json({
+        success: false, limit_reached: true, used: usedVideos.size, max: maxMonth, plan,
+        error: `Tu as atteint ta limite de ${maxMonth} publications ce mois-ci. Passe à un plan supérieur pour en publier davantage.`,
+      }, 200);
+    }
+
     // Comptes Post for Me connectés pour les plateformes choisies.
     // IMPORTANT : TikTok est stocké en base sous "tiktok_business" -> on l'ajoute comme alias,
     // sinon le compte TikTok n'est jamais trouvé et seule l'autre plateforme publie.

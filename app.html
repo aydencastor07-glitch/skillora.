@@ -188,6 +188,36 @@
   #goalSetupBody .gset-custom { display:flex; gap:8px; }
   #goalSetupBody .gset-custom input { flex:1; min-width:0; background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:11px 13px; color:var(--text); font-family:'Sora',sans-serif; font-size:.85rem; }
   #goalSetupBody .gset-custom button { flex-shrink:0; background:linear-gradient(135deg,var(--blue),#1857c4); color:#fff; border:none; border-radius:11px; padding:0 18px; font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; cursor:pointer; }
+  /* Cloche 🔔 : pastille compteur + panneau de notifications */
+  .notif-dot { display:none; position:absolute; top:-5px; right:-5px; min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:linear-gradient(135deg,#ff5b78,#e0143f); color:#fff; font-family:'Sora',sans-serif; font-weight:800; font-size:.6rem; align-items:center; justify-content:center; border:2px solid #070b16; }
+  .notif-dot.show { display:flex; }
+  .icon-btn { position:relative; cursor:pointer; }
+  .notif-overlay { position:fixed; inset:0; background:rgba(3,6,14,0.55); backdrop-filter:blur(3px); z-index:120; opacity:0; pointer-events:none; transition:opacity .22s; }
+  .notif-overlay.open { opacity:1; pointer-events:auto; }
+  .notif-sheet { position:absolute; top:0; right:0; width:min(92%,400px); height:100%; background:var(--surface,#0b1020); border-left:1px solid var(--border); box-shadow:-12px 0 40px rgba(0,0,0,0.4); transform:translateX(100%); transition:transform .26s cubic-bezier(.2,.8,.2,1); display:flex; flex-direction:column; }
+  .notif-overlay.open .notif-sheet { transform:translateX(0); }
+  .notif-head { display:flex; align-items:center; justify-content:space-between; padding:18px 18px 12px; font-family:'Sora',sans-serif; font-weight:700; font-size:1.05rem; color:#fff; border-bottom:1px solid var(--border); }
+  .notif-close { background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer; }
+  .notif-body { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+  .notif-empty { text-align:center; color:var(--muted); font-size:.88rem; line-height:1.5; padding:48px 16px; }
+  /* Carte d'une publication (cloche + accueil) */
+  .npost { background:rgba(255,255,255,0.035); border:1px solid var(--border); border-left:3px solid var(--border); border-radius:13px; padding:12px 13px; }
+  .npost.live { border-left-color:#2ee6a6; } .npost.pub { border-left-color:#5e9bff; }
+  .npost.sched { border-left-color:#f5c043; } .npost.fail { border-left-color:#ff6a6a; }
+  .npost-top { display:flex; align-items:center; gap:7px; }
+  .npost-ic { font-size:.95rem; }
+  .npost-st { font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; color:#fff; }
+  .npost-time { margin-left:auto; font-size:.7rem; color:var(--muted); }
+  .npost-cap { color:var(--muted); font-size:.8rem; line-height:1.4; margin:7px 0 0; }
+  .npost-chips { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+  .npost-chip { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; padding:5px 10px; border-radius:999px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); text-decoration:none; }
+  .npost-chip.live { background:rgba(46,230,166,0.12); border-color:rgba(46,230,166,0.35); color:#7df0c6; }
+  .npost-chip.live:active { background:rgba(46,230,166,0.2); }
+  /* Section accueil « Tes dernières vidéos » */
+  .home-pub-card { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+  .home-pub-h { font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:#fff; }
+  .home-pub-more { background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); border-radius:11px; padding:10px; font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; cursor:pointer; }
+  .home-pub-more:active { background:rgba(255,255,255,0.1); }
 
   .home-viral-top { display:flex; justify-content:space-between; align-items:center; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:var(--white); margin-bottom:14px; }
   .home-viral-score { font-family:'Fraunces',serif; font-weight:800; font-size:1.6rem; color:var(--blue-light); }
@@ -1427,7 +1457,18 @@
     <div class="logo">Skill<span>ora</span></div>
     <div class="top-icons">
       <div class="icon-btn">🔍</div>
-      <div class="icon-btn">🔔<span class="dot"></span></div>
+      <div class="icon-btn" onclick="openNotifPanel()" role="button" aria-label="Notifications">🔔<span class="notif-dot" id="notifDot"></span></div>
+    </div>
+  </div>
+
+  <!-- Panneau notifications (publications Skillora) -->
+  <div class="notif-overlay" id="notifPanel" onclick="closeNotifPanel(event)">
+    <div class="notif-sheet" onclick="event.stopPropagation()">
+      <div class="notif-head">
+        <span>🔔 Notifications</span>
+        <button class="notif-close" onclick="closeNotifPanel()" aria-label="Fermer">✕</button>
+      </div>
+      <div class="notif-body" id="notifBody"></div>
     </div>
   </div>
 
@@ -2702,10 +2743,11 @@
         }
       }
       var pagesHtml = accounts.map(function(a, k){ return '<section class="home-car-page" data-i="' + k + '">' + accountPageHTML(a) + '</section>'; }).join('');
-      dyn.innerHTML = '<div id="homeCarHead"></div><div class="home-car-track" id="homeCarTrack">' + pagesHtml + '</div>';
+      dyn.innerHTML = '<div id="homeCarHead"></div><div class="home-car-track" id="homeCarTrack">' + pagesHtml + '</div><div id="homePubVideos"></div>';
       var _head = document.getElementById('homeCarHead'); if (_head) _head.innerHTML = homeAccountChips(accounts, idx);
       setupHomeCarousel(idx); // onHomePageChange -> ensureAnalyzed(compte affiché) : analyse paresseuse
       if (!window._growthHistory) loadGrowthHistory((accounts[idx] || {}).platform || 'tiktok'); // 1 appel = tout l'historique
+      renderPubVideosCard(); // « Tes dernières vidéos publiées via Skillora » + allume la cloche 🔔
     } catch (e) { console.log('home err', e); dyn.innerHTML = homeConnectBlock(); window._ideaFabAllowed = false; showIdeaFab(false); }
   }
 
@@ -3282,6 +3324,101 @@
       try { localStorage.setItem(seenKey, '1'); } catch(e){}
       openGoalSetup(platform, username, false);
     }, 2000);
+  }
+
+  // ── PUBLICATIONS SKILLORA : cloche 🔔 + section accueil « Tes dernières vidéos » ───────────────
+  // Source = table scheduled_posts (tes vidéos publiées via Skillora), enrichie par pfm-posts avec
+  // l'URL de chaque réseau (bouton « Voir »). Lecture seule, 0 crédit SociaVault.
+  function pubPlatLabel(k){ return ({tiktok:'TikTok',tiktok_business:'TikTok',instagram:'Instagram',youtube:'YouTube',facebook:'Facebook',x:'X',linkedin:'LinkedIn'})[k] || k; }
+  function timeAgo(iso){
+    var t = new Date(iso).getTime(); if (!t) return '';
+    var s = Math.floor((Date.now() - t) / 1000);
+    if (s < 60) return "à l'instant";
+    var m = Math.floor(s / 60); if (m < 60) return 'il y a ' + m + ' min';
+    var h = Math.floor(m / 60); if (h < 24) return 'il y a ' + h + ' h';
+    var d = Math.floor(h / 24); if (d < 7) return 'il y a ' + d + ' j';
+    return new Date(iso).toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
+  }
+  function pubStatusInfo(p){
+    var s = String(p.status || '');
+    var anyUrl = (p.results || []).some(function(r){ return r && r.url; });
+    if (s === 'failed') return { ic:'⚠️', txt:'Échec de publication', cls:'fail' };
+    if (s === 'scheduled') return { ic:'🗓️', txt:'Programmée', cls:'sched' };
+    if (s === 'published' || anyUrl) return { ic:'✅', txt:'En ligne', cls:'live' };
+    return { ic:'🚀', txt:'Publication en cours…', cls:'pub' };
+  }
+  function pubPostHTML(p){
+    var info = pubStatusInfo(p);
+    var plats = (p.platforms || []);
+    var byPlat = {}; (p.results || []).forEach(function(r){ if (r && r.platform) byPlat[r.platform] = r; });
+    var chips = plats.map(function(k){
+      var r = byPlat[k] || byPlat[k + '_business'] || byPlat[String(k).replace('_business','')];
+      var url = r && r.url;
+      var name = pubPlatLabel(k);
+      return url
+        ? '<a class="npost-chip live" href="' + String(url).replace(/"/g,'') + '" target="_blank" rel="noopener">Voir sur ' + name + ' ↗</a>'
+        : '<span class="npost-chip">' + name + '</span>';
+    }).join('');
+    var cap = escapeHtml(String(p.caption || '').replace(/\s+/g,' ').trim().slice(0, 80));
+    var when = (p.status === 'scheduled' && p.scheduled_at) ? ('pour le ' + new Date(p.scheduled_at).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})) : timeAgo(p.created_at);
+    return '<div class="npost ' + info.cls + '">' +
+      '<div class="npost-top"><span class="npost-ic">' + info.ic + '</span><span class="npost-st">' + info.txt + '</span><span class="npost-time">' + when + '</span></div>' +
+      (cap ? '<div class="npost-cap">' + cap + '</div>' : '') +
+      (chips ? '<div class="npost-chips">' + chips + '</div>' : '') +
+    '</div>';
+  }
+  // Charge (et met en cache 2 min) la liste des publications. Repli direct sur scheduled_posts si la fonction échoue.
+  async function loadPubPosts(force){
+    if (!force && window._pubPostsAt && (Date.now() - window._pubPostsAt < 120000)) return window._pubPosts || [];
+    try {
+      var s1 = await sb.auth.getSession(); var session = s1 && s1.data ? s1.data.session : null;
+      if (!session) { window._pubPosts = []; return []; }
+      var res = await fetch(SB_URL + '/functions/v1/pfm-posts', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY }, body:'{}' });
+      var d = await res.json().catch(function(){ return {}; });
+      if (d && d.success && Array.isArray(d.posts)) { window._pubPosts = d.posts; window._pubPostsAt = Date.now(); return d.posts; }
+    } catch(e){}
+    try {
+      var r = await sb.from('scheduled_posts').select('id,caption,media_url,platforms,pfm_post_id,status,scheduled_at,created_at,published_at,results').order('created_at',{ascending:false}).limit(20);
+      var posts = (r.data || []).map(function(x){ return { id:x.id, caption:x.caption, media_url:x.media_url, platforms:x.platforms||[], status:x.status, scheduled_at:x.scheduled_at, created_at:x.created_at, published_at:x.published_at, results:Array.isArray(x.results)?x.results:[] }; });
+      window._pubPosts = posts; window._pubPostsAt = Date.now(); return posts;
+    } catch(e){ return window._pubPosts || []; }
+  }
+  function refreshNotifDot(){
+    var dot = document.getElementById('notifDot'); if (!dot) return;
+    var posts = window._pubPosts || [];
+    var seen = parseInt(localStorage.getItem('sk_notif_seen') || '0', 10) || 0;
+    var unseen = posts.filter(function(p){ return new Date(p.created_at).getTime() > seen; }).length;
+    if (unseen > 0) { dot.textContent = unseen > 9 ? '9+' : String(unseen); dot.classList.add('show'); }
+    else { dot.classList.remove('show'); }
+  }
+  async function openNotifPanel(){
+    var panel = document.getElementById('notifPanel'); var body = document.getElementById('notifBody');
+    if (panel) panel.classList.add('open');
+    if (body) body.innerHTML = '<div class="notif-empty">Chargement…</div>';
+    var posts = await loadPubPosts(true);
+    if (body) {
+      body.innerHTML = posts.length
+        ? posts.map(pubPostHTML).join('')
+        : '<div class="notif-empty">🔔<br><br>Aucune publication pour l\'instant.<br>Tes vidéos publiées via Skillora apparaîtront ici.</div>';
+    }
+    try { localStorage.setItem('sk_notif_seen', String(Date.now())); } catch(e){}
+    refreshNotifDot();
+  }
+  function closeNotifPanel(e){
+    if (e && e.target && e.target.id && e.target.id !== 'notifPanel') return;
+    var p = document.getElementById('notifPanel'); if (p) p.classList.remove('open');
+  }
+  // Section accueil : carte « Tes dernières vidéos publiées via Skillora » (3 plus récentes).
+  async function renderPubVideosCard(){
+    var host = document.getElementById('homePubVideos'); if (!host) return;
+    var posts = await loadPubPosts(false);
+    refreshNotifDot();
+    if (!posts.length) { host.innerHTML = ''; return; }
+    var top = posts.slice(0, 3).map(pubPostHTML).join('');
+    var more = posts.length > 3 ? '<button class="home-pub-more" onclick="openNotifPanel()">Voir tout (' + posts.length + ')</button>' : '';
+    host.innerHTML = '<div class="card home-pub-card">' +
+      '<div class="home-pub-h">🚀 Tes dernières vidéos publiées via Skillora</div>' +
+      top + more + '</div>';
   }
 
   // Objectif premium = anneau circulaire (sans bloc). Plus tard : type choisi à l'inscription (abonnés/vues/likes).
@@ -3958,19 +4095,20 @@
      Elite Annuel : le 1er mois TOUT est illimite (voir curLimits()). */
   const PLAN_GRID = {
     starter: {
-      monthly: { profiles:2,  accounts:1,  scriptsDay:8,   scriptsMonth:null, ideasDay:4,  pubDay:1,  competitorsMonth:0,  coachMonth:0 },
-      annual:  { profiles:6,  accounts:1,  scriptsDay:null, scriptsMonth:200, ideasDay:8,  pubDay:2,  competitorsMonth:0,  coachMonth:0 }
+      monthly: { profiles:2,  accounts:1,  scriptsDay:8,   scriptsMonth:null, ideasDay:4,  pubDay:1,  pubMonth:60,  competitorsMonth:0,  coachMonth:0 },
+      annual:  { profiles:6,  accounts:1,  scriptsDay:null, scriptsMonth:200, ideasDay:8,  pubDay:2,  pubMonth:60,  competitorsMonth:0,  coachMonth:0 }
     },
     growth: {
-      monthly: { profiles:5,  accounts:3,  scriptsDay:15,  scriptsMonth:null, ideasDay:8,  pubDay:4,  competitorsMonth:0,  coachMonth:0 },
-      annual:  { profiles:10, accounts:3,  scriptsDay:null, scriptsMonth:400, ideasDay:16, pubDay:8,  competitorsMonth:3,  coachMonth:0 }
+      monthly: { profiles:5,  accounts:3,  scriptsDay:15,  scriptsMonth:null, ideasDay:8,  pubDay:4,  pubMonth:150, competitorsMonth:0,  coachMonth:0 },
+      annual:  { profiles:10, accounts:3,  scriptsDay:null, scriptsMonth:400, ideasDay:16, pubDay:8,  pubMonth:150, competitorsMonth:3,  coachMonth:0 }
     },
     elite: {
-      monthly: { profiles:20, accounts:6,  scriptsDay:28,  scriptsMonth:null, ideasDay:15, pubDay:12, competitorsMonth:15, coachMonth:5 },
-      annual:  { profiles:100,accounts:6,  scriptsDay:null, scriptsMonth:700, ideasDay:20, pubDay:15, competitorsMonth:30, coachMonth:10 }
+      monthly: { profiles:20, accounts:6,  scriptsDay:28,  scriptsMonth:null, ideasDay:15, pubDay:12, pubMonth:400, competitorsMonth:15, coachMonth:5 },
+      annual:  { profiles:100,accounts:6,  scriptsDay:null, scriptsMonth:700, ideasDay:20, pubDay:15, pubMonth:400, competitorsMonth:30, coachMonth:10 }
     }
   };
   const INF = Infinity;
+  const PUB_MONTH_FREE = 5; // compte gratuit : petit quota d'essai
   // Le compte est-il dans son 1er mois d'abonnement ? (pour l'offre "1er mois illimite" Elite Annuel)
   function inFirstMonth() {
     if (!userSubStart) return false;
@@ -3983,7 +4121,7 @@
     var base = PLAN_GRID[plan][cyc];
     if (plan === 'elite' && cyc === 'annual' && inFirstMonth()) {
       // 1er mois Elite Annuel : tout illimite
-      return { profiles:INF, accounts:INF, scriptsDay:INF, scriptsMonth:INF, ideasDay:INF, pubDay:INF, competitorsMonth:INF, coachMonth:INF };
+      return { profiles:INF, accounts:INF, scriptsDay:INF, scriptsMonth:INF, ideasDay:INF, pubDay:INF, pubMonth:INF, competitorsMonth:INF, coachMonth:INF };
     }
     return base;
   }
@@ -6454,12 +6592,44 @@
     document.getElementById('pubZero').style.display = 'block';
   }
 
+  // Limite de publication mensuelle (mêmes chiffres que le serveur) : 60 / 150 / 400 ; gratuit = 5.
+  function pubMonthlyLimit(){
+    if (typeof userIsSubscribed !== 'undefined' && userIsSubscribed && typeof curLimits === 'function') {
+      var l = curLimits().pubMonth; return (typeof l === 'number') ? l : PUB_MONTH_FREE;
+    }
+    return PUB_MONTH_FREE;
+  }
+  // Vidéos distinctes (par URL) publiées ce mois civil — une vidéo sur 3 réseaux = 1. Échecs exclus.
+  async function pubMonthlyUsed(){
+    try {
+      var d = new Date(); var ms = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString();
+      var r = await sb.from('scheduled_posts').select('media_url,status').gte('created_at', ms);
+      var set = {}; (r.data || []).forEach(function(x){ if (x && x.media_url && x.status !== 'failed') set[x.media_url] = 1; });
+      return Object.keys(set).length;
+    } catch(e){ return 0; }
+  }
+  function pubShowLimitModal(used, max){
+    skModal({
+      icon:'📈', iconBg:'#16263f', title:'Limite mensuelle atteinte',
+      message:'Tu as publié <b>' + used + '/' + max + '</b> vidéos ce mois-ci avec ton plan. Passe à un plan supérieur pour en publier davantage — ta limite se réinitialise le 1er du mois.',
+      confirmText:'Voir les plans', cancelText:'Plus tard',
+      onConfirm: function(){ window.location.href = 'index.html#pricing'; }
+    });
+  }
+
   // Publication réelle via Post for Me (fonction pfm-publish).
   async function pubPublishSoon() {
     var sel = PUB_PLATS.filter(function (p) { return p.selected; });
     if (!sel.length) { skModal({ icon:'📲', title:'Choisis une plateforme', message:'Sélectionne au moins une plateforme où publier ta vidéo.', cancelText:'OK' }); return; }
     if (!pubFile) { skModal({ icon:'🎬', title:'Aucune vidéo', message:'Ajoute et analyse d\'abord une vidéo à publier.', cancelText:'OK' }); return; }
     if (pubFile.size > 50 * 1024 * 1024) { skModal({ icon:'📦', title:'Vidéo trop lourde', message:'Pour la publication automatique, ta vidéo doit faire moins de 50 Mo. Compresse-la et réessaie.', cancelText:'OK' }); return; }
+
+    // Pré-vérif du quota mensuel : évite un upload inutile si la limite est déjà atteinte.
+    var maxM = pubMonthlyLimit();
+    if (isFinite(maxM)) {
+      var usedM = await pubMonthlyUsed();
+      if (usedM >= maxM) { pubShowLimitModal(usedM, maxM); return; }
+    }
 
     var names = sel.map(function (p) { return p.name; }).join(', ');
     var label = document.getElementById('pubPubLabel');
@@ -6502,6 +6672,7 @@
       if (!isBest) {
         // Tout de suite, sur toutes les plateformes en même temps.
         var dNow = await pubSend(sel.map(function(p){ return p.key; }), null);
+        if (dNow && dNow.limit_reached) { try{ clearInterval(cyc); }catch(e){} pubSyncPublishBtn(); pubShowLimitModal(dNow.used, dNow.max); return; }
         sel.forEach(function(p){ done.push({ name:p.name, iso:null, ok: !!(dNow && dNow.success), err: dNow && dNow.error }); });
       } else {
         // Au bon moment : 1 appel par plateforme, chacune à son créneau.
@@ -6515,6 +6686,7 @@
           st.push(pubSlotKey(new Date(sAt)));
           pubBookHour(p.key, sAt);
           var dRes = await pubSend([p.key], sAt);
+          if (dRes && dRes.limit_reached) { try{ clearInterval(cyc); }catch(e){} pubSyncPublishBtn(); pubShowLimitModal(dRes.used, dRes.max); return; }
           done.push({ name:p.name, iso:sAt, ok: !!(dRes && dRes.success), err: dRes && dRes.error });
         }
       }
@@ -6523,6 +6695,10 @@
 
       var okList = done.filter(function(d){ return d.ok; });
       var failList = done.filter(function(d){ return !d.ok; });
+
+      // La vidéo part -> on rafraîchit la cloche 🔔 et la section accueil après quelques secondes
+      // (le temps que Post for Me la mette en ligne et nous renvoie les permaliens).
+      if (okList.length) { setTimeout(function(){ loadPubPosts(true).then(function(){ refreshNotifDot(); renderPubVideosCard(); }); }, 4000); }
 
       if (!okList.length) {
         skModal({ icon:'⚠️', title:'Publication impossible', message: (failList[0] && failList[0].err) || 'Réessaie dans un instant.', cancelText:'OK' });

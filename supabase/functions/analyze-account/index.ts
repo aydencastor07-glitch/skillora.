@@ -408,6 +408,9 @@ async function buildSmartSummary(audience, videos, top, platform, aiKey, owner, 
   base.best_videos = sorted.slice(0, 3);
   const withViews = sorted.filter(v => v.views > 0);
   base.worst_videos = withViews.slice(-2).reverse();
+  // 6 vidéos les plus RÉCENTES (par date de publication) -> détection "nouvelle vidéo" + verdict côté app.
+  base.recent_videos = [...videos].sort((a, b) => (b.create_time || 0) - (a.create_time || 0)).slice(0, 6)
+    .map((v) => ({ id: v.id, description: v.description, views: v.views, likes: v.likes, comments: v.comments, create_time: v.create_time, cover: v.cover, url: v.url }));
 
   const fallbackNiche = guessNiche(videos, bio || "");
   if (aiKey && top.length) {

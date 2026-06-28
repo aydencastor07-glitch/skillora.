@@ -226,6 +226,27 @@
   .home-car-page { flex:0 0 100%; width:100%; min-width:100%; scroll-snap-align:start; scroll-snap-stop:always; }
 
   /* Dernières vidéos + verdict */
+  /* Bloc "Quoi de neuf" : nouvelle vidéo + verdict + évolution */
+  .wn-card { margin-bottom:14px; }
+  .wn-head { margin-bottom:10px; }
+  .wn-badge { font-family:'Sora',sans-serif; font-weight:700; font-size:.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--green); background:rgba(61,220,132,0.12); border:1px solid rgba(61,220,132,0.3); padding:3px 9px; border-radius:999px; }
+  .wn-badge-mut { color:var(--muted); background:rgba(255,255,255,0.05); border-color:var(--border); }
+  .wn-row { display:flex; gap:12px; align-items:center; }
+  .wn-thumb { width:60px; height:78px; border-radius:10px; background-size:cover; background-position:center; flex:none; background-color:var(--bg); }
+  .wn-thumb-empty { display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+  .wn-info { flex:1; min-width:0; }
+  .wn-desc { font-weight:600; font-size:.9rem; color:var(--white); line-height:1.3; margin-bottom:4px; }
+  .wn-stats { font-size:.78rem; color:var(--muted); margin-bottom:6px; }
+  .wn-verdict { font-family:'Sora',sans-serif; font-weight:700; font-size:.8rem; }
+  .wn-verdict.win { color:var(--green); } .wn-verdict.good { color:var(--blue-light); } .wn-verdict.mid { color:var(--muted); } .wn-verdict.low { color:var(--orange); }
+  .wn-link { display:inline-block; margin-top:10px; font-size:.8rem; color:var(--blue-light); text-decoration:none; font-weight:600; }
+  .wn-changes { margin-bottom:14px; }
+  .wn-changes-h { font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; color:var(--muted); margin-bottom:10px; }
+  .wn-chips { display:flex; gap:8px; }
+  .wn-chip { flex:1; text-align:center; padding:10px 4px; border-radius:11px; background:var(--bg); border:1px solid var(--border); }
+  .wn-chip-n { font-family:'Fraunces',serif; font-weight:800; font-size:1.2rem; line-height:1; }
+  .wn-chip.up .wn-chip-n { color:var(--green); } .wn-chip.down .wn-chip-n { color:var(--orange); } .wn-chip.flat .wn-chip-n { color:var(--muted); }
+  .wn-chip-l { font-size:.7rem; color:var(--muted); margin-top:4px; }
   .home-sec-h { font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; color:var(--white); margin:18px 0 10px; }
   .home-rv { display:flex; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px; margin-bottom:9px; }
   .home-rv-thumb { width:48px; height:64px; flex:0 0 auto; border-radius:9px; background-size:cover; background-position:center; background-color:var(--surface2); }
@@ -2684,7 +2705,7 @@
       ? 'Analyse en cours… Reviens dans un instant, ou appuie sur <b>Actualiser</b>.'
       : 'Compte connecté pour la <b>publication</b>. L\'analyse de ' + escapeHtml(platLabel(acc.platform)) + ' arrive bientôt.';
     var btn = analyzable
-      ? '<button class="home-pf-refresh" style="margin-top:14px;" onclick="silentReanalyze(\'' + acc.platform + '\',\'' + escapeHtml(h) + '\')">Actualiser</button>'
+      ? '<button class="home-pf-refresh" style="margin-top:14px;" onclick="silentReanalyze(\'' + acc.platform + '\',\'' + escapeHtml(h) + '\')">🔄 Vérifier mes vidéos</button>'
       : '';
     return '<div class="card" style="text-align:center;padding:24px 16px;margin-bottom:14px;">'
       + av
@@ -2793,6 +2814,64 @@
   }
 
   // HTML du tableau de bord d'UN compte (chaîne pure, sans effet de bord) — une "page" du carrousel.
+  // Verdict de performance d'une vidéo PAR RAPPORT à la moyenne du compte (le cœur de la valeur).
+  function videoVerdict(views, avg){
+    views = Number(views) || 0; avg = Number(avg) || 0;
+    if (avg <= 0 || views <= 0) return null;
+    var r = views / avg;
+    var x = (r >= 10 ? Math.round(r) : r.toFixed(1).replace('.0','')) + '×';
+    if (r >= 2)   return { txt: '🔥 Carton — ' + x + ' ta moyenne, refais ce format', cls: 'win' };
+    if (r >= 1.2) return { txt: '📈 Au-dessus de ta moyenne (' + x + ')', cls: 'good' };
+    if (r >= 0.8) return { txt: '➖ Dans ta moyenne', cls: 'mid' };
+    return { txt: '📉 En dessous (' + Math.round(r*100) + '% de ta moyenne)', cls: 'low' };
+  }
+
+  // Bloc "Quoi de neuf" : dernière/nouvelle vidéo + verdict, puis ce qui a changé depuis le dernier relevé.
+  function homeWhatsNew(s, platform, username){
+    var html = '';
+    var avg = Number(s.avg_views) || 0;
+    // recent_videos (nouvelle analyse) sinon repli sur best_videos (analyses plus anciennes)
+    var recent = (s.recent_videos && s.recent_videos.length) ? s.recent_videos : (s.best_videos || []);
+    if (recent.length) {
+      var newest = recent.slice().sort(function(a,b){ return (Number(b.create_time)||0) - (Number(a.create_time)||0); })[0];
+      var key = 'sk_lastvid_' + platform + '_' + String(username).toLowerCase();
+      var lastSeen = parseInt(localStorage.getItem(key) || '0', 10) || 0;
+      var ct = Number(newest.create_time) || 0;
+      var isNew = ct > 0 && ct > lastSeen;
+      if (ct > 0) { try { localStorage.setItem(key, String(ct)); } catch(e){} }
+      var v = videoVerdict(newest.views, avg);
+      var cover = newest.cover
+        ? '<div class="wn-thumb" style="background-image:url(\'' + String(newest.cover).replace(/'/g,'') + '\')"></div>'
+        : '<div class="wn-thumb wn-thumb-empty">🎬</div>';
+      html += '<div class="card wn-card">' +
+        '<div class="wn-head">' + (isNew ? '<span class="wn-badge">✨ Nouvelle vidéo</span>' : '<span class="wn-badge wn-badge-mut">Dernière vidéo</span>') + '</div>' +
+        '<div class="wn-row">' + cover +
+          '<div class="wn-info">' +
+            '<div class="wn-desc">' + escapeHtml(String(newest.description || 'Sans titre').slice(0,70)) + '</div>' +
+            '<div class="wn-stats">' + fmtNum(newest.views||0) + ' vues · ' + fmtNum(newest.likes||0) + ' likes</div>' +
+            (v ? '<div class="wn-verdict ' + v.cls + '">' + v.txt + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+        (newest.url ? '<a class="wn-link" href="' + String(newest.url).replace(/"/g,'') + '" target="_blank" rel="noopener">Voir la vidéo ↗</a>' : '') +
+      '</div>';
+    }
+    // Ce qui a changé depuis le dernier relevé (à partir des snapshots de la courbe)
+    var _curU = String(username).toLowerCase();
+    var hist = (window._growthHistory || []).filter(function(h){ return h.platform === platform && String(h.username||'').toLowerCase() === _curU; })
+      .sort(function(a,b){ return a.snapshot_date < b.snapshot_date ? -1 : (a.snapshot_date > b.snapshot_date ? 1 : 0); });
+    if (hist.length >= 2) {
+      var last = hist[hist.length-1], prev = hist[hist.length-2];
+      var dF = (Number(last.followers)||0) - (Number(prev.followers)||0);
+      var dV = (Number(last.total_views)||0) - (Number(prev.total_views)||0);
+      var dN = (Number(last.total_videos)||0) - (Number(prev.total_videos)||0);
+      var chip = function(label, d){ var sign = d>0?'+':''; var cls = d>0?'up':(d<0?'down':'flat'); return '<div class="wn-chip ' + cls + '"><div class="wn-chip-n">' + sign + fmtNum(d) + '</div><div class="wn-chip-l">' + label + '</div></div>'; };
+      html += '<div class="card wn-changes"><div class="wn-changes-h">Depuis ton dernier relevé</div><div class="wn-chips">' +
+        chip('abonnés', dF) + chip('vues', dV) + chip('vidéos', dN) +
+      '</div></div>';
+    }
+    return html;
+  }
+
   function accountPageHTML(acc){
     if (!acc.analysis) return homeNoAnalysisCard(acc);
     var platform = acc.platform || 'tiktok';
@@ -2815,6 +2894,9 @@
       // Objectif (anneau mini) — dans l'en-tête, à droite du "Bonjour"
       var hg = document.getElementById('homeHeaderGoal');
       if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s) : '';
+
+      // QUOI DE NEUF : dernière/nouvelle vidéo + verdict, et ce qui a changé depuis le dernier relevé.
+      if (hasStats) html += homeWhatsNew(s, platform, username);
 
       // Graphique d'évolution — seulement quand il y a de vraies stats (filtré sur CE compte)
       if (hasStats) html += renderGrowthGraph(s, platform, username);
@@ -3117,7 +3199,7 @@
         : 'Tu as utilisé ton actualisation du jour pour ce compte (plan ' + (PLAN_NAMES[curPlan()] || 'Gratuit') + ' : ' + lim + '×/jour). Passe à un plan supérieur (Growth = 3/jour, Elite = illimité). Ta courbe continue de se remplir automatiquement, sans crédit.');
       return;
     }
-    if (btn) { btn.textContent = 'Actualisation…'; btn.disabled = true; btn.classList.add('refreshing'); }
+    if (btn) { btn.textContent = '🔍 Vérification…'; btn.disabled = true; btn.classList.add('refreshing'); }
     var ok = false;
     try { var out = await analyzeOnce(platform, username, 'self', true); ok = !!(out && out._httpOk && !out.error); } catch(e) {}
     if (ok) {

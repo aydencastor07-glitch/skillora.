@@ -1,6 +1,7 @@
-// SKILLORA — analyze-account v24 : VERROU anti-scrape concurrent (claim_scrape_lock) -> un seul scrape par
-// compte à la fois, fini le profil scrapé 2-3x = fini le gaspillage de crédits. Conserve : Instagram + TikTok
-// + YouTube, MAX_VIDEOS 60, anti-doublon AVANT scraping, cache 7 jours, résilience, retry, 1 transcript.
+// SKILLORA — analyze-account v25 : ACTUALISATION INTELLIGENTE. Si le nb de vidéos n'a pas bougé -> on ne
+// re-scrape PAS les vidéos et on ne relance PAS l'IA (réutilisation), juste le profil = 1 crédit. Nouvelle
+// vidéo -> profil + 1 page vidéos (2 cr), IA réutilisée. « Régénérer » (regen) relance l'IA. + verrou
+// anti-doublon, MAX_VIDEOS 30, cache, recent_videos. IA appelée 1× (1ère analyse) au lieu d'à chaque fois.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SV_BASE = "https://api.sociavault.com";
@@ -34,6 +35,7 @@ Deno.serve(async (req) => {
     const username = (body.username ?? "").trim().replace(/^@/, "");
     const owner = body.owner === "competitor" ? "competitor" : "self";
     const force = body.force === true;
+    const regen = force && body.regen === true; // « Régénérer ma stratégie » -> relance l'IA (rare). Sinon IA réutilisée.
     if (!platform || !username) return j({ error: "platform et username requis." }, 400);
 
     const { data: sub } = await supabase.from("subscriptions").select("plan,status").eq("user_id", user.id).maybeSingle();
@@ -92,11 +94,14 @@ Deno.serve(async (req) => {
     }
 
     try {
+    // Analyse précédente -> actualisation intelligente : pas de re-scrape des vidéos s'il n'y en a pas de
+    // nouvelle, et pas de relance de l'IA (on réutilise la stratégie déjà calculée).
+    const priorSummary = (recent && recent.summary) ? recent.summary : ((await lastAnalysis())?.summary || null);
     let result;
     try {
-      if (platform === "tiktok") result = await analyzeTikTok(username, SV_KEY, AI_KEY, owner);
-      else if (platform === "youtube") result = await analyzeYouTube(username, SV_KEY, AI_KEY, owner);
-      else if (platform === "instagram") result = await analyzeInstagram(username, SV_KEY, AI_KEY, owner);
+      if (platform === "tiktok") result = await analyzeTikTok(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
+      else if (platform === "youtube") result = await analyzeYouTube(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
+      else if (platform === "instagram") result = await analyzeInstagram(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
       else return j({ error: `${platform} sera bientôt disponible.` }, 501);
     } catch (scrapeErr) {
       const msg = String(scrapeErr?.message ?? scrapeErr);
@@ -229,7 +234,7 @@ async function fetchAllTikTokVideos(handle, key) {
   return all.filter((v) => typeof v.views === "number");
 }
 
-async function analyzeTikTok(handle, key, aiKey, owner) {
+async function analyzeTikTok(handle, key, aiKey, owner, prior, regen) {
   const profile = await svGet(`/tiktok/profile?handle=${encodeURIComponent(handle)}`, key);
   const p = profile.data ?? profile;
   const u = p.user ?? p.userInfo?.user ?? p.author ?? p;
@@ -243,6 +248,15 @@ async function analyzeTikTok(handle, key, aiKey, owner) {
   const uniqueId = u.unique_id ?? u.uniqueId ?? u.username ?? handle;
   const bio = u.signature ?? u.bio ?? p.signature ?? "";
 
+  // ACTUALISATION INTELLIGENTE : si le nb de vidéos n'a pas bougé, on NE re-scrape PAS les vidéos ni l'IA
+  // -> on réutilise l'analyse précédente en rafraîchissant juste les chiffres du profil. = 1 crédit.
+  if (prior && !regen && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
+    const summary = JSON.parse(JSON.stringify(prior));
+    summary.audience = followers; summary.total_published = totalPublished;
+    summary.profile = { avatar: avatar || prior.profile?.avatar || "", nickname, handle: uniqueId, following, total_likes: totalLikes };
+    return { rawData: { followers, total_published: totalPublished, fetched: prior.video_count, reused: true }, summary };
+  }
+
   let videos = [];
   try { videos = await fetchAllTikTokVideos(handle, key); } catch (e) { console.error("VIDEOS_FAIL", handle, String(e?.message ?? e)); }
   if (!videos.length && totalPublished > 0) {
@@ -255,13 +269,14 @@ async function analyzeTikTok(handle, key, aiKey, owner) {
   // Transcript DÉSACTIVÉ pour économiser 1 crédit/analyse (le type est déduit sans appel payant).
   top.forEach((v) => { v.video_type = "visual"; });
 
-  const summary = await buildSmartSummary(followers, videos, top, "tiktok", aiKey, owner, totalPublished, bio);
+  const aiKeyUse = (regen || !(prior?.insights?.niche)) ? aiKey : null; // IA seulement à la 1ère analyse ou « Régénérer »
+  const summary = await buildSmartSummary(followers, videos, top, "tiktok", aiKeyUse, owner, totalPublished, bio, prior?.insights);
   summary.profile = { avatar, nickname, handle: uniqueId, following, total_likes: totalLikes };
   const dbg = { keys: Object.keys(p).slice(0, 30), user_keys: u !== p ? Object.keys(u).slice(0, 30) : [], avatar_found: !!avatar, ai_error: summary._ai_error || null };
   return { rawData: { followers, total_published: totalPublished, fetched: videos.length, profile_debug: dbg }, summary };
 }
 
-async function analyzeYouTube(handle, key, aiKey, owner) {
+async function analyzeYouTube(handle, key, aiKey, owner, prior, regen) {
   let ch;
   for (const q of [`/youtube/channel?handle=${encodeURIComponent(handle)}`,
                    `/youtube/channel?channelId=${encodeURIComponent(handle)}`,
@@ -274,6 +289,14 @@ async function analyzeYouTube(handle, key, aiKey, owner) {
   let avatar = deepFindAvatar(c);
   const nickname = c.title ?? c.name ?? c.author ?? handle;
   const bio = c.description ?? "";
+
+  // Actualisation intelligente : pas de nouvelle vidéo -> on réutilise l'analyse précédente (1 crédit).
+  if (prior && !regen && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
+    const summary = JSON.parse(JSON.stringify(prior));
+    summary.audience = subs; summary.total_published = totalPublished;
+    summary.profile = { avatar: avatar || prior.profile?.avatar || "", nickname, handle, following: 0, total_likes: 0 };
+    return { rawData: { subs, total_published: totalPublished, fetched: prior.video_count, reused: true }, summary };
+  }
 
   let vlist = c.videos ?? c.data?.videos ?? [];
   if (!vlist || (Array.isArray(vlist) && !vlist.length)) {
@@ -295,7 +318,8 @@ async function analyzeYouTube(handle, key, aiKey, owner) {
 
   const top = [...videos].sort((a, b) => b.views - a.views).slice(0, 3);
   top.forEach((v) => { v.video_type = "visual"; });
-  const summary = await buildSmartSummary(subs, videos, top, "youtube", aiKey, owner, totalPublished, bio);
+  const aiKeyUse = (regen || !(prior?.insights?.niche)) ? aiKey : null;
+  const summary = await buildSmartSummary(subs, videos, top, "youtube", aiKeyUse, owner, totalPublished, bio, prior?.insights);
   summary.profile = { avatar, nickname, handle, following: 0, total_likes: 0 };
   return { rawData: { subs, total_published: totalPublished, fetched: videos.length, profile_debug: { ai_error: summary._ai_error || null } }, summary };
 }
@@ -325,7 +349,7 @@ function mapInstagramItem(it) {
     cover: cover ?? "", hashtags: tags,
   };
 }
-async function analyzeInstagram(handle, key, aiKey, owner) {
+async function analyzeInstagram(handle, key, aiKey, owner, prior, regen) {
   const profile = await svGet(`/instagram/profile?handle=${encodeURIComponent(handle)}`, key);
   const p = profile.data ?? profile;
   const u = p.user ?? p.userInfo?.user ?? p.profile ?? p.data?.user ?? p;
@@ -336,6 +360,14 @@ async function analyzeInstagram(handle, key, aiKey, owner) {
   const nickname = u.full_name ?? u.fullName ?? u.nickname ?? u.name ?? handle;
   const uniqueId = u.username ?? u.handle ?? handle;
   const bio = u.biography ?? u.bio ?? "";
+
+  // Actualisation intelligente : pas de nouveau post -> on réutilise l'analyse précédente (1 crédit).
+  if (prior && !regen && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
+    const summary = JSON.parse(JSON.stringify(prior));
+    summary.audience = followers; summary.total_published = totalPublished;
+    summary.profile = { avatar: avatar || prior.profile?.avatar || "", nickname, handle: uniqueId, following, total_likes: prior.profile?.total_likes ?? 0 };
+    return { rawData: { followers, total_published: totalPublished, fetched: prior.video_count, reused: true }, summary };
+  }
 
   let raw = [];
   try {
@@ -349,7 +381,8 @@ async function analyzeInstagram(handle, key, aiKey, owner) {
   const top = [...videos].sort((a, b) => b.views - a.views).slice(0, 3);
   top.forEach((v) => { v.video_type = "visual"; });
 
-  const summary = await buildSmartSummary(followers, videos, top, "instagram", aiKey, owner, totalPublished, bio);
+  const aiKeyUse = (regen || !(prior?.insights?.niche)) ? aiKey : null;
+  const summary = await buildSmartSummary(followers, videos, top, "instagram", aiKeyUse, owner, totalPublished, bio, prior?.insights);
   // IG n'expose pas le total de likes du profil -> on somme les likes des posts récupérés (approx récente).
   const totalLikes = videos.reduce((sm, v) => sm + (Number(v.likes) || 0), 0);
   summary.profile = { avatar, nickname, handle: uniqueId, following, total_likes: totalLikes };
@@ -386,7 +419,7 @@ function guessNiche(videos, bio) {
   return bestScore > 0 ? best : (best || "");
 }
 
-async function buildSmartSummary(audience, videos, top, platform, aiKey, owner, totalPublished, bio) {
+async function buildSmartSummary(audience, videos, top, platform, aiKey, owner, totalPublished, bio, priorInsights) {
   const base = { audience, video_count: videos.length, total_published: totalPublished || videos.length,
     avg_views: 0, avg_engagement_rate: 0, total_shares: 0, total_saves: 0, top_videos: top, owner, insights: null };
   if (!videos.length) {
@@ -421,7 +454,7 @@ async function buildSmartSummary(audience, videos, top, platform, aiKey, owner, 
       base._ai_error = String(e?.message ?? e).slice(0, 300);
       base.insights = fb(top, fallbackNiche);
     }
-  } else { base.insights = fb(top, fallbackNiche); }
+  } else { base.insights = priorInsights || fb(top, fallbackNiche); }  // pas d'IA -> on réutilise la stratégie précédente
   return base;
 }
 

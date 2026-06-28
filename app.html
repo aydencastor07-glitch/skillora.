@@ -5821,7 +5821,7 @@
     // retour de connexion = soit ?pfm=connected dans l'URL, soit un clic "connecter" memorise
     if (params.get('pfm') !== 'connected' && !pend) return;
     try { window.history.replaceState({}, '', window.location.pathname); } catch(e){}
-    var plat = pend || 'tiktok';
+    var plat = pend || '';  // NE PAS défaut sur 'tiktok' : sinon connecter un autre réseau analysait TikTok par erreur (crédits gaspillés)
     var _t0 = Date.now();
     showPfmConnecting(plat);              // <-- ecran anime tout de suite (plus de "rien ne se passe")
     try {
@@ -5838,8 +5838,10 @@
         (data || []).forEach(function(c){ var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform; map[k] = c.handle || c.username || true; info[k] = { handle:c.handle, name:c.username, photo:c.profile_photo_url, verified:!!c.handle_verified }; });
         window.__connectedPlats = map; window.__connInfo = info; window.__pfmSynced = true;
         // 3) analyse AVEC le @ VERIFIE uniquement (jamais un compte non confirme) ; on ATTEND
-        var ci = info[plat];
-        if (ci && ci.verified && ci.handle) {
+        // On n'analyse QUE la plateforme qu'on vient de connecter, et UNIQUEMENT si elle est analysable
+        // (TikTok/YouTube/Instagram). Facebook/X/LinkedIn = publication seule -> aucune analyse, 0 crédit.
+        var ci = plat ? info[plat] : null;
+        if (plat && ['tiktok','youtube','instagram'].indexOf(plat) >= 0 && ci && ci.verified && ci.handle) {
           window.__autoAnalyzeRan = true;
           try { await analyzeOnce(plat, ci.handle, 'self', false); } catch(e){}
         }

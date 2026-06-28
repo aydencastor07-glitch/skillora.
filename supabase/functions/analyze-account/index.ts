@@ -5,7 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SV_BASE = "https://api.sociavault.com";
 const SV_SCRAPE = SV_BASE + "/v1/scrape";
-const MAX_VIDEOS = 60;
+const MAX_VIDEOS = 30; // 30 récentes = assez pour moyenne + top 3, et 1 page vidéos au lieu de 2 (~25% de crédits en moins)
 const CACHE_DAYS = 7;
 const AI_MODELS = ["claude-sonnet-4-6", "claude-haiku-4-5-20251001"];
 const cors = {

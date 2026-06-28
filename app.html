@@ -2820,8 +2820,10 @@
   // Dernière vidéo publiée — élément COMPACT (une ligne), placé SOUS le graphique.
   // Pas de score ici : le vrai score /10 (page Publier) sera ajouté pour les vidéos publiées VIA Skillora.
   function homeWhatsNew(s, platform, username){
-    var recent = (s.recent_videos && s.recent_videos.length) ? s.recent_videos : (s.best_videos || []);
-    if (!recent.length) return '';
+    // On affiche UNIQUEMENT les vraies vidéos récentes (triées par date). Pas de repli sur les "top vues"
+    // -> on ne montre jamais une vieille vidéo à la place de la dernière publiée. Rien tant qu'on n'a pas la donnée.
+    var recent = (s.recent_videos && s.recent_videos.length) ? s.recent_videos : null;
+    if (!recent) return '';
     var newest = recent.slice().sort(function(a,b){ return (Number(b.create_time)||0) - (Number(a.create_time)||0); })[0];
     var key = 'sk_lastvid_' + platform + '_' + String(username).toLowerCase();
     var ct = Number(newest.create_time) || 0;

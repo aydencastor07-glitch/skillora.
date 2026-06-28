@@ -11,9 +11,9 @@ const VALID = ["facebook","instagram","x","tiktok","youtube","pinterest","linked
 
 // Nombre de comptes sociaux autorises par plan / cycle. 'none' (gratuit) = 1 compte.
 const PLAN_ACCOUNTS = {
-  starter: { monthly: 1, annual: 2 },
-  growth:  { monthly: 3, annual: 6 },
-  elite:   { monthly: 8, annual: 12 },
+  starter: { monthly: 1, annual: 1 },
+  growth:  { monthly: 3, annual: 3 },
+  elite:   { monthly: 6, annual: 6 },
 };
 const FREE_ACCOUNTS = 1;
 

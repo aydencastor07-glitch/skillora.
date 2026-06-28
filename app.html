@@ -226,19 +226,19 @@
   .home-car-page { flex:0 0 100%; width:100%; min-width:100%; scroll-snap-align:start; scroll-snap-stop:always; }
 
   /* Dernières vidéos + verdict */
-  /* Dernière vidéo — élément COMPACT (une seule ligne), pas un gros bloc */
-  .lvid { display:flex; align-items:center; gap:11px; padding:10px 12px; margin-bottom:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; }
-  .lvid-thumb { width:46px; height:60px; border-radius:9px; background-size:cover; background-position:center; flex:none; background-color:var(--bg); }
+  /* Dernière vidéo — bandeau PREMIUM compact (une ligne), placé en haut de l'Accueil */
+  .lvid { display:flex; align-items:center; gap:12px; padding:11px 13px; margin-bottom:14px; border-radius:16px;
+          background:linear-gradient(135deg, rgba(47,123,255,0.12), rgba(255,255,255,0.02)); border:1px solid rgba(47,123,255,0.22);
+          transition:transform .12s ease; }
+  .lvid:active { transform:scale(.99); }
+  .lvid-thumb { width:44px; height:56px; border-radius:11px; background-size:cover; background-position:center; flex:none; background-color:var(--bg); box-shadow:0 2px 8px rgba(0,0,0,0.25); }
   .lvid-thumb-empty { display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
   .lvid-info { flex:1; min-width:0; }
-  .lvid-tag { font-family:'Sora',sans-serif; font-weight:700; font-size:.56rem; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+  .lvid-tag { font-family:'Sora',sans-serif; font-weight:800; font-size:.56rem; letter-spacing:.08em; text-transform:uppercase; color:var(--blue-light); }
   .lvid-tag.new { color:var(--green); }
-  .lvid-title { font-size:.85rem; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:1px 0; }
+  .lvid-title { font-size:.88rem; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:2px 0; }
   .lvid-meta { font-size:.74rem; color:var(--muted); }
-  .lvid-score { flex:none; text-align:center; min-width:42px; }
-  .lvid-score-n { font-family:'Fraunces',serif; font-weight:800; font-size:1.3rem; line-height:1; }
-  .lvid-score.hi .lvid-score-n { color:var(--green); } .lvid-score.mid .lvid-score-n { color:var(--blue-light); } .lvid-score.lo .lvid-score-n { color:var(--orange); }
-  .lvid-score-l { font-size:.54rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-top:2px; }
+  .lvid-go { flex:none; color:var(--muted); font-size:1.15rem; opacity:.55; }
   .home-sec-h { font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; color:var(--white); margin:18px 0 10px; }
   .home-rv { display:flex; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px; margin-bottom:9px; }
   .home-rv-thumb { width:48px; height:64px; flex:0 0 auto; border-radius:9px; background-size:cover; background-position:center; background-color:var(--surface2); }
@@ -2838,7 +2838,8 @@
         '<div class="lvid-tag ' + (isNew ? 'new' : '') + '">' + (isNew ? '✨ Nouvelle vidéo' : 'Dernière vidéo') + '</div>' +
         '<div class="lvid-title">' + escapeHtml(String(newest.description || 'Sans titre').slice(0,60)) + '</div>' +
         '<div class="lvid-meta">' + fmtNum(newest.views||0) + ' vues' + (rtxt ? ' · ' + rtxt : '') + '</div>' +
-      '</div>';
+      '</div>' +
+      (newest.url ? '<div class="lvid-go">↗</div>' : '');
     return newest.url
       ? '<a class="lvid" href="' + String(newest.url).replace(/"/g,'') + '" target="_blank" rel="noopener" style="text-decoration:none;">' + inner + '</a>'
       : '<div class="lvid">' + inner + '</div>';
@@ -2854,11 +2855,11 @@
       var ins = s.insights || {};
       var prof = s.profile || {};
 
-      var html = homeProfileCard(platform, prof, s, username);
-
       // Stats VIDÉO réellement récupérées ? (l'audience seule ne suffit pas : il faut les vidéos)
       var nbBest = (s.best_videos && s.best_videos.length) ? s.best_videos.length : 0;
       var hasStats = (Number(s.total_views) > 0) || (Number(s.video_count) > 0) || (Number(s.avg_views) > 0) || nbBest > 0;
+      // Dernière vidéo EN HAUT (bandeau premium compact), puis la carte profil.
+      var html = (hasStats ? homeWhatsNew(s, platform, username) : '') + homeProfileCard(platform, prof, s, username);
       if (!hasStats) {
         html += '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.88rem;line-height:1.5;">⏳ On n\'a pas pu récupérer tes vidéos cette fois. Appuie sur <b>Actualiser</b> sur ta carte de profil pour réessayer.</div>';
       }
@@ -2869,9 +2870,6 @@
 
       // Graphique d'évolution — seulement quand il y a de vraies stats (filtré sur CE compte)
       if (hasStats) html += renderGrowthGraph(s, platform, username);
-
-      // Dernière vidéo (compacte) — APRÈS le graphique, pour ne pas casser le style de la carte profil.
-      if (hasStats) html += homeWhatsNew(s, platform, username);
 
       // (Les idées du jour vivent désormais dans la bulle flottante 💡 — pas sur l'Accueil.)
       // (Le "potentiel viral" n'apparaît plus ici : il est réservé à chaque idée, dans la bulle.)

@@ -3149,37 +3149,53 @@
     '</div>';
   }
 
-  // Limite d'actualisations MANUELLES par compte et par jour, selon le plan (contrôle des crédits).
-  // Starter = 1×/jour/compte ; Elite = illimité. (Modifiable ici en un coup d'œil.)
-  var REFRESH_LIMITS = { none: 1, starter: 1, growth: 3, elite: 6 };
+  // Garde-fou anti-abus de « Vérifier mes vidéos » : limite/jour + temps d'attente entre 2 (par plan).
+  var REFRESH_LIMITS     = { none: 1, starter: 2, growth: 4, elite: 8 };  // vérifications par jour / compte
+  var REFRESH_COOLDOWN_H = { none: 6, starter: 4, growth: 2, elite: 1 };  // heures mini entre 2 vérifications
   function curPlan(){ return (typeof userPlan !== 'undefined' && userPlan ? String(userPlan) : 'none').toLowerCase(); }
   function refreshLimit(){ var l = REFRESH_LIMITS[curPlan()]; return (typeof l === 'number') ? l : 1; }
+  function refreshCooldownH(){ var h = REFRESH_COOLDOWN_H[curPlan()]; return (typeof h === 'number') ? h : 4; }
   function refreshKey(platform, username){ return 'sk_refresh_' + platform + '_' + String(username).toLowerCase() + '_' + new Date().toISOString().slice(0,10); }
+  function refreshLastKey(platform, username){ return 'sk_refresh_last_' + platform + '_' + String(username).toLowerCase(); }
   function refreshesUsedToday(platform, username){ return parseInt(localStorage.getItem(refreshKey(platform, username)) || '0', 10) || 0; }
   function refreshesLeft(platform, username){ return Math.max(0, refreshLimit() - refreshesUsedToday(platform, username)); }
+  // Minutes restantes avant la prochaine vérification autorisée (0 = OK maintenant).
+  function refreshWaitMin(platform, username){
+    var last = parseInt(localStorage.getItem(refreshLastKey(platform, username)) || '0', 10) || 0;
+    if (!last) return 0;
+    var need = refreshCooldownH() * 3600000, elapsed = Date.now() - last;
+    return elapsed >= need ? 0 : Math.ceil((need - elapsed) / 60000);
+  }
 
-  // Réanalyse MANUELLE (clic volontaire sur "Actualiser") -> force une vraie mise à jour (coûte des crédits).
-  // C'est le SEUL endroit qui force un nouveau scrape : la navigation, elle, ne coûte rien.
+  // Vérification MANUELLE des stats (clic volontaire) -> force un vrai scrape (coûte 1-2 crédits, plafonné).
   async function silentReanalyze(platform, username) {
     var btn = document.getElementById('homePfRefreshBtn');
-    var lim = refreshLimit();
-    // Limite par plan atteinte aujourd'hui -> on bloque (économie de crédits) et on propose l'upgrade.
-    if (refreshesUsedToday(platform, username) >= lim) {
-      alert('Tu as atteint ta limite d\'actualisations du jour pour ce compte (plan ' + (PLAN_NAMES[curPlan()] || 'Gratuit') + ' : ' + lim + '×/jour). Ta courbe se met à jour automatiquement, sans crédit. Reviens demain ou passe à un plan supérieur.');
+    // 1) Limite par jour atteinte ?
+    if (refreshesUsedToday(platform, username) >= refreshLimit()) {
+      alert('Tu as atteint ta limite de vérifications du jour pour ce compte (plan ' + (PLAN_NAMES[curPlan()] || 'Gratuit') + ' : ' + refreshLimit() + '/jour). Ta courbe se met à jour automatiquement, sans crédit. Reviens demain ou passe à un plan supérieur.');
+      return;
+    }
+    // 2) Temps d'attente entre 2 vérifications (anti-abus + les vues bougent lentement) ?
+    var wait = refreshWaitMin(platform, username);
+    if (wait > 0) {
+      var hh = Math.floor(wait/60), mm = wait%60;
+      alert('Tes stats viennent d\'être vérifiées. Reviens dans ' + (hh>0 ? (hh+'h'+(mm?(' '+mm+'min'):'')) : (mm+' min')) + ' pour une nouvelle vérification — les vues ne bougent pas en quelques minutes, ça évite de gaspiller des crédits.');
       return;
     }
     if (btn) { btn.textContent = '🔍 Vérification…'; btn.disabled = true; btn.classList.add('refreshing'); }
     var ok = false;
     try { var out = await analyzeOnce(platform, username, 'self', true); ok = !!(out && out._httpOk && !out.error); } catch(e) {}
     if (ok) {
-      // on décompte l'actualisation utilisée (par compte et par jour)
-      try { localStorage.setItem(refreshKey(platform, username), String(refreshesUsedToday(platform, username) + 1)); } catch(e){}
+      try {
+        localStorage.setItem(refreshKey(platform, username), String(refreshesUsedToday(platform, username) + 1));
+        localStorage.setItem(refreshLastKey(platform, username), String(Date.now()));
+      } catch(e){}
       window._growthHistory = null;                 // la courbe se recharge + enregistre le point du jour (0 crédit)
       try { localStorage.setItem('skillora_view', 'home'); } catch(e){}
       location.reload();                            // la page se recharge pour afficher les nouveaux résultats
     } else {
       if (btn) { btn.textContent = 'Réessayer'; btn.disabled = false; btn.classList.remove('refreshing'); }
-      alert('L\'actualisation n\'a pas abouti cette fois. Réessaie dans un instant (aucun crédit ne t\'a été décompté).');
+      alert('La vérification n\'a pas abouti cette fois. Réessaie dans un instant (aucun crédit ne t\'a été décompté).');
     }
   }
 

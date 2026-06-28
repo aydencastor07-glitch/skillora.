@@ -2674,7 +2674,7 @@
       var plat = acc.platform || 'tiktok';
       var h = String(acc.username || '').replace(/^@/, '');
       var av = avatar
-        ? '<img src="' + avatar.replace(/"/g,'') + '" alt="">'
+        ? '<img src="' + imgProxy(avatar).replace(/"/g,'') + '" alt="" referrerpolicy="no-referrer">'
         : '<span>' + escapeHtml((h || '?').charAt(0).toUpperCase()) + '</span>';
       return '<button class="home-car-chip' + (k === idx ? ' on' : '') + '" onclick="goHomeAccount(' + k + ')">'
         + '<span class="home-car-av">' + av + '<i class="home-car-plat" style="background:' + platBg(plat) + ';">' + pubPlatSVG(plat, 9) + '</i></span>'
@@ -2690,7 +2690,7 @@
     var avatar = info.photo || '';
     var h = String(acc.username || '').replace(/^@/,'');
     var av = avatar
-      ? '<div style="width:64px;height:64px;border-radius:50%;margin:0 auto;background:#1a2540 center/cover no-repeat;background-image:url(\'' + avatar.replace(/'/g,'') + '\');"></div>'
+      ? '<div style="width:64px;height:64px;border-radius:50%;margin:0 auto;background:#1a2540 center/cover no-repeat;background-image:url(\'' + imgProxy(avatar).replace(/'/g,'') + '\');"></div>'
       : '<div style="width:64px;height:64px;border-radius:50%;margin:0 auto;background:#1a2540;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:#cdd8ef;">' + escapeHtml((h||'?').charAt(0).toUpperCase()) + '</div>';
     var analyzable = (acc.platform === 'tiktok' || acc.platform === 'youtube' || acc.platform === 'instagram');
     var msg = analyzable
@@ -2806,17 +2806,19 @@
   }
 
   // HTML du tableau de bord d'UN compte (chaîne pure, sans effet de bord) — une "page" du carrousel.
-  // Score viral d'une vidéo (0-100) — HEURISTIQUE GRATUITE (aucun crédit) :
-  // performance vs moyenne du compte + taux d'engagement. Donne un repère pro et stable.
-  function viralScore(video, s){
-    var avg = Number(s.avg_views) || 0, views = Number(video.views) || 0;
-    var ratio = avg > 0 ? views / avg : 1;
-    var er = views > 0 ? ((Number(video.likes)||0) + (Number(video.comments)||0) + (Number(video.shares)||0)) / views * 100 : 0;
-    var score = 45 + Math.max(-25, Math.min(38, (ratio - 1) * 32)) + Math.min(17, er * 1.6);
-    return Math.max(5, Math.min(99, Math.round(score)));
+  // Proxy d'image GRATUIT pour les avatars/miniatures Instagram & Facebook : leur CDN bloque l'affichage
+  // depuis un autre site et les liens expirent. TikTok/YouTube passent direct. 0 crédit.
+  function imgProxy(u){
+    u = String(u || '');
+    if (!u) return u;
+    if (/cdninstagram\.com|fbcdn\.net/i.test(u)) {
+      return 'https://images.weserv.nl/?url=' + encodeURIComponent(u.replace(/^https?:\/\//, '')) + '&w=240&h=240&fit=cover&output=webp';
+    }
+    return u;
   }
 
-  // Dernière vidéo publiée — élément COMPACT, prioritaire, avec score viral. (Le top 3 viral reste plus bas.)
+  // Dernière vidéo publiée — élément COMPACT (une ligne), placé SOUS le graphique.
+  // Pas de score ici : le vrai score /10 (page Publier) sera ajouté pour les vidéos publiées VIA Skillora.
   function homeWhatsNew(s, platform, username){
     var recent = (s.recent_videos && s.recent_videos.length) ? s.recent_videos : (s.best_videos || []);
     if (!recent.length) return '';
@@ -2826,20 +2828,17 @@
     var lastSeen = parseInt(localStorage.getItem(key) || '0', 10) || 0;
     var isNew = ct > 0 && ct > lastSeen;
     if (ct > 0) { try { localStorage.setItem(key, String(ct)); } catch(e){} }
-    var sc = viralScore(newest, s);
-    var scl = sc >= 70 ? 'hi' : (sc >= 45 ? 'mid' : 'lo');
     var avg = Number(s.avg_views) || 0, ratio = avg > 0 ? (Number(newest.views)||0) / avg : 0;
     var rtxt = ratio > 0 ? ((ratio >= 2 ? '🔥 ' : '') + (ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1).replace('.0','')) + '× ta moyenne') : '';
     var cover = newest.cover
-      ? '<div class="lvid-thumb" style="background-image:url(\'' + String(newest.cover).replace(/'/g,'') + '\')"></div>'
+      ? '<div class="lvid-thumb" style="background-image:url(\'' + imgProxy(newest.cover).replace(/'/g,'') + '\')"></div>'
       : '<div class="lvid-thumb lvid-thumb-empty">🎬</div>';
     var inner = cover +
       '<div class="lvid-info">' +
         '<div class="lvid-tag ' + (isNew ? 'new' : '') + '">' + (isNew ? '✨ Nouvelle vidéo' : 'Dernière vidéo') + '</div>' +
         '<div class="lvid-title">' + escapeHtml(String(newest.description || 'Sans titre').slice(0,60)) + '</div>' +
         '<div class="lvid-meta">' + fmtNum(newest.views||0) + ' vues' + (rtxt ? ' · ' + rtxt : '') + '</div>' +
-      '</div>' +
-      '<div class="lvid-score ' + scl + '"><div class="lvid-score-n">' + sc + '</div><div class="lvid-score-l">viral</div></div>';
+      '</div>';
     return newest.url
       ? '<a class="lvid" href="' + String(newest.url).replace(/"/g,'') + '" target="_blank" rel="noopener" style="text-decoration:none;">' + inner + '</a>'
       : '<div class="lvid">' + inner + '</div>';
@@ -2868,11 +2867,11 @@
       var hg = document.getElementById('homeHeaderGoal');
       if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s) : '';
 
-      // QUOI DE NEUF : dernière/nouvelle vidéo + verdict, et ce qui a changé depuis le dernier relevé.
-      if (hasStats) html += homeWhatsNew(s, platform, username);
-
       // Graphique d'évolution — seulement quand il y a de vraies stats (filtré sur CE compte)
       if (hasStats) html += renderGrowthGraph(s, platform, username);
+
+      // Dernière vidéo (compacte) — APRÈS le graphique, pour ne pas casser le style de la carte profil.
+      if (hasStats) html += homeWhatsNew(s, platform, username);
 
       // (Les idées du jour vivent désormais dans la bulle flottante 💡 — pas sur l'Accueil.)
       // (Le "potentiel viral" n'apparaît plus ici : il est réservé à chaque idée, dans la bulle.)
@@ -3129,7 +3128,7 @@
     var ci = (window.__connInfo && window.__connInfo[platform]) || {};
     var photo = prof.avatar || ci.photo || '';
     var name = prof.nickname || ci.name || username || '';
-    var av = photo ? '<div class="home-pf-av" style="background-image:url(\'' + (''+photo).replace(/'/g,'') + '\')"></div>' : '<div class="home-pf-av home-pf-av-empty">' + (name||'?').charAt(0).toUpperCase() + '</div>';
+    var av = photo ? '<div class="home-pf-av" style="background-image:url(\'' + imgProxy(photo).replace(/'/g,'') + '\')"></div>' : '<div class="home-pf-av home-pf-av-empty">' + (name||'?').charAt(0).toUpperCase() + '</div>';
     var logo = platform === 'youtube' ? youtube : (platform === 'instagram' ? instagram : tiktok);
     var likesBlock = (platform === 'tiktok' || platform === 'instagram') ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(prof.total_likes||0) + '</div><div class="home-pf-l">Likes</div></div>' : '';
     var audLabel = platform === 'youtube' ? 'Abonnés' : 'Abonnés';

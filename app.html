@@ -160,6 +160,34 @@
   .home-ring-pct .lbl { font-size:.55rem; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-top:3px; }
   .home-ring-sub { font-size:.82rem; color:var(--muted); }
   .home-ring-sub b { color:var(--text); font-family:'Sora',sans-serif; font-weight:700; }
+  /* Objectif « argent » (sans %) + bouton « Fixer un objectif » : pastille compacte dans l'en-tête */
+  .home-goal-pill { display:flex; align-items:center; gap:8px; background:linear-gradient(135deg,rgba(47,123,255,0.14),rgba(124,108,255,0.10)); border:1px solid rgba(47,123,255,0.30); border-radius:14px; padding:8px 12px; cursor:pointer; transition:transform .15s; }
+  .home-goal-pill:active { transform:scale(0.95); }
+  .home-goal-pill.ghost { background:rgba(255,255,255,0.04); border:1px dashed var(--border); }
+  .home-goal-pill .hgp-ic { font-size:1.1rem; line-height:1; }
+  .home-goal-pill .hgp-txt { display:flex; flex-direction:column; line-height:1.1; text-align:left; }
+  .home-goal-pill .hgp-txt b { font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; color:#fff; }
+  .home-goal-pill .hgp-txt span { font-size:.55rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  /* Bouton « Modifier l'objectif » dans la popup détail */
+  .goal-edit-btn { background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); border-radius:11px; padding:9px 16px; font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; cursor:pointer; transition:background .15s; }
+  .goal-edit-btn:active { background:rgba(255,255,255,0.1); }
+  /* Modale de définition d'objectif (2 étapes) */
+  #goalSetupBody .gset-title { font-family:'Sora',sans-serif; font-weight:700; font-size:1.15rem; color:#fff; margin-bottom:6px; line-height:1.35; }
+  #goalSetupBody .gset-title b { background:linear-gradient(90deg,#5e9bff,#9b6cff); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  #goalSetupBody .gset-sub { color:var(--muted); font-size:.86rem; margin-bottom:16px; line-height:1.4; }
+  #goalSetupBody .gset-types { display:flex; flex-direction:column; gap:10px; }
+  #goalSetupBody .gset-type { display:flex; align-items:center; gap:13px; width:100%; text-align:left; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:14px; padding:14px 15px; cursor:pointer; transition:border-color .15s, background .15s; }
+  #goalSetupBody .gset-type:active { background:rgba(94,155,255,0.10); }
+  #goalSetupBody .gset-type .gt-ic { font-size:1.5rem; line-height:1; }
+  #goalSetupBody .gset-type b { font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:#fff; display:block; }
+  #goalSetupBody .gset-type small { color:var(--muted); font-size:.76rem; }
+  #goalSetupBody .gset-back { background:none; border:none; color:var(--muted); font-size:.82rem; cursor:pointer; padding:0; margin-bottom:12px; }
+  #goalSetupBody .gset-amts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px; margin-bottom:13px; }
+  #goalSetupBody .gset-amt { background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; padding:13px 6px; font-family:'Fraunces',serif; font-weight:800; font-size:1rem; color:#fff; cursor:pointer; transition:border-color .15s, background .15s; }
+  #goalSetupBody .gset-amt:active, #goalSetupBody .gset-amt.on { background:linear-gradient(135deg,rgba(47,123,255,0.22),rgba(124,108,255,0.16)); border-color:rgba(94,155,255,0.55); }
+  #goalSetupBody .gset-custom { display:flex; gap:8px; }
+  #goalSetupBody .gset-custom input { flex:1; min-width:0; background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:11px 13px; color:var(--text); font-family:'Sora',sans-serif; font-size:.85rem; }
+  #goalSetupBody .gset-custom button { flex-shrink:0; background:linear-gradient(135deg,var(--blue),#1857c4); color:#fff; border:none; border-radius:11px; padding:0 18px; font-family:'Sora',sans-serif; font-weight:700; font-size:.82rem; cursor:pointer; }
 
   .home-viral-top { display:flex; justify-content:space-between; align-items:center; font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:var(--white); margin-bottom:14px; }
   .home-viral-score { font-family:'Fraunces',serif; font-weight:800; font-size:1.6rem; color:var(--blue-light); }
@@ -1768,6 +1796,14 @@
     </div>
   </div>
 
+  <!-- Popup définition d'objectif (par compte) : étape type -> étape cible -->
+  <div class="popup-overlay" id="goalSetupPopup" onclick="closeGoalSetup(event)">
+    <div class="popup-card" onclick="event.stopPropagation()">
+      <button class="popup-close" onclick="closeGoalSetup()" aria-label="Fermer">✕</button>
+      <div id="goalSetupBody"></div>
+    </div>
+  </div>
+
   <!-- Email activation popup (centered) -->
   <div class="popup-overlay" id="emailPopup" onclick="dismissEmailPopup(event)">
     <div class="popup-card" onclick="event.stopPropagation()">
@@ -2532,12 +2568,20 @@
     var g = window._goalInfo || {};
     var body = document.getElementById('goalPopupBody');
     if (body) {
-      body.innerHTML =
-        'Atteindre <b style="color:var(--white);">' + fmtNum(g.goal || 0) + '</b> ' + (g.metric || 'abonnés') + '.<br>' +
-        'Tu es à <b style="color:var(--white);">' + fmtNum(g.cur || 0) + '</b> ' + (g.metric || 'abonnés') + ' — <b style="color:var(--blue-light);">' + (g.pct || 0) + '%</b> du chemin.' +
-        '<div style="margin-top:14px;font-size:.8rem;color:var(--muted2);">Tu pourras bientôt choisir ton objectif (abonnés, vues ou likes) et ta cible à l’inscription.</div>';
+      var inner;
+      if (g.type === 'money') {
+        // Argent : pas de %, on n'a pas la donnée de revenus réelle. On garde juste la cible en vue.
+        inner = 'Atteindre <b style="color:var(--white);">' + fmtMoney(g.goal || 0) + '</b> de revenus.' +
+          '<div style="margin-top:12px;font-size:.8rem;color:var(--muted2);">On garde ta cible en tête. Le suivi automatique des revenus arrivera plus tard — pour l\'instant c\'est ton cap à viser.</div>';
+      } else {
+        inner = 'Atteindre <b style="color:var(--white);">' + fmtNum(g.goal || 0) + '</b> ' + (g.metric || 'abonnés') + '.<br>' +
+          'Tu es à <b style="color:var(--white);">' + fmtNum(g.cur || 0) + '</b> ' + (g.metric || 'abonnés') + ' — <b style="color:var(--blue-light);">' + (g.pct || 0) + '%</b> du chemin.';
+      }
+      inner += '<div style="margin-top:16px;"><button class="goal-edit-btn" onclick="openGoalSetup(\'' + (g.platform||'') + '\',\'' + String(g.username||'').replace(/'/g,'') + '\',true)">Modifier l\'objectif</button></div>';
+      body.innerHTML = inner;
     }
-    var p = document.getElementById('goalPopup'); if (p) p.classList.add('open');
+    var p = document.getElementById('goalPopup'); if (p) p.classList.remove('open'); // au cas où, on rouvre proprement
+    if (p) p.classList.add('open');
   }
   function closeGoalInfo(e) {
     if (e && e.target && e.target.id && e.target.id !== 'goalPopup') return;
@@ -2754,11 +2798,12 @@
     var hasStats = !!(s && ((Number(s.total_views) > 0) || (Number(s.video_count) > 0) || (Number(s.avg_views) > 0) || nbBest > 0));
     window._homeSummary = s;
     var hg = document.getElementById('homeHeaderGoal');
-    if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s) : '';
+    if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s, platform, username) : '';
     // Analyse PARESSEUSE : on n'analyse que le compte affiché, et UNE seule fois (si pas déjà fait).
     // -> zéro crédit gaspillé sur la navigation ou sur des comptes non regardés.
     ensureAnalyzed(acc);
     autoCurveDaily(platform, username); // relevé léger 1×/jour -> courbe « vues gagnées » réelle
+    if (hasStats) maybePromptGoal(platform, username); // ~2 s après l'arrivée : « quel est ton objectif ? »
     window._ideaFabAllowed = !!hasStats;
     var _onHome = document.getElementById('view-home') && document.getElementById('view-home').classList.contains('active');
     if (hasStats) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
@@ -2893,7 +2938,7 @@
 
       // Objectif (anneau mini) — dans l'en-tête, à droite du "Bonjour"
       var hg = document.getElementById('homeHeaderGoal');
-      if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s) : '';
+      if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s, platform, username) : '';
 
       // Graphique d'évolution — seulement quand il y a de vraies stats (filtré sur CE compte)
       if (hasStats) html += renderGrowthGraph(s, platform, username);
@@ -3105,15 +3150,47 @@
       '</div><button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:14px;">Annuler</button></div>';
   }
 
-  // Objectif compact (anneau mini) pour l'en-tête, à droite du "Bonjour".
-  function homeGoalRingMini(s) {
-    var up = window._userProfile || {};
-    var ob = (typeof getOnboarding === 'function') ? getOnboarding() : {};
-    var goal = parseInt(up.goal_followers || ob.goal_followers || 0, 10);
-    if (!goal || goal <= 0) return '';
-    var cur = Number(s.audience) || 0;
-    var pct = Math.max(0, Math.min(100, Math.round((cur / goal) * 100)));
-    window._goalInfo = { cur: cur, goal: goal, pct: pct, metric: 'abonnés' };
+  // ── OBJECTIFS PAR COMPTE ─────────────────────────────────────────────────────
+  // Chaque compte connecté a SON propre objectif (clé = plateforme|@). Stocké en local : 0 crédit, 0 coût.
+  // Types : abonnés / vues (avec %), argent (cible affichée, SANS % — on n'a pas la donnée de revenus réelle).
+  function goalKey(platform, username){ return 'sk_goal_' + (platform||'') + '_' + String(username||'').toLowerCase(); }
+  function getAccGoal(platform, username){
+    try { var v = localStorage.getItem(goalKey(platform, username)); return v ? JSON.parse(v) : null; } catch(e){ return null; }
+  }
+  function setAccGoal(platform, username, goal){
+    try { localStorage.setItem(goalKey(platform, username), JSON.stringify(goal)); } catch(e){}
+  }
+  var GOAL_META = {
+    followers: { label:'abonnés', icon:'👥', cur:function(s){ return Number(s.audience)||0; } },
+    views:     { label:'vues',    icon:'👁️', cur:function(s){ return Number(s.total_views)||0; } },
+    money:     { label:'revenus', icon:'💰', cur:function(){ return 0; } }
+  };
+  var GOAL_PRESETS = {
+    followers: [1000,10000,50000,100000,500000,1000000],
+    views:     [10000,100000,500000,1000000,5000000,10000000],
+    money:     [500,1000,5000,10000,50000,100000]
+  };
+
+  // Objectif compact dans l'en-tête, à droite du "Bonjour". Anneau % pour abonnés/vues ;
+  // pastille « cible » sans % pour l'argent ; bouton « 🎯 Fixer » si aucun objectif n'est défini.
+  function homeGoalRingMini(s, platform, username) {
+    platform = platform || window._lastPlatform || '';
+    username = username || window._lastUsername || '';
+    var g = getAccGoal(platform, username);
+    var pu = String(username).replace(/'/g,'');
+    if (!g || !g.amount || g.amount <= 0) {
+      return '<button class="home-goal-pill ghost" onclick="openGoalSetup(\'' + platform + '\',\'' + pu + '\',false)" aria-label="Fixer un objectif">' +
+        '<span class="hgp-ic">🎯</span><span class="hgp-txt"><b>Fixer</b><span>un objectif</span></span></button>';
+    }
+    var meta = GOAL_META[g.type] || GOAL_META.followers;
+    if (g.type === 'money') {
+      window._goalInfo = { cur: 0, goal: g.amount, pct: null, metric: '€', type:'money', platform:platform, username:username };
+      return '<button class="home-goal-pill" onclick="openGoalInfo()" aria-label="Voir mon objectif">' +
+        '<span class="hgp-ic">💰</span><span class="hgp-txt"><b>' + fmtMoney(g.amount) + '</b><span>Objectif</span></span></button>';
+    }
+    var cur = meta.cur(s);
+    var pct = Math.max(0, Math.min(100, Math.round((cur / g.amount) * 100)));
+    window._goalInfo = { cur: cur, goal: g.amount, pct: pct, metric: meta.label, type:g.type, platform:platform, username:username };
     var r = 29, C = 2 * Math.PI * r, off = C - (pct / 100) * C;
     return '<button class="home-ring-mini" onclick="openGoalInfo()" aria-label="Voir mon objectif">' +
       '<svg viewBox="0 0 66 66">' +
@@ -3123,6 +3200,88 @@
       '</svg>' +
       '<div class="home-ring-pct"><span class="n">' + pct + '%</span><span class="lbl">Objectif</span></div>' +
     '</button>';
+  }
+
+  // ── DÉFINITION / MODIFICATION DE L'OBJECTIF (modale 2 étapes : type -> cible) ──
+  var _goalSetup = { platform:'', username:'', type:null, edit:false };
+  function openGoalSetup(platform, username, isEdit){
+    var gp = document.getElementById('goalPopup'); if (gp) gp.classList.remove('open'); // ferme le détail si ouvert
+    _goalSetup = { platform:platform, username:username, type:null, edit:!!isEdit };
+    var ex = getAccGoal(platform, username);
+    if (ex && ex.type) _goalSetup.type = ex.type;   // en modif, on saute direct à l'étape « cible »
+    renderGoalSetup();
+    var p = document.getElementById('goalSetupPopup'); if (p) p.classList.add('open');
+  }
+  function closeGoalSetup(e){
+    if (e && e.target && e.target.id && e.target.id !== 'goalSetupPopup') return;
+    var p = document.getElementById('goalSetupPopup'); if (p) p.classList.remove('open');
+  }
+  function goalSetupPick(type){ _goalSetup.type = type; renderGoalSetup(); }
+  function renderGoalSetup(){
+    var b = document.getElementById('goalSetupBody'); if (!b) return;
+    var uname = '@' + String(_goalSetup.username||'').replace(/^@/,'');
+    if (!_goalSetup.type){
+      b.innerHTML =
+        '<div class="gset-title">Quel est ton objectif pour <b>' + escapeHtml(uname) + '</b> ?</div>' +
+        '<div class="gset-sub">Choisis ce qui compte le plus pour toi maintenant.</div>' +
+        '<div class="gset-types">' +
+          '<button class="gset-type" onclick="goalSetupPick(\'followers\')"><span class="gt-ic">👥</span><b>Abonnés</b><small>Faire grandir ta communauté</small></button>' +
+          '<button class="gset-type" onclick="goalSetupPick(\'views\')"><span class="gt-ic">👁️</span><b>Vues</b><small>Maximiser ta portée</small></button>' +
+          '<button class="gset-type" onclick="goalSetupPick(\'money\')"><span class="gt-ic">💰</span><b>Argent</b><small>Une cible de revenus</small></button>' +
+        '</div>';
+      return;
+    }
+    var meta = GOAL_META[_goalSetup.type] || GOAL_META.followers;
+    var presets = GOAL_PRESETS[_goalSetup.type] || GOAL_PRESETS.followers;
+    var isMoney = _goalSetup.type === 'money';
+    var ex = getAccGoal(_goalSetup.platform, _goalSetup.username);
+    var chips = presets.map(function(v){
+      var on = (ex && ex.type === _goalSetup.type && Number(ex.amount) === v) ? ' on' : '';
+      return '<button class="gset-amt' + on + '" onclick="saveAccGoalAmount(' + v + ')">' + (isMoney ? fmtMoney(v) : fmtNum(v)) + '</button>';
+    }).join('');
+    b.innerHTML =
+      '<button class="gset-back" onclick="goalSetupPick(null)">← Changer de type</button>' +
+      '<div class="gset-title">' + meta.icon + ' Objectif de ' + (isMoney ? 'revenus' : meta.label) + '</div>' +
+      '<div class="gset-sub">Choisis ta cible' + (isMoney ? '.' : ' à atteindre.') + '</div>' +
+      '<div class="gset-amts">' + chips + '</div>' +
+      '<div class="gset-custom">' +
+        '<input id="goalCustomInput" type="number" min="1" inputmode="numeric" placeholder="' + (isMoney ? 'Montant perso (€)' : 'Nombre personnalisé') + '">' +
+        '<button onclick="saveAccGoalCustom()">Valider</button>' +
+      '</div>';
+  }
+  function saveAccGoalAmount(amount){
+    amount = Number(amount) || 0;
+    if (amount <= 0) return;
+    setAccGoal(_goalSetup.platform, _goalSetup.username, { type:_goalSetup.type, amount: amount });
+    closeGoalSetup();
+    var s = window._homeSummary || null;
+    var hg = document.getElementById('homeHeaderGoal');
+    if (hg) hg.innerHTML = s ? homeGoalRingMini(s, _goalSetup.platform, _goalSetup.username) : '';
+  }
+  function saveAccGoalCustom(){
+    var el = document.getElementById('goalCustomInput');
+    var v = el ? parseInt(el.value, 10) : 0;
+    if (!v || v <= 0) { if (el) el.focus(); return; }
+    saveAccGoalAmount(v);
+  }
+
+  // Invitation douce : ~2 s après l'arrivée sur un compte, si AUCUN objectif n'est encore fixé.
+  // Une seule fois par compte (flag local) pour ne pas harceler — le bouton « 🎯 Fixer » reste dispo après.
+  function maybePromptGoal(platform, username){
+    if (['tiktok','youtube','instagram'].indexOf(platform) < 0) return;
+    if (getAccGoal(platform, username)) return;
+    var seenKey = 'sk_goalask_' + platform + '_' + String(username).toLowerCase();
+    if (localStorage.getItem(seenKey)) return;
+    clearTimeout(window._goalPromptT);
+    window._goalPromptT = setTimeout(function(){
+      if (window._homeCurrentKey !== (platform + '|' + String(username).toLowerCase())) return; // compte changé entre-temps
+      if (getAccGoal(platform, username)) return;
+      var s = window._homeSummary || null;
+      var hasStats = s && ((Number(s.total_views)>0) || (Number(s.video_count)>0) || (Number(s.audience)>0));
+      if (!hasStats) return;
+      try { localStorage.setItem(seenKey, '1'); } catch(e){}
+      openGoalSetup(platform, username, false);
+    }, 2000);
   }
 
   // Objectif premium = anneau circulaire (sans bloc). Plus tard : type choisi à l'inscription (abonnés/vues/likes).
@@ -4345,6 +4504,13 @@
     if (n >= 1000000) return (n/1000000).toFixed(n%1000000===0?0:1).replace('.0','') + 'M';
     if (n >= 1000) return (n/1000).toFixed(n%1000===0?0:1).replace('.0','') + 'K';
     return String(n);
+  }
+  // Montant en euros (objectif « argent ») : 1 500 € / 1,5 k€ / 1 M€ selon la taille.
+  function fmtMoney(n) {
+    n = Number(n) || 0;
+    if (n >= 1000000) return (n/1000000).toFixed(n%1000000===0?0:1).replace('.0','') + ' M€';
+    if (n >= 10000)   return (n/1000).toFixed(n%1000===0?0:1).replace('.0','') + ' k€';
+    return n.toLocaleString('fr-FR') + ' €';
   }
 
   const ANL_STEPS = [

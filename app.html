@@ -3097,7 +3097,7 @@
 
   // Limite d'actualisations MANUELLES par compte et par jour, selon le plan (contrôle des crédits).
   // Starter = 1×/jour/compte ; Elite = illimité. (Modifiable ici en un coup d'œil.)
-  var REFRESH_LIMITS = { none: 1, free: 1, starter: 1, elite: 9999 };
+  var REFRESH_LIMITS = { none: 1, starter: 1, growth: 3, elite: 9999 };
   function curPlan(){ return (typeof userPlan !== 'undefined' && userPlan ? String(userPlan) : 'none').toLowerCase(); }
   function refreshLimit(){ var l = REFRESH_LIMITS[curPlan()]; return (typeof l === 'number') ? l : 1; }
   function refreshKey(platform, username){ return 'sk_refresh_' + platform + '_' + String(username).toLowerCase() + '_' + new Date().toISOString().slice(0,10); }
@@ -3114,7 +3114,7 @@
       var isElite = curPlan() === 'elite';
       alert(isElite
         ? 'Tu as déjà actualisé ce compte. Réessaie dans un moment.'
-        : 'Tu as utilisé ton actualisation du jour pour ce compte (plan ' + (curPlan()==='none'?'Gratuit':curPlan()) + ' : ' + lim + '×/jour). Passe au plan Elite pour des actualisations illimitées. Ta courbe continue de se remplir automatiquement.');
+        : 'Tu as utilisé ton actualisation du jour pour ce compte (plan ' + (PLAN_NAMES[curPlan()] || 'Gratuit') + ' : ' + lim + '×/jour). Passe à un plan supérieur (Growth = 3/jour, Elite = illimité). Ta courbe continue de se remplir automatiquement, sans crédit.');
       return;
     }
     if (btn) { btn.textContent = 'Actualisation…'; btn.disabled = true; btn.classList.add('refreshing'); }

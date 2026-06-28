@@ -2758,6 +2758,7 @@
     // Analyse PARESSEUSE : on n'analyse que le compte affiché, et UNE seule fois (si pas déjà fait).
     // -> zéro crédit gaspillé sur la navigation ou sur des comptes non regardés.
     ensureAnalyzed(acc);
+    autoCurveDaily(platform, username); // relevé léger 1×/jour -> courbe « vues gagnées » réelle
     window._ideaFabAllowed = !!hasStats;
     var _onHome = document.getElementById('view-home') && document.getElementById('view-home').classList.contains('active');
     if (hasStats) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
@@ -2803,6 +2804,30 @@
     if (['tiktok','youtube','instagram'].indexOf(acc.platform) < 0) return; // non analysable
     var out = await analyzeOnce(acc.platform, acc.username, 'self', false);
     if (out && out._httpOk && !out.error) loadHomeDashboard();         // recharge -> la fiche se remplit
+  }
+
+  // ── COURBE QUOTIDIENNE (option B) ────────────────────────────────────────────
+  // 1×/jour/compte, quand l'utilisateur ouvre l'app : on relève UNIQUEMENT les vues fraîches (~1 crédit,
+  // pas d'IA, pas de profil complet) et le serveur écrit le point du jour dans account_snapshots.
+  // -> la courbe « vues gagnées/cumulées » monte vraiment jour après jour. Le flag localStorage évite
+  // tout double-relevé le même jour (posé AVANT l'appel). Plateformes non analysables = ignorées.
+  async function autoCurveDaily(platform, username){
+    if (['tiktok','youtube','instagram'].indexOf(platform) < 0) return;
+    if (!username) return;
+    var today = new Date().toISOString().slice(0,10);
+    var key = 'sk_curveday_' + platform + '_' + String(username).toLowerCase();
+    if (localStorage.getItem(key) === today) return;                   // déjà relevé aujourd'hui -> 0 crédit
+    try { localStorage.setItem(key, today); } catch(e){}               // posé AVANT l'appel (anti double-fire)
+    try {
+      var { data:{ session } } = await sb.auth.getSession();
+      if (!session) return;
+      var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
+        body: JSON.stringify({ platform: platform, username: username, owner:'self', curveOnly:true })
+      });
+      if (res.ok) { window._growthHistory = null; }                    // la courbe se rechargera avec le point du jour
+    } catch(e){}
   }
 
   // HTML du tableau de bord d'UN compte (chaîne pure, sans effet de bord) — une "page" du carrousel.

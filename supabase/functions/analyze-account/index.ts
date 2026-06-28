@@ -70,6 +70,45 @@ Deno.serve(async (req) => {
       return data;
     };
 
+    // ── RELEVÉ DE COURBE LÉGER (option B) ───────────────────────────────────────
+    // Vues fraîches UNIQUEMENT (pas d'IA, pas de profil complet) = ~1 crédit. Déclenché 1×/jour/compte
+    // par le front quand l'utilisateur ouvre l'app. C'est ce qui fait monter la courbe "vues gagnées".
+    if (body.curveOnly === true && owner === "self") {
+      const lockKeyC = `curve|${user.id}|${platform}|${username.toLowerCase()}`;
+      let okC = false;
+      try { const { data: lk } = await admin.rpc("claim_scrape_lock", { p_key: lockKeyC, p_ttl: 3600 }); okC = lk === true; } catch (_e) { okC = true; }
+      if (!okC) return j({ success: true, curve: true, skipped: "locked" }, 200);
+      const priorC = (await lastAnalysis())?.summary || null;
+      let totalViews = 0;
+      try {
+        if (platform === "tiktok") {
+          const vids = await fetchAllTikTokVideos(username, SV_KEY);
+          totalViews = vids.reduce((s, v) => s + (Number(v.views) || 0), 0);
+        } else if (platform === "instagram") {
+          const pr = await svGet(`/instagram/posts?handle=${encodeURIComponent(username)}&trim=true`, SV_KEY);
+          const d = pr.data ?? pr;
+          const raw = d.posts ?? d.items ?? d.edges ?? d.media ?? d.data ?? (Array.isArray(d) ? d : []);
+          const arr = Array.isArray(raw) ? raw : Object.values(raw ?? {});
+          totalViews = arr.map(mapInstagramItem).reduce((s, v) => s + (Number(v.views) || 0), 0);
+        } else if (platform === "youtube") {
+          let ch;
+          try { ch = await svGet(`/youtube/channel?handle=${encodeURIComponent(username)}`, SV_KEY); } catch { /* */ }
+          const c = ch?.data ?? ch ?? {};
+          totalViews = c.view_count ?? c.viewCount ?? c.stats?.viewCount ?? 0;
+        }
+      } catch (_e) { return j({ success: true, curve: true, skipped: "scrape_err" }, 200); }
+      if (totalViews > 0) {
+        const today = new Date().toISOString().slice(0, 10);
+        const snap = { user_id: user.id, platform, username, total_views: totalViews,
+          followers: priorC?.audience ?? 0, total_videos: priorC?.total_published ?? 0, total_likes: priorC?.profile?.total_likes ?? 0, snapshot_date: today };
+        const { data: ex } = await supabase.from("account_snapshots")
+          .select("id").eq("user_id", user.id).eq("platform", platform).ilike("username", username).eq("snapshot_date", today).maybeSingle();
+        if (ex) await supabase.from("account_snapshots").update(snap).eq("id", ex.id);
+        else await supabase.from("account_snapshots").insert(snap);
+      }
+      return j({ success: true, curve: true, total_views: totalViews }, 200);
+    }
+
     const since = new Date(Date.now() - CACHE_DAYS * 24 * 3600 * 1000).toISOString();
     const { data: recent } = await supabase.from("analyses")
       .select("*").eq("user_id", user.id).eq("platform", platform).eq("username", username)

@@ -29,3 +29,4 @@ jobs:
           supabase functions deploy analyze-account --project-ref "$PROJECT_REF"
           supabase functions deploy refresh-stats   --project-ref "$PROJECT_REF"
           supabase functions deploy pfm-connect      --project-ref "$PROJECT_REF"
+          supabase functions deploy pfm-publish      --project-ref "$PROJECT_REF"

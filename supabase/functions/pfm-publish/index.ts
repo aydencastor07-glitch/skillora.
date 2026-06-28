@@ -45,10 +45,15 @@ Deno.serve(async (req) => {
     if (!platforms.length) return json({ success: false, error: "Aucune plateforme sélectionnée." }, 400);
     if (!mediaUrl) return json({ success: false, error: "Vidéo manquante." }, 400);
 
-    // Comptes Post for Me connectés de l'utilisateur pour les plateformes choisies.
+    // Comptes Post for Me connectés pour les plateformes choisies.
+    // IMPORTANT : TikTok est stocké en base sous "tiktok_business" -> on l'ajoute comme alias,
+    // sinon le compte TikTok n'est jamais trouvé et seule l'autre plateforme publie.
+    const wanted = new Set(platforms);
+    if (wanted.has("tiktok")) wanted.add("tiktok_business");
+    if (wanted.has("tiktok_business")) wanted.add("tiktok");
     const { data: conns } = await admin.from("social_connections")
-      .select("provider_account_id, platform").eq("user_id", userId).in("platform", platforms);
-    const accountIds = (conns || []).map((c: any) => c.provider_account_id).filter(Boolean);
+      .select("provider_account_id, platform").eq("user_id", userId).in("platform", [...wanted]);
+    const accountIds = [...new Set((conns || []).map((c: any) => c.provider_account_id).filter(Boolean))];
     if (!accountIds.length) {
       return json({ success: false, error: "Aucun compte connecté pour ces plateformes. Connecte-les d'abord." }, 400);
     }

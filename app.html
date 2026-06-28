@@ -6151,6 +6151,7 @@
         + '<p>Connecte un compte pour publier ta vidéo en un clic.</p>'
         + '<button class="pub-connect-cta" onclick="pubOpenConnect()">+ Connecter un compte</button>'
         + '</div>';
+      try { clearInterval(cyc); } catch(e){}
       pubSyncPublishBtn();
       return;
     }
@@ -6269,7 +6270,10 @@
 
     var names = sel.map(function (p) { return p.name; }).join(', ');
     var label = document.getElementById('pubPubLabel');
-    if (label) label.textContent = '⏳ Envoi en cours...';
+    // Étapes animées -> l'attente paraît dynamique et pro (au lieu d'un "Envoi en cours" figé).
+    var pubSteps = ['📤 Envoi de ta vidéo…', '🔗 Connexion à tes réseaux…', '✨ Publication…'];
+    var pubStepI = 0; if (label) label.textContent = pubSteps[0];
+    var cyc = setInterval(function(){ pubStepI = (pubStepI + 1) % pubSteps.length; if (label) label.textContent = pubSteps[pubStepI]; }, 1300);
 
     try {
       const { data: { session } } = await sb.auth.getSession();
@@ -6321,6 +6325,7 @@
           done.push({ name:p.name, iso:sAt, ok: !!(dRes && dRes.success), err: dRes && dRes.error });
         }
       }
+      try { clearInterval(cyc); } catch(e){}
       pubSyncPublishBtn();
 
       var okList = done.filter(function(d){ return d.ok; });
@@ -6340,10 +6345,11 @@
           skModal({ icon:'🎯', iconBg:'#16263f', title:'Le meilleur créneau de chaque réseau !', message:'Skillora a calé ta vidéo sur le pic d\'activité de <b>chaque plateforme</b> (heures différentes, jamais en double) :<br><br>' + lines + note + '<br><span style="color:#8b9bc4;font-size:.9em;">Tu n\'as rien à faire. Dès que chaque vidéo est en ligne, on t\'envoie un email avec les actions pour booster l\'algo.</span>', cancelText:'Parfait' });
         } else {
           var okNames = okList.map(function(d){ return d.name; }).join(', ');
-          skModal({ icon:'🚀', iconBg:'#16263f', title:'Publication lancée !', message:'Ta vidéo sera en ligne <b>d\'ici 2 à 3 minutes</b> sur ' + okNames + '.' + note + '<br><br><span style="color:#8b9bc4;font-size:.9em;">Tu n\'as rien à faire maintenant. Dès qu\'elle est publiée, on t\'envoie un email qui te dit exactement quoi faire pour pousser l\'algo à la diffuser plus.</span>', cancelText:'Super' });
+          skModal({ icon:'🚀', iconBg:'#16263f', title:'Vidéo envoyée ✅', message:'Ta vidéo part sur <b>' + okNames + '</b> — en ligne dans la minute.' + note + '<br><br><span style="color:#8b9bc4;font-size:.9em;">Tu n\'as plus rien à faire. On te prévient (🔔 + email) dès qu\'elle est en ligne, avec les actions pour booster l\'algo.</span>', cancelText:'Parfait' });
         }
       }
     } catch (e) {
+      try { clearInterval(cyc); } catch(e){}
       pubSyncPublishBtn();
       skModal({ icon:'⚠️', title:'Erreur', message:'La publication a échoué (connexion ou vidéo). Réessaie.', cancelText:'OK' });
     }

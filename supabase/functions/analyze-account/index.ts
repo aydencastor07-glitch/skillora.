@@ -72,7 +72,9 @@ Deno.serve(async (req) => {
     const { data: recent } = await supabase.from("analyses")
       .select("*").eq("user_id", user.id).eq("platform", platform).eq("username", username)
       .gte("created_at", since).order("created_at", { ascending: false }).limit(1).maybeSingle();
-    if (recent && recent.summary?.insights?.niche && !recent.summary?._ai_error && !force) {
+    // CACHE : toute analyse récente AVEC des vidéos est réutilisée (même si l'IA n'a pas mis de niche).
+    // -> évite de re-scraper en boucle quand l'IA échoue. 0 crédit gaspillé.
+    if (recent && (recent.summary?.video_count ?? 0) > 0 && !force) {
       return j({ success: true, analysis: recent, cached: true }, 200);
     }
 
@@ -250,12 +252,8 @@ async function analyzeTikTok(handle, key, aiKey, owner) {
     }
   }
   const top = [...videos].sort((a, b) => b.views - a.views).slice(0, 3);
-  for (let vi = 0; vi < top.length; vi++) {
-    const v = top[vi];
-    if (vi === 0 && v.url) v.transcript = await svTranscript(v.url, key);
-    v.video_type = (v.transcript && v.transcript.length > 60) ? "scripted" : "visual";
-    if (v.transcript && v.duration_s > 0) v.words_per_sec = +((v.transcript.split(/\s+/).length) / v.duration_s).toFixed(1);
-  }
+  // Transcript DÉSACTIVÉ pour économiser 1 crédit/analyse (le type est déduit sans appel payant).
+  top.forEach((v) => { v.video_type = "visual"; });
 
   const summary = await buildSmartSummary(followers, videos, top, "tiktok", aiKey, owner, totalPublished, bio);
   summary.profile = { avatar, nickname, handle: uniqueId, following, total_likes: totalLikes };

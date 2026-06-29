@@ -6252,10 +6252,10 @@
     } catch(e){ hidePfmConnecting(plat, 'fail', 'Erreur réseau. Réessaie.'); }
   }
   // Réseaux dont on sait tirer de VRAIES stats via SociaVault (vidéos OU profil/abonnés).
-  var ANALYZABLE_PLATS = ['tiktok','youtube','instagram','twitter','x','facebook','linkedin'];
+  var ANALYZABLE_PLATS = ['tiktok','youtube','instagram','twitter','x','facebook'];
   function isAnalyzable(p){ return ANALYZABLE_PLATS.indexOf(String(p||'').toLowerCase()) >= 0; }
   // Réseaux SANS analyse du tout (publication uniquement) — on n'a pas encore branché leurs stats.
-  var PUBLISH_ONLY_PLATS = ['pinterest','threads','bluesky'];
+  var PUBLISH_ONLY_PLATS = ['pinterest','threads','bluesky','linkedin'];
 
   async function pfmHandleReturn() {
     var params = new URLSearchParams(window.location.search);

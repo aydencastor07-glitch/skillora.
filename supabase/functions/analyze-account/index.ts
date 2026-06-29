@@ -146,7 +146,6 @@ Deno.serve(async (req) => {
       else if (platform === "instagram") result = await analyzeInstagram(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
       else if (platform === "twitter" || platform === "x") result = await analyzeTwitter(username, SV_KEY);
       else if (platform === "facebook") result = await analyzeFacebook(username, SV_KEY);
-      else if (platform === "linkedin") result = await analyzeLinkedIn(username, SV_KEY);
       else return j({ error: `${platform} sera bientôt disponible.` }, 501);
     } catch (scrapeErr) {
       const msg = String(scrapeErr?.message ?? scrapeErr);

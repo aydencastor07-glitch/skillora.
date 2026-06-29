@@ -308,6 +308,15 @@
   .lvid-title { font-size:.88rem; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:2px 0; }
   .lvid-meta { font-size:.74rem; color:var(--muted); }
   .lvid-go { flex:none; color:var(--muted); font-size:1.15rem; opacity:.55; }
+  /* Variante ULTRA-MINIMALE : une seule ligne très fine, fond quasi nul, mini-miniature */
+  .lvid.mini { gap:9px; padding:7px 11px; margin-bottom:12px; border-radius:12px;
+               background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.07); }
+  .lvid.mini .lvid-thumb { width:26px; height:34px; border-radius:7px; box-shadow:none; }
+  .lvid.mini .lvid-thumb-empty { font-size:.82rem; }
+  .lvid-line { flex:1; min-width:0; font-size:.78rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lvid-line b { font-family:'Sora',sans-serif; font-weight:700; color:var(--white); font-size:.78rem; }
+  .lvid-line b.new { color:var(--green); }
+  .lvid.mini .lvid-go { font-size:.95rem; opacity:.5; }
   .home-sec-h { font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; color:var(--white); margin:18px 0 10px; }
   .home-rv { display:flex; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px; margin-bottom:9px; }
   .home-rv-thumb { width:48px; height:64px; flex:0 0 auto; border-radius:9px; background-size:cover; background-position:center; background-color:var(--surface2); }
@@ -2986,19 +2995,17 @@
     if (ct > 0) { try { localStorage.setItem(key, String(ct)); } catch(e){} }
     var avg = Number(s.avg_views) || 0, ratio = avg > 0 ? (Number(newest.views)||0) / avg : 0;
     var rtxt = ratio > 0 ? ((ratio >= 2 ? '🔥 ' : '') + (ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1).replace('.0','')) + '× ta moyenne') : '';
+    // Version ULTRA-MINIMALE : une seule ligne fine (mini-miniature + libellé + vues), premium et discrète.
     var cover = newest.cover
-      ? '<div class="lvid-thumb" style="background-image:url(\'' + imgProxy(newest.cover).replace(/'/g,'') + '\')"></div>'
-      : '<div class="lvid-thumb lvid-thumb-empty">🎬</div>';
+      ? '<span class="lvid-thumb" style="background-image:url(\'' + imgProxy(newest.cover).replace(/'/g,'') + '\')"></span>'
+      : '<span class="lvid-thumb lvid-thumb-empty">🎬</span>';
+    var label = isNew ? '✨ Nouvelle vidéo' : 'Dernière vidéo';
     var inner = cover +
-      '<div class="lvid-info">' +
-        '<div class="lvid-tag ' + (isNew ? 'new' : '') + '">' + (isNew ? '✨ Nouvelle vidéo' : 'Dernière vidéo') + '</div>' +
-        '<div class="lvid-title">' + escapeHtml(String(newest.description || 'Sans titre').slice(0,60)) + '</div>' +
-        '<div class="lvid-meta">' + fmtNum(newest.views||0) + ' vues' + (rtxt ? ' · ' + rtxt : '') + '</div>' +
-      '</div>' +
-      (newest.url ? '<div class="lvid-go">↗</div>' : '');
+      '<span class="lvid-line"><b class="' + (isNew ? 'new' : '') + '">' + label + '</b> · ' + fmtNum(newest.views||0) + ' vues' + (rtxt ? ' · ' + escapeHtml(rtxt) : '') + '</span>' +
+      (newest.url ? '<span class="lvid-go">↗</span>' : '');
     return newest.url
-      ? '<a class="lvid" href="' + String(newest.url).replace(/"/g,'') + '" target="_blank" rel="noopener" style="text-decoration:none;">' + inner + '</a>'
-      : '<div class="lvid">' + inner + '</div>';
+      ? '<a class="lvid mini" href="' + String(newest.url).replace(/"/g,'') + '" target="_blank" rel="noopener" style="text-decoration:none;">' + inner + '</a>'
+      : '<div class="lvid mini">' + inner + '</div>';
   }
 
   function accountPageHTML(acc){

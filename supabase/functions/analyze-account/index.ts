@@ -464,8 +464,12 @@ async function analyzeTwitter(handle, key) {
   const screen = core.screen_name ?? legacy.screen_name ?? u.screen_name ?? handle;
   const bio = legacy.description ?? u.description ?? "";
   const avatar = legacy.profile_image_url_https ?? u.profile_image_url_https ?? d.profile_image_url ?? deepFindAvatar(d);
-  const stats = [{ label: "Abonnés", value: followers }, { label: "Tweets", value: tweets }, { label: "J'aime", value: likes }];
+  // Stats EXACTES dispo sur le profil : abonnés, tweets publiés, médias (photos/vidéos postées).
+  // (On n'affiche PAS favourites_count = likes DONNÉS par le compte -> trompeur. Les likes/vues REÇUS
+  //  nécessiteront l'endpoint des tweets.)
+  const stats = [{ label: "Abonnés", value: followers }, { label: "Tweets", value: tweets }];
   if (media) stats.push({ label: "Médias", value: media });
+  else if (following) stats.push({ label: "Abonnements", value: following });
   return { rawData: { followers, total_published: tweets, profile_only: true }, summary: socialSummary({ platform: "twitter", audience: followers, totalPublished: tweets, nickname, handle: screen, avatar, following, totalLikes: likes, bio, stats }) };
 }
 async function analyzeThreads(handle, key) {

@@ -511,9 +511,28 @@ async function analyzeFacebook(handle, key) {
   const nickname = dd.name ?? handle;
   const avatar = dd.profilePicLarge ?? dd.profile_pic_url ?? dd.profilePic ?? dd.image ?? deepFindAvatar(d);
   const pageLikes = svNum(dd.likes, dd.likes_count);
+
+  // Reels (10 max, ~1 crédit) -> VUES : reels[].view_count.
+  let totalViews = 0, reelCount = 0;
+  try {
+    const rr = await svGet(`/facebook/profile/reels?url=${encodeURIComponent(url)}`, key);
+    const rd = rr.data ?? rr;
+    const reels = rd.reels ?? rd.data?.reels ?? [];
+    const arr = Array.isArray(reels) ? reels : Object.values(reels ?? {});
+    for (const x of arr) {
+      if (!x || typeof x !== "object") continue;
+      totalViews += svNum(x.view_count, x.views, x.viewCount);
+      reelCount++;
+    }
+  } catch (_e) { /* reels indispo -> on garde au moins le profil (abonnés) */ }
+
   const stats = [{ label: "Abonnés", value: followers }];
-  if (pageLikes && pageLikes !== followers) stats.push({ label: "J'aime la Page", value: pageLikes });
-  return { rawData: { followers, profile_only: true }, summary: socialSummary({ platform: "facebook", audience: followers, totalPublished: 0, nickname, handle, avatar, totalLikes: pageLikes, stats }) };
+  if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });
+  if (reelCount > 0) stats.push({ label: "Reels", value: reelCount });
+  else if (pageLikes && pageLikes !== followers) stats.push({ label: "J'aime la Page", value: pageLikes });
+  const summary = socialSummary({ platform: "facebook", audience: followers, totalPublished: reelCount, nickname, handle, avatar, totalLikes: pageLikes, stats });
+  summary.total_views = totalViews;
+  return { rawData: { followers, total_views: totalViews, reels: reelCount, profile_only: true }, summary };
 }
 async function analyzeLinkedIn(handle, key) {
   const isUrl = /^https?:\/\//i.test(handle);

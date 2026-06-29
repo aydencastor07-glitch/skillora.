@@ -277,7 +277,7 @@
   .home-car-av img { width:30px; height:30px; border-radius:50%; object-fit:cover; }
   .home-car-av span { font-weight:700; font-size:.85rem; color:#cdd8ef; }
   .home-car-plat { position:absolute; right:-3px; bottom:-3px; width:15px; height:15px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px var(--surface); }
-  .home-car-h { font-size:.8rem; font-weight:600; color:#cdd8ef; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .home-car-h { font-size:.8rem; font-weight:600; color:#cdd8ef; max-width:78px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .home-car-chip.on .home-car-h { color:#fff; }
   /* Rail de pages (vrai carrousel : on glisse une page entière) */
   .home-car-track { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
@@ -1894,6 +1894,7 @@
       <div class="pub-plat"><span class="ic" id="pub-ig"></span><small>Instagram</small></div>
       <div class="pub-plat"><span class="ic" id="pub-fb"></span><small>Facebook</small></div>
       <div class="pub-plat"><span class="ic" id="pub-x"></span><small>X</small></div>
+      <div class="pub-plat"><span class="ic" id="pub-th"></span><small>Threads</small></div>
       <div class="pub-plat"><span class="ic" id="pub-li"></span><small>LinkedIn</small></div>
     </div>
 
@@ -2754,7 +2755,7 @@
       var _head = document.getElementById('homeCarHead'); if (_head) _head.innerHTML = homeAccountChips(accounts, idx);
       setupHomeCarousel(idx); // onHomePageChange -> ensureAnalyzed(compte affiché) : analyse paresseuse
       if (!window._growthHistory) loadGrowthHistory((accounts[idx] || {}).platform || 'tiktok'); // 1 appel = tout l'historique
-      renderPubVideosCard(); // « Tes dernières vidéos publiées via Skillora » + allume la cloche 🔔
+      renderPubVideosCard((accounts[idx] || {}).platform); // vidéos publiées du compte affiché + allume la cloche 🔔
     } catch (e) { console.log('home err', e); dyn.innerHTML = homeConnectBlock(); window._ideaFabAllowed = false; showIdeaFab(false); }
   }
 
@@ -2775,8 +2776,8 @@
         + '</button>';
     }).join('') + '</div>';
   }
-  function platBg(p){ return p==='youtube'?'#FF0000':(p==='instagram'?'#d62976':(p==='facebook'?'#1877F2':(p==='x'?'#000':(p==='linkedin'?'#0A66C2':'#010101')))); }
-  function platLabel(p){ return ({tiktok:'TikTok',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',x:'X (Twitter)',linkedin:'LinkedIn'})[p] || p; }
+  function platBg(p){ return p==='youtube'?'#FF0000':(p==='instagram'?'#d62976':(p==='facebook'?'#1877F2':(p==='x'?'#000':(p==='linkedin'?'#0A66C2':(p==='threads'?'#000':'#010101'))))); }
+  function platLabel(p){ return ({tiktok:'TikTok',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',x:'X (Twitter)',linkedin:'LinkedIn',threads:'Threads'})[p] || p; }
   // Carte d'un compte connecté SANS analyse (publication seule, ou analyse en cours).
   function homeNoAnalysisCard(acc) {
     var info = acc.info || {};
@@ -2854,6 +2855,7 @@
     // -> zéro crédit gaspillé sur la navigation ou sur des comptes non regardés.
     ensureAnalyzed(acc);
     autoCurveDaily(platform, username); // relevé léger 1×/jour -> courbe « vues gagnées » réelle
+    renderPubVideosCard(platform);      // « dernières vidéos publiées » filtrées sur CE réseau
     if (hasStats) maybePromptGoal(platform, username); // ~2 s après l'arrivée : « quel est ton objectif ? »
     window._ideaFabAllowed = !!hasStats && !profileOnly; // pas d'idées de contenu pour X/FB/LinkedIn (stats de profil)
     var _onHome = document.getElementById('view-home') && document.getElementById('view-home').classList.contains('active');
@@ -3081,6 +3083,9 @@
           homeConnBtn('youtube', youtube, 'YouTube') +
           homeConnBtn('instagram', instagram, 'Instagram') +
           homeConnBtn('facebook', facebook, 'Facebook') +
+          homeConnBtn('x', xtw, 'X') +
+          homeConnBtn('threads', threads, 'Threads') +
+          homeConnBtn('linkedin', linkedin, 'LinkedIn') +
         '</div>' +
       '</div>' +
       '<div class="home-skel-grid">' +
@@ -3205,7 +3210,7 @@
     ov.innerHTML = '<div class="cx-shell"><div class="cx-title">Ajouter un compte</div><div class="cx-sub">Choisis la plateforme.</div><div class="home-connect-grid four" style="margin-top:8px;">' +
       homeConnBtn('tiktok', tiktok, 'TikTok') + homeConnBtn('youtube', youtube, 'YouTube') +
       homeConnBtn('instagram', instagram, 'Instagram') + homeConnBtn('facebook', facebook, 'Facebook') +
-      homeConnBtn('x', xtw, 'X') + homeConnBtn('linkedin', linkedin, 'LinkedIn') +
+      homeConnBtn('x', xtw, 'X') + homeConnBtn('threads', threads, 'Threads') + homeConnBtn('linkedin', linkedin, 'LinkedIn') +
       '</div><button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:14px;">Annuler</button></div>';
   }
 
@@ -3468,16 +3473,21 @@
     var p = document.getElementById('notifPanel'); if (p) p.classList.remove('open');
   }
   // Section accueil : carte « Tes dernières vidéos publiées via Skillora » (3 plus récentes).
-  async function renderPubVideosCard(){
+  // Affiche UNIQUEMENT les vidéos publiées SUR la plateforme du compte affiché (pas un mélange global).
+  async function renderPubVideosCard(platform){
     var host = document.getElementById('homePubVideos'); if (!host) return;
-    var posts = await loadPubPosts(false);
+    var all = await loadPubPosts(false);
     refreshNotifDot();
-    if (!posts.length) { host.innerHTML = ''; return; }
+    var posts = all;
+    if (platform) {
+      var pk = String(platform).toLowerCase().replace('_business','');
+      posts = all.filter(function(p){ return (p.platforms||[]).some(function(k){ return String(k).toLowerCase().replace('_business','') === pk; }); });
+    }
+    if (!posts.length) { host.innerHTML = ''; return; }   // rien publié sur CE réseau -> pas de bloc
     var top = posts.slice(0, 3).map(pubPostHTML).join('');
     var more = posts.length > 3 ? '<button class="home-pub-more" onclick="openNotifPanel()">Voir tout (' + posts.length + ')</button>' : '';
-    host.innerHTML = '<div class="card home-pub-card">' +
-      '<div class="home-pub-h">🚀 Tes dernières vidéos publiées via Skillora</div>' +
-      top + more + '</div>';
+    var label = platform ? ('🚀 Tes dernières vidéos publiées sur ' + escapeHtml(pubPlatLabel(platform))) : '🚀 Tes dernières vidéos publiées via Skillora';
+    host.innerHTML = '<div class="card home-pub-card"><div class="home-pub-h">' + label + '</div>' + top + more + '</div>';
   }
 
   // Objectif premium = anneau circulaire (sans bloc). Plus tard : type choisi à l'inscription (abonnés/vues/likes).
@@ -4098,6 +4108,7 @@
   ['pill-ig','lib-ig1','lib-ig2','cat-ig','anl-ig','pub-ig'].forEach(id => { const e = document.getElementById(id); if(e) e.innerHTML = instagram; });
   { const e = document.getElementById('pub-fb'); if(e) e.innerHTML = facebook; }
   { const e = document.getElementById('pub-x'); if(e) e.innerHTML = xtw; }
+  { const e = document.getElementById('pub-th'); if(e) e.innerHTML = threads; }
   { const e = document.getElementById('pub-li'); if(e) e.innerHTML = linkedin; }
 
   function comingSoon(name) {

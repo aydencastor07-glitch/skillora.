@@ -490,16 +490,38 @@ async function analyzeTwitter(handle, key) {
   return { rawData: { followers, total_published: tweetsCount, total_views: totalViews, fetched, profile_only: true }, summary };
 }
 async function analyzeThreads(handle, key) {
-  const r = await svGet(`/threads/profile?handle=${encodeURIComponent(String(handle).replace(/^@/, ""))}`, key);
+  const cleanH = String(handle).replace(/^@/, "");
+  const r = await svGet(`/threads/profile?handle=${encodeURIComponent(cleanH)}`, key);
   const d = r.data ?? r;
   const dd = d.data ?? d;
   const followers = svNum(dd.follower_count, dd.followers, dd.followers_count);
   const nickname = dd.full_name ?? dd.username ?? handle;
-  const screen = dd.username ?? handle;
+  const screen = dd.username ?? cleanH;
   const avatar = dd.profile_pic_url ?? dd.profile_pic ?? deepFindAvatar(d);
   const bio = dd.biography ?? dd.bio ?? "";
+
+  // Posts (~20-30, ~1 crédit) -> J'aime (engagement) + vues SI la liste les expose.
+  let totalViews = 0, totalLikes = 0, postCount = 0;
+  try {
+    const pr = await svGet(`/threads/user-posts?handle=${encodeURIComponent(cleanH)}&trim=true`, key);
+    const pd = pr.data ?? pr;
+    const posts = pd.posts ?? pd.data?.posts ?? {};
+    const arr = Array.isArray(posts) ? posts : Object.values(posts ?? {});
+    for (const p of arr) {
+      if (!p || typeof p !== "object") continue;
+      totalViews += svNum(p.view_counts, p.view_count, p.views);
+      totalLikes += svNum(p.like_count, p.likes);
+      postCount++;
+    }
+  } catch (_e) { /* garde au moins le profil (abonnés) */ }
+
   const stats = [{ label: "Abonnés", value: followers }];
-  return { rawData: { followers, profile_only: true }, summary: socialSummary({ platform: "threads", audience: followers, totalPublished: 0, nickname, handle: screen, avatar, bio, stats }) };
+  if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });
+  if (postCount > 0) stats.push({ label: "Posts", value: postCount });
+  if (totalLikes > 0) stats.push({ label: "J'aime", value: totalLikes });
+  const summary = socialSummary({ platform: "threads", audience: followers, totalPublished: postCount, nickname, handle: screen, avatar, totalLikes, bio, stats });
+  summary.total_views = totalViews;
+  return { rawData: { followers, total_views: totalViews, posts: postCount, profile_only: true }, summary };
 }
 async function analyzeFacebook(handle, key) {
   const isUrl = /^https?:\/\//i.test(handle);

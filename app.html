@@ -252,6 +252,8 @@
   .home-pf-l { font-size:.72rem; color:var(--muted); margin-top:2px; }
   .home-pf-refresh { margin-top:12px; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--white); border-radius:10px; padding:7px 18px; font-family:'Sora',sans-serif; font-weight:600; font-size:.76rem; cursor:pointer; }
   .home-pf-refresh:active { transform:scale(0.97); }
+  .home-pf-refresh.refreshing { animation:pfPulse 1s ease-in-out infinite; }
+  @keyframes pfPulse { 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
 
   /* Connexion + squelette */
   .home-connect { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:18px; margin-bottom:14px; }
@@ -2720,7 +2722,7 @@
       // Liste MAÎTRE du carrousel = comptes connectés VÉRIFIÉS (Post for Me), chacun avec
       // SON analyse si elle existe. Les non-analysables (IG/FB/X/LinkedIn) apparaissent quand même.
       var ci = window.__connInfo || {};
-      var ORDER = ['tiktok','youtube','instagram','facebook','x','linkedin'];
+      var ORDER = ['tiktok','youtube','instagram','facebook','x','threads','linkedin'];
       var connKeys = Object.keys(ci).filter(function(k){ return ci[k] && ci[k].verified && ci[k].handle; })
         .sort(function(a,b){ var ia=ORDER.indexOf(a), ib=ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib); });
 
@@ -3587,9 +3589,13 @@
         localStorage.setItem(refreshKey(platform, username), String(refreshesUsedToday(platform, username) + 1));
         localStorage.setItem(refreshLastKey(platform, username), String(Date.now()));
       } catch(e){}
-      window._growthHistory = null;                 // la courbe se recharge + enregistre le point du jour (0 crédit)
-      try { localStorage.setItem('skillora_view', 'home'); } catch(e){}
-      location.reload();                            // la page se recharge pour afficher les nouveaux résultats
+      // On RESTE sur le compte qu'on vient d'actualiser (plus de saut vers TikTok), sans recharger la page.
+      window._growthHistory = null;                 // la courbe se recharge avec le nouveau point du jour
+      window._homeCurrentKey = platform + '|' + String(username).toLowerCase();
+      try { delete window._analysisCache[platform + '|' + String(username).toLowerCase() + '|self']; } catch(e){}
+      try { await loadGrowthHistory(platform); } catch(e){}   // recharge l'historique de courbe (point du jour mis à jour)
+      try { await loadHomeDashboard(); } catch(e){}           // re-render EN PLACE, reste sur le même compte
+      if (typeof pubToast === 'function') { try { pubToast('Stats à jour ✓'); } catch(e){} }
     } else {
       if (btn) { btn.textContent = 'Réessayer'; btn.disabled = false; btn.classList.remove('refreshing'); }
       alert('La vérification n\'a pas abouti cette fois. Réessaie dans un instant (aucun crédit ne t\'a été décompté).');

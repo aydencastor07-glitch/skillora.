@@ -35,6 +35,9 @@ Deno.serve(async (req) => {
     const { data: u } = await admin.auth.getUser(jwt);
     const userId = u && u.user ? u.user.id : null;
     if (!userId) return json({ success: false, error: "Non authentifié." }, 401);
+    const email = (u.user && u.user.email ? String(u.user.email) : "").toLowerCase();
+    const UNLIMITED_EMAILS = ["aydencastor1020@gmail.com"];
+    const unlimited = UNLIMITED_EMAILS.indexOf(email) >= 0;
 
     const body = await req.json().catch(() => ({}));
     const platforms: string[] = Array.isArray(body.platforms) ? body.platforms.map((p: string) => String(p).toLowerCase()) : [];
@@ -59,7 +62,7 @@ Deno.serve(async (req) => {
       .filter((r: any) => String(r.status || "") !== "failed" && r.media_url)
       .map((r: any) => r.media_url));
     // Si la vidéo a déjà été publiée ce mois (re-publication même URL), on ne la recompte pas.
-    if (!usedVideos.has(mediaUrl) && usedVideos.size >= maxMonth) {
+    if (!unlimited && !usedVideos.has(mediaUrl) && usedVideos.size >= maxMonth) {
       return json({
         success: false, limit_reached: true, used: usedVideos.size, max: maxMonth, plan,
         error: `Tu as atteint ta limite de ${maxMonth} publications ce mois-ci. Passe à un plan supérieur pour en publier davantage.`,

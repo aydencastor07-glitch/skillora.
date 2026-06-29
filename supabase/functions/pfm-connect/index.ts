@@ -16,6 +16,8 @@ const PLAN_ACCOUNTS = {
   elite:   { monthly: 6, annual: 6 },
 };
 const FREE_ACCOUNTS = 1;
+// Comptes propriétaires : aucune limite (accès illimité).
+const UNLIMITED_EMAILS = ["aydencastor1020@gmail.com"];
 
 function json(o, s) {
   return new Response(JSON.stringify(o), { status: s || 200, headers: { ...cors, "Content-Type": "application/json" } });
@@ -44,6 +46,8 @@ serve(async (req) => {
     const { data: u } = await admin.auth.getUser(jwt);
     const userId = u && u.user ? u.user.id : null;
     if (!userId) return json({ success: false, error: "Non authentifie (token utilisateur manquant)." }, 401);
+    const email = (u.user && u.user.email ? String(u.user.email) : "").toLowerCase();
+    const unlimited = UNLIMITED_EMAILS.indexOf(email) >= 0;
 
     const body = await req.json().catch(() => ({}));
     const platform = String(body.platform || "").trim();
@@ -70,7 +74,7 @@ serve(async (req) => {
       const distinct = Array.from(new Set((conns || []).map((c) => norm(c.platform))));
       const alreadyHas = distinct.includes(norm(platform));
 
-      if (!alreadyHas && distinct.length >= maxAccounts) {
+      if (!alreadyHas && !unlimited && distinct.length >= maxAccounts) {
         const paid = status === "active" && PLAN_ACCOUNTS[plan];
         return json({
           success: false,

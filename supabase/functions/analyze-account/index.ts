@@ -40,7 +40,9 @@ Deno.serve(async (req) => {
 
     const { data: sub } = await supabase.from("subscriptions").select("plan,status").eq("user_id", user.id).maybeSingle();
     const plan = (sub?.plan ?? "none").toLowerCase();
-    if (owner === "competitor" && plan !== "elite") {
+    const UNLIMITED_EMAILS = ["aydencastor1020@gmail.com"];
+    const unlimited = UNLIMITED_EMAILS.indexOf(String(user.email || "").toLowerCase()) >= 0;
+    if (owner === "competitor" && plan !== "elite" && !unlimited) {
       return j({ error: "upgrade_required", message: "L'analyse des concurrents est réservée au plan Elite." }, 403);
     }
 

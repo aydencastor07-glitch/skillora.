@@ -146,6 +146,7 @@ Deno.serve(async (req) => {
       else if (platform === "instagram") result = await analyzeInstagram(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
       else if (platform === "twitter" || platform === "x") result = await analyzeTwitter(username, SV_KEY);
       else if (platform === "facebook") result = await analyzeFacebook(username, SV_KEY);
+      else if (platform === "threads") result = await analyzeThreads(username, SV_KEY);
       else return j({ error: `${platform} sera bientôt disponible.` }, 501);
     } catch (scrapeErr) {
       const msg = String(scrapeErr?.message ?? scrapeErr);
@@ -466,6 +467,18 @@ async function analyzeTwitter(handle, key) {
   const stats = [{ label: "Abonnés", value: followers }, { label: "Tweets", value: tweets }, { label: "J'aime", value: likes }];
   if (media) stats.push({ label: "Médias", value: media });
   return { rawData: { followers, total_published: tweets, profile_only: true }, summary: socialSummary({ platform: "twitter", audience: followers, totalPublished: tweets, nickname, handle: screen, avatar, following, totalLikes: likes, bio, stats }) };
+}
+async function analyzeThreads(handle, key) {
+  const r = await svGet(`/threads/profile?handle=${encodeURIComponent(String(handle).replace(/^@/, ""))}`, key);
+  const d = r.data ?? r;
+  const dd = d.data ?? d;
+  const followers = svNum(dd.follower_count, dd.followers, dd.followers_count);
+  const nickname = dd.full_name ?? dd.username ?? handle;
+  const screen = dd.username ?? handle;
+  const avatar = dd.profile_pic_url ?? dd.profile_pic ?? deepFindAvatar(d);
+  const bio = dd.biography ?? dd.bio ?? "";
+  const stats = [{ label: "Abonnés", value: followers }];
+  return { rawData: { followers, profile_only: true }, summary: socialSummary({ platform: "threads", audience: followers, totalPublished: 0, nickname, handle: screen, avatar, bio, stats }) };
 }
 async function analyzeFacebook(handle, key) {
   const isUrl = /^https?:\/\//i.test(handle);

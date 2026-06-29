@@ -58,7 +58,14 @@ serve(async (req) => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) return json({ success: false, error: (data && (data.error || data.message)) || ("Erreur Post for Me (" + res.status + ")"), raw: data }, 200);
     const listRaw = Array.isArray(data) ? data : (data.data || data.accounts || []);
-    const list = listRaw.filter((a) => (!a.external_id || a.external_id === userId) && (!a.status || String(a.status).toLowerCase() === "connected"));
+    // On garde TOUT compte rattaché à cet utilisateur, SAUF ceux explicitement cassés.
+    // (Avant : on n'acceptait QUE le statut "connected" — si Post for Me renvoie "active"/"ready"/etc.
+    //  pour Facebook/YouTube, le compte était silencieusement ignoré et jamais enregistré.)
+    const BAD_STATUS = ["disconnected", "revoked", "error", "failed", "expired", "removed", "deleted", "inactive"];
+    const list = (listRaw || []).filter((a) =>
+      (!a.external_id || String(a.external_id) === String(userId)) &&
+      !BAD_STATUS.includes(String(a.status || "").toLowerCase())
+    );
 
     // Comptes déjà en base (avec leur handle vérifié) -> on évite de re-scraper ce qui est déjà connu.
     const { data: existingRows } = await admin.from("social_connections")

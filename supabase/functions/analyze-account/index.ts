@@ -115,7 +115,10 @@ Deno.serve(async (req) => {
       .gte("created_at", since).order("created_at", { ascending: false }).limit(1).maybeSingle();
     // CACHE : toute analyse récente AVEC des vidéos est réutilisée (même si l'IA n'a pas mis de niche).
     // -> évite de re-scraper en boucle quand l'IA échoue. 0 crédit gaspillé.
-    if (recent && (recent.summary?.video_count ?? 0) > 0 && !force) {
+    if (recent && !force && (
+          (recent.summary?.video_count ?? 0) > 0 ||
+          (recent.summary?.profile_only && (recent.summary?.audience ?? 0) > 0)   // X/Facebook/LinkedIn = stats de profil (abonnés)
+       )) {
       return j({ success: true, analysis: recent, cached: true }, 200);
     }
 
@@ -141,6 +144,9 @@ Deno.serve(async (req) => {
       if (platform === "tiktok") result = await analyzeTikTok(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
       else if (platform === "youtube") result = await analyzeYouTube(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
       else if (platform === "instagram") result = await analyzeInstagram(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
+      else if (platform === "twitter" || platform === "x") result = await analyzeTwitter(username, SV_KEY);
+      else if (platform === "facebook") result = await analyzeFacebook(username, SV_KEY);
+      else if (platform === "linkedin") result = await analyzeLinkedIn(username, SV_KEY);
       else return j({ error: `${platform} sera bientôt disponible.` }, 501);
     } catch (scrapeErr) {
       const msg = String(scrapeErr?.message ?? scrapeErr);
@@ -426,6 +432,70 @@ async function analyzeInstagram(handle, key, aiKey, owner, prior, regen) {
   const totalLikes = videos.reduce((sm, v) => sm + (Number(v.likes) || 0), 0);
   summary.profile = { avatar, nickname, handle: uniqueId, following, total_likes: totalLikes };
   return { rawData: { followers, total_published: totalPublished, fetched: videos.length, profile_debug: { ai_error: summary._ai_error || null } }, summary };
+}
+
+// ── STATS DE PROFIL (X / Facebook / LinkedIn) ─────────────────────────────────
+// SociaVault expose le PROFIL de ces réseaux (abonnés + métadonnées) — 1 crédit, pas d'IA, pas de vidéos.
+// On renvoie le MÊME format `summary` que les autres, avec profile_only=true (l'app affiche une carte adaptée).
+function svNum(...vals) { for (const v of vals) { const n = Number(v); if (Number.isFinite(n) && n > 0) return n; } return 0; }
+function socialSummary(o) {
+  return {
+    audience: o.audience || 0,
+    video_count: 0, total_published: o.totalPublished || 0,
+    avg_views: 0, total_views: 0, avg_engagement_rate: 0, total_shares: 0, total_saves: 0,
+    best_videos: [], worst_videos: [], recent_videos: [], top_videos: [],
+    owner: "self", profile_only: true, platform: o.platform, social_stats: o.stats || [], bio: o.bio || "",
+    profile: { avatar: o.avatar || "", nickname: o.nickname || o.handle, handle: o.handle, following: o.following || 0, total_likes: o.totalLikes || 0 },
+    insights: { verdict: "", niche: "", content_type: "", production_kind: "", needs_script: false, patterns: [], equivalents: [], formula: null, why: [], blueprints: [], scorecard: null },
+  };
+}
+async function analyzeTwitter(handle, key) {
+  const r = await svGet(`/twitter/profile?handle=${encodeURIComponent(String(handle).replace(/^@/, ""))}`, key);
+  const d = r.data ?? r;
+  const u = d.user ?? d.result ?? d;
+  const legacy = u.legacy ?? d.legacy ?? {};
+  const core = u.core ?? d.core ?? {};
+  const followers = svNum(legacy.followers_count, u.followers_count, d.followers_count, d.followers);
+  const following = svNum(legacy.friends_count, u.friends_count);
+  const tweets = svNum(legacy.statuses_count, u.statuses_count);
+  const likes = svNum(legacy.favourites_count, u.favourites_count);
+  const media = svNum(legacy.media_count, u.media_count);
+  const nickname = core.name ?? legacy.name ?? u.name ?? handle;
+  const screen = core.screen_name ?? legacy.screen_name ?? u.screen_name ?? handle;
+  const bio = legacy.description ?? u.description ?? "";
+  const avatar = legacy.profile_image_url_https ?? u.profile_image_url_https ?? d.profile_image_url ?? deepFindAvatar(d);
+  const stats = [{ label: "Abonnés", value: followers }, { label: "Tweets", value: tweets }, { label: "J'aime", value: likes }];
+  if (media) stats.push({ label: "Médias", value: media });
+  return { rawData: { followers, total_published: tweets, profile_only: true }, summary: socialSummary({ platform: "twitter", audience: followers, totalPublished: tweets, nickname, handle: screen, avatar, following, totalLikes: likes, bio, stats }) };
+}
+async function analyzeFacebook(handle, key) {
+  const isUrl = /^https?:\/\//i.test(handle);
+  const url = isUrl ? handle : `https://www.facebook.com/${String(handle).replace(/^@/, "")}`;
+  const r = await svGet(`/facebook/profile?url=${encodeURIComponent(url)}`, key);
+  const d = r.data ?? r;
+  const dd = d.data ?? d;
+  const followers = svNum(dd.followers, dd.followers_count, dd.fan_count, dd.followerCount, dd.likes, dd.likes_count);
+  const nickname = dd.name ?? handle;
+  const avatar = dd.profilePicLarge ?? dd.profile_pic_url ?? dd.profilePic ?? dd.image ?? deepFindAvatar(d);
+  const pageLikes = svNum(dd.likes, dd.likes_count);
+  const stats = [{ label: "Abonnés", value: followers }];
+  if (pageLikes && pageLikes !== followers) stats.push({ label: "J'aime la Page", value: pageLikes });
+  return { rawData: { followers, profile_only: true }, summary: socialSummary({ platform: "facebook", audience: followers, totalPublished: 0, nickname, handle, avatar, totalLikes: pageLikes, stats }) };
+}
+async function analyzeLinkedIn(handle, key) {
+  const isUrl = /^https?:\/\//i.test(handle);
+  const url = isUrl ? handle : `https://www.linkedin.com/in/${String(handle).replace(/^@/, "")}/`;
+  const r = await svGet(`/linkedin/profile?url=${encodeURIComponent(url)}`, key);
+  const d = r.data ?? r;
+  const dd = d.data ?? d;
+  const followers = svNum(dd.followers, dd.followers_count, dd.followerCount);
+  const nickname = dd.name ?? handle;
+  const avatar = dd.image ?? dd.profilePic ?? dd.profile_pic_url ?? deepFindAvatar(d);
+  const rp = dd.recentPosts;
+  const postCount = Array.isArray(rp) ? rp.length : (rp && typeof rp === "object" ? Object.keys(rp).length : 0);
+  const stats = [{ label: "Abonnés", value: followers }];
+  if (postCount) stats.push({ label: "Posts récents", value: postCount });
+  return { rawData: { followers, profile_only: true }, summary: socialSummary({ platform: "linkedin", audience: followers, totalPublished: postCount, nickname, handle, avatar, bio: dd.about || "", stats }) };
 }
 
 function guessNiche(videos, bio) {

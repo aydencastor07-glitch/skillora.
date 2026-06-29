@@ -2785,10 +2785,10 @@
     var av = avatar
       ? '<div style="width:64px;height:64px;border-radius:50%;margin:0 auto;background:#1a2540 center/cover no-repeat;background-image:url(\'' + imgProxy(avatar).replace(/'/g,'') + '\');"></div>'
       : '<div style="width:64px;height:64px;border-radius:50%;margin:0 auto;background:#1a2540;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:#cdd8ef;">' + escapeHtml((h||'?').charAt(0).toUpperCase()) + '</div>';
-    var analyzable = (acc.platform === 'tiktok' || acc.platform === 'youtube' || acc.platform === 'instagram');
+    var analyzable = (typeof isAnalyzable === 'function') ? isAnalyzable(acc.platform) : (acc.platform === 'tiktok' || acc.platform === 'youtube' || acc.platform === 'instagram');
     var msg = analyzable
       ? 'Analyse en cours… Reviens dans un instant, ou appuie sur <b>Actualiser</b>.'
-      : '✅ Connecté pour la <b>publication</b>. ' + escapeHtml(platLabel(acc.platform)) + ' sert à publier tes vidéos — il n\'y a pas d\'analyse de statistiques pour ce réseau (réservée à TikTok, YouTube et Instagram).';
+      : '✅ Connecté pour la <b>publication</b>. ' + escapeHtml(platLabel(acc.platform)) + ' sert à publier tes vidéos — il n\'y a pas d\'analyse de statistiques pour ce réseau.';
     var btn = analyzable
       ? '<button class="home-pf-refresh" style="margin-top:14px;" onclick="silentReanalyze(\'' + acc.platform + '\',\'' + escapeHtml(h) + '\')">🔄 Vérifier mes vidéos</button>'
       : '';
@@ -2844,7 +2844,8 @@
     if (head) { var chips = head.querySelectorAll('.home-car-chip'); for (var c = 0; c < chips.length; c++) chips[c].classList.toggle('on', c === i); }
     var s = (acc.analysis && acc.analysis.summary) || null;
     var nbBest = (s && s.best_videos && s.best_videos.length) ? s.best_videos.length : 0;
-    var hasStats = !!(s && ((Number(s.total_views) > 0) || (Number(s.video_count) > 0) || (Number(s.avg_views) > 0) || nbBest > 0));
+    var profileOnly = !!(s && s.profile_only);
+    var hasStats = !!(s && (profileOnly ? (Number(s.audience) > 0) : ((Number(s.total_views) > 0) || (Number(s.video_count) > 0) || (Number(s.avg_views) > 0) || nbBest > 0)));
     window._homeSummary = s;
     var hg = document.getElementById('homeHeaderGoal');
     if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s, platform, username) : '';
@@ -2853,9 +2854,9 @@
     ensureAnalyzed(acc);
     autoCurveDaily(platform, username); // relevé léger 1×/jour -> courbe « vues gagnées » réelle
     if (hasStats) maybePromptGoal(platform, username); // ~2 s après l'arrivée : « quel est ton objectif ? »
-    window._ideaFabAllowed = !!hasStats;
+    window._ideaFabAllowed = !!hasStats && !profileOnly; // pas d'idées de contenu pour X/FB/LinkedIn (stats de profil)
     var _onHome = document.getElementById('view-home') && document.getElementById('view-home').classList.contains('active');
-    if (hasStats) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
+    if (window._ideaFabAllowed) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
   }
 
   // ── ANALYSE UNIQUE (anti-doublon global) ─────────────────────────────────────
@@ -2895,7 +2896,7 @@
   // Analyse paresseuse d'un compte affiché (carrousel) -> passe par le garde-fou unique.
   async function ensureAnalyzed(acc){
     if (!acc || acc.analysis) return;                                  // déjà analysé -> 0 crédit
-    if (['tiktok','youtube','instagram'].indexOf(acc.platform) < 0) return; // non analysable
+    if (!isAnalyzable(acc.platform)) return;                           // non analysable
     var out = await analyzeOnce(acc.platform, acc.username, 'self', false);
     if (out && out._httpOk && !out.error) loadHomeDashboard();         // recharge -> la fiche se remplit
   }
@@ -2975,6 +2976,13 @@
       var s = mine.summary || {};
       var ins = s.insights || {};
       var prof = s.profile || {};
+
+      // X / Facebook / LinkedIn : stats de PROFIL (abonnés) -> carte dédiée, pas de section vidéo.
+      if (s.profile_only) {
+        var hasA = Number(s.audience) > 0;
+        return homeProfileCard(platform, prof, s, username)
+          + (hasA ? '' : '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.86rem;line-height:1.5;">Stats indisponibles pour le moment. Appuie sur <b>Actualiser</b> sur la carte du profil.</div>');
+      }
 
       // Stats VIDÉO réellement récupérées ? (l'audience seule ne suffit pas : il faut les vidéos)
       var nbBest = (s.best_videos && s.best_videos.length) ? s.best_videos.length : 0;
@@ -3317,7 +3325,7 @@
   // Invitation douce : ~2 s après l'arrivée sur un compte, si AUCUN objectif n'est encore fixé.
   // Une seule fois par compte (flag local) pour ne pas harceler — le bouton « 🎯 Fixer » reste dispo après.
   function maybePromptGoal(platform, username){
-    if (['tiktok','youtube','instagram'].indexOf(platform) < 0) return;
+    if (!isAnalyzable(platform)) return;
     if (getAccGoal(platform, username)) return;
     var seenKey = 'sk_goalask_' + platform + '_' + String(username).toLowerCase();
     if (localStorage.getItem(seenKey)) return;
@@ -3499,9 +3507,19 @@
     var photo = prof.avatar || ci.photo || '';
     var name = prof.nickname || ci.name || username || '';
     var av = photo ? '<div class="home-pf-av" style="background-image:url(\'' + imgProxy(photo).replace(/'/g,'') + '\')"></div>' : '<div class="home-pf-av home-pf-av-empty">' + (name||'?').charAt(0).toUpperCase() + '</div>';
-    var logo = platform === 'youtube' ? youtube : (platform === 'instagram' ? instagram : tiktok);
-    var likesBlock = (platform === 'tiktok' || platform === 'instagram') ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(prof.total_likes||0) + '</div><div class="home-pf-l">Likes</div></div>' : '';
-    var audLabel = platform === 'youtube' ? 'Abonnés' : 'Abonnés';
+    var logo = (typeof connectLogo === 'function') ? connectLogo(platform) : tiktok; // bon logo pour CHAQUE réseau
+    var statsBlocks;
+    if (s.profile_only) {
+      // X / Facebook / LinkedIn : on affiche les vraies stats de profil renvoyées par SociaVault.
+      var sstats = (Array.isArray(s.social_stats) && s.social_stats.length) ? s.social_stats : [{ label:'Abonnés', value:s.audience||0 }];
+      statsBlocks = sstats.slice(0,3).map(function(st){ return '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(st.value||0) + '</div><div class="home-pf-l">' + escapeHtml(st.label||'') + '</div></div>'; }).join('');
+    } else {
+      var likesBlock = (platform === 'tiktok' || platform === 'instagram') ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(prof.total_likes||0) + '</div><div class="home-pf-l">Likes</div></div>' : '';
+      statsBlocks =
+        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.audience||0) + '</div><div class="home-pf-l">Abonnés</div></div>' +
+        likesBlock +
+        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>';
+    }
     // n'affiche le @ que si c'est un vrai identifiant (pas un nom d'affichage avec espaces/emoji)
     var handleStr = (prof.handle || ci.handle || '').trim();
     var showHandle = handleStr && /^[a-zA-Z0-9._-]+$/.test(handleStr);
@@ -3509,11 +3527,7 @@
       '<div class="home-pf-top">' + av + '<span class="home-pf-badge">' + logo + '</span></div>' +
       '<div class="home-pf-name">' + escapeHtml(name) + '</div>' +
       (showHandle ? '<div class="home-pf-handle">@' + escapeHtml(handleStr) + '</div>' : '') +
-      '<div class="home-pf-stats">' +
-        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.audience||0) + '</div><div class="home-pf-l">' + audLabel + '</div></div>' +
-        likesBlock +
-        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>' +
-      '</div>' +
+      '<div class="home-pf-stats">' + statsBlocks + '</div>' +
       '<button class="home-pf-refresh" onclick="silentReanalyze(\'' + platform + '\',\'' + (username||prof.handle||'').replace(/'/g,'') + '\')" id="homePfRefreshBtn">Actualiser</button>' +
       '<button class="home-pf-add" onclick="addAccount()" title="Ajouter un compte">+</button>' +
     '</div>';
@@ -6067,8 +6081,8 @@
       var ci = window.__connInfo || {};
       // on n'analyse QUE si le @ est VERIFIE (sinon risque de scraper le mauvais compte)
       var ok = function(p){ return ci[p] && ci[p].verified && ci[p].handle; };
-      // analyze-account sait traiter tiktok + youtube + instagram -> on analyse CHAQUE compte connecté.
-      var plats = ['tiktok', 'youtube', 'instagram'].filter(ok);
+      // analyze-account sait traiter TikTok/YouTube/Insta (vidéos) + X/Facebook/LinkedIn (profil) -> on analyse chaque compte.
+      var plats = ANALYZABLE_PLATS.filter(function(p, i){ return ANALYZABLE_PLATS.indexOf(p) === i; }).filter(ok);
       if (!plats.length) return;
       window.__autoAnalyzeRan = true;
       const { data:{ session } } = await sb.auth.getSession();
@@ -6228,7 +6242,7 @@
       var map = {}, info = {}; (rd.data || []).forEach(function(c){ var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform; map[k] = c.handle || c.username || true; info[k] = { handle:c.handle, name:c.username, photo:c.profile_photo_url, verified:!!c.handle_verified }; });
       window.__connectedPlats = map; window.__connInfo = info;
       if (!map[plat]) { return connectAccount(plat); }   // toujours pas enregistré -> refaire l'OAuth
-      var analyzable = ['tiktok','youtube','instagram'].indexOf(plat) >= 0;
+      var analyzable = isAnalyzable(plat);
       var ci = info[plat], aok = false;
       if (analyzable && ci && ci.verified && ci.handle) { try { var dd = await analyzeOnce(plat, ci.handle, 'self', true); aok = !!(dd && dd._httpOk && !dd.error); } catch(e){} }
       if (!analyzable || PUBLISH_ONLY_PLATS.indexOf(plat) >= 0) hidePfmConnecting(plat, 'ok', 'Connecté — prêt à publier.');
@@ -6237,7 +6251,11 @@
       try { loadHomeDashboard(); } catch(e){}
     } catch(e){ hidePfmConnecting(plat, 'fail', 'Erreur réseau. Réessaie.'); }
   }
-  var PUBLISH_ONLY_PLATS = ['facebook','x','linkedin','pinterest','threads','bluesky'];
+  // Réseaux dont on sait tirer de VRAIES stats via SociaVault (vidéos OU profil/abonnés).
+  var ANALYZABLE_PLATS = ['tiktok','youtube','instagram','twitter','x','facebook','linkedin'];
+  function isAnalyzable(p){ return ANALYZABLE_PLATS.indexOf(String(p||'').toLowerCase()) >= 0; }
+  // Réseaux SANS analyse du tout (publication uniquement) — on n'a pas encore branché leurs stats.
+  var PUBLISH_ONLY_PLATS = ['pinterest','threads','bluesky'];
 
   async function pfmHandleReturn() {
     var params = new URLSearchParams(window.location.search);
@@ -6264,7 +6282,7 @@
         (data || []).forEach(function(c){ var k = (c.platform === 'tiktok_business') ? 'tiktok' : c.platform; map[k] = c.handle || c.username || true; info[k] = { handle:c.handle, name:c.username, photo:c.profile_photo_url, verified:!!c.handle_verified }; });
         window.__connectedPlats = map; window.__connInfo = info; window.__pfmSynced = true;
         outSaved = !!(plat && map[plat]);
-        outAnalyzable = !!(plat && ['tiktok','youtube','instagram'].indexOf(plat) >= 0);
+        outAnalyzable = !!(plat && isAnalyzable(plat));
         // 3) analyse AVEC le @ VERIFIE uniquement (jamais un compte non confirme) ; on ATTEND.
         // X / Facebook / LinkedIn = publication seule -> aucune analyse, 0 crédit (succès = compte enregistré).
         var ci = plat ? info[plat] : null;

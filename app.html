@@ -2788,7 +2788,7 @@
     var analyzable = (acc.platform === 'tiktok' || acc.platform === 'youtube' || acc.platform === 'instagram');
     var msg = analyzable
       ? 'Analyse en cours… Reviens dans un instant, ou appuie sur <b>Actualiser</b>.'
-      : 'Compte connecté pour la <b>publication</b>. L\'analyse de ' + escapeHtml(platLabel(acc.platform)) + ' arrive bientôt.';
+      : '✅ Connecté pour la <b>publication</b>. ' + escapeHtml(platLabel(acc.platform)) + ' sert à publier tes vidéos — il n\'y a pas d\'analyse de statistiques pour ce réseau (réservée à TikTok, YouTube et Instagram).';
     var btn = analyzable
       ? '<button class="home-pf-refresh" style="margin-top:14px;" onclick="silentReanalyze(\'' + acc.platform + '\',\'' + escapeHtml(h) + '\')">🔄 Vérifier mes vidéos</button>'
       : '';

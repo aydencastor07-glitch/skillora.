@@ -2631,7 +2631,7 @@
     } catch(e) { console.log('ob check error', e); }
   }
 
-  async function signOut() { try { localStorage.removeItem('sk_home_html'); } catch(e){} try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
+  async function signOut() { try { localStorage.removeItem('sk_home_html'); localStorage.removeItem('sk_growth'); } catch(e){} try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
 
   // Détail clair de l'objectif (au clic sur l'anneau)
   function openGoalInfo() {
@@ -2728,6 +2728,9 @@
       window._homePainted = true;
       try { var _cachedHome = localStorage.getItem('sk_home_html'); if (_cachedHome) dyn.innerHTML = _cachedHome; } catch(e){}
     }
+    // Courbe : on réhydrate l'historique mémorisé AVANT de dessiner -> la vraie courbe s'affiche tout de suite
+    // (plus de flash « En construction » puis courbe). Revalidé ensuite en arrière-plan.
+    if (!window._growthHistory) { try { var _gc = localStorage.getItem('sk_growth'); if (_gc) window._growthHistory = JSON.parse(_gc); } catch(e){} }
     var _hgReset = document.getElementById('homeHeaderGoal'); if (_hgReset && !dyn.innerHTML) _hgReset.innerHTML = '';
     try {
       const { data: { session } } = await sb.auth.getSession();
@@ -2782,7 +2785,7 @@
       var _head = document.getElementById('homeCarHead'); if (_head) _head.innerHTML = homeAccountChips(accounts, idx);
       try { localStorage.setItem('sk_home_html', dyn.innerHTML); } catch(e){} // mémorise pour la peinture instantanée au prochain chargement
       setupHomeCarousel(idx); // onHomePageChange -> ensureAnalyzed(compte affiché) : analyse paresseuse
-      if (!window._growthHistory) loadGrowthHistory((accounts[idx] || {}).platform || 'tiktok'); // 1 appel = tout l'historique
+      if (!window._growthFetched) { window._growthFetched = true; loadGrowthHistory((accounts[idx] || {}).platform || 'tiktok'); } // revalide en fond (1×/session), même si la courbe vient du cache
       renderPubVideosCard((accounts[idx] || {}).platform); // vidéos publiées du compte affiché + allume la cloche 🔔
     } catch (e) { console.log('home err', e); dyn.innerHTML = homeConnectBlock(); window._ideaFabAllowed = false; showIdeaFab(false); }
   }
@@ -4175,7 +4178,11 @@
         body: JSON.stringify({})
       });
       var data = await res.json();
-      if (data && data.history) { window._growthHistory = data.history; loadHomeDashboard(); }
+      if (data && data.history) {
+        window._growthHistory = data.history;
+        try { localStorage.setItem('sk_growth', JSON.stringify(data.history)); } catch(e){} // mémorisé -> courbe réelle dès le 1er rendu suivant
+        loadHomeDashboard();
+      }
     } catch(e) {}
   }
 

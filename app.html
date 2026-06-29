@@ -2631,7 +2631,7 @@
     } catch(e) { console.log('ob check error', e); }
   }
 
-  async function signOut() { try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
+  async function signOut() { try { localStorage.removeItem('sk_home_html'); } catch(e){} try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
 
   // Détail clair de l'objectif (au clic sur l'anneau)
   function openGoalInfo() {
@@ -2722,7 +2722,13 @@
   async function loadHomeDashboard() {
     const dyn = document.getElementById('homeDynamic');
     if (!dyn) return;
-    var _hgReset = document.getElementById('homeHeaderGoal'); if (_hgReset) _hgReset.innerHTML = '';
+    // PEINTURE INSTANTANÉE : on réaffiche le DERNIER tableau de bord connu tout de suite (0 attente),
+    // puis on recharge les données fraîches en arrière-plan. -> plus d'écran noir au rechargement.
+    if (!window._homePainted) {
+      window._homePainted = true;
+      try { var _cachedHome = localStorage.getItem('sk_home_html'); if (_cachedHome) dyn.innerHTML = _cachedHome; } catch(e){}
+    }
+    var _hgReset = document.getElementById('homeHeaderGoal'); if (_hgReset && !dyn.innerHTML) _hgReset.innerHTML = '';
     try {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) return;
@@ -2774,6 +2780,7 @@
       var pagesHtml = accounts.map(function(a, k){ return '<section class="home-car-page" data-i="' + k + '">' + accountPageHTML(a) + '</section>'; }).join('');
       dyn.innerHTML = '<div id="homeCarHead"></div><div class="home-car-track" id="homeCarTrack">' + pagesHtml + '</div><div id="homePubVideos"></div>';
       var _head = document.getElementById('homeCarHead'); if (_head) _head.innerHTML = homeAccountChips(accounts, idx);
+      try { localStorage.setItem('sk_home_html', dyn.innerHTML); } catch(e){} // mémorise pour la peinture instantanée au prochain chargement
       setupHomeCarousel(idx); // onHomePageChange -> ensureAnalyzed(compte affiché) : analyse paresseuse
       if (!window._growthHistory) loadGrowthHistory((accounts[idx] || {}).platform || 'tiktok'); // 1 appel = tout l'historique
       renderPubVideosCard((accounts[idx] || {}).platform); // vidéos publiées du compte affiché + allume la cloche 🔔

@@ -3024,7 +3024,8 @@
       var nbBest = (s.best_videos && s.best_videos.length) ? s.best_videos.length : 0;
       var hasStats = (Number(s.total_views) > 0) || (Number(s.video_count) > 0) || (Number(s.avg_views) > 0) || nbBest > 0;
       // Dernière vidéo EN HAUT (bandeau premium compact), puis la carte profil.
-      var html = (hasStats ? homeWhatsNew(s, platform, username) : '') + homeProfileCard(platform, prof, s, username);
+      // Carte PROFIL en premier (toujours en haut -> alignée sur TOUS les comptes), dernière vidéo en dessous.
+      var html = homeProfileCard(platform, prof, s, username) + (hasStats ? homeWhatsNew(s, platform, username) : '');
       if (!hasStats) {
         // Pas encore de vidéos -> on remplit la page avec le squelette gris (plus de vide noir).
         html += homeStatsPlaceholder(s, ins);

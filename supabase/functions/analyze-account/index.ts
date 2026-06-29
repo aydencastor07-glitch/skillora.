@@ -179,6 +179,26 @@ Deno.serve(async (req) => {
         raw_data: result.rawData, summary: result.summary }).select().single();
     if (error) return j({ error: "Enregistrement: " + error.message }, 500);
 
+    // ── RELEVÉ DE COURBE : on met à jour le point du JOUR avec les chiffres FRAIS de cette analyse.
+    // (Avant, une actualisation mettait à jour l'analyse mais PAS le relevé -> la courbe restait plate.)
+    if (owner === "self") {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        const snap = {
+          user_id: user.id, platform, username,
+          total_views: result.summary?.total_views ?? 0,
+          followers: result.summary?.audience ?? 0,
+          total_videos: result.summary?.total_published ?? result.summary?.video_count ?? 0,
+          total_likes: result.summary?.profile?.total_likes ?? 0,
+          snapshot_date: today,
+        };
+        const { data: ex } = await supabase.from("account_snapshots")
+          .select("id").eq("user_id", user.id).eq("platform", platform).ilike("username", username).eq("snapshot_date", today).maybeSingle();
+        if (ex) await supabase.from("account_snapshots").update(snap).eq("id", ex.id);
+        else await supabase.from("account_snapshots").insert(snap);
+      } catch (_e) { /* la courbe se mettra à jour à la prochaine analyse */ }
+    }
+
     return j({ success: true, analysis }, 200);
     } finally {
       try { await admin.from("scrape_locks").delete().eq("lock_key", lockKey); } catch (_e) { /* libère le verrou */ }

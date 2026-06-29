@@ -3526,11 +3526,12 @@
       var sstats = (Array.isArray(s.social_stats) && s.social_stats.length) ? s.social_stats : [{ label:'Abonnés', value:s.audience||0 }];
       statsBlocks = sstats.slice(0,4).map(function(st){ return '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(st.value||0) + '</div><div class="home-pf-l">' + escapeHtml(st.label||'') + '</div></div>'; }).join('');
     } else {
-      var likesBlock = (platform === 'tiktok' || platform === 'instagram') ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(prof.total_likes||0) + '</div><div class="home-pf-l">Likes</div></div>' : '';
+      var viewsBlock = (Number(s.total_views) > 0) ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_views) + '</div><div class="home-pf-l">Vues</div></div>' : '';
+      var likesBlock = (!viewsBlock && (platform === 'tiktok' || platform === 'instagram')) ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(prof.total_likes||0) + '</div><div class="home-pf-l">Likes</div></div>' : '';
       statsBlocks =
         '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.audience||0) + '</div><div class="home-pf-l">Abonnés</div></div>' +
-        likesBlock +
-        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>';
+        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>' +
+        viewsBlock + likesBlock;
     }
     // n'affiche le @ que si c'est un vrai identifiant (pas un nom d'affichage avec espaces/emoji)
     var handleStr = (prof.handle || ci.handle || '').trim();

@@ -3514,7 +3514,7 @@
     if (s.profile_only) {
       // X / Facebook / LinkedIn : on affiche les vraies stats de profil renvoyées par SociaVault.
       var sstats = (Array.isArray(s.social_stats) && s.social_stats.length) ? s.social_stats : [{ label:'Abonnés', value:s.audience||0 }];
-      statsBlocks = sstats.slice(0,3).map(function(st){ return '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(st.value||0) + '</div><div class="home-pf-l">' + escapeHtml(st.label||'') + '</div></div>'; }).join('');
+      statsBlocks = sstats.slice(0,4).map(function(st){ return '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(st.value||0) + '</div><div class="home-pf-l">' + escapeHtml(st.label||'') + '</div></div>'; }).join('');
     } else {
       var likesBlock = (platform === 'tiktok' || platform === 'instagram') ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(prof.total_likes||0) + '</div><div class="home-pf-l">Likes</div></div>' : '';
       statsBlocks =

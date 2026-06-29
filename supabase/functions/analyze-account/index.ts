@@ -450,27 +450,44 @@ function socialSummary(o) {
   };
 }
 async function analyzeTwitter(handle, key) {
-  const r = await svGet(`/twitter/profile?handle=${encodeURIComponent(String(handle).replace(/^@/, ""))}`, key);
+  const cleanH = String(handle).replace(/^@/, "");
+  const r = await svGet(`/twitter/profile?handle=${encodeURIComponent(cleanH)}`, key);
   const d = r.data ?? r;
   const u = d.user ?? d.result ?? d;
   const legacy = u.legacy ?? d.legacy ?? {};
   const core = u.core ?? d.core ?? {};
   const followers = svNum(legacy.followers_count, u.followers_count, d.followers_count, d.followers);
   const following = svNum(legacy.friends_count, u.friends_count);
-  const tweets = svNum(legacy.statuses_count, u.statuses_count);
-  const likes = svNum(legacy.favourites_count, u.favourites_count);
-  const media = svNum(legacy.media_count, u.media_count);
+  const tweetsCount = svNum(legacy.statuses_count, u.statuses_count);
   const nickname = core.name ?? legacy.name ?? u.name ?? handle;
-  const screen = core.screen_name ?? legacy.screen_name ?? u.screen_name ?? handle;
+  const screen = core.screen_name ?? legacy.screen_name ?? u.screen_name ?? cleanH;
   const bio = legacy.description ?? u.description ?? "";
   const avatar = legacy.profile_image_url_https ?? u.profile_image_url_https ?? d.profile_image_url ?? deepFindAvatar(d);
-  // Stats EXACTES dispo sur le profil : abonnés, tweets publiés, médias (photos/vidéos postées).
-  // (On n'affiche PAS favourites_count = likes DONNÉS par le compte -> trompeur. Les likes/vues REÇUS
-  //  nécessiteront l'endpoint des tweets.)
-  const stats = [{ label: "Abonnés", value: followers }, { label: "Tweets", value: tweets }];
-  if (media) stats.push({ label: "Médias", value: media });
-  else if (following) stats.push({ label: "Abonnements", value: following });
-  return { rawData: { followers, total_published: tweets, profile_only: true }, summary: socialSummary({ platform: "twitter", audience: followers, totalPublished: tweets, nickname, handle: screen, avatar, following, totalLikes: likes, bio, stats }) };
+
+  // 2e appel (~1 crédit) : les tweets, pour les VUES (tweets[].views.count) + likes REÇUS.
+  // Twitter public expose ~100 tweets les plus POPULAIRES -> la somme des vues ≈ l'essentiel des vues du compte.
+  let totalViews = 0, likesRecv = 0, fetched = 0;
+  try {
+    const tr = await svGet(`/twitter/user-tweets?handle=${encodeURIComponent(cleanH)}&trim=true`, key);
+    const td = tr.data ?? tr;
+    const tw = td.tweets ?? td.data?.tweets ?? {};
+    const arr = Array.isArray(tw) ? tw : Object.values(tw ?? {});
+    for (const t of arr) {
+      if (!t || typeof t !== "object") continue;
+      const tl = t.legacy ?? t;
+      totalViews += svNum(t.views?.count, t.views, tl.views, tl.view_count);
+      likesRecv += svNum(tl.favorite_count, tl.favourite_count);
+      fetched++;
+    }
+  } catch (_e) { /* l'appel tweets a échoué -> on garde au moins le profil (abonnés) */ }
+
+  const stats = [{ label: "Abonnés", value: followers }];
+  if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });
+  stats.push({ label: "Tweets", value: tweetsCount || fetched });
+  if (totalViews > 0 && likesRecv > 0) stats.push({ label: "J'aime", value: likesRecv });
+  const summary = socialSummary({ platform: "twitter", audience: followers, totalPublished: tweetsCount || fetched, nickname, handle: screen, avatar, following, totalLikes: likesRecv, bio, stats });
+  summary.total_views = totalViews; // pour le relevé de courbe (snapshot quotidien)
+  return { rawData: { followers, total_published: tweetsCount, total_views: totalViews, fetched, profile_only: true }, summary };
 }
 async function analyzeThreads(handle, key) {
   const r = await svGet(`/threads/profile?handle=${encodeURIComponent(String(handle).replace(/^@/, ""))}`, key);

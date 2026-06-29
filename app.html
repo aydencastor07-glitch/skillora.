@@ -254,6 +254,14 @@
   .home-pf-refresh:active { transform:scale(0.97); }
   .home-pf-refresh.refreshing { animation:pfPulse 1s ease-in-out infinite; }
   @keyframes pfPulse { 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
+  /* Écran de chargement pendant l'actualisation des stats (feedback clair) */
+  .stats-load-ov { position:fixed; inset:0; z-index:9200; background:rgba(4,8,18,0.72); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; }
+  .stats-load-ov.open { display:flex; opacity:1; }
+  .stats-load-card { display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .stats-load-spin { width:54px; height:54px; border-radius:50%; border:3px solid rgba(255,255,255,0.14); border-top-color:#5e9bff; animation:slSpin .8s linear infinite; }
+  @keyframes slSpin { to { transform:rotate(360deg); } }
+  .stats-load-check { width:54px; height:54px; border-radius:50%; background:#2ee6a6; color:#04240f; display:flex; align-items:center; justify-content:center; font-size:1.7rem; font-weight:800; }
+  .stats-load-txt { font-family:'Sora',sans-serif; font-weight:600; font-size:.95rem; color:#fff; }
 
   /* Connexion + squelette */
   .home-connect { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:18px; margin-bottom:14px; }
@@ -3595,6 +3603,7 @@
       return;
     }
     if (btn) { btn.textContent = '🔍 Vérification…'; btn.disabled = true; btn.classList.add('refreshing'); }
+    showStatsLoading();                              // écran de chargement clair (impossible à rater)
     var ok = false;
     try { var out = await analyzeOnce(platform, username, 'self', true); ok = !!(out && out._httpOk && !out.error); } catch(e) {}
     if (ok) {
@@ -3607,12 +3616,29 @@
       window._homeCurrentKey = platform + '|' + String(username).toLowerCase();
       try { delete window._analysisCache[platform + '|' + String(username).toLowerCase() + '|self']; } catch(e){}
       try { await loadGrowthHistory(platform); } catch(e){}   // recharge l'historique de courbe (point du jour mis à jour)
-      try { await loadHomeDashboard(); } catch(e){}           // re-render EN PLACE, reste sur le même compte
-      if (typeof pubToast === 'function') { try { pubToast('Stats à jour ✓'); } catch(e){} }
+      try { await loadHomeDashboard(); hideStatsLoading(true); }
+      catch(e){ hideStatsLoading(false); location.reload(); } // filet de sécurité si le re-render échoue
     } else {
+      hideStatsLoading(false);
       if (btn) { btn.textContent = 'Réessayer'; btn.disabled = false; btn.classList.remove('refreshing'); }
-      alert('La vérification n\'a pas abouti cette fois. Réessaie dans un instant (aucun crédit ne t\'a été décompté).');
+      skModal({ icon:'⚠️', iconBg:'#3a2616', title:'Pas pu mettre à jour',
+        message:'On n\'a pas réussi à récupérer tes stats cette fois (réseau ou plateforme). Réessaie dans un instant — <b>aucun crédit ne t\'a été décompté.</b>',
+        cancelText:'Réessayer' });
     }
+  }
+  // Écran de chargement réutilisable pour l'actualisation des stats.
+  function showStatsLoading(){
+    var ov = document.getElementById('statsLoadOv');
+    if (!ov){ ov = document.createElement('div'); ov.id='statsLoadOv'; ov.className='stats-load-ov'; document.body.appendChild(ov); }
+    ov.innerHTML = '<div class="stats-load-card"><div class="stats-load-spin"></div><div class="stats-load-txt">Mise à jour de tes stats…</div></div>';
+    ov.classList.add('open');
+  }
+  function hideStatsLoading(ok){
+    var ov = document.getElementById('statsLoadOv'); if(!ov) return;
+    if (ok){
+      ov.innerHTML = '<div class="stats-load-card"><div class="stats-load-check">✓</div><div class="stats-load-txt">Stats à jour</div></div>';
+      setTimeout(function(){ ov.classList.remove('open'); }, 950);
+    } else { ov.classList.remove('open'); }
   }
 
   // Auto-refresh quotidien : 1×/jour à l'ouverture (le cache serveur évite la sur-conso)

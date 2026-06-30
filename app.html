@@ -1239,6 +1239,14 @@
   .hero-card .ver-script { background:rgba(8,14,30,0.65); border-color:var(--border2); }
   .hero-cta { position:relative; margin-top:14px; padding:12px 14px; border-radius:12px; background:rgba(61,220,132,0.08); border:1px solid rgba(61,220,132,0.25); font-size:.88rem; line-height:1.5; color:#dff7e8; }
   .hero-cta span { display:block; font-size:.6rem; text-transform:uppercase; letter-spacing:.2em; color:var(--green); font-weight:700; margin-bottom:4px; }
+  /* Script présenté comme UN document propre (accroche / cœur / fin dans un seul bloc) */
+  .hero-card .script-doc { position:relative; background:rgba(8,14,30,0.65); border:1px solid var(--border2); border-radius:14px; overflow:hidden; }
+  .script-doc .sd-seg { padding:14px 16px; }
+  .script-doc .sd-seg + .sd-seg { border-top:1px dashed rgba(255,255,255,0.09); }
+  .script-doc .sd-tag { display:block; font-family:'Sora',sans-serif; font-size:.6rem; font-weight:800; text-transform:uppercase; letter-spacing:.15em; margin-bottom:7px; color:var(--blue-light); }
+  .script-doc .sd-tag.body { color:#9fb0d6; }
+  .script-doc .sd-tag.end { color:var(--green); }
+  .script-doc .sd-txt { font-size:.95rem; line-height:1.62; color:#e9effb; white-space:pre-wrap; }
   /* Selecteur de plateformes (connexion Post for Me) */
   .pfm-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .pfm-pick { display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--border); color:#fff; border-radius:11px; padding:11px 12px; font-family:'Sora',sans-serif; font-size:.86rem; cursor:pointer; transition:transform .12s, border-color .2s; }
@@ -6257,25 +6265,40 @@
       html += '</div>';
     }
 
-    // ===== 3) LE LIVRABLE : ton script optimisé (la star, presentation premium) =====
+    // ===== 3) LE LIVRABLE : ton script optimisé, présenté comme UN document propre =====
+    // Un seul bloc : accroche en haut, cœur au milieu, fin en bas. Les libellés ne sont
+    // PAS copiés — « Copier » ne met que le script (accroche + corps + fin), prêt à filmer.
     if (a.versions && a.versions.length) {
       window.__verScripts = window.__verScripts || {};
+      var MARKS = /[​‌‍⁠⁡⁢⁣⁤﻿͏⁦]/g;
       a.versions.forEach(function(v, i) {
-        var cleanScript = (v.script || '').replace(/[​‌‍⁠⁡⁢⁣⁤﻿͏⁦]/g, '');
+        var full = (v.script || '').replace(MARKS, '').trim();
+        var hook = (v.hook || '').replace(MARKS, '').trim();
+        var cta  = (v.cta  || '').replace(MARKS, '').trim();
+        // Corps = script sans l'accroche (au début) ni la phrase de fin (à la fin), pour éviter les répétitions.
+        var body = full;
+        if (hook && body.indexOf(hook) === 0) body = body.slice(hook.length).trim();
+        else if (hook && body.indexOf(hook) > -1) body = body.replace(hook, '').trim();
+        if (cta) { var ci = body.lastIndexOf(cta); if (ci > -1 && ci + cta.length >= body.length - 2) body = body.slice(0, ci).trim(); else if (ci > -1) body = body.replace(cta, '').trim(); }
+
         var vid = 'ver' + i;
-        window.__verScripts[vid] = v.script || ''; // version AVEC marque (note stable)
+        window.__verScripts[vid] = v.script || ''; // copie = script complet (avec marque invisible, sans libellés)
         var vcol = (v.note != null && v.note >= 7.5) ? '#3ddc84' : '#2f7bff';
+
         html += '<div class="hero-card">';
         html += '<div class="hero-glow"></div>';
         html += '<div class="hero-top"><span class="hero-eyebrow">✦ Optimisé par Skillora</span>';
         if (v.note != null) html += '<span class="hero-note" style="color:' + vcol + ';border-color:' + vcol + ';box-shadow:0 0 18px ' + vcol + '33;">' + v.note + '<small>/10</small></span>';
         html += '</div>';
-        html += '<h3 class="hero-title">' + (v.titre || 'Ton script, prêt à percer') + '</h3>';
-        html += '<p class="hero-desc">Réécrit pour capter l\'attention dès la première seconde et garder ton audience jusqu\'au bout.</p>';
-        if (v.hook) html += '<div class="ver-hook"><small>🎯 L\'accroche — tes 3 premières secondes</small>' + v.hook + '</div>';
-        html += '<div class="ver-script-label">📝 Ton script complet</div>';
-        html += '<div class="ver-script" id="' + vid + '">' + cleanScript + '</div>';
-        if (v.cta) html += '<div class="hero-cta"><span>📣 Phrase de fin</span>' + v.cta + '</div>';
+        html += '<h3 class="hero-title">' + escapeHtml(v.titre || 'Ton script, prêt à percer') + '</h3>';
+
+        html += '<div class="script-doc" id="' + vid + '">';
+        if (hook) html += '<div class="sd-seg"><span class="sd-tag hook">🎯 Accroche · 3 premières secondes</span><div class="sd-txt">' + escapeHtml(hook) + '</div></div>';
+        if (body) html += '<div class="sd-seg"><span class="sd-tag body">🎬 Le cœur · ce qui garde l\'attention</span><div class="sd-txt">' + escapeHtml(body).replace(/\n+/g,'<br>') + '</div></div>';
+        if (cta)  html += '<div class="sd-seg"><span class="sd-tag end">🏁 La fin · ce qui déclenche like &amp; abonnement</span><div class="sd-txt">' + escapeHtml(cta) + '</div></div>';
+        if (!hook && !cta) html += '<div class="sd-seg"><div class="sd-txt">' + escapeHtml(full).replace(/\n+/g,'<br>') + '</div></div>';
+        html += '</div>';
+
         html += '<button class="ver-copy primary" onclick="copyVersion(\'' + vid + '\', this)">📋 Copier mon script</button>';
         html += '</div>';
       });

@@ -4155,10 +4155,10 @@
     }).join('') + '</div>';
     var W = 320, H = 120;
 
-    // « Hier » = UN SEUL jour -> rien à comparer entre plusieurs points, donc JAMAIS de courbe
-    // cliquable ici (une ligne à 2 points donnerait l'illusion fausse d'une tendance). On affiche
-    // juste le chiffre du jour, en gros, non interactif. La courbe multi-points n'apparaît qu'à
-    // partir de "7 jours" (plusieurs vrais jours à comparer = plusieurs points cliquables logiques).
+    // « Hier » = UN SEUL jour -> rien à comparer entre plusieurs points, donc JAMAIS de points
+    // cliquables ici (contrairement à "7 jours" où chaque point = un jour différent qu'on peut
+    // comparer aux autres). On garde quand même l'ALLURE d'un graphique (cohérent avec les autres
+    // onglets) : juste une ligne décorative, non interactive, + le chiffre réel en légende.
     if (pdays === 1) {
       // Le gain de "Hier" = l'écart calculé EXACTEMENT à la date d'hier (vues d'hier - vues d'avant-hier),
       // PAS le dernier écart connu (qui serait "aujourd'hui vs hier" = souvent 0 tant que la journée
@@ -4175,10 +4175,19 @@
       }
       var lastGain = gainY.v;
       var upH = lastGain > 0;
+      var colorH = upH ? '#3ddc84' : '#8b9bc4';
+      // Forme à 2 points SANS data (=> auroraSvg ne dessine aucun point/zone tactile) : juste une
+      // ligne pleine (pas pointillée) qui monte si gain, reste plate sinon — un seul segment pour
+      // un seul jour, exactement comme demandé.
+      var shapeH = upH ? [0.12, 0.82] : [0.45, 0.45];
+      var ymdY = yesterdayStr.split('-');
+      var moisYH = ['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+      var dateLblY = parseInt(ymdY[2], 10) + ' ' + moisYH[parseInt(ymdY[1], 10) - 1];
       return '<div class="home-graph card aurora">' +
         '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-diff ' + (upH?'up':'down') + '">' + (upH?'En hausse':'Stable') + '</span></div>' +
         tabs +
-        '<div class="home-graph-stat"><span class="home-graph-stat-n">' + (lastGain>0?'+':'') + fmtNum(lastGain) + '</span><span class="home-graph-stat-l">vues gagnées depuis hier</span></div>' +
+        '<div class="home-graph-canvas">' + auroraSvg(W, H, shapeH, colorH, false, null) + '</div>' +
+        '<div class="home-graph-foot"><span>Hier (' + dateLblY + ') : ' + (lastGain>0?'+':'') + fmtNum(lastGain) + ' vues gagnées</span></div>' +
       '</div>';
     }
 

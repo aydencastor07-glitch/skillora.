@@ -912,9 +912,15 @@
   .anl-bp-prompt { display:flex; gap:9px; align-items:flex-start; margin-top:10px; background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.25); border-radius:10px; padding:10px 12px; font-size:.78rem; color:var(--white); line-height:1.5; }
 
   .plat-select { display:flex; flex-wrap:wrap; gap:8px; }
-  .ps-btn { background:var(--surface); border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:8px 14px; font-family:'Sora',sans-serif; font-size:.84rem; cursor:pointer; transition:all .2s; }
+  .ps-btn { display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:7px 14px 7px 8px; font-family:'Sora',sans-serif; font-weight:600; font-size:.84rem; cursor:pointer; transition:all .2s; }
   .ps-btn.active { background:var(--surface2); border-color:var(--blue); color:var(--white); }
   .ps-btn:active { transform:scale(0.95); }
+  .ps-ic { width:22px; height:22px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex:none; }
+  .ps-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 2px 10px; }
+  .ps-sep { flex-basis:100%; width:100%; margin:10px 0 3px; font-family:'Sora',sans-serif; font-weight:700; font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted2); display:flex; align-items:center; gap:9px; }
+  .ps-sep::before, .ps-sep::after { content:''; height:1px; background:var(--border); flex:1; }
+  .ps-btn.shop { color:var(--muted); }
+  .ps-btn.shop.active { color:var(--white); }
 
   /* studio / multi-profiles */
   .studio-head { display:flex; align-items:center; justify-content:space-between; }
@@ -1816,14 +1822,8 @@
       <div id="scriptLabBody">
       <textarea id="scriptInput" class="composer-input" rows="5" placeholder="Écris ton idée…   ex : 3 erreurs qui ruinent ta progression à la salle" style="resize:none;"></textarea>
       <div class="composer-opts">
-        <div class="plat-select" id="platSelect">
-          <button class="ps-btn active" data-plat="tiktok">TikTok</button>
-          <button class="ps-btn" data-plat="tiktok_shop">TikTok Shop</button>
-          <button class="ps-btn" data-plat="reels">Reels</button>
-          <button class="ps-btn" data-plat="shorts">Shorts</button>
-          <button class="ps-btn" data-plat="youtube_long">YouTube long</button>
-          <button class="ps-btn" data-plat="instagram_post">Post Insta</button>
-        </div>
+        <div class="ps-label">Format — vidéo courte</div>
+        <div class="plat-select" id="platSelect"></div>
         <div class="composer-dur"><span class="cd-label">Durée</span><span id="durLabel" class="cd-val">30 s</span></div>
         <input type="range" id="durRange" class="dur-range" min="10" max="180" step="5" value="30" oninput="updateDur(this.value)">
       </div>
@@ -5280,17 +5280,43 @@
     }
   }
   // adapte le maximum du curseur selon le format
+  // Logo de plateforme à utiliser pour chaque format de script.
+  function studioFormatLogo(p){ return p==='reels'?'instagram':(p==='shorts'?'youtube':(p==='facebook'?'facebook':'tiktok')); }
+  // Construit le sélecteur de format AVEC logos, bien rangé. Vidéos courtes en haut ;
+  // TikTok Shop (vente produit) séparé en bas car on ne peut pas y connecter de compte.
+  function buildStudioFormats(){
+    var ps = document.getElementById('platSelect');
+    if (!ps) return;
+    var FORMATS = [
+      { plat:'tiktok',   label:'TikTok' },
+      { plat:'reels',    label:'Instagram Reels' },
+      { plat:'shorts',   label:'YouTube Shorts' },
+      { plat:'facebook', label:'Facebook Reels' },
+    ];
+    var html = FORMATS.map(function(f, i){
+      var lg = studioFormatLogo(f.plat);
+      return '<button class="ps-btn'+(i===0?' active':'')+'" data-plat="'+f.plat+'"><span class="ps-ic" style="background:'+platBg(lg)+';">'+pubPlatSVG(lg,12)+'</span>'+f.label+'</button>';
+    }).join('');
+    html += '<div class="ps-sep">Vendre un produit</div>';
+    html += '<button class="ps-btn shop" data-plat="tiktok_shop"><span class="ps-ic" style="background:'+platBg('tiktok')+';">'+pubPlatSVG('tiktok',12)+'</span>TikTok Shop</button>';
+    ps.innerHTML = html;
+    ps.querySelectorAll('.ps-btn').forEach(function(b){
+      b.addEventListener('click', function(){
+        ps.querySelectorAll('.ps-btn').forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active'); selectedPlatform = b.getAttribute('data-plat');
+        applyDurationRange();
+        var zone = document.getElementById('shopImageZone');
+        if (zone) zone.style.display = (selectedPlatform === 'tiktok_shop') ? 'block' : 'none';
+      });
+    });
+  }
+
   function applyDurationRange() {
     var range = document.getElementById('durRange');
     if (!range) return;
-    var isLong = (selectedPlatform === 'youtube_long');
-    if (isLong) {
-      range.min = 60; range.max = 2400; range.step = 30; // jusqu'a 40 min
-      if (scriptDuration < 60) { scriptDuration = 300; range.value = 300; } // defaut 5 min
-    } else {
-      range.min = 10; range.max = 300; range.step = 5; // jusqu'a 5 min
-      if (scriptDuration > 300) { scriptDuration = 30; range.value = 30; }
-    }
+    // Focus contenu COURT : 3 minutes maximum pour toutes les plateformes.
+    range.min = 10; range.max = 180; range.step = 5;
+    if (scriptDuration > 180) { scriptDuration = 30; range.value = 30; }
     updateDur(range.value);
   }
   let profiles = [];          // liste des profils {account, platform, niche}
@@ -5355,16 +5381,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    var ps = document.getElementById('platSelect');
-    if (ps) ps.querySelectorAll('.ps-btn').forEach(function(b){
-      b.addEventListener('click', function(){
-        ps.querySelectorAll('.ps-btn').forEach(function(x){ x.classList.remove('active'); });
-        b.classList.add('active'); selectedPlatform = b.getAttribute('data-plat');
-        applyDurationRange();
-        var zone = document.getElementById('shopImageZone');
-        if (zone) zone.style.display = (selectedPlatform === 'tiktok_shop') ? 'block' : 'none';
-      });
-    });
+    buildStudioFormats();
     var sel = document.getElementById('nicheSelect');
     if (sel) sel.addEventListener('change', function(){
       document.getElementById('nicheCustom').style.display = (sel.value === '__autre__') ? 'block' : 'none';
@@ -5506,7 +5523,7 @@
     var _gb = document.getElementById('analyzeBtn'); if (_gb) _gb.textContent = '✨ Générer un script pour @' + a.username;
     // Aligne le format du Script Lab sur la plateforme du compte
     try {
-      var want = (a.platform==='instagram')?'reels':((a.platform==='youtube')?'shorts':((a.platform==='facebook')?'reels':'tiktok'));
+      var want = (a.platform==='instagram')?'reels':((a.platform==='youtube')?'shorts':((a.platform==='facebook')?'facebook':'tiktok'));
       var ps = document.getElementById('platSelect');
       if (ps) { ps.querySelectorAll('.ps-btn').forEach(function(b){ var on=(b.getAttribute('data-plat')===want); b.classList.toggle('active', on); if(on){ selectedPlatform = want; } }); if (typeof applyDurationRange==='function') applyDurationRange(); }
     } catch(e){}

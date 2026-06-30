@@ -518,17 +518,14 @@ async function analyzeTwitter(handle, key) {
     let tw = td.tweets ?? td.data?.tweets ?? td.result?.tweets ?? td.timeline ?? null;
     let arr = Array.isArray(tw) ? tw : (tw && typeof tw === "object" ? Object.values(tw) : []);
     if (!arr.length || typeof arr[0] !== "object") { arr = collectObjArray(td) || arr; }
-    // DIAGNOSTIC (temporaire) : structure réelle renvoyée par X, pour savoir où sont les vues.
-    try { console.log("[TWDIAG]", cleanH, "count=", arr.length, "tdKeys=", Object.keys(td || {}).slice(0, 12).join(","), "first=", JSON.stringify(arr[0] ?? {}).slice(0, 700)); } catch (_e) {}
     for (const t of arr) {
       if (!t || typeof t !== "object") continue;
       const tl = t.legacy ?? t;
-      totalViews += deepViewCount(t);   // trouve les vues où qu'elles soient
+      totalViews += deepViewCount(t);   // trouve les vues où qu'elles soient dans le tweet
       likesRecv += svNum(tl.favorite_count, tl.favourite_count, t.favorite_count, t.like_count, t.likes);
       fetched++;
     }
-    console.log("[TWDIAG]", cleanH, "totalViews=", totalViews, "likes=", likesRecv, "fetched=", fetched);
-  } catch (e) { console.log("[TWDIAG] err", String(e)); }
+  } catch (_e) { /* l'appel tweets a échoué -> on garde au moins le profil (abonnés) */ }
 
   const stats = [{ label: "Abonnés", value: followers }];
   if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });

@@ -37,6 +37,10 @@ Deno.serve(async (req) => {
     const force = body.force === true;
     const regen = force && body.regen === true; // « Régénérer ma stratégie » -> relance l'IA (rare). Sinon IA réutilisée.
     if (!platform || !username) return j({ error: "platform et username requis." }, 400);
+    // Date du jour CÔTÉ CLIENT (calendrier local de l'utilisateur), pas l'horloge UTC du serveur :
+    // sinon entre minuit et ~2h du matin en France, le serveur croit encore être "hier" -> le point
+    // du jour de la courbe se trompait de date pile à ce moment-là.
+    const localToday = /^\d{4}-\d{2}-\d{2}$/.test(body.local_date ?? "") ? body.local_date : new Date().toISOString().slice(0, 10);
 
     const { data: sub } = await supabase.from("subscriptions").select("plan,status").eq("user_id", user.id).maybeSingle();
     const plan = (sub?.plan ?? "none").toLowerCase();
@@ -100,7 +104,7 @@ Deno.serve(async (req) => {
         }
       } catch (_e) { return j({ success: true, curve: true, skipped: "scrape_err" }, 200); }
       if (totalViews > 0) {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = localToday;
         const snap = { user_id: user.id, platform, username, total_views: totalViews,
           followers: priorC?.audience ?? 0, total_videos: priorC?.total_published ?? 0, total_likes: priorC?.profile?.total_likes ?? 0, snapshot_date: today };
         const { data: ex } = await supabase.from("account_snapshots")
@@ -185,7 +189,7 @@ Deno.serve(async (req) => {
     // (Avant, une actualisation mettait à jour l'analyse mais PAS le relevé -> la courbe restait plate.)
     if (owner === "self") {
       try {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = localToday;
         const snap = {
           user_id: user.id, platform, username,
           total_views: result.summary?.total_views ?? 0,

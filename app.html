@@ -3131,6 +3131,10 @@
   //  • appels SUIVANTS sur le même compte              -> résultat déjà en mémoire = 0 crédit SociaVault
   //  • force=true (clic « Actualiser »)                -> on ignore le cache et on rafraîchit vraiment
   // Le système fonctionne à l'identique : l'analyse se fait toujours, mais une seule fois.
+  // Date du jour CALENDAIRE LOCAL (pas UTC) : toISOString() est en UTC, donc en France (UTC+1/+2),
+  // entre minuit et ~2h du matin, "aujourd'hui" en UTC est encore "hier" -> la courbe se trompait
+  // de jour pile au moment où l'utilisateur ouvre l'app tard le soir / tôt le matin.
+  function localDateStr(d){ d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
   window._analysisCache = window._analysisCache || {};
   window._analysisInflight = window._analysisInflight || {};
   async function analyzeOnce(platform, username, owner, force){
@@ -3143,7 +3147,7 @@
       var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-        body: JSON.stringify({ platform: platform, username: username, owner: owner||'self', force: !!force })
+        body: JSON.stringify({ platform: platform, username: username, owner: owner||'self', force: !!force, local_date: localDateStr() })
       });
       var data = null; try { data = await res.json(); } catch(e){ data = {}; }
       data._httpOk = res.ok;
@@ -3175,7 +3179,7 @@
   async function autoCurveDaily(platform, username){
     if (['tiktok','youtube','instagram'].indexOf(platform) < 0) return;
     if (!username) return;
-    var today = new Date().toISOString().slice(0,10);
+    var today = localDateStr();
     var key = 'sk_curveday_' + platform + '_' + String(username).toLowerCase();
     if (localStorage.getItem(key) === today) return;                   // déjà relevé aujourd'hui -> 0 crédit
     try { localStorage.setItem(key, today); } catch(e){}               // posé AVANT l'appel (anti double-fire)
@@ -3185,7 +3189,7 @@
       var res = await fetch(SB_URL + '/functions/v1/analyze-account', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY },
-        body: JSON.stringify({ platform: platform, username: username, owner:'self', curveOnly:true })
+        body: JSON.stringify({ platform: platform, username: username, owner:'self', curveOnly:true, local_date: today })
       });
       if (res.ok) { window._growthHistory = null; }                    // la courbe se rechargera avec le point du jour
     } catch(e){}
@@ -3289,7 +3293,7 @@
         // Threads (sans métrique de vues publique) garde le placeholder « En construction ».
         var hg2 = document.getElementById('homeHeaderGoal'); if (hg2) hg2.innerHTML = homeGoalRingMini(s, platform, username);
         return homeProfileCard(platform, prof, s, username)
-          + (hasViews ? renderGrowthGraph(s, platform, username) + homeStatsMetaOnly(s, s.insights)
+          + (hasViews ? ('<div id="homeGraphWrap_' + refreshBtnId(platform, username) + '">' + renderGrowthGraph(s, platform, username) + '</div>' + homeStatsMetaOnly(s, s.insights))
                       : homeStatsPlaceholder(s, s.insights))
           + renderProfilePosts(s, platform);
       }
@@ -3312,7 +3316,7 @@
       if (hg) hg.innerHTML = hasStats ? homeGoalRingMini(s, platform, username) : '';
 
       // Graphique d'évolution — seulement quand il y a de vraies stats (filtré sur CE compte)
-      if (hasStats) html += renderGrowthGraph(s, platform, username);
+      if (hasStats) html += '<div id="homeGraphWrap_' + refreshBtnId(platform, username) + '">' + renderGrowthGraph(s, platform, username) + '</div>';
 
       // Invitation PERCUTANTE aux idées virales quotidiennes (la niche est connue ici).
       if (hasStats && ins.niche) html += homeDailyGold(platform, username, ins.niche);
@@ -3894,7 +3898,7 @@
   function curPlan(){ return (typeof userPlan !== 'undefined' && userPlan ? String(userPlan) : 'none').toLowerCase(); }
   function refreshLimit(){ if (typeof isUnlimited === 'function' && isUnlimited()) return Infinity; var l = REFRESH_LIMITS[curPlan()]; return (typeof l === 'number') ? l : 1; }
   function refreshCooldownH(){ var h = REFRESH_COOLDOWN_H[curPlan()]; return (typeof h === 'number') ? h : 4; }
-  function refreshKey(platform, username){ return 'sk_refresh_' + platform + '_' + String(username).toLowerCase() + '_' + new Date().toISOString().slice(0,10); }
+  function refreshKey(platform, username){ return 'sk_refresh_' + platform + '_' + String(username).toLowerCase() + '_' + localDateStr(); }
   function refreshLastKey(platform, username){ return 'sk_refresh_last_' + platform + '_' + String(username).toLowerCase(); }
   function refreshesUsedToday(platform, username){ return parseInt(localStorage.getItem(refreshKey(platform, username)) || '0', 10) || 0; }
   function refreshesLeft(platform, username){ return Math.max(0, refreshLimit() - refreshesUsedToday(platform, username)); }
@@ -4023,9 +4027,15 @@
   // P\u00e9riode active du graphique
   if (!window._graphPeriod) window._graphPeriod = '1';
 
+  // Changement d'onglet (Hier/7 jours/30 jours/3 mois) : les données sont DÉJÀ en mémoire
+  // (window._growthHistory) -> on redessine juste le graphique en place, sans recharger
+  // tout le tableau de bord (réseau + reconstruction du carrousel entier = lent et inutile).
   function setGraphPeriod(d) {
     window._graphPeriod = d;
-    loadHomeDashboard();
+    var platform = window._lastPlatform, username = window._lastUsername, s = window._homeSummary;
+    var wrap = (platform && username) ? document.getElementById('homeGraphWrap_' + refreshBtnId(platform, username)) : null;
+    if (wrap && s) { wrap.innerHTML = renderGrowthGraph(s, platform, username); }
+    else { loadHomeDashboard(); } // filet de sécurité si l'état attendu n'est pas dispo
   }
 
   // Squelette de stats GRIS : remplit la page (plus de grand vide noir) quand un compte n'a pas encore
@@ -4144,7 +4154,7 @@
     }).join('') + '</div>';
     var W = 320, H = 120;
 
-    var cutoff = new Date(Date.now() - pdays*864e5).toISOString().slice(0,10);
+    var cutoff = localDateStr(new Date(Date.now() - pdays*864e5));
     var view = gains.filter(function(x){ return x.d >= cutoff; });
     var totalGained = view.reduce(function(a,b){ return a + b.v; }, 0);
 
@@ -4274,7 +4284,7 @@
       } else {
         // Pas encore généré (on ne dépense aucun crédit) : on invite quand même
         // si c'est un nouveau jour non encore consulté.
-        var todayB = new Date().toISOString().slice(0,10);
+        var todayB = localDateStr();
         setIdeaBadge(getIdeasSeen(acc) === todayB ? 0 : 1);
       }
     } catch(e) {}

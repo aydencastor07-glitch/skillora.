@@ -988,6 +988,16 @@
   .cd-label { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
   .cd-val { color:var(--blue-light); font-family:'Fraunces',serif; font-weight:600; font-size:.98rem; }
 
+  /* ===== Invitation "mine d'or" : idées virales quotidiennes (Accueil) ===== */
+  .daily-gold { position:relative; background:linear-gradient(135deg, rgba(255,196,84,0.14), rgba(47,123,255,0.10)); border:1px solid rgba(255,196,84,0.35); border-radius:18px; padding:16px 16px 17px; margin-bottom:14px; overflow:hidden; }
+  .daily-gold .dg-x { position:absolute; top:9px; right:9px; width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,0.06); border:none; color:var(--muted); font-size:.78rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .daily-gold .dg-ic { font-size:1.7rem; margin-bottom:8px; }
+  .daily-gold .dg-t { font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; color:var(--white); line-height:1.25; margin-bottom:6px; padding-right:26px; }
+  .daily-gold .dg-p { font-size:.86rem; color:var(--muted); line-height:1.5; margin-bottom:13px; }
+  .daily-gold .dg-p b { color:#ffe6cc; font-weight:600; }
+  .daily-gold .dg-go { width:100%; background:linear-gradient(135deg,#ffc454,#ff9f4a); color:#1a1205; border:none; border-radius:12px; padding:13px; font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; cursor:pointer; box-shadow:0 6px 18px rgba(255,159,74,0.3); transition:transform .12s; }
+  .daily-gold .dg-go:active { transform:scale(.98); }
+
   /* ===== Profils de niche premium ===== */
   .np-card { background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:13px 14px; margin-bottom:11px; cursor:pointer; transition:border-color .2s, transform .12s, box-shadow .2s; }
   .np-card:active { transform:scale(0.99); }
@@ -1905,18 +1915,18 @@
       <button class="popup-close" onclick="dismissEmailPopup()" aria-label="Fermer">✕</button>
 
       <div id="popupForm">
-        <div class="email-icon-wrap">📬</div>
-        <h3 style="font-size:1.4rem;margin-bottom:8px;">Active ton plan quotidien</h3>
-        <p style="color:var(--muted);font-size:.94rem;margin-bottom:8px;line-height:1.5;">Reçois chaque matin, par email, tout ce dont tu as besoin pour progresser — automatiquement.</p>
+        <div class="email-icon-wrap">💎</div>
+        <h3 style="font-size:1.4rem;margin-bottom:8px;">Ta vidéo virale, chaque matin</h3>
+        <p style="color:var(--muted);font-size:.94rem;margin-bottom:8px;line-height:1.5;">Skillora fouille ta niche chaque nuit et t'envoie l'idée qui a le plus de chances d'exploser — prête à filmer.</p>
         <div id="popupProfileHint" style="display:none;font-size:.84rem;color:var(--blue-light);background:rgba(47,123,255,0.1);border:1px solid var(--border2);border-radius:10px;padding:9px 12px;margin-bottom:16px;"></div>
 
-        <div class="feat-row"><span class="chk">✓</span> Ta mission du jour personnalisée</div>
-        <div class="feat-row"><span class="chk">✓</span> Un script viral prêt à filmer</div>
+        <div class="feat-row"><span class="chk">✓</span> 1 idée de vidéo à fort potentiel viral</div>
+        <div class="feat-row"><span class="chk">✓</span> Le hook + le script déjà écrits</div>
+        <div class="feat-row"><span class="chk">✓</span> 100% adaptée à la niche de ton compte</div>
         <div class="feat-row"><span class="chk">✓</span> Tes rappels pour garder ta série 🔥</div>
-        <div class="feat-row"><span class="chk">✓</span> Tes stats de progression chaque semaine</div>
 
         <input type="email" id="emailInput" class="email-field" placeholder="ton@email.com">
-        <button class="btn-primary" onclick="sendTestEmail()">Activer mon plan quotidien</button>
+        <button class="btn-primary" onclick="sendTestEmail()">Activer mes idées virales</button>
         <button class="btn-later" onclick="dismissEmailPopup()">Plus tard</button>
         <div class="status-msg" id="emailStatus"></div>
       </div>
@@ -3032,6 +3042,46 @@
       : '<div class="lvid mini">' + inner + '</div>';
   }
 
+  // ===== Invitation "mine d'or" : idées de vidéos virales quotidiennes pour CE compte =====
+  function homeDailyGold(platform, username, niche) {
+    if (!niche) return '';
+    var key = (platform||'')+'_'+String(username||'').toLowerCase();
+    try { if (localStorage.getItem('sk_dgold_'+key)==='1') return ''; } catch(e){}
+    var u = String(username||'').replace(/['"\\]/g,'');
+    var n = String(niche||'').replace(/['"\\]/g,'');
+    return '<div class="daily-gold" data-dgkey="'+key+'">' +
+      '<button class="dg-x" onclick="dismissDailyGold(\''+key+'\', event)" aria-label="Fermer">✕</button>' +
+      '<div class="dg-ic">💎</div>' +
+      '<div class="dg-t">Skillora peut te trouver une mine d\'or d\'idées virales</div>' +
+      '<div class="dg-p">Chaque matin, reçois <b>une idée de vidéo à fort potentiel viral</b> pour <b>@'+escapeHtml(username)+'</b>, taillée pour ta niche <b>'+escapeHtml(niche)+'</b>.</div>' +
+      '<button class="dg-go" onclick="dgActivate(\''+platform+'\',\''+u+'\',\''+n+'\')">Activer mes idées virales →</button>' +
+      '</div>';
+  }
+  function dismissDailyGold(key, e) {
+    if (e) e.stopPropagation();
+    try { localStorage.setItem('sk_dgold_'+key,'1'); } catch(err){}
+    document.querySelectorAll('.daily-gold').forEach(function(x){ if (x.getAttribute('data-dgkey')===key) x.remove(); });
+  }
+  function dgActivate(platform, username, niche) {
+    var key = (platform||'')+'_'+String(username||'').toLowerCase();
+    try { localStorage.setItem('sk_dgold_'+key,'1'); } catch(e){}
+    openDailyIdeas(platform, username, niche);
+  }
+  // Trouve (ou crée) le profil de niche du compte, puis ouvre l'activation du plan quotidien.
+  async function ensureNicheProfile(platform, username, niche, avatar) {
+    var fmt = (typeof studioFmtFor === 'function') ? studioFmtFor(platform) : 'tiktok';
+    username = String(username||'').replace(/^@/,'');
+    for (var k=0;k<profiles.length;k++){ if (String(profiles[k].account||'').toLowerCase()===username.toLowerCase() && (profiles[k].platform===fmt || profiles[k].platform===platform)) return k; }
+    var prof = { account:username, platform:fmt, niche:niche||'Général', format:'reel', face:'no', tags:(NICHE_TAGS[niche]||null), avatar:avatar||'', dailyActive:false };
+    profiles.push(prof); var idx = profiles.length-1;
+    try { var { data:u } = await sb.auth.getUser(); var { data:ins } = await sb.from('niche_profiles').insert({ user_id:u.user.id, account:username, platform:fmt, niche:prof.niche, format:'reel', face:'no', tags:prof.tags, avatar:avatar||'' }).select().single(); if (ins) prof.id = ins.id; } catch(e){}
+    return idx;
+  }
+  async function openDailyIdeas(platform, username, niche) {
+    var idx = await ensureNicheProfile(platform, username, niche, '');
+    openEmailPopup(idx);
+  }
+
   function accountPageHTML(acc){
     if (!acc.analysis) return homeNoAnalysisCard(acc);
     var platform = acc.platform || 'tiktok';
@@ -3070,6 +3120,9 @@
 
       // Graphique d'évolution — seulement quand il y a de vraies stats (filtré sur CE compte)
       if (hasStats) html += renderGrowthGraph(s, platform, username);
+
+      // Invitation PERCUTANTE aux idées virales quotidiennes (la niche est connue ici).
+      if (hasStats && ins.niche) html += homeDailyGold(platform, username, ins.niche);
 
       // (Les idées du jour vivent désormais dans la bulle flottante 💡 — pas sur l'Accueil.)
       // (Le "potentiel viral" n'apparaît plus ici : il est réservé à chaque idée, dans la bulle.)
@@ -5324,8 +5377,11 @@
       return;
     }
     box.classList.add('studio-accs');
+    // Au départ AUCUN compte n'est sélectionné : la personne choisit (ou écrit un script
+    // pour son propre besoin / un autre compte sans rien sélectionner). On ne restaure une
+    // sélection que si l'utilisateur en avait déjà choisi une dans cette session.
     var selKey = window._studioSelKey || '';
-    var selIdx = 0;
+    var selIdx = -1;
     for (var i=0;i<studioAccs.length;i++){ if ((studioAccs[i].platform+'|'+studioAccs[i].username.toLowerCase())===selKey) { selIdx = i; break; } }
     box.innerHTML = studioAccs.map(function(a, i){
       var inner = a.avatar ? '' : escapeHtml((a.username||'?').charAt(0).toUpperCase());
@@ -5335,12 +5391,23 @@
         '<span class="sa-av"'+avStyle+'>'+inner+'<i class="sa-plat" style="background:'+platBg(a.platform)+';">'+pubPlatSVG(a.platform,9)+'</i></span>' +
         '<span class="sa-id"><span class="sa-h">@'+escapeHtml(a.username)+'</span><span class="sa-n">'+nicheTxt+'</span></span></button>';
     }).join('');
-    selectStudioAccount(selIdx);
+    if (selIdx >= 0) { selectStudioAccount(selIdx); }
+    else { studioClearSelection(); }
+  }
+
+  function studioClearSelection() {
+    window._studioSel = null;
+    activeProfileIndex = -1;
+    var ctx = document.getElementById('studioAccCtx');
+    if (ctx) { ctx.style.display = 'none'; ctx.innerHTML = ''; }
+    var tag = document.getElementById('analyzeProfileTag');
+    if (tag) { tag.style.display = 'none'; tag.innerHTML = ''; }
   }
 
   async function selectStudioAccount(i) {
     var a = studioAccs[i]; if (!a) return;
     window._studioSelKey = a.platform+'|'+a.username.toLowerCase();
+    window._studioSel = a;
     var box = document.getElementById('studioAccounts');
     if (box) { var chips = box.querySelectorAll('.sa-chip'); for (var c=0;c<chips.length;c++) chips[c].classList.toggle('on', c===i); }
     var fmt = studioFmtFor(a.platform);
@@ -5368,13 +5435,23 @@
     renderStudioCtx(a, niche);
   }
 
+  // Le compte fait-il surtout du contenu SANS script (clips, nature, musique, ASMR…) ?
+  function studioNoScript(a) {
+    if (!a || !a.hasAnalysis) return false;
+    var hay = ((a.content_type||'')+' '+(a.production_kind||'')+' '+(a.niche||'')).toLowerCase();
+    return /sans voix|sans parole|no voice|musique|music|aesthetic|satisfying|asmr|nature|paysage|montage|clip|danse|dance|lip ?sync|gameplay|sans commentaire/.test(hay);
+  }
+  // L'avertissement "sans script" ne s'affiche que 2 fois par compte (sélection + 1er
+  // clic Générer), puis plus jamais une fois que la personne a choisi de continuer.
+  function studioAdviceKey(a) { return 'sk_advok_'+(a.platform||'')+'_'+String(a.username||'').toLowerCase(); }
+  function studioAdviceDone(a) { try { return localStorage.getItem(studioAdviceKey(a))==='1'; } catch(e){ return false; } }
+  function studioAdviceMarkDone(a) { try { localStorage.setItem(studioAdviceKey(a),'1'); } catch(e){} }
+
   function studioAdviceHTML(a) {
     if (!a.hasAnalysis) {
       return '<div class="studio-advice" style="background:rgba(47,123,255,0.08);border-color:var(--border2);"><span class="adv-ic">💡</span><span class="adv-tx" style="color:#bcd0ff;">Ce compte n\'est pas encore analysé. On génère quand même un script adapté à la niche. <b>Analyse-le</b> (page Accueil) pour des conseils encore plus précis.</span></div>';
     }
-    var hay = ((a.content_type||'')+' '+(a.production_kind||'')+' '+(a.niche||'')).toLowerCase();
-    var noScript = /sans voix|sans parole|no voice|musique|music|aesthetic|satisfying|asmr|nature|paysage|montage|clip|danse|dance|lip ?sync|gameplay|sans commentaire/.test(hay);
-    if (noScript) {
+    if (studioNoScript(a) && !studioAdviceDone(a)) {
       return '<div class="studio-advice"><span class="adv-ic">⚠️</span><span class="adv-tx">Ce compte publie surtout du contenu <b>'+escapeHtml(a.content_type||a.niche||'visuel')+'</b>, souvent <b>sans script ni voix off</b>. Si ça marche déjà, continue comme ça. Mais si tu veux tester une vidéo parlée ou narrée, voici un script taillé pour ta niche 👇</span></div>';
     }
     return '';
@@ -5388,7 +5465,6 @@
     ctx.innerHTML = '<div class="studio-ctx">' +
       '<div class="studio-ctx-top"><b style="color:var(--white);">@'+escapeHtml(a.username)+'</b> · '+escapeHtml(studioPlatLabel(a.platform))+' <span class="studio-ctx-niche">🎯 '+escapeHtml(nlabel)+'</span></div>' +
       studioAdviceHTML(a) +
-      '<div class="studio-ctx-daily"><span>📩 Plan quotidien pour ce compte</span><button onclick="openEmailPopup('+activeProfileIndex+')">Activer</button></div>' +
       '</div>';
     var tagBox = document.getElementById('analyzeProfileTag');
     if (tagBox) { tagBox.style.display='block'; tagBox.innerHTML = '<div class="analyze-tag-pro"><span class="np-live-dot"></span><span class="analyze-tag-v">@'+escapeHtml(a.username)+' · '+escapeHtml(nlabel)+'</span></div>'; }
@@ -6021,6 +6097,19 @@
     if (!alreadyOptimized && analysesLeft() <= 0) {
       status.innerHTML = '';
       showLimitCard(analysesLimit());
+      return;
+    }
+    // 2e (et dernier) rappel : si le compte choisi marche sans script, on confirme une
+    // fois \u00AB Continuer quand m\u00EAme \u00BB. Apr\u00E8s \u00E7a, plus jamais d'avertissement pour ce compte.
+    var _selA = window._studioSel;
+    if (_selA && studioNoScript(_selA) && !studioAdviceDone(_selA)) {
+      skModal({
+        icon: '\u26A0\uFE0F', iconBg: 'rgba(255,159,74,0.16)',
+        title: 'Ce compte marche sans script',
+        message: '<b>@' + escapeHtml(_selA.username) + '</b> publie surtout du contenu <b>' + escapeHtml(_selA.content_type || _selA.niche || 'visuel') + '</b>, souvent sans voix off. Si \u00E7a fonctionne d\u00E9j\u00E0, le mieux est de continuer comme \u00E7a. Tu veux quand m\u00EAme g\u00E9n\u00E9rer un script ?',
+        confirmText: 'Continuer quand m\u00EAme', cancelText: 'Annuler',
+        onConfirm: function () { studioAdviceMarkDone(_selA); try { renderStudioCtx(_selA, _selA.niche); } catch (e) {} analyzeScript(); }
+      });
       return;
     }
     result.style.display = 'none';

@@ -977,6 +977,17 @@
   .studio-ctx-daily button { flex:none; background:rgba(47,123,255,0.12); border:1px solid var(--border2); color:var(--blue-light); border-radius:10px; padding:8px 14px; font-family:'Sora',sans-serif; font-weight:600; font-size:.78rem; cursor:pointer; transition:transform .12s; }
   .studio-ctx-daily button:active { transform:scale(.95); }
 
+  /* ===== Composer (l'idée d'abord, façon outil) ===== */
+  .studio-acc-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:2px 2px 9px; }
+  .composer-input { width:100%; background:var(--bg2); border:1.5px solid var(--border); border-radius:16px; padding:16px; color:var(--white); font-family:'Sora',sans-serif; font-size:1rem; line-height:1.5; min-height:118px; box-sizing:border-box; transition:border-color .2s, box-shadow .2s; }
+  .composer-input::placeholder { color:var(--muted2); }
+  .composer-input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(47,123,255,0.15); }
+  .composer-opts { margin-top:15px; }
+  .composer-opts .plat-select { margin-bottom:15px; }
+  .composer-dur { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+  .cd-label { font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+  .cd-val { color:var(--blue-light); font-family:'Fraunces',serif; font-weight:600; font-size:.98rem; }
+
   /* ===== Profils de niche premium ===== */
   .np-card { background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:13px 14px; margin-bottom:11px; cursor:pointer; transition:border-color .2s, transform .12s, box-shadow .2s; }
   .np-card:active { transform:scale(0.99); }
@@ -1682,16 +1693,12 @@
   </div>
 
   <div class="view" id="view-ia">
-    <h1 class="page-title reveal" style="animation-delay:.05s">Ton studio 🎯</h1>
-    <p class="page-sub reveal" style="animation-delay:.12s">Crée tes scripts viraux avec l'IA — écrits, notés et adaptés à ta niche.</p>
+    <h1 class="page-title reveal" style="animation-delay:.05s">Studio 🎯</h1>
+    <p class="page-sub reveal" style="animation-delay:.12s">Une idée → un script viral, prêt à filmer.</p>
 
-    <!-- ===== Étape 1 : choisir le compte (sa niche est déjà connue) ===== -->
-    <div class="coach-sec reveal" style="animation-delay:.18s">
-      <span class="sec-kicker">Étape 1</span>
-      <h3 class="section-h" style="margin:6px 0 4px;">Pour quel compte ?</h3>
-      <p class="sec-sub">Choisis un de tes comptes. Skillora connaît déjà sa niche — tu n'as rien à remplir.</p>
-    </div>
-    <div id="studioAccounts" class="studio-accs reveal" style="animation-delay:.22s"></div>
+    <!-- Compte : sélection rapide (la niche est déjà connue) -->
+    <div class="studio-acc-label reveal" style="animation-delay:.16s">Ton compte</div>
+    <div id="studioAccounts" class="studio-accs reveal" style="animation-delay:.2s"></div>
     <div id="studioAccCtx" class="reveal" style="animation-delay:.24s;display:none;"></div>
 
     <!-- Formulaire de creation premium (cache par defaut) -->
@@ -1768,33 +1775,24 @@
     <!-- ===== Espace de workflow (s'ouvre pendant l'animation) ===== -->
     <div id="flowGap" class="flow-gap"></div>
 
-    <!-- ===== Analyse de script ===== -->
-    <div class="coach-sec reveal" id="scriptLabKicker" style="margin-top:6px;animation-delay:.3s">
-      <span class="sec-kicker">Étape 2 · Ton script</span>
-    </div>
-    <div class="card reveal" id="scriptLabCard" style="animation-delay:.36s">
+    <!-- ===== Composer : l'idée d'abord, façon outil (peu de texte, fort impact) ===== -->
+    <div class="card reveal" id="scriptLabCard" style="animation-delay:.3s">
       <span class="flow-port in" id="labPortIn" style="display:none;"></span>
-      <div class="lab-header">
-        <div class="lab-header-ic">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M5 3h14a1 1 0 0 1 1 1v3l-6 5 6 5v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3l6-5-6-5V4a1 1 0 0 1 1-1Z" stroke="#5e9bff" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        </div>
-        <h3 class="lab-title">Écris ou améliore ton script</h3>
-        <p class="lab-subtitle">Colle ton script <b>ou juste ton idée</b> — l'IA le note, le corrige et te rend une version optimisée pour ta niche.</p>
-      </div>
-      <div id="analyzeProfileTag" style="display:none;margin-bottom:14px;"></div>
+      <div id="analyzeProfileTag" style="display:none;margin-bottom:12px;"></div>
       <div id="scriptLabBody">
-      <div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Format</div>
-      <div class="plat-select" id="platSelect" style="margin-bottom:14px;">
-        <button class="ps-btn active" data-plat="tiktok">TikTok</button>
-        <button class="ps-btn" data-plat="tiktok_shop">TikTok Shop</button>
-        <button class="ps-btn" data-plat="reels">Reels</button>
-        <button class="ps-btn" data-plat="shorts">Shorts</button>
-        <button class="ps-btn" data-plat="youtube_long">YouTube long</button>
-        <button class="ps-btn" data-plat="instagram_post">Post Insta</button>
+      <textarea id="scriptInput" class="composer-input" rows="5" placeholder="Écris ton idée…   ex : 3 erreurs qui ruinent ta progression à la salle" style="resize:none;"></textarea>
+      <div class="composer-opts">
+        <div class="plat-select" id="platSelect">
+          <button class="ps-btn active" data-plat="tiktok">TikTok</button>
+          <button class="ps-btn" data-plat="tiktok_shop">TikTok Shop</button>
+          <button class="ps-btn" data-plat="reels">Reels</button>
+          <button class="ps-btn" data-plat="shorts">Shorts</button>
+          <button class="ps-btn" data-plat="youtube_long">YouTube long</button>
+          <button class="ps-btn" data-plat="instagram_post">Post Insta</button>
+        </div>
+        <div class="composer-dur"><span class="cd-label">Durée</span><span id="durLabel" class="cd-val">30 s</span></div>
+        <input type="range" id="durRange" class="dur-range" min="10" max="180" step="5" value="30" oninput="updateDur(this.value)">
       </div>
-      <div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Durée souhaitée : <span id="durLabel" style="color:var(--blue-light);font-family:'Fraunces',serif;">30 s</span></div>
-      <input type="range" id="durRange" class="dur-range" min="10" max="180" step="5" value="30" oninput="updateDur(this.value)" style="margin-bottom:16px;">
-      <textarea id="scriptInput" class="email-field" rows="5" placeholder="Colle ici le script (ou l'idée) de ta vidéo..." style="resize:none;margin:0 0 14px;"></textarea>
       <div id="shopImageZone" style="display:none;margin:0 0 14px;">
         <div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">📸 Photo de ton produit (optionnel)</div>
         <input type="file" id="shopImageInput" accept="image/*" style="display:none;" onchange="onShopImage(this)">
@@ -1805,7 +1803,7 @@
         </div>
         <div style="font-size:.78rem;color:var(--muted2);margin-top:8px;">Skillora analyse ton produit et écrit un script de vente adapté.</div>
       </div>
-      <button class="btn-primary" id="analyzeBtn" onclick="analyzeScript()">✨ Optimiser mon script</button>
+      <button class="btn-primary" id="analyzeBtn" onclick="analyzeScript()" style="margin-top:16px;">✨ Générer mon script</button>
       <div id="quotaLabel" style="text-align:center;font-size:.8rem;color:var(--muted2);margin-top:10px;">3/3 analyses aujourd'hui</div>
       <div class="status-msg" id="analyzeStatus"></div>
       <div id="analyzeLoader" style="display:none;margin-top:18px;">
@@ -5318,8 +5316,8 @@
     if (!box) return;
     if (!studioAccs.length) {
       box.classList.remove('studio-accs');
-      box.innerHTML = '<div class="studio-empty2"><div class="se2-ic">🔗</div><div class="se2-t">Connecte d\'abord un compte</div>' +
-        '<div class="se2-p">Le Studio écrit des scripts taillés pour <b>tes</b> comptes. Connecte-en un — Skillora détecte sa niche automatiquement et adapte chaque script.</div>' +
+      box.innerHTML = '<div class="studio-empty2"><div class="se2-ic">🎬</div><div class="se2-t">Connecte un compte pour commencer</div>' +
+        '<div class="se2-p">Skillora détecte sa niche et écrit des scripts taillés pour lui.</div>' +
         '<button class="btn-primary" style="max-width:280px;margin:0 auto;" onclick="switchView(\'publish\', null)">Connecter un compte</button></div>';
       if (ctx) ctx.style.display = 'none';
       activeProfileIndex = -1;
@@ -5388,10 +5386,9 @@
     ctx.style.display = 'block';
     var nlabel = a.niche || niche || 'Général';
     ctx.innerHTML = '<div class="studio-ctx">' +
-      '<div class="studio-ctx-top"><span>Compte choisi :</span> <b style="color:var(--white);">@'+escapeHtml(a.username)+'</b> · '+escapeHtml(studioPlatLabel(a.platform))+' <span class="studio-ctx-niche">🎯 '+escapeHtml(nlabel)+'</span></div>' +
-      '<div class="studio-ctx-line">Skillora va écrire un script <b>adapté à cette niche</b> et au style de ce compte. Écris ton idée plus bas — ou laisse vide, on s\'inspire de ton compte.</div>' +
+      '<div class="studio-ctx-top"><b style="color:var(--white);">@'+escapeHtml(a.username)+'</b> · '+escapeHtml(studioPlatLabel(a.platform))+' <span class="studio-ctx-niche">🎯 '+escapeHtml(nlabel)+'</span></div>' +
       studioAdviceHTML(a) +
-      '<div class="studio-ctx-daily"><span>📩 Reçois chaque jour un plan + un script pour ce compte</span><button onclick="openEmailPopup('+activeProfileIndex+')">Activer</button></div>' +
+      '<div class="studio-ctx-daily"><span>📩 Plan quotidien pour ce compte</span><button onclick="openEmailPopup('+activeProfileIndex+')">Activer</button></div>' +
       '</div>';
     var tagBox = document.getElementById('analyzeProfileTag');
     if (tagBox) { tagBox.style.display='block'; tagBox.innerHTML = '<div class="analyze-tag-pro"><span class="np-live-dot"></span><span class="analyze-tag-v">@'+escapeHtml(a.username)+' · '+escapeHtml(nlabel)+'</span></div>'; }

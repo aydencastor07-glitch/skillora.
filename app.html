@@ -5524,9 +5524,6 @@
   function studioAdviceMarkDone(a) { try { localStorage.setItem(studioAdviceKey(a),'1'); } catch(e){} }
 
   function studioAdviceHTML(a) {
-    if (!a.hasAnalysis) {
-      return '<div class="studio-advice" style="background:rgba(47,123,255,0.08);border-color:var(--border2);"><span class="adv-ic">💡</span><span class="adv-tx" style="color:#bcd0ff;">Ce compte n\'est pas encore analysé. On génère quand même un script adapté à la niche. <b>Analyse-le</b> (page Accueil) pour des conseils encore plus précis.</span></div>';
-    }
     if (studioNoScript(a) && !studioAdviceDone(a)) {
       return '<div class="studio-advice"><span class="adv-ic">⚠️</span><span class="adv-tx">Ce compte publie surtout du contenu <b>'+escapeHtml(a.content_type||a.niche||'visuel')+'</b>, souvent <b>sans script ni voix off</b>. Si ça marche déjà, continue comme ça. Mais si tu veux tester une vidéo parlée ou narrée, voici un script taillé pour ta niche 👇</span></div>';
     }
@@ -5535,13 +5532,14 @@
 
   function renderStudioCtx(a, niche) {
     var ctx = document.getElementById('studioAccCtx');
-    if (!ctx) return;
-    ctx.style.display = 'block';
     var nlabel = a.niche || niche || 'Général';
-    ctx.innerHTML = '<div class="studio-ctx">' +
-      '<div class="studio-ctx-top"><b style="color:var(--white);">@'+escapeHtml(a.username)+'</b> · '+escapeHtml(studioPlatLabel(a.platform))+' <span class="studio-ctx-niche">🎯 '+escapeHtml(nlabel)+'</span></div>' +
-      studioAdviceHTML(a) +
-      '</div>';
+    // La carte contexte ne répète PLUS l'identité du compte (déjà sur la pastille + le tag
+    // du composer). Elle n'affiche que le conseil ⚠️, et uniquement s'il y en a un.
+    if (ctx) {
+      var advice = studioAdviceHTML(a);
+      if (advice) { ctx.style.display = 'block'; ctx.innerHTML = '<div class="studio-ctx">' + advice + '</div>'; }
+      else { ctx.style.display = 'none'; ctx.innerHTML = ''; }
+    }
     var tagBox = document.getElementById('analyzeProfileTag');
     if (tagBox) { tagBox.style.display='block'; tagBox.innerHTML = '<div class="analyze-tag-pro"><span class="np-live-dot"></span><span class="analyze-tag-v">@'+escapeHtml(a.username)+' · '+escapeHtml(nlabel)+'</span></div>'; }
   }
@@ -6195,7 +6193,8 @@
     var loader = document.getElementById('analyzeLoader');
     if (loader) loader.style.display = 'block';
     // scroll immediat vers le loader pour que la personne voie que ça travaille
-    // Pas de défilement automatique : la personne reste exactement où elle est.
+    // Petit défilement vers l'animation pour montrer que ça travaille.
+    setTimeout(function(){ if (loader) { var y = loader.getBoundingClientRect().top + window.pageYOffset - 90; window.scrollTo({ top: y, behavior: 'smooth' }); } }, 80);
     var loadSteps = ['🔍 Lecture de ton script...', '🧠 Analyse des hooks et de la structure...', '✍️ Écriture de la version optimisée...', '⭐ Notation finale...'];
     var li = 0;
     var loadLabel = document.getElementById('loaderLabel');
@@ -6236,7 +6235,8 @@
           updateQuotaLabel();
         }
         renderAnalysis(data.analysis);
-        // (Plus de défilement automatique après la génération.)
+        // Une fois généré : on descend au DÉBUT de l'important (la note du script). La personne scrolle ensuite elle-même vers la version optimisée.
+        setTimeout(function(){ scrollToResult(result); }, 180);
       } else if (data.success && data.raw) {
         status.style.color = '#ff6b4a';
         status.textContent = '❌ L\'analyse n\'a pas pu être finalisée. Réessaie.';

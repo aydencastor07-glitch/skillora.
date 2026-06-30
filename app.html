@@ -962,6 +962,17 @@
   .studio-empty2 .se2-t { font-family:'Fraunces',serif; font-weight:700; font-size:1.12rem; color:var(--white); margin-bottom:7px; }
   .studio-empty2 .se2-p { font-size:.87rem; color:var(--muted); line-height:1.5; margin-bottom:17px; }
 
+  /* Squelette de chargement des comptes (pendant la détection) */
+  .studio-accs-skel { display:flex; gap:10px; padding:2px; }
+  .studio-accs-skel span { width:150px; height:54px; border-radius:14px; background:linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08), rgba(255,255,255,0.04)); background-size:200% 100%; animation:skShimmer 1.2s ease-in-out infinite; }
+  @keyframes skShimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+  /* Invite COMPACTE quand aucun compte n'est connecté (slim, pro) */
+  .studio-empty3 { display:flex; align-items:center; gap:11px; background:rgba(47,123,255,0.06); border:1px solid var(--border); border-radius:14px; padding:11px 13px; }
+  .studio-empty3 .se3-ic { font-size:1.15rem; flex:none; }
+  .studio-empty3 .se3-t { flex:1; min-width:0; font-size:.85rem; color:var(--muted); line-height:1.4; }
+  .studio-empty3 .se3-btn { flex:none; background:var(--blue); color:#fff; border:none; border-radius:10px; padding:9px 15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.8rem; cursor:pointer; transition:transform .12s; }
+  .studio-empty3 .se3-btn:active { transform:scale(.96); }
+
   /* Carte « contexte du compte » : niche connue + conseil + plan quotidien */
   .studio-ctx { background:var(--surface); border:1.5px solid var(--border2); border-radius:16px; padding:14px 15px; margin:2px 0 16px; }
   .studio-ctx-top { display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:.82rem; color:var(--muted); }
@@ -2226,6 +2237,26 @@
 </div>
 
 <script>
+  // Restauration IMMEDIATE de la derniere vue (avant le 1er affichage) : on n'affiche
+  // JAMAIS l'Accueil par defaut si l'utilisateur etait sur une autre page (zero flash).
+  (function(){
+    try {
+      var v = localStorage.getItem('skillora_view');
+      if (v && v !== 'home' && document.getElementById('view-' + v)) {
+        var vs = document.querySelectorAll('.view');
+        for (var i=0;i<vs.length;i++) vs[i].classList.remove('active');
+        document.getElementById('view-' + v).classList.add('active');
+        var nb = document.querySelectorAll('.nav-btn');
+        for (var j=0;j<nb.length;j++) {
+          var oc = nb[j].getAttribute('onclick') || '';
+          nb[j].classList.toggle('active', oc.indexOf("'" + v + "'") >= 0);
+        }
+      }
+    } catch(e){}
+  })();
+</script>
+
+<script>
   (function() {
     const c = document.getElementById('starfield');
     const ctx = c.getContext('2d');
@@ -2301,8 +2332,9 @@
     handleCheckoutReturn(); // détecte le retour après paiement
     if (typeof refreshConnections === 'function') refreshConnections(true); // etat + resync Post for Me
     if (typeof pfmHandleReturn === 'function') pfmHandleReturn(); // retour connexion Post for Me
-    // restaurer la dernière vue ouverte (après le chargement des profils/workflow)
-    setTimeout(restoreLastView, 700);
+    // restaurer la dernière vue ouverte — immédiatement (la classe active est déjà posée
+    // par le script inline ; ici on déclenche juste la logique de la vue, ex. comptes Studio).
+    restoreLastView();
   }
 
   // Charge le plan de l'utilisateur depuis la table subscriptions (source de vérité = Stripe via webhook)
@@ -2828,6 +2860,7 @@
 
       // Coque carrousel : un bandeau de comptes + le tableau de bord du compte courant.
       window._homeAccounts = accounts;
+      if (typeof loadStudioAccounts === 'function') loadStudioAccounts(); // le Studio reflète tout de suite les comptes connectés
       var idx = 0;
       if (window._homeCurrentKey) {
         for (var ai = 0; ai < accounts.length; ai++) {
@@ -5345,32 +5378,55 @@
   function studioPlatLabel(p){ return ({tiktok:'TikTok',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',x:'X (Twitter)',threads:'Threads',linkedin:'LinkedIn',pinterest:'Pinterest'})[p] || (p ? p.charAt(0).toUpperCase()+p.slice(1) : ''); }
   function studioFmtFor(p){ return p==='instagram'?'reels':(p==='youtube'?'shorts':(p==='facebook'?'facebook':'tiktok')); }
 
+  function studioMergeAcc(list, a) {
+    var key = (a.platform||'')+'|'+String(a.username||'').toLowerCase();
+    for (var i=0;i<list.length;i++){
+      if ((list[i].platform+'|'+String(list[i].username||'').toLowerCase())===key) {
+        if (!list[i].avatar && a.avatar) list[i].avatar = a.avatar;
+        if (!list[i].niche && a.niche) list[i].niche = a.niche;
+        if (!list[i].hasAnalysis && a.hasAnalysis) { list[i].hasAnalysis = true; list[i].content_type = a.content_type||list[i].content_type; list[i].production_kind = a.production_kind||list[i].production_kind; }
+        return;
+      }
+    }
+    list.push(a);
+  }
+
   async function loadStudioAccounts() {
     var box = document.getElementById('studioAccounts');
     if (!box) return;
+    // 1) Peinture INSTANTANÉE depuis le cache (aucune attente, aucune grosse boîte qui clignote)
+    if (!studioAccs.length) {
+      try { var cached = JSON.parse(localStorage.getItem('sk_studio_accs')||'[]'); if (Array.isArray(cached) && cached.length) { studioAccs = cached; renderStudioAccounts(); } } catch(e){}
+    }
+    // Auth pas encore prête -> on ne décide rien (on garde le cache affiché, pas de fausse "boîte vide")
+    var session = null;
+    try { session = (await sb.auth.getSession()).data.session; } catch(e){}
+    if (!session) return;
+
     var accs = [];
+    // 2) Comptes de l'Accueil (source autoritaire : exactement ce que l'utilisateur voit déjà)
+    if (window._homeAccounts && window._homeAccounts.length) {
+      window._homeAccounts.forEach(function(a){
+        var av = (a.info&&a.info.photo) || (a.analysis&&a.analysis.summary&&a.analysis.summary.profile&&a.analysis.summary.profile.avatar) || '';
+        studioMergeAcc(accs, { platform:a.platform, username:String(a.username||'').replace(/^@/,''), avatar:av, niche:'', content_type:'', production_kind:'', hasAnalysis:false });
+      });
+    }
+    // 3) Table connected_accounts (filet de sécurité si l'Accueil n'est pas encore chargé)
     try {
       var { data: ca } = await sb.from('connected_accounts').select('platform,username,photo,is_active').eq('is_active', true);
-      (ca||[]).forEach(function(a){ accs.push({ platform:a.platform, username:String(a.username||'').replace(/^@/,''), avatar:a.photo||'', niche:'', content_type:'', production_kind:'', hasAnalysis:false }); });
+      (ca||[]).forEach(function(a){ studioMergeAcc(accs, { platform:a.platform, username:String(a.username||'').replace(/^@/,''), avatar:a.photo||'', niche:'', content_type:'', production_kind:'', hasAnalysis:false }); });
     } catch(e){}
-    if (!accs.length && window._homeAccounts) {
-      window._homeAccounts.forEach(function(a){ accs.push({ platform:a.platform, username:String(a.username||'').replace(/^@/,''), avatar:(a.info&&a.info.photo)||'', niche:'', content_type:'', production_kind:'', hasAnalysis:false }); });
-    }
-    // Enrichissement : niche + type de contenu déjà détectés par l'analyse
+    // 4) Enrichissement : niche + type déjà détectés par l'analyse
     try {
       var { data: ans } = await sb.from('analyses').select('platform,username,summary,created_at').order('created_at',{ascending:false}).limit(60);
       var byKey = {};
-      (ans||[]).forEach(function(r){
-        if (!r.summary || r.summary.owner !== 'self') return;
-        var k = (r.platform||'')+'|'+String(r.username||'').toLowerCase().replace(/^@/,'');
-        if (!byKey[k]) byKey[k] = r.summary;
-      });
-      accs.forEach(function(a){
-        var s = byKey[(a.platform||'')+'|'+a.username.toLowerCase()];
-        if (s) { var ins = s.insights||{}; a.niche = ins.niche||''; a.content_type = ins.content_type||''; a.production_kind = ins.production_kind||''; a.hasAnalysis = true; if (!a.avatar && s.profile) a.avatar = s.profile.avatar||''; }
-      });
+      (ans||[]).forEach(function(r){ if (!r.summary || r.summary.owner !== 'self') return; var k=(r.platform||'')+'|'+String(r.username||'').toLowerCase().replace(/^@/,''); if (!byKey[k]) byKey[k]=r.summary; });
+      accs.forEach(function(a){ var s=byKey[(a.platform||'')+'|'+a.username.toLowerCase()]; if (s){ var ins=s.insights||{}; a.niche=ins.niche||''; a.content_type=ins.content_type||''; a.production_kind=ins.production_kind||''; a.hasAnalysis=true; if (!a.avatar && s.profile) a.avatar=s.profile.avatar||''; } });
     } catch(e){}
-    studioAccs = accs;
+
+    window._studioLoaded = true;
+    if (accs.length) { studioAccs = accs; try { localStorage.setItem('sk_studio_accs', JSON.stringify(accs)); } catch(e){} }
+    else { studioAccs = []; try { localStorage.removeItem('sk_studio_accs'); } catch(e){} }
     renderStudioAccounts();
   }
 
@@ -5380,11 +5436,17 @@
     if (!box) return;
     if (!studioAccs.length) {
       box.classList.remove('studio-accs');
-      box.innerHTML = '<div class="studio-empty2"><div class="se2-ic">🎬</div><div class="se2-t">Connecte un compte pour commencer</div>' +
-        '<div class="se2-p">Skillora détecte sa niche et écrit des scripts taillés pour lui.</div>' +
-        '<button class="btn-primary" style="max-width:280px;margin:0 auto;" onclick="switchView(\'publish\', null)">Connecter un compte</button></div>';
-      if (ctx) ctx.style.display = 'none';
+      if (!window._studioLoaded) {
+        // Détection en cours -> petit squelette discret (jamais la grosse boîte)
+        box.innerHTML = '<div class="studio-accs-skel"><span></span><span></span></div>';
+      } else {
+        // Confirmé : aucun compte -> invite COMPACTE et pro (pas un gros bloc)
+        box.innerHTML = '<div class="studio-empty3"><span class="se3-ic">🎬</span><span class="se3-t">Aucun compte connecté — connecte-en un pour générer ses scripts.</span><button class="se3-btn" onclick="switchView(\'publish\', null)">Connecter</button></div>';
+      }
+      if (ctx) { ctx.style.display = 'none'; ctx.innerHTML = ''; }
       activeProfileIndex = -1;
+      window._studioSel = null;
+      var _gb = document.getElementById('analyzeBtn'); if (_gb) _gb.textContent = '✨ Générer mon script';
       return;
     }
     box.classList.add('studio-accs');

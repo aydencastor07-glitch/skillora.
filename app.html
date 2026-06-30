@@ -911,16 +911,16 @@
   .anl-bp-chip { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.68rem; padding:4px 10px; border-radius:999px; }
   .anl-bp-prompt { display:flex; gap:9px; align-items:flex-start; margin-top:10px; background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.25); border-radius:10px; padding:10px 12px; font-size:.78rem; color:var(--white); line-height:1.5; }
 
-  .plat-select { display:flex; flex-wrap:wrap; gap:8px; }
-  .ps-btn { display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:7px 14px 7px 8px; font-family:'Sora',sans-serif; font-weight:600; font-size:.84rem; cursor:pointer; transition:all .2s; }
-  .ps-btn.active { background:var(--surface2); border-color:var(--blue); color:var(--white); }
-  .ps-btn:active { transform:scale(0.95); }
-  .ps-ic { width:22px; height:22px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex:none; }
+  /* Sélecteur de format : grille de cartes propres (logos bien alignés, texte jamais coupé) */
+  .plat-select { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .ps-btn { display:flex; align-items:center; gap:9px; background:var(--surface); border:1.5px solid var(--border); color:var(--white); border-radius:13px; padding:11px 12px; font-family:'Sora',sans-serif; font-weight:600; font-size:.86rem; cursor:pointer; transition:border-color .18s, background .18s, transform .12s; min-width:0; text-align:left; }
+  .ps-btn.active { background:var(--surface2); border-color:var(--blue); }
+  .ps-btn:active { transform:scale(0.98); }
+  .ps-txt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  .ps-ic { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex:none; }
   .ps-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 2px 10px; }
-  .ps-sep { flex-basis:100%; width:100%; margin:10px 0 3px; font-family:'Sora',sans-serif; font-weight:700; font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted2); display:flex; align-items:center; gap:9px; }
-  .ps-sep::before, .ps-sep::after { content:''; height:1px; background:var(--border); flex:1; }
-  .ps-btn.shop { color:var(--muted); }
-  .ps-btn.shop.active { color:var(--white); }
+  .ps-btn.shop { grid-column:1 / -1; }
+  .ps-sub { margin-left:auto; flex:none; font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted2); }
 
   /* studio / multi-profiles */
   .studio-head { display:flex; align-items:center; justify-content:space-between; }
@@ -5282,8 +5282,10 @@
   // adapte le maximum du curseur selon le format
   // Logo de plateforme à utiliser pour chaque format de script.
   function studioFormatLogo(p){ return p==='reels'?'instagram':(p==='shorts'?'youtube':(p==='facebook'?'facebook':'tiktok')); }
-  // Construit le sélecteur de format AVEC logos, bien rangé. Vidéos courtes en haut ;
-  // TikTok Shop (vente produit) séparé en bas car on ne peut pas y connecter de compte.
+  // Vrai logo TikTok Shop (sac d'achat + accents bicolores TikTok) — distinct du logo TikTok classique.
+  function tiktokShopLogo(s){ return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none"><path d="M6.3 8.6h11.4l-.85 9.7a1.55 1.55 0 0 1-1.55 1.4H8.7a1.55 1.55 0 0 1-1.55-1.4L6.3 8.6z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.2 8.6V6.9a2.8 2.8 0 0 1 5.6 0v1.7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="11.4" cy="13.2" r="1.5" fill="#25F4EE"/><circle cx="12.7" cy="13.2" r="1.5" fill="#FE2C55" fill-opacity=".9"/></svg>'; }
+  // Construit le sélecteur de format AVEC logos, en grille propre. Vidéos courtes d'abord,
+  // TikTok Shop parmi les autres tout en bas (pleine largeur) avec SON vrai logo.
   function buildStudioFormats(){
     var ps = document.getElementById('platSelect');
     if (!ps) return;
@@ -5295,14 +5297,13 @@
     ];
     var html = FORMATS.map(function(f, i){
       var lg = studioFormatLogo(f.plat);
-      return '<button class="ps-btn'+(i===0?' active':'')+'" data-plat="'+f.plat+'"><span class="ps-ic" style="background:'+platBg(lg)+';">'+pubPlatSVG(lg,12)+'</span>'+f.label+'</button>';
+      return '<button class="ps-btn'+(i===0?' active':'')+'" data-plat="'+f.plat+'"><span class="ps-ic" style="background:'+platBg(lg)+';">'+pubPlatSVG(lg,13)+'</span><span class="ps-txt">'+f.label+'</span></button>';
     }).join('');
-    html += '<div class="ps-sep">Vendre un produit</div>';
-    html += '<button class="ps-btn shop" data-plat="tiktok_shop"><span class="ps-ic" style="background:'+platBg('tiktok')+';">'+pubPlatSVG('tiktok',12)+'</span>TikTok Shop</button>';
+    html += '<button class="ps-btn shop" data-plat="tiktok_shop"><span class="ps-ic" style="background:#010101;">'+tiktokShopLogo(13)+'</span><span class="ps-txt">TikTok Shop</span><span class="ps-sub">Vente produit</span></button>';
     ps.innerHTML = html;
-    ps.querySelectorAll('.ps-btn').forEach(function(b){
+    ps.querySelectorAll('[data-plat]').forEach(function(b){
       b.addEventListener('click', function(){
-        ps.querySelectorAll('.ps-btn').forEach(function(x){ x.classList.remove('active'); });
+        ps.querySelectorAll('[data-plat]').forEach(function(x){ x.classList.remove('active'); });
         b.classList.add('active'); selectedPlatform = b.getAttribute('data-plat');
         applyDurationRange();
         var zone = document.getElementById('shopImageZone');

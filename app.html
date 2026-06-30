@@ -254,6 +254,8 @@
   .home-pf-refresh:active { transform:scale(0.97); }
   .home-pf-refresh.refreshing { animation:pfPulse 1s ease-in-out infinite; }
   @keyframes pfPulse { 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
+  /* Compte à rebours (cooldown / quota) : sobre, pas de clignotement (peut durer des heures). */
+  .home-pf-refresh.counting { opacity:.45; cursor:not-allowed; font-variant-numeric:tabular-nums; }
   /* Écran de chargement pendant l'actualisation des stats (feedback clair) */
   .stats-load-ov { position:fixed; inset:0; z-index:9200; background:rgba(4,8,18,0.72); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; }
   .stats-load-ov.open { display:flex; opacity:1; }
@@ -2992,6 +2994,9 @@
       dyn.innerHTML = '<div id="homeCarHead"></div><div class="home-car-track" id="homeCarTrack">' + pagesHtml + '</div><div id="homePubVideos"></div>';
       var _head = document.getElementById('homeCarHead'); if (_head) _head.innerHTML = homeAccountChips(accounts, idx);
       try { localStorage.setItem('sk_home_html', dyn.innerHTML); } catch(e){} // mémorise pour la peinture instantanée au prochain chargement
+      // Compte à rebours live sur CHAQUE bouton Actualiser (même les comptes pas encore affichés) ->
+      // le bouton est désactivé tant que le délai n'est pas écoulé, impossible de gaspiller un crédit.
+      accounts.forEach(function(a){ if (a && a.platform && a.username) startRefreshCountdown(a.platform, a.username); });
       setupHomeCarousel(idx); // onHomePageChange -> ensureAnalyzed(compte affiché) : analyse paresseuse
       if (!window._growthFetched) { window._growthFetched = true; loadGrowthHistory((accounts[idx] || {}).platform || 'tiktok'); } // revalide en fond (1×/session), même si la courbe vient du cache
       renderPubVideosCard((accounts[idx] || {}).platform); // vidéos publiées du compte affiché + allume la cloche 🔔
@@ -3878,7 +3883,7 @@
       '<div class="home-pf-name">' + escapeHtml(name) + '</div>' +
       (showHandle ? '<div class="home-pf-handle">@' + escapeHtml(handleStr) + '</div>' : '') +
       '<div class="home-pf-stats">' + statsBlocks + '</div>' +
-      '<button class="home-pf-refresh" onclick="silentReanalyze(\'' + platform + '\',\'' + (username||prof.handle||'').replace(/'/g,'') + '\')" id="homePfRefreshBtn">Actualiser</button>' +
+      '<button class="home-pf-refresh" onclick="silentReanalyze(\'' + platform + '\',\'' + (username||prof.handle||'').replace(/'/g,'') + '\')" id="homePfRefreshBtn_' + refreshBtnId(platform, username||prof.handle||'') + '">Actualiser</button>' +
       '<button class="home-pf-add" onclick="addAccount()" title="Ajouter un compte">+</button>' +
     '</div>';
   }
@@ -3893,8 +3898,11 @@
   function refreshLastKey(platform, username){ return 'sk_refresh_last_' + platform + '_' + String(username).toLowerCase(); }
   function refreshesUsedToday(platform, username){ return parseInt(localStorage.getItem(refreshKey(platform, username)) || '0', 10) || 0; }
   function refreshesLeft(platform, username){ return Math.max(0, refreshLimit() - refreshesUsedToday(platform, username)); }
-  // Minutes restantes avant la prochaine vérification autorisée (0 = OK maintenant).
-  function refreshWaitMin(platform, username){
+  // Identifiant DOM stable par compte (plateforme + pseudo) -> chaque page du carrousel a SON propre bouton.
+  function refreshBtnId(platform, username){ return String(platform) + '_' + String(username||'').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+  // Millisecondes restantes avant la prochaine vérification autorisée (0 = OK maintenant). Précision ms
+  // (pas juste arrondi à la minute) pour alimenter un compte à rebours live sur le bouton.
+  function refreshWaitMs(platform, username){
     var last = parseInt(localStorage.getItem(refreshLastKey(platform, username)) || '0', 10) || 0;
     if (!last) return 0;
     // Plancher anti-gaspillage POUR TOUS (même illimité) : les stats n'évoluent pas en
@@ -3903,30 +3911,58 @@
     var unlimited = (typeof isUnlimited === 'function' && isUnlimited());
     var need = unlimited ? HARD_FLOOR_MS : Math.max(HARD_FLOOR_MS, refreshCooldownH() * 3600000);
     var elapsed = Date.now() - last;
-    return elapsed >= need ? 0 : Math.ceil((need - elapsed) / 60000);
+    return Math.max(0, need - elapsed);
+  }
+  // Minutes restantes (compat affichage texte existant).
+  function refreshWaitMin(platform, username){ return Math.ceil(refreshWaitMs(platform, username) / 60000); }
+  function fmtCountdown(ms){
+    var s = Math.max(0, Math.ceil(ms / 1000));
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    if (h > 0) return h + 'h ' + (m < 10 ? '0' : '') + m + 'min';
+    if (m > 0) return m + 'min ' + (sec < 10 ? '0' : '') + sec + 's';
+    return sec + 's';
+  }
+  // Compte à rebours LIVE sur le bouton « Actualiser » : tant qu'il tourne, le bouton est désactivé
+  // (impossible de cliquer -> impossible de gaspiller un crédit pendant le délai). Dès qu'il atteint 0,
+  // le bouton redevient cliquable tout seul (ou affiche « Quota atteint » si le plafond du jour est passé).
+  window._refreshCountdownTimers = window._refreshCountdownTimers || {};
+  function startRefreshCountdown(platform, username){
+    var key = String(platform) + '|' + String(username || '').toLowerCase();
+    if (window._refreshCountdownTimers[key]) { clearInterval(window._refreshCountdownTimers[key]); delete window._refreshCountdownTimers[key]; }
+    function tick(){
+      var btn = document.getElementById('homePfRefreshBtn_' + refreshBtnId(platform, username));
+      if (!btn) { clearInterval(window._refreshCountdownTimers[key]); delete window._refreshCountdownTimers[key]; return; }
+      btn.classList.remove('refreshing');           // l'appel réseau (s'il y en avait un) est terminé
+      var ms = refreshWaitMs(platform, username);
+      if (ms <= 0) {
+        if (refreshesUsedToday(platform, username) >= refreshLimit()) {
+          btn.textContent = 'Quota atteint (demain)'; btn.disabled = true; btn.classList.add('counting');
+        } else {
+          btn.textContent = 'Actualiser'; btn.disabled = false; btn.classList.remove('counting');
+        }
+        clearInterval(window._refreshCountdownTimers[key]); delete window._refreshCountdownTimers[key];
+        return;
+      }
+      btn.textContent = '⏳ ' + fmtCountdown(ms);
+      btn.disabled = true; btn.classList.add('counting');
+    }
+    tick();
+    window._refreshCountdownTimers[key] = setInterval(tick, 1000);
   }
 
   // Vérification MANUELLE des stats (clic volontaire) -> force un vrai scrape (coûte 1-2 crédits, plafonné).
+  // Le bouton lui-même est désactivé pendant le compte à rebours (startRefreshCountdown) : on ne peut
+  // physiquement pas cliquer pendant le délai -> ces vérifs ne sont qu'un filet de sécurité défensif.
   async function silentReanalyze(platform, username) {
-    var btn = document.getElementById('homePfRefreshBtn');
-    // 1) Limite par jour atteinte ?
+    var btn = document.getElementById('homePfRefreshBtn_' + refreshBtnId(platform, username));
     if (refreshesUsedToday(platform, username) >= refreshLimit()) {
       skModal({ icon:'📊', iconBg:'#16263f', title:'Tes stats sont à jour pour aujourd\'hui',
         message:'Tu as déjà actualisé ce compte le maximum de fois aujourd\'hui (plan ' + (PLAN_NAMES[curPlan()] || 'Gratuit') + ' : <b>' + refreshLimit() + '/jour</b>). Pas d\'inquiétude — ta courbe continue de se mettre à jour <b>automatiquement</b>. Reviens demain pour une nouvelle actualisation.',
         confirmText:'Voir les plans', cancelText:'Parfait', onConfirm:function(){ window.location.href = 'index.html#pricing'; } });
       return;
     }
-    // 2) Temps d'attente entre 2 vérifications (les vues évoluent doucement) ?
-    var wait = refreshWaitMin(platform, username);
-    if (wait > 0) {
-      var hh = Math.floor(wait/60), mm = wait%60;
-      var when = (hh>0 ? (hh+' h'+(mm?(' '+mm+' min'):'')) : (mm+' min'));
-      skModal({ icon:'✨', iconBg:'#16263f', title:'Déjà à jour',
-        message:'Tes stats viennent d\'être actualisées. Reviens dans <b>' + when + '</b> pour une nouvelle mise à jour — les vues évoluent doucement, on les rafraîchit au <b>bon moment</b> pour des chiffres fiables.',
-        cancelText:'Compris' });
-      return;
-    }
-    if (btn) { btn.textContent = '🔍 Vérification…'; btn.disabled = true; btn.classList.add('refreshing'); }
+    if (refreshWaitMs(platform, username) > 0) { startRefreshCountdown(platform, username); return; }
+    if (btn) { btn.textContent = '🔍 Vérification…'; btn.disabled = true; btn.classList.remove('counting'); btn.classList.add('refreshing'); }
     showStatsLoading();                              // écran de chargement clair (impossible à rater)
     var ok = false;
     try { var out = await analyzeOnce(platform, username, 'self', true); ok = !!(out && out._httpOk && !out.error); } catch(e) {}
@@ -3935,6 +3971,7 @@
         localStorage.setItem(refreshKey(platform, username), String(refreshesUsedToday(platform, username) + 1));
         localStorage.setItem(refreshLastKey(platform, username), String(Date.now()));
       } catch(e){}
+      startRefreshCountdown(platform, username);    // démarre le compte à rebours visible tout de suite
       // On RESTE sur le compte qu'on vient d'actualiser (plus de saut vers TikTok), sans recharger la page.
       window._growthHistory = null;                 // la courbe se recharge avec le nouveau point du jour
       window._homeCurrentKey = platform + '|' + String(username).toLowerCase();

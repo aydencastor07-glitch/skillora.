@@ -4160,7 +4160,12 @@
     // juste le chiffre du jour, en gros, non interactif. La courbe multi-points n'apparaît qu'à
     // partir de "7 jours" (plusieurs vrais jours à comparer = plusieurs points cliquables logiques).
     if (pdays === 1) {
-      if (!gains.length) {
+      // Le gain de "Hier" = l'écart calculé EXACTEMENT à la date d'hier (vues d'hier - vues d'avant-hier),
+      // PAS le dernier écart connu (qui serait "aujourd'hui vs hier" = souvent 0 tant que la journée
+      // n'est pas finie -> donnait l'impression fausse que "rien n'a été gagné hier").
+      var yesterdayStr = localDateStr(new Date(Date.now() - 1*864e5));
+      var gainY = gains.filter(function(g){ return g.d === yesterdayStr; })[0];
+      if (!gainY) {
         return '<div class="home-graph card aurora">' +
           '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">En construction</span></div>' +
           tabs +
@@ -4168,7 +4173,7 @@
           '<div class="home-graph-note">Reviens demain : tes vues gagnées apparaîtront ici. La courbe se construit chaque jour.</div>' +
         '</div>';
       }
-      var lastGain = gains[gains.length-1].v;
+      var lastGain = gainY.v;
       var upH = lastGain > 0;
       return '<div class="home-graph card aurora">' +
         '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-diff ' + (upH?'up':'down') + '">' + (upH?'En hausse':'Stable') + '</span></div>' +

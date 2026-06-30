@@ -3228,9 +3228,14 @@
       // L'analyse a RÉUSSI (résumé profile_only enregistré) -> on montre les vrais chiffres, même s'ils valent 0.
       if (s.profile_only) {
         var emptyAcc = Number(s.audience) <= 0;
+        var hasViews = Number(s.total_views) > 0;
+        // VRAIE courbe de vues pour X / Facebook (on enregistre total_views chaque jour).
+        // Threads (sans métrique de vues publique) garde le placeholder « En construction ».
+        var hg2 = document.getElementById('homeHeaderGoal'); if (hg2) hg2.innerHTML = homeGoalRingMini(s, platform, username);
         return homeProfileCard(platform, prof, s, username)
           + (emptyAcc ? '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.86rem;line-height:1.5;">Ce compte ' + escapeHtml(pubPlatLabel(platform)) + ' n\'a pas encore d\'abonnés. Tes chiffres grimperont ici dès qu\'il décolle. 🚀</div>' : '')
-          + homeStatsPlaceholder(s, s.insights);   // remplit la page (plus de vide noir)
+          + (hasViews ? renderGrowthGraph(s, platform, username) + homeStatsMetaOnly(s, s.insights)
+                      : homeStatsPlaceholder(s, s.insights));
       }
 
       // Stats VIDÉO réellement récupérées ? (l'audience seule ne suffit pas : il faut les vidéos)
@@ -3929,18 +3934,14 @@
 
   // Squelette de stats GRIS : remplit la page (plus de grand vide noir) quand un compte n'a pas encore
   // de vidéos/historique. Affiche les vraies valeurs si dispo, sinon « — » / « Inconnue » en gris.
-  function homeStatsPlaceholder(s, ins){
+  // Cartes méta seules (vues totales, engagement, niche, type) — réutilisées avec la vraie courbe.
+  function homeStatsMetaOnly(s, ins){
     s = s || {}; ins = ins || {};
     var tv = Number(s.total_views) || 0;
     var eng = Number(s.avg_engagement_rate) || 0;
     var niche = (ins.niche && String(ins.niche).trim()) ? escapeHtml(ins.niche) : 'Inconnue';
     var ctype = (ins.content_type && String(ins.content_type).trim()) ? escapeHtml(ins.content_type) : '—';
     return ''
-      + '<div class="card home-graph" style="margin-bottom:14px;">'
-      +   '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">Bientôt</span></div>'
-      +   '<div class="ph-curve"></div>'
-      +   '<div class="home-graph-note">Ta courbe de vues apparaîtra ici dès que tu publieras — elle montera jour après jour.</div>'
-      + '</div>'
       + '<div class="home-meta-grid">'
       +   '<div class="home-meta"><div class="home-meta-l">Vues totales</div><div class="home-meta-v' + (tv?'':' ph') + '">' + (tv?fmtNum(tv):'—') + '</div></div>'
       +   '<div class="home-meta"><div class="home-meta-l">Engagement moyen</div><div class="home-meta-v' + (eng?'':' ph') + '">' + (eng?(eng+'%'):'—') + '</div></div>'
@@ -3949,6 +3950,15 @@
       +   '<div class="home-meta niche"><div class="home-meta-l">Niche détectée</div><div class="home-meta-v' + (niche==='Inconnue'?' ph':'') + '">' + niche + '</div></div>'
       +   '<div class="home-meta"><div class="home-meta-l">Type de contenu</div><div class="home-meta-v' + (ctype==='—'?' ph':'') + '">' + ctype + '</div></div>'
       + '</div>';
+  }
+  function homeStatsPlaceholder(s, ins){
+    return ''
+      + '<div class="card home-graph" style="margin-bottom:14px;">'
+      +   '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">En construction</span></div>'
+      +   '<div class="ph-curve"></div>'
+      +   '<div class="home-graph-note">Ta courbe de vues apparaîtra ici dès que tu publieras — elle montera jour après jour.</div>'
+      + '</div>'
+      + homeStatsMetaOnly(s, ins);
   }
   function renderGrowthGraph(s, plat, user) {
     // On filtre STRICTEMENT sur le compte (plateforme + pseudo) pour ne jamais mélanger.

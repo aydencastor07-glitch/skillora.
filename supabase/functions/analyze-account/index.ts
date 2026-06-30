@@ -533,17 +533,30 @@ async function analyzeTwitter(handle, key) {
       totalViews += v;
       likesRecv += lk;
       fetched++;
-      // Texte du tweet (full_text complet si dispo) + média éventuel pour la vignette.
-      const txt = String(tl.full_text ?? t.full_text ?? tl.text ?? t.text ?? "").replace(/https:\/\/t\.co\/\w+/g, "").trim();
+      // Retweet ? On déballe le tweet d'origine pour afficher SON vrai texte + SON image
+      // (sinon on n'a que « RT @x: … » tronqué et sans média).
+      const rtRes = tl.retweeted_status_result?.result ?? t.retweeted_status_result?.result ?? null;
+      const real = rtRes ? (rtRes.tweet ?? rtRes) : t;
+      const rl = real?.legacy ?? tl;
+      const isRt = !!rtRes;
+      const rtOf = isRt ? String(real?.core?.user_results?.result?.legacy?.screen_name
+                                ?? real?.core?.user_results?.result?.core?.screen_name ?? "") : "";
+      // Texte propre : celui du tweet d'origine pour un RT, sinon le sien. On retire les liens t.co.
+      const txt = String(rl.full_text ?? real?.full_text ?? rl.text ?? "").replace(/https:\/\/t\.co\/\w+/g, "").trim();
       const idStr = String(tl.id_str ?? t.rest_id ?? t.id_str ?? "");
-      const media = tl.entities?.media?.[0] ?? tl.extended_entities?.media?.[0] ?? null;
+      const media = rl.extended_entities?.media?.[0] ?? rl.entities?.media?.[0]
+                 ?? tl.extended_entities?.media?.[0] ?? tl.entities?.media?.[0] ?? null;
+      // J'aime/réponses/RT à afficher = ceux du tweet d'origine pour un RT (ce que voit l'utilisateur).
+      const dispLikes = svNum(rl.favorite_count, rl.favourite_count) || lk;
       posts.push({
         id: idStr,
         text: txt,
+        is_rt: isRt,
+        rt_of: rtOf,
         views: v,
-        likes: lk,
-        comments: svNum(tl.reply_count, t.reply_count),
-        shares: svNum(tl.retweet_count, t.retweet_count),
+        likes: dispLikes,
+        comments: svNum(rl.reply_count, tl.reply_count),
+        shares: svNum(rl.retweet_count, tl.retweet_count),
         created_at: String(tl.created_at ?? t.created_at ?? ""),
         url: idStr ? `https://twitter.com/${screen}/status/${idStr}` : "",
         cover: media ? String(media.media_url_https ?? media.media_url ?? "") : "",
@@ -560,10 +573,12 @@ async function analyzeTwitter(handle, key) {
   // Garde les plus récents tels quels (l'API les renvoie déjà chronologiquement), 12 max pour l'affichage.
   posts.splice(12);
 
-  const stats = [{ label: "Abonnés", value: followers }];
-  if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });
-  stats.push({ label: "Tweets", value: tweetsCount || fetched });
-  if (totalViews > 0 && likesRecv > 0) stats.push({ label: "J'aime", value: likesRecv });
+  // Bandeau profil = Abonnés · J'aime · Tweets (les Vues totales vivent dans le bloc méta du bas).
+  const stats = [
+    { label: "Abonnés", value: followers },
+    { label: "J'aime", value: likesRecv },
+    { label: "Tweets", value: tweetsCount || fetched },
+  ];
   const summary = socialSummary({ platform: "twitter", audience: followers, totalPublished: tweetsCount || fetched, nickname, handle: screen, avatar, following, totalLikes: likesRecv, bio, stats });
   // Stats EXISTANTES affichées dès la connexion (la courbe, elle, monte avec les vues futures).
   summary.total_views = totalViews;
@@ -617,10 +632,12 @@ async function analyzeThreads(handle, key) {
   } catch (_e) { /* garde au moins le profil (abonnés) */ }
   tposts.splice(12);
 
-  const stats = [{ label: "Abonnés", value: followers }];
-  if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });
-  if (postCount > 0) stats.push({ label: "Posts", value: postCount });
-  if (totalLikes > 0) stats.push({ label: "J'aime", value: totalLikes });
+  // Bandeau profil = Abonnés · J'aime · Posts (les Vues totales restent dans le bloc méta du bas).
+  const stats = [
+    { label: "Abonnés", value: followers },
+    { label: "J'aime", value: totalLikes },
+    { label: "Posts", value: postCount },
+  ];
   const summary = socialSummary({ platform: "threads", audience: followers, totalPublished: postCount, nickname, handle: screen, avatar, totalLikes, bio, stats });
   summary.total_views = totalViews;
   summary.total_likes = totalLikes;

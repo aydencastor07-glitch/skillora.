@@ -143,9 +143,9 @@ Deno.serve(async (req) => {
     const priorSummary = (recent && recent.summary) ? recent.summary : ((await lastAnalysis())?.summary || null);
     let result;
     try {
-      if (platform === "tiktok") result = await analyzeTikTok(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
-      else if (platform === "youtube") result = await analyzeYouTube(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
-      else if (platform === "instagram") result = await analyzeInstagram(username, SV_KEY, AI_KEY, owner, priorSummary, regen);
+      if (platform === "tiktok") result = await analyzeTikTok(username, SV_KEY, AI_KEY, owner, priorSummary, regen, force);
+      else if (platform === "youtube") result = await analyzeYouTube(username, SV_KEY, AI_KEY, owner, priorSummary, regen, force);
+      else if (platform === "instagram") result = await analyzeInstagram(username, SV_KEY, AI_KEY, owner, priorSummary, regen, force);
       else if (platform === "twitter" || platform === "x") result = await analyzeTwitter(username, SV_KEY);
       else if (platform === "facebook") result = await analyzeFacebook(username, SV_KEY);
       else if (platform === "threads") result = await analyzeThreads(username, SV_KEY);
@@ -301,7 +301,7 @@ async function fetchAllTikTokVideos(handle, key) {
   return all.filter((v) => typeof v.views === "number");
 }
 
-async function analyzeTikTok(handle, key, aiKey, owner, prior, regen) {
+async function analyzeTikTok(handle, key, aiKey, owner, prior, regen, force) {
   const profile = await svGet(`/tiktok/profile?handle=${encodeURIComponent(handle)}`, key);
   const p = profile.data ?? profile;
   const u = p.user ?? p.userInfo?.user ?? p.author ?? p;
@@ -317,7 +317,9 @@ async function analyzeTikTok(handle, key, aiKey, owner, prior, regen) {
 
   // ACTUALISATION INTELLIGENTE : si le nb de vidéos n'a pas bougé, on NE re-scrape PAS les vidéos ni l'IA
   // -> on réutilise l'analyse précédente en rafraîchissant juste les chiffres du profil. = 1 crédit.
-  if (prior && !regen && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
+  // SAUF si l'utilisateur a cliqué « Actualiser » lui-même (force) : il veut de VRAIES vues fraîches,
+  // pas un total figé (sinon « Abonnés » bouge mais « Vues totales » reste bloqué -> très trompeur).
+  if (prior && !regen && !force && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
     const summary = JSON.parse(JSON.stringify(prior));
     summary.audience = followers; summary.total_published = totalPublished;
     summary.profile = { avatar: avatar || prior.profile?.avatar || "", nickname, handle: uniqueId, following, total_likes: totalLikes };
@@ -343,7 +345,7 @@ async function analyzeTikTok(handle, key, aiKey, owner, prior, regen) {
   return { rawData: { followers, total_published: totalPublished, fetched: videos.length, profile_debug: dbg }, summary };
 }
 
-async function analyzeYouTube(handle, key, aiKey, owner, prior, regen) {
+async function analyzeYouTube(handle, key, aiKey, owner, prior, regen, force) {
   let ch;
   for (const q of [`/youtube/channel?handle=${encodeURIComponent(handle)}`,
                    `/youtube/channel?channelId=${encodeURIComponent(handle)}`,
@@ -358,7 +360,8 @@ async function analyzeYouTube(handle, key, aiKey, owner, prior, regen) {
   const bio = c.description ?? "";
 
   // Actualisation intelligente : pas de nouvelle vidéo -> on réutilise l'analyse précédente (1 crédit).
-  if (prior && !regen && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
+  // SAUF clic « Actualiser » (force) : l'utilisateur veut de vraies vues fraîches, pas un total figé.
+  if (prior && !regen && !force && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
     const summary = JSON.parse(JSON.stringify(prior));
     summary.audience = subs; summary.total_published = totalPublished;
     summary.profile = { avatar: avatar || prior.profile?.avatar || "", nickname, handle, following: 0, total_likes: 0 };
@@ -416,7 +419,7 @@ function mapInstagramItem(it) {
     cover: cover ?? "", hashtags: tags,
   };
 }
-async function analyzeInstagram(handle, key, aiKey, owner, prior, regen) {
+async function analyzeInstagram(handle, key, aiKey, owner, prior, regen, force) {
   const profile = await svGet(`/instagram/profile?handle=${encodeURIComponent(handle)}`, key);
   const p = profile.data ?? profile;
   const u = p.user ?? p.userInfo?.user ?? p.profile ?? p.data?.user ?? p;
@@ -429,7 +432,8 @@ async function analyzeInstagram(handle, key, aiKey, owner, prior, regen) {
   const bio = u.biography ?? u.bio ?? "";
 
   // Actualisation intelligente : pas de nouveau post -> on réutilise l'analyse précédente (1 crédit).
-  if (prior && !regen && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
+  // SAUF clic « Actualiser » (force) : l'utilisateur veut de vraies vues fraîches, pas un total figé.
+  if (prior && !regen && !force && prior.video_count > 0 && (prior.total_published ?? 0) === totalPublished) {
     const summary = JSON.parse(JSON.stringify(prior));
     summary.audience = followers; summary.total_published = totalPublished;
     summary.profile = { avatar: avatar || prior.profile?.avatar || "", nickname, handle: uniqueId, following, total_likes: prior.profile?.total_likes ?? 0 };

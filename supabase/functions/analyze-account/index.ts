@@ -490,7 +490,7 @@ async function analyzeTwitter(handle, key) {
   // Twitter public expose ~100 tweets les plus POPULAIRES -> la somme des vues ≈ l'essentiel des vues du compte.
   let totalViews = 0, likesRecv = 0, fetched = 0;
   try {
-    const tr = await svGet(`/twitter/user-tweets?handle=${encodeURIComponent(cleanH)}&trim=true`, key);
+    const tr = await svGet(`/twitter/user-tweets?handle=${encodeURIComponent(cleanH)}`, key);
     const td = tr.data ?? tr;
     const tw = td.tweets ?? td.data?.tweets ?? {};
     const arr = Array.isArray(tw) ? tw : Object.values(tw ?? {});
@@ -508,7 +508,10 @@ async function analyzeTwitter(handle, key) {
   stats.push({ label: "Tweets", value: tweetsCount || fetched });
   if (totalViews > 0 && likesRecv > 0) stats.push({ label: "J'aime", value: likesRecv });
   const summary = socialSummary({ platform: "twitter", audience: followers, totalPublished: tweetsCount || fetched, nickname, handle: screen, avatar, following, totalLikes: likesRecv, bio, stats });
-  summary.total_views = totalViews; // pour le relevé de courbe (snapshot quotidien)
+  // Stats EXISTANTES affichées dès la connexion (la courbe, elle, monte avec les vues futures).
+  summary.total_views = totalViews;
+  summary.avg_views = fetched > 0 ? Math.round(totalViews / fetched) : 0;
+  summary.avg_engagement_rate = totalViews > 0 ? Math.round((likesRecv / totalViews) * 1000) / 10 : 0;
   return { rawData: { followers, total_published: tweetsCount, total_views: totalViews, fetched, profile_only: true }, summary };
 }
 async function analyzeThreads(handle, key) {
@@ -525,7 +528,7 @@ async function analyzeThreads(handle, key) {
   // Posts (~20-30, ~1 crédit) -> J'aime (engagement) + vues SI la liste les expose.
   let totalViews = 0, totalLikes = 0, postCount = 0;
   try {
-    const pr = await svGet(`/threads/user-posts?handle=${encodeURIComponent(cleanH)}&trim=true`, key);
+    const pr = await svGet(`/threads/user-posts?handle=${encodeURIComponent(cleanH)}`, key);
     const pd = pr.data ?? pr;
     const posts = pd.posts ?? pd.data?.posts ?? {};
     const arr = Array.isArray(posts) ? posts : Object.values(posts ?? {});
@@ -543,6 +546,8 @@ async function analyzeThreads(handle, key) {
   if (totalLikes > 0) stats.push({ label: "J'aime", value: totalLikes });
   const summary = socialSummary({ platform: "threads", audience: followers, totalPublished: postCount, nickname, handle: screen, avatar, totalLikes, bio, stats });
   summary.total_views = totalViews;
+  summary.avg_views = postCount > 0 ? Math.round(totalViews / postCount) : 0;
+  summary.avg_engagement_rate = totalViews > 0 ? Math.round((totalLikes / totalViews) * 1000) / 10 : 0;
   return { rawData: { followers, total_views: totalViews, posts: postCount, profile_only: true }, summary };
 }
 async function analyzeFacebook(handle, key) {
@@ -576,6 +581,7 @@ async function analyzeFacebook(handle, key) {
   else if (pageLikes && pageLikes !== followers) stats.push({ label: "J'aime la Page", value: pageLikes });
   const summary = socialSummary({ platform: "facebook", audience: followers, totalPublished: reelCount, nickname, handle, avatar, totalLikes: pageLikes, stats });
   summary.total_views = totalViews;
+  summary.avg_views = reelCount > 0 ? Math.round(totalViews / reelCount) : 0;
   return { rawData: { followers, total_views: totalViews, reels: reelCount, profile_only: true }, summary };
 }
 async function analyzeLinkedIn(handle, key) {

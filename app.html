@@ -3943,7 +3943,7 @@
     s = s || {}; ins = ins || {};
     var tv = Number(s.total_views) || 0;
     var eng = Number(s.avg_engagement_rate) || 0;
-    var niche = (ins.niche && String(ins.niche).trim()) ? escapeHtml(ins.niche) : 'Inconnue';
+    var niche = (ins.niche && String(ins.niche).trim()) ? escapeHtml(ins.niche) : 'Inconnue pour l\'instant';
     var ctype = (ins.content_type && String(ins.content_type).trim()) ? escapeHtml(ins.content_type) : '—';
     return ''
       + '<div class="home-meta-grid">'
@@ -3951,7 +3951,7 @@
       +   '<div class="home-meta"><div class="home-meta-l">Engagement moyen</div><div class="home-meta-v' + (eng?'':' ph') + '">' + (eng?(eng+'%'):'—') + '</div></div>'
       + '</div>'
       + '<div class="home-meta-grid">'
-      +   '<div class="home-meta niche"><div class="home-meta-l">Niche détectée</div><div class="home-meta-v' + (niche==='Inconnue'?' ph':'') + '">' + niche + '</div></div>'
+      +   '<div class="home-meta niche"><div class="home-meta-l">Niche détectée</div><div class="home-meta-v' + (/^Inconnue/.test(niche)?' ph':'') + '">' + niche + '</div></div>'
       +   '<div class="home-meta"><div class="home-meta-l">Type de contenu</div><div class="home-meta-v' + (ctype==='—'?' ph':'') + '">' + ctype + '</div></div>'
       + '</div>';
   }

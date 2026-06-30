@@ -4131,11 +4131,15 @@
       '</div>';
     }
 
-    var vals = view.map(function(p){ return p.v; });
-    var maxV = Math.max.apply(null, vals), minV = Math.min.apply(null, vals);
-    var flat = (maxV - minV) === 0;
-    var range = (maxV - minV) || 1;
-    var norm = flat ? vals.map(function(){ return 0.5; }) : vals.map(function(v){ return (v - minV) / range; });
+    // Courbe de CROISSANCE : cumul des vues gagnées sur la période. Elle MONTE quand tu gagnes des
+    // vues et reste PLATE les jours sans gain -> allure de vraie courbe de croissance (plus de vagues
+    // trompeuses qui plongent à zéro), tout en restant honnête (plat = pas de croissance ce jour-là).
+    var run = 0;
+    var cum = view.map(function(p){ run += p.v; return { d: p.d, v: run }; });
+    var maxC = run || 1;
+    // On démarre à 0 (début de période) puis la courbe grimpe.
+    var series = [{ d: (cum[0] ? cum[0].d : ''), v: 0 }].concat(cum);
+    var norm = series.map(function(p){ return p.v / maxC; });
     var up = totalGained > 0;
     var color = up ? '#3ddc84' : '#8b9bc4';
     var trendTxt = up ? 'En hausse' : 'Stable';
@@ -4144,7 +4148,7 @@
     return '<div class="home-graph card aurora">' +
       '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
       tabs +
-      '<div class="home-graph-canvas">' + auroraSvg(W, H, norm, color, false, view) + '</div>' +
+      '<div class="home-graph-canvas">' + auroraSvg(W, H, norm, color, false, series) + '</div>' +
       '<div class="home-graph-tooltip" id="graphTooltip" style="display:none;"></div>' +
       '<div class="home-graph-foot"><span>' + footTxt + '</span></div>' +
     '</div>';
@@ -4527,7 +4531,7 @@
     var mois = ['jan','f\u00e9v','mar','avr','mai','juin','juil','ao\u00fbt','sep','oct','nov','d\u00e9c'];
     var label = jours[d.getDay()] + '. ' + d.getDate() + ' ' + mois[d.getMonth()];
     var box = document.getElementById('graphTooltip');
-    if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + fmtNum(views) + ' vues gagnées ce jour'; }
+    if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + fmtNum(views) + ' vues gagnées (cumul)'; }
     // surligner le point cliqué
     try {
       var svg = el && el.ownerSVGElement;

@@ -513,6 +513,19 @@
   .cx-btn { width:100%; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:13px; padding:15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.96rem; cursor:pointer; box-shadow:0 8px 24px rgba(47,123,255,0.3); }
   .cx-btn:active { transform:scale(0.98); }
   .cx-btn-ghost { width:100%; background:transparent; border:none; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.86rem; padding:12px; margin-top:8px; cursor:pointer; }
+  /* Gestion des comptes (modale +) : connectés en haut, ajout en dessous */
+  .cx-sec-h { width:100%; font-family:'Sora',sans-serif; font-weight:700; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; }
+  .cx-conn-list { width:100%; display:flex; flex-direction:column; gap:8px; }
+  .cx-conn-row { display:flex; align-items:center; gap:11px; background:rgba(255,255,255,0.035); border:1px solid var(--border); border-radius:13px; padding:9px 11px; }
+  .cx-conn-av { position:relative; width:38px; height:38px; border-radius:50%; flex:none; background:#1a2540 center/cover no-repeat; display:flex; align-items:center; justify-content:center; font-weight:700; color:#cdd8ef; font-size:1rem; }
+  .cx-conn-plat { position:absolute; right:-2px; bottom:-2px; width:16px; height:16px; border-radius:5px; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); }
+  .cx-conn-id { flex:1; min-width:0; display:flex; flex-direction:column; line-height:1.2; }
+  .cx-conn-h { font-family:'Sora',sans-serif; font-weight:600; font-size:.88rem; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cx-conn-p { font-size:.72rem; color:var(--muted); }
+  .cx-conn-x { flex:none; background:rgba(255,107,74,0.1); border:1px solid rgba(255,107,74,0.3); color:#ff8a6a; border-radius:9px; padding:7px 11px; font-family:'Sora',sans-serif; font-weight:600; font-size:.74rem; cursor:pointer; transition:transform .12s; }
+  .cx-conn-x:active { transform:scale(.95); }
+  .cx-limit { width:100%; font-size:.85rem; color:var(--muted); line-height:1.5; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:13px; }
+  .cx-limit a { color:var(--blue-light); font-weight:600; cursor:pointer; text-decoration:underline; }
   .cx-confirm-handle { font-family:'Fraunces',serif; font-weight:800; font-size:1.3rem; color:var(--blue-light); margin-bottom:14px; }
 
   /* Orbite de chargement */
@@ -3366,18 +3379,43 @@
   // Ancien goConnect conservé pour "Réanalyser" -> relance le flow direct
   function goConnect(plat) { openConnectFlow(plat); }
 
-  // Bouton "+" ajouter un compte (avec limite de plan, controlee aussi cote serveur)
+  // Bouton "+" : gère les comptes — comptes connectés EN HAUT (avec déconnexion), ajout en dessous.
   function addAccount() {
-    // Limite atteinte -> modale claire vers les plans
-    if (connectedAccountCount() >= maxConnectableAccounts()) { showAccountLimitModal(); return; }
-    // sinon : choisir une plateforme à ajouter
     var ov = document.getElementById('connectOverlay');
     ov.classList.add('open');
-    ov.innerHTML = '<div class="cx-shell"><div class="cx-title">Ajouter un compte</div><div class="cx-sub">Choisis la plateforme.</div><div class="home-connect-grid four" style="margin-top:8px;">' +
-      homeConnBtn('tiktok', tiktok, 'TikTok') + homeConnBtn('youtube', youtube, 'YouTube') +
-      homeConnBtn('instagram', instagram, 'Instagram') + homeConnBtn('facebook', facebook, 'Facebook') +
-      homeConnBtn('x', xtw, 'X') + homeConnBtn('threads', threads, 'Threads') + homeConnBtn('linkedin', linkedin, 'LinkedIn') +
-      '</div><button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:14px;">Annuler</button></div>';
+
+    // 1) Comptes déjà connectés, listés clairement en haut.
+    var accs = (window._homeAccounts || []);
+    var connHtml = '';
+    if (accs.length) {
+      connHtml = '<div class="cx-sec-h">Tes comptes connectés</div><div class="cx-conn-list">' + accs.map(function(a){
+        var h = String(a.username||'').replace(/^@/,'');
+        var av = (a.info&&a.info.photo) || (a.analysis&&a.analysis.summary&&a.analysis.summary.profile&&a.analysis.summary.profile.avatar) || '';
+        var avInner = av ? '' : escapeHtml((h||'?').charAt(0).toUpperCase());
+        var avStyle = av ? ' style="background-image:url(\''+imgProxy(av).replace(/'/g,'')+'\')"' : '';
+        return '<div class="cx-conn-row">' +
+          '<span class="cx-conn-av"'+avStyle+'>'+avInner+'<i class="cx-conn-plat" style="background:'+platBg(a.platform)+';">'+pubPlatSVG(a.platform,9)+'</i></span>' +
+          '<span class="cx-conn-id"><span class="cx-conn-h">@'+escapeHtml(h)+'</span><span class="cx-conn-p">'+escapeHtml(platLabel(a.platform))+'</span></span>' +
+          '<button class="cx-conn-x" onclick="disconnectAccount(\''+a.platform+'\',\''+h.replace(/['"\\]/g,'')+'\')">Déconnecter</button>' +
+        '</div>';
+      }).join('') + '</div>';
+    }
+
+    // 2) Ajout : uniquement les plateformes pas encore connectées.
+    var ALLP = [['tiktok',tiktok,'TikTok'],['youtube',youtube,'YouTube'],['instagram',instagram,'Instagram'],['facebook',facebook,'Facebook'],['x',xtw,'X'],['threads',threads,'Threads'],['linkedin',linkedin,'LinkedIn']];
+    var addable = ALLP.filter(function(p){ return !(window.__connectedPlats && window.__connectedPlats[p[0]]); });
+    var atLimit = connectedAccountCount() >= maxConnectableAccounts();
+    var addHtml = '<div class="cx-sec-h" style="margin-top:'+(connHtml?'18px':'0')+';">Ajouter un compte</div>';
+    if (atLimit) {
+      addHtml += '<div class="cx-limit">Tu as atteint la limite de comptes de ton offre.<br><a onclick="window.location.href=\'index.html#pricing\'">Passe à un plan supérieur</a> pour en connecter davantage.</div>';
+    } else if (!addable.length) {
+      addHtml += '<div class="cx-limit">Toutes les plateformes disponibles sont déjà connectées. 🎉</div>';
+    } else {
+      addHtml += '<div class="home-connect-grid four" style="margin-top:8px;">' + addable.map(function(p){ return homeConnBtn(p[0], p[1], p[2]); }).join('') + '</div>';
+    }
+
+    ov.innerHTML = '<div class="cx-shell" style="text-align:left;">' + connHtml + addHtml +
+      '<button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:16px;">Fermer</button></div>';
   }
 
   // ── OBJECTIFS PAR COMPTE ─────────────────────────────────────────────────────
@@ -6508,14 +6546,31 @@
   function pfmConnect(platform){ return connectAccount(platform); } // alias (ancien selecteur)
 
   // Deconnecte un compte (le delie de Skillora ET cote Post for Me, pour pouvoir le remettre ailleurs)
-  function disconnectAccount(platform) {
+  function disconnectAccount(platform, username) {
     var name = connectName(platform);
+    var who = username ? ('@' + username) : ('ton compte ' + name);
+    // Anti-abus : une seule déconnexion par plateforme tous les 7 jours (sauf comptes illimités).
+    var key = 'sk_lastdisc_' + platform;
+    var last = 0; try { last = parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch(e){}
+    var now = Date.now();
+    var WEEK = 7 * 24 * 3600 * 1000;
+    if (last && (now - last) < WEEK && !(typeof isUnlimited === 'function' && isUnlimited())) {
+      var daysLeft = Math.ceil((WEEK - (now - last)) / (24 * 3600 * 1000));
+      skModal({
+        icon: '⏳', iconBg: 'rgba(123,162,255,.16)',
+        title: 'Déjà déconnecté cette semaine',
+        message: 'Pour protéger tes données et éviter les abus, <b>une seule déconnexion par plateforme tous les 7 jours</b>. Réessaie dans <b>' + daysLeft + ' jour' + (daysLeft > 1 ? 's' : '') + '</b>, ou écris-nous au support pour un cas particulier.',
+        cancelText: 'Compris'
+      });
+      return;
+    }
     skModal({
       icon: '🔌', iconBg: 'rgba(255,107,74,.16)',
-      title: 'Déconnecter ' + name + ' ?',
-      message: 'Ce compte sera délié de Skillora. Tu pourras le reconnecter quand tu veux — ici ou sur un autre compte.',
+      title: 'Déconnecter ' + who + ' ?',
+      message: 'Ce compte sera retiré de Skillora.<br><br><span style="color:#8b9bc4;font-size:.92em;">Pour <b>révoquer complètement</b> l\'accès, retire aussi Skillora dans les réglages de ' + name + ' (Apps connectées / Autorisations) — sinon l\'autorisation reste active de leur côté.</span><br><br><span style="color:#8b9bc4;font-size:.85em;">⏳ Rappel : 1 déconnexion possible tous les 7 jours.</span>',
       confirmText: 'Déconnecter', cancelText: 'Annuler',
       onConfirm: async function(){
+        try { localStorage.setItem(key, String(now)); } catch(e){}
         try {
           const { data:{ session } } = await sb.auth.getSession();
           if (session) {
@@ -6530,6 +6585,9 @@
         window.__autoAnalyzeRan = false; window.__pfmSynced = true;
         try { await refreshConnections(); } catch(e){}
         try { if (typeof loadHomeDashboard === 'function') loadHomeDashboard(); } catch(e){}
+        try { if (typeof loadStudioAccounts === 'function') { window._studioLoaded = false; loadStudioAccounts(); } } catch(e){}
+        // si la modale de gestion est ouverte, on la rafraîchit avec la liste à jour
+        try { var ovx = document.getElementById('connectOverlay'); if (ovx && ovx.classList.contains('open')) setTimeout(addAccount, 300); } catch(e){}
       }
     });
   }

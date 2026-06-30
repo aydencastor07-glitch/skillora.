@@ -943,16 +943,39 @@
   .studio-count { font-size:.78rem; color:var(--blue-light); background:rgba(47,123,255,0.12); border:1px solid var(--border2); border-radius:999px; padding:4px 11px; font-family:'Fraunces',serif; font-weight:600; }
   .btn-add-profile { width:100%; background:rgba(47,123,255,0.08); border:1px dashed var(--border2); color:var(--blue-light); border-radius:16px; padding:15px; font-family:'Fraunces',serif; font-weight:600; font-size:.96rem; cursor:pointer; margin-bottom:8px; transition:background .2s, transform .15s; }
 
-  /* ===== Onboarding état vide — Studio (1ère visite) ===== */
-  .studio-empty { background:linear-gradient(160deg, rgba(47,123,255,0.09), rgba(255,255,255,0.015)); border:1px solid var(--border2); border-radius:18px; padding:20px 18px; margin-bottom:12px; }
-  .studio-empty-ic { width:46px; height:46px; border-radius:14px; background:linear-gradient(135deg, var(--blue), #1857c4); display:flex; align-items:center; justify-content:center; font-size:1.35rem; margin-bottom:13px; box-shadow:0 6px 18px rgba(47,123,255,0.35); }
-  .studio-empty-t { font-family:'Fraunces',serif; font-weight:700; font-size:1.12rem; color:var(--white); margin-bottom:6px; line-height:1.25; }
-  .studio-empty-p { font-size:.86rem; color:var(--muted); line-height:1.5; margin-bottom:15px; }
-  .studio-empty-feats { display:flex; flex-direction:column; gap:10px; }
-  .studio-empty-feat { display:flex; align-items:flex-start; gap:10px; font-size:.86rem; color:var(--white); line-height:1.4; }
-  .studio-empty-feat .se-ck { flex:none; width:20px; height:20px; border-radius:50%; background:rgba(61,220,132,0.14); color:var(--green); display:flex; align-items:center; justify-content:center; font-size:.66rem; font-weight:800; margin-top:1px; }
-  .studio-empty-feat b { font-weight:700; }
-  .studio-empty-time { display:inline-block; margin-top:15px; font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; color:var(--blue-light); background:rgba(47,123,255,0.1); border:1px solid var(--border2); border-radius:999px; padding:4px 11px; }
+  /* ===== Étape 1 — sélecteur de compte (Studio) ===== */
+  .studio-accs { display:flex; gap:10px; overflow-x:auto; padding:2px 2px 10px; margin-bottom:4px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .studio-accs::-webkit-scrollbar { display:none; }
+  .sa-chip { flex:none; display:flex; align-items:center; gap:9px; background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:8px 14px 8px 9px; cursor:pointer; transition:border-color .18s, transform .12s, background .18s; }
+  .sa-chip:active { transform:scale(.97); }
+  .sa-chip.on { background:linear-gradient(135deg, rgba(47,123,255,0.18), rgba(47,123,255,0.06)); border-color:var(--blue); box-shadow:0 0 0 1px rgba(47,123,255,0.4); }
+  .sa-av { position:relative; width:38px; height:38px; border-radius:50%; flex:none; background:#1a2540 center/cover no-repeat; display:flex; align-items:center; justify-content:center; font-weight:700; color:#cdd8ef; font-size:1rem; }
+  .sa-plat { position:absolute; right:-3px; bottom:-3px; width:17px; height:17px; border-radius:5px; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); }
+  .sa-id { display:flex; flex-direction:column; min-width:0; line-height:1.2; }
+  .sa-h { font-family:'Sora',sans-serif; font-weight:600; font-size:.86rem; color:var(--white); white-space:nowrap; }
+  .sa-n { font-size:.7rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; margin-top:1px; }
+  .sa-chip.on .sa-n { color:var(--blue-light); }
+
+  /* État vide : aucun compte connecté */
+  .studio-empty2 { background:linear-gradient(160deg, rgba(47,123,255,0.09), rgba(255,255,255,0.015)); border:1px solid var(--border2); border-radius:18px; padding:24px 18px; text-align:center; margin-bottom:8px; }
+  .studio-empty2 .se2-ic { font-size:1.9rem; margin-bottom:10px; }
+  .studio-empty2 .se2-t { font-family:'Fraunces',serif; font-weight:700; font-size:1.12rem; color:var(--white); margin-bottom:7px; }
+  .studio-empty2 .se2-p { font-size:.87rem; color:var(--muted); line-height:1.5; margin-bottom:17px; }
+
+  /* Carte « contexte du compte » : niche connue + conseil + plan quotidien */
+  .studio-ctx { background:var(--surface); border:1.5px solid var(--border2); border-radius:16px; padding:14px 15px; margin:2px 0 16px; }
+  .studio-ctx-top { display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:.82rem; color:var(--muted); }
+  .studio-ctx-niche { display:inline-flex; align-items:center; gap:4px; background:rgba(47,123,255,0.12); border:1px solid var(--border2); color:var(--blue-light); font-weight:600; border-radius:999px; padding:3px 10px; font-size:.76rem; }
+  .studio-ctx-line { font-size:.88rem; color:var(--white); line-height:1.55; margin-top:11px; }
+  .studio-ctx-line b { font-weight:700; }
+  .studio-advice { display:flex; gap:10px; align-items:flex-start; background:rgba(255,159,74,0.09); border:1px solid rgba(255,159,74,0.3); border-radius:12px; padding:11px 12px; margin-top:12px; }
+  .studio-advice .adv-ic { flex:none; font-size:1.05rem; margin-top:1px; }
+  .studio-advice .adv-tx { font-size:.82rem; color:#ffd2a6; line-height:1.5; }
+  .studio-advice .adv-tx b { color:#ffe6cc; }
+  .studio-ctx-daily { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:13px; padding-top:13px; border-top:1px solid var(--border); }
+  .studio-ctx-daily span { font-size:.82rem; color:var(--muted); line-height:1.4; }
+  .studio-ctx-daily button { flex:none; background:rgba(47,123,255,0.12); border:1px solid var(--border2); color:var(--blue-light); border-radius:10px; padding:8px 14px; font-family:'Sora',sans-serif; font-weight:600; font-size:.78rem; cursor:pointer; transition:transform .12s; }
+  .studio-ctx-daily button:active { transform:scale(.95); }
 
   /* ===== Profils de niche premium ===== */
   .np-card { background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:13px 14px; margin-bottom:11px; cursor:pointer; transition:border-color .2s, transform .12s, box-shadow .2s; }
@@ -1662,22 +1685,14 @@
     <h1 class="page-title reveal" style="animation-delay:.05s">Ton studio 🎯</h1>
     <p class="page-sub reveal" style="animation-delay:.12s">Crée tes scripts viraux avec l'IA — écrits, notés et adaptés à ta niche.</p>
 
-    <!-- ===== Studio : profils de niche ===== -->
+    <!-- ===== Étape 1 : choisir le compte (sa niche est déjà connue) ===== -->
     <div class="coach-sec reveal" style="animation-delay:.18s">
-      <span class="sec-kicker">Studio</span>
-      <div class="studio-head">
-        <h3 class="section-h" style="margin:0;">Mes profils de niche</h3>
-        <div class="studio-actions">
-          <span class="studio-count" id="profileCount">0/3</span>
-          <button class="np-add" onclick="openProfileForm()" title="Nouveau profil">＋</button>
-        </div>
-      </div>
-      <p class="sec-sub">Un profil par compte. Skillora adapte ensuite chaque script, hashtag et idée à ta niche.</p>
+      <span class="sec-kicker">Étape 1</span>
+      <h3 class="section-h" style="margin:6px 0 4px;">Pour quel compte ?</h3>
+      <p class="sec-sub">Choisis un de tes comptes. Skillora connaît déjà sa niche — tu n'as rien à remplir.</p>
     </div>
-
-    <div id="profileList" class="reveal" style="animation-delay:.22s"></div>
-
-    <button class="btn-add-profile reveal" id="addProfileBtn" style="animation-delay:.24s" onclick="openProfileForm()">＋ Nouveau profil de niche</button>
+    <div id="studioAccounts" class="studio-accs reveal" style="animation-delay:.22s"></div>
+    <div id="studioAccCtx" class="reveal" style="animation-delay:.24s;display:none;"></div>
 
     <!-- Formulaire de creation premium (cache par defaut) -->
     <div class="np-form reveal" id="profileForm" style="display:none;animation-delay:.26s">
@@ -1755,7 +1770,7 @@
 
     <!-- ===== Analyse de script ===== -->
     <div class="coach-sec reveal" id="scriptLabKicker" style="margin-top:6px;animation-delay:.3s">
-      <span class="sec-kicker">Script Lab</span>
+      <span class="sec-kicker">Étape 2 · Ton script</span>
     </div>
     <div class="card reveal" id="scriptLabCard" style="animation-delay:.36s">
       <span class="flow-port in" id="labPortIn" style="display:none;"></span>
@@ -4248,7 +4263,7 @@
     }
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
     if (name === 'library') applyBookLocks();
-    if (name === 'ia') { redrawWorkflowSoon(); }
+    if (name === 'ia') { redrawWorkflowSoon(); if (typeof loadStudioAccounts === 'function') loadStudioAccounts(); }
     // La bulle "Idées" n'apparaît que sur l'Accueil (et si un compte est connecté).
     if (typeof showIdeaFab === 'function') showIdeaFab(name === 'home' && window._ideaFabAllowed);
     if (name === 'publish' && typeof refreshConnections === 'function') refreshConnections();
@@ -5257,9 +5272,130 @@
     if (sel) sel.addEventListener('change', function(){
       document.getElementById('nicheCustom').style.display = (sel.value === '__autre__') ? 'block' : 'none';
     });
-    loadNicheProfiles();
+    loadNicheProfiles().then(function(){ loadStudioAccounts(); });
     updateQuotaLabel();
   });
+
+  // ===== STUDIO simplifié : on choisit un COMPTE (sa niche est déjà connue) =====
+  // Le « profil de niche » devient une plomberie invisible : on le crée/retrouve
+  // automatiquement à partir du compte choisi, pour ne rien casser (scripts + plan quotidien).
+  var studioAccs = [];
+  function studioPlatLabel(p){ return ({tiktok:'TikTok',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook',x:'X (Twitter)',threads:'Threads',linkedin:'LinkedIn',pinterest:'Pinterest'})[p] || (p ? p.charAt(0).toUpperCase()+p.slice(1) : ''); }
+  function studioFmtFor(p){ return p==='instagram'?'reels':(p==='youtube'?'shorts':(p==='facebook'?'facebook':'tiktok')); }
+
+  async function loadStudioAccounts() {
+    var box = document.getElementById('studioAccounts');
+    if (!box) return;
+    var accs = [];
+    try {
+      var { data: ca } = await sb.from('connected_accounts').select('platform,username,photo,is_active').eq('is_active', true);
+      (ca||[]).forEach(function(a){ accs.push({ platform:a.platform, username:String(a.username||'').replace(/^@/,''), avatar:a.photo||'', niche:'', content_type:'', production_kind:'', hasAnalysis:false }); });
+    } catch(e){}
+    if (!accs.length && window._homeAccounts) {
+      window._homeAccounts.forEach(function(a){ accs.push({ platform:a.platform, username:String(a.username||'').replace(/^@/,''), avatar:(a.info&&a.info.photo)||'', niche:'', content_type:'', production_kind:'', hasAnalysis:false }); });
+    }
+    // Enrichissement : niche + type de contenu déjà détectés par l'analyse
+    try {
+      var { data: ans } = await sb.from('analyses').select('platform,username,summary,created_at').order('created_at',{ascending:false}).limit(60);
+      var byKey = {};
+      (ans||[]).forEach(function(r){
+        if (!r.summary || r.summary.owner !== 'self') return;
+        var k = (r.platform||'')+'|'+String(r.username||'').toLowerCase().replace(/^@/,'');
+        if (!byKey[k]) byKey[k] = r.summary;
+      });
+      accs.forEach(function(a){
+        var s = byKey[(a.platform||'')+'|'+a.username.toLowerCase()];
+        if (s) { var ins = s.insights||{}; a.niche = ins.niche||''; a.content_type = ins.content_type||''; a.production_kind = ins.production_kind||''; a.hasAnalysis = true; if (!a.avatar && s.profile) a.avatar = s.profile.avatar||''; }
+      });
+    } catch(e){}
+    studioAccs = accs;
+    renderStudioAccounts();
+  }
+
+  function renderStudioAccounts() {
+    var box = document.getElementById('studioAccounts');
+    var ctx = document.getElementById('studioAccCtx');
+    if (!box) return;
+    if (!studioAccs.length) {
+      box.classList.remove('studio-accs');
+      box.innerHTML = '<div class="studio-empty2"><div class="se2-ic">🔗</div><div class="se2-t">Connecte d\'abord un compte</div>' +
+        '<div class="se2-p">Le Studio écrit des scripts taillés pour <b>tes</b> comptes. Connecte-en un — Skillora détecte sa niche automatiquement et adapte chaque script.</div>' +
+        '<button class="btn-primary" style="max-width:280px;margin:0 auto;" onclick="switchView(\'publish\', null)">Connecter un compte</button></div>';
+      if (ctx) ctx.style.display = 'none';
+      activeProfileIndex = -1;
+      return;
+    }
+    box.classList.add('studio-accs');
+    var selKey = window._studioSelKey || '';
+    var selIdx = 0;
+    for (var i=0;i<studioAccs.length;i++){ if ((studioAccs[i].platform+'|'+studioAccs[i].username.toLowerCase())===selKey) { selIdx = i; break; } }
+    box.innerHTML = studioAccs.map(function(a, i){
+      var inner = a.avatar ? '' : escapeHtml((a.username||'?').charAt(0).toUpperCase());
+      var avStyle = a.avatar ? ' style="background-image:url(\''+imgProxy(a.avatar).replace(/'/g,'')+'\')"' : '';
+      var nicheTxt = a.niche ? escapeHtml(a.niche) : (a.hasAnalysis ? 'Niche variée' : 'Niche en analyse…');
+      return '<button class="sa-chip'+(i===selIdx?' on':'')+'" onclick="selectStudioAccount('+i+')">' +
+        '<span class="sa-av"'+avStyle+'>'+inner+'<i class="sa-plat" style="background:'+platBg(a.platform)+';">'+pubPlatSVG(a.platform,9)+'</i></span>' +
+        '<span class="sa-id"><span class="sa-h">@'+escapeHtml(a.username)+'</span><span class="sa-n">'+nicheTxt+'</span></span></button>';
+    }).join('');
+    selectStudioAccount(selIdx);
+  }
+
+  async function selectStudioAccount(i) {
+    var a = studioAccs[i]; if (!a) return;
+    window._studioSelKey = a.platform+'|'+a.username.toLowerCase();
+    var box = document.getElementById('studioAccounts');
+    if (box) { var chips = box.querySelectorAll('.sa-chip'); for (var c=0;c<chips.length;c++) chips[c].classList.toggle('on', c===i); }
+    var fmt = studioFmtFor(a.platform);
+    var niche = a.niche || 'Général';
+    // Trouve un profil existant pour ce compte, sinon le crée silencieusement.
+    var pIdx = -1;
+    for (var k=0;k<profiles.length;k++){ if (String(profiles[k].account||'').toLowerCase()===a.username.toLowerCase() && (profiles[k].platform===fmt || profiles[k].platform===a.platform)) { pIdx = k; break; } }
+    if (pIdx < 0) {
+      var prof = { account:a.username, platform:fmt, niche:niche, format:'reel', face:'no', tags:(NICHE_TAGS[niche]||null), avatar:a.avatar||'', dailyActive:false };
+      profiles.push(prof); pIdx = profiles.length-1;
+      try { var { data:u } = await sb.auth.getUser(); var { data:ins } = await sb.from('niche_profiles').insert({ user_id:u.user.id, account:a.username, platform:fmt, niche:niche, format:'reel', face:'no', tags:prof.tags, avatar:a.avatar||'' }).select().single(); if (ins) prof.id = ins.id; } catch(e){}
+    } else if (a.niche && profiles[pIdx].niche !== a.niche) {
+      profiles[pIdx].niche = a.niche; niche = a.niche;
+      try { if (profiles[pIdx].id) await sb.from('niche_profiles').update({ niche:a.niche }).eq('id', profiles[pIdx].id); } catch(e){}
+    } else {
+      niche = profiles[pIdx].niche || niche;
+    }
+    activeProfileIndex = pIdx;
+    // Aligne le format du Script Lab sur la plateforme du compte
+    try {
+      var want = (a.platform==='instagram')?'reels':((a.platform==='youtube')?'shorts':((a.platform==='facebook')?'reels':'tiktok'));
+      var ps = document.getElementById('platSelect');
+      if (ps) { ps.querySelectorAll('.ps-btn').forEach(function(b){ var on=(b.getAttribute('data-plat')===want); b.classList.toggle('active', on); if(on){ selectedPlatform = want; } }); if (typeof applyDurationRange==='function') applyDurationRange(); }
+    } catch(e){}
+    renderStudioCtx(a, niche);
+  }
+
+  function studioAdviceHTML(a) {
+    if (!a.hasAnalysis) {
+      return '<div class="studio-advice" style="background:rgba(47,123,255,0.08);border-color:var(--border2);"><span class="adv-ic">💡</span><span class="adv-tx" style="color:#bcd0ff;">Ce compte n\'est pas encore analysé. On génère quand même un script adapté à la niche. <b>Analyse-le</b> (page Accueil) pour des conseils encore plus précis.</span></div>';
+    }
+    var hay = ((a.content_type||'')+' '+(a.production_kind||'')+' '+(a.niche||'')).toLowerCase();
+    var noScript = /sans voix|sans parole|no voice|musique|music|aesthetic|satisfying|asmr|nature|paysage|montage|clip|danse|dance|lip ?sync|gameplay|sans commentaire/.test(hay);
+    if (noScript) {
+      return '<div class="studio-advice"><span class="adv-ic">⚠️</span><span class="adv-tx">Ce compte publie surtout du contenu <b>'+escapeHtml(a.content_type||a.niche||'visuel')+'</b>, souvent <b>sans script ni voix off</b>. Si ça marche déjà, continue comme ça. Mais si tu veux tester une vidéo parlée ou narrée, voici un script taillé pour ta niche 👇</span></div>';
+    }
+    return '';
+  }
+
+  function renderStudioCtx(a, niche) {
+    var ctx = document.getElementById('studioAccCtx');
+    if (!ctx) return;
+    ctx.style.display = 'block';
+    var nlabel = a.niche || niche || 'Général';
+    ctx.innerHTML = '<div class="studio-ctx">' +
+      '<div class="studio-ctx-top"><span>Compte choisi :</span> <b style="color:var(--white);">@'+escapeHtml(a.username)+'</b> · '+escapeHtml(studioPlatLabel(a.platform))+' <span class="studio-ctx-niche">🎯 '+escapeHtml(nlabel)+'</span></div>' +
+      '<div class="studio-ctx-line">Skillora va écrire un script <b>adapté à cette niche</b> et au style de ce compte. Écris ton idée plus bas — ou laisse vide, on s\'inspire de ton compte.</div>' +
+      studioAdviceHTML(a) +
+      '<div class="studio-ctx-daily"><span>📩 Reçois chaque jour un plan + un script pour ce compte</span><button onclick="openEmailPopup('+activeProfileIndex+')">Activer</button></div>' +
+      '</div>';
+    var tagBox = document.getElementById('analyzeProfileTag');
+    if (tagBox) { tagBox.style.display='block'; tagBox.innerHTML = '<div class="analyze-tag-pro"><span class="np-live-dot"></span><span class="analyze-tag-v">@'+escapeHtml(a.username)+' · '+escapeHtml(nlabel)+'</span></div>'; }
+  }
 
   // Sélection de chip dans le formulaire de niche
   function npPick(btn, groupId) {
@@ -5783,20 +5919,7 @@
     if (!list) return;
 
     if (profiles.length === 0) {
-      // 1ère visite : on explique CE QU'EST un profil de niche et POURQUOI en créer un,
-      // au lieu d'une zone vide. Le bouton « Crée ton premier profil » (dessous) est le CTA.
-      list.innerHTML =
-        '<div class="studio-empty">' +
-          '<div class="studio-empty-ic">🎯</div>' +
-          '<div class="studio-empty-t">Crée ton premier profil de niche</div>' +
-          '<div class="studio-empty-p">Un profil = un de tes comptes (TikTok, Instagram, YouTube…) avec sa niche. Skillora s\'en sert pour tout personnaliser.</div>' +
-          '<div class="studio-empty-feats">' +
-            '<div class="studio-empty-feat"><span class="se-ck">✓</span><span><b>Scripts sur-mesure</b> — écrits pour ta niche, jamais génériques</span></div>' +
-            '<div class="studio-empty-feat"><span class="se-ck">✓</span><span><b>Hashtags & idées</b> adaptés à ton audience</span></div>' +
-            '<div class="studio-empty-feat"><span class="se-ck">✓</span><span><b>Plan quotidien</b> par email pour garder le rythme</span></div>' +
-          '</div>' +
-          '<span class="studio-empty-time">⚡ Environ 30 secondes</span>' +
-        '</div>';
+      list.innerHTML = '';
     } else {
       var html = '';
       profiles.forEach(function(p, i) {

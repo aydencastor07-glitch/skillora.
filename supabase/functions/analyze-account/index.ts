@@ -529,10 +529,6 @@ async function analyzeTwitter(handle, key) {
       if (!t || typeof t !== "object") continue;
       const tl = t.legacy ?? {};
       const v = svNum(t.views?.count, t.ext_views?.count, tl.ext_views?.count) || deepViewCount(t);
-      const lk = svNum(tl.favorite_count, tl.favourite_count, t.favorite_count);
-      totalViews += v;
-      likesRecv += lk;
-      fetched++;
       // Retweet ? On déballe le tweet d'origine pour afficher SON vrai texte + SON image
       // (sinon on n'a que « RT @x: … » tronqué et sans média).
       const rtRes = tl.retweeted_status_result?.result ?? t.retweeted_status_result?.result ?? null;
@@ -546,8 +542,12 @@ async function analyzeTwitter(handle, key) {
       const idStr = String(tl.id_str ?? t.rest_id ?? t.id_str ?? "");
       const media = rl.extended_entities?.media?.[0] ?? rl.entities?.media?.[0]
                  ?? tl.extended_entities?.media?.[0] ?? tl.entities?.media?.[0] ?? null;
-      // J'aime/réponses/RT à afficher = ceux du tweet d'origine pour un RT (ce que voit l'utilisateur).
-      const dispLikes = svNum(rl.favorite_count, rl.favourite_count) || lk;
+      // J'aime à afficher = ceux du tweet d'origine pour un RT (ce que voit l'utilisateur),
+      // sinon les siens. C'est CE total qu'on agrège pour le bandeau profil (cohérent avec les cartes).
+      const dispLikes = svNum(rl.favorite_count, rl.favourite_count, tl.favorite_count, t.favorite_count);
+      totalViews += v;
+      likesRecv += dispLikes;
+      fetched++;
       posts.push({
         id: idStr,
         text: txt,

@@ -2913,7 +2913,15 @@
     // puis on recharge les données fraîches en arrière-plan. -> plus d'écran noir au rechargement.
     if (!window._homePainted) {
       window._homePainted = true;
-      try { var _cachedHome = localStorage.getItem('sk_home_html'); if (_cachedHome) dyn.innerHTML = _cachedHome; } catch(e){}
+      try {
+        var _cachedHome = localStorage.getItem('sk_home_html');
+        if (_cachedHome) {
+          dyn.innerHTML = _cachedHome;
+          // Repositionne le carrousel sur le DERNIER compte regardé (sinon flash sur le 1er = TikTok au rechargement).
+          var _ci = parseInt(localStorage.getItem('sk_home_idx') || '0', 10) || 0;
+          if (_ci > 0) requestAnimationFrame(function(){ var _t = document.getElementById('homeCarTrack'); if (_t) { _t.scrollLeft = _ci * (_t.clientWidth || 0); _t._lastChip = _ci; } });
+        }
+      } catch(e){}
     }
     // Courbe : on réhydrate l'historique mémorisé AVANT de dessiner -> la vraie courbe s'affiche tout de suite
     // (plus de flash « En construction » puis courbe). Revalidé ensuite en arrière-plan.
@@ -3043,11 +3051,19 @@
     if (track._bound) return;
     track._bound = true;
     track.addEventListener('scroll', function(){
+      // Pastille active mise à jour INSTANTANÉMENT pendant le défilement (léger, sans recharger l'analyse).
+      var w = track.clientWidth || 1;
+      var i = Math.round(track.scrollLeft / w);
+      if (i !== track._lastChip) {
+        track._lastChip = i;
+        var head = document.getElementById('homeCarHead');
+        if (head) { var chips = head.querySelectorAll('.home-car-chip'); for (var c = 0; c < chips.length; c++) chips[c].classList.toggle('on', c === i); }
+      }
+      // Le travail lourd (analyse, objectif, courbe) reste débattu jusqu'à l'arrêt du scroll.
       clearTimeout(track._st);
       track._st = setTimeout(function(){
-        var w = track.clientWidth || 1;
-        var i = Math.round(track.scrollLeft / w);
-        if (i !== window._homeIdx) onHomePageChange(i);
+        var j = Math.round(track.scrollLeft / w);
+        if (j !== window._homeIdx) onHomePageChange(j);
       }, 90);
     }, { passive:true });
   }
@@ -3062,7 +3078,7 @@
     var platform = acc.platform || 'tiktok';
     var username = acc.username || '';
     window._homeCurrentKey = platform + '|' + username.toLowerCase();
-    try { localStorage.setItem('sk_home_acc', window._homeCurrentKey); } catch(e){} // garde le compte affiché après actualisation
+    try { localStorage.setItem('sk_home_acc', window._homeCurrentKey); localStorage.setItem('sk_home_idx', String(i)); } catch(e){} // garde le compte affiché après actualisation
     window._lastPlatform = platform;
     window._lastUsername = username;
     var head = document.getElementById('homeCarHead');
@@ -3777,6 +3793,10 @@
   // Affiche UNIQUEMENT les vidéos publiées SUR la plateforme du compte affiché (pas un mélange global).
   async function renderPubVideosCard(platform){
     var host = document.getElementById('homePubVideos'); if (!host) return;
+    // X / Threads = réseaux texte : la liste « Tes derniers tweets/posts » couvre déjà tout.
+    // On n'affiche PAS le bloc « dernières vidéos publiées » (ce ne sont pas des vidéos -> trompeur).
+    var _pl = String(platform || '').toLowerCase();
+    if (_pl === 'x' || _pl === 'twitter' || _pl === 'threads') { host.innerHTML = ''; return; }
     var all = await loadPubPosts(false);
     refreshNotifDot();
     var posts = all;
@@ -3986,12 +4006,24 @@
   }
   // Liste « Tes derniers tweets / posts » pour X / Threads (et tout profile_only qui expose s.posts).
   function renderProfilePosts(s, platform){
-    var posts = (s && s.posts && s.posts.length) ? s.posts : null;
+    var posts = (s && s.posts && s.posts.length) ? s.posts.slice() : null;
     if (!posts) return '';
     var isX = platform === 'twitter' || platform === 'x';
-    var title = isX ? 'Tes derniers tweets' : 'Tes derniers posts';
+    var word = isX ? 'tweets' : 'posts';
+    // Score de perf = vues + j'aime pondérés. S'il y a de vraies perfs, on met les MEILLEURS en premier
+    // (« qui ont le mieux marché ») ; sinon on garde l'ordre récent.
+    var hasPerf = posts.some(function(p){ return (Number(p.views)||0) > 0 || (Number(p.likes)||0) > 0; });
+    if (hasPerf) {
+      posts.sort(function(a,b){
+        var sa = (Number(a.views)||0) + (Number(a.likes)||0) * 10;
+        var sb = (Number(b.views)||0) + (Number(b.likes)||0) * 10;
+        return sb - sa;
+      });
+    }
+    var title = hasPerf ? ('🔥 Tes ' + word + ' qui ont le mieux marché') : ('Tes derniers ' + word);
+    var sub = hasPerf ? 'Classés par performance — réplique ce qui marche.' : 'Ce que tu as publié récemment, avec leurs stats réelles.';
     var html = '<div class="home-sec-h">' + title + '</div>'
-      + '<div class="home-sec-sub">Ce que tu as publié récemment, avec leurs stats réelles.</div>'
+      + '<div class="home-sec-sub">' + sub + '</div>'
       + '<div class="pp-list">';
     posts.forEach(function(p){
       var txt = String(p.text || '').trim();

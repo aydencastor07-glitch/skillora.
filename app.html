@@ -539,6 +539,25 @@
   .pub-textentry .pte-txt b { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; }
   .pub-textentry .pte-txt small { color:var(--muted); font-size:.75rem; margin-top:2px; }
   .pub-textentry svg { color:var(--muted); flex:none; }
+  /* Composer post : zone image au premier plan + carte de note */
+  .pub-imgzone { display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center; border:1.5px dashed var(--border2); border-radius:14px; padding:22px 14px; margin-bottom:12px; cursor:pointer; background:rgba(47,123,255,0.04); transition:border-color .18s, background .18s; }
+  .pub-imgzone:hover { border-color:var(--blue); background:rgba(47,123,255,0.07); }
+  .pub-imgzone .piz-ic { font-size:1.7rem; }
+  .pub-imgzone .piz-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--white); }
+  .pub-imgzone .piz-s { font-size:.74rem; color:var(--muted); }
+  .ptg { background:rgba(8,14,30,0.6); border:1px solid var(--border2); border-radius:14px; padding:14px 15px; }
+  .ptg-top { display:flex; align-items:center; gap:13px; }
+  .ptg-note { font-family:'Fraunces',serif; font-weight:800; font-size:1.7rem; line-height:1; flex:none; }
+  .ptg-note small { font-size:.7rem; color:var(--muted); font-weight:600; }
+  .ptg-verd { font-size:.86rem; color:var(--white); line-height:1.4; }
+  .ptg-crits { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+  .ptg-crow { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:999px; padding:5px 11px; font-size:.76rem; color:var(--muted); }
+  .ptg-crow b { font-weight:800; }
+  .ptg-optim { margin-top:14px; padding-top:13px; border-top:1px solid var(--border); }
+  .ptg-lbl { font-family:'Sora',sans-serif; font-weight:700; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--green); margin-bottom:7px; }
+  .ptg-opt-txt { font-size:.9rem; line-height:1.55; color:#e9effb; white-space:pre-wrap; }
+  .ptg-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+  .ptg-tags span { font-size:.74rem; color:var(--blue-light); background:rgba(47,123,255,0.1); border-radius:999px; padding:3px 9px; }
   .cx-confirm-handle { font-family:'Fraunces',serif; font-weight:800; font-size:1.3rem; color:var(--blue-light); margin-bottom:14px; }
 
   /* Orbite de chargement */
@@ -2026,14 +2045,18 @@
     <div id="pubText" style="display:none;">
       <div class="pub-card">
         <div class="pub-ey">Ton post</div>
-        <p class="pub-hint2">Un post texte pour <b>X · Threads · Facebook</b> (pas de vidéo). Tu peux ajouter une image.</p>
-        <textarea id="pubTextArea" class="email-field" rows="5" placeholder="Quoi de neuf ? Écris ton post…" style="resize:none;margin:0;" oninput="pubTextSyncBtn()"></textarea>
+        <p class="pub-hint2">Pour <b>X · Threads · Facebook</b>. Ajoute une <b>image</b> + ton texte — Skillora le <b>note</b> et l'<b>optimise</b> avant publication.</p>
         <input type="file" id="pubTextImg" accept="image/*" style="display:none" onchange="pubTextPickImg(this)">
-        <button class="pub-mini" onclick="document.getElementById('pubTextImg').click()" style="margin-top:10px;">🖼️ Ajouter une image (option)</button>
-        <div id="pubTextImgPrev" style="display:none;position:relative;margin-top:10px;">
-          <img id="pubTextImgThumb" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;border:1px solid var(--border2);">
+        <div id="pubTextImgZone" class="pub-imgzone" onclick="document.getElementById('pubTextImg').click()">
+          <span class="piz-ic">🖼️</span><span class="piz-t">Ajouter une photo</span><span class="piz-s">recommandé pour un post qui marche</span>
+        </div>
+        <div id="pubTextImgPrev" style="display:none;position:relative;margin-bottom:12px;">
+          <img id="pubTextImgThumb" style="width:100%;max-height:240px;object-fit:cover;border-radius:12px;border:1px solid var(--border2);">
           <button type="button" onclick="pubTextClearImg()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:30px;height:30px;font-size:1rem;cursor:pointer;">✕</button>
         </div>
+        <textarea id="pubTextArea" class="email-field" rows="4" placeholder="Écris ton texte…" style="resize:none;margin:0;" oninput="pubTextSyncBtn()"></textarea>
+        <button class="pub-mini" id="pubTextAnalyzeBtn" onclick="pubTextAnalyze()" style="margin-top:12px;">✨ Noter &amp; optimiser mon post</button>
+        <div id="pubTextGrade" style="display:none;margin-top:14px;"></div>
       </div>
       <div class="pub-card">
         <div class="pub-ey">Où publier</div>
@@ -7296,6 +7319,7 @@
     document.getElementById('pubLoading').style.display = 'none';
     document.getElementById('pubResult').style.display = 'none';
     var t = document.getElementById('pubText'); if (t) t.style.display = 'block';
+    var g = document.getElementById('pubTextGrade'); if (g) { g.style.display = 'none'; g.innerHTML = ''; }
     pubTextRenderPlats();
     pubTextSetWhen(pubTextWhen);
     window.scrollTo(0, 0);
@@ -7343,12 +7367,72 @@
     pubTextImgUrl = URL.createObjectURL(f);
     var prev = document.getElementById('pubTextImgPrev'), th = document.getElementById('pubTextImgThumb');
     if (th) th.src = pubTextImgUrl; if (prev) prev.style.display = 'block';
+    var z = document.getElementById('pubTextImgZone'); if (z) z.style.display = 'none';
   }
   function pubTextClearImg() {
     pubTextImgFile = null;
     if (pubTextImgUrl) { try { URL.revokeObjectURL(pubTextImgUrl); } catch (e) {} pubTextImgUrl = null; }
     var fi = document.getElementById('pubTextImg'); if (fi) fi.value = '';
     var prev = document.getElementById('pubTextImgPrev'); if (prev) prev.style.display = 'none';
+    var z = document.getElementById('pubTextImgZone'); if (z) z.style.display = 'flex';
+  }
+  // Lit un fichier image en base64 (sans le préfixe data:).
+  function pubFileToB64(file) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () { var s = String(r.result || ''); var i = s.indexOf(','); res(i >= 0 ? s.slice(i + 1) : s); };
+      r.onerror = rej; r.readAsDataURL(file);
+    });
+  }
+  var PUB_MARKS = /[​‌‍⁠⁡⁢⁣⁤﻿͏⁦]/g;
+  // Note + optimise le post (image + texte) via analyze-script.
+  async function pubTextAnalyze() {
+    var txt = (document.getElementById('pubTextArea').value || '').trim();
+    if (!txt && !pubTextImgFile) { skModal({ icon: '✍️', title: 'Ajoute du contenu', message: 'Écris un texte ou ajoute une image à analyser.', cancelText: 'OK' }); return; }
+    var b = document.getElementById('pubTextAnalyzeBtn'); var old = b ? b.textContent : '';
+    if (b) { b.textContent = '⏳ Analyse de ton post…'; b.disabled = true; }
+    try {
+      var img = null;
+      if (pubTextImgFile) { try { img = await pubFileToB64(pubTextImgFile); } catch (e) {} }
+      var sess = null; try { sess = (await sb.auth.getSession()).data.session; } catch (e) {}
+      var tok = (sess && sess.access_token) ? sess.access_token : SB_KEY;
+      var res = await fetch(SB_URL + '/functions/v1/analyze-script', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok, 'apikey': SB_KEY },
+        body: JSON.stringify({ script: txt, platform: 'instagram_post', duration: 0, goal: "maximiser l'engagement", niche: '', account: '', image: img, imageType: (pubTextImgFile && pubTextImgFile.type) || 'image/jpeg' })
+      });
+      var d = await res.json();
+      if (b) { b.textContent = old; b.disabled = false; }
+      if (d && d.limit_reached) { skModal({ icon: '🚀', title: 'Limite atteinte', message: 'Tu as atteint ta limite d\'analyses aujourd\'hui. Reviens demain ou passe à un plan supérieur.', cancelText: 'OK' }); return; }
+      if (d && d.success && d.analysis) { pubTextRenderGrade(d.analysis); }
+      else { skModal({ icon: '⚠️', title: 'Analyse échouée', message: (d && d.error) || 'Réessaie dans un instant.', cancelText: 'OK' }); }
+    } catch (e) { if (b) { b.textContent = old; b.disabled = false; } skModal({ icon: '⚠️', title: 'Erreur', message: 'Connexion impossible. Réessaie.', cancelText: 'OK' }); }
+  }
+  function pubTextRenderGrade(a) {
+    var box = document.getElementById('pubTextGrade'); if (!box) return;
+    var note = Number(a.note) || 0;
+    var col = note >= 7.5 ? '#3ddc84' : (note >= 5 ? '#ff9f4a' : '#ff6b4a');
+    var v = (a.versions && a.versions[0]) || null;
+    var optim = v ? String(v.script || '').replace(PUB_MARKS, '').trim() : '';
+    var tags = (a.hashtags || []).map(function (t) { return '#' + String(t).replace(/^#/, ''); });
+    window._pubOptim = v ? (v.script || '') : '';
+    window._pubOptimTags = tags.join(' ');
+    var crit = (a.criteres || []).map(function (c) {
+      var s = Number(c.score) || 0; var cc = s >= 7.5 ? '#3ddc84' : (s >= 5 ? '#ff9f4a' : '#ff6b4a');
+      return '<div class="ptg-crow"><span>' + escapeHtml(c.nom) + '</span><b style="color:' + cc + '">' + s + '</b></div>';
+    }).join('');
+    box.innerHTML = '<div class="ptg">' +
+      '<div class="ptg-top"><div class="ptg-note" style="color:' + col + '">' + note.toFixed(1) + '<small>/10</small></div><div class="ptg-verd">' + escapeHtml(a.verdict || '') + '</div></div>' +
+      (crit ? '<div class="ptg-crits">' + crit + '</div>' : '') +
+      (optim ? '<div class="ptg-optim"><div class="ptg-lbl">✨ Version optimisée</div><div class="ptg-opt-txt">' + escapeHtml(optim) + '</div>' + (tags.length ? '<div class="ptg-tags">' + tags.map(function (t) { return '<span>' + escapeHtml(t) + '</span>'; }).join('') + '</div>' : '') + '<button class="pub-mini" onclick="pubTextApplyOptim()" style="margin-top:11px;">✅ Appliquer cette version</button></div>' : '') +
+      '</div>';
+    box.style.display = 'block';
+  }
+  function pubTextApplyOptim() {
+    var ta = document.getElementById('pubTextArea');
+    if (ta && window._pubOptim) ta.value = window._pubOptim + (window._pubOptimTags ? '\n\n' + window._pubOptimTags : '');
+    pubTextSyncBtn();
+    pubToast('Version optimisée appliquée ✅');
   }
   // Prochaine heure de forte audience (~19h locale) en ISO, pour « au bon moment ».
   function pubNextPeakISO() {

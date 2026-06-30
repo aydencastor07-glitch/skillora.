@@ -97,7 +97,11 @@ serve(async (req) => {
     // image produit optionnelle (base64) pour TikTok Shop
     const image = body.image || null;
     const imageType = body.imageType || "image/jpeg";
-    const hasImage = !!(image && platform === "tiktok_shop");
+    // Image acceptée pour TikTok Shop ET pour les posts (X / Threads / Facebook / Instagram).
+    const POST_PLATS = ["instagram_post", "post"];
+    const isShop = platform === "tiktok_shop";
+    const isPost = POST_PLATS.indexOf(platform) >= 0;
+    const hasImage = !!(image && (isShop || isPost));
     const scriptText = (script || "").trim();
     // Pour TikTok Shop avec image, le script peut etre vide (on genere depuis l'image)
     if (!hasImage && scriptText.length < 5) {
@@ -223,10 +227,12 @@ Reponds UNIQUEMENT en JSON valide strict :
 Produis EXACTEMENT 1 version complete ; le SCRIPT fait la LONGUEUR demandee (duree cible), riche et detaille, et se TERMINE par une fin forte (la meme que le champ "cta"). MAIS garde les champs d'ANALYSE TRES COURTS pour rester dans un JSON VALIDE et complet : verdict max 25 mots ; chaque point de ce_qui_marche et a_eviter max 12 mots (2 points chacun) ; montage = 3 etapes ultra-courtes. Termine TOUJOURS le JSON. Script VIVANT, formules appliquees. Francais parle.`;
 
     // PARTIE VARIABLE (change a chaque appel, petite, non cachee)
-    const imageInstr = hasImage ? `\nPRODUIT EN IMAGE : une image de produit TikTok Shop est fournie. 1) Identifie le produit (nom court et concret, max 5 mots). 2) Ecris un script de VENTE : accroche sur le probleme resolu, demo en action, preuve sociale, urgence/FOMO, CTA panier orange.
+    const shopInstr = `\nPRODUIT EN IMAGE : une image de produit TikTok Shop est fournie. 1) Identifie le produit (nom court et concret, max 5 mots). 2) Ecris un script de VENTE : accroche sur le probleme resolu, demo en action, preuve sociale, urgence/FOMO, CTA panier orange.
 REMPLIS le champ "produit" du JSON avec EXACTEMENT cette structure :
 "produit":{"nom":"<nom court du produit>","potentiel_vente":"<Fort|Moyen|Faible>","concurrence":"<Peu exploite|Equilibre|Sature>","angle":"<1 phrase: l'angle de vente le plus malin pour se demarquer>"}
-REGLES DE STYLE pour "produit" : ultra concis, percutant, comme un expert e-commerce qui parle a un ami. PAS de blabla, PAS de phrases d'IA generiques. Direct, concret, premium. "potentiel_vente" et "concurrence" = UN SEUL mot de la liste. "angle" = une seule phrase courte et actionnable.` : "";
+REGLES DE STYLE pour "produit" : ultra concis, percutant, comme un expert e-commerce qui parle a un ami. PAS de blabla, PAS de phrases d'IA generiques. Direct, concret, premium. "potentiel_vente" et "concurrence" = UN SEUL mot de la liste. "angle" = une seule phrase courte et actionnable.`;
+    const postInstr = `\nPOST AVEC IMAGE (X / Threads / Facebook / Instagram). Une image accompagne ce post. 1) Regarde l'IMAGE et le texte ensemble. 2) NOTE le post de depart (accroche dans la 1ere ligne, clarte, emotion, appel a reagir) — sois juste et severe. 3) Reecris une version OPTIMISEE : le champ "script" = une LEGENDE de post (PAS un long script video), courte et percutante (2 a 5 phrases), qui COLLE a l'image et donne envie de liker/commenter/partager ; "cta" = la derniere phrase qui declenche la reaction ; "hashtags" = pertinents pour le sujet de l'image. Reste humain, naturel, jamais robotique. Laisse "produit" a null.`;
+    const imageInstr = hasImage ? (isShop ? shopInstr : postInstr) : "";
     const SYSTEM_VARIABLE = `CONTEXTE DE CETTE ANALYSE :
 ${rules}
 ${accountLine}
@@ -240,9 +246,11 @@ DUREE CIBLE : ${duration}s (~${targetWords} mots pour le script). Ecris un scrip
       const parts: any[] = [];
       parts.push({ type: "image", source: { type: "base64", media_type: imageType, data: image } });
       if (scriptText) {
-        parts.push({ type: "text", text: "Voici aussi des notes/script de depart :\n" + scriptClean });
+        parts.push({ type: "text", text: (isShop ? "Voici aussi des notes/script de depart :\n" : "Texte du post de depart a noter :\n") + scriptClean });
       } else {
-        parts.push({ type: "text", text: "Genere le script de vente a partir de ce produit (pas de script de depart fourni). Note le 'script original' comme inexistant : mets des scores bas et explique qu'il n'y avait pas encore de script." });
+        parts.push({ type: "text", text: isShop
+          ? "Genere le script de vente a partir de ce produit (pas de script de depart fourni). Note le 'script original' comme inexistant : mets des scores bas et explique qu'il n'y avait pas encore de script."
+          : "Pas de texte fourni : propose une legende a partir de l'image, et note le post de depart comme tres faible (texte absent)." });
       }
       userContent = parts;
     } else {

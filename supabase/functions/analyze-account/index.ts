@@ -514,6 +514,7 @@ async function analyzeTwitter(handle, key) {
   // 2e appel (1 crédit) : endpoint OFFICIEL user-tweets-all (avec le rest_id). Les vues sont à
   // entries[].content.itemContent.tweet_results.result.views.count (réf. docs SociaVault).
   let totalViews = 0, likesRecv = 0, fetched = 0;
+  const posts = [];
   try {
     const tr = /^\d+$/.test(restId)
       ? await svGet(`/twitter/user-tweets-all?user_id=${encodeURIComponent(restId)}`, key)
@@ -527,9 +528,26 @@ async function analyzeTwitter(handle, key) {
       const t = res?.tweet ?? res;
       if (!t || typeof t !== "object") continue;
       const tl = t.legacy ?? {};
-      totalViews += svNum(t.views?.count, t.ext_views?.count, tl.ext_views?.count) || deepViewCount(t);
-      likesRecv += svNum(tl.favorite_count, tl.favourite_count, t.favorite_count);
+      const v = svNum(t.views?.count, t.ext_views?.count, tl.ext_views?.count) || deepViewCount(t);
+      const lk = svNum(tl.favorite_count, tl.favourite_count, t.favorite_count);
+      totalViews += v;
+      likesRecv += lk;
       fetched++;
+      // Texte du tweet (full_text complet si dispo) + média éventuel pour la vignette.
+      const txt = String(tl.full_text ?? t.full_text ?? tl.text ?? t.text ?? "").replace(/https:\/\/t\.co\/\w+/g, "").trim();
+      const idStr = String(tl.id_str ?? t.rest_id ?? t.id_str ?? "");
+      const media = tl.entities?.media?.[0] ?? tl.extended_entities?.media?.[0] ?? null;
+      posts.push({
+        id: idStr,
+        text: txt,
+        views: v,
+        likes: lk,
+        comments: svNum(tl.reply_count, t.reply_count),
+        shares: svNum(tl.retweet_count, t.retweet_count),
+        created_at: String(tl.created_at ?? t.created_at ?? ""),
+        url: idStr ? `https://twitter.com/${screen}/status/${idStr}` : "",
+        cover: media ? String(media.media_url_https ?? media.media_url ?? "") : "",
+      });
     }
     // Repli : ancienne structure plate (au cas où l'endpoint renvoie autre chose).
     if (!fetched) {
@@ -539,6 +557,8 @@ async function analyzeTwitter(handle, key) {
       for (const t of arr) { if (!t || typeof t !== "object") continue; const tl = t.legacy ?? t; totalViews += deepViewCount(t); likesRecv += svNum(tl.favorite_count, tl.favourite_count, t.favorite_count); fetched++; }
     }
   } catch (_e) { /* l'appel tweets a échoué -> on garde au moins le profil (abonnés) */ }
+  // Garde les plus récents tels quels (l'API les renvoie déjà chronologiquement), 12 max pour l'affichage.
+  posts.splice(12);
 
   const stats = [{ label: "Abonnés", value: followers }];
   if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });
@@ -547,8 +567,13 @@ async function analyzeTwitter(handle, key) {
   const summary = socialSummary({ platform: "twitter", audience: followers, totalPublished: tweetsCount || fetched, nickname, handle: screen, avatar, following, totalLikes: likesRecv, bio, stats });
   // Stats EXISTANTES affichées dès la connexion (la courbe, elle, monte avec les vues futures).
   summary.total_views = totalViews;
+  summary.total_likes = likesRecv;
   summary.avg_views = fetched > 0 ? Math.round(totalViews / fetched) : 0;
-  summary.avg_engagement_rate = totalViews > 0 ? Math.round((likesRecv / totalViews) * 1000) / 10 : 0;
+  // Engagement X = (likes + RT + réponses) / vues. Si pas de vues, on retombe sur likes/abonnés.
+  const engBase = totalViews > 0 ? totalViews : followers;
+  summary.avg_engagement_rate = engBase > 0 ? Math.round((likesRecv / engBase) * 1000) / 10 : 0;
+  summary.posts = posts;          // liste des tweets pour l'affichage « Tes derniers tweets »
+  summary.primary_metric = "likes"; // X met en avant les J'aime (la « vue » est secondaire)
   return { rawData: { followers, total_published: tweetsCount, total_views: totalViews, fetched, profile_only: true }, summary };
 }
 async function analyzeThreads(handle, key) {
@@ -564,6 +589,7 @@ async function analyzeThreads(handle, key) {
 
   // Posts (~20-30, ~1 crédit) -> J'aime (engagement) + vues SI la liste les expose.
   let totalViews = 0, totalLikes = 0, postCount = 0;
+  const tposts = [];
   try {
     const pr = await svGet(`/threads/user-posts?handle=${encodeURIComponent(cleanH)}`, key);
     const pd = pr.data ?? pr;
@@ -571,11 +597,25 @@ async function analyzeThreads(handle, key) {
     const arr = Array.isArray(posts) ? posts : Object.values(posts ?? {});
     for (const p of arr) {
       if (!p || typeof p !== "object") continue;
-      totalViews += svNum(p.view_counts, p.view_count, p.views);
-      totalLikes += svNum(p.like_count, p.likes);
+      const v = svNum(p.view_counts, p.view_count, p.views);
+      const lk = svNum(p.like_count, p.likes);
+      totalViews += v;
+      totalLikes += lk;
       postCount++;
+      const cap = p.caption ?? p.text ?? p.body;
+      const txt = String((cap && typeof cap === "object" ? (cap.text ?? "") : cap) ?? "").trim();
+      const code = String(p.code ?? p.shortcode ?? p.pk ?? p.id ?? "");
+      tposts.push({
+        id: code, text: txt, views: v, likes: lk,
+        comments: svNum(p.reply_count, p.comment_count, p.comments),
+        shares: svNum(p.repost_count, p.reshare_count),
+        created_at: String(p.taken_at ?? p.created_at ?? ""),
+        url: code ? `https://www.threads.net/@${screen}/post/${code}` : "",
+        cover: String(p.thumbnail_url ?? p.image_url ?? ""),
+      });
     }
   } catch (_e) { /* garde au moins le profil (abonnés) */ }
+  tposts.splice(12);
 
   const stats = [{ label: "Abonnés", value: followers }];
   if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });
@@ -583,8 +623,12 @@ async function analyzeThreads(handle, key) {
   if (totalLikes > 0) stats.push({ label: "J'aime", value: totalLikes });
   const summary = socialSummary({ platform: "threads", audience: followers, totalPublished: postCount, nickname, handle: screen, avatar, totalLikes, bio, stats });
   summary.total_views = totalViews;
+  summary.total_likes = totalLikes;
   summary.avg_views = postCount > 0 ? Math.round(totalViews / postCount) : 0;
-  summary.avg_engagement_rate = totalViews > 0 ? Math.round((totalLikes / totalViews) * 1000) / 10 : 0;
+  const tEngBase = totalViews > 0 ? totalViews : followers;
+  summary.avg_engagement_rate = tEngBase > 0 ? Math.round((totalLikes / tEngBase) * 1000) / 10 : 0;
+  summary.posts = tposts;
+  summary.primary_metric = "likes";
   return { rawData: { followers, total_views: totalViews, posts: postCount, profile_only: true }, summary };
 }
 async function analyzeFacebook(handle, key) {

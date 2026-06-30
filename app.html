@@ -320,6 +320,16 @@
   .home-sec-h { font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; color:var(--white); margin:18px 0 10px; }
   .home-rv { display:flex; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px; margin-bottom:9px; }
   .home-rv-thumb { width:48px; height:64px; flex:0 0 auto; border-radius:9px; background-size:cover; background-position:center; background-color:var(--surface2); }
+  .pp-list { display:flex; flex-direction:column; gap:9px; margin-bottom:8px; }
+  .pp-link { text-decoration:none; color:inherit; display:block; }
+  .pp-item { display:flex; gap:11px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px; transition:border-color .15s; }
+  .pp-link:active .pp-item { transform:scale(0.99); }
+  .pp-thumb { width:52px; height:52px; flex:0 0 auto; border-radius:10px; background-size:cover; background-position:center; background-color:var(--surface2); }
+  .pp-body { flex:1; min-width:0; }
+  .pp-text { font-size:.86rem; color:var(--white); line-height:1.4; white-space:pre-wrap; word-break:break-word; }
+  .pp-text.pp-empty { color:var(--muted); font-style:italic; }
+  .pp-stats { display:flex; flex-wrap:wrap; gap:10px; font-size:.76rem; color:var(--muted); margin-top:7px; }
+  .pp-when { color:var(--muted); opacity:.8; }
   .home-rv-body { flex:1; min-width:0; }
   .home-rv-desc { font-size:.84rem; color:var(--white); line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; }
   .home-rv-stats { font-size:.74rem; color:var(--muted); margin:4px 0 6px; }
@@ -3235,7 +3245,8 @@
         return homeProfileCard(platform, prof, s, username)
           + (emptyAcc ? '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.86rem;line-height:1.5;">Ce compte ' + escapeHtml(pubPlatLabel(platform)) + ' n\'a pas encore d\'abonnés. Tes chiffres grimperont ici dès qu\'il décolle. 🚀</div>' : '')
           + (hasViews ? renderGrowthGraph(s, platform, username) + homeStatsMetaOnly(s, s.insights)
-                      : homeStatsPlaceholder(s, s.insights));
+                      : homeStatsPlaceholder(s, s.insights))
+          + renderProfilePosts(s, platform);
       }
 
       // Stats VIDÉO réellement récupérées ? (l'audience seule ne suffit pas : il faut les vidéos)
@@ -3945,9 +3956,15 @@
     var eng = Number(s.avg_engagement_rate) || 0;
     var niche = (ins.niche && String(ins.niche).trim()) ? escapeHtml(ins.niche) : 'Inconnue pour l\'instant';
     var ctype = (ins.content_type && String(ins.content_type).trim()) ? escapeHtml(ins.content_type) : '—';
+    // X / Threads mettent en avant les J'aime (la « vue » y est secondaire/absente).
+    var likesFirst = (s.primary_metric === 'likes');
+    var tl = Number(s.total_likes) || 0;
+    var firstCard = likesFirst
+      ? '<div class="home-meta"><div class="home-meta-l">J\'aime reçus</div><div class="home-meta-v' + (tl?'':' ph') + '">' + (tl?fmtNum(tl):'—') + '</div></div>'
+      : '<div class="home-meta"><div class="home-meta-l">Vues totales</div><div class="home-meta-v' + (tv?'':' ph') + '">' + (tv?fmtNum(tv):'—') + '</div></div>';
     return ''
       + '<div class="home-meta-grid">'
-      +   '<div class="home-meta"><div class="home-meta-l">Vues totales</div><div class="home-meta-v' + (tv?'':' ph') + '">' + (tv?fmtNum(tv):'—') + '</div></div>'
+      +   firstCard
       +   '<div class="home-meta"><div class="home-meta-l">Engagement moyen</div><div class="home-meta-v' + (eng?'':' ph') + '">' + (eng?(eng+'%'):'—') + '</div></div>'
       + '</div>'
       + '<div class="home-meta-grid">'
@@ -3963,6 +3980,47 @@
       +   '<div class="home-graph-note">Ta courbe de vues apparaîtra ici dès que tu publieras — elle montera jour après jour.</div>'
       + '</div>'
       + homeStatsMetaOnly(s, ins);
+  }
+  // Liste « Tes derniers tweets / posts » pour X / Threads (et tout profile_only qui expose s.posts).
+  function renderProfilePosts(s, platform){
+    var posts = (s && s.posts && s.posts.length) ? s.posts : null;
+    if (!posts) return '';
+    var isX = platform === 'twitter' || platform === 'x';
+    var title = isX ? 'Tes derniers tweets' : 'Tes derniers posts';
+    var html = '<div class="home-sec-h">' + title + '</div>'
+      + '<div class="home-sec-sub">Ce que tu as publié récemment, avec leurs stats réelles.</div>'
+      + '<div class="pp-list">';
+    posts.forEach(function(p){
+      var txt = String(p.text || '').trim();
+      if (txt.length > 220) txt = txt.slice(0, 220) + '…';
+      var views = Number(p.views) || 0, likes = Number(p.likes) || 0, comments = Number(p.comments) || 0, shares = Number(p.shares) || 0;
+      var when = ppTimeAgo(p.created_at);
+      var thumb = p.cover ? '<div class="pp-thumb" style="background-image:url(\'' + String(p.cover).replace(/'/g,'') + '\')"></div>' : '';
+      var stats = [];
+      if (views) stats.push('<span>👁 ' + fmtNum(views) + '</span>');
+      stats.push('<span>❤️ ' + fmtNum(likes) + '</span>');
+      if (comments) stats.push('<span>💬 ' + fmtNum(comments) + '</span>');
+      if (shares) stats.push('<span>🔁 ' + fmtNum(shares) + '</span>');
+      var inner = '<div class="pp-body">'
+        + (txt ? '<div class="pp-text">' + escapeHtml(txt) + '</div>' : '<div class="pp-text pp-empty">(média sans texte)</div>')
+        + '<div class="pp-stats">' + stats.join('') + (when ? '<span class="pp-when">· ' + when + '</span>' : '') + '</div>'
+      + '</div>';
+      var card = '<div class="pp-item">' + thumb + inner + '</div>';
+      html += p.url ? '<a class="pp-link" href="' + String(p.url).replace(/"/g,'') + '" target="_blank" rel="noopener">' + card + '</a>' : card;
+    });
+    html += '</div>';
+    return html;
+  }
+  function ppTimeAgo(s){
+    if (!s) return '';
+    var d = new Date(s); var t = d.getTime();
+    if (!t || isNaN(t)) return '';
+    var diff = Math.floor((Date.now() - t) / 1000);
+    if (diff < 60) return 'à l\'instant';
+    if (diff < 3600) return Math.floor(diff/60) + ' min';
+    if (diff < 86400) return Math.floor(diff/3600) + ' h';
+    if (diff < 2592000) return Math.floor(diff/86400) + ' j';
+    return Math.floor(diff/2592000) + ' mois';
   }
   function renderGrowthGraph(s, plat, user) {
     // On filtre STRICTEMENT sur le compte (plateforme + pseudo) pour ne jamais mélanger.

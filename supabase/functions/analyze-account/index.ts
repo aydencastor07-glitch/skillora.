@@ -508,22 +508,35 @@ async function analyzeTwitter(handle, key) {
   const screen = core.screen_name ?? legacy.screen_name ?? u.screen_name ?? cleanH;
   const bio = legacy.description ?? u.description ?? "";
   const avatar = legacy.profile_image_url_https ?? u.profile_image_url_https ?? d.profile_image_url ?? deepFindAvatar(d);
+  // rest_id numérique du compte (requis par l'endpoint user-tweets-all).
+  const restId = String(u.rest_id ?? d.rest_id ?? d.result?.rest_id ?? d.data?.rest_id ?? legacy.id_str ?? u.id_str ?? d.id_str ?? "").trim();
 
-  // 2e appel (~1 crédit) : les tweets, pour les VUES (tweets[].views.count) + likes REÇUS.
-  // Twitter public expose ~100 tweets les plus POPULAIRES -> la somme des vues ≈ l'essentiel des vues du compte.
+  // 2e appel (1 crédit) : endpoint OFFICIEL user-tweets-all (avec le rest_id). Les vues sont à
+  // entries[].content.itemContent.tweet_results.result.views.count (réf. docs SociaVault).
   let totalViews = 0, likesRecv = 0, fetched = 0;
   try {
-    const tr = await svGet(`/twitter/user-tweets?handle=${encodeURIComponent(cleanH)}`, key);
+    const tr = /^\d+$/.test(restId)
+      ? await svGet(`/twitter/user-tweets-all?user_id=${encodeURIComponent(restId)}`, key)
+      : await svGet(`/twitter/user-tweets?handle=${encodeURIComponent(cleanH)}`, key);
     const td = tr.data ?? tr;
-    let tw = td.tweets ?? td.data?.tweets ?? td.result?.tweets ?? td.timeline ?? null;
-    let arr = Array.isArray(tw) ? tw : (tw && typeof tw === "object" ? Object.values(tw) : []);
-    if (!arr.length || typeof arr[0] !== "object") { arr = collectObjArray(td) || arr; }
-    for (const t of arr) {
+    const instr = td?.data?.result?.timeline?.instructions ?? td?.result?.timeline?.instructions ?? [];
+    let entries = [];
+    for (const ins of instr) { if (Array.isArray(ins?.entries)) entries = entries.concat(ins.entries); else if (ins?.entry) entries.push(ins.entry); }
+    for (const e of entries) {
+      const res = e?.content?.itemContent?.tweet_results?.result;
+      const t = res?.tweet ?? res;
       if (!t || typeof t !== "object") continue;
-      const tl = t.legacy ?? t;
-      totalViews += deepViewCount(t);   // trouve les vues où qu'elles soient dans le tweet
-      likesRecv += svNum(tl.favorite_count, tl.favourite_count, t.favorite_count, t.like_count, t.likes);
+      const tl = t.legacy ?? {};
+      totalViews += svNum(t.views?.count, t.ext_views?.count, tl.ext_views?.count) || deepViewCount(t);
+      likesRecv += svNum(tl.favorite_count, tl.favourite_count, t.favorite_count);
       fetched++;
+    }
+    // Repli : ancienne structure plate (au cas où l'endpoint renvoie autre chose).
+    if (!fetched) {
+      let tw = td.tweets ?? td.data?.tweets ?? null;
+      let arr = Array.isArray(tw) ? tw : (tw && typeof tw === "object" ? Object.values(tw) : []);
+      if (!arr.length || typeof arr[0] !== "object") arr = collectObjArray(td) || arr;
+      for (const t of arr) { if (!t || typeof t !== "object") continue; const tl = t.legacy ?? t; totalViews += deepViewCount(t); likesRecv += svNum(tl.favorite_count, tl.favourite_count, t.favorite_count); fetched++; }
     }
   } catch (_e) { /* l'appel tweets a échoué -> on garde au moins le profil (abonnés) */ }
 

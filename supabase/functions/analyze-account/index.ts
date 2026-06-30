@@ -511,11 +511,10 @@ async function analyzeTwitter(handle, key) {
 
   // 2e appel (~1 crédit) : les tweets, pour les VUES (tweets[].views.count) + likes REÇUS.
   // Twitter public expose ~100 tweets les plus POPULAIRES -> la somme des vues ≈ l'essentiel des vues du compte.
-  let totalViews = 0, likesRecv = 0, fetched = 0, debugRaw = "";
+  let totalViews = 0, likesRecv = 0, fetched = 0;
   try {
     const tr = await svGet(`/twitter/user-tweets?handle=${encodeURIComponent(cleanH)}`, key);
     const td = tr.data ?? tr;
-    debugRaw = (() => { try { return JSON.stringify(td).slice(0, 5000); } catch (_e) { return "stringify-failed"; } })();
     let tw = td.tweets ?? td.data?.tweets ?? td.result?.tweets ?? td.timeline ?? null;
     let arr = Array.isArray(tw) ? tw : (tw && typeof tw === "object" ? Object.values(tw) : []);
     if (!arr.length || typeof arr[0] !== "object") { arr = collectObjArray(td) || arr; }
@@ -526,7 +525,7 @@ async function analyzeTwitter(handle, key) {
       likesRecv += svNum(tl.favorite_count, tl.favourite_count, t.favorite_count, t.like_count, t.likes);
       fetched++;
     }
-  } catch (e) { debugRaw = "ERR:" + String(e); }
+  } catch (_e) { /* l'appel tweets a échoué -> on garde au moins le profil (abonnés) */ }
 
   const stats = [{ label: "Abonnés", value: followers }];
   if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });
@@ -537,7 +536,6 @@ async function analyzeTwitter(handle, key) {
   summary.total_views = totalViews;
   summary.avg_views = fetched > 0 ? Math.round(totalViews / fetched) : 0;
   summary.avg_engagement_rate = totalViews > 0 ? Math.round((likesRecv / totalViews) * 1000) / 10 : 0;
-  summary._debugTweets = debugRaw; summary._debugFetched = fetched; // TEMPORAIRE : structure brute X
   return { rawData: { followers, total_published: tweetsCount, total_views: totalViews, fetched, profile_only: true }, summary };
 }
 async function analyzeThreads(handle, key) {

@@ -1059,9 +1059,11 @@
   .np-cancel { width:100%; background:transparent; border:none; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.86rem; padding:12px; margin-top:6px; cursor:pointer; }
 
   /* Tag du profil actif dans l'analyse */
-  .analyze-tag-pro { display:flex; flex-direction:row; align-items:center; gap:10px; background:rgba(61,220,132,0.06); border:1px solid rgba(61,220,132,0.28); border-radius:11px; padding:12px 14px; }
-  .analyze-tag-v { font-family:'Sora',sans-serif; font-weight:600; font-size:.86rem; color:var(--white); }
-  .np-live-dot { width:8px; height:8px; border-radius:50%; background:var(--green); flex:0 0 auto; animation:liveDot 2s infinite; }
+  /* Petite pastille discrète : « pour quel compte on génère » (pas un gros bloc vert) */
+  .analyze-tag-pro { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:999px; padding:6px 13px 6px 10px; }
+  .analyze-tag-v { font-family:'Sora',sans-serif; font-weight:500; font-size:.78rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .analyze-tag-v b { color:var(--white); font-weight:700; }
+  .np-live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); flex:0 0 auto; box-shadow:0 0 0 3px rgba(61,220,132,0.14); animation:liveDot 2.4s infinite; }
   @keyframes liveDot { 0% { box-shadow:0 0 0 0 rgba(61,220,132,0.55); } 70% { box-shadow:0 0 0 9px rgba(61,220,132,0); } 100% { box-shadow:0 0 0 0 rgba(61,220,132,0); } }
   .dock-in { animation:dockIn .5s cubic-bezier(.2,.9,.3,1.2) both; }
   @keyframes dockIn { from { opacity:0; transform:translateY(-10px) scale(.95); } to { opacity:1; transform:none; } }
@@ -5541,7 +5543,7 @@
       else { ctx.style.display = 'none'; ctx.innerHTML = ''; }
     }
     var tagBox = document.getElementById('analyzeProfileTag');
-    if (tagBox) { tagBox.style.display='block'; tagBox.innerHTML = '<div class="analyze-tag-pro"><span class="np-live-dot"></span><span class="analyze-tag-v">@'+escapeHtml(a.username)+' · '+escapeHtml(nlabel)+'</span></div>'; }
+    if (tagBox) { tagBox.style.display='block'; tagBox.innerHTML = '<div class="analyze-tag-pro"><span class="np-live-dot"></span><span class="analyze-tag-v">Pour <b>@'+escapeHtml(a.username)+'</b> · '+escapeHtml(nlabel)+'</span></div>'; }
   }
 
   // Sélection de chip dans le formulaire de niche

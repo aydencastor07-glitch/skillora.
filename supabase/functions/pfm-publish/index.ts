@@ -46,23 +46,26 @@ Deno.serve(async (req) => {
     const scheduledAt: string | null = body.scheduled_at ? String(body.scheduled_at) : null;
 
     if (!platforms.length) return json({ success: false, error: "Aucune plateforme sélectionnée." }, 400);
-    if (!mediaUrl) return json({ success: false, error: "Vidéo manquante." }, 400);
+    // Vidéo OU post texte : il faut au moins une vidéo/image, ou du texte (pour X/Threads/Facebook).
+    if (!mediaUrl && !caption.trim()) return json({ success: false, error: "Post vide : ajoute une vidéo/image ou écris un texte." }, 400);
+    // Clé de comptage : l'URL média si présente, sinon le texte (un post = une publication).
+    const pubKey = mediaUrl || ("text:" + caption.trim());
 
     // ── LIMITE DE PUBLICATION MENSUELLE (anti-abus / maîtrise des coûts) ────────────
-    // On compte les VIDÉOS distinctes (par media_url) publiées ce mois civil — une même vidéo
-    // envoyée sur 3 réseaux = 1 publication. Les échecs ne comptent pas.
+    // On compte les publications DISTINCTES ce mois civil — une même vidéo/post envoyé(e)
+    // sur 3 réseaux = 1 publication. Les échecs ne comptent pas.
     const PUB_MONTH: Record<string, number> = { none: 5, starter: 60, growth: 150, elite: 400 };
     const { data: subRow } = await admin.from("subscriptions").select("plan,status").eq("user_id", userId).maybeSingle();
     const plan = String(subRow?.plan ?? "none").toLowerCase();
     const maxMonth = PUB_MONTH[plan] ?? PUB_MONTH.none;
     const monthStart = new Date(); monthStart.setUTCDate(1); monthStart.setUTCHours(0, 0, 0, 0);
     const { data: monthRows } = await admin.from("scheduled_posts")
-      .select("media_url,status").eq("user_id", userId).gte("created_at", monthStart.toISOString());
+      .select("media_url,caption,status").eq("user_id", userId).gte("created_at", monthStart.toISOString());
     const usedVideos = new Set((monthRows || [])
-      .filter((r: any) => String(r.status || "") !== "failed" && r.media_url)
-      .map((r: any) => r.media_url));
-    // Si la vidéo a déjà été publiée ce mois (re-publication même URL), on ne la recompte pas.
-    if (!unlimited && !usedVideos.has(mediaUrl) && usedVideos.size >= maxMonth) {
+      .filter((r: any) => String(r.status || "") !== "failed")
+      .map((r: any) => r.media_url || ("text:" + String(r.caption || "").trim())));
+    // Si déjà publié ce mois (même média ou même texte), on ne le recompte pas.
+    if (!unlimited && !usedVideos.has(pubKey) && usedVideos.size >= maxMonth) {
       return json({
         success: false, limit_reached: true, used: usedVideos.size, max: maxMonth, plan,
         error: `Tu as atteint ta limite de ${maxMonth} publications ce mois-ci. Passe à un plan supérieur pour en publier davantage.`,
@@ -85,8 +88,8 @@ Deno.serve(async (req) => {
     const payload: Record<string, unknown> = {
       caption,
       social_accounts: accountIds,
-      media: [{ url: mediaUrl }],
     };
+    if (mediaUrl) payload.media = [{ url: mediaUrl }]; // post texte = pas de média
     if (scheduledAt) payload.scheduled_at = scheduledAt;
 
     const r = await pfmFetch("/v1/social-posts", KEY, { method: "POST", body: JSON.stringify(payload) });

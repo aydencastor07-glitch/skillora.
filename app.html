@@ -528,6 +528,17 @@
   .cx-conn-x:active { transform:scale(.9); }
   .cx-limit { width:100%; font-size:.85rem; color:var(--muted); line-height:1.5; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:13px; }
   .cx-limit a { color:var(--blue-light); font-weight:600; cursor:pointer; text-decoration:underline; }
+  /* Entrée "post texte" sur la page Publier (X / Threads / Facebook) */
+  .pub-or { display:flex; align-items:center; gap:12px; margin:18px 2px; color:var(--muted2); font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; font-family:'Sora',sans-serif; font-weight:700; }
+  .pub-or::before, .pub-or::after { content:''; height:1px; background:var(--border); flex:1; }
+  .pub-textentry { display:flex; align-items:center; gap:12px; width:100%; background:rgba(255,255,255,0.035); border:1px solid var(--border); border-radius:14px; padding:13px 15px; color:var(--white); cursor:pointer; transition:border-color .18s, transform .12s; }
+  .pub-textentry:active { transform:scale(.99); }
+  .pub-textentry:hover { border-color:var(--blue); }
+  .pub-textentry .pte-ic { font-size:1.3rem; flex:none; }
+  .pub-textentry .pte-txt { flex:1; display:flex; flex-direction:column; line-height:1.25; text-align:left; }
+  .pub-textentry .pte-txt b { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; }
+  .pub-textentry .pte-txt small { color:var(--muted); font-size:.75rem; margin-top:2px; }
+  .pub-textentry svg { color:var(--muted); flex:none; }
   .cx-confirm-handle { font-family:'Fraunces',serif; font-weight:800; font-size:1.3rem; color:var(--blue-light); margin-bottom:14px; }
 
   /* Orbite de chargement */
@@ -2003,6 +2014,44 @@
         <div class="pub-up-btn">Choisir une vidéo</div>
       </div>
       <p class="pub-up-hint">Format vertical 9:16 conseillé · MP4 · jusqu'à 300 Mo</p>
+      <div class="pub-or"><span>ou</span></div>
+      <button class="pub-textentry" onclick="pubOpenText()">
+        <span class="pte-ic">✍️</span>
+        <span class="pte-txt"><b>Écrire un post texte</b><small>X · Threads · Facebook</small></span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+
+    <!-- ÉTAT POST TEXTE (X / Threads / Facebook) -->
+    <div id="pubText" style="display:none;">
+      <div class="pub-card">
+        <div class="pub-ey">Ton post</div>
+        <p class="pub-hint2">Un post texte pour <b>X · Threads · Facebook</b> (pas de vidéo). Tu peux ajouter une image.</p>
+        <textarea id="pubTextArea" class="email-field" rows="5" placeholder="Quoi de neuf ? Écris ton post…" style="resize:none;margin:0;" oninput="pubTextSyncBtn()"></textarea>
+        <input type="file" id="pubTextImg" accept="image/*" style="display:none" onchange="pubTextPickImg(this)">
+        <button class="pub-mini" onclick="document.getElementById('pubTextImg').click()" style="margin-top:10px;">🖼️ Ajouter une image (option)</button>
+        <div id="pubTextImgPrev" style="display:none;position:relative;margin-top:10px;">
+          <img id="pubTextImgThumb" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;border:1px solid var(--border2);">
+          <button type="button" onclick="pubTextClearImg()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:30px;height:30px;font-size:1rem;cursor:pointer;">✕</button>
+        </div>
+      </div>
+      <div class="pub-card">
+        <div class="pub-ey">Où publier</div>
+        <div class="pub-plats" id="pubTextPlatforms"></div>
+      </div>
+      <div class="pub-card">
+        <div class="pub-ey">Quand publier</div>
+        <div class="pub-when">
+          <button class="pub-opt on" id="pubTextWhenBest" onclick="pubTextSetWhen('best')">Au bon moment</button>
+          <button class="pub-opt" id="pubTextWhenNow" onclick="pubTextSetWhen('now')">Maintenant</button>
+        </div>
+        <p class="pub-besttime" id="pubTextWhenDesc">« Au bon moment » : on programme ton post à la prochaine heure de forte audience (≈ 19h).</p>
+      </div>
+      <button class="pub-publish" id="pubTextBtn" onclick="pubPublishText()">
+        <span class="pl">Publier le post</span>
+        <svg class="arr" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <button class="pub-mini" onclick="pubReset()" style="margin-top:10px;width:100%;">← Annuler</button>
     </div>
 
     <!-- ÉTAT ANALYSE -->
@@ -7232,7 +7281,118 @@
     var rv = document.getElementById('pubResVid'); if (rv) { try { rv.pause(); rv.removeAttribute('src'); rv.load(); } catch (e) {} }
     document.getElementById('pubLoading').style.display = 'none';
     document.getElementById('pubResult').style.display = 'none';
+    var pt = document.getElementById('pubText'); if (pt) pt.style.display = 'none';
     document.getElementById('pubZero').style.display = 'block';
+  }
+
+  /* ── POST TEXTE (X / Threads / Facebook) — détection auto par le contenu ── */
+  var TEXT_PLATS = ['x', 'threads', 'facebook'];
+  var pubTextSel = {};
+  var pubTextImgFile = null, pubTextImgUrl = null;
+  var pubTextWhen = 'best';
+
+  function pubOpenText() {
+    document.getElementById('pubZero').style.display = 'none';
+    document.getElementById('pubLoading').style.display = 'none';
+    document.getElementById('pubResult').style.display = 'none';
+    var t = document.getElementById('pubText'); if (t) t.style.display = 'block';
+    pubTextRenderPlats();
+    pubTextSetWhen(pubTextWhen);
+    window.scrollTo(0, 0);
+  }
+  function pubTextRenderPlats() {
+    var box = document.getElementById('pubTextPlatforms'); if (!box) return;
+    var conn = TEXT_PLATS.filter(function (k) { return !!(window.__connectedPlats && window.__connectedPlats[k]); });
+    if (!conn.length) {
+      box.innerHTML = '<div class="pub-noconn"><p>Connecte X, Threads ou Facebook pour publier un post texte.</p><button class="pub-connect-cta" onclick="pubOpenConnect()">+ Connecter un compte</button></div>';
+      pubTextSyncBtn(); return;
+    }
+    var check = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>';
+    box.innerHTML = conn.map(function (k) {
+      var p = PUB_PLATS.filter(function (x) { return x.key === k; })[0] || { key: k, name: k, bg: '#000' };
+      var info = (window.__connInfo && window.__connInfo[k]) || {};
+      var handle = (info.handle || info.name || '').toString().replace(/^@/, '');
+      var label = handle ? ('@' + handle) : (k === 'x' ? 'X' : p.name);
+      var sel = !!pubTextSel[k];
+      return '<div class="pub-plat"><div class="pub-ptile' + (sel ? ' sel' : '') + '" style="background:' + p.bg + ';" onclick="pubTextTogglePlat(\'' + k + '\')">' + pubPlatSVG(k, 22) + '<div class="pub-badge ' + (sel ? 'sel' : 'ok') + '">' + check + '</div></div><div class="pub-pname">' + label + '</div></div>';
+    }).join('');
+    pubTextSyncBtn();
+  }
+  function pubTextTogglePlat(k) { pubTextSel[k] = !pubTextSel[k]; pubTextRenderPlats(); }
+  function pubTextSyncBtn() {
+    var n = Object.keys(pubTextSel).filter(function (k) { return pubTextSel[k]; }).length;
+    var hasTxt = ((document.getElementById('pubTextArea') || {}).value || '').trim().length > 0;
+    var l = document.querySelector('#pubTextBtn .pl');
+    if (l) l.textContent = (!n) ? 'Choisis une plateforme' : (!hasTxt ? 'Écris ton post' : (pubTextWhen === 'now' ? 'Publier maintenant' : 'Publier au bon moment'));
+  }
+  function pubTextSetWhen(w) {
+    pubTextWhen = w;
+    var b = document.getElementById('pubTextWhenBest'), nn = document.getElementById('pubTextWhenNow');
+    if (b) b.classList.toggle('on', w === 'best');
+    if (nn) nn.classList.toggle('on', w === 'now');
+    var d = document.getElementById('pubTextWhenDesc');
+    if (d) d.innerHTML = (w === 'best') ? '« Au bon moment » : on programme ton post à la prochaine heure de forte audience (≈ 19h).' : 'Ton post sera publié <b>tout de suite</b>.';
+    pubTextSyncBtn();
+  }
+  function pubTextPickImg(input) {
+    var f = input.files && input.files[0]; if (!f) return;
+    if (!/^image\//.test(f.type)) { pubToast('Choisis une image'); input.value = ''; return; }
+    if (f.size > 20 * 1024 * 1024) { pubToast('Image trop lourde (max 20 Mo)'); input.value = ''; return; }
+    pubTextImgFile = f;
+    if (pubTextImgUrl) { try { URL.revokeObjectURL(pubTextImgUrl); } catch (e) {} }
+    pubTextImgUrl = URL.createObjectURL(f);
+    var prev = document.getElementById('pubTextImgPrev'), th = document.getElementById('pubTextImgThumb');
+    if (th) th.src = pubTextImgUrl; if (prev) prev.style.display = 'block';
+  }
+  function pubTextClearImg() {
+    pubTextImgFile = null;
+    if (pubTextImgUrl) { try { URL.revokeObjectURL(pubTextImgUrl); } catch (e) {} pubTextImgUrl = null; }
+    var fi = document.getElementById('pubTextImg'); if (fi) fi.value = '';
+    var prev = document.getElementById('pubTextImgPrev'); if (prev) prev.style.display = 'none';
+  }
+  // Prochaine heure de forte audience (~19h locale) en ISO, pour « au bon moment ».
+  function pubNextPeakISO() {
+    var d = new Date();
+    if (d.getHours() >= 19) d.setDate(d.getDate() + 1);
+    d.setHours(19, 0, 0, 0);
+    return d.toISOString();
+  }
+  async function pubPublishText() {
+    var sel = Object.keys(pubTextSel).filter(function (k) { return pubTextSel[k]; });
+    var txt = (document.getElementById('pubTextArea').value || '').trim();
+    if (!sel.length) { skModal({ icon: '📲', title: 'Choisis une plateforme', message: 'Sélectionne X, Threads ou Facebook pour ton post.', cancelText: 'OK' }); return; }
+    if (!txt) { skModal({ icon: '✍️', title: 'Écris ton post', message: 'Ton post est vide — écris quelque chose à publier.', cancelText: 'OK' }); return; }
+    var btn = document.getElementById('pubTextBtn'), lbl = btn && btn.querySelector('.pl');
+    if (lbl) lbl.textContent = '📤 Publication…'; if (btn) btn.disabled = true;
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'signup.html'; return; }
+      var uid = session.user.id;
+      var mediaUrl = null;
+      if (pubTextImgFile) {
+        var safe = (pubTextImgFile.name || 'image.jpg').replace(/[^A-Za-z0-9._-]/g, '_');
+        var path = uid + '/' + Date.now() + '_' + safe;
+        var up = await sb.storage.from('post-media').upload(path, pubTextImgFile, { contentType: pubTextImgFile.type || 'image/jpeg', upsert: false });
+        if (up.error) throw new Error('upload');
+        mediaUrl = sb.storage.from('post-media').getPublicUrl(path).data.publicUrl;
+      }
+      var sAt = (pubTextWhen === 'now') ? null : pubNextPeakISO();
+      var res = await fetch(SB_URL + '/functions/v1/pfm-publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token, 'apikey': SB_KEY },
+        body: JSON.stringify({ platforms: sel, media_url: mediaUrl, caption: txt, scheduled_at: sAt })
+      });
+      var d = await res.json().catch(function () { return {}; });
+      if (btn) btn.disabled = false; pubTextSyncBtn();
+      if (d && d.limit_reached) { pubShowLimitModal(d.used, d.max); return; }
+      if (d && d.success) {
+        skModal({ icon: '🎉', title: 'Post publié !', message: 'Ton post part sur <b>' + sel.map(function (k) { return pubPlatLabel(k); }).join(', ') + '</b>' + (sAt ? ' (au bon moment).' : '.'), cancelText: 'Super' });
+        pubTextClearImg(); document.getElementById('pubTextArea').value = ''; pubTextSel = {}; pubReset();
+        try { if (typeof loadHomeDashboard === 'function') loadHomeDashboard(); } catch (e) {}
+      } else {
+        skModal({ icon: '⚠️', title: 'Échec', message: (d && d.error) || 'La publication a échoué. Réessaie.', cancelText: 'OK' });
+      }
+    } catch (e) { if (btn) btn.disabled = false; pubTextSyncBtn(); skModal({ icon: '⚠️', title: 'Erreur', message: 'Connexion impossible. Réessaie.', cancelText: 'OK' }); }
   }
 
   // Limite de publication mensuelle (mêmes chiffres que le serveur) : 60 / 150 / 400 ; gratuit = 5.

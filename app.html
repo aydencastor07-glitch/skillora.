@@ -1243,10 +1243,11 @@
   .hero-card .script-doc2 { position:relative; background:rgba(8,14,30,0.65); border:1px solid var(--border2); border-radius:14px; padding:16px 15px; }
   .script-doc2 .sd-row { display:flex; gap:11px; align-items:flex-start; }
   .script-doc2 .sd-row + .sd-row { margin-top:13px; }
-  .script-doc2 .sd-gut { flex:0 0 46px; padding-top:4px; }
-  .script-doc2 .sd-tag { display:inline-flex; align-items:center; gap:5px; font-family:'Sora',sans-serif; font-size:.58rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+  .script-doc2 .sd-gut { flex:0 0 68px; padding-top:4px; }
+  .script-doc2 .sd-tag { display:inline-flex; align-items:center; gap:5px; font-family:'Sora',sans-serif; font-size:.56rem; font-weight:800; text-transform:uppercase; letter-spacing:.02em; white-space:nowrap; }
   .script-doc2 .sd-tag::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; flex:none; }
   .script-doc2 .sd-tag.hook { color:var(--green); }
+  .script-doc2 .sd-tag.reten { color:#9fb0d6; }
   .script-doc2 .sd-tag.cta { color:var(--blue-light); }
   .script-doc2 .sd-txt { flex:1; min-width:0; font-size:.95rem; line-height:1.62; color:#e9effb; white-space:pre-wrap; }
   /* Selecteur de plateformes (connexion Post for Me) */
@@ -6297,7 +6298,7 @@
         html += '<div class="script-doc2" id="' + vid + '">';
         if (hook || cta) {
           if (hook) html += '<div class="sd-row"><div class="sd-gut"><span class="sd-tag hook">Hook</span></div><div class="sd-txt">' + escapeHtml(hook) + '</div></div>';
-          if (body) html += '<div class="sd-row"><div class="sd-gut"></div><div class="sd-txt">' + escapeHtml(body).replace(/\n+/g,'<br>') + '</div></div>';
+          if (body) html += '<div class="sd-row"><div class="sd-gut"><span class="sd-tag reten">Rétention</span></div><div class="sd-txt">' + escapeHtml(body).replace(/\n+/g,'<br>') + '</div></div>';
           if (cta)  html += '<div class="sd-row"><div class="sd-gut"><span class="sd-tag cta">CTA</span></div><div class="sd-txt">' + escapeHtml(cta) + '</div></div>';
         } else {
           html += '<div class="sd-row"><div class="sd-txt">' + escapeHtml(full).replace(/\n+/g,'<br>') + '</div></div>';

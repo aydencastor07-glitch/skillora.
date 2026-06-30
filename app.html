@@ -3318,8 +3318,9 @@
       // Graphique d'évolution — seulement quand il y a de vraies stats (filtré sur CE compte)
       if (hasStats) html += '<div id="homeGraphWrap_' + refreshBtnId(platform, username) + '">' + renderGrowthGraph(s, platform, username) + '</div>';
 
-      // Invitation PERCUTANTE aux idées virales quotidiennes (la niche est connue ici).
-      if (hasStats && ins.niche) html += homeDailyGold(platform, username, ins.niche);
+      // Bannière « mine d'or » RETIRÉE temporairement (jugée pas assez pro) -> à retravailler avant
+      // de la réafficher. La fonction homeDailyGold reste définie pour la reprendre plus tard.
+      // if (hasStats && ins.niche) html += homeDailyGold(platform, username, ins.niche);
 
       // (Les idées du jour vivent désormais dans la bulle flottante 💡 — pas sur l'Accueil.)
       // (Le "potentiel viral" n'apparaît plus ici : il est réservé à chaque idée, dans la bulle.)
@@ -4154,27 +4155,39 @@
     }).join('') + '</div>';
     var W = 320, H = 120;
 
+    // « Hier » = UN SEUL jour -> rien à comparer entre plusieurs points, donc JAMAIS de courbe
+    // cliquable ici (une ligne à 2 points donnerait l'illusion fausse d'une tendance). On affiche
+    // juste le chiffre du jour, en gros, non interactif. La courbe multi-points n'apparaît qu'à
+    // partir de "7 jours" (plusieurs vrais jours à comparer = plusieurs points cliquables logiques).
+    if (pdays === 1) {
+      if (!gains.length) {
+        return '<div class="home-graph card aurora">' +
+          '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">En construction</span></div>' +
+          tabs +
+          '<div class="home-graph-canvas">' + auroraSvg(W, H, [0.2,0.3,0.28,0.45,0.4,0.6,0.55,0.75,0.7,0.9], '#3ddc84', true, null) + '</div>' +
+          '<div class="home-graph-note">Reviens demain : tes vues gagnées apparaîtront ici. La courbe se construit chaque jour.</div>' +
+        '</div>';
+      }
+      var lastGain = gains[gains.length-1].v;
+      var upH = lastGain > 0;
+      return '<div class="home-graph card aurora">' +
+        '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-diff ' + (upH?'up':'down') + '">' + (upH?'En hausse':'Stable') + '</span></div>' +
+        tabs +
+        '<div class="home-graph-stat"><span class="home-graph-stat-n">' + (lastGain>0?'+':'') + fmtNum(lastGain) + '</span><span class="home-graph-stat-l">vues gagnées depuis hier</span></div>' +
+      '</div>';
+    }
+
     var cutoff = localDateStr(new Date(Date.now() - pdays*864e5));
     var view = gains.filter(function(x){ return x.d >= cutoff; });
     var totalGained = view.reduce(function(a,b){ return a + b.v; }, 0);
 
     // Il faut au moins 2 jours de gains pour tracer une courbe.
     if (view.length < 2) {
-      // S'il y a déjà 1 jour de gain, on affiche le chiffre HONNÊTE (souvent 0) au lieu d'une fausse courbe.
-      if (gains.length >= 1) {
-        var lastGain = gains[gains.length-1].v;
-        return '<div class="home-graph card aurora">' +
-          '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">En construction</span></div>' +
-          tabs +
-          '<div class="home-graph-stat"><span class="home-graph-stat-n">' + (lastGain>0?'+':'') + fmtNum(lastGain) + '</span><span class="home-graph-stat-l">vues gagnées depuis hier</span></div>' +
-          '<div class="home-graph-note">La courbe complète apparaît après quelques jours de relevés. On enregistre tes vues chaque jour automatiquement.</div>' +
-        '</div>';
-      }
       return '<div class="home-graph card aurora">' +
         '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">En construction</span></div>' +
         tabs +
         '<div class="home-graph-canvas">' + auroraSvg(W, H, [0.2,0.3,0.28,0.45,0.4,0.6,0.55,0.75,0.7,0.9], '#3ddc84', true, null) + '</div>' +
-        '<div class="home-graph-note">Reviens demain : tes vues gagnées apparaîtront ici. La courbe se construit chaque jour.</div>' +
+        '<div class="home-graph-note">La courbe complète apparaît après quelques jours de relevés. On enregistre tes vues chaque jour automatiquement.</div>' +
       '</div>';
     }
 
@@ -4184,8 +4197,9 @@
     var run = 0;
     var cum = view.map(function(p){ run += p.v; return { d: p.d, v: run }; });
     var maxC = run || 1;
-    // On démarre à 0 (début de période) puis la courbe grimpe.
-    var series = [{ d: (cum[0] ? cum[0].d : ''), v: 0 }].concat(cum);
+    // Point 0 de départ = purement visuel (forme la courbe qui "part du bas"), SANS date -> non
+    // cliquable (sinon il affichait une fausse date dupliquée avec "0 vue", confus pour l'utilisateur).
+    var series = [{ d: null, v: 0 }].concat(cum);
     var norm = series.map(function(p){ return p.v / maxC; });
     var up = totalGained > 0;
     var color = up ? '#3ddc84' : '#8b9bc4';
@@ -4205,8 +4219,11 @@
   function auroraSvg(W, H, norm, color, dashed, data) {
     var n = norm.length;
     var pad = 10;
+    // Marge HORIZONTALE : sans elle, le 1er et le dernier point sont collés pile au bord du graphique
+    // -> zone tactile à moitié coupée par la carte, très dur à toucher pile sur le dernier point.
+    var padX = (data && !dashed) ? 14 : 0;
     var coords = norm.map(function(t, i){
-      var x = (i / (n - 1)) * W;
+      var x = padX + (i / (n - 1)) * (W - padX*2);
       var y = H - pad - t * (H - pad*2);
       return [x, y];
     });
@@ -4242,10 +4259,12 @@
         if(!data||dashed) return '';
         var s='';
         coords.forEach(function(c,i){
-          var pt=data[i]; if(!pt) return;
-          // point visible + grande zone tactile transparente par-dessus
-          s+='<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.6" fill="'+color+'" opacity="0.85"/>';
-          s+='<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="13" fill="transparent" style="cursor:pointer" onclick="showGraphPoint(\''+pt.d+'\','+pt.v+',this)" ontouchend="showGraphPoint(\''+pt.d+'\','+pt.v+',this)"/>';
+          var pt=data[i];
+          // pas de date (ex: point 0 synthétique de départ) -> purement décoratif, pas cliquable.
+          if(!pt || pt.d == null) return;
+          // point visible (anneau, plus "pro" qu'un simple disque) + grande zone tactile par-dessus.
+          s+='<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="4" fill="#0c1424" stroke="'+color+'" stroke-width="2.2"/>';
+          s+='<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="16" fill="transparent" style="cursor:pointer" onclick="showGraphPoint(\''+pt.d+'\','+pt.v+',this)" ontouchend="showGraphPoint(\''+pt.d+'\','+pt.v+',this)"/>';
         });
         return s;
       })() +

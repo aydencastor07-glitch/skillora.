@@ -290,7 +290,7 @@
   .home-car-h { font-size:.62rem; font-weight:600; color:#cdd8ef; max-width:62px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .home-car-chip.on .home-car-h { color:#fff; }
   /* Rail de pages (vrai carrousel : on glisse une page entière) */
-  .home-car-track { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
+  .home-car-track { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
   .home-car-track::-webkit-scrollbar { display:none; height:0; }
   .home-car-page { flex:0 0 100%; width:100%; min-width:100%; scroll-snap-align:start; scroll-snap-stop:always; }
 
@@ -2919,7 +2919,15 @@
           dyn.innerHTML = _cachedHome;
           // Repositionne le carrousel sur le DERNIER compte regardé (sinon flash sur le 1er = TikTok au rechargement).
           var _ci = parseInt(localStorage.getItem('sk_home_idx') || '0', 10) || 0;
-          if (_ci > 0) requestAnimationFrame(function(){ var _t = document.getElementById('homeCarTrack'); if (_t) { _t.scrollLeft = _ci * (_t.clientWidth || 0); _t._lastChip = _ci; } });
+          if (_ci > 0) (function placeCached(tries){
+            var _t = document.getElementById('homeCarTrack'); if (!_t) return;
+            var w = _t.clientWidth || 0;
+            if (w > 0) {
+              _t.scrollLeft = _ci * w; _t._lastChip = _ci;
+              var _h = document.getElementById('homeCarHead');
+              if (_h) { var _cs = _h.querySelectorAll('.home-car-chip'); for (var _c = 0; _c < _cs.length; _c++) _cs[_c].classList.toggle('on', _c === _ci); }
+            } else if (tries > 0) { requestAnimationFrame(function(){ placeCached(tries - 1); }); }
+          })(60);
         }
       } catch(e){}
     }
@@ -3038,7 +3046,11 @@
     var n = (window._homeAccounts || []).length;
     if (!track || !n) return;
     k = Math.max(0, Math.min(n - 1, k));
-    track.scrollTo({ left: k * track.clientWidth, behavior: 'smooth' });
+    // Pastille active TOUT DE SUITE (pas d'attente) + saut INSTANTANÉ vers le compte choisi.
+    var head = document.getElementById('homeCarHead');
+    if (head) { var chips = head.querySelectorAll('.home-car-chip'); for (var c = 0; c < chips.length; c++) chips[c].classList.toggle('on', c === k); }
+    track._lastChip = k;
+    track.scrollLeft = k * track.clientWidth;   // instantané (plus de scroll « smooth » lent)
     onHomePageChange(k);
   }
 
@@ -3046,7 +3058,13 @@
   function setupHomeCarousel(idx){
     var track = document.getElementById('homeCarTrack');
     if (!track) return;
-    track.scrollLeft = idx * track.clientWidth;
+    // Place le carrousel sur le bon compte, même si la largeur n'est pas encore connue au 1er rendu
+    // (sinon scrollLeft = idx*0 = 0 -> on retombe sur le 1er compte/TikTok au rechargement).
+    (function place(tries){
+      var w = track.clientWidth || 0;
+      if (w > 0) { track.scrollLeft = idx * w; track._lastChip = idx; }
+      else if (tries > 0) { requestAnimationFrame(function(){ place(tries - 1); }); }
+    })(60);
     onHomePageChange(idx);
     if (track._bound) return;
     track._bound = true;
@@ -3261,13 +3279,11 @@
       // X / Facebook / Threads : stats de PROFIL (abonnés) -> carte dédiée, pas de section vidéo.
       // L'analyse a RÉUSSI (résumé profile_only enregistré) -> on montre les vrais chiffres, même s'ils valent 0.
       if (s.profile_only) {
-        var emptyAcc = Number(s.audience) <= 0;
         var hasViews = Number(s.total_views) > 0;
         // VRAIE courbe de vues pour X / Facebook (on enregistre total_views chaque jour).
         // Threads (sans métrique de vues publique) garde le placeholder « En construction ».
         var hg2 = document.getElementById('homeHeaderGoal'); if (hg2) hg2.innerHTML = homeGoalRingMini(s, platform, username);
         return homeProfileCard(platform, prof, s, username)
-          + (emptyAcc ? '<div class="card" style="margin-bottom:14px;text-align:center;color:var(--muted);font-size:.86rem;line-height:1.5;">Ce compte ' + escapeHtml(pubPlatLabel(platform)) + ' n\'a pas encore d\'abonnés. Tes chiffres grimperont ici dès qu\'il décolle. 🚀</div>' : '')
           + (hasViews ? renderGrowthGraph(s, platform, username) + homeStatsMetaOnly(s, s.insights)
                       : homeStatsPlaceholder(s, s.insights))
           + renderProfilePosts(s, platform);

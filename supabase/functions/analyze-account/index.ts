@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
     // -> évite de re-scraper en boucle quand l'IA échoue. 0 crédit gaspillé.
     if (recent && !force && (
           (recent.summary?.video_count ?? 0) > 0 ||
-          (recent.summary?.profile_only && (recent.summary?.audience ?? 0) > 0)   // X/Facebook/LinkedIn = stats de profil (abonnés)
+          recent.summary?.profile_only === true   // X/Facebook/Threads = stats de profil -> réutilisé (0 crédit), MÊME si 0 abonné / 0 vue (sinon on re-scrape en boucle)
        )) {
       return j({ success: true, analysis: recent, cached: true }, 200);
     }

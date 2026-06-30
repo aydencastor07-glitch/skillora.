@@ -3840,10 +3840,14 @@
   function refreshesLeft(platform, username){ return Math.max(0, refreshLimit() - refreshesUsedToday(platform, username)); }
   // Minutes restantes avant la prochaine vérification autorisée (0 = OK maintenant).
   function refreshWaitMin(platform, username){
-    if (typeof isUnlimited === 'function' && isUnlimited()) return 0;
     var last = parseInt(localStorage.getItem(refreshLastKey(platform, username)) || '0', 10) || 0;
     if (!last) return 0;
-    var need = refreshCooldownH() * 3600000, elapsed = Date.now() - last;
+    // Plancher anti-gaspillage POUR TOUS (même illimité) : les stats n'évoluent pas en
+    // quelques minutes -> re-scraper trop souvent ne sert à rien et brûle des crédits.
+    var HARD_FLOOR_MS = 30 * 60000; // 30 min minimum entre 2 actualisations d'un même compte
+    var unlimited = (typeof isUnlimited === 'function' && isUnlimited());
+    var need = unlimited ? HARD_FLOOR_MS : Math.max(HARD_FLOOR_MS, refreshCooldownH() * 3600000);
+    var elapsed = Date.now() - last;
     return elapsed >= need ? 0 : Math.ceil((need - elapsed) / 60000);
   }
 

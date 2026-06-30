@@ -460,6 +460,29 @@ async function analyzeInstagram(handle, key, aiKey, owner, prior, regen) {
 // SociaVault expose le PROFIL de ces réseaux (abonnés + métadonnées) — 1 crédit, pas d'IA, pas de vidéos.
 // On renvoie le MÊME format `summary` que les autres, avec profile_only=true (l'app affiche une carte adaptée).
 function svNum(...vals) { for (const v of vals) { const n = Number(v); if (Number.isFinite(n) && n > 0) return n; } return 0; }
+// Cherche un compteur de vues N'IMPORTE OÙ dans l'objet (views.count, view_count, ext_views, impressions…).
+function deepViewCount(o, depth = 0) {
+  if (o == null || typeof o !== "object" || depth > 6) return 0;
+  let best = 0;
+  for (const k in o) {
+    const v = o[k];
+    if (/^(views?|view_count|viewcount|ext_view_count|impression_count|impressions?|play_count|playcount)$/i.test(k)) {
+      const n = (v && typeof v === "object") ? Number(v.count ?? v.value ?? v.total ?? v.state) : Number(v);
+      if (Number.isFinite(n) && n > best) best = n;
+    } else if (v && typeof v === "object") {
+      const n = deepViewCount(v, depth + 1);
+      if (n > best) best = n;
+    }
+  }
+  return best;
+}
+// Trouve le 1er tableau d'objets (la liste de tweets/posts) où qu'il soit dans la réponse.
+function collectObjArray(o, depth = 0) {
+  if (!o || typeof o !== "object" || depth > 5) return null;
+  if (Array.isArray(o)) return (o.length && typeof o[0] === "object") ? o : null;
+  for (const k in o) { const r = collectObjArray(o[k], depth + 1); if (r) return r; }
+  return null;
+}
 function socialSummary(o) {
   return {
     audience: o.audience || 0,
@@ -492,16 +515,20 @@ async function analyzeTwitter(handle, key) {
   try {
     const tr = await svGet(`/twitter/user-tweets?handle=${encodeURIComponent(cleanH)}`, key);
     const td = tr.data ?? tr;
-    const tw = td.tweets ?? td.data?.tweets ?? {};
-    const arr = Array.isArray(tw) ? tw : Object.values(tw ?? {});
+    let tw = td.tweets ?? td.data?.tweets ?? td.result?.tweets ?? td.timeline ?? null;
+    let arr = Array.isArray(tw) ? tw : (tw && typeof tw === "object" ? Object.values(tw) : []);
+    if (!arr.length || typeof arr[0] !== "object") { arr = collectObjArray(td) || arr; }
+    // DIAGNOSTIC (temporaire) : structure réelle renvoyée par X, pour savoir où sont les vues.
+    try { console.log("[TWDIAG]", cleanH, "count=", arr.length, "tdKeys=", Object.keys(td || {}).slice(0, 12).join(","), "first=", JSON.stringify(arr[0] ?? {}).slice(0, 700)); } catch (_e) {}
     for (const t of arr) {
       if (!t || typeof t !== "object") continue;
       const tl = t.legacy ?? t;
-      totalViews += svNum(t.views?.count, t.views, tl.views, tl.view_count);
-      likesRecv += svNum(tl.favorite_count, tl.favourite_count);
+      totalViews += deepViewCount(t);   // trouve les vues où qu'elles soient
+      likesRecv += svNum(tl.favorite_count, tl.favourite_count, t.favorite_count, t.like_count, t.likes);
       fetched++;
     }
-  } catch (_e) { /* l'appel tweets a échoué -> on garde au moins le profil (abonnés) */ }
+    console.log("[TWDIAG]", cleanH, "totalViews=", totalViews, "likes=", likesRecv, "fetched=", fetched);
+  } catch (e) { console.log("[TWDIAG] err", String(e)); }
 
   const stats = [{ label: "Abonnés", value: followers }];
   if (totalViews > 0) stats.push({ label: "Vues", value: totalViews });

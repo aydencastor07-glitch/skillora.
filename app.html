@@ -208,6 +208,14 @@
   .npost-st { font-weight:700; }
   .npost-st.live { color:#2ee6a6; } .npost-st.pub { color:#7aa6ff; } .npost-st.sched { color:#f5c043; } .npost-st.fail { color:#ff8080; }
   .npost-time { font-size:.68rem; color:var(--muted2,#6b7aa0); margin-top:3px; }
+  /* Badge sur la miniature (ex: "🖼️ Image") : overlay en bas à gauche de la vignette. */
+  .npost-kind-tag { position:absolute; left:4px; bottom:4px; font-family:'Sora',sans-serif; font-weight:700; font-size:.56rem; letter-spacing:.02em; color:#fff; background:rgba(0,0,0,0.5); backdrop-filter:blur(2px); padding:2px 6px; border-radius:999px; }
+  /* Publication TEXTE seul : pas de miniature, le texte est le contenu -> mis en avant, pleine largeur. */
+  .npost-text { display:block; }
+  .npost-text-h { margin-bottom:6px; }
+  .npost-text .npost-kind-tag { position:static; display:inline-flex; background:rgba(255,255,255,0.08); color:var(--muted); }
+  .npost-text-body { font-family:'Sora',sans-serif; font-weight:600; font-size:.86rem; color:#fff; line-height:1.4; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; white-space:pre-wrap; }
+  .npost-text .npost-sub { margin-top:8px; }
   /* Choix « regarder sur quel réseau » */
   .watch-title { font-family:'Sora',sans-serif; font-weight:700; font-size:1.15rem; color:#fff; margin-bottom:4px; }
   .watch-sub { color:var(--muted); font-size:.84rem; margin-bottom:16px; line-height:1.4; }
@@ -2820,7 +2828,7 @@
     } catch(e) { console.log('ob check error', e); }
   }
 
-  async function signOut() { try { localStorage.removeItem('sk_home_html'); localStorage.removeItem('sk_growth'); } catch(e){} try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
+  async function signOut() { try { localStorage.removeItem('sk_home_html'); localStorage.removeItem('sk_growth'); localStorage.removeItem('sk_pubposts'); } catch(e){} try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
 
   // Détail clair de l'objectif (au clic sur l'anneau)
   function openGoalInfo() {
@@ -3715,10 +3723,13 @@
     if (s === 'published' || anyUrl) return { ic:'✅', txt:'En ligne', cls:'live' };
     return { ic:'🚀', txt:'En cours…', cls:'pub' };
   }
-  // Miniature = 1re image de la vraie vidéo publiée (pas de texte bidon).
-  function pubThumb(p){
-    if (p.media_url) return '<video class="npost-thumb" src="' + String(p.media_url).replace(/"/g,'') + '#t=0.1" muted playsinline preload="metadata"></video>';
-    return '<div class="npost-thumb empty">🎬</div>';
+  // Type réel de la publication : image / vidéo / texte seul (déduit de l'extension du fichier —
+  // on n'a pas de champ "type" en base, donc pas de devinette IA, juste l'extension du média stocké).
+  function pubMediaKind(p){
+    var u = String(p.media_url || '');
+    if (!u) return 'text';
+    if (/\.(jpe?g|png|webp|gif|heic|avif)(\?|$)/i.test(u)) return 'image';
+    return 'video';
   }
   // Liste { platform, url } d'une vidéo (url = permalien réel si dispo).
   function postWatchTargets(p){
@@ -3758,18 +3769,35 @@
     if (e && e.target && e.target.id && e.target.id !== 'watchPopup') return;
     var p = document.getElementById('watchPopup'); if (p) p.classList.remove('open');
   }
-  // Une vidéo publiée : miniature cliquable + légende + statut + réseaux.
+  // Une publication : style DIFFÉRENT selon son vrai type — vidéo (miniature + ▶), image (miniature
+  // sans play), ou texte seul (pas de miniature, le texte EST le contenu -> affiché en clair).
   function pubPostHTML(p){
     var info = pubStatusInfo(p);
     var seen = {}, names = [];
     (p.platforms || []).forEach(function(k){ k = platKey(k); if (!k || seen[k]) return; seen[k] = 1; names.push(pubPlatLabel(k)); });
-    var cap = escapeHtml(String(p.caption || '').replace(/\s+/g,' ').trim().slice(0, 64)) || 'Ta vidéo';
+    var kind = pubMediaKind(p);
     var when = (p.status === 'scheduled' && p.scheduled_at) ? ('pour le ' + new Date(p.scheduled_at).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})) : timeAgo(p.created_at);
+    var statusLine = '<div class="npost-sub"><span class="npost-st ' + info.cls + '">' + info.ic + ' ' + info.txt + '</span>' + (names.length ? ' · ' + escapeHtml(names.join(', ')) : '') + '</div>';
+
+    if (kind === 'text') {
+      var fullCap = escapeHtml(String(p.caption || '').trim()) || 'Publication';
+      return '<div class="npost npost-text ' + info.cls + '" onclick="watchPost(\'' + String(p.id) + '\')">' +
+        '<div class="npost-text-h"><span class="npost-kind-tag">✍️ Texte</span></div>' +
+        '<div class="npost-text-body">' + fullCap + '</div>' +
+        statusLine +
+        '<div class="npost-time">' + when + '</div>' +
+      '</div>';
+    }
+
+    var cap = escapeHtml(String(p.caption || '').replace(/\s+/g,' ').trim().slice(0, 64)) || (kind === 'image' ? 'Ton image' : 'Ta vidéo');
+    var thumb = (kind === 'image')
+      ? ('<div class="npost-thumbwrap"><img class="npost-thumb" src="' + String(p.media_url).replace(/"/g,'') + '" loading="lazy"><span class="npost-kind-tag npost-kind-img">🖼️ Image</span></div>')
+      : ('<div class="npost-thumbwrap">' + (p.media_url ? '<video class="npost-thumb" src="' + String(p.media_url).replace(/"/g,'') + '#t=0.1" muted playsinline preload="metadata"></video>' : '<div class="npost-thumb empty">🎬</div>') + '<span class="npost-play">▶</span></div>');
     return '<div class="npost ' + info.cls + '" onclick="watchPost(\'' + String(p.id) + '\')">' +
-      '<div class="npost-thumbwrap">' + pubThumb(p) + '<span class="npost-play">▶</span></div>' +
+      thumb +
       '<div class="npost-main">' +
         '<div class="npost-cap">' + cap + '</div>' +
-        '<div class="npost-sub"><span class="npost-st ' + info.cls + '">' + info.ic + ' ' + info.txt + '</span>' + (names.length ? ' · ' + escapeHtml(names.join(', ')) : '') + '</div>' +
+        statusLine +
         '<div class="npost-time">' + when + '</div>' +
       '</div>' +
     '</div>';
@@ -3777,17 +3805,26 @@
   // Charge (et met en cache 2 min) la liste des publications. Repli direct sur scheduled_posts si la fonction échoue.
   async function loadPubPosts(force){
     if (!force && window._pubPostsAt && (Date.now() - window._pubPostsAt < 120000)) return window._pubPosts || [];
+    // Réhydrate depuis le cache disque (session précédente) -> peinture instantanée possible même
+    // au tout premier clic sur la cloche, avant que le réseau ait répondu.
+    if (!window._pubPosts) { try { var c = localStorage.getItem('sk_pubposts'); if (c) window._pubPosts = JSON.parse(c); } catch(e){} }
     try {
       var s1 = await sb.auth.getSession(); var session = s1 && s1.data ? s1.data.session : null;
       if (!session) { window._pubPosts = []; return []; }
       var res = await fetch(SB_URL + '/functions/v1/pfm-posts', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey':SB_KEY }, body:'{}' });
       var d = await res.json().catch(function(){ return {}; });
-      if (d && d.success && Array.isArray(d.posts)) { window._pubPosts = d.posts; window._pubPostsAt = Date.now(); return d.posts; }
+      if (d && d.success && Array.isArray(d.posts)) {
+        window._pubPosts = d.posts; window._pubPostsAt = Date.now();
+        try { localStorage.setItem('sk_pubposts', JSON.stringify(d.posts.slice(0, 30))); } catch(e){}
+        return d.posts;
+      }
     } catch(e){}
     try {
       var r = await sb.from('scheduled_posts').select('id,caption,media_url,platforms,pfm_post_id,status,scheduled_at,created_at,published_at,results').order('created_at',{ascending:false}).limit(20);
       var posts = (r.data || []).map(function(x){ return { id:x.id, caption:x.caption, media_url:x.media_url, platforms:x.platforms||[], status:x.status, scheduled_at:x.scheduled_at, created_at:x.created_at, published_at:x.published_at, results:Array.isArray(x.results)?x.results:[] }; });
-      window._pubPosts = posts; window._pubPostsAt = Date.now(); return posts;
+      window._pubPosts = posts; window._pubPostsAt = Date.now();
+      try { localStorage.setItem('sk_pubposts', JSON.stringify(posts.slice(0, 30))); } catch(e){}
+      return posts;
     } catch(e){ return window._pubPosts || []; }
   }
   function refreshNotifDot(){
@@ -3801,12 +3838,20 @@
   async function openNotifPanel(){
     var panel = document.getElementById('notifPanel'); var body = document.getElementById('notifBody');
     if (panel) panel.classList.add('open');
-    if (body) body.innerHTML = '<div class="notif-empty">Chargement…</div>';
+    // Peinture INSTANTANÉE avec ce qu'on a déjà (mémoire ou cache disque) -> plus de "Chargement…"
+    // qui traîne à chaque ouverture. On revalide en fond et on ne remplace que si ça a changé.
+    if (!window._pubPosts) { try { var c = localStorage.getItem('sk_pubposts'); if (c) window._pubPosts = JSON.parse(c); } catch(e){} }
+    var cached = window._pubPosts || [];
+    if (body) {
+      body.innerHTML = cached.length
+        ? cached.map(pubPostHTML).join('')
+        : '<div class="notif-empty">Chargement…</div>';
+    }
     var posts = await loadPubPosts(true);
     if (body) {
       body.innerHTML = posts.length
         ? posts.map(pubPostHTML).join('')
-        : '<div class="notif-empty">🔔<br><br>Aucune publication pour l\'instant.<br>Tes vidéos publiées via Skillora apparaîtront ici.</div>';
+        : '<div class="notif-empty">🔔<br><br>Aucune publication pour l\'instant.<br>Tes publications via Skillora apparaîtront ici.</div>';
     }
     try { localStorage.setItem('sk_notif_seen', String(Date.now())); } catch(e){}
     refreshNotifDot();
@@ -3833,7 +3878,8 @@
     if (!posts.length) { host.innerHTML = ''; return; }   // rien publié sur CE réseau -> pas de bloc
     var top = posts.slice(0, 3).map(pubPostHTML).join('');
     var more = posts.length > 3 ? '<button class="home-pub-more" onclick="openNotifPanel()">Voir tout (' + posts.length + ')</button>' : '';
-    var label = platform ? ('🚀 Tes dernières vidéos publiées sur ' + escapeHtml(pubPlatLabel(platform))) : '🚀 Tes dernières vidéos publiées via Skillora';
+    // Libellé générique : la liste peut mélanger vidéos, images et posts texte (chacun avec son style).
+    var label = platform ? ('🚀 Tes dernières publications sur ' + escapeHtml(pubPlatLabel(platform))) : '🚀 Tes dernières publications via Skillora';
     host.innerHTML = '<div class="card home-pub-card"><div class="home-pub-h">' + label + '</div>' + top + more + '</div>';
   }
 

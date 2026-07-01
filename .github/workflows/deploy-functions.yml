@@ -33,5 +33,6 @@ jobs:
           supabase functions deploy pfm-publish      --project-ref "$PROJECT_REF"
           supabase functions deploy pfm-sync         --project-ref "$PROJECT_REF"
           supabase functions deploy pfm-posts        --project-ref "$PROJECT_REF"
+          supabase functions deploy daily-ideas      --project-ref "$PROJECT_REF"
           supabase functions deploy notify-published --project-ref "$PROJECT_REF" --no-verify-jwt
           supabase functions deploy pfm-debug        --project-ref "$PROJECT_REF" --no-verify-jwt

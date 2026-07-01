@@ -6110,7 +6110,8 @@
         return;
       }
       var cap = curLimits().ideasDay;
-      var shown = (cap === INF) ? data.ideas : data.ideas.slice(0, cap);
+      var lim = Math.min((cap === INF ? 99 : cap), 3); // 3 idées max par jour
+      var shown = data.ideas.slice(0, lim);
       window._studioIdeas = shown;
       // Ces idées viennent d'être vues -> on efface le badge "+N".
       markIdeasSeen(acc, data.date);

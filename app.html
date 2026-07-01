@@ -40,7 +40,8 @@
     padding: 16px 20px 14px; background: rgba(4,6,13,0.72);
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid var(--border);
   }
-  .logo { font-family:'Fraunces',serif; font-weight:700; font-size:1.55rem; letter-spacing:-0.02em; color:var(--white); }
+  .logo { font-family:'Fraunces',serif; font-weight:700; font-size:1.55rem; letter-spacing:-0.02em; color:var(--white); display:flex; align-items:center; gap:9px; }
+  .logo-mark { width:30px; height:30px; border-radius:8px; object-fit:cover; flex:none; box-shadow:0 3px 10px -3px rgba(47,123,255,0.5); }
   .logo span { color: var(--blue); }
   .top-icons { display: flex; gap: 10px; }
   .icon-btn { width:42px; height:42px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.05rem; position:relative; transition:transform .2s; }
@@ -286,6 +287,14 @@
   .home-skel-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:10px; }
   .home-skel .v { color:var(--muted2); opacity:.5; }
   .home-skel-note { font-size:.76rem; color:var(--muted2); text-align:center; margin-bottom:18px; }
+  /* Accueil sans compte : liste "ce que Skillora fait" (propre, structuré) */
+  .home-perks { margin-bottom:18px; }
+  .home-perks-h { font-family:'Sora',sans-serif; font-weight:700; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:4px 2px 12px; }
+  .home-perk { display:flex; align-items:flex-start; gap:13px; background:var(--surface); border:1px solid var(--border); border-radius:15px; padding:14px 15px; margin-bottom:10px; }
+  .home-perk-ic { flex:none; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; background:linear-gradient(157deg,rgba(94,155,255,0.18),rgba(47,123,255,0.06)); border:1px solid var(--border2); }
+  .home-perk-tx { display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .home-perk-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--white); }
+  .home-perk-s { font-size:.8rem; color:var(--muted); line-height:1.45; }
 
   /* Carrousel de comptes (bascule entre profils connectés) */
   .home-car-chips { display:flex; gap:9px; overflow-x:auto; padding:2px 2px 10px; margin-bottom:4px; -webkit-overflow-scrolling:touch; }
@@ -1221,6 +1230,17 @@
   .ia-pop-btn:active { transform:scale(0.97); }
   .ia-pop-btn:disabled { opacity:.45; box-shadow:none; }
   .ia-pop-skip { width:100%; background:none; border:none; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; padding:12px 0 2px; }
+  /* Modale Contact */
+  #contactModal { z-index:300; }
+  .ct-sheet { padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
+  .ct-h { font-family:'Fraunces',serif; font-weight:700; font-size:1.24rem; color:var(--white); margin-bottom:6px; }
+  .ct-s { font-size:.88rem; color:var(--muted); line-height:1.5; margin-bottom:14px; }
+  .ct-input { width:100%; background:rgba(255,255,255,0.03); border:1.5px solid var(--border2); border-radius:14px; padding:13px 14px; color:var(--white); font-family:'Sora',sans-serif; font-size:.92rem; line-height:1.5; resize:none; outline:none; margin-bottom:8px; }
+  .ct-input:focus { border-color:rgba(122,176,255,0.55); }
+  .ct-btn { width:100%; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:14px; padding:14px; font-family:'Sora',sans-serif; font-weight:700; font-size:.96rem; cursor:pointer; box-shadow:0 12px 28px -8px rgba(47,123,255,0.65); transition:transform .15s; margin-top:6px; }
+  .ct-btn:active { transform:scale(0.97); }
+  .ct-btn:disabled { opacity:.5; }
+  .ct-cancel { width:100%; background:none; border:none; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; padding:12px 0 2px; }
   /* Onglets du panneau d'idées (bulle) : Idée du jour | Historique */
   .idp-tabs { display:flex; gap:6px; background:var(--surface); border:1px solid var(--border2); border-radius:13px; padding:4px; margin:2px 0 16px; }
   .idp-tab { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; background:none; border:none; cursor:pointer; padding:10px 8px; border-radius:9px; color:var(--muted); font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; transition:all .2s; -webkit-tap-highlight-color:transparent; }
@@ -1762,9 +1782,9 @@
 
 <div class="phone">
   <div class="topbar">
-    <div class="logo">Skill<span>ora</span></div>
+    <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'">Skill<span>ora</span></div>
     <div class="top-icons">
-      <div class="icon-btn">🔍</div>
+      <div class="icon-btn" onclick="openContact()" role="button" aria-label="Nous contacter">✉️</div>
       <div class="icon-btn" onclick="openNotifPanel()" role="button" aria-label="Notifications">🔔<span class="notif-dot" id="notifDot"></span></div>
     </div>
   </div>
@@ -1905,7 +1925,7 @@
 
   <div class="view" id="view-ia">
     <h1 class="page-title reveal" style="animation-delay:.05s">Studio 🎯</h1>
-    <p class="page-sub reveal" style="animation-delay:.12s">Tes outils de création. Choisis, crée, publie.</p>
+    <p class="page-sub reveal" style="animation-delay:.12s">Génère des scripts viraux ✍️ et reçois tes idées de contenu 💡 (bulle en bas).</p>
 
     <!-- Compte : sélection rapide (uniquement pour l'outil Script ; les idées tournent seules) -->
     <div id="studioAcctPicker">
@@ -2435,6 +2455,18 @@
 <div class="modal" id="ideaActivateModal" onclick="closeIdeaActivate(event)">
   <div class="modal-sheet ia-pop" onclick="event.stopPropagation()">
     <div id="ideaActivateBody"></div>
+  </div>
+</div>
+
+<!-- Contact : le message arrive par email au support -->
+<div class="modal" id="contactModal" onclick="closeContact(event)">
+  <div class="modal-sheet ct-sheet" onclick="event.stopPropagation()">
+    <div class="ct-h">✉️ Nous contacter</div>
+    <div class="ct-s">Une question, un souci, une suggestion ? Écris-nous — on te répond par email.</div>
+    <textarea id="contactMsg" class="ct-input" rows="5" placeholder="Ton message…"></textarea>
+    <div class="status-msg" id="contactStatus" style="min-height:0;"></div>
+    <button class="ct-btn" onclick="sendContact()">Envoyer</button>
+    <button class="ct-cancel" onclick="closeContact()">Annuler</button>
   </div>
 </div>
 
@@ -3545,10 +3577,16 @@
           homeConnBtn('threads', threads, 'Threads') +
         '</div>' +
       '</div>' +
-      '<div class="home-skel-grid">' +
-        homeSkel('—', 'Abonnés') + homeSkel('—', 'Vidéos') + homeSkel('—', 'Vues / vidéo') + homeSkel('—', 'Engagement') +
-      '</div>' +
-      '<div class="home-skel-note">Tes statistiques apparaîtront ici une fois ton compte connecté.</div>';
+      '<div class="home-perks">' +
+        '<div class="home-perks-h">Ce que Skillora fait pour toi</div>' +
+        homePerk('📊', 'Analyse ton compte', 'Ta niche, ton engagement et ce qui marche déjà chez toi.') +
+        homePerk('💡', 'Des idées de contenu', 'Une idée virale, prête à filmer, chaque jour pour ton compte.') +
+        homePerk('✍️', 'Des scripts viraux', 'Générés et optimisés pour ta plateforme, en quelques secondes.') +
+        homePerk('🚀', 'Publie en 1 clic', 'Envoie tes vidéos sur toutes tes plateformes depuis Skillora.') +
+      '</div>';
+  }
+  function homePerk(ic, t, s) {
+    return '<div class="home-perk"><span class="home-perk-ic">' + ic + '</span><span class="home-perk-tx"><span class="home-perk-t">' + t + '</span><span class="home-perk-s">' + s + '</span></span></div>';
   }
   function homeConnBtn(plat, ic, label) {
     var connected = window.__connectedPlats && window.__connectedPlats[plat];
@@ -5990,7 +6028,7 @@
         box.innerHTML = '<div class="studio-accs-skel"><span></span><span></span></div>';
       } else {
         // Confirmé : aucun compte -> invite COMPACTE et pro (pas un gros bloc)
-        box.innerHTML = '<div class="studio-empty3"><span class="se3-ic">🎬</span><span class="se3-t">Aucun compte connecté — connecte-en un pour générer ses scripts.</span><button class="se3-btn" onclick="switchView(\'publish\', null)">Connecter</button></div>';
+        box.innerHTML = '<div class="studio-empty3"><span class="se3-ic">🎬</span><span class="se3-t">Écris ton idée ci-dessous, on te génère un script viral. <b>Connecte un compte</b> pour des scripts et des idées taillés pour lui.</span><button class="se3-btn" onclick="switchView(\'publish\', null)">Connecter</button></div>';
       }
       if (ctx) { ctx.style.display = 'none'; ctx.innerHTML = ''; }
       activeProfileIndex = -1;
@@ -6168,6 +6206,29 @@
     var m = document.getElementById('ideaActivateModal'); if (m) m.classList.remove('open');
     // Un "Non merci" sur un NOUVEAU compte = on ne le propose plus. "Plus tard" à l'activation = on reproposera.
     if (window._ideaPopupIsNew) markOffered(window._ideaPopupKeys || []);
+  }
+
+  /* ===== Contact : message envoyé par email au support ===== */
+  var SK_CONTACT_EMAIL = 'aydencastor07@gmail.com';
+  function openContact(){ var m=document.getElementById('contactModal'); if(m) m.classList.add('open'); var ta=document.getElementById('contactMsg'); if(ta) setTimeout(function(){ try{ta.focus();}catch(e){}}, 120); }
+  function closeContact(e){ if (e && e.target && e.target.id && e.target.id !== 'contactModal') return; var m=document.getElementById('contactModal'); if(m) m.classList.remove('open'); }
+  async function sendContact(){
+    var ta=document.getElementById('contactMsg'), st=document.getElementById('contactStatus');
+    var msg=((ta&&ta.value)||'').trim();
+    if (msg.length < 3){ if(st){ st.textContent='Écris ton message.'; st.style.color='#ff8a9b'; } return; }
+    var btn=document.querySelector('#contactModal .ct-btn'); if(btn){ btn.disabled=true; btn.textContent='Envoi…'; }
+    if(st){ st.textContent=''; }
+    try{
+      var s=await sb.auth.getSession(); var session=s&&s.data?s.data.session:null;
+      var from=(session&&session.user&&session.user.email)?session.user.email:'(utilisateur non connecté)';
+      var html='<div style="font-family:Arial,sans-serif;color:#111;line-height:1.5;"><b>Nouveau message Skillora</b><br>De : '+escapeHtml(from)+'<br><br>'+escapeHtml(msg).replace(/\n/g,'<br>')+'</div>';
+      var r=await fetch(SB_URL+'/functions/v1/send-email',{ method:'POST', headers:{'Content-Type':'application/json','apikey':SB_KEY}, body:JSON.stringify({ to:SK_CONTACT_EMAIL, subject:'📩 Message Skillora — '+from, message:html, reply_to:from }) });
+      if(!r.ok) throw new Error('send');
+      if(ta) ta.value='';
+      closeContact();
+      if(typeof skModal==='function') skModal({ icon:'✅', iconBg:'#16351f', title:'Message envoyé', message:'Merci ! On te répond très vite par email.', cancelText:'Parfait' });
+    }catch(e){ if(st){ st.textContent='Envoi impossible pour le moment. Réessaie.'; st.style.color='#ff8a9b'; } }
+    finally{ if(btn){ btn.disabled=false; btn.textContent='Envoyer'; } }
   }
 
   /* ===== Idée du jour : 1 idée / jour pour UN compte en rotation, générée seulement à l'ouverture ===== */

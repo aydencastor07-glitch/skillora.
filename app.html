@@ -1221,6 +1221,14 @@
   .ia-pop-btn:active { transform:scale(0.97); }
   .ia-pop-btn:disabled { opacity:.45; box-shadow:none; }
   .ia-pop-skip { width:100%; background:none; border:none; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; padding:12px 0 2px; }
+  /* Onglets du panneau d'idées (bulle) : Idée du jour | Historique */
+  .idp-tabs { display:flex; gap:6px; background:var(--surface); border:1px solid var(--border2); border-radius:13px; padding:4px; margin:2px 0 16px; }
+  .idp-tab { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; background:none; border:none; cursor:pointer; padding:10px 8px; border-radius:9px; color:var(--muted); font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; transition:all .2s; -webkit-tap-highlight-color:transparent; }
+  .idp-tab.on { background:linear-gradient(135deg,#3f86ff,#1a63e8); color:#fff; box-shadow:0 6px 16px -6px rgba(47,123,255,0.7); }
+  /* Historique propre */
+  .ideas-hist summary .hist-acc { display:inline-flex; align-items:center; gap:7px; font-family:'Sora',sans-serif; font-weight:700; color:var(--white); font-size:.82rem; }
+  .ideas-hist summary .hist-acc i { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:none; }
+  .ideas-hist summary .hist-meta { font-size:.73rem; color:var(--muted); font-weight:600; }
 
   /* Idée du jour : en-tête + rotation */
   .daily-idea-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:2px 0 13px; }
@@ -6153,7 +6161,7 @@
     var m = document.getElementById('ideaActivateModal'); if (m) m.classList.remove('open');
     if (typeof showIdeaFab === 'function') showIdeaFab(true);
     if (typeof refreshIdeaBadge === 'function') refreshIdeaBadge();
-    if (typeof skModal === 'function') skModal({ icon:'✅', iconBg:'#16351f', title: isNew ? 'Compte ajouté' : "C'est activé !", message: "Tu recevras chaque jour une idée de vidéo pour tes comptes, à tour de rôle.<br><span style=\"color:#8b9bc4;font-size:.9em;\">Touche la bulle 💡 pour voir ton idée du jour.</span>", cancelText:'Parfait' });
+    if (typeof skModal === 'function') skModal({ icon:'✅', iconBg:'#16351f', title: isNew ? 'Compte ajouté' : "C'est activé !", message: "Chaque jour, une nouvelle idée de contenu t'attend pour l'un de tes comptes, à tour de rôle.<br><span style=\"color:#8b9bc4;font-size:.9em;\">Touche la bulle 💡 pour la voir.</span>", cancelText:'Parfait' });
   }
   function closeIdeaActivate(e) {
     if (e && e.target && e.target.id && e.target.id !== 'ideaActivateModal') return;
@@ -6248,19 +6256,41 @@
     openIdeaSettings();
   }
 
+  // Panneau de la bulle 💡 : onglets [Idée du jour | Historique]
   async function loadDailyIdea(targetId){
     var box = document.getElementById(targetId || 'ideasPanelBody'); if(!box) return;
     var rot = ideaRotationAccounts();
     if (!rot.length) {
       if (!window._studioLoaded) { box.innerHTML = '<div class="ideas-loading">…</div>'; return; }
-      box.innerHTML = '<div class="studio-empty3"><span class="se3-ic">🎬</span><span class="se3-t">Connecte un compte pour recevoir des idées de vidéos.</span><button class="se3-btn" onclick="switchView(\'publish\', null)">Connecter</button></div>';
+      box.innerHTML = '<div class="studio-empty3"><span class="se3-ic">🎬</span><span class="se3-t">Connecte un compte pour recevoir des idées de contenu.</span><button class="se3-btn" onclick="switchView(\'publish\', null)">Connecter</button></div>';
       return;
     }
     if (!ideasActivated()) { box.innerHTML = renderIdeaActivationCard(rot); return; }
-    var acc = todaysIdeaAccount(); if (!acc) { box.innerHTML = renderIdeaActivationCard(rot); return; }
+    box.innerHTML =
+      '<div class="idp-tabs">' +
+        '<button class="idp-tab on" id="idpTabToday" onclick="ideaPanelTab(\'today\')">💡 Idée du jour</button>' +
+        '<button class="idp-tab" id="idpTabHist" onclick="ideaPanelTab(\'hist\')">🗂️ Historique</button>' +
+      '</div>' +
+      '<div id="idpToday"></div><div id="idpHist" hidden></div>';
+    loadTodayIdea();
+  }
+  function ideaPanelTab(t){
+    var today = document.getElementById('idpToday'), hist = document.getElementById('idpHist');
+    var tt = document.getElementById('idpTabToday'), th = document.getElementById('idpTabHist');
+    if (!today || !hist) return;
+    var isHist = (t === 'hist');
+    today.hidden = isHist; hist.hidden = !isHist;
+    if (tt) tt.classList.toggle('on', !isHist);
+    if (th) th.classList.toggle('on', isHist);
+    if (isHist && !hist.getAttribute('data-loaded')) { hist.setAttribute('data-loaded','1'); loadPanelHistory(); }
+  }
+  // Idée du jour (compte en rotation) — génération à l'ouverture uniquement.
+  async function loadTodayIdea(){
+    var box = document.getElementById('idpToday'); if(!box) return;
+    var acc = todaysIdeaAccount();
+    if (!acc) { box.innerHTML = '<div class="ideas-empty">Aucun compte dans la rotation.</div>' + ideaManageHTML(); return; }
     var key = acc.platform+'|'+acc.username.toLowerCase();
-    window._dailyIdeaKey = key;
-    window._dailyIdeaAcc = acc;
+    window._dailyIdeaKey = key; window._dailyIdeaAcc = acc;
     box.innerHTML = ideaHeadHTML(acc) + '<div class="ideas-loading">✨ On prépare ton idée du jour…</div>';
     try {
       var { data: { session } } = await sb.auth.getSession();
@@ -6283,24 +6313,37 @@
       if (nxt) html += '<div class="daily-idea-next">Demain : une idée pour <b>@' + escapeHtml(nxt.username) + '</b></div>';
       html += ideaManageHTML();
       box.innerHTML = html;
-      loadIdeaHistory(box, acc, hdr, data.date);
     } catch(e){
       if (window._dailyIdeaKey !== key) return;
       box.innerHTML = ideaHeadHTML(acc) + '<div class="ideas-empty">Idée indisponible pour le moment. Réessaie plus tard.</div>' + ideaManageHTML();
     }
   }
-  async function loadIdeaHistory(box, acc, hdr, todayDate){
+  // Historique PROPRE : toutes les idées déjà générées, tous comptes confondus, par date (0 crédit — déjà stocké).
+  async function loadPanelHistory(){
+    var box = document.getElementById('idpHist'); if(!box) return;
+    box.innerHTML = '<div class="ideas-loading">On récupère tout ton historique…</div>';
     try {
-      var key = acc.platform+'|'+acc.username.toLowerCase();
-      var hist = await fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username, history: true }) }).then(function(r){ return r.json(); });
-      if (window._dailyIdeaKey !== key) return;
-      var rows = (hist && hist.history) ? hist.history : [];
-      var past = rows.filter(function(r){ return r.idea_date !== todayDate && r.ideas && r.ideas.length; });
-      if (!past.length) return;
-      var hh = '<div class="ideas-hist-h">Idées déjà générées · @' + escapeHtml(acc.username) + '</div>';
-      past.forEach(function(r){ var n=r.ideas.length; hh += '<details class="ideas-hist"><summary>'+escapeHtml(frDate(r.idea_date))+' · '+n+' idée'+(n>1?'s':'')+'</summary>'+renderStudioIdeasList(r.ideas,'readonly')+'</details>'; });
-      box.insertAdjacentHTML('beforeend', hh);
-    } catch(e){}
+      var { data: { session } } = await sb.auth.getSession();
+      if (!session) { box.innerHTML = '<div class="ideas-empty">Connecte-toi.</div>'; return; }
+      var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY };
+      var rot = ideaRotationAccounts();
+      var lists = await Promise.all(rot.map(function(a){
+        return fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: a.platform, username: a.username, history: true }) })
+          .then(function(r){ return r.json(); })
+          .then(function(d){ return ((d && d.history) ? d.history : []).map(function(row){ return { date: row.idea_date, acc: a, ideas: row.ideas || [] }; }); })
+          .catch(function(){ return []; });
+      }));
+      var all = [].concat.apply([], lists).filter(function(x){ return x.ideas && x.ideas.length; });
+      all.sort(function(a,b){ return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+      if (!all.length) { box.innerHTML = '<div class="ideas-empty">Aucune idée générée pour l\'instant.<br>Ouvre ton idée du jour pour lancer ton historique ✨</div>'; return; }
+      box.innerHTML = all.map(function(g){
+        var n = g.ideas.length;
+        return '<details class="ideas-hist"><summary>' +
+          '<span class="hist-acc"><i style="background:'+platBg(g.acc.platform)+';">'+pubPlatSVG(g.acc.platform,10)+'</i>@'+escapeHtml(g.acc.username)+'</span>' +
+          '<span class="hist-meta">'+escapeHtml(frDate(g.date))+' · '+n+' idée'+(n>1?'s':'')+'</span></summary>' +
+          renderStudioIdeasList(g.ideas, 'readonly') + '</details>';
+      }).join('');
+    } catch(e){ box.innerHTML = '<div class="ideas-empty">Historique indisponible pour le moment.</div>'; }
   }
 
   /* ===== Idées de vidéos directement dans le Studio (même source que la bulle 💡, 0 coût en plus : cache/jour) ===== */

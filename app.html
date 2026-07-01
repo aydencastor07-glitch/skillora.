@@ -4508,8 +4508,8 @@
   }
   function updateIdeasHeader() {
     var t = document.getElementById('ideasHeadT'), s = document.getElementById('ideasHeadS');
-    if (t) t.textContent = 'Idées de vidéos';
-    if (s) s.textContent = 'Des idées de vidéo à faire dans ta niche';
+    if (t) t.textContent = 'Idées de contenu viral';
+    if (s) s.textContent = 'Des idées de contenu prêtes à filmer, pour tes comptes';
   }
 
   function openIdeasPage() {
@@ -6134,8 +6134,8 @@
     }).join('');
     body.innerHTML =
       '<div class="ia-pop-ic">💡</div>' +
-      '<div class="ia-pop-t">' + (isNew ? 'Nouveau compte' : 'Reçois une idée virale chaque jour') + '</div>' +
-      '<div class="ia-pop-s">' + (isNew ? 'Tu veux aussi des idées pour ce compte ?' : 'Choisis les comptes qui doivent en recevoir 👇') + '</div>' +
+      '<div class="ia-pop-t">' + (isNew ? 'Nouveau compte' : 'Reçois des idées de contenu viral') + '</div>' +
+      '<div class="ia-pop-s">' + (isNew ? 'Tu veux aussi des idées de contenu pour ce compte ?' : 'Choisis les comptes qui doivent en recevoir 👇') + '</div>' +
       '<div class="ia-accts">' + chips + '</div>' +
       '<button class="ia-pop-btn" onclick="confirmIdeaActivation(' + (isNew?'true':'false') + ')">' + (isNew ? 'Ajouter ce compte' : 'Activer') + '</button>' +
       '<button class="ia-pop-skip" onclick="closeIdeaActivate()">' + (isNew ? 'Non merci' : 'Plus tard') + '</button>';
@@ -6203,7 +6203,7 @@
     var names = rot.slice(0,4).map(function(a){ return '@'+escapeHtml(a.username); }).join(', ');
     return '<div class="idea-activate">' +
       '<div class="idea-activate-ic">💡</div>' +
-      '<div class="idea-activate-t">Une idée de vidéo chaque jour</div>' +
+      '<div class="idea-activate-t">Des idées de contenu viral</div>' +
       '<div class="idea-activate-s">Chaque jour, une idée fraîche prête à filmer pour l\'un de tes comptes (' + names + '), à tour de rôle. Rien n\'est généré tant que tu n\'ouvres pas l\'app — donc zéro spam, zéro gaspillage.</div>' +
       '<button class="idea-activate-btn" onclick="activateDailyIdeas()">Activer mes idées</button>' +
       '</div>';

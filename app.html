@@ -1204,6 +1204,31 @@
   /* Idées de vidéos directement dans le Studio (sous le compte sélectionné) */
   .studio-ideas { margin:2px 0 18px; }
   .studio-ideas .idea2-go { background:linear-gradient(135deg,#4d8fff,#1a6fff); }
+  /* Idée du jour : en-tête + rotation */
+  .daily-idea-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:2px 0 13px; }
+  .daily-idea-head .dih-t { font-family:'Fraunces',serif; font-weight:700; font-size:1.06rem; color:var(--white); }
+  .daily-idea-next { font-size:.78rem; color:var(--muted2); margin:12px 2px 0; text-align:center; }
+  .daily-idea-next b { color:var(--blue-light); }
+  /* Carte d'activation (💡) */
+  .idea-activate { text-align:center; background:linear-gradient(160deg,rgba(47,123,255,0.12),rgba(139,108,255,0.06)); border:1px solid rgba(94,155,255,0.3); border-radius:20px; padding:26px 20px; }
+  .idea-activate-ic { font-size:2.6rem; line-height:1; margin-bottom:10px; }
+  .idea-activate-t { font-family:'Fraunces',serif; font-weight:700; font-size:1.22rem; color:var(--white); margin-bottom:9px; }
+  .idea-activate-s { font-size:.88rem; color:var(--muted); line-height:1.55; margin:0 auto 18px; max-width:340px; }
+  .idea-activate-btn { background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:13px; padding:13px 26px; font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; cursor:pointer; box-shadow:0 10px 26px -8px rgba(47,123,255,0.65); transition:transform .15s; }
+  .idea-activate-btn:active { transform:scale(0.96); }
+  /* Gérer mes idées */
+  .idea-manage { text-align:center; margin-top:16px; }
+  .idea-manage-btn { background:none; border:1px solid var(--border2); color:var(--muted); border-radius:11px; padding:9px 15px; font-family:'Sora',sans-serif; font-weight:600; font-size:.8rem; cursor:pointer; transition:color .2s, border-color .2s; }
+  .idea-manage-btn:active { transform:scale(0.97); }
+  .idea-settings { padding:2px; }
+  .idea-back { background:none; border:none; color:var(--blue-light); font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; cursor:pointer; padding:4px 0; margin-bottom:12px; }
+  .idea-set-h { font-family:'Fraunces',serif; font-weight:700; font-size:1.02rem; color:var(--white); margin-bottom:4px; }
+  .idea-set-s { font-size:.8rem; color:var(--muted); line-height:1.4; margin-bottom:13px; }
+  .idea-acct-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .idea-acct-chip { background:rgba(255,255,255,0.03); border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:8px 14px; font-family:'Sora',sans-serif; font-weight:600; font-size:.82rem; cursor:pointer; transition:all .18s; }
+  .idea-acct-chip.on { background:linear-gradient(135deg,rgba(47,123,255,0.18),rgba(94,155,255,0.06)); border-color:rgba(122,176,255,0.55); color:#e6efff; }
+  .idea-deact { width:100%; background:none; border:1px solid rgba(255,90,110,0.35); color:#ff8a9b; border-radius:12px; padding:11px; font-family:'Sora',sans-serif; font-weight:600; font-size:.84rem; cursor:pointer; transition:transform .15s; }
+  .idea-deact:active { transform:scale(0.98); }
   /* Aperçu (hook) visible sans déplier + invite à ouvrir */
   .idea2-prev { font-size:.79rem; color:var(--muted); line-height:1.45; margin-top:6px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .idea2-openhint { display:flex; align-items:center; gap:5px; font-size:.7rem; font-weight:700; color:var(--blue-light); padding:0 13px 12px; margin-top:-2px; }
@@ -1856,10 +1881,12 @@
     <h1 class="page-title reveal" style="animation-delay:.05s">Studio 🎯</h1>
     <p class="page-sub reveal" style="animation-delay:.12s">Tes outils de création. Choisis, crée, publie.</p>
 
-    <!-- Compte : sélection rapide (la niche est déjà connue) -->
-    <div class="studio-acc-label reveal" style="animation-delay:.16s">Ton compte</div>
-    <div id="studioAccounts" class="studio-accs reveal" style="animation-delay:.2s"></div>
-    <div id="studioAccCtx" class="reveal" style="animation-delay:.24s;display:none;"></div>
+    <!-- Compte : sélection rapide (uniquement pour l'outil Script ; les idées tournent seules) -->
+    <div id="studioAcctPicker">
+      <div class="studio-acc-label reveal" style="animation-delay:.16s">Ton compte</div>
+      <div id="studioAccounts" class="studio-accs reveal" style="animation-delay:.2s"></div>
+      <div id="studioAccCtx" class="reveal" style="animation-delay:.24s;display:none;"></div>
+    </div>
 
     <!-- ===== Sélecteur d'outils du Studio (segmenté) ===== -->
     <div class="studio-label reveal" style="animation-delay:.24s">Ton outil</div>
@@ -5935,6 +5962,8 @@
     if (accs.length) { studioAccs = accs; try { localStorage.setItem('sk_studio_accs', JSON.stringify(accs)); } catch(e){} }
     else { studioAccs = []; try { localStorage.removeItem('sk_studio_accs'); } catch(e){} }
     renderStudioAccounts();
+    // Les comptes sont prêts -> si l'outil Idées est ouvert, on (re)charge l'idée du jour.
+    if (window._studioTool === 'ideas' && typeof loadDailyIdea === 'function') loadDailyIdea();
   }
 
   function renderStudioAccounts() {
@@ -6019,7 +6048,6 @@
       if (ps) { ps.querySelectorAll('.ps-btn').forEach(function(b){ var on=(b.getAttribute('data-plat')===want); b.classList.toggle('active', on); if(on){ selectedPlatform = want; } }); if (typeof applyDurationRange==='function') applyDurationRange(); }
     } catch(e){}
     renderStudioCtx(a, niche);
-    loadStudioIdeas(a);
   }
 
   // Le compte fait-il surtout du contenu SANS script (clips, nature, musique, ASMR…) ?
@@ -6068,16 +6096,136 @@
     var hint = document.getElementById('toolHint');
     if (hint) hint.textContent = (tool === 'script')
       ? "Écris ton idée (ou pars d'une idée) → un script viral prêt à filmer."
-      : "Des idées virales dans ta niche — choisis-en une, on t'écrit le script.";
+      : "Une idée fraîche chaque jour pour l'un de tes comptes.";
     var pi = document.getElementById('toolPanel-ideas'), ps = document.getElementById('toolPanel-script');
     if (pi) pi.hidden = (tool !== 'ideas');
     if (ps) ps.hidden = (tool !== 'script');
+    // Le sélecteur de compte ne sert qu'à l'outil Script (les idées tournent automatiquement).
+    var picker = document.getElementById('studioAcctPicker');
+    if (picker) picker.style.display = (tool === 'ideas') ? 'none' : '';
+    if (tool === 'ideas' && typeof loadDailyIdea === 'function') loadDailyIdea();
     if (tool === 'script' && typeof redrawWorkflowSoon === 'function') redrawWorkflowSoon();
   }
   function initStudioTool() {
     var t = window._studioTool;
     if (!t) { try { t = localStorage.getItem('sk_studio_tool'); } catch(e){} }
     setStudioTool(t || 'ideas');
+  }
+
+  /* ===== Idée du jour : 1 idée / jour pour UN compte en rotation, générée seulement à l'ouverture ===== */
+  function ideaRotationSel() { try { var s = localStorage.getItem('sk_idea_accts'); return s ? JSON.parse(s) : null; } catch(e){ return null; } }
+  function ideaRotationAccounts() {
+    var all = (typeof studioAccs !== 'undefined' && studioAccs) ? studioAccs : [];
+    var sel = ideaRotationSel();
+    if (Array.isArray(sel) && sel.length) {
+      var f = all.filter(function(a){ return sel.indexOf(a.platform+'|'+a.username.toLowerCase()) >= 0; });
+      if (f.length) return f;
+    }
+    return all;
+  }
+  function ideaDayNum() { return Math.floor(Date.now() / 86400000); }
+  function todaysIdeaAccount() { var r = ideaRotationAccounts(); return r.length ? r[ideaDayNum() % r.length] : null; }
+  function nextIdeaAccount() { var r = ideaRotationAccounts(); return r.length > 1 ? r[(ideaDayNum()+1) % r.length] : null; }
+  function ideasActivated() { try { return localStorage.getItem('sk_ideas_on') === '1'; } catch(e){ return false; } }
+
+  function ideaHeadHTML(acc){ return '<div class="daily-idea-head"><span class="dih-t">💡 Ton idée du jour</span>' + studioPlatChip(acc) + '</div>'; }
+  function ideaManageHTML(){ return '<div class="idea-manage"><button class="idea-manage-btn" onclick="openIdeaSettings()">⚙️ Gérer mes idées</button></div>'; }
+
+  function renderIdeaActivationCard(rot){
+    var names = rot.slice(0,4).map(function(a){ return '@'+escapeHtml(a.username); }).join(', ');
+    return '<div class="idea-activate">' +
+      '<div class="idea-activate-ic">💡</div>' +
+      '<div class="idea-activate-t">Une idée de vidéo chaque jour</div>' +
+      '<div class="idea-activate-s">Chaque jour, une idée fraîche prête à filmer pour l\'un de tes comptes (' + names + '), à tour de rôle. Rien n\'est généré tant que tu n\'ouvres pas l\'app — donc zéro spam, zéro gaspillage.</div>' +
+      '<button class="idea-activate-btn" onclick="activateDailyIdeas()">Activer mes idées</button>' +
+      '</div>';
+  }
+  function activateDailyIdeas(){
+    try { localStorage.setItem('sk_ideas_on','1'); } catch(e){}
+    if (typeof skModal === 'function') skModal({ icon:'✅', iconBg:'#16351f', title:'C\'est activé !', message:'Chaque jour, tu auras une nouvelle idée de vidéo pour l\'un de tes comptes, à tour de rôle.<br><span style="color:#8b9bc4;font-size:.9em;">Rien n\'est généré tant que tu ne viens pas — donc aucun gaspillage.</span>', cancelText:'Parfait' });
+    loadDailyIdea();
+  }
+  function deactivateDailyIdeas(){ try { localStorage.removeItem('sk_ideas_on'); } catch(e){} loadDailyIdea(); }
+
+  function openIdeaSettings(){
+    var box = document.getElementById('studioIdeas'); if(!box) return;
+    var all = (typeof studioAccs !== 'undefined' && studioAccs) ? studioAccs : [];
+    var sel = ideaRotationSel();
+    var chips = all.map(function(a){
+      var k = a.platform+'|'+a.username.toLowerCase();
+      var on = !sel || sel.indexOf(k) >= 0;
+      return '<button class="idea-acct-chip'+(on?' on':'')+'" onclick="toggleRotationAccount(\''+k.replace(/'/g,'')+'\')">'+(on?'✓ ':'')+'@'+escapeHtml(a.username)+'</button>';
+    }).join('');
+    box.innerHTML = '<div class="idea-settings">' +
+      '<button class="idea-back" onclick="loadDailyIdea()">← Retour</button>' +
+      '<div class="idea-set-h">Comptes qui reçoivent des idées</div>' +
+      '<div class="idea-set-s">Une idée par jour, à tour de rôle entre les comptes cochés.</div>' +
+      '<div class="idea-acct-chips">'+(chips || '<div class="ideas-empty" style="padding:14px;">Aucun compte connecté.</div>')+'</div>' +
+      '<button class="idea-deact" onclick="deactivateDailyIdeas()">Désactiver les idées quotidiennes</button>' +
+      '</div>';
+  }
+  function toggleRotationAccount(k){
+    var all = (typeof studioAccs !== 'undefined' && studioAccs) ? studioAccs : [];
+    var sel = ideaRotationSel();
+    if (!sel) sel = all.map(function(a){ return a.platform+'|'+a.username.toLowerCase(); });
+    var i = sel.indexOf(k);
+    if (i>=0) { if (sel.length > 1) sel.splice(i,1); } else { sel.push(k); }
+    try { localStorage.setItem('sk_idea_accts', JSON.stringify(sel)); } catch(e){}
+    openIdeaSettings();
+  }
+
+  async function loadDailyIdea(){
+    var box = document.getElementById('studioIdeas'); if(!box) return;
+    var rot = ideaRotationAccounts();
+    if (!rot.length) {
+      if (!window._studioLoaded) { box.innerHTML = '<div class="ideas-loading">…</div>'; return; }
+      box.innerHTML = '<div class="studio-empty3"><span class="se3-ic">🎬</span><span class="se3-t">Connecte un compte pour recevoir des idées de vidéos.</span><button class="se3-btn" onclick="switchView(\'publish\', null)">Connecter</button></div>';
+      return;
+    }
+    if (!ideasActivated()) { box.innerHTML = renderIdeaActivationCard(rot); return; }
+    var acc = todaysIdeaAccount(); if (!acc) { box.innerHTML = renderIdeaActivationCard(rot); return; }
+    var key = acc.platform+'|'+acc.username.toLowerCase();
+    window._dailyIdeaKey = key;
+    box.innerHTML = ideaHeadHTML(acc) + '<div class="ideas-loading">✨ On prépare ton idée du jour…</div>';
+    try {
+      var { data: { session } } = await sb.auth.getSession();
+      if (!session) { box.innerHTML = '<div class="ideas-empty">Connecte-toi pour voir ton idée.</div>'; return; }
+      var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY };
+      var data = await fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username }) }).then(function(r){ return r.json(); });
+      if (window._dailyIdeaKey !== key) return;
+      var ideas = (data && data.ideas) ? data.ideas : [];
+      if (!ideas.length) {
+        var msg = (data && data.message) ? data.message : 'Ton idée arrive après une analyse de ce compte. Actualise-le sur l\'Accueil.';
+        window._studioIdeas = [];
+        box.innerHTML = ideaHeadHTML(acc) + '<div class="ideas-empty">' + escapeHtml(msg) + '</div>' + ideaManageHTML();
+        return;
+      }
+      window._studioIdeas = ideas.slice(0, 1); // 1 idée du jour
+      markIdeasSeen(acc, data.date); setIdeaBadge(0);
+      var html = ideaHeadHTML(acc);
+      html += renderStudioIdeasList(window._studioIdeas, studioNoScript(acc) ? 'copy' : 'script');
+      var nxt = nextIdeaAccount();
+      if (nxt) html += '<div class="daily-idea-next">Demain : une idée pour <b>@' + escapeHtml(nxt.username) + '</b></div>';
+      html += ideaManageHTML();
+      box.innerHTML = html;
+      loadIdeaHistory(box, acc, hdr, data.date);
+    } catch(e){
+      if (window._dailyIdeaKey !== key) return;
+      box.innerHTML = ideaHeadHTML(acc) + '<div class="ideas-empty">Idée indisponible pour le moment. Réessaie plus tard.</div>' + ideaManageHTML();
+    }
+  }
+  async function loadIdeaHistory(box, acc, hdr, todayDate){
+    try {
+      var key = acc.platform+'|'+acc.username.toLowerCase();
+      var hist = await fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username, history: true }) }).then(function(r){ return r.json(); });
+      if (window._dailyIdeaKey !== key) return;
+      var rows = (hist && hist.history) ? hist.history : [];
+      var past = rows.filter(function(r){ return r.idea_date !== todayDate && r.ideas && r.ideas.length; });
+      if (!past.length) return;
+      var hh = '<div class="ideas-hist-h">Idées déjà générées · @' + escapeHtml(acc.username) + '</div>';
+      past.forEach(function(r){ var n=r.ideas.length; hh += '<details class="ideas-hist"><summary>'+escapeHtml(frDate(r.idea_date))+' · '+n+' idée'+(n>1?'s':'')+'</summary>'+renderStudioIdeasList(r.ideas,'readonly')+'</details>'; });
+      box.insertAdjacentHTML('beforeend', hh);
+    } catch(e){}
   }
 
   /* ===== Idées de vidéos directement dans le Studio (même source que la bulle 💡, 0 coût en plus : cache/jour) ===== */

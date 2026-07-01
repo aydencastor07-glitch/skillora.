@@ -1204,21 +1204,22 @@
   /* Idées de vidéos directement dans le Studio (sous le compte sélectionné) */
   .studio-ideas { margin:2px 0 18px; }
   .studio-ideas .idea2-go { background:linear-gradient(135deg,#4d8fff,#1a6fff); }
-  /* Popup d'activation des idées (coche les comptes) */
-  .ia-pop { text-align:center; }
-  .ia-pop-ic { font-size:2.6rem; line-height:1; margin-bottom:8px; }
-  .ia-pop-t { font-family:'Fraunces',serif; font-weight:700; font-size:1.24rem; color:var(--white); margin-bottom:8px; }
-  .ia-pop-s { font-size:.88rem; color:var(--muted); line-height:1.55; margin:0 auto 16px; max-width:360px; }
-  .ia-accts { display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
-  .ia-acct { display:flex; align-items:center; gap:11px; background:rgba(255,255,255,0.03); border:1.5px solid var(--border); border-radius:14px; padding:11px 14px; cursor:pointer; transition:border-color .2s, background .2s; text-align:left; }
-  .ia-acct:has(.ia-cb:checked) { border-color:rgba(122,176,255,0.6); background:linear-gradient(135deg,rgba(47,123,255,0.14),rgba(94,155,255,0.04)); }
-  .ia-cb { position:absolute; opacity:0; pointer-events:none; }
-  .ia-acct-chip { flex:1; display:inline-flex; align-items:center; gap:9px; font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem; color:var(--white); min-width:0; }
+  /* Popup d'activation des idées (coche les comptes) — AU-DESSUS de la barre du bas */
+  #ideaActivateModal { z-index:300; }
+  .ia-pop { text-align:center; max-height:86vh; overflow-y:auto; padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
+  .ia-pop-ic { font-size:2.5rem; line-height:1; margin-bottom:6px; }
+  .ia-pop-t { font-family:'Fraunces',serif; font-weight:700; font-size:1.24rem; color:var(--white); margin-bottom:6px; }
+  .ia-pop-s { font-size:.9rem; color:var(--muted); line-height:1.5; margin:0 auto 16px; max-width:320px; }
+  .ia-accts { display:flex; flex-direction:column; gap:9px; margin-bottom:16px; }
+  .ia-acct { display:flex; align-items:center; gap:11px; background:rgba(255,255,255,0.03); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px; cursor:pointer; transition:border-color .2s, background .2s; text-align:left; -webkit-tap-highlight-color:transparent; }
+  .ia-acct.on { border-color:rgba(122,176,255,0.6); background:linear-gradient(135deg,rgba(47,123,255,0.14),rgba(94,155,255,0.04)); }
+  .ia-acct-chip { flex:1; display:inline-flex; align-items:center; gap:9px; font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:var(--white); min-width:0; }
   .ia-acct-chip i { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:none; }
   .ia-check { flex:none; width:24px; height:24px; border-radius:50%; border:2px solid var(--border2); color:transparent; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:800; transition:all .2s; }
-  .ia-acct:has(.ia-cb:checked) .ia-check { background:#3ddc84; border-color:#3ddc84; color:#06210f; }
-  .ia-pop-btn { width:100%; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:14px; padding:14px; font-family:'Sora',sans-serif; font-weight:700; font-size:.96rem; cursor:pointer; box-shadow:0 12px 28px -8px rgba(47,123,255,0.65); transition:transform .15s; }
+  .ia-acct.on .ia-check { background:#3ddc84; border-color:#3ddc84; color:#06210f; }
+  .ia-pop-btn { width:100%; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:14px; padding:15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.98rem; cursor:pointer; box-shadow:0 12px 28px -8px rgba(47,123,255,0.65); transition:transform .15s; }
   .ia-pop-btn:active { transform:scale(0.97); }
+  .ia-pop-btn:disabled { opacity:.45; box-shadow:none; }
   .ia-pop-skip { width:100%; background:none; border:none; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; padding:12px 0 2px; }
 
   /* Idée du jour : en-tête + rotation */
@@ -6127,24 +6128,22 @@
     window._ideaPopupKeys = accounts.map(function(a){ return a.platform+'|'+String(a.username).toLowerCase(); });
     var chips = accounts.map(function(a){
       var k = a.platform+'|'+String(a.username).toLowerCase();
-      return '<label class="ia-acct"><input type="checkbox" class="ia-cb" value="'+k.replace(/"/g,'')+'" checked>' +
+      return '<div class="ia-acct'+(isNew?' on':'')+'" data-key="'+k.replace(/"/g,'')+'" onclick="this.classList.toggle(\'on\')">' +
         '<span class="ia-acct-chip"><i style="background:'+platBg(a.platform)+';">'+pubPlatSVG(a.platform,12)+'</i>@'+escapeHtml(a.username)+'</span>' +
-        '<span class="ia-check">✓</span></label>';
+        '<span class="ia-check">✓</span></div>';
     }).join('');
     body.innerHTML =
       '<div class="ia-pop-ic">💡</div>' +
-      '<div class="ia-pop-t">' + (isNew ? 'Nouveau compte détecté' : 'Reçois une idée de vidéo chaque jour') + '</div>' +
-      '<div class="ia-pop-s">' + (isNew
-        ? "Tu viens de connecter un nouveau compte. Tu veux aussi recevoir des idées de vidéos pour lui, à tour de rôle ?"
-        : "Chaque jour, une idée fraîche prête à filmer pour l'un de tes comptes — à tour de rôle. Coche ceux qui doivent en recevoir.") + '</div>' +
+      '<div class="ia-pop-t">' + (isNew ? 'Nouveau compte' : 'Reçois une idée virale chaque jour') + '</div>' +
+      '<div class="ia-pop-s">' + (isNew ? 'Tu veux aussi des idées pour ce compte ?' : 'Choisis les comptes qui doivent en recevoir 👇') + '</div>' +
       '<div class="ia-accts">' + chips + '</div>' +
-      '<button class="ia-pop-btn" onclick="confirmIdeaActivation(' + (isNew?'true':'false') + ')">' + (isNew ? 'Ajouter ce compte' : 'Activer mes idées') + '</button>' +
+      '<button class="ia-pop-btn" onclick="confirmIdeaActivation(' + (isNew?'true':'false') + ')">' + (isNew ? 'Ajouter ce compte' : 'Activer') + '</button>' +
       '<button class="ia-pop-skip" onclick="closeIdeaActivate()">' + (isNew ? 'Non merci' : 'Plus tard') + '</button>';
     modal.classList.add('open');
   }
 
   function confirmIdeaActivation(isNew) {
-    var checked = [].slice.call(document.querySelectorAll('#ideaActivateBody .ia-cb:checked')).map(function(c){ return c.value; });
+    var checked = [].slice.call(document.querySelectorAll('#ideaActivateBody .ia-acct.on')).map(function(el){ return el.getAttribute('data-key'); });
     var shown = window._ideaPopupKeys || [];
     var sel = isNew ? (ideaRotationSel() || []) : [];
     checked.forEach(function(k){ if (sel.indexOf(k) < 0) sel.push(k); });

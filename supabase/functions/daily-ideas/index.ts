@@ -5,7 +5,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const MODEL = "claude-haiku-4-5";
-const GEN_V = 2; // incrémenter à chaque amélioration du prompt
+const GEN_V = 3; // incrémenter à chaque amélioration du prompt
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -122,10 +122,12 @@ function detectMode(ctx: any): "curation" | "news" | "visual" | "original" {
 function modeBlock(mode: string): string {
   if (mode === "curation") {
     return `Ce compte fait de la CURATION / CLIPPING : il ne tourne pas lui-même, il RE-MONTE des séquences qui existent déjà.
-- "title" = l'angle du clip.
-- "hook" = le texte à l'écran des 2 premières secondes.
-- "source" = OÙ trouver la VRAIE séquence : chaînes / émissions / podcasts / streamers RÉELS connus dans cette niche, + 2-3 requêtes de recherche précises qui ramènent vraiment des résultats. INTERDIT d'inventer un événement précis, un chiffre ou une citation.
-- "structure" = les étapes de MONTAGE (repérer le moment fort, découper, sous-titres, zoom/punch, texte, rythme).`;
+- "title" = le TYPE de moment à clipper (ex: "Un concurrent perd gros dans Beast Games"), PAS une affirmation chiffrée précise ("il a perdu exactement 1M$").
+- "angle" = décris clairement le GENRE de moment à chercher dans une source réelle.
+- "hook" = une accroche à mettre à l'écran, présentée comme un MODÈLE À ADAPTER au vrai clip trouvé (n'affirme pas un chiffre précis comme si c'était un fait vérifié).
+- "source" = OÙ trouver la VRAIE séquence : nomme des chaînes / émissions / podcasts / streamers RÉELS et connus dans cette niche + 2-3 requêtes de recherche précises qui ramènent vraiment des résultats. INTERDIT d'inventer un événement précis qui n'a pas eu lieu.
+- "structure" = les étapes de MONTAGE (repérer le moment fort, découper, sous-titres, zoom/punch, texte, rythme).
+Rappel : le clippeur doit pouvoir TROUVER un vrai clip qui colle à l'idée. Décris le type de moment, pas un fait chiffré inventé.`;
   }
   if (mode === "news") {
     return `Ce compte fait de l'ACTUALITÉ / tendance. Tu n'as PAS accès au web en direct : n'invente AUCUNE actu ni chiffre.
@@ -161,7 +163,7 @@ RÈGLES DE VÉRITÉ (ne jamais enfreindre) :
 MODE : ${mode}
 ${modeBlock(mode)}
 
-Produis 4 idées NOUVELLES. "viral_score" 1-10 (la plupart 6-9).
+Produis 3 idées NOUVELLES. "viral_score" 1-10 (la plupart 6-9).
 JSON STRICT :
 {"ideas":[{"title":"..","viral_score":<1-10>,"hook":"..","angle":"..","structure":["..","..",".."],"source":"..","hashtags":["..",".."],"format":"TikTok|Reels|Shorts"}]}`;
   const userMsg = `Plateforme: ${ctx.platform}
@@ -176,7 +178,7 @@ ${ctx.best || "(aucune)"}
 Formule: ${ctx.formula || "(aucune)"}
 Leviers: ${ctx.patterns || "(aucun)"}
 
-Donne 4 idées prêtes à exécuter aujourd'hui, dans la niche, en respectant le MODE et les RÈGLES.`;
+Donne 3 idées prêtes à exécuter aujourd'hui, dans la niche, en respectant le MODE et les RÈGLES.`;
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
@@ -190,7 +192,7 @@ Donne 4 idées prêtes à exécuter aujourd'hui, dans la niche, en respectant le
   const a = t.indexOf("{"), b = t.lastIndexOf("}");
   const parsed = JSON.parse(a >= 0 && b > a ? t.slice(a, b + 1) : t);
   const ideas = Array.isArray(parsed) ? parsed : (parsed.ideas || []);
-  return ideas.slice(0, 6).map((it: any) => ({
+  return ideas.slice(0, 3).map((it: any) => ({
     title: String(it.title || "Idée"),
     viral_score: Number(it.viral_score) || 0,
     hook: String(it.hook || ""),

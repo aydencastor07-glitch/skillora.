@@ -284,6 +284,16 @@
   .home-conn-btn:hover { border-color:var(--blue); }
   .home-conn-ic { display:flex; align-items:center; justify-content:center; height:26px; }
   .home-conn-ic svg { width:24px; height:24px; }
+  /* Réseaux en liste pro : icône (tuile) + nom + statut */
+  .home-connect-grid.rows { grid-template-columns:repeat(2,1fr); gap:9px; }
+  .home-connect-grid.rows .home-conn-btn { flex-direction:row; align-items:center; justify-content:flex-start; gap:10px; padding:11px 12px; }
+  .hcb-ic { flex:none; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); border:1px solid var(--border2); }
+  .hcb-ic svg { width:20px; height:20px; }
+  .hcb-name { flex:1; text-align:left; font-family:'Sora',sans-serif; font-weight:700; font-size:.86rem; color:var(--white); min-width:0; }
+  .hcb-add, .hcb-ok { flex:none; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; }
+  .hcb-add { color:var(--blue-light); background:rgba(47,123,255,0.14); font-size:1rem; }
+  .hcb-ok { color:#06210f; background:#3ddc84; font-size:.72rem; }
+  .home-conn-btn.is-conn { border-color:rgba(61,220,132,0.4); background:rgba(61,220,132,0.05); }
   .home-skel-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:10px; }
   .home-skel .v { color:var(--muted2); opacity:.5; }
   .home-skel-note { font-size:.76rem; color:var(--muted2); text-align:center; margin-bottom:18px; }
@@ -1241,6 +1251,10 @@
   .ct-btn:active { transform:scale(0.97); }
   .ct-btn:disabled { opacity:.5; }
   .ct-cancel { width:100%; background:none; border:none; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; padding:12px 0 2px; }
+  .ct-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .ct-chip { background:rgba(255,255,255,0.04); border:1px solid var(--border2); color:var(--white); border-radius:999px; padding:9px 13px; font-family:'Sora',sans-serif; font-weight:600; font-size:.8rem; cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; }
+  .ct-chip:active { transform:scale(0.96); }
+  .ct-chip:hover { border-color:rgba(122,176,255,0.5); color:#e6efff; }
   /* Onglets du panneau d'idées (bulle) : Idée du jour | Historique */
   .idp-tabs { display:flex; gap:6px; background:var(--surface); border:1px solid var(--border2); border-radius:13px; padding:4px; margin:2px 0 16px; }
   .idp-tab { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; background:none; border:none; cursor:pointer; padding:10px 8px; border-radius:9px; color:var(--muted); font-family:'Sora',sans-serif; font-weight:700; font-size:.85rem; transition:all .2s; -webkit-tap-highlight-color:transparent; }
@@ -1784,7 +1798,7 @@
   <div class="topbar">
     <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'">Skill<span>ora</span></div>
     <div class="top-icons">
-      <div class="icon-btn" onclick="openContact()" role="button" aria-label="Nous contacter">✉️</div>
+      <div class="icon-btn" onclick="openContact()" role="button" aria-label="Support">🎧</div>
       <div class="icon-btn" onclick="openNotifPanel()" role="button" aria-label="Notifications">🔔<span class="notif-dot" id="notifDot"></span></div>
     </div>
   </div>
@@ -2458,14 +2472,21 @@
   </div>
 </div>
 
-<!-- Contact : le message arrive par email au support -->
+<!-- Support : sujets pré-remplis + texte libre. Le message arrive par email au support. -->
 <div class="modal" id="contactModal" onclick="closeContact(event)">
   <div class="modal-sheet ct-sheet" onclick="event.stopPropagation()">
-    <div class="ct-h">✉️ Nous contacter</div>
-    <div class="ct-s">Une question, un souci, une suggestion ? Écris-nous — on te répond par email.</div>
-    <textarea id="contactMsg" class="ct-input" rows="5" placeholder="Ton message…"></textarea>
+    <div class="ct-h">🎧 Support Skillora</div>
+    <div class="ct-s">Choisis un sujet, ou écris directement — on te répond par email.</div>
+    <div class="ct-chips">
+      <button class="ct-chip" onclick="ctPick('Je n\'arrive pas à connecter un de mes comptes.')">Connexion d'un compte</button>
+      <button class="ct-chip" onclick="ctPick('J\'ai une question sur mon abonnement / paiement.')">Abonnement / paiement</button>
+      <button class="ct-chip" onclick="ctPick('J\'ai un problème pour publier une vidéo.')">Problème de publication</button>
+      <button class="ct-chip" onclick="ctPick('J\'ai un souci avec les idées ou les scripts.')">Idées / scripts</button>
+      <button class="ct-chip" onclick="ctPick('Suggestion pour améliorer Skillora : ')">Une suggestion</button>
+    </div>
+    <textarea id="contactMsg" class="ct-input" rows="4" placeholder="Décris ton problème ou ta demande…"></textarea>
     <div class="status-msg" id="contactStatus" style="min-height:0;"></div>
-    <button class="ct-btn" onclick="sendContact()">Envoyer</button>
+    <button class="ct-btn" onclick="sendContact()">Envoyer au support</button>
     <button class="ct-cancel" onclick="closeContact()">Annuler</button>
   </div>
 </div>
@@ -3567,8 +3588,8 @@
   function homeConnectBlock() {
     return '<div class="home-connect">' +
         '<div class="home-connect-h">Connecte ton compte</div>' +
-        '<div class="home-connect-s">Relie <strong>ton</strong> compte de réseau social pour que Skillora analyse tes vidéos et construise ta stratégie. Choisis ta plateforme :</div>' +
-        '<div class="home-connect-grid four">' +
+        '<div class="home-connect-s">Relie <strong>ton</strong> compte pour que Skillora analyse tes vidéos et t\'accompagne. Choisis ta plateforme :</div>' +
+        '<div class="home-connect-grid rows">' +
           homeConnBtn('tiktok', tiktok, 'TikTok') +
           homeConnBtn('youtube', youtube, 'YouTube') +
           homeConnBtn('instagram', instagram, 'Instagram') +
@@ -3576,23 +3597,14 @@
           homeConnBtn('x', xtw, 'X') +
           homeConnBtn('threads', threads, 'Threads') +
         '</div>' +
-      '</div>' +
-      '<div class="home-perks">' +
-        '<div class="home-perks-h">Ce que Skillora fait pour toi</div>' +
-        homePerk('📊', 'Analyse ton compte', 'Ta niche, ton engagement et ce qui marche déjà chez toi.') +
-        homePerk('💡', 'Des idées de contenu', 'Une idée virale, prête à filmer, chaque jour pour ton compte.') +
-        homePerk('✍️', 'Des scripts viraux', 'Générés et optimisés pour ta plateforme, en quelques secondes.') +
-        homePerk('🚀', 'Publie en 1 clic', 'Envoie tes vidéos sur toutes tes plateformes depuis Skillora.') +
       '</div>';
-  }
-  function homePerk(ic, t, s) {
-    return '<div class="home-perk"><span class="home-perk-ic">' + ic + '</span><span class="home-perk-tx"><span class="home-perk-t">' + t + '</span><span class="home-perk-s">' + s + '</span></span></div>';
   }
   function homeConnBtn(plat, ic, label) {
     var connected = window.__connectedPlats && window.__connectedPlats[plat];
-    var stat = connected ? '<span style="display:block;font-size:.58rem;color:var(--green);margin-top:3px;font-weight:600;">✓ connecté</span>' : '';
     var act = connected ? ('connectedPlatMenu(\'' + plat + '\')') : ('connectAccount(\'' + plat + '\')');
-    return '<button class="home-conn-btn' + (connected ? ' is-conn' : '') + '" onclick="' + act + '"><span class="home-conn-ic">' + ic + '</span><span>' + label + '</span>' + stat + '</button>';
+    var right = connected ? '<span class="hcb-ok">✓</span>' : '<span class="hcb-add">+</span>';
+    return '<button class="home-conn-btn' + (connected ? ' is-conn' : '') + '" onclick="' + act + '">' +
+      '<span class="hcb-ic">' + ic + '</span><span class="hcb-name">' + label + '</span>' + right + '</button>';
   }
   // Clic sur une plateforme DEJA connectee -> on ne reconnecte PAS, on propose un menu
   function connectedPlatMenu(platform) {
@@ -6210,7 +6222,8 @@
 
   /* ===== Contact : message envoyé par email au support ===== */
   var SK_CONTACT_EMAIL = 'aydencastor07@gmail.com';
-  function openContact(){ var m=document.getElementById('contactModal'); if(m) m.classList.add('open'); var ta=document.getElementById('contactMsg'); if(ta) setTimeout(function(){ try{ta.focus();}catch(e){}}, 120); }
+  function openContact(){ var m=document.getElementById('contactModal'); if(m) m.classList.add('open'); }
+  function ctPick(t){ var ta=document.getElementById('contactMsg'); if(!ta) return; ta.value=t; ta.focus(); try{ ta.setSelectionRange(ta.value.length, ta.value.length); }catch(e){} }
   function closeContact(e){ if (e && e.target && e.target.id && e.target.id !== 'contactModal') return; var m=document.getElementById('contactModal'); if(m) m.classList.remove('open'); }
   async function sendContact(){
     var ta=document.getElementById('contactMsg'), st=document.getElementById('contactStatus');

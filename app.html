@@ -1209,9 +1209,15 @@
   .idea2-openhint { display:flex; align-items:center; gap:5px; font-size:.7rem; font-weight:700; color:var(--blue-light); padding:0 13px 12px; margin-top:-2px; }
   .idea2.open .idea2-openhint { display:none; }
   .idea2-openhint .oh-chev { transition:transform .25s; }
-  /* Ligne d'aide "les idées sont pour ce compte" */
-  .studio-ideas-tie { font-size:.75rem; color:var(--muted2); line-height:1.4; margin:-4px 2px 14px; }
-  .studio-ideas-tie b { color:var(--blue-light); font-weight:700; }
+  /* En-tête clair : plateforme + compte concerné par les idées */
+  .ideas-acc-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:2px 0 13px; }
+  .ideas-acc-chip { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.04); border:1px solid var(--border2); border-radius:999px; padding:5px 13px 5px 6px; font-family:'Sora',sans-serif; font-weight:700; font-size:.86rem; color:var(--white); min-width:0; }
+  .ideas-acc-chip i { width:23px; height:23px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:none; }
+  .ideas-acc-chip .iac-h { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ideas-acc-day { font-family:'Sora',sans-serif; font-weight:700; font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); white-space:nowrap; }
+  .idea2-copy { background:linear-gradient(135deg,#3ddc84,#1fb562) !important; box-shadow:0 8px 20px -6px rgba(61,220,132,0.5) !important; }
+  .ideas-hist-h { font-family:'Sora',sans-serif; font-weight:700; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:24px 2px 12px; display:flex; align-items:center; gap:7px; }
+  .ideas-hist-h::before { content:'🗂️'; font-size:.95rem; }
   /* Badge "+N nouvelles idées" sur le segment Studio de la barre du bas */
   .seg-badge { position:absolute; top:1px; left:calc(50% + 3px); min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:linear-gradient(135deg,#ff5b78,#e0143f); color:#fff; font-family:'Sora',sans-serif; font-weight:800; font-size:.58rem; display:none; align-items:center; justify-content:center; border:2px solid #070b16; box-shadow:0 3px 8px rgba(224,20,63,0.5); z-index:3; line-height:1; }
   .seg-badge.show { display:flex; animation:segBadgePop .32s cubic-bezier(.34,1.56,.64,1); }
@@ -6075,6 +6081,9 @@
   }
 
   /* ===== Idées de vidéos directement dans le Studio (même source que la bulle 💡, 0 coût en plus : cache/jour) ===== */
+  function studioPlatChip(acc){
+    return '<span class="ideas-acc-chip"><i style="background:'+platBg(acc.platform)+';">'+pubPlatSVG(acc.platform,12)+'</i><span class="iac-h">@'+escapeHtml(acc.username)+'</span></span>';
+  }
   async function loadStudioIdeas(acc) {
     var box = document.getElementById('studioIdeas');
     if (!box) return;
@@ -6087,20 +6096,17 @@
       var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY };
       var ideasP = fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username }) }).then(function(r){ return r.json(); });
       var mailP = sb.from('idea_email_subs').select('active').eq('platform', acc.platform).eq('username', acc.username).maybeSingle().then(function(r){ return !!(r && r.data && r.data.active); }).catch(function(){ return false; });
+      var histP = fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username, history: true }) }).then(function(r){ return r.json(); }).catch(function(){ return {}; });
       var data = await ideasP;
       var mailOn = await mailP;
       // Le compte a pu changer pendant le chargement -> on n'écrase pas.
       if (window._studioSelKey !== key) return;
       window._studioEmailOn = mailOn;
-      var mailRow = '<div class="idea-mail' + (mailOn?' on':'') + '" onclick="toggleStudioEmail()">' +
-          '<span class="idea-mail-ic">📩</span>' +
-          '<span class="idea-mail-tx"><span class="idea-mail-t">Recevoir mes idées chaque matin</span>' +
-          '<span class="idea-mail-s">Une nouvelle idée à fort potentiel par email, dès le réveil.</span></span>' +
-          '<span class="idea-switch"><span class="idea-knob"></span></span></div>';
+
       if (!data || data.error || !data.ideas || !data.ideas.length) {
         var msg = (data && data.message) ? data.message : 'Tes idées arrivent après une analyse de ton compte. Actualise ton compte sur l\'Accueil.';
         window._studioIdeas = [];
-        box.innerHTML = mailRow + '<div class="ideas-empty">' + escapeHtml(msg) + '</div>';
+        box.innerHTML = '<div class="ideas-acc-head">' + studioPlatChip(acc) + '</div><div class="ideas-empty">' + escapeHtml(msg) + '</div>';
         return;
       }
       var cap = curLimits().ideasDay;
@@ -6109,22 +6115,51 @@
       // Ces idées viennent d'être vues -> on efface le badge "+N".
       markIdeasSeen(acc, data.date);
       setIdeaBadge(0);
-      var multi = (typeof studioAccs !== 'undefined' && studioAccs && studioAccs.length > 1);
-      var html = mailRow;
-      html += '<div class="ideas-day-h">Aujourd\'hui · ' + shown.length + ' idée' + (shown.length>1?'s':'') + '</div>';
-      html += '<div class="studio-ideas-tie">💡 Générées pour <b>@' + escapeHtml(acc.username) + '</b>' + (multi ? ' — change de compte en haut pour d\'autres idées.' : '.') + '</div>';
-      html += renderStudioIdeasList(shown);
+      // Compteur d'usages : le toggle email n'apparaît qu'après 2 usages et jamais si déjà activé.
+      var uses = (parseInt(localStorage.getItem('sk_ideas_uses')||'0',10) || 0) + 1;
+      try { localStorage.setItem('sk_ideas_uses', String(uses)); } catch(e){}
+      // Ce compte a-t-il besoin d'un script ? (clips/nature/sans voix -> non : on propose juste de copier)
+      var noScript = studioNoScript(acc);
+
+      // En-tête clair : QUELLE plateforme + QUEL compte, et le nombre d'idées du jour.
+      var html = '<div class="ideas-acc-head">' + studioPlatChip(acc) + '<span class="ideas-acc-day">Aujourd\'hui · ' + shown.length + ' idée' + (shown.length>1?'s':'') + '</span></div>';
+      html += renderStudioIdeasList(shown, noScript ? 'copy' : 'script');
       if (cap !== INF && data.ideas.length > cap) {
         html += '<button class="home-bp-btn" style="margin-top:6px;" onclick="openUpgrade()"><span class="home-bp-ic">⚡</span><span class="home-bp-tx"><span class="home-bp-t">Débloque plus d\'idées</span><span class="home-bp-s">Plus d\'idées par jour en montant de plan</span></span><span class="home-bp-go">→</span></button>';
       }
+      // Toggle email : discret, seulement après 2 usages et si pas déjà activé.
+      if (!mailOn && uses >= 2) {
+        html += '<div class="idea-mail" style="margin-top:16px;" onclick="toggleStudioEmail()">' +
+          '<span class="idea-mail-ic">📩</span>' +
+          '<span class="idea-mail-tx"><span class="idea-mail-t">Recevoir mes idées chaque matin</span>' +
+          '<span class="idea-mail-s">Une nouvelle idée à fort potentiel par email, dès le réveil.</span></span>' +
+          '<span class="idea-switch"><span class="idea-knob"></span></span></div>';
+      }
       box.innerHTML = html;
+
+      // Historique : ajouté quand prêt (sans retarder l'affichage des idées du jour). 0 crédit (déjà stocké).
+      try {
+        var hist = await histP;
+        if (window._studioSelKey !== key) return;
+        var rows = (hist && hist.history) ? hist.history : [];
+        var past = rows.filter(function(r){ return r.idea_date !== data.date && r.ideas && r.ideas.length; });
+        if (past.length) {
+          var hh = '<div class="ideas-hist-h">Historique de tes idées</div>';
+          past.forEach(function(r){
+            var n = r.ideas.length;
+            hh += '<details class="ideas-hist"><summary>' + escapeHtml(frDate(r.idea_date)) + ' · ' + n + ' idée' + (n>1?'s':'') + '</summary>' + renderStudioIdeasList(r.ideas, 'readonly') + '</details>';
+          });
+          box.insertAdjacentHTML('beforeend', hh);
+        }
+      } catch(e){}
     } catch(e) {
       if (window._studioSelKey !== key) return;
       box.innerHTML = '<div class="ideas-empty">Idées indisponibles pour le moment. Réessaie plus tard.</div>';
     }
   }
 
-  function renderStudioIdeasList(ideas) {
+  function renderStudioIdeasList(ideas, mode) {
+    mode = mode || 'script';
     return (ideas||[]).map(function(it, i){
       var sc = Number(it.viral_score) || 0;
       var scCls = sc >= 8 ? 'hot' : (sc >= 6 ? 'ok' : 'low');
@@ -6147,10 +6182,35 @@
           (steps ? '<div class="idea2-block"><span class="idea2-l">Structure</span></div><ol class="idea2-steps">' + steps + '</ol>' : '') +
           (it.source ? '<div class="idea2-block"><span class="idea2-l">Où trouver</span>' + escapeHtml(it.source) + '</div>' : '') +
           (tags ? '<div class="idea2-tags">' + tags + '</div>' : '') +
-          '<button class="idea2-go" onclick="event.stopPropagation();useStudioIdea(' + i + ')">✍️ Écrire le script de cette idée</button>' +
+          (mode === 'readonly' ? '' :
+            (mode === 'copy'
+              ? '<button class="idea2-go idea2-copy" onclick="event.stopPropagation();copyStudioIdea(' + i + ',this)">📋 Copier l\'idée</button>'
+              : '<button class="idea2-go" onclick="event.stopPropagation();useStudioIdea(' + i + ')">✍️ Écrire le script de cette idée</button>')) +
         '</div></div>' +
       '</div>';
     }).join('');
+  }
+
+  // Copie l'idée complète (titre + plan) dans le presse-papier — pour les comptes sans script (clips/nature).
+  function copyStudioIdea(i, btn) {
+    var it = (window._studioIdeas||[])[i];
+    if (!it) return;
+    var L = [];
+    if (it.title) L.push(it.title);
+    if (it.hook) L.push('Hook : ' + it.hook);
+    if (it.angle) L.push(it.angle);
+    if (it.structure && it.structure.length) { L.push(''); L.push('Plan :'); it.structure.forEach(function(s,k){ L.push((k+1) + '. ' + s); }); }
+    if (it.source) L.push('\nOù trouver : ' + it.source);
+    if (it.hashtags && it.hashtags.length) L.push('\n' + it.hashtags.map(function(h){ return '#' + String(h).replace(/^#*/,''); }).join(' '));
+    var txt = L.join('\n');
+    function done(){ if (btn){ var o = btn.innerHTML; btn.innerHTML = '✓ Copié !'; btn.disabled = true; setTimeout(function(){ btn.innerHTML = o; btn.disabled = false; }, 1600); } }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(done).catch(function(){ fallbackCopy(txt); done(); }); }
+      else { fallbackCopy(txt); done(); }
+    } catch(e) { fallbackCopy(txt); done(); }
+  }
+  function fallbackCopy(txt) {
+    try { var ta = document.createElement('textarea'); ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } catch(e){}
   }
 
   function useStudioIdea(i) {

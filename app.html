@@ -6124,8 +6124,26 @@
     return all;
   }
   function ideaDayNum() { return Math.floor(Date.now() / 86400000); }
-  function todaysIdeaAccount() { var r = ideaRotationAccounts(); return r.length ? r[ideaDayNum() % r.length] : null; }
-  function nextIdeaAccount() { var r = ideaRotationAccounts(); return r.length > 1 ? r[(ideaDayNum()+1) % r.length] : null; }
+  // Engagement par compte : +1 quand l'utilisateur copie/utilise une idée -> l'algo privilégie ce compte.
+  function ideaEng() { try { return JSON.parse(localStorage.getItem('sk_idea_eng') || '{}') || {}; } catch(e){ return {}; } }
+  function bumpEngagement(acc) {
+    if (!acc) return;
+    try { var e = ideaEng(); var k = acc.platform+'|'+String(acc.username).toLowerCase(); e[k] = (e[k]||0) + 1; localStorage.setItem('sk_idea_eng', JSON.stringify(e)); } catch(_e){}
+  }
+  // Poids = 1 (plancher, jamais de famine) + engagement plafonné (reste adaptatif).
+  function ideaWeights(rot) { var e = ideaEng(); return rot.map(function(a){ var c = e[a.platform+'|'+String(a.username).toLowerCase()] || 0; return 1 + Math.min(c, 8); }); }
+  function seededRand(seed) { var x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+  // Tirage pondéré, déterministe pour un jour donné (stable dans la journée, varié d'un jour à l'autre).
+  function pickWeightedAcc(rot, seed) {
+    if (!rot.length) return null;
+    if (rot.length === 1) return rot[0];
+    var w = ideaWeights(rot), total = w.reduce(function(a,b){ return a+b; }, 0);
+    var r = seededRand(seed) * total;
+    for (var i=0;i<rot.length;i++){ r -= w[i]; if (r <= 0) return rot[i]; }
+    return rot[rot.length-1];
+  }
+  function todaysIdeaAccount() { return pickWeightedAcc(ideaRotationAccounts(), ideaDayNum()); }
+  function nextIdeaAccount() { var r = ideaRotationAccounts(); return r.length > 1 ? pickWeightedAcc(r, ideaDayNum()+1) : null; }
   function ideasActivated() { try { return localStorage.getItem('sk_ideas_on') === '1'; } catch(e){ return false; } }
 
   function ideaHeadHTML(acc){ return '<div class="daily-idea-head"><span class="dih-t">💡 Ton idée du jour</span>' + studioPlatChip(acc) + '</div>'; }
@@ -6186,6 +6204,7 @@
     var acc = todaysIdeaAccount(); if (!acc) { box.innerHTML = renderIdeaActivationCard(rot); return; }
     var key = acc.platform+'|'+acc.username.toLowerCase();
     window._dailyIdeaKey = key;
+    window._dailyIdeaAcc = acc;
     box.innerHTML = ideaHeadHTML(acc) + '<div class="ideas-loading">✨ On prépare ton idée du jour…</div>';
     try {
       var { data: { session } } = await sb.auth.getSession();
@@ -6344,6 +6363,7 @@
   function copyStudioIdea(i, btn) {
     var it = (window._studioIdeas||[])[i];
     if (!it) return;
+    bumpEngagement(window._dailyIdeaAcc); // l'algo apprend : ce compte est utilisé
     var L = [];
     if (it.title) L.push(it.title);
     if (it.hook) L.push('Hook : ' + it.hook);
@@ -6365,6 +6385,7 @@
   function useStudioIdea(i) {
     var it = (window._studioIdeas||[])[i];
     if (!it) return;
+    bumpEngagement(window._dailyIdeaAcc); // l'algo apprend : ce compte est utilisé
     var lines = [];
     if (it.title) lines.push(it.title);
     if (it.hook) lines.push('Hook : ' + it.hook);

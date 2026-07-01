@@ -1204,6 +1204,25 @@
   /* Idées de vidéos directement dans le Studio (sous le compte sélectionné) */
   .studio-ideas { margin:2px 0 18px; }
   .studio-ideas .idea2-go { background:linear-gradient(135deg,#4d8fff,#1a6fff); }
+  /* Aperçu (hook) visible sans déplier + invite à ouvrir */
+  .idea2-prev { font-size:.79rem; color:var(--muted); line-height:1.45; margin-top:6px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .idea2-openhint { display:flex; align-items:center; gap:5px; font-size:.7rem; font-weight:700; color:var(--blue-light); padding:0 13px 12px; margin-top:-2px; }
+  .idea2.open .idea2-openhint { display:none; }
+  .idea2-openhint .oh-chev { transition:transform .25s; }
+  /* Ligne d'aide "les idées sont pour ce compte" */
+  .studio-ideas-tie { font-size:.75rem; color:var(--muted2); line-height:1.4; margin:-4px 2px 14px; }
+  .studio-ideas-tie b { color:var(--blue-light); font-weight:700; }
+  /* Badge "+N nouvelles idées" sur le segment Studio de la barre du bas */
+  .seg-badge { position:absolute; top:1px; left:calc(50% + 3px); min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:linear-gradient(135deg,#ff5b78,#e0143f); color:#fff; font-family:'Sora',sans-serif; font-weight:800; font-size:.58rem; display:none; align-items:center; justify-content:center; border:2px solid #070b16; box-shadow:0 3px 8px rgba(224,20,63,0.5); z-index:3; line-height:1; }
+  .seg-badge.show { display:flex; animation:segBadgePop .32s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes segBadgePop { from{ transform:scale(0); } to{ transform:scale(1); } }
+  /* Carte "nouvelles idées" en haut de la cloche */
+  .notif-idea { display:flex; align-items:center; gap:11px; background:linear-gradient(135deg,rgba(47,123,255,0.16),rgba(139,108,255,0.08)); border:1px solid rgba(94,155,255,0.35); border-radius:15px; padding:13px 14px; margin-bottom:14px; cursor:pointer; transition:transform .15s; }
+  .notif-idea:active { transform:scale(0.98); }
+  .notif-idea-ic { flex:none; font-size:1.3rem; }
+  .notif-idea-tx { flex:1; min-width:0; font-size:.86rem; color:var(--white); line-height:1.4; }
+  .notif-idea-tx b { color:#cfe0ff; }
+  .notif-idea-go { flex:none; color:var(--blue-light); font-size:1.1rem; }
   .studio-idea-flash { animation:studioIdeaFlash .9s ease; }
   @keyframes studioIdeaFlash { 0%{ box-shadow:0 0 0 0 rgba(47,123,255,0); } 30%{ box-shadow:0 0 0 3px rgba(47,123,255,0.45); } 100%{ box-shadow:0 0 0 0 rgba(47,123,255,0); } }
 
@@ -2390,6 +2409,7 @@
     <button class="seg" onclick="switchView('ia', this)" aria-label="Studio">
       <span class="seg-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5l3 3L7 17l-3.5.5L4 14z"/><path d="M11.5 6.5l3 3"/><path d="M18.6 2.4l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#fff" stroke="none"/></svg></span>
       <span class="seg-lb">Studio</span>
+      <span class="seg-badge" id="studioIdeaBadge"></span>
     </button>
     <span class="seg-div"></span>
     <span class="seg-thumb"></span>
@@ -3889,8 +3909,23 @@
     var posts = window._pubPosts || [];
     var seen = parseInt(localStorage.getItem('sk_notif_seen') || '0', 10) || 0;
     var unseen = posts.filter(function(p){ return new Date(p.created_at).getTime() > seen; }).length;
-    if (unseen > 0) { dot.textContent = unseen > 9 ? '9+' : String(unseen); dot.classList.add('show'); }
+    var total = unseen + (Number(window._ideaBadgeN) || 0);
+    if (total > 0) { dot.textContent = total > 9 ? '9+' : String(total); dot.classList.add('show'); }
     else { dot.classList.remove('show'); }
+  }
+  // Carte "nouvelles idées" affichée en haut de la cloche.
+  function ideaNotifCardHTML(){
+    var n = Number(window._ideaBadgeN) || 0;
+    if (n <= 0) return '';
+    var nn = n > 9 ? '9+' : String(n);
+    return '<div class="notif-idea" onclick="gotoStudioIdeas()"><span class="notif-idea-ic">💡</span>' +
+      '<span class="notif-idea-tx"><b>' + nn + ' nouvelle' + (n>1?'s':'') + ' idée' + (n>1?'s':'') + ' de vidéos</b> pour ton compte — touche pour les voir dans le Studio.</span>' +
+      '<span class="notif-idea-go">→</span></div>';
+  }
+  function gotoStudioIdeas(){
+    if (typeof closeNotifPanel === 'function') closeNotifPanel();
+    switchView('ia', null);
+    if (typeof setStudioTool === 'function') setStudioTool('ideas');
   }
   async function openNotifPanel(){
     var panel = document.getElementById('notifPanel'); var body = document.getElementById('notifBody');
@@ -3899,16 +3934,17 @@
     // qui traîne à chaque ouverture. On revalide en fond et on ne remplace que si ça a changé.
     if (!window._pubPosts) { try { var c = localStorage.getItem('sk_pubposts'); if (c) window._pubPosts = JSON.parse(c); } catch(e){} }
     var cached = window._pubPosts || [];
+    var ic = ideaNotifCardHTML();
     if (body) {
-      body.innerHTML = cached.length
+      body.innerHTML = ic + (cached.length
         ? cached.map(pubPostHTML).join('')
-        : '<div class="notif-empty">Chargement…</div>';
+        : (ic ? '' : '<div class="notif-empty">Chargement…</div>'));
     }
     var posts = await loadPubPosts(true);
     if (body) {
-      body.innerHTML = posts.length
+      body.innerHTML = ic + (posts.length
         ? posts.map(pubPostHTML).join('')
-        : '<div class="notif-empty">🔔<br><br>Aucune publication pour l\'instant.<br>Tes publications via Skillora apparaîtront ici.</div>';
+        : (ic ? '' : '<div class="notif-empty">🔔<br><br>Aucune publication pour l\'instant.<br>Tes publications via Skillora apparaîtront ici.</div>'));
     }
     try { localStorage.setItem('sk_notif_seen', String(Date.now())); } catch(e){}
     refreshNotifDot();
@@ -4394,10 +4430,14 @@
     if (f) f.classList.toggle('show', !!on);
   }
   function setIdeaBadge(n) {
-    var b = document.getElementById('ideaFabBadge'), f = document.getElementById('ideaFab');
-    if (!b || !f) return;
-    if (n > 0) { b.textContent = '+' + n; b.classList.add('show'); f.classList.add('has-new'); }
-    else { b.classList.remove('show'); f.classList.remove('has-new'); }
+    n = Number(n) || 0;
+    window._ideaBadgeN = n;
+    var b = document.getElementById('studioIdeaBadge');
+    if (b) {
+      if (n > 0) { b.textContent = (n > 9 ? '9+' : '+' + n); b.classList.add('show'); }
+      else { b.classList.remove('show'); }
+    }
+    if (typeof refreshNotifDot === 'function') refreshNotifDot();
   }
   function ideasSeenKey(acc) { return 'skillora_ideas_seen_' + acc.platform + '_' + acc.username; }
   function getIdeasSeen(acc) { try { return localStorage.getItem(ideasSeenKey(acc)) || ''; } catch(e) { return ''; } }
@@ -6045,19 +6085,34 @@
       var { data: { session } } = await sb.auth.getSession();
       if (!session) { box.innerHTML = '<div class="ideas-empty">Connecte-toi pour voir tes idées.</div>'; return; }
       var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY };
-      var data = await fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username }) }).then(function(r){ return r.json(); });
+      var ideasP = fetch(SB_URL + '/functions/v1/daily-ideas', { method:'POST', headers:hdr, body: JSON.stringify({ platform: acc.platform, username: acc.username }) }).then(function(r){ return r.json(); });
+      var mailP = sb.from('idea_email_subs').select('active').eq('platform', acc.platform).eq('username', acc.username).maybeSingle().then(function(r){ return !!(r && r.data && r.data.active); }).catch(function(){ return false; });
+      var data = await ideasP;
+      var mailOn = await mailP;
       // Le compte a pu changer pendant le chargement -> on n'écrase pas.
       if (window._studioSelKey !== key) return;
+      window._studioEmailOn = mailOn;
+      var mailRow = '<div class="idea-mail' + (mailOn?' on':'') + '" onclick="toggleStudioEmail()">' +
+          '<span class="idea-mail-ic">📩</span>' +
+          '<span class="idea-mail-tx"><span class="idea-mail-t">Recevoir mes idées chaque matin</span>' +
+          '<span class="idea-mail-s">Une nouvelle idée à fort potentiel par email, dès le réveil.</span></span>' +
+          '<span class="idea-switch"><span class="idea-knob"></span></span></div>';
       if (!data || data.error || !data.ideas || !data.ideas.length) {
         var msg = (data && data.message) ? data.message : 'Tes idées arrivent après une analyse de ton compte. Actualise ton compte sur l\'Accueil.';
         window._studioIdeas = [];
-        box.innerHTML = '<div class="ideas-empty">' + escapeHtml(msg) + '</div>';
+        box.innerHTML = mailRow + '<div class="ideas-empty">' + escapeHtml(msg) + '</div>';
         return;
       }
       var cap = curLimits().ideasDay;
       var shown = (cap === INF) ? data.ideas : data.ideas.slice(0, cap);
       window._studioIdeas = shown;
-      var html = '<div class="ideas-day-h">Aujourd\'hui · ' + shown.length + ' idée' + (shown.length>1?'s':'') + ' pour @' + escapeHtml(acc.username) + '</div>';
+      // Ces idées viennent d'être vues -> on efface le badge "+N".
+      markIdeasSeen(acc, data.date);
+      setIdeaBadge(0);
+      var multi = (typeof studioAccs !== 'undefined' && studioAccs && studioAccs.length > 1);
+      var html = mailRow;
+      html += '<div class="ideas-day-h">Aujourd\'hui · ' + shown.length + ' idée' + (shown.length>1?'s':'') + '</div>';
+      html += '<div class="studio-ideas-tie">💡 Générées pour <b>@' + escapeHtml(acc.username) + '</b>' + (multi ? ' — change de compte en haut pour d\'autres idées.' : '.') + '</div>';
       html += renderStudioIdeasList(shown);
       if (cap !== INF && data.ideas.length > cap) {
         html += '<button class="home-bp-btn" style="margin-top:6px;" onclick="openUpgrade()"><span class="home-bp-ic">⚡</span><span class="home-bp-tx"><span class="home-bp-t">Débloque plus d\'idées</span><span class="home-bp-s">Plus d\'idées par jour en montant de plan</span></span><span class="home-bp-go">→</span></button>';
@@ -6076,12 +6131,16 @@
       var score = '<div class="idea2-score ' + scCls + '"><span class="n">' + (sc>=1?sc:'—') + '</span><span class="x">/10</span></div>';
       var steps = (it.structure||[]).map(function(x){ return '<li>' + escapeHtml(x) + '</li>'; }).join('');
       var tags = (it.hashtags||[]).map(function(h){ return '<span class="idea2-tag">#' + escapeHtml(String(h).replace(/^#*/,'')) + '</span>'; }).join('');
+      var prev = it.hook || it.angle || '';
       return '<div class="idea2" onclick="toggleIdea(this)">' +
         '<div class="idea2-head">' + score +
           '<div class="idea2-main"><span class="idea2-fmt">' + escapeHtml(it.format||'TikTok') + '</span>' +
-          '<div class="idea2-title">' + escapeHtml(it.title||'Idée') + '</div></div>' +
+          '<div class="idea2-title">' + escapeHtml(it.title||'Idée') + '</div>' +
+          (prev ? '<div class="idea2-prev">' + escapeHtml(prev) + '</div>' : '') +
+          '</div>' +
           '<span class="idea2-chev">▾</span>' +
         '</div>' +
+        '<div class="idea2-openhint">Voir le plan complet <span class="oh-chev">▾</span></div>' +
         '<div class="idea2-body"><div class="idea2-inner">' +
           (it.hook ? '<div class="idea2-block"><span class="idea2-l">Hook</span>' + escapeHtml(it.hook) + '</div>' : '') +
           (it.angle ? '<div class="idea2-block" style="color:var(--muted);font-style:italic;">' + escapeHtml(it.angle) + '</div>' : '') +
@@ -6113,6 +6172,40 @@
       }, 60);
     }
     if (input) { try { input.focus({ preventScroll:true }); } catch(e){ input.focus(); } }
+  }
+
+  // Active/désactive l'email quotidien d'idées pour le compte sélectionné dans le Studio.
+  async function toggleStudioEmail() {
+    var acc = window._studioSel;
+    if (!acc) return;
+    var next = !window._studioEmailOn;
+    var row = document.querySelector('#studioIdeas .idea-mail');
+    if (row) row.classList.toggle('on', next); // retour visuel immédiat
+    try {
+      var { data: { session } } = await sb.auth.getSession();
+      var u = session.user;
+      await sb.from('idea_email_subs').upsert(
+        { user_id: u.id, platform: acc.platform, username: acc.username, email: u.email, active: next, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id,platform,username' }
+      );
+      window._studioEmailOn = next;
+      if (next) {
+        if (u.email) {
+          var msg = ''
+            + '<div style="font-family:Arial,sans-serif;background:#070d1f;padding:30px 24px;border-radius:14px;color:#cdd6f4;text-align:center;">'
+            +   '<div style="font-size:42px;line-height:1;">🎉</div>'
+            +   '<div style="font-size:23px;font-weight:800;color:#fff;margin:10px 0 6px;">C\'est activé !</div>'
+            +   '<div style="font-size:15px;color:#9fb0d6;line-height:1.6;margin-bottom:8px;">À partir de maintenant, <b style="color:#fff;">chaque matin</b> on t\'enverra de nouvelles <b style="color:#fff;">idées de vidéos virales</b> taillées pour ta niche — prêtes à tourner dès aujourd\'hui.</div>'
+            +   '<div style="font-size:14px;color:#7aa2ff;margin:14px 0 20px;font-weight:700;">@' + escapeHtml(acc.username) + '</div>'
+            +   '<a href="https://skillora.me/app.html" style="display:inline-block;background:#2f7bff;color:#fff;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:12px;font-size:15px;">Ouvrir Skillora →</a>'
+            + '</div>';
+          try { await fetch(SB_URL + '/functions/v1/send-email', { method:'POST', headers:{'Content-Type':'application/json','apikey':SB_KEY}, body: JSON.stringify({ to: u.email, subject: '🎉 Tes idées quotidiennes Skillora sont activées', message: msg }) }); } catch(e2) {}
+        }
+        skModal({ icon:'✅', iconBg:'#16351f', title:'Email quotidien activé', message:'On vient de t\'envoyer un email de confirmation. Chaque matin, tu recevras de nouvelles idées de vidéos virales pour <b>@' + escapeHtml(acc.username) + '</b>.<br><span style="color:#8b9bc4;font-size:.9em;">Pense à vérifier tes spams la première fois.</span>', cancelText:'Parfait' });
+      } else {
+        skModal({ icon:'🔕', title:'Email désactivé', message:'Tu ne recevras plus l\'email quotidien d\'idées pour ce compte. Tu peux le réactiver quand tu veux.', cancelText:'OK' });
+      }
+    } catch(e) { if (row) row.classList.toggle('on', !next); }
   }
 
   // Sélection de chip dans le formulaire de niche

@@ -797,24 +797,32 @@
   .nav-btn.center:active .ni { transform: scale(0.93); }
   .nav-btn.center.active .ni { transform: translateY(-2px); box-shadow:0 20px 36px -6px rgba(47,123,255,0.7), 0 6px 14px rgba(8,12,28,0.5), inset 0 1.6px 0 rgba(255,255,255,0.55), inset 0 -5px 12px rgba(7,28,82,0.55), 0 0 0 5px var(--bg); }
   .nav-btn.center::before { content:''; position:absolute; top:-30px; left:50%; transform:translateX(-50%); width:74px; height:74px; border-radius:26px; background:radial-gradient(circle,rgba(47,123,255,0.32),transparent 68%); filter:blur(11px); z-index:-1; }
-  /* ===== Boutons "pilule" style Apple (Accueil / Studio / Profil, capsules séparées) ===== */
-  .nav-btn.profile-pill { flex:2 1 0; }
-  .nav-btn.nav-pill, .nav-btn.profile-pill { justify-content:center; padding:4px 4px; }
-  .nav-pill .pill-inner, .profile-pill .pill-inner { display:flex; align-items:center; justify-content:center; min-width:0; height:46px; border-radius:999px; background:linear-gradient(135deg,rgba(47,123,255,0.16),rgba(94,155,255,0.05)); border:1px solid rgba(94,155,255,0.26); box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 7px 20px -10px rgba(47,123,255,0.55); backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px); color:var(--white); transition:transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s, background .3s, border-color .3s; will-change:transform; }
-  .profile-pill .pill-inner { gap:9px; width:calc(100% - 6px); max-width:212px; padding:0 16px 0 8px; }
-  .nav-pill .pill-inner { gap:7px; width:auto; max-width:calc(100% - 6px); padding:0 12px 0 6px; }
-  .nav-pill .pill-ic, .profile-pill .pill-ic { flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(157deg,#62a0ff 0%,#2f7bff 55%,#1659d8 100%); box-shadow:0 3px 9px -2px rgba(47,123,255,0.6), inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -3px 7px rgba(7,28,82,0.5); transition:transform .3s cubic-bezier(.22,1,.36,1); }
-  .profile-pill .pill-ic { width:31px; height:31px; }
-  .nav-pill .pill-ic { width:27px; height:27px; }
-  .nav-pill .pill-label, .profile-pill .pill-label { font-family:'Sora',sans-serif; font-weight:600; letter-spacing:-0.01em; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .profile-pill .pill-label { font-size:.86rem; }
-  .nav-pill .pill-label { font-size:.77rem; }
+  /* ===== Pilule Profil (droite) — style Apple, occupe la place libérée par Communauté ===== */
+  .nav-btn.profile-pill { flex:2 1 0; justify-content:center; padding:4px 4px; }
+  .profile-pill .pill-inner { display:flex; align-items:center; justify-content:center; min-width:0; height:50px; border-radius:999px; background:linear-gradient(135deg,rgba(47,123,255,0.16),rgba(94,155,255,0.05)); border:1px solid rgba(94,155,255,0.26); box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 7px 20px -10px rgba(47,123,255,0.55); backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px); color:var(--white); transition:transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s, background .3s, border-color .3s; will-change:transform; gap:9px; width:calc(100% - 6px); max-width:212px; padding:0 16px 0 8px; }
+  .profile-pill .pill-ic { flex:none; width:31px; height:31px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(157deg,#62a0ff 0%,#2f7bff 55%,#1659d8 100%); box-shadow:0 3px 9px -2px rgba(47,123,255,0.6), inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -3px 7px rgba(7,28,82,0.5); transition:transform .3s cubic-bezier(.22,1,.36,1); }
+  .profile-pill .pill-label { font-family:'Sora',sans-serif; font-weight:600; letter-spacing:-0.01em; line-height:1; white-space:nowrap; font-size:.86rem; }
   .profile-pill .pill-chev { font-size:1.15rem; line-height:1; opacity:.45; margin-left:-3px; transition:transform .3s cubic-bezier(.22,1,.36,1), opacity .3s; }
-  .nav-pill:active .pill-inner, .profile-pill:active .pill-inner { transform:scale(0.945); box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 12px -8px rgba(47,123,255,0.5); }
-  .nav-pill:active .pill-ic, .profile-pill:active .pill-ic { transform:scale(0.9); }
-  .nav-pill.active .pill-inner, .profile-pill.active .pill-inner { background:linear-gradient(135deg,rgba(47,123,255,0.34),rgba(94,155,255,0.13)); border-color:rgba(122,176,255,0.55); box-shadow:inset 0 1px 0 rgba(255,255,255,0.22), 0 11px 28px -9px rgba(47,123,255,0.8); }
-  .nav-pill.active .pill-label, .profile-pill.active .pill-label { color:#e4eeff; }
+  .profile-pill:active .pill-inner { transform:scale(0.945); box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 12px -8px rgba(47,123,255,0.5); }
+  .profile-pill:active .pill-ic { transform:scale(0.9); }
+  .profile-pill.active .pill-inner { background:linear-gradient(135deg,rgba(47,123,255,0.34),rgba(94,155,255,0.13)); border-color:rgba(122,176,255,0.55); box-shadow:inset 0 1px 0 rgba(255,255,255,0.22), 0 11px 28px -9px rgba(47,123,255,0.8); }
+  .profile-pill.active .pill-label { color:#e4eeff; }
   .profile-pill.active .pill-chev { transform:translateX(4px); opacity:.9; }
+  /* ===== Contrôle segmenté (gauche) : UNE capsule "tranchée en deux" — Accueil | Studio ===== */
+  .nav-seg { flex:2 1 0; position:relative; display:flex; align-items:stretch; height:50px; margin:4px 4px; border-radius:999px; background:linear-gradient(135deg,rgba(47,123,255,0.16),rgba(94,155,255,0.05)); border:1px solid rgba(94,155,255,0.26); box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 7px 20px -10px rgba(47,123,255,0.55); backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px); overflow:hidden; }
+  .nav-seg .seg { flex:1 1 0; position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; background:none; border:none; cursor:pointer; padding:0; color:var(--muted2); transition:color .3s; -webkit-tap-highlight-color:transparent; }
+  .nav-seg .seg-ic { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(157deg,#62a0ff 0%,#2f7bff 55%,#1659d8 100%); box-shadow:0 3px 8px -2px rgba(47,123,255,0.55), inset 0 1px 0 rgba(255,255,255,0.42), inset 0 -3px 6px rgba(7,28,82,0.5); transition:transform .42s cubic-bezier(.34,1.56,.64,1); }
+  .nav-seg .seg-ic svg { display:block; }
+  .nav-seg .seg-lb { font-family:'Sora',sans-serif; font-size:.63rem; font-weight:600; letter-spacing:-0.01em; line-height:1; white-space:nowrap; transition:color .3s; }
+  .nav-seg .seg-div { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:1.5px; height:24px; background:rgba(150,178,225,0.32); border-radius:2px; z-index:1; transition:opacity .3s; }
+  .nav-seg .seg-thumb { position:absolute; top:4px; bottom:4px; left:4px; width:calc(50% - 8px); border-radius:999px; z-index:1; opacity:0; background:linear-gradient(135deg,rgba(47,123,255,0.42),rgba(94,155,255,0.16)); border:1px solid rgba(122,176,255,0.55); box-shadow:inset 0 1px 0 rgba(255,255,255,0.24), 0 8px 22px -8px rgba(47,123,255,0.85); transition:left .46s cubic-bezier(.34,1.56,.64,1), opacity .28s ease, transform .46s cubic-bezier(.34,1.56,.64,1); }
+  .nav-seg.has-sel .seg-thumb { opacity:1; }
+  .nav-seg.sel-ia .seg-thumb { left:calc(50% + 4px); }
+  .nav-seg.sel-home .seg-div, .nav-seg.sel-ia .seg-div { opacity:0; }
+  .nav-seg .seg.active { color:#e6efff; }
+  .nav-seg .seg.active .seg-lb { color:#e6efff; }
+  .nav-seg .seg.active .seg-ic { transform:scale(1.08); }
+  .nav-seg .seg:active .seg-ic { transform:scale(0.9); }
   /* ===== Transition iOS : la vue Profil "émerge" depuis la pilule (comme l'ouverture d'une app iPhone) ===== */
   @keyframes iosProfileIn {
     0%   { opacity:0; transform:scale(0.9) translateY(30px); border-radius:34px; }
@@ -822,7 +830,7 @@
     100% { opacity:1; transform:scale(1) translateY(0); border-radius:0; }
   }
   #view-profile.active { animation:iosProfileIn .52s cubic-bezier(.22,1,.36,1); transform-origin:84% 118%; }
-  @media (prefers-reduced-motion: reduce) { #view-profile.active { animation:none; } .profile-pill .pill-inner, .profile-pill .pill-ic, .profile-pill .pill-chev { transition:none; } }
+  @media (prefers-reduced-motion: reduce) { #view-profile.active { animation:none; } .profile-pill .pill-inner, .profile-pill .pill-ic, .profile-pill .pill-chev, .nav-seg .seg-thumb, .nav-seg .seg-ic { transition:opacity .2s; } }
   @keyframes navPulse { 0%,100%{opacity:.5;transform:translateX(-50%) scale(1)} 50%{opacity:.9;transform:translateX(-50%) scale(1.12)} }
   .modal { position:fixed; inset:0; z-index:80; background:rgba(4,6,13,0.7); backdrop-filter:blur(6px); display:none; align-items:flex-end; }
   .modal.open { display:flex; animation:reveal .25s ease; }
@@ -2338,18 +2346,18 @@
 </div>
 
 <div class="bottomnav">
-  <button class="nav-btn nav-pill active" onclick="switchView('home', this)" aria-label="Accueil">
-    <span class="pill-inner">
-      <span class="pill-ic"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3.2l9 7.4"/><path d="M5.4 9.4V20h13.2V9.4"/></svg></span>
-      <span class="pill-label">Accueil</span>
-    </span>
-  </button>
-  <button class="nav-btn nav-pill" onclick="switchView('ia', this)" aria-label="Studio">
-    <span class="pill-inner">
-      <span class="pill-ic"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5l3 3L7 17l-3.5.5L4 14z"/><path d="M11.5 6.5l3 3"/><path d="M18.6 2.4l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#fff" stroke="none"/></svg></span>
-      <span class="pill-label">Studio</span>
-    </span>
-  </button>
+  <div class="nav-seg sel-home has-sel" id="navSeg">
+    <button class="seg active" onclick="switchView('home', this)" aria-label="Accueil">
+      <span class="seg-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3.2l9 7.4"/><path d="M5.4 9.4V20h13.2V9.4"/></svg></span>
+      <span class="seg-lb">Accueil</span>
+    </button>
+    <button class="seg" onclick="switchView('ia', this)" aria-label="Studio">
+      <span class="seg-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5l3 3L7 17l-3.5.5L4 14z"/><path d="M11.5 6.5l3 3"/><path d="M18.6 2.4l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#fff" stroke="none"/></svg></span>
+      <span class="seg-lb">Studio</span>
+    </button>
+    <span class="seg-div"></span>
+    <span class="seg-thumb"></span>
+  </div>
   <button class="nav-btn center" onclick="switchView('publish', this)"><span class="ni"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M12 5.5v13M5.5 12h13"/></svg></span>Publier</button>
   <button class="nav-btn profile-pill" onclick="switchView('profile', this)" aria-label="Profil">
     <span class="pill-inner">
@@ -4748,7 +4756,20 @@
     // La bulle "Idées" n'apparaît que sur l'Accueil (et si un compte est connecté).
     if (typeof showIdeaFab === 'function') showIdeaFab(name === 'home' && window._ideaFabAllowed);
     if (name === 'publish' && typeof refreshConnections === 'function') refreshConnections();
+    updateSegState(name);
     window.scrollTo(0, 0);
+  }
+
+  // Pilote le contrôle segmenté Accueil|Studio (surligneur glissant + états)
+  function updateSegState(name) {
+    var seg = document.getElementById('navSeg');
+    if (!seg) return;
+    seg.querySelectorAll('.seg').forEach(function(s){ s.classList.remove('active'); });
+    seg.classList.remove('sel-home', 'sel-ia', 'has-sel');
+    if (name === 'home' || name === 'ia') {
+      seg.classList.add('has-sel', name === 'ia' ? 'sel-ia' : 'sel-home');
+      seg.querySelectorAll('.seg')[name === 'ia' ? 1 : 0].classList.add('active');
+    }
   }
 
   // Restaure la dernière vue ouverte après un refresh

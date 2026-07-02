@@ -42,6 +42,7 @@
   }
   .logo { font-family:'Fraunces',serif; font-weight:700; font-size:1.55rem; letter-spacing:-0.02em; color:var(--white); display:flex; align-items:center; gap:9px; }
   .logo-mark { width:30px; height:30px; border-radius:8px; object-fit:cover; flex:none; box-shadow:0 3px 10px -3px rgba(47,123,255,0.5); }
+  .logo-word { white-space:nowrap; }
   .logo span { color: var(--blue); }
   .top-icons { display: flex; gap: 10px; }
   .icon-btn { width:42px; height:42px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.05rem; position:relative; transition:transform .2s; }
@@ -1796,7 +1797,7 @@
 
 <div class="phone">
   <div class="topbar">
-    <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'">Skill<span>ora</span></div>
+    <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'"><b class="logo-word">Skill<span>ora</span></b></div>
     <div class="top-icons">
       <div class="icon-btn" onclick="openContact()" role="button" aria-label="Support">🎧</div>
       <div class="icon-btn" onclick="openNotifPanel()" role="button" aria-label="Notifications">🔔<span class="notif-dot" id="notifDot"></span></div>
@@ -1825,7 +1826,7 @@
   <div id="obOverlay" class="ob-overlay">
     <div class="ob-shell">
       <div class="ob-top">
-        <div class="logo" style="text-align:center;margin-bottom:22px;font-size:1.7rem;">Skill<span>ora</span></div>
+        <div class="logo" style="text-align:center;margin-bottom:22px;font-size:1.7rem;justify-content:center;"><b class="logo-word">Skill<span>ora</span></b></div>
         <span class="ob-step-label" id="obStepLabel">ÉTAPE 1 / 9</span>
         <div class="ob-progress"><div class="ob-progress-fill" id="obProgressFill"></div></div>
       </div>
@@ -3597,7 +3598,11 @@
           homeConnBtn('x', xtw, 'X') +
           homeConnBtn('threads', threads, 'Threads') +
         '</div>' +
-      '</div>';
+      '</div>' +
+      '<div class="home-skel-grid">' +
+        homeSkel('—', 'Abonnés') + homeSkel('—', 'Vidéos') + homeSkel('—', 'Vues / vidéo') + homeSkel('—', 'Engagement') +
+      '</div>' +
+      '<div class="home-skel-note">Tes statistiques apparaîtront ici une fois ton compte connecté.</div>';
   }
   function homeConnBtn(plat, ic, label) {
     var connected = window.__connectedPlats && window.__connectedPlats[plat];

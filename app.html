@@ -3230,7 +3230,8 @@
     var btn = analyzable
       ? '<button class="home-pf-refresh" style="margin-top:14px;" onclick="silentReanalyze(\'' + acc.platform + '\',\'' + escapeHtml(h) + '\')">🔄 Vérifier mes vidéos</button>'
       : '';
-    return '<div class="card" style="text-align:center;padding:24px 16px;margin-bottom:14px;">'
+    return '<div class="card" style="position:relative;text-align:center;padding:24px 16px;margin-bottom:14px;">'
+      + '<button class="home-pf-add" onclick="addAccount()" title="Ajouter un compte">+</button>'
       + av
       + '<div style="font-weight:700;font-size:1.1rem;margin-top:10px;">@' + escapeHtml(h) + '</div>'
       + '<div style="display:inline-flex;align-items:center;gap:6px;color:#8b9bc4;font-size:.8rem;margin-top:5px;"><span style="display:inline-flex;width:18px;height:18px;border-radius:5px;align-items:center;justify-content:center;background:' + platBg(acc.platform) + ';">' + pubPlatSVG(acc.platform, 11) + '</span>' + escapeHtml(platLabel(acc.platform)) + '</div>'

@@ -4406,6 +4406,12 @@
     // Relevés de VUES TOTALES, triés du plus ancien au plus récent.
     var totals = hist.map(function(h){ return { d: h.snapshot_date, v: Number(h.total_views) || 0 }; })
                      .sort(function(a,b){ return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+    // LISSAGE ANTI-BRUIT DE SCRAPING : le scraper renvoie parfois 1 vidéo de moins (11 au lieu de 12),
+    // donc le total de vues "baisse" artificiellement d'un jour à l'autre. Or les vues ne redescendent
+    // jamais. On garde donc le MAXIMUM atteint (courbe monotone) -> la croissance réelle apparaît sans
+    // que les hoquets du scraping ne fassent chuter la courbe à 0 « Stable ».
+    var _rmax = 0;
+    totals = totals.map(function(t){ _rmax = Math.max(_rmax, t.v); return { d: t.d, v: _rmax }; });
     // Vues GAGNÉES par jour = écart avec le relevé précédent (jamais négatif). C'est la VRAIE perf du jour,
     // pas le total cumulé (qui donnait l'illusion de "3000 vues" alors que 0 vue n'avait été gagnée).
     var gains = [];

@@ -566,9 +566,8 @@
   .cx-conn-h { font-family:'Sora',sans-serif; font-weight:600; font-size:.88rem; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .cx-conn-p { font-size:.72rem; color:var(--muted); }
   /* Déconnexion discrète : petite ✕ grise (pas un gros bouton voyant) */
-  .cx-conn-x { flex:none; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); font-size:.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
-  .cx-conn-x:hover { color:#ff8a6a; border-color:rgba(255,107,74,0.4); background:rgba(255,107,74,0.08); }
-  .cx-conn-x:active { transform:scale(.9); }
+  .cx-conn-x { flex:none; background:rgba(255,107,74,0.1); border:1px solid rgba(255,107,74,0.3); color:#ff8a6a; border-radius:9px; padding:7px 11px; font-family:'Sora',sans-serif; font-weight:600; font-size:.74rem; cursor:pointer; transition:transform .12s; }
+  .cx-conn-x:active { transform:scale(.95); }
   .cx-limit { width:100%; font-size:.85rem; color:var(--muted); line-height:1.5; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:13px; }
   .cx-limit a { color:var(--blue-light); font-weight:600; cursor:pointer; text-decoration:underline; }
   /* Entrée "post texte" sur la page Publier (X / Threads / Facebook) */
@@ -3718,37 +3717,37 @@
     var ov = document.getElementById('connectOverlay');
     ov.classList.add('open');
 
-    // 1) AJOUTER (action principale, en haut). LinkedIn retiré ; Threads présent.
-    var ALLP = [['tiktok',tiktok,'TikTok'],['youtube',youtube,'YouTube'],['instagram',instagram,'Instagram'],['facebook',facebook,'Facebook'],['x',xtw,'X'],['threads',threads,'Threads']];
-    var addable = ALLP.filter(function(p){ return !(window.__connectedPlats && window.__connectedPlats[p[0]]); });
-    var atLimit = connectedAccountCount() >= maxConnectableAccounts();
-    var addHtml = '<div class="cx-title" style="text-align:center;">Ajouter un compte</div><div class="cx-sub" style="text-align:center;">Connecte une nouvelle plateforme à Skillora.</div>';
-    if (atLimit) {
-      addHtml += '<div class="cx-limit">Tu as atteint la limite de comptes de ton offre.<br><a onclick="window.location.href=\'index.html#pricing\'">Passe à un plan supérieur</a> pour en connecter davantage.</div>';
-    } else if (!addable.length) {
-      addHtml += '<div class="cx-limit">Toutes les plateformes disponibles sont déjà connectées. 🎉</div>';
-    } else {
-      addHtml += '<div class="home-connect-grid four">' + addable.map(function(p){ return homeConnBtn(p[0], p[1], p[2]); }).join('') + '</div>';
-    }
-
-    // 2) Comptes connectés (secondaire), déconnexion discrète via petite ✕.
+    // 1) Comptes déjà connectés, listés clairement en haut, avec un bouton « Déconnecter ».
     var accs = (window._homeAccounts || []);
     var connHtml = '';
     if (accs.length) {
-      connHtml = '<div class="cx-sec-h" style="margin-top:22px;">Comptes connectés</div><div class="cx-conn-list">' + accs.map(function(a){
+      connHtml = '<div class="cx-sec-h">Tes comptes connectés</div><div class="cx-conn-list">' + accs.map(function(a){
         var h = String(a.username||'').replace(/^@/,'');
         var av = (a.info&&a.info.photo) || (a.analysis&&a.analysis.summary&&a.analysis.summary.profile&&a.analysis.summary.profile.avatar) || '';
         var avInner = av ? '' : escapeHtml((h||'?').charAt(0).toUpperCase());
         var avStyle = av ? ' style="background-image:url(\''+imgProxy(av).replace(/'/g,'')+'\')"' : '';
         return '<div class="cx-conn-row">' +
           '<span class="cx-conn-av"'+avStyle+'>'+avInner+'<i class="cx-conn-plat" style="background:'+platBg(a.platform)+';">'+pubPlatSVG(a.platform,9)+'</i></span>' +
-          '<span class="cx-conn-id"><span class="cx-conn-h">@'+escapeHtml(h)+'</span><span class="cx-conn-p">'+escapeHtml(connectName(a.platform))+'</span></span>' +
-          '<button class="cx-conn-x" title="Déconnecter" aria-label="Déconnecter" onclick="disconnectAccount(\''+a.platform+'\',\''+h.replace(/['"\\]/g,'')+'\')">✕</button>' +
+          '<span class="cx-conn-id"><span class="cx-conn-h">@'+escapeHtml(h)+'</span><span class="cx-conn-p">'+escapeHtml(platLabel(a.platform))+'</span></span>' +
+          '<button class="cx-conn-x" onclick="disconnectAccount(\''+a.platform+'\',\''+h.replace(/['"\\]/g,'')+'\')">Déconnecter</button>' +
         '</div>';
       }).join('') + '</div>';
     }
 
-    ov.innerHTML = '<div class="cx-shell">' + addHtml + connHtml +
+    // 2) Ajout : uniquement les plateformes pas encore connectées.
+    var ALLP = [['tiktok',tiktok,'TikTok'],['youtube',youtube,'YouTube'],['instagram',instagram,'Instagram'],['facebook',facebook,'Facebook'],['x',xtw,'X'],['threads',threads,'Threads']];
+    var addable = ALLP.filter(function(p){ return !(window.__connectedPlats && window.__connectedPlats[p[0]]); });
+    var atLimit = connectedAccountCount() >= maxConnectableAccounts();
+    var addHtml = '<div class="cx-sec-h" style="margin-top:'+(connHtml?'18px':'0')+';">Ajouter un compte</div>';
+    if (atLimit) {
+      addHtml += '<div class="cx-limit">Tu as atteint la limite de comptes de ton offre.<br><a onclick="window.location.href=\'index.html#pricing\'">Passe à un plan supérieur</a> pour en connecter davantage.</div>';
+    } else if (!addable.length) {
+      addHtml += '<div class="cx-limit">Toutes les plateformes disponibles sont déjà connectées. 🎉</div>';
+    } else {
+      addHtml += '<div class="home-connect-grid four" style="margin-top:8px;">' + addable.map(function(p){ return homeConnBtn(p[0], p[1], p[2]); }).join('') + '</div>';
+    }
+
+    ov.innerHTML = '<div class="cx-shell" style="text-align:left;">' + connHtml + addHtml +
       '<button class="cx-btn-ghost" onclick="closeConnectFlow()" style="margin-top:16px;">Fermer</button></div>';
   }
 

@@ -4419,6 +4419,12 @@
       gains.push({ d: totals[i].d, v: Math.max(0, totals[i].v - totals[i-1].v) });
     }
 
+    // Date de RÉFÉRENCE = la date du DERNIER relevé réel, PAS l'horloge de l'appareil (souvent décalée
+    // d'un jour -> "hier" tombait sur le mauvais jour et affichait 0 alors que les vraies vues étaient là).
+    // Tout le calendrier du graphique se base sur cette date de données.
+    var refToday = totals.length ? totals[totals.length - 1].d : localDateStr();
+    function dayBefore(ds, n){ return localDateStr(new Date(Date.parse(ds + 'T12:00:00') - (n||1)*864e5)); }
+
     var periods = [['1','Hier'],['7','7 jours'],['30','30 jours'],['90','3 mois']];
     var labelMap = { '1':'depuis hier', '7':'sur 7 jours', '30':'sur 30 jours', '90':'sur 3 mois' };
     var pdays = parseInt(window._graphPeriod || '1', 10);
@@ -4435,8 +4441,10 @@
       // Le gain de "Hier" = l'écart calculé EXACTEMENT à la date d'hier (vues d'hier - vues d'avant-hier),
       // PAS le dernier écart connu (qui serait "aujourd'hui vs hier" = souvent 0 tant que la journée
       // n'est pas finie -> donnait l'impression fausse que "rien n'a été gagné hier").
-      var yesterdayStr = localDateStr(new Date(Date.now() - 1*864e5));
-      var gainY = gains.filter(function(g){ return g.d === yesterdayStr; })[0];
+      // "Hier" = le dernier jour COMPLET connu = le relevé le plus récent AVANT la date du dernier relevé
+      // (on exclut la journée en cours). Basé sur les VRAIES dates de données, jamais sur l'horloge locale.
+      var completedY = gains.filter(function(g){ return g.d < refToday; });
+      var gainY = completedY[completedY.length - 1];
       if (!gainY) {
         return '<div class="home-graph card aurora">' +
           '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-badge">En construction</span></div>' +
@@ -4452,7 +4460,7 @@
       // ligne pleine (pas pointillée) qui monte si gain, reste plate sinon — un seul segment pour
       // un seul jour, exactement comme demandé.
       var shapeH = upH ? [0.12, 0.82] : [0.45, 0.45];
-      var ymdY = yesterdayStr.split('-');
+      var ymdY = gainY.d.split('-');
       var moisYH = ['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
       var dateLblY = parseInt(ymdY[2], 10) + ' ' + moisYH[parseInt(ymdY[1], 10) - 1];
       return '<div class="home-graph card aurora">' +
@@ -4463,7 +4471,7 @@
       '</div>';
     }
 
-    var cutoff = localDateStr(new Date(Date.now() - pdays*864e5));
+    var cutoff = dayBefore(refToday, pdays);
     var view = gains.filter(function(x){ return x.d >= cutoff; });
     var totalGained = view.reduce(function(a,b){ return a + b.v; }, 0);
 

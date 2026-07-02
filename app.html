@@ -4890,11 +4890,14 @@
   }
 
   function showGraphPoint(date, views, el) {
-    var d = new Date(date);
+    var d = new Date(String(date) + 'T12:00:00');
     var jours = ['dim','lun','mar','mer','jeu','ven','sam'];
     var mois = ['jan','f\u00e9v','mar','avr','mai','juin','juil','ao\u00fbt','sep','oct','nov','d\u00e9c'];
     var label = jours[d.getDay()] + '. ' + d.getDate() + ' ' + mois[d.getMonth()];
-    var box = document.getElementById('graphTooltip');
+    // IMPORTANT : plusieurs comptes (carrousel) rendent chacun un graphique avec le m\u00eame id -> on cible
+    // la bulle DU graphique cliqu\u00e9 (via l'\u00e9l\u00e9ment), sinon getElementById renvoie toujours le 1er (TikTok)
+    // et les clics sur IG/X ne montraient rien.
+    var box = (el && el.closest && el.closest('.home-graph')) ? el.closest('.home-graph').querySelector('.home-graph-tooltip') : document.getElementById('graphTooltip');
     if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + (views>0?'+':'') + fmtNum(views) + ' vues gagnées ce jour'; }
     // surligner le point cliqué
     try {

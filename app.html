@@ -4179,11 +4179,15 @@
   // Affiche UNIQUEMENT les vidéos publiées SUR la plateforme du compte affiché (pas un mélange global).
   async function renderPubVideosCard(platform){
     var host = document.getElementById('homePubVideos'); if (!host) return;
-    // X / Threads = réseaux texte : la liste « Tes derniers tweets/posts » couvre déjà tout.
-    // On n'affiche PAS le bloc « dernières vidéos publiées » (ce ne sont pas des vidéos -> trompeur).
+    // On VIDE tout de suite le bloc : sinon, en changeant de compte, les vidéos de l'ancien réseau
+    // restaient affichées le temps du chargement (ex : vidéos TikTok visibles sur la page Instagram).
+    host.innerHTML = '';
+    host.setAttribute('data-plat', String(platform || '').toLowerCase());
     var _pl = String(platform || '').toLowerCase();
-    if (_pl === 'x' || _pl === 'twitter' || _pl === 'threads') { host.innerHTML = ''; return; }
+    if (_pl === 'x' || _pl === 'twitter' || _pl === 'threads') { return; }
     var all = await loadPubPosts(false);
+    // Le compte a pu changer pendant le chargement -> si ce n'est plus le réseau demandé, on abandonne.
+    if (host.getAttribute('data-plat') !== _pl) return;
     refreshNotifDot();
     var posts = all;
     if (platform) {

@@ -3311,10 +3311,10 @@
     // Analyse PARESSEUSE : on n'analyse que le compte affiché, et UNE seule fois (si pas déjà fait).
     // -> zéro crédit gaspillé sur la navigation ou sur des comptes non regardés.
     ensureAnalyzed(acc);
-    // Relevé de courbe léger 1×/jour — UNIQUEMENT pour un compte DÉJÀ analysé. Sur une connexion
-    // fraîche (ou échouée), l'analyse complète scrape déjà le profil ET écrit le point du jour :
-    // relancer un relevé « curveOnly » ici = 2e scrape des mêmes vidéos = crédits SociaVault gaspillés.
-    if (acc.analysis) autoCurveDaily(platform, username);
+    // Actualisation AUTO du matin (compte déjà analysé) : extraction des données fraîches + animation,
+    // 1×/jour. Si on est encore dans le délai anti-gaspillage, elle bascule toute seule sur le relevé
+    // léger de courbe (pas de surcoût). Une connexion fraîche/échouée (pas d'analyse) est ignorée.
+    if (acc.analysis) autoDailyRefreshView(platform, username);
     renderPubVideosCard(platform);      // « dernières vidéos publiées » filtrées sur CE réseau
     if (hasStats) maybePromptGoal(platform, username); // ~5 s après l'arrivée (on laisse voir le profil) : « quel est ton objectif ? »
     window._ideaFabAllowed = !!hasStats && !profileOnly; // pas d'idées de contenu pour X/FB/LinkedIn (stats de profil)
@@ -3406,6 +3406,36 @@
       });
       if (res.ok) { window._growthHistory = null; }                    // la courbe se rechargera avec le point du jour
     } catch(e){}
+  }
+
+  // ── ACTUALISATION AUTOMATIQUE DU MATIN ───────────────────────────────────────
+  // À la 1ʳᵉ ouverture du jour d'un compte (déjà analysé), on extrait les données fraîches AVEC une
+  // animation propre. Ne consomme PAS le quota manuel (juste le délai anti-gaspillage). Si on est encore
+  // dans le délai, on se contente du relevé léger de courbe (0 surcoût). Échec = silencieux (on réessaie demain).
+  async function autoDailyRefreshView(platform, username){
+    if (!username) return;
+    if (['tiktok','youtube','instagram','x','twitter','facebook','threads'].indexOf(platform) < 0) return;
+    var today = localDateStr();
+    var gkey = 'sk_autoref_' + platform + '_' + String(username).toLowerCase();
+    if (localStorage.getItem(gkey) === today) return;                  // déjà actualisé aujourd'hui
+    // Encore dans le délai anti-gaspillage (actualisé récemment) -> pas de re-scrape complet, juste la courbe.
+    if (refreshWaitMs(platform, username) > 0) { try { autoCurveDaily(platform, username); } catch(e){} return; }
+    try { localStorage.setItem(gkey, today); } catch(e){}              // posé AVANT (anti double-fire)
+    if (typeof showStatsLoading === 'function') showStatsLoading();    // animation « extraction des données »
+    var ok = false;
+    try { var out = await analyzeOnce(platform, username, 'self', true); ok = !!(out && out._httpOk && !out.error); } catch(e){}
+    if (ok) {
+      try { localStorage.setItem(refreshLastKey(platform, username), String(Date.now())); } catch(e){} // démarre le délai (SANS toucher au quota manuel)
+      window._growthHistory = null;
+      window._homeCurrentKey = platform + '|' + String(username).toLowerCase();
+      try { delete window._analysisCache[platform + '|' + String(username).toLowerCase() + '|self']; } catch(e){}
+      try { await loadGrowthHistory(platform); } catch(e){}
+      try { await loadHomeDashboard(); if (typeof hideStatsLoading === 'function') hideStatsLoading(true); }
+      catch(e){ if (typeof hideStatsLoading === 'function') hideStatsLoading(false); }
+      try { startRefreshCountdown(platform, username); } catch(e){}    // flag manuel NON posé -> bouton caché pendant le délai
+    } else {
+      if (typeof hideStatsLoading === 'function') hideStatsLoading(false); // échec silencieux -> pas de modale
+    }
   }
 
   // HTML du tableau de bord d'UN compte (chaîne pure, sans effet de bord) — une "page" du carrousel.
@@ -4209,6 +4239,7 @@
   // (impossible de cliquer -> impossible de gaspiller un crédit pendant le délai). Dès qu'il atteint 0,
   // le bouton redevient cliquable tout seul (ou affiche « Quota atteint » si le plafond du jour est passé).
   window._refreshCountdownTimers = window._refreshCountdownTimers || {};
+  window._refreshManual = window._refreshManual || {};   // clic MANUEL récent -> on montre le compte à rebours ; sinon on cache le bouton
   function startRefreshCountdown(platform, username){
     var key = String(platform) + '|' + String(username || '').toLowerCase();
     if (window._refreshCountdownTimers[key]) { clearInterval(window._refreshCountdownTimers[key]); delete window._refreshCountdownTimers[key]; }
@@ -4218,16 +4249,24 @@
       btn.classList.remove('refreshing');           // l'appel réseau (s'il y en avait un) est terminé
       var ms = refreshWaitMs(platform, username);
       if (ms <= 0) {
+        // Prêt à actualiser -> le bouton RÉAPPARAÎT (ou « Quota atteint » si le plafond du jour est passé).
+        btn.style.display = '';
         if (refreshesUsedToday(platform, username) >= refreshLimit()) {
           btn.textContent = 'Quota atteint (demain)'; btn.disabled = true; btn.classList.add('counting');
         } else {
           btn.textContent = 'Actualiser'; btn.disabled = false; btn.classList.remove('counting');
         }
+        delete window._refreshManual[key];
         clearInterval(window._refreshCountdownTimers[key]); delete window._refreshCountdownTimers[key];
         return;
       }
-      btn.textContent = '⏳ ' + fmtCountdown(ms);
-      btn.disabled = true; btn.classList.add('counting');
+      // En délai : après un clic MANUEL on affiche le compte à rebours ; sinon (au chargement / après
+      // l'actualisation AUTO du matin) on CACHE complètement le bouton -> plus de compte à rebours parasite.
+      if (window._refreshManual[key]) {
+        btn.style.display = ''; btn.textContent = '⏳ ' + fmtCountdown(ms); btn.disabled = true; btn.classList.add('counting');
+      } else {
+        btn.style.display = 'none';
+      }
     }
     tick();
     window._refreshCountdownTimers[key] = setInterval(tick, 1000);
@@ -4254,6 +4293,7 @@
         localStorage.setItem(refreshKey(platform, username), String(refreshesUsedToday(platform, username) + 1));
         localStorage.setItem(refreshLastKey(platform, username), String(Date.now()));
       } catch(e){}
+      window._refreshManual[platform + '|' + String(username).toLowerCase()] = true; // clic manuel -> compte à rebours VISIBLE
       startRefreshCountdown(platform, username);    // démarre le compte à rebours visible tout de suite
       // On RESTE sur le compte qu'on vient d'actualiser (plus de saut vers TikTok), sans recharger la page.
       window._growthHistory = null;                 // la courbe se recharge avec le nouveau point du jour
@@ -4577,7 +4617,11 @@
   /* ===== Idées du jour : bulle flottante + panneau ===== */
   function showIdeaFab(on) {
     var f = document.getElementById('ideaFab');
-    if (f) f.classList.toggle('show', !!on);
+    if (!f) return;
+    // La bulle 💡 des idées n'apparaît QUE sur le Studio — jamais sur l'accueil ni ailleurs,
+    // quel que soit l'appelant (on re-vérifie ici la vue active pour éviter tout affichage parasite).
+    var onStudio = !!(document.getElementById('view-ia') && document.getElementById('view-ia').classList.contains('active'));
+    f.classList.toggle('show', !!on && onStudio);
   }
   function setIdeaBadge(n) {
     n = Number(n) || 0;

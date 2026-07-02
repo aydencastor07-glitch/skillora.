@@ -4225,13 +4225,13 @@
       var up = delta > 0, a = Math.min(999, Math.abs(delta));
       var b = document.createElement('div');
       b.textContent = (up ? '+' : '−') + a;
-      b.style.cssText = 'position:fixed;left:' + (r.right + 3) + 'px;top:' + (r.top - 3) + 'px;z-index:9500;'
-        + "font-family:'Sora',sans-serif;font-weight:800;font-size:.72rem;letter-spacing:-.02em;pointer-events:none;white-space:nowrap;"
-        + 'color:' + (up ? '#ff3b5c' : '#8b9bc4') + ';' + (up ? 'text-shadow:0 0 12px rgba(255,59,92,.7);' : '')
-        + 'opacity:0;transform:translateY(9px) scale(.4);transition:opacity .35s cubic-bezier(.22,1,.36,1),transform .35s cubic-bezier(.22,1,.36,1);';
+      b.style.cssText = 'position:fixed;left:' + (r.right + 5) + 'px;top:' + (r.top - 9) + 'px;z-index:9500;'
+        + "font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;letter-spacing:-.02em;pointer-events:none;white-space:nowrap;"
+        + 'color:' + (up ? '#ff3b5c' : '#8b9bc4') + ';' + (up ? 'text-shadow:0 0 14px rgba(255,59,92,.8);' : 'text-shadow:0 0 10px rgba(139,155,196,.4);')
+        + 'opacity:0;transform:translateY(11px) scale(.35);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);';
       document.body.appendChild(b);
-      requestAnimationFrame(function(){ b.style.opacity = '1'; b.style.transform = 'translateY(-3px) scale(1.12)'; });
-      setTimeout(function(){ b.style.transform = 'translateY(-3px) scale(1)'; }, 220);
+      requestAnimationFrame(function(){ b.style.opacity = '1'; b.style.transform = 'translateY(-6px) scale(1.22)'; });
+      setTimeout(function(){ b.style.transform = 'translateY(-6px) scale(1.05)'; }, 260);
       setTimeout(function(){
         if (up){
           var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
@@ -4241,11 +4241,11 @@
           try { numEl.style.transition = 'transform .32s ease, color .32s ease'; numEl.style.transform = 'scale(1.2)'; numEl.style.color = '#ff3b5c';
             setTimeout(function(){ numEl.style.transform = ''; numEl.style.color = ''; }, 340); } catch(e){}
         } else {
-          b.style.transition = 'opacity .6s ease, transform .6s ease';
-          b.style.opacity = '0'; b.style.transform = 'translateY(-7px) scale(.9)';
+          b.style.transition = 'opacity .7s ease, transform .7s ease';
+          b.style.opacity = '0'; b.style.transform = 'translateY(-9px) scale(.9)';
         }
-        setTimeout(function(){ if (b.parentNode) b.parentNode.removeChild(b); }, 680);
-      }, 2600);
+        setTimeout(function(){ if (b.parentNode) b.parentNode.removeChild(b); }, 750);
+      }, 4000);
     } catch(e){}
   }
   // Joue le delta du compte AFFICHÉ (lit window._pendingGain), sur les blocs marqués data-gain.

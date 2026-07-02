@@ -89,6 +89,33 @@ Deno.serve(async (req) => {
           try { ch = await svGet(`/youtube/channel?handle=${encodeURIComponent(username)}`, SV_KEY); } catch { /* */ }
           const c = ch?.data ?? ch ?? {};
           totalViews = c.view_count ?? c.viewCount ?? c.stats?.viewCount ?? 0;
+        } else if (platform === "x" || platform === "twitter") {
+          // Relevé léger X : 1 appel (tweets par handle), on somme les vues des tweets.
+          const tr = await svGet(`/twitter/user-tweets?handle=${encodeURIComponent(username)}`, SV_KEY);
+          const td = tr.data ?? tr;
+          const instr = td?.data?.result?.timeline?.instructions ?? td?.result?.timeline?.instructions ?? [];
+          let entries = [];
+          for (const ins of instr) { if (Array.isArray(ins?.entries)) entries = entries.concat(ins.entries); else if (ins?.entry) entries.push(ins.entry); }
+          for (const e of entries) {
+            const res = e?.content?.itemContent?.tweet_results?.result;
+            const t = res?.tweet ?? res;
+            if (!t || typeof t !== "object") continue;
+            const tl = t.legacy ?? {};
+            totalViews += svNum(t.views?.count, t.ext_views?.count, tl.ext_views?.count) || deepViewCount(t);
+          }
+        } else if (platform === "threads") {
+          const pr = await svGet(`/threads/user-posts?handle=${encodeURIComponent(username)}`, SV_KEY);
+          const pd = pr.data ?? pr;
+          const posts = pd.posts ?? pd.data?.posts ?? {};
+          const arr = Array.isArray(posts) ? posts : Object.values(posts ?? {});
+          for (const p of arr) { if (p && typeof p === "object") totalViews += svNum(p.view_counts, p.view_count, p.views); }
+        } else if (platform === "facebook") {
+          const url = /^https?:\/\//i.test(username) ? username : `https://www.facebook.com/${String(username).replace(/^@/, "")}`;
+          const rr = await svGet(`/facebook/profile/reels?url=${encodeURIComponent(url)}`, SV_KEY);
+          const rd = rr.data ?? rr;
+          const reels = rd.reels ?? rd.data?.reels ?? [];
+          const arr = Array.isArray(reels) ? reels : Object.values(reels ?? {});
+          for (const x of arr) { if (x && typeof x === "object") totalViews += svNum(x.view_count, x.views, x.viewCount); }
         }
       } catch (_e) { return j({ success: true, curve: true, skipped: "scrape_err" }, 200); }
       if (totalViews > 0) {

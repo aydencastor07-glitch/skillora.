@@ -3388,7 +3388,9 @@
   // -> la courbe « vues gagnées/cumulées » monte vraiment jour après jour. Le flag localStorage évite
   // tout double-relevé le même jour (posé AVANT l'appel). Plateformes non analysables = ignorées.
   async function autoCurveDaily(platform, username){
-    if (['tiktok','youtube','instagram'].indexOf(platform) < 0) return;
+    // Relevé de courbe quotidien pour TOUS les réseaux avec des vues : vidéos (TikTok/YouTube/Insta)
+    // ET comptes profil (X/Facebook/Threads) -> chacun accumule un point par jour, comme Instagram.
+    if (['tiktok','youtube','instagram','x','twitter','facebook','threads'].indexOf(platform) < 0) return;
     if (!username) return;
     var today = localDateStr();
     var key = 'sk_curveday_' + platform + '_' + String(username).toLowerCase();

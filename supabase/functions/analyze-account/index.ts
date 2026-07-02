@@ -53,21 +53,9 @@ Deno.serve(async (req) => {
     // Client service-role (pour les vérifs inter-comptes).
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 
-    // BLOCAGE ANTI-DOUBLON (AVANT tout scraping = 0 crédit gaspillé) :
-    if (owner === "self") {
-      try {
-        const { data: mineHas } = await admin.from("connected_accounts")
-          .select("user_id").eq("platform", platform).ilike("username", username).eq("user_id", user.id).limit(1);
-        if (!mineHas || !mineHas.length) {
-          const { data: others } = await admin.from("connected_accounts")
-            .select("user_id").eq("platform", platform).ilike("username", username)
-            .eq("is_active", true).neq("user_id", user.id).limit(1);
-          if (others && others.length) {
-            return j({ error: "already_connected_elsewhere", message: "Ce compte est déjà connecté sur un autre compte Skillora." }, 200);
-          }
-        }
-      } catch (_e) { /* en cas d'erreur de vérif, on ne bloque pas */ }
-    }
+    // NB : on N'INTERDIT PLUS la connexion d'un même compte social sur plusieurs comptes Skillora.
+    // Un même @ peut être analysé par plusieurs utilisateurs (agences, tests, comptes multiples).
+    // L'anti-doublon reste géré PAR UTILISATEUR via le cache d'analyses + le verrou de scrape ci-dessous.
 
     const lastAnalysis = async () => {
       const { data } = await supabase.from("analyses")

@@ -264,6 +264,7 @@
   .stat-gain { display:inline-block; margin-left:4px; vertical-align:super; color:#ff3b5c; font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:-0.02em; text-shadow:0 0 10px rgba(255,59,92,0.6); animation:statGainPop 4.6s cubic-bezier(.22,1,.36,1) forwards; pointer-events:none; }
   /* Le +X surgit, tient ~2,5 s, puis se FUSIONNE dans le compteur (glisse vers le chiffre + rétrécit + disparaît). */
   @keyframes statGainPop { 0%{ opacity:0; transform:translateY(10px) scale(.35); } 12%{ opacity:1; transform:translateY(-2px) scale(1.18); } 22%{ transform:translateY(0) scale(1); } 62%{ opacity:1; transform:translateY(0) scale(1); } 100%{ opacity:0; transform:translate(-4px,9px) scale(.2); } }
+  .stat-gain.down { color:#8b9bc4; text-shadow:none; }
   @media (prefers-reduced-motion: reduce) { .stat-gain { animation:none; opacity:0; } }
   .home-pf-l { font-size:.72rem; color:var(--muted); margin-top:2px; }
   .home-pf-refresh { margin-top:12px; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--white); border-radius:10px; padding:7px 18px; font-family:'Sora',sans-serif; font-weight:600; font-size:.76rem; cursor:pointer; }
@@ -3391,9 +3392,9 @@
               var pfk = 'sk_prevfoll_' + platform + '_' + u, plk = 'sk_prevlike_' + platform + '_' + u;
               var prevF = localStorage.getItem(pfk), prevL = localStorage.getItem(plk);
               window._pendingGain = window._pendingGain || {};
-              var gF = (prevF !== null && curF > +prevF) ? (curF - +prevF) : 0;
-              var gL = (prevL !== null && curL > +prevL) ? (curL - +prevL) : 0;
-              if (gF > 0 || gL > 0) window._pendingGain[platform + '|' + u] = { f: gF, l: gL };
+              var gF = (prevF !== null) ? (curF - +prevF) : 0;   // signé : + (hausse) ou − (baisse)
+              var gL = (prevL !== null) ? (curL - +prevL) : 0;
+              if (gF !== 0 || gL !== 0) window._pendingGain[platform + '|' + u] = { f: gF, l: gL };
               localStorage.setItem(pfk, String(curF));
               localStorage.setItem(plk, String(curL));
             }
@@ -4220,8 +4221,9 @@
   // Badge « +X » rouge (style TikTok premium) : s'anime puis s'efface. Plafonné à +999 pour rester compact.
   function gainBadge(n){
     n = Number(n) || 0;
-    if (n <= 0) return '';
-    return '<span class="stat-gain">' + (n > 999 ? '+999' : ('+' + n)) + '</span>';
+    if (n === 0) return '';
+    var up = n > 0, a = Math.abs(n);
+    return '<span class="stat-gain' + (up ? '' : ' down') + '">' + (up ? '+' : '−') + (a > 999 ? '999' : a) + '</span>';
   }
   function homeProfileCard(platform, prof, s, username) {
     // Photo & nom : on prend ceux du scraping si dispo, sinon ceux de Post for Me (connexion)

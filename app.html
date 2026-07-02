@@ -3433,15 +3433,27 @@
     if (window._morningAllRan) return;
     window._morningAllRan = true;                                      // verrou synchrone (anti double-run)
     var today = localDateStr();
-    if (localStorage.getItem('sk_morningall') === today) return;       // déjà fait aujourd'hui
+    // Email de l'utilisateur (peut ne pas encore être en mémoire au 1er rendu -> on lit la session).
+    var email = window._userEmail || '';
+    if (!email) { try { var ss = await sb.auth.getSession(); email = String(((ss.data.session||{}).user||{}).email || '').toLowerCase(); } catch(e){} }
+    var DEMO = (email === 'aydencastor1020@gmail.com');                // compte proprio illimité : mode DÉMO animation
     var OKP = ['tiktok','youtube','instagram','x','twitter','facebook','threads'];
-    var todo = (accounts || []).filter(function(a){
-      if (!a || !a.username || OKP.indexOf(a.platform) < 0) return false;
-      if (localStorage.getItem('sk_autoref_' + a.platform + '_' + String(a.username).toLowerCase()) === today) return false;
-      if (refreshWaitMs(a.platform, a.username) > 0) return false;     // encore dans le délai -> on ne re-scrape pas
-      return true;
-    });
-    try { localStorage.setItem('sk_morningall', today); } catch(e){}
+    var todo;
+    if (DEMO) {
+      // MODE DÉMO (ce compte seulement) : à CHAQUE ouverture, on rejoue l'animation en ne scrapant QUE
+      // l'Instagram -> on voit l'anim + le badge « +X » sans gaspiller de crédits. Le système auto complet
+      // (tous les comptes, 1×/jour) reste ACTIF et inchangé pour tous les autres utilisateurs.
+      todo = (accounts || []).filter(function(a){ return a && a.username && a.platform === 'instagram'; });
+    } else {
+      if (localStorage.getItem('sk_morningall') === today) return;     // déjà fait aujourd'hui
+      try { localStorage.setItem('sk_morningall', today); } catch(e){}
+      todo = (accounts || []).filter(function(a){
+        if (!a || !a.username || OKP.indexOf(a.platform) < 0) return false;
+        if (localStorage.getItem('sk_autoref_' + a.platform + '_' + String(a.username).toLowerCase()) === today) return false;
+        if (refreshWaitMs(a.platform, a.username) > 0) return false;   // encore dans le délai -> on ne re-scrape pas
+        return true;
+      });
+    }
     if (!todo.length) return;
     if (typeof showStatsLoading === 'function') showStatsLoading();    // animation « mise à jour de tes comptes »
     for (var i = 0; i < todo.length; i++) {
@@ -3449,14 +3461,14 @@
       try {
         var out = await analyzeOnce(a.platform, a.username, 'self', true);   // scrape complet de CE compte
         if (out && out._httpOk && !out.error) {
-          try { localStorage.setItem('sk_autoref_' + a.platform + '_' + String(a.username).toLowerCase(), today); } catch(e){}
+          if (!DEMO) { try { localStorage.setItem('sk_autoref_' + a.platform + '_' + String(a.username).toLowerCase(), today); } catch(e){} }
           try { localStorage.setItem(refreshLastKey(a.platform, a.username), String(Date.now())); } catch(e){}
           try { delete window._analysisCache[lk + '|self']; } catch(e){}
         }
       } catch(e){}
     }
     window._growthHistory = null;
-    try { await loadGrowthHistory((accounts[0] || {}).platform || 'tiktok'); } catch(e){}
+    try { await loadGrowthHistory((todo[0] || accounts[0] || {}).platform || 'tiktok'); } catch(e){}
     try { await loadHomeDashboard(); if (typeof hideStatsLoading === 'function') hideStatsLoading(true); }
     catch(e){ if (typeof hideStatsLoading === 'function') hideStatsLoading(false); }
   }

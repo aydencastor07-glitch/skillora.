@@ -3311,7 +3311,10 @@
     // Analyse PARESSEUSE : on n'analyse que le compte affiché, et UNE seule fois (si pas déjà fait).
     // -> zéro crédit gaspillé sur la navigation ou sur des comptes non regardés.
     ensureAnalyzed(acc);
-    autoCurveDaily(platform, username); // relevé léger 1×/jour -> courbe « vues gagnées » réelle
+    // Relevé de courbe léger 1×/jour — UNIQUEMENT pour un compte DÉJÀ analysé. Sur une connexion
+    // fraîche (ou échouée), l'analyse complète scrape déjà le profil ET écrit le point du jour :
+    // relancer un relevé « curveOnly » ici = 2e scrape des mêmes vidéos = crédits SociaVault gaspillés.
+    if (acc.analysis) autoCurveDaily(platform, username);
     renderPubVideosCard(platform);      // « dernières vidéos publiées » filtrées sur CE réseau
     if (hasStats) maybePromptGoal(platform, username); // ~2 s après l'arrivée : « quel est ton objectif ? »
     window._ideaFabAllowed = !!hasStats && !profileOnly; // pas d'idées de contenu pour X/FB/LinkedIn (stats de profil)
@@ -3331,9 +3334,13 @@
   function localDateStr(d){ d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
   window._analysisCache = window._analysisCache || {};
   window._analysisInflight = window._analysisInflight || {};
+  window._analysisFail = window._analysisFail || {};                             // cache négatif : échec récent -> pas de re-scrape auto
   async function analyzeOnce(platform, username, owner, force){
     var k = platform + '|' + String(username||'').toLowerCase() + '|' + (owner||'self');
     if (!force && window._analysisCache[k]) return window._analysisCache[k];   // déjà fait -> 0 crédit
+    // Échec déjà constaté cette session -> on NE re-scrape PAS automatiquement (crédits SociaVault).
+    // Seul un clic explicite « Réessayer / Actualiser » (force=true) relance vraiment l'analyse.
+    if (!force && window._analysisFail[k]) return window._analysisFail[k];
     if (window._analysisInflight[k]) return window._analysisInflight[k];        // déjà en cours -> même promesse
     var p = (async function(){
       var { data:{ session } } = await sb.auth.getSession();
@@ -3350,7 +3357,17 @@
     window._analysisInflight[k] = p;
     try {
       var out = await p;
-      if (out && out._httpOk && !out.error) window._analysisCache[k] = out;     // on ne mémorise que les vrais succès
+      if (out && out._httpOk && !out.error) {
+        window._analysisCache[k] = out;                                          // on ne mémorise que les vrais succès
+        delete window._analysisFail[k];                                          // succès -> on oublie l'échec précédent
+        // L'analyse complète a déjà relevé les vues du jour (snapshot écrit côté serveur).
+        // -> on marque le relevé de courbe du jour comme FAIT pour éviter un 2e scrape (autoCurveDaily).
+        if ((owner || 'self') === 'self' && !out.curve) {
+          try { localStorage.setItem('sk_curveday_' + platform + '_' + String(username).toLowerCase(), localDateStr()); } catch(e){}
+        }
+      } else if (out) {
+        window._analysisFail[k] = out;                                           // échec -> évite un 2e scrape auto cette session
+      }
       return out;
     } finally {
       delete window._analysisInflight[k];

@@ -3753,7 +3753,7 @@
     }
 
     // 2) Ajout : uniquement les plateformes pas encore connectées.
-    var ALLP = [['tiktok',tiktok,'TikTok'],['youtube',youtube,'YouTube'],['instagram',instagram,'Instagram'],['facebook',facebook,'Facebook'],['x',xtw,'X'],['threads',threads,'Threads'],['linkedin',linkedin,'LinkedIn']];
+    var ALLP = [['tiktok',tiktok,'TikTok'],['youtube',youtube,'YouTube'],['instagram',instagram,'Instagram'],['facebook',facebook,'Facebook'],['x',xtw,'X'],['threads',threads,'Threads']];
     var addable = ALLP.filter(function(p){ return !(window.__connectedPlats && window.__connectedPlats[p[0]]); });
     var atLimit = connectedAccountCount() >= maxConnectableAccounts();
     var addHtml = '<div class="cx-sec-h" style="margin-top:'+(connHtml?'18px':'0')+';">Ajouter un compte</div>';

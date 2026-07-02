@@ -4507,23 +4507,11 @@
     var trendTxt = up ? 'En hausse' : 'Stable';
     var footTxt = (totalGained>0?'+':'') + fmtNum(totalGained) + ' vues ' + (labelMap[String(pdays)] || '');
 
-    // Point mis en avant PAR DÉFAUT = le dernier jour COMPLET (le plus récent, hors journée en cours),
-    // pour qu'on voie tout de suite le gain le plus récent (ex. "1 juil : +303") au lieu du plus vieux point à 0.
-    var doneV = view.filter(function(p){ return p.d < refToday; });
-    var defPt = doneV.length ? doneV[doneV.length - 1] : series[series.length - 1];
-    var ttHtml = '';
-    if (defPt && defPt.d) {
-      var _dd = new Date(Date.parse(defPt.d + 'T12:00:00'));
-      var _jj = ['dim','lun','mar','mer','jeu','ven','sam'][_dd.getDay()];
-      var _mm = ['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'][_dd.getMonth()];
-      ttHtml = '<strong>' + _jj + '. ' + _dd.getDate() + ' ' + _mm + '</strong> · ' + (defPt.v>0?'+':'') + fmtNum(defPt.v) + ' vues gagnées ce jour';
-    }
-
     return '<div class="home-graph card aurora">' +
       '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
       tabs +
       '<div class="home-graph-canvas">' + auroraSvg(W, H, norm, color, false, series) + '</div>' +
-      '<div class="home-graph-tooltip" id="graphTooltip"' + (ttHtml?'':' style="display:none;"') + '>' + ttHtml + '</div>' +
+      '<div class="home-graph-tooltip" id="graphTooltip" style="display:none;"></div>' +
       '<div class="home-graph-foot"><span>' + footTxt + '</span></div>' +
     '</div>';
   }

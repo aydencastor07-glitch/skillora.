@@ -4139,12 +4139,22 @@
       var sstats = (Array.isArray(s.social_stats) && s.social_stats.length) ? s.social_stats : [{ label:'Abonnés', value:s.audience||0 }];
       statsBlocks = sstats.slice(0,4).map(function(st){ return '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(st.value||0) + '</div><div class="home-pf-l">' + escapeHtml(st.label||'') + '</div></div>'; }).join('');
     } else {
-      var viewsBlock = (Number(s.total_views) > 0) ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_views) + '</div><div class="home-pf-l">Vues</div></div>' : '';
-      var likesBlock = (!viewsBlock && (platform === 'tiktok' || platform === 'instagram')) ? '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(prof.total_likes||0) + '</div><div class="home-pf-l">Likes</div></div>' : '';
+      // Bloc profil du HAUT : Abonnés / Vidéos / J'aime. Les VUES totales vivent EN BAS (à côté de
+      // l'engagement) -> on ne les répète pas ici. Repli sur les vues seulement si le réseau n'expose
+      // pas les J'aime (ex : YouTube), pour ne pas laisser un bloc vide.
+      var likesN = Number(prof.total_likes) || 0;
+      var thirdBlock;
+      if (likesN > 0) {
+        thirdBlock = '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(likesN) + '</div><div class="home-pf-l">J\'aime</div></div>';
+      } else if (Number(s.total_views) > 0) {
+        thirdBlock = '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_views) + '</div><div class="home-pf-l">Vues</div></div>';
+      } else {
+        thirdBlock = '';
+      }
       statsBlocks =
         '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.audience||0) + '</div><div class="home-pf-l">Abonnés</div></div>' +
         '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>' +
-        viewsBlock + likesBlock;
+        thirdBlock;
     }
     // n'affiche le @ que si c'est un vrai identifiant (pas un nom d'affichage avec espaces/emoji)
     var handleStr = (prof.handle || ci.handle || '').trim();
@@ -4497,11 +4507,23 @@
     var trendTxt = up ? 'En hausse' : 'Stable';
     var footTxt = (totalGained>0?'+':'') + fmtNum(totalGained) + ' vues ' + (labelMap[String(pdays)] || '');
 
+    // Point mis en avant PAR DÉFAUT = le dernier jour COMPLET (le plus récent, hors journée en cours),
+    // pour qu'on voie tout de suite le gain le plus récent (ex. "1 juil : +303") au lieu du plus vieux point à 0.
+    var doneV = view.filter(function(p){ return p.d < refToday; });
+    var defPt = doneV.length ? doneV[doneV.length - 1] : series[series.length - 1];
+    var ttHtml = '';
+    if (defPt && defPt.d) {
+      var _dd = new Date(Date.parse(defPt.d + 'T12:00:00'));
+      var _jj = ['dim','lun','mar','mer','jeu','ven','sam'][_dd.getDay()];
+      var _mm = ['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'][_dd.getMonth()];
+      ttHtml = '<strong>' + _jj + '. ' + _dd.getDate() + ' ' + _mm + '</strong> · ' + (defPt.v>0?'+':'') + fmtNum(defPt.v) + ' vues gagnées ce jour';
+    }
+
     return '<div class="home-graph card aurora">' +
       '<div class="home-graph-top"><span>Vues gagnées</span><span class="home-graph-diff ' + (up?'up':'down') + '">' + trendTxt + '</span></div>' +
       tabs +
       '<div class="home-graph-canvas">' + auroraSvg(W, H, norm, color, false, series) + '</div>' +
-      '<div class="home-graph-tooltip" id="graphTooltip" style="display:none;"></div>' +
+      '<div class="home-graph-tooltip" id="graphTooltip"' + (ttHtml?'':' style="display:none;"') + '>' + ttHtml + '</div>' +
       '<div class="home-graph-foot"><span>' + footTxt + '</span></div>' +
     '</div>';
   }
@@ -4883,7 +4905,7 @@
     var mois = ['jan','f\u00e9v','mar','avr','mai','juin','juil','ao\u00fbt','sep','oct','nov','d\u00e9c'];
     var label = jours[d.getDay()] + '. ' + d.getDate() + ' ' + mois[d.getMonth()];
     var box = document.getElementById('graphTooltip');
-    if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + fmtNum(views) + ' vues gagnées ce jour'; }
+    if (box) { box.style.display='block'; box.innerHTML = '<strong>' + label + '</strong> · ' + (views>0?'+':'') + fmtNum(views) + ' vues gagnées ce jour'; }
     // surligner le point cliqué
     try {
       var svg = el && el.ownerSVGElement;

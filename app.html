@@ -3316,7 +3316,7 @@
     // relancer un relevé « curveOnly » ici = 2e scrape des mêmes vidéos = crédits SociaVault gaspillés.
     if (acc.analysis) autoCurveDaily(platform, username);
     renderPubVideosCard(platform);      // « dernières vidéos publiées » filtrées sur CE réseau
-    if (hasStats) maybePromptGoal(platform, username); // ~2 s après l'arrivée : « quel est ton objectif ? »
+    if (hasStats) maybePromptGoal(platform, username); // ~5 s après l'arrivée (on laisse voir le profil) : « quel est ton objectif ? »
     window._ideaFabAllowed = !!hasStats && !profileOnly; // pas d'idées de contenu pour X/FB/LinkedIn (stats de profil)
     var _onHome = document.getElementById('view-home') && document.getElementById('view-home').classList.contains('active');
     if (window._ideaFabAllowed) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
@@ -3753,7 +3753,7 @@
     }
 
     // 2) Ajout : uniquement les plateformes pas encore connectées.
-    var ALLP = [['tiktok',tiktok,'TikTok'],['youtube',youtube,'YouTube'],['instagram',instagram,'Instagram'],['facebook',facebook,'Facebook'],['x',xtw,'X'],['threads',threads,'Threads']];
+    var ALLP = [['tiktok',tiktok,'TikTok'],['youtube',youtube,'YouTube'],['instagram',instagram,'Instagram'],['facebook',facebook,'Facebook'],['x',xtw,'X'],['threads',threads,'Threads'],['linkedin',linkedin,'LinkedIn']];
     var addable = ALLP.filter(function(p){ return !(window.__connectedPlats && window.__connectedPlats[p[0]]); });
     var atLimit = connectedAccountCount() >= maxConnectableAccounts();
     var addHtml = '<div class="cx-sec-h" style="margin-top:'+(connHtml?'18px':'0')+';">Ajouter un compte</div>';
@@ -3900,7 +3900,7 @@
       if (!hasStats) return;
       try { localStorage.setItem(seenKey, '1'); } catch(e){}
       openGoalSetup(platform, username, false);
-    }, 2000);
+    }, 5000);
   }
 
   // ── PUBLICATIONS SKILLORA : cloche 🔔 + section accueil « Tes dernières vidéos » ───────────────

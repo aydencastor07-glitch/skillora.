@@ -339,7 +339,7 @@
   .home-car-h { font-size:.62rem; font-weight:600; color:#cdd8ef; max-width:62px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .home-car-chip.on .home-car-h { color:#fff; }
   /* Rail de pages (vrai carrousel : on glisse une page entière) */
-  .home-car-track { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+  .home-car-track { display:flex; align-items:flex-start; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; transition:height .28s ease; }
   .home-car-track::-webkit-scrollbar { display:none; height:0; }
   .home-car-page { flex:0 0 100%; width:100%; min-width:100%; scroll-snap-align:start; scroll-snap-stop:always; }
 
@@ -3340,6 +3340,17 @@
     if (window._ideaFabAllowed) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
     // Si ce compte a une variation en attente (abonnés/J'aime), on joue le badge « +X / −X » (1× par delta).
     if (typeof playStatDelta === 'function') setTimeout(playStatDelta, 350);
+    // Ajuste la hauteur du carrousel à CE compte -> plus de grand vide noir sous un compte court.
+    fitCarHeight(); setTimeout(fitCarHeight, 300); setTimeout(fitCarHeight, 1000);
+  }
+  // Le carrousel est une rangée flex : sa hauteur = la page la plus HAUTE, ce qui laissait du vide noir
+  // sous les comptes plus courts. On force la hauteur du carrousel sur celle du compte AFFICHÉ.
+  function fitCarHeight(){
+    try {
+      var t = document.getElementById('homeCarTrack'); if (!t) return;
+      var pg = t.querySelectorAll('.home-car-page')[window._homeIdx || 0]; if (!pg) return;
+      var h = pg.scrollHeight || pg.offsetHeight; if (h > 0) t.style.height = h + 'px';
+    } catch(e){}
   }
 
   // ── ANALYSE UNIQUE (anti-doublon global) ─────────────────────────────────────
@@ -3666,19 +3677,15 @@
           if (shares) parts.push('↗ ' + fmtNum(shares));
           if (saves) parts.push('🔖 ' + fmtNum(saves));
           var statsLine = parts.join(' · ');
-          var badge = isWin ? '<span class="home-rv-tag good">Modèle gagnant</span>' : '';
+          // Dans la section « vidéos qui cartonnent », TOUTES les vidéos affichées sont des gagnantes -> on
+          // marque chacune (avant, la 3e n'avait pas le badge si elle était sous le seuil).
+          var badge = anyViews ? '<span class="home-rv-tag good">Modèle gagnant</span>' : '';
           html += '<div class="home-rv">' + cover +
             '<div class="home-rv-body"><div class="home-rv-desc">' + escapeHtml((v.description||'Sans titre').slice(0,55)) + '</div>' +
             (statsLine ? '<div class="home-rv-stats">' + statsLine + '</div>' : '') +
             badge + '</div></div>';
         });
-        // Blueprint complet (données déjà générées -> aucun coût IA). Bouton seulement si on a de la matière.
-        var hasBp = !!(ins.scorecard || (ins.blueprints && ins.blueprints.length) || (ins.why && ins.why.length) || (ins.formula && (ins.formula.hook || (ins.formula.structure||[]).length)));
-        if (hasBp) html += '<button class="home-bp-btn" onclick="openBlueprint()">' +
-          '<span class="home-bp-ic">🧩</span>' +
-          '<span class="home-bp-tx"><span class="home-bp-t">Blueprint complet</span>' +
-          '<span class="home-bp-s">Le plan pas-à-pas pour reproduire tes vidéos qui marchent</span></span>' +
-          '<span class="home-bp-go">→</span></button>';
+        // (Carte « Blueprint complet » retirée à la demande : le créateur sait déjà faire ses vidéos.)
       }
 
       // (Section "À améliorer" retirée à la demande : on se concentre sur ce qui marche + le blueprint.)
@@ -4225,7 +4232,7 @@
       var up = delta > 0, a = Math.min(999, Math.abs(delta));
       var b = document.createElement('div');
       b.textContent = (up ? '+' : '−') + a;
-      b.style.cssText = 'position:fixed;left:' + (r.right + 5) + 'px;top:' + (r.top - 9) + 'px;z-index:9500;'
+      b.style.cssText = 'position:fixed;left:' + (r.right + 1) + 'px;top:' + (r.top - 4) + 'px;z-index:9500;'
         + "font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;letter-spacing:-.02em;pointer-events:none;white-space:nowrap;"
         + 'color:' + (up ? '#ff3b5c' : '#8b9bc4') + ';' + (up ? 'text-shadow:0 0 14px rgba(255,59,92,.8);' : 'text-shadow:0 0 10px rgba(139,155,196,.4);')
         + 'opacity:0;transform:translateY(11px) scale(.35);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);';
@@ -4245,7 +4252,7 @@
           b.style.opacity = '0'; b.style.transform = 'translateY(-9px) scale(.9)';
         }
         setTimeout(function(){ if (b.parentNode) b.parentNode.removeChild(b); }, 750);
-      }, 4000);
+      }, 10000);
     } catch(e){}
   }
   // Joue le delta du compte AFFICHÉ (lit window._pendingGain), sur les blocs marqués data-gain.

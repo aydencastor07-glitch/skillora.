@@ -260,6 +260,10 @@
   .home-pf-stat { flex:1; text-align:center; padding:0 6px; position:relative; }
   .home-pf-stat + .home-pf-stat::before { content:''; position:absolute; left:0; top:15%; height:70%; width:1px; background:var(--border); }
   .home-pf-n { font-family:'Sora',sans-serif; font-weight:800; font-size:1.02rem; color:var(--white); }
+  /* Badge « +X » rouge (gain du jour, style TikTok premium) : apparaît, tient quelques secondes, s'efface. */
+  .stat-gain { display:inline-block; margin-left:4px; vertical-align:super; color:#ff3b5c; font-family:'Sora',sans-serif; font-weight:800; font-size:.6rem; letter-spacing:-0.02em; text-shadow:0 0 10px rgba(255,59,92,0.55); animation:statGainPop 4.5s cubic-bezier(.22,1,.36,1) forwards; pointer-events:none; }
+  @keyframes statGainPop { 0%{ opacity:0; transform:translateY(6px) scale(.5); } 12%{ opacity:1; transform:translateY(0) scale(1.05); } 20%{ transform:translateY(0) scale(1); } 68%{ opacity:1; transform:translateY(0) scale(1); } 100%{ opacity:0; transform:translateY(-9px) scale(.85); } }
+  @media (prefers-reduced-motion: reduce) { .stat-gain { animation:none; opacity:0; } }
   .home-pf-l { font-size:.72rem; color:var(--muted); margin-top:2px; }
   .home-pf-refresh { margin-top:12px; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--white); border-radius:10px; padding:7px 18px; font-family:'Sora',sans-serif; font-weight:600; font-size:.76rem; cursor:pointer; }
   .home-pf-refresh:active { transform:scale(0.97); }
@@ -3173,6 +3177,7 @@
 
       // Coque carrousel : un bandeau de comptes + le tableau de bord du compte courant.
       window._homeAccounts = accounts;
+      maybeMorningRefreshAll(accounts); // 1×/jour : actualise TOUS les comptes de la personne (abonnés, likes, vues, courbe)
       if (typeof loadStudioAccounts === 'function') loadStudioAccounts(); // le Studio reflète tout de suite les comptes connectés
       var idx = 0;
       // Reste sur le compte que l'utilisateur regardait, même après une actualisation de la page
@@ -3312,10 +3317,8 @@
     // Analyse PARESSEUSE : on n'analyse que le compte affiché, et UNE seule fois (si pas déjà fait).
     // -> zéro crédit gaspillé sur la navigation ou sur des comptes non regardés.
     ensureAnalyzed(acc);
-    // Actualisation AUTO du matin (compte déjà analysé) : extraction des données fraîches + animation,
-    // 1×/jour. Si on est encore dans le délai anti-gaspillage, elle bascule toute seule sur le relevé
-    // léger de courbe (pas de surcoût). Une connexion fraîche/échouée (pas d'analyse) est ignorée.
-    if (acc.analysis) autoDailyRefreshView(platform, username);
+    // (L'actualisation auto du matin est gérée globalement par maybeMorningRefreshAll dans loadHomeDashboard
+    //  -> elle rafraîchit TOUS les comptes de la personne 1×/jour, pas seulement celui affiché.)
     renderPubVideosCard(platform);      // « dernières vidéos publiées » filtrées sur CE réseau
     if (hasStats) maybePromptGoal(platform, username); // ~5 s après l'arrivée (on laisse voir le profil) : « quel est ton objectif ? »
     window._ideaFabAllowed = !!hasStats && !profileOnly; // pas d'idées de contenu pour X/FB/LinkedIn (stats de profil)
@@ -3361,10 +3364,10 @@
       if (out && out._httpOk && !out.error) {
         window._analysisCache[k] = out;                                          // on ne mémorise que les vrais succès
         delete window._analysisFail[k];                                          // succès -> on oublie l'échec précédent
-        // L'analyse complète a déjà relevé les vues du jour (snapshot écrit côté serveur).
-        // -> on marque le relevé de courbe du jour comme FAIT pour éviter un 2e scrape (autoCurveDaily).
-        if ((owner || 'self') === 'self' && !out.curve) {
-          try { localStorage.setItem('sk_curveday_' + platform + '_' + String(username).toLowerCase(), localDateStr()); } catch(e){}
+        // Vrai scrape (pas une réponse en cache) pour un compte à soi : il vient d'être actualisé.
+        if ((owner || 'self') === 'self' && !out.curve && !out.cached) {
+          try { localStorage.setItem('sk_curveday_' + platform + '_' + String(username).toLowerCase(), localDateStr()); } catch(e){} // relevé courbe du jour fait
+          try { localStorage.setItem(refreshLastKey(platform, username), String(Date.now())); } catch(e){}                           // démarre le délai -> bouton « Actualiser » caché (ex : jour de connexion)
         }
       } else if (out) {
         window._analysisFail[k] = out;                                           // échec -> évite un 2e scrape auto cette session
@@ -3409,34 +3412,41 @@
     } catch(e){}
   }
 
-  // ── ACTUALISATION AUTOMATIQUE DU MATIN ───────────────────────────────────────
-  // À la 1ʳᵉ ouverture du jour d'un compte (déjà analysé), on extrait les données fraîches AVEC une
-  // animation propre. Ne consomme PAS le quota manuel (juste le délai anti-gaspillage). Si on est encore
-  // dans le délai, on se contente du relevé léger de courbe (0 surcoût). Échec = silencieux (on réessaie demain).
-  async function autoDailyRefreshView(platform, username){
-    if (!username) return;
-    if (['tiktok','youtube','instagram','x','twitter','facebook','threads'].indexOf(platform) < 0) return;
+  // ── ACTUALISATION AUTOMATIQUE DU MATIN (TOUS les comptes de la personne) ──────
+  // 1×/jour, à la 1ʳᵉ ouverture : on extrait les données fraîches de CHAQUE compte connecté de CE user
+  // (jamais ceux des autres utilisateurs), avec une animation. Ça met tout à jour : abonnés, likes, vues,
+  // dernière vidéo, courbe. Ne consomme PAS le quota manuel (juste le délai anti-gaspillage). Le scrape se
+  // fait par compte, l'un après l'autre. Échec d'un compte = silencieux, on passe au suivant.
+  async function maybeMorningRefreshAll(accounts){
+    if (window._morningAllRan) return;
+    window._morningAllRan = true;                                      // verrou synchrone (anti double-run)
     var today = localDateStr();
-    var gkey = 'sk_autoref_' + platform + '_' + String(username).toLowerCase();
-    if (localStorage.getItem(gkey) === today) return;                  // déjà actualisé aujourd'hui
-    // Encore dans le délai anti-gaspillage (actualisé récemment) -> pas de re-scrape complet, juste la courbe.
-    if (refreshWaitMs(platform, username) > 0) { try { autoCurveDaily(platform, username); } catch(e){} return; }
-    try { localStorage.setItem(gkey, today); } catch(e){}              // posé AVANT (anti double-fire)
-    if (typeof showStatsLoading === 'function') showStatsLoading();    // animation « extraction des données »
-    var ok = false;
-    try { var out = await analyzeOnce(platform, username, 'self', true); ok = !!(out && out._httpOk && !out.error); } catch(e){}
-    if (ok) {
-      try { localStorage.setItem(refreshLastKey(platform, username), String(Date.now())); } catch(e){} // démarre le délai (SANS toucher au quota manuel)
-      window._growthHistory = null;
-      window._homeCurrentKey = platform + '|' + String(username).toLowerCase();
-      try { delete window._analysisCache[platform + '|' + String(username).toLowerCase() + '|self']; } catch(e){}
-      try { await loadGrowthHistory(platform); } catch(e){}
-      try { await loadHomeDashboard(); if (typeof hideStatsLoading === 'function') hideStatsLoading(true); }
-      catch(e){ if (typeof hideStatsLoading === 'function') hideStatsLoading(false); }
-      try { startRefreshCountdown(platform, username); } catch(e){}    // flag manuel NON posé -> bouton caché pendant le délai
-    } else {
-      if (typeof hideStatsLoading === 'function') hideStatsLoading(false); // échec silencieux -> pas de modale
+    if (localStorage.getItem('sk_morningall') === today) return;       // déjà fait aujourd'hui
+    var OKP = ['tiktok','youtube','instagram','x','twitter','facebook','threads'];
+    var todo = (accounts || []).filter(function(a){
+      if (!a || !a.username || OKP.indexOf(a.platform) < 0) return false;
+      if (localStorage.getItem('sk_autoref_' + a.platform + '_' + String(a.username).toLowerCase()) === today) return false;
+      if (refreshWaitMs(a.platform, a.username) > 0) return false;     // encore dans le délai -> on ne re-scrape pas
+      return true;
+    });
+    try { localStorage.setItem('sk_morningall', today); } catch(e){}
+    if (!todo.length) return;
+    if (typeof showStatsLoading === 'function') showStatsLoading();    // animation « mise à jour de tes comptes »
+    for (var i = 0; i < todo.length; i++) {
+      var a = todo[i], lk = a.platform + '|' + String(a.username).toLowerCase();
+      try {
+        var out = await analyzeOnce(a.platform, a.username, 'self', true);   // scrape complet de CE compte
+        if (out && out._httpOk && !out.error) {
+          try { localStorage.setItem('sk_autoref_' + a.platform + '_' + String(a.username).toLowerCase(), today); } catch(e){}
+          try { localStorage.setItem(refreshLastKey(a.platform, a.username), String(Date.now())); } catch(e){}
+          try { delete window._analysisCache[lk + '|self']; } catch(e){}
+        }
+      } catch(e){}
     }
+    window._growthHistory = null;
+    try { await loadGrowthHistory((accounts[0] || {}).platform || 'tiktok'); } catch(e){}
+    try { await loadHomeDashboard(); if (typeof hideStatsLoading === 'function') hideStatsLoading(true); }
+    catch(e){ if (typeof hideStatsLoading === 'function') hideStatsLoading(false); }
   }
 
   // HTML du tableau de bord d'UN compte (chaîne pure, sans effet de bord) — une "page" du carrousel.
@@ -4159,6 +4169,20 @@
   }
 
   // Carte profil façon réseau natif
+  // Gain du DERNIER jour pour un champ de snapshot (followers / total_likes) = dernier relevé - précédent.
+  function lastDayGain(platform, username, field){
+    var u = String(username || '').toLowerCase();
+    var h = (window._growthHistory || []).filter(function(x){ return x.platform === platform && String(x.username||'').toLowerCase() === u; })
+             .sort(function(a,b){ return (a.snapshot_date < b.snapshot_date) ? -1 : (a.snapshot_date > b.snapshot_date ? 1 : 0); });
+    if (h.length < 2) return 0;
+    return Math.max(0, (Number(h[h.length-1][field])||0) - (Number(h[h.length-2][field])||0));
+  }
+  // Badge « +X » rouge (style TikTok premium) : s'anime puis s'efface. Plafonné à +999 pour rester compact.
+  function gainBadge(n){
+    n = Number(n) || 0;
+    if (n <= 0) return '';
+    return '<span class="stat-gain">' + (n > 999 ? '+999' : ('+' + n)) + '</span>';
+  }
   function homeProfileCard(platform, prof, s, username) {
     // Photo & nom : on prend ceux du scraping si dispo, sinon ceux de Post for Me (connexion)
     var ci = (window.__connInfo && window.__connInfo[platform]) || {};
@@ -4170,7 +4194,11 @@
     if (s.profile_only) {
       // X / Facebook / LinkedIn : on affiche les vraies stats de profil renvoyées par SociaVault.
       var sstats = (Array.isArray(s.social_stats) && s.social_stats.length) ? s.social_stats : [{ label:'Abonnés', value:s.audience||0 }];
-      statsBlocks = sstats.slice(0,4).map(function(st){ return '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(st.value||0) + '</div><div class="home-pf-l">' + escapeHtml(st.label||'') + '</div></div>'; }).join('');
+      statsBlocks = sstats.slice(0,4).map(function(st){
+        var lbl = String(st.label||'');
+        var g = /abonn/i.test(lbl) ? lastDayGain(platform, username, 'followers') : (/aime|like/i.test(lbl) ? lastDayGain(platform, username, 'total_likes') : 0);
+        return '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(st.value||0) + gainBadge(g) + '</div><div class="home-pf-l">' + escapeHtml(lbl) + '</div></div>';
+      }).join('');
     } else {
       // Bloc profil du HAUT : Abonnés / Vidéos / J'aime. Les VUES totales vivent EN BAS (à côté de
       // l'engagement) -> on ne les répète pas ici. Repli sur les vues seulement si le réseau n'expose
@@ -4178,14 +4206,14 @@
       var likesN = Number(prof.total_likes) || 0;
       var thirdBlock;
       if (likesN > 0) {
-        thirdBlock = '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(likesN) + '</div><div class="home-pf-l">J\'aime</div></div>';
+        thirdBlock = '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(likesN) + gainBadge(lastDayGain(platform, username, 'total_likes')) + '</div><div class="home-pf-l">J\'aime</div></div>';
       } else if (Number(s.total_views) > 0) {
         thirdBlock = '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_views) + '</div><div class="home-pf-l">Vues</div></div>';
       } else {
         thirdBlock = '';
       }
       statsBlocks =
-        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.audience||0) + '</div><div class="home-pf-l">Abonnés</div></div>' +
+        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.audience||0) + gainBadge(lastDayGain(platform, username, 'followers')) + '</div><div class="home-pf-l">Abonnés</div></div>' +
         '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>' +
         thirdBlock;
     }

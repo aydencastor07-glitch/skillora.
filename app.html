@@ -3338,6 +3338,8 @@
     window._ideaFabAllowed = !!hasStats && !profileOnly; // pas d'idées de contenu pour X/FB/LinkedIn (stats de profil)
     var _onHome = document.getElementById('view-home') && document.getElementById('view-home').classList.contains('active');
     if (window._ideaFabAllowed) { showIdeaFab(_onHome); refreshIdeaBadge(); } else { showIdeaFab(false); }
+    // Si ce compte a une variation en attente (abonnés/J'aime), on joue le badge « +X / −X » (1× par delta).
+    if (typeof playStatDelta === 'function') setTimeout(playStatDelta, 350);
   }
 
   // ── ANALYSE UNIQUE (anti-doublon global) ─────────────────────────────────────
@@ -4211,19 +4213,60 @@
     '</div>';
   }
 
-  // Carte profil façon réseau natif
-  // Gain à afficher = delta calculé au DERNIER scrape (window._pendingGain), pas jour-vs-jour.
-  // which: 'f' = abonnés, 'l' = J'aime. Reste affiché jusqu'au prochain scrape (0 -> disparaît).
-  function accGain(platform, username, which){
-    var g = (window._pendingGain || {})[platform + '|' + String(username || '').toLowerCase()];
-    return g ? (Number(which === 'l' ? g.l : g.f) || 0) : 0;
+  // ── BADGE DE VARIATION « +X / −X » (élément FLOTTANT, indépendant des re-rendus -> plus de flash) ──
+  // Après un scrape, on affiche le delta à côté du chiffre : il surgit, TIENT ~2,6 s, puis
+  //  • HAUSSE (+X rouge) -> fusionne DANS le nombre (glisse dedans + le nombre pulse),
+  //  • BAISSE (−X gris)  -> s'efface sur place (ne rentre pas).
+  // Joué 1 fois par delta (garde-fou _deltaShownFor).
+  function animateDelta(numEl, delta){
+    try {
+      if (!numEl || !delta) return;
+      var r = numEl.getBoundingClientRect(); if (!r.width) return;
+      var up = delta > 0, a = Math.min(999, Math.abs(delta));
+      var b = document.createElement('div');
+      b.textContent = (up ? '+' : '−') + a;
+      b.style.cssText = 'position:fixed;left:' + (r.right + 3) + 'px;top:' + (r.top - 3) + 'px;z-index:9500;'
+        + "font-family:'Sora',sans-serif;font-weight:800;font-size:.72rem;letter-spacing:-.02em;pointer-events:none;white-space:nowrap;"
+        + 'color:' + (up ? '#ff3b5c' : '#8b9bc4') + ';' + (up ? 'text-shadow:0 0 12px rgba(255,59,92,.7);' : '')
+        + 'opacity:0;transform:translateY(9px) scale(.4);transition:opacity .35s cubic-bezier(.22,1,.36,1),transform .35s cubic-bezier(.22,1,.36,1);';
+      document.body.appendChild(b);
+      requestAnimationFrame(function(){ b.style.opacity = '1'; b.style.transform = 'translateY(-3px) scale(1.12)'; });
+      setTimeout(function(){ b.style.transform = 'translateY(-3px) scale(1)'; }, 220);
+      setTimeout(function(){
+        if (up){
+          var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          b.style.transition = 'opacity .55s ease, transform .55s cubic-bezier(.5,0,.75,0)';
+          b.style.left = cx + 'px'; b.style.top = cy + 'px';
+          b.style.transform = 'translate(-50%,-50%) scale(.15)'; b.style.opacity = '0';
+          try { numEl.style.transition = 'transform .32s ease, color .32s ease'; numEl.style.transform = 'scale(1.2)'; numEl.style.color = '#ff3b5c';
+            setTimeout(function(){ numEl.style.transform = ''; numEl.style.color = ''; }, 340); } catch(e){}
+        } else {
+          b.style.transition = 'opacity .6s ease, transform .6s ease';
+          b.style.opacity = '0'; b.style.transform = 'translateY(-7px) scale(.9)';
+        }
+        setTimeout(function(){ if (b.parentNode) b.parentNode.removeChild(b); }, 680);
+      }, 2600);
+    } catch(e){}
   }
-  // Badge « +X » rouge (style TikTok premium) : s'anime puis s'efface. Plafonné à +999 pour rester compact.
-  function gainBadge(n){
-    n = Number(n) || 0;
-    if (n === 0) return '';
-    var up = n > 0, a = Math.abs(n);
-    return '<span class="stat-gain' + (up ? '' : ' down') + '">' + (up ? '+' : '−') + (a > 999 ? '999' : a) + '</span>';
+  // Joue le delta du compte AFFICHÉ (lit window._pendingGain), sur les blocs marqués data-gain.
+  function playStatDelta(){
+    try {
+      var accs = window._homeAccounts || [], i = window._homeIdx || 0, acc = accs[i];
+      if (!acc) return;
+      var key = acc.platform + '|' + String(acc.username || '').toLowerCase();
+      var g = (window._pendingGain || {})[key];
+      if (!g || (!g.f && !g.l)) return;
+      var stamp = key + ':' + g.f + ':' + g.l;
+      if (window._deltaShownFor === stamp) return;   // déjà joué pour ce delta
+      window._deltaShownFor = stamp;
+      var track = document.getElementById('homeCarTrack');
+      var page = track ? track.querySelectorAll('.home-car-page')[i] : null;
+      var scope = page || document.getElementById('view-home') || document;
+      var fEl = scope.querySelector('.home-pf-stat[data-gain="f"] .home-pf-n');
+      var lEl = scope.querySelector('.home-pf-stat[data-gain="l"] .home-pf-n');
+      if (g.f && fEl) animateDelta(fEl, g.f);
+      if (g.l && lEl) animateDelta(lEl, g.l);
+    } catch(e){}
   }
   function homeProfileCard(platform, prof, s, username) {
     // Photo & nom : on prend ceux du scraping si dispo, sinon ceux de Post for Me (connexion)
@@ -4238,8 +4281,8 @@
       var sstats = (Array.isArray(s.social_stats) && s.social_stats.length) ? s.social_stats : [{ label:'Abonnés', value:s.audience||0 }];
       statsBlocks = sstats.slice(0,4).map(function(st){
         var lbl = String(st.label||'');
-        var g = /abonn/i.test(lbl) ? accGain(platform, username, 'f') : (/aime|like/i.test(lbl) ? accGain(platform, username, 'l') : 0);
-        return '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(st.value||0) + gainBadge(g) + '</div><div class="home-pf-l">' + escapeHtml(lbl) + '</div></div>';
+        var dg = /abonn/i.test(lbl) ? ' data-gain="f"' : (/aime|like/i.test(lbl) ? ' data-gain="l"' : '');
+        return '<div class="home-pf-stat"' + dg + '><div class="home-pf-n">' + fmtNum(st.value||0) + '</div><div class="home-pf-l">' + escapeHtml(lbl) + '</div></div>';
       }).join('');
     } else {
       // Bloc profil du HAUT : Abonnés / Vidéos / J'aime. Les VUES totales vivent EN BAS (à côté de
@@ -4248,14 +4291,14 @@
       var likesN = Number(prof.total_likes) || 0;
       var thirdBlock;
       if (likesN > 0) {
-        thirdBlock = '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(likesN) + gainBadge(accGain(platform, username, 'l')) + '</div><div class="home-pf-l">J\'aime</div></div>';
+        thirdBlock = '<div class="home-pf-stat" data-gain="l"><div class="home-pf-n">' + fmtNum(likesN) + '</div><div class="home-pf-l">J\'aime</div></div>';
       } else if (Number(s.total_views) > 0) {
         thirdBlock = '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_views) + '</div><div class="home-pf-l">Vues</div></div>';
       } else {
         thirdBlock = '';
       }
       statsBlocks =
-        '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.audience||0) + gainBadge(accGain(platform, username, 'f')) + '</div><div class="home-pf-l">Abonnés</div></div>' +
+        '<div class="home-pf-stat" data-gain="f"><div class="home-pf-n">' + fmtNum(s.audience||0) + '</div><div class="home-pf-l">Abonnés</div></div>' +
         '<div class="home-pf-stat"><div class="home-pf-n">' + fmtNum(s.total_published||s.video_count||0) + '</div><div class="home-pf-l">Vidéos</div></div>' +
         thirdBlock;
     }
@@ -4408,16 +4451,10 @@
     var ov = document.getElementById('statsLoadOv'); if(!ov) return;
     if (ok){
       ov.innerHTML = '<div class="stats-load-card"><div class="stats-load-check">✓</div><div class="stats-load-txt">Tout est à jour ✨</div></div>';
-      setTimeout(function(){ ov.classList.remove('open'); if (typeof replayGainBadges === 'function') setTimeout(replayGainBadges, 140); }, 950);
+      // On joue le badge de variation APRÈS la fermeture de l'overlay (sinon l'anim se jouerait cachée),
+      // avec un petit délai pour laisser les re-rendus se stabiliser -> plus de flash « microseconde ».
+      setTimeout(function(){ ov.classList.remove('open'); if (typeof playStatDelta === 'function') setTimeout(playStatDelta, 450); }, 950);
     } else { ov.classList.remove('open'); }
-  }
-  // Rejoue les badges « +X » APRÈS la fermeture de l'overlay (sinon l'anim se joue cachée -> on la rate).
-  function replayGainBadges(){
-    try {
-      var host = document.getElementById('view-home') || document;
-      var els = host.querySelectorAll('.stat-gain');
-      for (var i = 0; i < els.length; i++){ var el = els[i]; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
-    } catch(e){}
   }
 
   // Auto-refresh quotidien : 1×/jour à l'ouverture (le cache serveur évite la sur-conso)

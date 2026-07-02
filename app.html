@@ -278,7 +278,19 @@
   .stats-load-spin { width:54px; height:54px; border-radius:50%; border:3px solid rgba(255,255,255,0.14); border-top-color:#5e9bff; animation:slSpin .8s linear infinite; }
   @keyframes slSpin { to { transform:rotate(360deg); } }
   .stats-load-check { width:54px; height:54px; border-radius:50%; background:#2ee6a6; color:#04240f; display:flex; align-items:center; justify-content:center; font-size:1.7rem; font-weight:800; }
-  .stats-load-txt { font-family:'Sora',sans-serif; font-weight:600; font-size:.95rem; color:#fff; }
+  .stats-load-txt { font-family:'Sora',sans-serif; font-weight:700; font-size:1.02rem; color:#fff; letter-spacing:-0.01em; }
+  /* Loader d'actualisation PREMIUM : double orbite + cœur pulsé + phrases qui défilent + barre shimmer. */
+  .sl-orbit { position:relative; width:78px; height:78px; display:flex; align-items:center; justify-content:center; }
+  .sl-ring { position:absolute; inset:0; border-radius:50%; border:3px solid transparent; border-top-color:#5e9bff; border-right-color:#5e9bff; animation:slSpin 1s linear infinite; }
+  .sl-ring2 { inset:11px; border-top-color:#9b7bff; border-right-color:transparent; border-left-color:#9b7bff; animation:slSpin 1.5s linear infinite reverse; opacity:.85; }
+  .sl-core { font-size:1.7rem; filter:drop-shadow(0 0 12px rgba(94,155,255,0.75)); animation:slPulse 1.4s ease-in-out infinite; }
+  @keyframes slPulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.16); } }
+  .sl-phrase { font-family:'Sora',sans-serif; font-weight:500; font-size:.82rem; color:#9fb4e0; min-height:1.1em; text-align:center; }
+  .sl-phrase.in { animation:slFadeIn .45s ease; }
+  @keyframes slFadeIn { from{ opacity:0; transform:translateY(5px); } to{ opacity:1; transform:translateY(0); } }
+  .sl-bar { width:190px; max-width:62vw; height:4px; border-radius:3px; background:rgba(255,255,255,0.1); overflow:hidden; }
+  .sl-bar i { display:block; height:100%; width:38%; border-radius:3px; background:linear-gradient(90deg,#5e9bff,#9b7bff); animation:slBar 1.2s ease-in-out infinite; }
+  @keyframes slBar { 0%{ transform:translateX(-130%); } 100%{ transform:translateX(360%); } }
 
   /* Connexion + squelette */
   .home-connect { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:18px; margin-bottom:14px; }
@@ -4340,18 +4352,42 @@
     }
   }
   // Écran de chargement réutilisable pour l'actualisation des stats.
+  var SL_PHRASES = ['Connexion à tes comptes…','Extraction de tes vues…','Analyse de tes abonnés…','Mesure de tes J\'aime…','Calcul de ta croissance…','Mise à jour de ta courbe…','Presque prêt…'];
   function showStatsLoading(){
     var ov = document.getElementById('statsLoadOv');
     if (!ov){ ov = document.createElement('div'); ov.id='statsLoadOv'; ov.className='stats-load-ov'; document.body.appendChild(ov); }
-    ov.innerHTML = '<div class="stats-load-card"><div class="stats-load-spin"></div><div class="stats-load-txt">Mise à jour de tes stats…</div></div>';
+    ov.innerHTML =
+      '<div class="stats-load-card">' +
+        '<div class="sl-orbit"><span class="sl-ring"></span><span class="sl-ring sl-ring2"></span><span class="sl-core">📊</span></div>' +
+        '<div class="stats-load-txt">Mise à jour de tes stats</div>' +
+        '<div class="sl-phrase in" id="slPhrase">' + SL_PHRASES[0] + '</div>' +
+        '<div class="sl-bar"><i></i></div>' +
+      '</div>';
     ov.classList.add('open');
+    var i = 0;
+    clearInterval(window._slPhraseTimer);
+    window._slPhraseTimer = setInterval(function(){
+      i = (i + 1) % SL_PHRASES.length;
+      var el = document.getElementById('slPhrase');
+      if (!el) return;
+      el.classList.remove('in'); void el.offsetWidth; el.textContent = SL_PHRASES[i]; el.classList.add('in');
+    }, 1300);
   }
   function hideStatsLoading(ok){
+    clearInterval(window._slPhraseTimer);
     var ov = document.getElementById('statsLoadOv'); if(!ov) return;
     if (ok){
-      ov.innerHTML = '<div class="stats-load-card"><div class="stats-load-check">✓</div><div class="stats-load-txt">Stats à jour</div></div>';
-      setTimeout(function(){ ov.classList.remove('open'); }, 950);
+      ov.innerHTML = '<div class="stats-load-card"><div class="stats-load-check">✓</div><div class="stats-load-txt">Tout est à jour ✨</div></div>';
+      setTimeout(function(){ ov.classList.remove('open'); if (typeof replayGainBadges === 'function') setTimeout(replayGainBadges, 140); }, 950);
     } else { ov.classList.remove('open'); }
+  }
+  // Rejoue les badges « +X » APRÈS la fermeture de l'overlay (sinon l'anim se joue cachée -> on la rate).
+  function replayGainBadges(){
+    try {
+      var host = document.getElementById('view-home') || document;
+      var els = host.querySelectorAll('.stat-gain');
+      for (var i = 0; i < els.length; i++){ var el = els[i]; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
+    } catch(e){}
   }
 
   // Auto-refresh quotidien : 1×/jour à l'ouverture (le cache serveur évite la sur-conso)

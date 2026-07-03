@@ -367,8 +367,12 @@
   .lvid-line b.new { color:var(--green); }
   .lvid.mini .lvid-go { font-size:.95rem; opacity:.5; }
   .home-sec-h { font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; color:var(--white); margin:18px 0 10px; }
-  .home-rv { display:flex; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px; margin-bottom:9px; }
-  .home-rv-thumb { width:48px; height:64px; flex:0 0 auto; border-radius:9px; background-size:cover; background-position:center; background-color:var(--surface2); }
+  .home-rv { display:flex; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px; margin-bottom:9px; cursor:pointer; transition:transform .12s, background .15s; }
+  .home-rv:active { transform:scale(0.99); background:rgba(255,255,255,0.05); }
+  .home-rv-thumb { width:48px; height:64px; flex:0 0 auto; border-radius:9px; background-size:cover; background-position:center; background-color:var(--surface2); overflow:hidden; }
+  .home-rv-thumb-text { display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+  .home-rv-platrow { display:flex; gap:5px; margin-top:2px; }
+  .home-rv-plat { width:17px; height:17px; border-radius:5px; display:flex; align-items:center; justify-content:center; flex:none; }
   .pp-list { display:flex; flex-direction:column; gap:10px; margin-bottom:8px; }
   .pp-link { text-decoration:none; color:inherit; display:block; }
   .pp-item { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; transition:border-color .15s, transform .1s; }
@@ -4101,6 +4105,33 @@
       '</div>' +
     '</div>';
   }
+  // Rendu de la carte « dernières publications » de l'Accueil, dans le MÊME style que les vidéos
+  // qui cartonnent (.home-rv) -> cohérence visuelle. Pas de vues/likes/commentaires ici : ces chiffres
+  // n'existent QUE pour les vidéos scrapées lors de l'analyse ; les scraper pour chaque publication
+  // coûterait un crédit par vidéo à chaque affichage. On montre plateforme(s) + statut + quand.
+  function pubPostHomeHTML(p){
+    var info = pubStatusInfo(p);
+    var seen = {}, chips = [];
+    (p.platforms || []).forEach(function(k){
+      k = platKey(k); if (!k || seen[k]) return; seen[k] = 1;
+      chips.push('<i class="home-rv-plat" style="background:' + platBg(k) + ';">' + pubPlatSVG(k, 10) + '</i>');
+    });
+    var kind = pubMediaKind(p);
+    var when = (p.status === 'scheduled' && p.scheduled_at) ? ('pour le ' + new Date(p.scheduled_at).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})) : timeAgo(p.created_at);
+    var cap = escapeHtml(String(p.caption || '').replace(/\s+/g,' ').trim().slice(0, 60)) || (kind === 'text' ? 'Publication' : (kind === 'image' ? 'Ton image' : 'Ta vidéo'));
+    var thumb = (kind === 'text')
+      ? '<div class="home-rv-thumb home-rv-thumb-text">✍️</div>'
+      : (kind === 'image'
+          ? '<div class="home-rv-thumb" style="background-image:url(\'' + String(p.media_url||'').replace(/'/g,'') + '\')"></div>'
+          : (p.media_url
+              ? '<div class="home-rv-thumb"><video src="' + String(p.media_url).replace(/"/g,'') + '#t=0.1" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;"></video></div>'
+              : '<div class="home-rv-thumb home-rv-thumb-text">🎬</div>'));
+    return '<div class="home-rv" onclick="watchPost(\'' + String(p.id) + '\')">' + thumb +
+      '<div class="home-rv-body"><div class="home-rv-desc">' + cap + '</div>' +
+      '<div class="home-rv-stats"><span class="npost-st ' + info.cls + '">' + info.ic + ' ' + info.txt + '</span> · ' + escapeHtml(when) + '</div>' +
+      (chips.length ? '<div class="home-rv-platrow">' + chips.join('') + '</div>' : '') +
+      '</div></div>';
+  }
   // Charge (et met en cache 2 min) la liste des publications. Repli direct sur scheduled_posts si la fonction échoue.
   async function loadPubPosts(force){
     if (!force && window._pubPostsAt && (Date.now() - window._pubPostsAt < 120000)) return window._pubPosts || [];
@@ -4195,7 +4226,7 @@
       posts = all.filter(function(p){ return (p.platforms||[]).some(function(k){ return String(k).toLowerCase().replace('_business','') === pk; }); });
     }
     if (!posts.length) { host.innerHTML = ''; return; }   // rien publié sur CE réseau -> pas de bloc
-    var top = posts.slice(0, 3).map(pubPostHTML).join('');
+    var top = posts.slice(0, 3).map(pubPostHomeHTML).join('');
     var more = posts.length > 3 ? '<button class="home-pub-more" onclick="openNotifPanel()">Voir tout (' + posts.length + ')</button>' : '';
     // Libellé générique : la liste peut mélanger vidéos, images et posts texte (chacun avec son style).
     var label = platform ? ('🚀 Tes dernières publications sur ' + escapeHtml(pubPlatLabel(platform))) : '🚀 Tes dernières publications via Skillora';

@@ -2311,6 +2311,46 @@
         <p class="pub-tip" id="pubTip">💡 …</p>
       </div>
 
+      <!-- Améliorer ma vidéo (IA) -->
+      <style>
+        .imp-btn{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#4d8fff,#1a6fff);color:#fff;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:10px;box-shadow:0 10px 24px -10px rgba(47,123,255,.7);font-family:inherit;}
+        .imp-btn:disabled{opacity:.6;cursor:default;}
+        .imp-ghost{width:100%;padding:11px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:transparent;color:#eef2fb;font-weight:600;font-size:.85rem;cursor:pointer;margin-top:8px;font-family:inherit;}
+        .imp-note{font-size:.78rem;color:#3ddc84;margin-top:8px;}
+        .imp-steps{display:flex;flex-direction:column;gap:9px;padding:4px 0;}
+        .imp-step{display:flex;gap:9px;align-items:flex-start;font-size:.85rem;}
+        .imp-step i{display:block;font-style:normal;font-size:.72rem;color:#8a97b4;margin-top:1px;}
+        .imp-step.skipped{opacity:.45;}
+        .imp-vrow{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;}
+        .imp-vrow video{width:150px;border-radius:14px;background:#000;}
+        .imp-meta{flex:1;min-width:200px;}
+        .imp-ok{font-weight:700;margin-bottom:6px;}
+        .imp-what{font-size:.8rem;color:#8a97b4;line-height:1.6;margin-bottom:10px;}
+        .imp-what i{color:#3ddc84;font-style:normal;}
+      </style>
+      <div class="pub-card" id="impCard">
+        <div class="pub-ey">Améliorer ma vidéo <span style="font-size:.62rem;background:rgba(61,220,132,0.12);color:#3ddc84;border:1px solid rgba(61,220,132,0.3);padding:2px 8px;border-radius:999px;vertical-align:2px;">IA</span></div>
+        <div id="impIntro">
+          <p class="pub-hint2">Skillora peut retravailler ta vidéo automatiquement — sous-titres animés, temps morts coupés, recadrage 9:16, accroche, plans d'illustration, son mixé. Elle n'applique que <b>ce qui manque à TA vidéo</b>, selon ta niche.</p>
+          <button class="imp-btn" id="impGo" onclick="pubImprove()">✨ Améliorer ma vidéo</button>
+          <p class="imp-note" id="impNote" style="display:none;"></p>
+        </div>
+        <div id="impProgress" style="display:none;">
+          <div class="imp-steps" id="impSteps"></div>
+        </div>
+        <div id="impResult" style="display:none;">
+          <div class="imp-vrow">
+            <video id="impVid" playsinline controls muted loop></video>
+            <div class="imp-meta">
+              <div class="imp-ok">✅ Ta vidéo améliorée est prête</div>
+              <div class="imp-what" id="impWhat"></div>
+              <button class="imp-btn" onclick="pubUseImproved()">Utiliser cette version →</button>
+              <button class="imp-ghost" onclick="pubKeepOriginal()">Garder l'originale</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Description (légende) -->
       <div class="pub-card">
         <div class="pub-ey">Description de ta vidéo</div>
@@ -8497,8 +8537,118 @@
     try { navigator.clipboard.writeText(txt); pubToast('Description copiée ✓'); } catch (e) {}
   }
 
+  /* ── AMÉLIORER MA VIDÉO (IA) — job créé via video-improve, traité par le video-worker ── */
+  var impJobId = null, impTimer = null, impUrl = null;
+
+  function impStepIcon(st) { return st === 'done' ? '✅' : (st === 'running' ? '⏳' : (st === 'skipped' ? '⏭️' : '•')); }
+
+  function impReset() {
+    if (impTimer) { clearInterval(impTimer); impTimer = null; }
+    impJobId = null; impUrl = null;
+    var ip = document.getElementById('impProgress'); if (ip) ip.style.display = 'none';
+    var ir = document.getElementById('impResult'); if (ir) ir.style.display = 'none';
+    var ii = document.getElementById('impIntro'); if (ii) ii.style.display = 'block';
+    var nn = document.getElementById('impNote'); if (nn) { nn.style.display = 'none'; nn.textContent = ''; }
+    var iv = document.getElementById('impVid'); if (iv) { try { iv.pause(); iv.removeAttribute('src'); iv.load(); } catch (e) {} }
+    var btn = document.getElementById('impGo'); if (btn) { btn.disabled = false; btn.textContent = '✨ Améliorer ma vidéo'; }
+  }
+
+  async function pubImprove() {
+    if (!pubFile) { skModal({ icon: '🎬', title: 'Aucune vidéo', message: 'Ajoute et analyse d\'abord une vidéo.', cancelText: 'OK' }); return; }
+    if (pubFile.size > 100 * 1024 * 1024) { skModal({ icon: '📦', title: 'Vidéo trop lourde', message: 'Pour l\'amélioration, ta vidéo doit faire moins de 100 Mo.', cancelText: 'OK' }); return; }
+    var btn = document.getElementById('impGo');
+    btn.disabled = true; btn.textContent = 'Envoi de ta vidéo…';
+    try {
+      var sess = await sb.auth.getSession();
+      if (!sess.data.session) { window.location.href = 'signup.html'; return; }
+      var token = sess.data.session.access_token, uid = sess.data.session.user.id;
+      var path = 'improve-src/' + uid + '/' + Date.now() + '.mp4';
+      var up = await sb.storage.from('post-media').upload(path, pubFile, { contentType: pubFile.type || 'video/mp4', upsert: false });
+      if (up.error) throw new Error(up.error.message);
+      var srcUrl = sb.storage.from('post-media').getPublicUrl(path).data.publicUrl;
+
+      // Contexte créateur : niche + retours du scan -> le worker adapte ses choix.
+      var niche = '', feedback = '';
+      try { var a = window._lastAnalysis && window._lastAnalysis.summary; if (a && a.insights) niche = a.insights.niche || ''; } catch (e) {}
+      try { feedback = (document.getElementById('pubTip').textContent || '').slice(0, 400); } catch (e) {}
+      var score = parseFloat((document.getElementById('pubScoreN').textContent || '').replace(',', '.'));
+
+      var res = await fetch(SB_URL + '/functions/v1/video-improve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY },
+        body: JSON.stringify({ source_url: srcUrl, score_before: isNaN(score) ? null : score, context: { niche: niche, feedback: feedback } })
+      });
+      var data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || ('Erreur ' + res.status));
+      impJobId = data.job_id;
+      document.getElementById('impIntro').style.display = 'none';
+      document.getElementById('impProgress').style.display = 'block';
+      impPoll();
+      impTimer = setInterval(impPoll, 2500);
+    } catch (e) {
+      btn.disabled = false; btn.textContent = '✨ Améliorer ma vidéo';
+      skModal({ icon: '⚠️', title: 'Amélioration impossible', message: String(e.message || e), cancelText: 'OK' });
+    }
+  }
+
+  async function impPoll() {
+    if (!impJobId) return;
+    try {
+      var r = await sb.from('video_jobs').select('status,steps,result_url,error').eq('id', impJobId).single();
+      if (r.error) return;
+      var j = r.data;
+      var box = document.getElementById('impSteps');
+      if (box) box.innerHTML = (j.steps || []).map(function (s) {
+        return '<div class="imp-step ' + (s.state || '') + '"><span>' + impStepIcon(s.state) + '</span><div><b>' + s.label + '</b>' + (s.detail ? '<i>' + s.detail + '</i>' : '') + '</div></div>';
+      }).join('');
+      if (j.status === 'done') {
+        clearInterval(impTimer); impTimer = null; impUrl = j.result_url;
+        document.getElementById('impProgress').style.display = 'none';
+        document.getElementById('impResult').style.display = 'block';
+        var v = document.getElementById('impVid'); v.src = impUrl; v.load(); try { v.play(); } catch (e) {}
+        var doneSteps = (j.steps || []).filter(function (s) { return s.state === 'done' && ['cut', 'frame', 'broll', 'subs', 'audio'].indexOf(s.key) >= 0; });
+        document.getElementById('impWhat').innerHTML = doneSteps.map(function (s) {
+          return '• ' + String(s.label).replace(/…$/, '') + (s.detail ? ' <i>(' + s.detail + ')</i>' : '');
+        }).join('<br>');
+      } else if (j.status === 'error') {
+        clearInterval(impTimer); impTimer = null;
+        document.getElementById('impProgress').style.display = 'none';
+        document.getElementById('impIntro').style.display = 'block';
+        var btn = document.getElementById('impGo'); btn.disabled = false; btn.textContent = '✨ Améliorer ma vidéo';
+        skModal({ icon: '⚠️', title: 'Amélioration échouée', message: j.error || 'Erreur inconnue. Réessaie.', cancelText: 'OK' });
+      }
+    } catch (e) {}
+  }
+
+  async function pubUseImproved() {
+    if (!impUrl) return;
+    try {
+      var resp = await fetch(impUrl);
+      var blob = await resp.blob();
+      pubFile = new File([blob], 'improved.mp4', { type: 'video/mp4' });
+      if (pubUrl) { try { URL.revokeObjectURL(pubUrl); } catch (e) {} }
+      pubUrl = URL.createObjectURL(blob);
+      var rv = document.getElementById('pubResVid'); rv.src = pubUrl; rv.load(); try { rv.play(); } catch (e) {}
+      document.getElementById('impResult').style.display = 'none';
+      document.getElementById('impIntro').style.display = 'block';
+      var nn = document.getElementById('impNote'); nn.style.display = 'block';
+      nn.textContent = '✅ C\'est la version améliorée qui sera publiée.';
+      var btn = document.getElementById('impGo'); btn.disabled = true; btn.textContent = 'Vidéo améliorée ✓';
+      pubToast('Version améliorée sélectionnée ✓');
+    } catch (e) {
+      skModal({ icon: '⚠️', title: 'Erreur', message: 'Impossible de récupérer la vidéo améliorée. Réessaie.', cancelText: 'OK' });
+    }
+  }
+
+  function pubKeepOriginal() {
+    document.getElementById('impResult').style.display = 'none';
+    document.getElementById('impIntro').style.display = 'block';
+    var btn = document.getElementById('impGo'); btn.disabled = false; btn.textContent = '✨ Améliorer ma vidéo';
+  }
+
   function pubReset() {
     pubStopScanSteps();
+    impReset();
     if (pubUrl) { try { URL.revokeObjectURL(pubUrl); } catch (e) {} pubUrl = null; }
     pubFile = null;
     var fi = document.getElementById('pubFile'); if (fi) fi.value = '';

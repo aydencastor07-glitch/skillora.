@@ -59,6 +59,7 @@
   .logo-word span { color:var(--blue); }
   .nav-links { display:flex; align-items:center; gap:30px; font-size:.9rem; color:var(--muted); font-weight:500; }
   .nav-links a:hover { color:var(--white); }
+  .nav-links .mob-only { display:none; }
   .nav-cta { display:flex; align-items:center; gap:10px; flex:none; }
   .btn-ghost-nav { padding:9px 16px; border-radius:10px; font-size:.86rem; font-weight:600; color:var(--muted); }
   .btn-ghost-nav:hover { color:var(--white); }
@@ -76,8 +77,13 @@
   .sec-head p { color:var(--muted); font-size:1.02rem; margin-top:12px; line-height:1.55; }
 
   /* ===== Reveal on scroll ===== */
-  .reveal { opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); }
-  .reveal.in { opacity:1; transform:translateY(0); }
+  /* Amélioration progressive : le contenu est invisible SEULEMENT si le JS a pu tourner (classe .js posée
+     par un script synchrone en tête de <body>). Si JS échoue/est bloqué, rien ne dépend de lui -> tout le
+     contenu reste visible par défaut. Filet de sécurité supplémentaire en JS (voir plus bas) au cas où
+     l'IntersectionObserver ne se déclencherait jamais pour une section. */
+  .reveal { transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); }
+  html.js .reveal { opacity:0; transform:translateY(22px); }
+  html.js .reveal.in { opacity:1; transform:translateY(0); }
   .reveal-d1.in { transition-delay:.08s; } .reveal-d2.in { transition-delay:.16s; } .reveal-d3.in { transition-delay:.24s; }
   .reveal-d4.in { transition-delay:.32s; } .reveal-d5.in { transition-delay:.4s; } .reveal-d6.in { transition-delay:.48s; }
   @media (prefers-reduced-motion: reduce) { .reveal { opacity:1; transform:none; transition:none; } }
@@ -106,8 +112,10 @@
   .hv-lines path.on { stroke:rgba(94,155,255,0.55); animation:hvDash 1.6s linear infinite; }
   @keyframes hvDash { to { stroke-dashoffset:-18; } }
   .hv-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; position:relative; z-index:2; }
-  .hv-node { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 10px; display:flex; flex-direction:column; align-items:center; gap:7px; opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease, border-color .3s; }
-  .hv-node.on { opacity:1; transform:translateY(0); border-color:rgba(94,155,255,0.28); }
+  .hv-node { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 10px; display:flex; flex-direction:column; align-items:center; gap:7px; transition:opacity .5s ease, transform .5s ease, border-color .3s; }
+  html.js .hv-node { opacity:0; transform:translateY(10px); }
+  .hv-node.on { border-color:rgba(94,155,255,0.28); }
+  html.js .hv-node.on { opacity:1; transform:translateY(0); }
   .hv-node-ic { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex:none; }
   .hv-node-count { font-family:'Sora',sans-serif; font-weight:800; font-size:1.05rem; color:var(--white); letter-spacing:-0.01em; }
   .hv-node-count .up { color:var(--green); font-size:.72rem; font-weight:700; margin-left:2px; vertical-align:2px; }
@@ -239,13 +247,18 @@
 
   @media (max-width:760px) {
     .nav-links { display:none; }
-    .nav-links.mob-open { display:flex; flex-direction:column; align-items:flex-start; gap:16px; position:absolute; top:100%; left:0; right:0; background:rgba(4,6,13,0.98); border-bottom:1px solid var(--border); padding:20px 24px 24px; backdrop-filter:blur(14px); }
+    .nav-links.mob-open { display:flex; flex-direction:column; align-items:stretch; gap:14px; position:absolute; top:100%; left:0; right:0; background:#04060d; border-bottom:1px solid var(--border); padding:20px 24px 24px; }
+    .nav-links.mob-open a { width:100%; }
+    .nav-links.mob-open .mob-only { display:block; text-align:center; }
+    .nav-links.mob-open .btn-ghost-nav { border:1px solid var(--border2); margin-top:6px; }
+    .nav-cta { display:none; }
     .nav-burger { display:flex; }
     .prob-grid, .feat-grid { grid-template-columns:1fr; }
   }
 </style>
 </head>
 <body>
+<script>document.documentElement.classList.add('js');</script>
 <div class="bg-glow"></div>
 <div class="bg-grid"></div>
 
@@ -257,6 +270,8 @@
       <a href="#fonctionnalites">Fonctionnalités</a>
       <a href="#pricing">Tarifs</a>
       <a href="#faq">FAQ</a>
+      <a class="btn-ghost-nav mob-only" href="app.html">Connexion</a>
+      <a class="btn-primary-nav mob-only" href="signup.html">Commencer gratuitement</a>
     </div>
     <div class="nav-cta">
       <a class="btn-ghost-nav" href="app.html">Connexion</a>
@@ -292,12 +307,12 @@
       <path class="hvl" d="M400,0 C400,20 710,10 735,46"/>
     </svg></div>
     <div class="hv-grid" id="hvGrid">
-      <div class="hv-node" data-target="34200" data-fmt="k"><div class="hv-node-ic" style="background:#010101"></div><div class="hv-node-count">0</div><div class="hv-node-l">Vues TikTok</div></div>
-      <div class="hv-node" data-target="118000" data-fmt="k"><div class="hv-node-ic" style="background:#d62976"></div><div class="hv-node-count">0</div><div class="hv-node-l">Vues Instagram</div></div>
-      <div class="hv-node" data-target="1240000" data-fmt="m"><div class="hv-node-ic" style="background:#FF0000"></div><div class="hv-node-count">0</div><div class="hv-node-l">Vues YouTube Shorts</div></div>
-      <div class="hv-node" data-target="5100" data-fmt="k"><div class="hv-node-ic" style="background:#1877F2"></div><div class="hv-node-count">0</div><div class="hv-node-l">Vues Facebook</div></div>
-      <div class="hv-node" data-target="2800" data-fmt="k"><div class="hv-node-ic" style="background:#000"></div><div class="hv-node-count">0</div><div class="hv-node-l">Vues X</div></div>
-      <div class="hv-node" data-target="4300" data-fmt="k"><div class="hv-node-ic" style="background:#000"></div><div class="hv-node-count">0</div><div class="hv-node-l">Vues Threads</div></div>
+      <div class="hv-node" data-target="34200" data-fmt="k"><div class="hv-node-ic" style="background:#010101"></div><div class="hv-node-count">34,2K</div><div class="hv-node-l">Vues TikTok</div></div>
+      <div class="hv-node" data-target="118000" data-fmt="k"><div class="hv-node-ic" style="background:#d62976"></div><div class="hv-node-count">118K</div><div class="hv-node-l">Vues Instagram</div></div>
+      <div class="hv-node" data-target="1240000" data-fmt="m"><div class="hv-node-ic" style="background:#FF0000"></div><div class="hv-node-count">1,2M</div><div class="hv-node-l">Vues YouTube Shorts</div></div>
+      <div class="hv-node" data-target="5100" data-fmt="k"><div class="hv-node-ic" style="background:#1877F2"></div><div class="hv-node-count">5,1K</div><div class="hv-node-l">Vues Facebook</div></div>
+      <div class="hv-node" data-target="2800" data-fmt="k"><div class="hv-node-ic" style="background:#000"></div><div class="hv-node-count">2,8K</div><div class="hv-node-l">Vues X</div></div>
+      <div class="hv-node" data-target="4300" data-fmt="k"><div class="hv-node-ic" style="background:#000"></div><div class="hv-node-count">4,3K</div><div class="hv-node-l">Vues Threads</div></div>
     </div>
     <div class="hv-live"><span class="hv-live-dot"></span> Exemple : une vidéo publiée avec Skillora, suivie en direct sur chaque réseau</div>
   </div>
@@ -540,10 +555,18 @@
 
   // ===== Reveal au scroll =====
   var revealEls = document.querySelectorAll('.reveal');
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { threshold:0.12 });
-  revealEls.forEach(function(el){ io.observe(el); });
+  if (window.IntersectionObserver) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold:0.12 });
+    revealEls.forEach(function(el){ io.observe(el); });
+    // Filet de sécurité : si un élément (ex : navigateur ancien, timing particulier) n'est jamais
+    // intercepté par l'observateur, on force son affichage après 4s -> jamais de contenu bloqué invisible.
+    setTimeout(function(){ revealEls.forEach(function(el){ el.classList.add('in'); }); }, 4000);
+  } else {
+    // Pas d'IntersectionObserver dispo -> on affiche tout de suite, pas d'animation.
+    revealEls.forEach(function(el){ el.classList.add('in'); });
+  }
 
   // ===== Animation hero : lignes puis compteurs =====
   function fmtHv(n, fmt){
@@ -567,22 +590,28 @@
     if (hvRan) return; hvRan = true;
     document.querySelectorAll('.hvl').forEach(function(p, i){ setTimeout(function(){ p.classList.add('on'); }, i * 90); });
     document.querySelectorAll('#hvGrid .hv-node').forEach(function(node, i){
+      var countEl = node.querySelector('.hv-node-count');
+      countEl.textContent = '0'; // repart de 0 -> l'animation JS prend le relais du chiffre statique affiché par défaut (sans JS)
       setTimeout(function(){
         node.classList.add('on');
         var target = parseInt(node.getAttribute('data-target'), 10);
         var fmt = node.getAttribute('data-fmt');
-        var countEl = node.querySelector('.hv-node-count');
         animateCount(countEl, target, fmt, 1400);
       }, 500 + i * 130);
     });
   }
   var hvRoot = document.getElementById('hvRoot');
-  if (hvRoot) {
+  if (hvRoot && window.IntersectionObserver) {
     var hvIo = new IntersectionObserver(function(entries){
       entries.forEach(function(e){ if (e.isIntersecting) { runHeroAnim(); hvIo.unobserve(e.target); } });
     }, { threshold:0.3 });
     hvIo.observe(hvRoot);
+  } else if (hvRoot) {
+    runHeroAnim();
   }
+  // Filet de sécurité : le diagramme hero est au-dessus de la ligne de flottaison -> il doit se lancer
+  // très vite. S'il n'a jamais démarré après 2.5s (edge case navigateur), on le force.
+  setTimeout(runHeroAnim, 2500);
 
   // ===== Tarifs : bascule mensuel / annuel =====
   function setBilling(period){

@@ -11,8 +11,8 @@
   })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skillora — Sais si ta vidéo sera virale, avant de la publier</title>
-<meta name="description" content="Skillora note ta vidéo avant publication, puis la publie sur toutes tes plateformes au bon moment — en 3 clics. TikTok, Instagram, YouTube, Facebook, X, Threads.">
+<title>Skillora — Tous tes réseaux. Toute ta croissance. Une seule app.</title>
+<meta name="description" content="Skillora analyse tes comptes, écrit tes idées et scripts, note tes vidéos avant publication, puis publie sur toutes tes plateformes au bon moment. TikTok, Instagram, YouTube, Facebook, X, Threads.">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -118,7 +118,7 @@
   .car-page { flex:0 0 100%; min-width:100%; scroll-snap-align:start; scroll-snap-stop:always; padding:12px 14px 0; }
   .acc-card { border-radius:20px; padding:18px 14px 14px; text-align:center; border:1px solid var(--border);
     background:linear-gradient(165deg, rgba(47,123,255,0.10), var(--surface) 58%); position:relative; }
-  .acc-av { width:56px; height:56px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.15rem; color:#fff; position:relative; }
+  .acc-av { width:56px; height:56px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:1.65rem; color:#fff; position:relative; border:2px solid rgba(255,255,255,0.22); box-shadow:0 0 0 3px rgba(47,123,255,0.18), 0 10px 24px -8px rgba(0,0,0,0.7), inset 0 -8px 16px rgba(0,0,0,0.28); text-shadow:0 3px 8px rgba(0,0,0,0.4); }
   .acc-av .pl { position:absolute; right:-3px; bottom:-3px; width:19px; height:19px; border-radius:6px; display:flex; align-items:center; justify-content:center; border:2px solid #0a0f1e; }
   .acc-name { font-family:'Fraunces',serif; font-weight:700; font-size:1rem; margin-top:9px; }
   .acc-handle { font-size:.66rem; color:var(--muted); margin-top:1px; }
@@ -142,21 +142,43 @@
   .car-dots i { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all .25s; }
   .car-dots i.on { width:14px; border-radius:999px; background:var(--blue-light); }
 
-  /* Toasts flottants (inclinés, hors blocs) */
-  .toast { position:absolute; z-index:6; display:flex; align-items:flex-start; gap:8px; background:rgba(10,16,32,0.92); border:1px solid rgba(94,155,255,0.3); border-radius:14px; padding:10px 13px; box-shadow:0 18px 44px -14px rgba(0,0,0,0.8), 0 0 30px -12px rgba(47,123,255,0.4); backdrop-filter:blur(8px); max-width:230px; }
+  /* Toasts flottants (inclinés, hors blocs) — animation "notification qui tombe",
+     rejouée à CHAQUE entrée dans l'écran (scroll bas comme scroll haut). */
+  .toast { position:absolute; z-index:6; display:flex; align-items:flex-start; gap:8px; background:rgba(10,16,32,0.94); border:1px solid rgba(94,155,255,0.3); border-radius:14px; padding:10px 13px; box-shadow:0 18px 44px -14px rgba(0,0,0,0.8), 0 0 30px -12px rgba(47,123,255,0.4); backdrop-filter:blur(8px); max-width:230px; transform:rotate(var(--rot,0deg)); }
   .toast .ic { font-size:1rem; flex:none; }
   .toast .t1 { display:block; font-size:.7rem; font-weight:700; line-height:1.35; }
   .toast .t2 { display:block; font-size:.6rem; color:var(--muted); margin-top:2px; line-height:1.4; }
   .toast.green { border-color:rgba(61,220,132,0.35); box-shadow:0 18px 44px -14px rgba(0,0,0,0.8), 0 0 30px -12px rgba(61,220,132,0.35); }
-  .toast-a { top:110px; right:-14px; transform:rotate(3deg); }
-  .toast-b { bottom:120px; left:-18px; transform:rotate(-4deg); }
-  @keyframes toastFloat { 0%,100%{ translate:0 0; } 50%{ translate:0 -6px; } }
-  .toast { animation:toastFloat 5s ease-in-out infinite; }
-  .toast-b { animation-delay:1.6s; }
+  .toast-a { top:110px; right:-14px; --rot:3deg; --d:.15s; }
+  .toast-b { bottom:120px; left:-18px; --rot:-4deg; --d:.75s; }
+  html.js .toast { opacity:0; }
+  html.js .toast.pop { animation:
+    toastIn .8s cubic-bezier(.22,1.6,.36,1) var(--d,0s) both,
+    toastFloat 5.5s ease-in-out calc(var(--d,0s) + 1s) infinite; }
+  @keyframes toastIn {
+    0%   { opacity:0; transform:translateY(-38px) scale(.6) rotate(var(--rot,0deg)); }
+    55%  { opacity:1; transform:translateY(6px) scale(1.06) rotate(var(--rot,0deg)); }
+    100% { opacity:1; transform:translateY(0) scale(1) rotate(var(--rot,0deg)); }
+  }
+  @keyframes toastFloat { 0%,100%{ opacity:1; transform:translateY(0) rotate(var(--rot,0deg)); } 50%{ opacity:1; transform:translateY(-6px) rotate(var(--rot,0deg)); } }
+  html.js .toast.pop .ic { animation:icPing .7s cubic-bezier(.22,1.6,.36,1) calc(var(--d,0s) + .25s) both; }
+  @keyframes icPing { 0%{ transform:scale(1); } 45%{ transform:scale(1.55) rotate(-12deg); } 100%{ transform:scale(1); } }
+  @media (prefers-reduced-motion: reduce) { html.js .toast { opacity:1; } html.js .toast.pop, html.js .toast.pop .ic { animation:none; } }
 
   /* Bandeau flottant seul entre sections */
   .loose-toast { display:flex; justify-content:center; padding:34px 22px 0; }
-  .loose-toast .toast { position:static; max-width:320px; animation:none; }
+  .loose-toast .toast { position:static; max-width:320px; --rot:-1.5deg; }
+
+  /* ===== Bande "tout ce que fait Skillora" ===== */
+  .feats { padding:74px 0 0; }
+  .feats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:13px; }
+  .feat { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 15px; display:flex; gap:12px; align-items:flex-start; transition:border-color .25s, transform .25s; }
+  .feat:hover { border-color:rgba(94,155,255,0.35); transform:translateY(-2px); }
+  .feat .fi { flex:none; width:36px; height:36px; border-radius:11px; background:rgba(47,123,255,0.12); border:1px solid rgba(47,123,255,0.22); display:flex; align-items:center; justify-content:center; font-size:1.05rem; }
+  .feat h3 { font-family:'Sora',sans-serif; font-weight:700; font-size:.88rem; }
+  .feat p { color:var(--muted); font-size:.76rem; line-height:1.5; margin-top:2px; }
+  @media (max-width:900px) { .feats-grid { grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px) { .feats-grid { grid-template-columns:1fr; } .feat { padding:14px; } }
 
   /* ===== Section Publier (phone 2 + points) ===== */
   .pub { padding:84px 0 30px; }
@@ -232,7 +254,7 @@
   .p2-success .ss { font-size:.64rem; color:var(--muted); margin-top:5px; line-height:1.55; }
   .p2-success .prow { display:flex; justify-content:center; gap:6px; margin-top:12px; }
   .p2-success .prow .pc { width:24px; height:24px; border-radius:8px; background:var(--surface); border:1px solid rgba(61,220,132,0.4); display:flex; align-items:center; justify-content:center; }
-  .toast-c { top:96px; left:-16px; transform:rotate(-3deg); }
+  .toast-c { top:96px; left:-16px; --rot:-3deg; --d:.2s; }
 
   /* ===== Témoignages ===== */
   .tst { padding:84px 0 20px; }
@@ -336,7 +358,7 @@
   <div class="nav-in">
     <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'"><b class="logo-word">Skill<span>ora</span></b></div>
     <div class="nav-links">
-      <a href="#publier">Fonctionnalités</a>
+      <a href="#fonctionnalites">Fonctionnalités</a>
       <a href="#avis">Avis</a>
       <a href="#pricing">Tarifs</a>
       <a href="#faq">FAQ</a>
@@ -355,10 +377,10 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <div class="kicker reveal">Pour créateurs TikTok · Insta · YouTube · X</div>
-      <h1 class="reveal reveal-d1">Sais si ta vidéo sera <span class="hl">virale</span> — avant de la publier.</h1>
-      <div class="typed-line reveal reveal-d2"><span id="typedTxt">Publie au bon moment.</span><span class="typed-caret"></span></div>
-      <p class="hero-sub reveal reveal-d2">Skillora <b>scanne ta vidéo</b> et te donne sa note de potentiel viral. Ensuite, elle la publie sur <b>toutes tes plateformes au bon moment</b> — en 3 clics.</p>
+      <div class="kicker reveal">Analyse · Idées · Scripts · Note virale · Publication</div>
+      <h1 class="reveal reveal-d1">Tous tes réseaux. Toute ta croissance. <span class="hl">Une seule app.</span></h1>
+      <div class="typed-line reveal reveal-d2"><span id="typedTxt">Analyse ce qui marche pour toi.</span><span class="typed-caret"></span></div>
+      <p class="hero-sub reveal reveal-d2">Skillora <b>analyse tes comptes</b>, comprend ce qui marche, <b>écrit tes idées et tes scripts</b>, note tes vidéos avant publication — puis les <b>publie partout au bon moment</b>.</p>
       <div class="hero-cta reveal reveal-d3">
         <a class="btn-primary-lg" href="signup.html">Commencer gratuitement →</a>
         <a class="btn-ghost-lg" href="#publier">Voir la démo</a>
@@ -393,11 +415,25 @@
           </div>
         </div>
         <div class="toast green toast-a"><span class="ic">🎉</span><span><span class="t1">Félicitations !</span><span class="t2">Objectif atteint : <b style="color:var(--green)">1 000 abonnés</b> sur ton compte TikTok.</span></span></div>
-        <div class="toast toast-b"><span class="ic">🚀</span><span><span class="t1">Ça décolle !</span><span class="t2">Ta dernière publication a dépassé <b style="color:var(--white)">1 000 000 de vues</b>.</span></span></div>
+        <div class="toast toast-b"><span class="ic">🚀</span><span><span class="t1">Ça décolle !</span><span class="t2">Ta dernière publication a dépassé <b style="color:var(--white)">1,3M de vues</b>.</span></span></div>
       </div>
     </div>
   </div>
 </header>
+
+<!-- ================= TOUT CE QUE FAIT SKILLORA ================= -->
+<section class="feats" id="fonctionnalites">
+  <div class="wrap">
+    <div class="feats-grid">
+      <div class="feat reveal"><span class="fi">📊</span><div><h3>Analyse tes comptes</h3><p>Tes vraies stats, ta niche détectée, tes vidéos gagnantes — sur chaque plateforme.</p></div></div>
+      <div class="feat reveal reveal-d1"><span class="fi">💡</span><div><h3>Idées chaque jour</h3><p>Des idées de contenu basées sur ce qui marche déjà pour ton compte.</p></div></div>
+      <div class="feat reveal reveal-d2"><span class="fi">✍️</span><div><h3>Scripts Studio</h3><p>Hook, structure, CTA — écrits pour ta niche, pas des textes génériques.</p></div></div>
+      <div class="feat reveal"><span class="fi">🎯</span><div><h3>Note virale</h3><p>Ta vidéo scannée et notée sur 10 avant de partir — accroche, format, rétention.</p></div></div>
+      <div class="feat reveal reveal-d1"><span class="fi">🚀</span><div><h3>Publie partout</h3><p>6 plateformes, tous tes comptes en un bouton, chacune au bon moment.</p></div></div>
+      <div class="feat reveal reveal-d2"><span class="fi">🏆</span><div><h3>Objectifs & alertes</h3><p>Jalons d'abonnés, félicitations, alertes quand une vidéo décolle.</p></div></div>
+    </div>
+  </div>
+</section>
 
 <!-- ================= SECTION PUBLIER ================= -->
 <section class="pub" id="publier">
@@ -498,7 +534,7 @@
 </section>
 
 <!-- Toast flottant seul, entre les sections -->
-<div class="loose-toast reveal" style="transform:rotate(-1.5deg);">
+<div class="loose-toast">
   <div class="toast green"><span class="ic">📈</span><span><span class="t1">+2 100 000 vues cette semaine</span><span class="t2">Sur l'ensemble de tes comptes connectés.</span></span></div>
 </div>
 
@@ -608,7 +644,7 @@
         <p>La note virale de ta vidéo avant de publier — puis toutes tes plateformes, au bon moment.</p>
       </div>
       <div class="foot-cols">
-        <div class="foot-col"><h4>Produit</h4><a href="#publier">Fonctionnalités</a><a href="#pricing">Tarifs</a><a href="app.html">Connexion</a></div>
+        <div class="foot-col"><h4>Produit</h4><a href="#fonctionnalites">Fonctionnalités</a><a href="#pricing">Tarifs</a><a href="app.html">Connexion</a></div>
         <div class="foot-col"><h4>Légal</h4><a href="privacy.html">Confidentialité</a><a href="terms.html">Conditions d'utilisation</a></div>
       </div>
     </div>
@@ -660,7 +696,7 @@
   /* ===== Texte qui s'écrit tout seul (héro) ===== */
   (function(){
     var el = document.getElementById('typedTxt'); if (!el) return;
-    var PHRASES = ['Publie au bon moment.', 'Tous tes comptes, un seul endroit.', 'Ta note virale avant de publier.', 'Des scripts calés sur ta niche.'];
+    var PHRASES = ['Analyse ce qui marche pour toi.', 'Des idées et des scripts calés sur ta niche.', 'Ta vidéo notée avant publication.', 'Publie partout au bon moment.', 'Suis tes objectifs en direct.'];
     var pi = 0, ci = PHRASES[0].length, deleting = true;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // on laisse la 1re phrase statique
     setTimeout(function tick(){
@@ -680,24 +716,32 @@
 
   /* ===== Phone 1 : faux comptes (carrousel swipeable + auto) ===== */
   var ACCOUNTS = [
-    { plat:'tiktok', platBg:'#010101', name:'LÉA CLIPS', handle:'@lea.clips', av:'linear-gradient(135deg,#ff6b9d,#c44569)', ini:'L',
+    { plat:'tiktok', platBg:'#010101', name:'LÉA CLIPS', handle:'@lea.clips', av:'linear-gradient(135deg,#ff6b9d,#c44569)', emoji:'🎬',
       s1:'1,7M', g1:'+35K', l1:'Abonnés', s2:'284', l2:'Vidéos', s3:'24,8M', g3:'+312K', l3:"J'aime",
       graph:'+2,1M', last:'4,8M vues', mult:'3,2× ta moyenne', th:'linear-gradient(160deg,#3b2a55,#151b33)' },
-    { plat:'instagram', platBg:'linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7)', name:'MAX FIT', handle:'@maxfit.off', av:'linear-gradient(135deg,#4d8fff,#1a6fff)', ini:'M',
+    { plat:'instagram', platBg:'linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7)', name:'MAX FIT', handle:'@maxfit.off', av:'linear-gradient(135deg,#ff9f43,#e55039)', emoji:'🏋️',
       s1:'842K', g1:'+12K', l1:'Abonnés', s2:'391', l2:'Vidéos', s3:'8,2M', g3:'+98K', l3:"J'aime",
       graph:'+860K', last:'1,1M vues', mult:'2,4× ta moyenne', th:'linear-gradient(160deg,#20415e,#12182e)' },
-    { plat:'youtube', platBg:'#1a1a1a', name:'NOVA TECH', handle:'@novatech', av:'linear-gradient(135deg,#9b7bff,#5f27cd)', ini:'N',
+    { plat:'youtube', platBg:'#1a1a1a', name:'NOVA TECH', handle:'@novatech', av:'linear-gradient(135deg,#9b7bff,#5f27cd)', emoji:'🤖',
       s1:'1,2M', g1:'+21K', l1:'Abonnés', s2:'156', l2:'Vidéos', s3:'96M', g3:'+1,2M', l3:'Vues',
       graph:'+1,2M', last:'2,3M vues', mult:'2,9× ta moyenne', th:'linear-gradient(160deg,#402437,#141225)' },
-    { plat:'x', platBg:'#000', name:'KENZO', handle:'@kenzo_daily', av:'linear-gradient(135deg,#00d2d3,#01a3a4)', ini:'K',
-      s1:'214K', g1:'+4,8K', l1:'Abonnés', s2:'1 203', l2:'Posts', s3:'3,1M', g3:'+22K', l3:"J'aime",
-      graph:'+340K', last:'890K vues', mult:'2,1× ta moyenne', th:'linear-gradient(160deg,#173a3c,#101a2c)' }
+    { plat:'facebook', platBg:'#1877F2', name:'CUISINE DE MAMA', handle:'@cuisinedemama', av:'linear-gradient(135deg,#ff7f50,#c0392b)', emoji:'🍲',
+      s1:'968K', g1:'+9,4K', l1:'Abonnés', s2:'512', l2:'Vidéos', s3:'12,4M', g3:'+76K', l3:"J'aime",
+      graph:'+540K', last:'760K vues', mult:'1,8× ta moyenne', th:'linear-gradient(160deg,#4a2e1c,#161226)' },
+    { plat:'x', platBg:'#000', name:'KENZO', handle:'@kenzo_daily', av:'linear-gradient(135deg,#00d2d3,#01a3a4)', emoji:'🧠',
+      s1:'214K', g1:'+4,8K', l1:'Abonnés', s2:'1 203', l2:'Posts', s3:'38,2M', g3:'+2,4M', l3:'Impressions',
+      graph:'+340K', last:'890K impressions', mult:'2,1× ta moyenne', th:'linear-gradient(160deg,#173a3c,#101a2c)' },
+    { plat:'threads', platBg:'#000', name:'LILY TALKS', handle:'@lily.talks', av:'linear-gradient(135deg,#b478ff,#7d3cff)', emoji:'🎙️',
+      s1:'128K', g1:'+3,1K', l1:'Abonnés', s2:'642', l2:'Posts', s3:'1,9M', g3:'+14K', l3:"J'aime",
+      graph:'+210K', last:'320K vues', mult:'1,6× ta moyenne', th:'linear-gradient(160deg,#2c2150,#131126)' }
   ];
   var SPARKS = [
     'M0,38 C14,36 22,14 34,12 C46,10 52,30 66,27 C80,24 88,8 100,6',
     'M0,34 C16,32 24,20 36,18 C48,16 56,26 68,22 C80,18 90,10 100,8',
     'M0,40 C12,38 20,26 32,22 C46,17 56,20 68,14 C80,9 90,7 100,4',
-    'M0,36 C14,34 24,24 36,22 C48,20 58,24 70,18 C82,13 92,10 100,7'
+    'M0,36 C14,34 24,24 36,22 C48,20 58,24 70,18 C82,13 92,10 100,7',
+    'M0,39 C12,37 24,30 36,25 C50,19 58,23 70,16 C82,10 92,9 100,5',
+    'M0,35 C14,34 22,22 34,20 C48,17 58,21 70,15 C82,10 90,8 100,6'
   ];
   (function(){
     var track = document.getElementById('carTrack'), dots = document.getElementById('carDots');
@@ -705,7 +749,7 @@
     track.innerHTML = ACCOUNTS.map(function(a, i){
       return '<div class="car-page">' +
         '<div class="acc-card">' +
-          '<div class="acc-av" style="background:' + a.av + '">' + a.ini + '<span class="pl" style="background:' + a.platBg + '">' + platSVG(a.plat, 10) + '</span></div>' +
+          '<div class="acc-av" style="background:' + a.av + '">' + a.emoji + '<span class="pl" style="background:' + a.platBg + '">' + platSVG(a.plat, 10) + '</span></div>' +
           '<div class="acc-name">' + a.name + '</div>' +
           '<div class="acc-handle">' + a.handle + '</div>' +
           '<div class="acc-stats">' +
@@ -740,7 +784,7 @@
     ['touchstart','pointerdown','wheel'].forEach(function(ev){
       track.addEventListener(ev, function(){ pauseUntil = Date.now() + 7000; }, { passive:true });
     });
-    setInterval(function(){ if (Date.now() < pauseUntil) return; go(idx + 1); }, 3800);
+    setInterval(function(){ if (Date.now() < pauseUntil) return; go(idx + 1); }, 3300);
   })();
 
   /* ===== Phone 2 : boucle du flux Publier ===== */
@@ -775,6 +819,24 @@
     setTimeout(function(){ revealEls.forEach(function(el){ el.classList.add('in'); }); }, 4000);
   } else {
     revealEls.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ===== Toasts : animation notification rejouée à chaque passage à l'écran ===== */
+  var toastEls = document.querySelectorAll('.toast');
+  if (window.IntersectionObserver) {
+    var tioFired = false;
+    var tio = new IntersectionObserver(function(entries){
+      tioFired = true;
+      entries.forEach(function(e){
+        if (e.isIntersecting && e.intersectionRatio >= 0.35) e.target.classList.add('pop');
+        else if (!e.isIntersecting) e.target.classList.remove('pop'); // sorti de l'écran -> rejouera au retour
+      });
+    }, { threshold:[0, 0.35] });
+    toastEls.forEach(function(el){ tio.observe(el); });
+    // Filet de sécurité : uniquement si l'observer n'a JAMAIS répondu (sinon il gère seul le rejeu).
+    setTimeout(function(){ if (!tioFired) toastEls.forEach(function(el){ el.classList.add('pop'); }); }, 4000);
+  } else {
+    toastEls.forEach(function(el){ el.classList.add('pop'); });
   }
 
   /* ===== Tarifs : bascule mensuel / annuel ===== */

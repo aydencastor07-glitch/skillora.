@@ -48,10 +48,17 @@ MAX_DURATION_S = float(os.environ.get("MAX_DURATION_S", "300"))  # 5 min max en 
 FONT = os.environ.get("SUB_FONT", "Anton")  # Anton = police "impact" des sous-titres viraux (fallback auto si absente)
 # Mots de remplissage coupés automatiquement (avec les silences)
 FILLERS = {"euh", "heu", "hum", "hmm", "uh", "um", "euhh", "mmm", "ben"}
-# User-Agent navigateur UNIQUEMENT pour Groq (derrière Cloudflare, qui renvoie 403
-# au User-Agent Python par défaut). Ne jamais l'envoyer à Supabase : leur pare-feu
-# rejette ce UA falsifié avec un 401.
+# User-Agent navigateur pour les services derrière Cloudflare (Groq, Pexels…),
+# qui renvoient 403 au User-Agent Python par défaut. Ne JAMAIS l'envoyer à
+# Supabase : leur pare-feu rejette ce UA falsifié avec un 401.
 GROQ_UA = "Mozilla/5.0 (X11; Linux x86_64) Skillora-Worker/1.0"
+
+
+def download(url, out, ua=GROQ_UA):
+    """Télécharge un fichier avec un UA navigateur (CDN derrière Cloudflare)."""
+    req = urllib.request.Request(url, headers={"User-Agent": ua})
+    with urllib.request.urlopen(req, timeout=180) as r, open(out, "wb") as f:
+        shutil.copyfileobj(r, f)
 
 if not SB_URL or not SB_KEY:
     print("SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sont obligatoires.", file=sys.stderr)
@@ -448,7 +455,7 @@ def pexels_broll(keywords, want=2, min_h=1000):
                 q = urllib.parse.quote(str(kw))
                 st, raw = http("GET",
                                f"https://api.pexels.com/videos/search?query={q}&orientation={orientation}&per_page=4",
-                               {"Authorization": PEXELS_KEY}, timeout=60)
+                               {"Authorization": PEXELS_KEY, "User-Agent": GROQ_UA}, timeout=60)
                 data = json.loads(raw)
                 for vid in data.get("videos", []):
                     pick = None
@@ -459,7 +466,7 @@ def pexels_broll(keywords, want=2, min_h=1000):
                             pick = f
                     if pick:
                         out = tempfile.mktemp(suffix=".mp4")
-                        urllib.request.urlretrieve(pick["link"], out)
+                        download(pick["link"], out)
                         files.append(out)
                         got = True
                         break

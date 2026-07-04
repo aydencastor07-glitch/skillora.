@@ -233,7 +233,51 @@ def make_pop(path):
     """'Pop/clic' court pour les mots importants (synthétisé, libre)."""
     run(["ffmpeg", "-y", "-f", "lavfi", "-i", "sine=frequency=920:duration=0.09",
          "-af", "afade=t=in:st=0:d=0.005,afade=t=out:st=0.03:d=0.06,volume=1.4",
-         "-ar", "44100", path])
+         "-ar", "44100", "-ac", "2", path])
+
+
+def make_sfx_bank(work):
+    """Banque de bruitages 100 % synthétisés (aucun droit d'auteur) :
+    typing, click, ding, cash, magic, impact, pop, whoosh."""
+    bank = {}
+
+    def synth(name, expr, dur):
+        p = os.path.join(work, f"sfx_{name}.wav")
+        run(["ffmpeg", "-y", "-f", "lavfi", "-i", f"aevalsrc={expr}:d={dur}:s=44100",
+             "-af", "volume=1.0", "-ar", "44100", "-ac", "2", p])
+        bank[name] = p
+
+    # clic souris / bouton
+    synth("click", "'0.9*sin(2*PI*2100*t)*exp(-55*t)+0.5*sin(2*PI*3400*t)*exp(-70*t)'", "0.12")
+    # ding (cloche, note E6 + harmonique)
+    synth("ding", "'0.6*sin(2*PI*1318*t)*exp(-6*t)+0.3*sin(2*PI*2637*t)*exp(-8*t)'", "0.8")
+    # cha-ching caisse (2 cloches rapprochées)
+    synth("cash", "'0.55*sin(2*PI*1318*t)*exp(-9*t)+0.55*sin(2*PI*1760*(t-0.09))*exp(-7*(t-0.09))*gt(t,0.09)+0.3*sin(2*PI*3520*(t-0.09))*exp(-9*(t-0.09))*gt(t,0.09)'", "0.9")
+    # magie (arpège montant scintillant)
+    synth("magic", "'0.4*sin(2*PI*1046*t)*exp(-9*t)+0.4*sin(2*PI*1318*(t-0.08))*exp(-9*(t-0.08))*gt(t,0.08)+0.4*sin(2*PI*1568*(t-0.16))*exp(-9*(t-0.16))*gt(t,0.16)+0.35*sin(2*PI*2093*(t-0.24))*exp(-8*(t-0.24))*gt(t,0.24)'", "1.0")
+    # impact (coup sourd)
+    synth("impact", "'1.2*sin(2*PI*82*t)*exp(-11*t)+0.5*sin(2*PI*55*t)*exp(-7*t)'", "0.5")
+    # pop
+    pop = os.path.join(work, "sfx_pop.wav")
+    make_pop(pop)
+    bank["pop"] = pop
+    # whoosh
+    wh = os.path.join(work, "sfx_whoosh.wav")
+    make_whoosh(wh)
+    bank["whoosh"] = wh
+    # clavier qui tape = rafale de 6 clics irréguliers
+    typing = os.path.join(work, "sfx_typing.wav")
+    delays = [0, 90, 160, 270, 350, 460]
+    fc = [f"[0:a]asplit={len(delays)}" + "".join(f"[c{i}]" for i in range(len(delays)))]
+    for i, d in enumerate(delays):
+        vol = 0.8 + (i % 3) * 0.12
+        fc.append(f"[c{i}]adelay={d}|{d},volume={vol:.2f}[t{i}]")
+    fc.append("".join(f"[t{i}]" for i in range(len(delays))) +
+              f"amix=inputs={len(delays)}:normalize=0,volume=1.2")
+    run(["ffmpeg", "-y", "-i", bank["click"], "-filter_complex", ";".join(fc),
+         "-ar", "44100", "-ac", "2", typing])
+    bank["typing"] = typing
+    return bank
 
 
 def norm_token(w):
@@ -241,6 +285,45 @@ def norm_token(w):
 
 
 KEYWORD_RX = re.compile(r"^\d|€|\$|%|^(gratuit|gratuits|free|promo|code|secret|jamais|incroyable|zero|zéro|euros?|dollars?)$")
+
+
+def sfx_event_times(words, plan_sfx, kws):
+    """Associe chaque bruitage choisi par l'IA au timestamp de son mot exact.
+    Fallback : les mots forts sans bruitage reçoivent un 'ding' (argent -> 'cash')."""
+    events, used_ts = [], set()
+    for item in (plan_sfx or [])[:6]:
+        target = norm_token((item or {}).get("word", ""))
+        sound = str((item or {}).get("sound", "pop")).strip().lower()
+        if not target:
+            continue
+        for w in words or []:
+            t = float(w.get("start", 0))
+            if norm_token(w.get("word", "")) == target and t not in used_ts:
+                events.append((t, sound))
+                used_ts.add(t)
+                break
+    for k in kws or []:
+        t = float(k["start"])
+        if any(abs(t - e[0]) < 0.4 for e in events):
+            continue
+        txt = norm_token(k["text"])
+        sound = "cash" if (("€" in txt) or ("$" in txt) or txt.startswith(("0", "gratuit", "free"))) else "ding"
+        events.append((t, sound))
+    events.sort()
+    return events[:8]
+
+
+def head_tail_spans(words, duration, lead=0.9, tail_gap=1.0):
+    """Démarrage mou et fin de vidéo vide -> plages à couper."""
+    spans = []
+    if words:
+        first = float(words[0].get("start", 0))
+        if first > lead:
+            spans.append((0.0, max(0.0, first - 0.25)))
+        last = float(words[-1].get("end", duration))
+        if duration - last > tail_gap:
+            spans.append((last + 0.45, duration))
+    return spans
 
 
 def keyword_times(words, plan_keywords, max_n=6, min_gap=1.5):
@@ -279,10 +362,12 @@ def slide_aside(src, dst, t1, dur=1.5):
     return t2
 
 
-def zoom_punch(src, dst, words, has_audio, work, pops=None, extra_whooshes=None, avoid=None):
-    """Zooms dynamiques : punch-in/out alterné à chaque phrase + whoosh discret,
-    pops sur les mots forts. La timeline ne change pas -> timings des sous-titres valides.
-    `avoid` = fenêtre (t1,t2) sans punch (l'effet 'côté' occupe déjà l'écran)."""
+def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes=None, avoid=None):
+    """Zooms dynamiques : punch-in/out alterné à chaque phrase, la caméra GLISSE
+    latéralement pendant les segments zoomés (panoramique), whoosh aux punchs et
+    bruitages contextuels (typing/ding/cash/…) bien audibles sur les mots forts.
+    La timeline ne change pas -> timings des sous-titres valides.
+    `sfx_events` = [(t, nom_du_son)] ; `avoid` = fenêtre sans punch (effet 'côté')."""
     facts = ffprobe_facts(src)
     duration, W, H = facts["duration"], facts["width"], facts["height"]
     bounds = zoom_boundaries(words, duration)
@@ -291,14 +376,23 @@ def zoom_punch(src, dst, words, has_audio, work, pops=None, extra_whooshes=None,
     if len(bounds) < 2 or len(bounds) > 60:
         return False
     edges = bounds + [duration]
-    ZOOMS = [1.0, 1.07, 1.0, 1.12]  # alternance zoom avant / arrière
+    ZOOMS = [1.0, 1.08, 1.0, 1.13]  # alternance zoom avant / arrière
     fc, vlabels = [], []
+    zoomed_i = 0
     for i in range(len(edges) - 1):
         a, b = edges[i], edges[i + 1]
         f = ZOOMS[i % len(ZOOMS)]
         chain = f"[0:v]trim=start={a:.3f}:end={b:.3f},setpts=PTS-STARTPTS"
         if f > 1.0:
-            chain += (f",crop=trunc(iw/{f}/2)*2:trunc(ih/{f}/2)*2:(iw-iw/{f})/2:(ih-ih/{f})/2,scale={W}:{H}")
+            # zoom + glissement latéral : x démarre décalé et revient vers le centre
+            seg = max(0.4, b - a)
+            margin_expr = f"(iw-iw/{f})"
+            drift = 0.42 if zoomed_i % 2 == 0 else -0.42  # gauche puis droite
+            x0 = 0.5 + drift / 2
+            x_expr = (f"{margin_expr}*({x0:.3f}-{drift:.3f}*min(t/{seg:.3f}\\,1)/2)")
+            chain += (f",crop=trunc(iw/{f}/2)*2:trunc(ih/{f}/2)*2:'{x_expr}':(ih-ih/{f})/2"
+                      f",scale={W}:{H}")
+            zoomed_i += 1
         chain += f",setsar=1[v{i}]"
         fc.append(chain)
         vlabels.append(f"[v{i}]")
@@ -307,30 +401,31 @@ def zoom_punch(src, dst, words, has_audio, work, pops=None, extra_whooshes=None,
     cmd = ["ffmpeg", "-y", "-i", src]
     maps = ["-map", "[vz]"]
     if has_audio:
-        whoosh = os.path.join(work, "whoosh.wav")
-        pop = os.path.join(work, "pop.wav")
-        make_whoosh(whoosh)
-        make_pop(pop)
-        cmd += ["-i", whoosh, "-i", pop]
-        wh_times = ([b for b in bounds[1:]] + list(extra_whooshes or []))[:14]
-        pop_times = list(pops or [])[:8]
-        mix_inputs, extra = [], []
-        if wh_times:
-            k = len(wh_times)
-            extra.append(f"[1:a]asplit={k}" + "".join(f"[s{j}]" for j in range(k)))
-            for j, t in enumerate(wh_times):
-                ms = int(t * 1000)
-                extra.append(f"[s{j}]adelay={ms}|{ms},volume=0.22[w{j}]")
-                mix_inputs.append(f"[w{j}]")
-        if pop_times:
-            k2 = len(pop_times)
-            extra.append(f"[2:a]asplit={k2}" + "".join(f"[p{j}]" for j in range(k2)))
-            for j, t in enumerate(pop_times):
-                ms = int(t * 1000)
-                extra.append(f"[p{j}]adelay={ms}|{ms},volume=0.35[q{j}]")
-                mix_inputs.append(f"[q{j}]")
-        if mix_inputs:
-            fc += extra
+        bank = make_sfx_bank(work)
+        events = [(t, "whoosh") for t in ([b for b in bounds[1:]] + list(extra_whooshes or []))[:14]]
+        for (t, name) in (sfx_events or [])[:10]:
+            events.append((t, name if name in bank else "pop"))
+        # volume par type : les bruitages "sens" doivent s'entendre par-dessus la voix
+        VOL = {"whoosh": 0.5, "pop": 0.8, "click": 0.9, "typing": 0.9,
+               "ding": 0.75, "cash": 0.8, "magic": 0.75, "impact": 0.85}
+        used = sorted({name for (_t, name) in events})
+        if events:
+            idx = {}
+            for k, name in enumerate(used):
+                cmd += ["-i", bank[name]]
+                idx[name] = k + 1  # l'entrée 0 est la vidéo
+            counts = {name: sum(1 for (_t, n2) in events if n2 == name) for name in used}
+            mix_inputs = []
+            for name in used:
+                c = counts[name]
+                fc.append(f"[{idx[name]}:a]asplit={c}" + "".join(f"[{name}{j}]" for j in range(c)))
+            seen = {name: 0 for name in used}
+            for (t, name) in events:
+                j = seen[name]; seen[name] += 1
+                ms = int(max(0.0, t) * 1000)
+                lab = f"m_{name}{j}"
+                fc.append(f"[{name}{j}]adelay={ms}|{ms},volume={VOL.get(name, 0.8)}[{lab}]")
+                mix_inputs.append(f"[{lab}]")
             fc.append("[0:a]" + "".join(mix_inputs) +
                       f"amix=inputs={len(mix_inputs) + 1}:duration=first:dropout_transition=0:normalize=0[am]")
             maps += ["-map", "[am]"]
@@ -343,9 +438,14 @@ def zoom_punch(src, dst, words, has_audio, work, pops=None, extra_whooshes=None,
 
 
 def reframe_916(src, dst, w, h):
-    """Recadre au format vertical 1080x1920 (crop centré + léger zoom)."""
-    run(["ffmpeg", "-y", "-i", src,
-         "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
+    """Passe au format 9:16 style clip : la vidéo entière au centre, et le fond
+    (haut/bas) = la même vidéo zoomée-floutée. AUCUNE bordure noire."""
+    run(["ffmpeg", "-y", "-i", src, "-filter_complex",
+         "[0:v]split=2[bg][fg];"
+         "[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=24:2[b];"
+         "[fg]scale=1080:1920:force_original_aspect_ratio=decrease[f];"
+         "[b][f]overlay=(W-w)/2:(H-h)/2[v]",
+         "-map", "[v]", "-map", "0:a?",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
 
 
@@ -411,6 +511,7 @@ def groq_plan(facts, transcript_text, context):
         "hook_text": "",
         "music_mood": "" if transcript_text else "chill",
         "keywords": [],
+        "sfx": [],
         "broll_keywords": [],
     }
     if not GROQ_KEY:
@@ -429,6 +530,7 @@ def groq_plan(facts, transcript_text, context):
         " \"hook_text\": \"accroche ultra courte (<=42 caractères, langue de la transcription) ou vide\",\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic ou vide si la vidéo a déjà son ambiance\",\n"
         " \"keywords\": [\"3-6 mots EXACTS de la transcription à mettre en avant (prix, chiffres, mots forts : '0€', 'gratuit', 'secret'…) — copie-les tels quels\"],\n"
+        " \"sfx\": [{\"word\": \"mot EXACT de la transcription\", \"sound\": \"typing|click|ding|cash|magic|impact|pop\"}],  // 2-5 bruitages qui renforcent le SENS : taper un code->typing, cliquer->click, argent/prix->cash, chiffre choc->ding, révélation/surprise->magic, punchline->impact\n"
         " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"]}"
     )
     try:
@@ -441,7 +543,7 @@ def groq_plan(facts, transcript_text, context):
         out = json.loads(raw)
         plan = json.loads(out["choices"][0]["message"]["content"])
         merged = dict(fallback)
-        for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "broll_keywords"):
+        for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx", "broll_keywords"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -686,7 +788,8 @@ def process(job):
         if plan.get("cut_silences") and tr_text and (silences or tr1_words):
             steps.start("cut", "Coupe des temps morts et des « euh »…")
             out = os.path.join(work, "cut.mp4")
-            if cut_spans(cur, out, silences, filler_spans(tr1_words), facts["duration"]):
+            extra_cuts = filler_spans(tr1_words) + head_tail_spans(tr1_words, facts["duration"])
+            if cut_spans(cur, out, silences, extra_cuts, facts["duration"]):
                 cur = out
                 facts = ffprobe_facts(cur)
                 steps.done("cut", f"nouvelle durée {facts['duration']:.0f}s")
@@ -747,7 +850,7 @@ def process(job):
                     slide = (t1, t2, cand[0]["text"])
                 out = os.path.join(work, "fx.mp4")
                 if zoom_punch(cur, out, words, facts["has_audio"], work,
-                              pops=[k["start"] for k in kws],
+                              sfx_events=sfx_event_times(words, plan.get("sfx"), kws),
                               extra_whooshes=([slide[0], slide[1] - 0.25] if slide else None),
                               avoid=(slide[0], slide[1]) if slide else None):
                     cur = out

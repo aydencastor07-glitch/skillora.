@@ -229,19 +229,73 @@ def make_whoosh(path):
          "-ar", "44100", path])
 
 
-def zoom_punch(src, dst, words, has_audio, work):
-    """Zooms dynamiques : léger punch-in alterné à chaque phrase + whoosh discret.
-    La timeline ne change pas -> les timings des sous-titres restent valides."""
+def make_pop(path):
+    """'Pop/clic' court pour les mots importants (synthétisé, libre)."""
+    run(["ffmpeg", "-y", "-f", "lavfi", "-i", "sine=frequency=920:duration=0.09",
+         "-af", "afade=t=in:st=0:d=0.005,afade=t=out:st=0.03:d=0.06,volume=1.4",
+         "-ar", "44100", path])
+
+
+def norm_token(w):
+    return re.sub(r"[^0-9a-zà-ÿ€$%]", "", str(w).lower())
+
+
+KEYWORD_RX = re.compile(r"^\d|€|\$|%|^(gratuit|gratuits|free|promo|code|secret|jamais|incroyable|zero|zéro|euros?|dollars?)$")
+
+
+def keyword_times(words, plan_keywords, max_n=6, min_gap=1.5):
+    """Moments des mots forts : ceux choisis par l'IA + prix/chiffres détectés."""
+    kwset = {norm_token(k.split()[0]) for k in (plan_keywords or []) if str(k).strip()}
+    hits, last = [], -10.0
+    for w in words or []:
+        t = norm_token(w.get("word", ""))
+        if not t:
+            continue
+        if (t in kwset or KEYWORD_RX.search(t)) and float(w["start"]) - last >= min_gap:
+            hits.append({"start": float(w["start"]), "end": float(w["end"]),
+                         "text": str(w["word"]).strip().upper().strip(".,!?;:")})
+            last = float(w["start"])
+        if len(hits) >= max_n:
+            break
+    return hits
+
+
+def slide_aside(src, dst, t1, dur=1.5):
+    """Effet 'la vidéo se pousse sur le côté' : fond = la vidéo zoomée-floutée
+    (aucune bordure noire), la vidéo rétrécit à droite, gros texte ajouté via
+    l'ASS au même moment. Timeline inchangée."""
+    facts = ffprobe_facts(src)
+    W, H = facts["width"], facts["height"]
+    t2 = t1 + dur
+    bw, bh = int(W * 1.25) // 2 * 2, int(H * 1.25) // 2 * 2
+    fw, fh = int(W * 0.62) // 2 * 2, int(H * 0.62) // 2 * 2
+    fc = (f"[0:v]split=3[base][b1][b2];"
+          f"[b1]scale={bw}:{bh},boxblur=22:2,crop={W}:{H}[bg];"
+          f"[b2]scale={fw}:{fh}[fg];"
+          f"[bg][fg]overlay=x={W - fw - 30}:y=(H-h)/2[slide];"
+          f"[base][slide]overlay=enable='between(t,{t1:.3f},{t2:.3f})'[v]")
+    run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc, "-map", "[v]", "-map", "0:a?",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+    return t2
+
+
+def zoom_punch(src, dst, words, has_audio, work, pops=None, extra_whooshes=None, avoid=None):
+    """Zooms dynamiques : punch-in/out alterné à chaque phrase + whoosh discret,
+    pops sur les mots forts. La timeline ne change pas -> timings des sous-titres valides.
+    `avoid` = fenêtre (t1,t2) sans punch (l'effet 'côté' occupe déjà l'écran)."""
     facts = ffprobe_facts(src)
     duration, W, H = facts["duration"], facts["width"], facts["height"]
     bounds = zoom_boundaries(words, duration)
+    if avoid:
+        bounds = [b for b in bounds if not (avoid[0] - 0.5 <= b <= avoid[1] + 0.5)] or [0.0]
     if len(bounds) < 2 or len(bounds) > 60:
         return False
     edges = bounds + [duration]
+    ZOOMS = [1.0, 1.07, 1.0, 1.12]  # alternance zoom avant / arrière
     fc, vlabels = [], []
     for i in range(len(edges) - 1):
         a, b = edges[i], edges[i + 1]
-        f = 1.0 if i % 2 == 0 else 1.07
+        f = ZOOMS[i % len(ZOOMS)]
         chain = f"[0:v]trim=start={a:.3f}:end={b:.3f},setpts=PTS-STARTPTS"
         if f > 1.0:
             chain += (f",crop=trunc(iw/{f}/2)*2:trunc(ih/{f}/2)*2:(iw-iw/{f})/2:(ih-ih/{f})/2,scale={W}:{H}")
@@ -254,18 +308,31 @@ def zoom_punch(src, dst, words, has_audio, work):
     maps = ["-map", "[vz]"]
     if has_audio:
         whoosh = os.path.join(work, "whoosh.wav")
+        pop = os.path.join(work, "pop.wav")
         make_whoosh(whoosh)
-        cmd += ["-i", whoosh]
-        sfx = [b for b in bounds[1:]][:12]  # pas de whoosh à t=0, max 12
-        if sfx:
-            k = len(sfx)
-            fc.append(f"[1:a]asplit={k}" + "".join(f"[s{j}]" for j in range(k)))
-            wl = []
-            for j, t in enumerate(sfx):
+        make_pop(pop)
+        cmd += ["-i", whoosh, "-i", pop]
+        wh_times = ([b for b in bounds[1:]] + list(extra_whooshes or []))[:14]
+        pop_times = list(pops or [])[:8]
+        mix_inputs, extra = [], []
+        if wh_times:
+            k = len(wh_times)
+            extra.append(f"[1:a]asplit={k}" + "".join(f"[s{j}]" for j in range(k)))
+            for j, t in enumerate(wh_times):
                 ms = int(t * 1000)
-                fc.append(f"[s{j}]adelay={ms}|{ms},volume=0.22[w{j}]")
-                wl.append(f"[w{j}]")
-            fc.append("[0:a]" + "".join(wl) + f"amix=inputs={k + 1}:duration=first:dropout_transition=0:normalize=0[am]")
+                extra.append(f"[s{j}]adelay={ms}|{ms},volume=0.22[w{j}]")
+                mix_inputs.append(f"[w{j}]")
+        if pop_times:
+            k2 = len(pop_times)
+            extra.append(f"[2:a]asplit={k2}" + "".join(f"[p{j}]" for j in range(k2)))
+            for j, t in enumerate(pop_times):
+                ms = int(t * 1000)
+                extra.append(f"[p{j}]adelay={ms}|{ms},volume=0.35[q{j}]")
+                mix_inputs.append(f"[q{j}]")
+        if mix_inputs:
+            fc += extra
+            fc.append("[0:a]" + "".join(mix_inputs) +
+                      f"amix=inputs={len(mix_inputs) + 1}:duration=first:dropout_transition=0:normalize=0[am]")
             maps += ["-map", "[am]"]
         else:
             maps += ["-map", "0:a"]
@@ -343,6 +410,7 @@ def groq_plan(facts, transcript_text, context):
         "reframe": not facts["vertical"],
         "hook_text": "",
         "music_mood": "" if transcript_text else "chill",
+        "keywords": [],
         "broll_keywords": [],
     }
     if not GROQ_KEY:
@@ -360,6 +428,7 @@ def groq_plan(facts, transcript_text, context):
         " \"cut_silences\": bool,\n"
         " \"hook_text\": \"accroche ultra courte (<=42 caractères, langue de la transcription) ou vide\",\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic ou vide si la vidéo a déjà son ambiance\",\n"
+        " \"keywords\": [\"3-6 mots EXACTS de la transcription à mettre en avant (prix, chiffres, mots forts : '0€', 'gratuit', 'secret'…) — copie-les tels quels\"],\n"
         " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"]}"
     )
     try:
@@ -372,7 +441,7 @@ def groq_plan(facts, transcript_text, context):
         out = json.loads(raw)
         plan = json.loads(out["choices"][0]["message"]["content"])
         merged = dict(fallback)
-        for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "broll_keywords"):
+        for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "broll_keywords"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -394,9 +463,18 @@ def ass_time(t):
     return f"{h}:{m:02d}:{s:02d}.{cs:02d}"
 
 
-def build_ass(words, hook_text, play_w=1080, play_h=1920):
-    """Sous-titres style viral : MAJUSCULES, 2 mots max, gros, le mot parlé passe
-    au vert Skillora, pop d'apparition. Accroche encadrée en haut (3 premières s)."""
+YELLOW = "&H0000D4FF&"   # jaune vif (BGR)
+GREEN = "&H0084DC3D&"    # vert Skillora (BGR)
+
+
+def build_ass(words, hook_text, keywords=None, slide=None, play_w=1080, play_h=1920):
+    """Sous-titres 'montage dynamique' (style CapCut) :
+    - MAJUSCULES, très gros, blanc, contour noir épais, pop d'apparition ;
+    - le mot fort de la phrase en JAUNE ;
+    - un mot-clé seul = affiché GÉANT au centre ;
+    - la position alterne par phrase (bas / milieu / haut) ;
+    - pendant l'effet 'côté', gros texte jaune dans la zone libre à gauche."""
+    kwhits = {round(k["start"], 2) for k in (keywords or [])}
     head = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {play_w}
@@ -405,32 +483,72 @@ WrapStyle: 2
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Sub,{FONT},108,&H0084DC3D,&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,8,3,2,50,50,520,1
-Style: Hook,{FONT},58,&H00FFFFFF,&H00FFFFFF,&H00000000,&H6E000000,-1,0,0,0,100,100,1,0,3,10,0,8,70,70,240,1
+Style: Sub,{FONT},124,&H00FFFFFF,&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,10,3,5,40,40,0,1
+Style: Mega,{FONT},185,{YELLOW.rstrip('&')},&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,12,4,5,40,40,0,1
+Style: Hook,{FONT},86,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,1,0,3,14,0,8,60,60,210,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
-    POP = "{\\fad(30,40)\\t(0,110,\\fscx112\\fscy112)\\t(110,190,\\fscx100\\fscy100)}"
+    POP = "\\fad(25,35)\\t(0,100,\\fscx115\\fscy115)\\t(100,180,\\fscx100\\fscy100)"
+    MEGAPOP = "\\fad(20,40)\\t(0,120,\\fscx130\\fscy130)\\t(120,220,\\fscx100\\fscy100)"
+    YPOS = [1430, 960, 620]  # bas -> milieu -> haut, alterne à chaque phrase
     lines = []
     if hook_text:
         safe = str(hook_text).upper().replace("{", "").replace("}", "").replace("\n", " ")
-        lines.append(f"Dialogue: 1,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200)}}{safe}")
-    group = []
+        lines.append(f"Dialogue: 2,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200)}}{safe}")
+
+    # Découpe en phrases (pause > 0,8 s) pour faire tourner la position
+    sent, prev_end = 0, None
+    group, gwords = [], []
+    y = YPOS[0]
+
+    def flush(g):
+        nonlocal lines
+        if not g:
+            return
+        start, end = float(g[0]["start"]), float(g[-1]["end"])
+        if end - start < 0.35:
+            end = start + 0.35
+        solo_kw = len(g) == 1 and round(float(g[0]["start"]), 2) in kwhits
+        parts = []
+        for it in g:
+            word = str(it["word"]).strip().upper().replace("{", "").replace("}", "").strip(",.;:!?")
+            if round(float(it["start"]), 2) in kwhits and not solo_kw:
+                parts.append(f"{{\\c{YELLOW}}}{word}{{\\c&H00FFFFFF&}}")
+            else:
+                parts.append(word)
+        txt = " ".join(parts)
+        if slide and slide[0] <= start <= slide[1]:
+            return  # pendant l'effet 'côté', pas de sous-titre normal (le Mega est affiché)
+        if solo_kw:
+            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Mega,,0,0,0,,"
+                         f"{{\\an5\\pos(540,960){MEGAPOP}}}{txt}")
+        else:
+            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,"
+                         f"{{\\an5\\pos(540,{y}){POP}}}{txt}")
+
     for i, w in enumerate(words):
+        ws = float(w["start"])
+        if prev_end is not None and ws - prev_end > 0.8:
+            flush(group); group = []
+            sent += 1
+            y = YPOS[sent % len(YPOS)]
+        is_kw = round(ws, 2) in kwhits
+        if is_kw and group:  # le mot fort a son propre affichage géant
+            flush(group); group = []
         group.append(w)
-        last = (i == len(words) - 1)
-        if len(group) == 2 or last:
-            start, end = float(group[0]["start"]), float(group[-1]["end"])
-            if end - start < 0.30:
-                end = start + 0.30
-            text = ""
-            for g in group:
-                k = max(1, int(round((float(g["end"]) - float(g["start"])) * 100)))
-                word = str(g["word"]).strip().upper().replace("{", "").replace("}", "")
-                text += f"{{\\k{k}}}{word} "
-            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{POP}{text.strip()}")
-            group = []
+        if is_kw or len(group) == 3:
+            flush(group); group = []
+        prev_end = float(w["end"])
+    flush(group)
+
+    # Texte géant pendant l'effet 'la vidéo se pousse sur le côté'
+    if slide:
+        t1, t2, text = slide
+        safe = str(text).upper().replace("{", "").replace("}", "")
+        lines.append(f"Dialogue: 3,{ass_time(t1 + 0.10)},{ass_time(t2)},Mega,,0,0,0,,"
+                     f"{{\\an5\\pos(210,960)\\fs150{MEGAPOP}}}{safe}")
     return head + "\n".join(lines) + "\n"
 
 
@@ -610,30 +728,47 @@ def process(job):
             tr2 = groq_transcribe(mp3b)
             words = (tr2 or {}).get("words") or []
 
-        # 5. Zooms dynamiques + whoosh (punch-in à chaque phrase — timeline inchangée,
-        #    donc les timings des sous-titres restent bons ; on zoome AVANT d'incruster
-        #    les sous-titres pour qu'ils restent nets)
+        # 5. Montage dynamique : mots forts, effet "la vidéo se pousse sur le côté",
+        #    zooms avant/arrière + whoosh + pops. Timeline inchangée -> timings des
+        #    sous-titres valides ; on zoome AVANT d'incruster les sous-titres.
+        kws = keyword_times(words, plan.get("keywords"))
+        slide = None
         if len(words) >= 6 and ffprobe_facts(cur)["duration"] > 6:
-            steps.start("fx", "Zooms dynamiques et effets…")
+            steps.start("fx", "Montage dynamique (zooms, effets, sons)…")
             try:
+                dur_cur = ffprobe_facts(cur)["duration"]
+                # Effet "côté" sur le 1er mot fort court (ex: 0€), hors début/fin
+                cand = [k for k in kws if len(k["text"]) <= 7 and 1.0 < k["start"] < dur_cur - 3.0]
+                if cand:
+                    t1 = max(0.5, cand[0]["start"] - 0.15)
+                    outs = os.path.join(work, "slide.mp4")
+                    t2 = slide_aside(cur, outs, t1)
+                    cur = outs
+                    slide = (t1, t2, cand[0]["text"])
                 out = os.path.join(work, "fx.mp4")
-                if zoom_punch(cur, out, words, facts["has_audio"], work):
+                if zoom_punch(cur, out, words, facts["has_audio"], work,
+                              pops=[k["start"] for k in kws],
+                              extra_whooshes=([slide[0], slide[1] - 0.25] if slide else None),
+                              avoid=(slide[0], slide[1]) if slide else None):
                     cur = out
-                    steps.done("fx", "punch-in à chaque phrase + whoosh")
-                else:
-                    steps.done("fx", "vidéo trop courte pour des zooms")
+                detail = "zooms + sons"
+                if slide:
+                    detail += f" + focus « {slide[2]} »"
+                if kws:
+                    detail += f" + {len(kws)} mot(s) fort(s)"
+                steps.done("fx", detail)
             except Exception as e:
-                print("zoom_punch:", e, file=sys.stderr)
+                print("fx:", e, file=sys.stderr)
                 steps.done("fx", "effets non appliqués (on continue sans)")
         else:
-            steps.skip("fx", "Zooms dynamiques", "pas assez de parole")
+            steps.skip("fx", "Montage dynamique", "pas assez de parole")
 
         # 6. Sous-titres + hook incrustés par-dessus
         if words:
             steps.start("subs", "Sous-titres animés…")
             ass = os.path.join(work, "subs.ass")
             with open(ass, "w", encoding="utf-8") as f:
-                f.write(build_ass(words, str(plan.get("hook_text") or "")))
+                f.write(build_ass(words, str(plan.get("hook_text") or ""), keywords=kws, slide=slide))
             out = os.path.join(work, "subs.mp4")
             burn_subs(cur, out, ass)
             cur = out

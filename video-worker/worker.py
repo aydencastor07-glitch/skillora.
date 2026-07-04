@@ -45,7 +45,9 @@ MUSIC_BUCKET = os.environ.get("MUSIC_BUCKET", "music-library")
 POLL_SECONDS = float(os.environ.get("POLL_SECONDS", "3"))
 MAX_DURATION_S = float(os.environ.get("MAX_DURATION_S", "300"))  # 5 min max en v1
 
-FONT = os.environ.get("SUB_FONT", "DejaVu Sans")
+FONT = os.environ.get("SUB_FONT", "Anton")  # Anton = police "impact" des sous-titres viraux (fallback auto si absente)
+# Mots de remplissage coupés automatiquement (avec les silences)
+FILLERS = {"euh", "heu", "hum", "hmm", "uh", "um", "euhh", "mmm", "ben"}
 # User-Agent navigateur UNIQUEMENT pour Groq (derrière Cloudflare, qui renvoie 403
 # au User-Agent Python par défaut). Ne jamais l'envoyer à Supabase : leur pare-feu
 # rejette ce UA falsifié avec un 401.
@@ -151,31 +153,118 @@ def detect_silences(path, noise_db=-30, min_d=0.55):
     return list(zip(starts, ends[:len(starts)]))
 
 
-def cut_silences(src, dst, silences, duration, keep_pad=0.22):
-    """Garde les segments parlés (+ un petit coussin naturel autour)."""
-    if not silences:
-        return False
-    keep, cursor = [], 0.0
-    for (s, e) in silences:
+def filler_spans(words):
+    """Plages des 'euh/hum…' à retirer, d'après les timestamps par mot."""
+    spans = []
+    for w in words or []:
+        t = re.sub(r"[^a-zà-ÿ]", "", str(w.get("word", "")).lower())
+        if t in FILLERS:
+            s, e = float(w.get("start", 0)), float(w.get("end", 0))
+            if e - s > 0.12:
+                spans.append((max(0.0, s - 0.03), e + 0.03))
+    return spans
+
+
+def cut_spans(src, dst, silences, fillers, duration, keep_pad=0.22):
+    """Coupe silences (avec coussin naturel) + mots de remplissage, en une passe."""
+    remove = []
+    for (s, e) in silences or []:
         s2, e2 = max(0.0, s + keep_pad), max(0.0, e - keep_pad)
-        if e2 - s2 <= 0.15:  # pause trop courte une fois le coussin retiré
-            continue
-        if s2 > cursor + 0.05:
-            keep.append((cursor, s2))
-        cursor = e2
+        if e2 - s2 > 0.15:
+            remove.append((s2, e2))
+    remove += list(fillers or [])
+    if not remove:
+        return False
+    remove.sort()
+    merged = []
+    for (s, e) in remove:  # fusionne les plages qui se chevauchent
+        if merged and s <= merged[-1][1] + 0.04:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], e))
+        else:
+            merged.append((s, e))
+    keep, cursor = [], 0.0
+    for (s, e) in merged:
+        if s > cursor + 0.05:
+            keep.append((cursor, s))
+        cursor = max(cursor, e)
     if cursor < duration - 0.05:
         keep.append((cursor, duration))
     removed = duration - sum(e - s for s, e in keep)
-    if removed < 1.0 or not keep:  # pas la peine de ré-encoder pour < 1 s
+    if removed < 0.9 or not keep:  # pas la peine de ré-encoder pour < 1 s
         return False
-    parts = []
-    for (s, e) in keep:
-        parts.append(f"between(t,{s:.3f},{e:.3f})")
-    expr = "+".join(parts)
+    expr = "+".join(f"between(t,{s:.3f},{e:.3f})" for (s, e) in keep)
     run(["ffmpeg", "-y", "-i", src,
          "-vf", f"select='{expr}',setpts=N/FRAME_RATE/TB",
          "-af", f"aselect='{expr}',asetpts=N/SR/TB",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", dst])
+    return True
+
+
+def zoom_boundaries(words, duration, max_len=4.0, gap_split=0.8):
+    """Instants de 'punch' : nouvelle phrase (pause > 0,8 s) ou toutes les ~4 s."""
+    if not words:
+        return []
+    bounds, seg_start, prev_end = [0.0], float(words[0].get("start", 0)), 0.0
+    for w in words:
+        ws, we = float(w.get("start", 0)), float(w.get("end", 0))
+        if bounds and (ws - prev_end > gap_split or ws - seg_start > max_len):
+            if ws - bounds[-1] > 1.0:
+                bounds.append(round(ws, 3))
+            seg_start = ws
+        prev_end = we
+    return [b for b in bounds if b < duration - 1.0]
+
+
+def make_whoosh(path):
+    """Petit 'whoosh' synthétisé par nous (aucun droit d'auteur)."""
+    run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anoisesrc=color=pink:duration=0.3:amplitude=0.6",
+         "-af", "highpass=f=500,lowpass=f=5200,afade=t=in:st=0:d=0.05,afade=t=out:st=0.10:d=0.20,volume=1.1",
+         "-ar", "44100", path])
+
+
+def zoom_punch(src, dst, words, has_audio, work):
+    """Zooms dynamiques : léger punch-in alterné à chaque phrase + whoosh discret.
+    La timeline ne change pas -> les timings des sous-titres restent valides."""
+    facts = ffprobe_facts(src)
+    duration, W, H = facts["duration"], facts["width"], facts["height"]
+    bounds = zoom_boundaries(words, duration)
+    if len(bounds) < 2 or len(bounds) > 60:
+        return False
+    edges = bounds + [duration]
+    fc, vlabels = [], []
+    for i in range(len(edges) - 1):
+        a, b = edges[i], edges[i + 1]
+        f = 1.0 if i % 2 == 0 else 1.07
+        chain = f"[0:v]trim=start={a:.3f}:end={b:.3f},setpts=PTS-STARTPTS"
+        if f > 1.0:
+            chain += (f",crop=trunc(iw/{f}/2)*2:trunc(ih/{f}/2)*2:(iw-iw/{f})/2:(ih-ih/{f})/2,scale={W}:{H}")
+        chain += f",setsar=1[v{i}]"
+        fc.append(chain)
+        vlabels.append(f"[v{i}]")
+    n = len(vlabels)
+    fc.append("".join(vlabels) + f"concat=n={n}:v=1:a=0[vz]")
+    cmd = ["ffmpeg", "-y", "-i", src]
+    maps = ["-map", "[vz]"]
+    if has_audio:
+        whoosh = os.path.join(work, "whoosh.wav")
+        make_whoosh(whoosh)
+        cmd += ["-i", whoosh]
+        sfx = [b for b in bounds[1:]][:12]  # pas de whoosh à t=0, max 12
+        if sfx:
+            k = len(sfx)
+            fc.append(f"[1:a]asplit={k}" + "".join(f"[s{j}]" for j in range(k)))
+            wl = []
+            for j, t in enumerate(sfx):
+                ms = int(t * 1000)
+                fc.append(f"[s{j}]adelay={ms}|{ms},volume=0.22[w{j}]")
+                wl.append(f"[w{j}]")
+            fc.append("[0:a]" + "".join(wl) + f"amix=inputs={k + 1}:duration=first:dropout_transition=0:normalize=0[am]")
+            maps += ["-map", "[am]"]
+        else:
+            maps += ["-map", "0:a"]
+    cmd += ["-filter_complex", ";".join(fc), *maps,
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", dst]
+    run(cmd)
     return True
 
 
@@ -264,7 +353,7 @@ def groq_plan(facts, transcript_text, context):
         " \"cut_silences\": bool,\n"
         " \"hook_text\": \"accroche ultra courte (<=42 caractères, langue de la transcription) ou vide\",\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic ou vide si la vidéo a déjà son ambiance\",\n"
-        " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS de plans d'illustration, ou vide\"]}"
+        " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"]}"
     )
     try:
         st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
@@ -299,7 +388,8 @@ def ass_time(t):
 
 
 def build_ass(words, hook_text, play_w=1080, play_h=1920):
-    """Sous-titres karaoké par groupes de 3 mots + accroche des 2,5 premières secondes."""
+    """Sous-titres style viral : MAJUSCULES, 2 mots max, gros, le mot parlé passe
+    au vert Skillora, pop d'apparition. Accroche encadrée en haut (3 premières s)."""
     head = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {play_w}
@@ -308,29 +398,31 @@ WrapStyle: 2
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Sub,{FONT},72,&H00FFFFFF,&H0054DC3D,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,5,2,2,60,60,260,1
-Style: Hook,{FONT},64,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,5,2,8,60,60,180,1
+Style: Sub,{FONT},108,&H0084DC3D,&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,8,3,2,50,50,520,1
+Style: Hook,{FONT},58,&H00FFFFFF,&H00FFFFFF,&H00000000,&H6E000000,-1,0,0,0,100,100,1,0,3,10,0,8,70,70,240,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
+    POP = "{\\fad(30,40)\\t(0,110,\\fscx112\\fscy112)\\t(110,190,\\fscx100\\fscy100)}"
     lines = []
     if hook_text:
-        safe = hook_text.replace("{", "").replace("}", "").replace("\n", " ")
-        lines.append(f"Dialogue: 1,0:00:00.10,0:00:02.60,Hook,,0,0,0,,{{\\fad(120,160)}}{safe}")
+        safe = str(hook_text).upper().replace("{", "").replace("}", "").replace("\n", " ")
+        lines.append(f"Dialogue: 1,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200)}}{safe}")
     group = []
-    for w in words:
+    for i, w in enumerate(words):
         group.append(w)
-        if len(group) == 3 or (w is words[-1] and group):
-            start, end = group[0]["start"], group[-1]["end"]
-            if end - start < 0.12:
-                end = start + 0.12
+        last = (i == len(words) - 1)
+        if len(group) == 2 or last:
+            start, end = float(group[0]["start"]), float(group[-1]["end"])
+            if end - start < 0.30:
+                end = start + 0.30
             text = ""
             for g in group:
-                k = max(1, int(round((g["end"] - g["start"]) * 100)))
-                word = str(g["word"]).strip().replace("{", "").replace("}", "")
+                k = max(1, int(round((float(g["end"]) - float(g["start"])) * 100)))
+                word = str(g["word"]).strip().upper().replace("{", "").replace("}", "")
                 text += f"{{\\k{k}}}{word} "
-            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{{\\fad(60,60)}}{text.strip()}")
+            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{POP}{text.strip()}")
             group = []
     return head + "\n".join(lines) + "\n"
 
@@ -348,25 +440,31 @@ def pexels_broll(keywords, want=2, min_h=1000):
         return []
     files = []
     for kw in keywords[:want]:
-        try:
-            q = urllib.parse.quote(str(kw))
-            st, raw = http("GET",
-                           f"https://api.pexels.com/videos/search?query={q}&orientation=portrait&per_page=3",
-                           {"Authorization": PEXELS_KEY}, timeout=60)
-            data = json.loads(raw)
-            for vid in data.get("videos", []):
-                pick = None
-                for f in vid.get("video_files", []):
-                    if f.get("height", 0) >= min_h and f.get("width", 0) < f.get("height", 0):
-                        if pick is None or f["height"] < pick["height"]:
+        got = False
+        for orientation in ("portrait", "landscape"):  # paysage = fallback, recadré ensuite
+            if got:
+                break
+            try:
+                q = urllib.parse.quote(str(kw))
+                st, raw = http("GET",
+                               f"https://api.pexels.com/videos/search?query={q}&orientation={orientation}&per_page=4",
+                               {"Authorization": PEXELS_KEY}, timeout=60)
+                data = json.loads(raw)
+                for vid in data.get("videos", []):
+                    pick = None
+                    for f in vid.get("video_files", []):
+                        h = f.get("height", 0)
+                        ok = h >= (min_h if orientation == "portrait" else 720)
+                        if ok and (pick is None or h < pick["height"]):
                             pick = f
-                if pick:
-                    out = tempfile.mktemp(suffix=".mp4")
-                    urllib.request.urlretrieve(pick["link"], out)
-                    files.append(out)
-                    break
-        except Exception as e:
-            print("pexels:", kw, e, file=sys.stderr)
+                    if pick:
+                        out = tempfile.mktemp(suffix=".mp4")
+                        urllib.request.urlretrieve(pick["link"], out)
+                        files.append(out)
+                        got = True
+                        break
+            except Exception as e:
+                print("pexels:", kw, orientation, e, file=sys.stderr)
     return files
 
 
@@ -457,13 +555,13 @@ def process(job):
         steps.done("analyze", "parole détectée" if tr_text else "pas de parole détectée")
 
         cur = src
+        tr1_words = (first_tr or {}).get("words") or []
 
-        # 1. Coupe des silences (uniquement s'il y a de la parole : couper une
-        #    vidéo d'ambiance n'a pas de sens)
-        if plan.get("cut_silences") and tr_text and silences:
-            steps.start("cut", "Coupe des temps morts…")
+        # 1. Coupe des silences ET des "euh/hum" (uniquement s'il y a de la parole)
+        if plan.get("cut_silences") and tr_text and (silences or tr1_words):
+            steps.start("cut", "Coupe des temps morts et des « euh »…")
             out = os.path.join(work, "cut.mp4")
-            if cut_silences(cur, out, silences, facts["duration"]):
+            if cut_spans(cur, out, silences, filler_spans(tr1_words), facts["duration"]):
                 cur = out
                 facts = ffprobe_facts(cur)
                 steps.done("cut", f"nouvelle durée {facts['duration']:.0f}s")
@@ -497,23 +595,44 @@ def process(job):
         else:
             steps.skip("broll", "Plans d'illustration", "pas utile pour cette vidéo")
 
-        # 4. Sous-titres + hook — transcription REFAITE sur la vidéo coupée
+        # 4. Transcription finale (timings exacts sur la vidéo coupée)
+        words = []
         if plan.get("subtitles") and facts["has_audio"]:
-            steps.start("subs", "Sous-titres animés…")
             mp3b = os.path.join(work, "b.mp3")
             extract_audio_mp3(cur, mp3b)
             tr2 = groq_transcribe(mp3b)
             words = (tr2 or {}).get("words") or []
-            if words:
-                ass = os.path.join(work, "subs.ass")
-                with open(ass, "w", encoding="utf-8") as f:
-                    f.write(build_ass(words, str(plan.get("hook_text") or "")))
-                out = os.path.join(work, "subs.mp4")
-                burn_subs(cur, out, ass)
-                cur = out
-                steps.done("subs", f"{len(words)} mots synchronisés")
-            else:
-                steps.done("subs", "transcription indisponible")
+
+        # 5. Zooms dynamiques + whoosh (punch-in à chaque phrase — timeline inchangée,
+        #    donc les timings des sous-titres restent bons ; on zoome AVANT d'incruster
+        #    les sous-titres pour qu'ils restent nets)
+        if len(words) >= 6 and ffprobe_facts(cur)["duration"] > 6:
+            steps.start("fx", "Zooms dynamiques et effets…")
+            try:
+                out = os.path.join(work, "fx.mp4")
+                if zoom_punch(cur, out, words, facts["has_audio"], work):
+                    cur = out
+                    steps.done("fx", "punch-in à chaque phrase + whoosh")
+                else:
+                    steps.done("fx", "vidéo trop courte pour des zooms")
+            except Exception as e:
+                print("zoom_punch:", e, file=sys.stderr)
+                steps.done("fx", "effets non appliqués (on continue sans)")
+        else:
+            steps.skip("fx", "Zooms dynamiques", "pas assez de parole")
+
+        # 6. Sous-titres + hook incrustés par-dessus
+        if words:
+            steps.start("subs", "Sous-titres animés…")
+            ass = os.path.join(work, "subs.ass")
+            with open(ass, "w", encoding="utf-8") as f:
+                f.write(build_ass(words, str(plan.get("hook_text") or "")))
+            out = os.path.join(work, "subs.mp4")
+            burn_subs(cur, out, ass)
+            cur = out
+            steps.done("subs", f"{len(words)} mots synchronisés")
+        elif plan.get("subtitles") and facts["has_audio"]:
+            steps.done("subs", "transcription indisponible")
         else:
             steps.skip("subs", "Sous-titres", "pas de parole — pas de sous-titres")
 

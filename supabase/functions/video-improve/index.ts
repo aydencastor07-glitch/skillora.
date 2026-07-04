@@ -12,6 +12,9 @@ const cors = {
 const PLAN_IMPROVES = { starter: 5, growth: 20, elite: 60 };
 const FREE_IMPROVES = 1;
 const UNLIMITED_EMAILS = ["aydencastor1020@gmail.com"];
+// MODE TEST : aucune limite d'amélioration pour personne (le système est en
+// cours de test). Repasser à false pour réactiver les quotas par plan.
+const TEST_MODE_NO_LIMITS = true;
 
 function json(o, s) {
   return new Response(JSON.stringify(o), { status: s || 200, headers: { ...cors, "Content-Type": "application/json" } });
@@ -36,7 +39,7 @@ serve(async (req) => {
     if (!sourceUrl.startsWith(expectedPrefix)) return json({ success: false, error: "source_url invalide." }, 400);
 
     // --- Quota mensuel selon le plan (échec OUVERT sur erreur DB, comme pfm-connect) ---
-    if (!unlimited) {
+    if (!unlimited && !TEST_MODE_NO_LIMITS) {
       let maxImproves = FREE_IMPROVES;
       try {
         const { data: subRow } = await admin.from("subscriptions")

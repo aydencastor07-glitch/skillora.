@@ -55,7 +55,11 @@ if not SB_URL or not SB_KEY:
 # ---------------------------------------------------------------- HTTP utils
 def http(method, url, headers=None, data=None, timeout=120):
     req = urllib.request.Request(url, method=method)
-    for k, v in (headers or {}).items():
+    hdrs = dict(headers or {})
+    # Groq est derrière Cloudflare, qui renvoie 403 aux requêtes sans User-Agent
+    # "navigateur" (le défaut Python-urllib est bloqué). On force un UA normal.
+    hdrs.setdefault("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Skillora-Worker/1.0")
+    for k, v in hdrs.items():
         req.add_header(k, v)
     body = None
     if data is not None:

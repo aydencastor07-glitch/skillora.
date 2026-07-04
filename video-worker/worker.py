@@ -33,6 +33,7 @@ import sys
 import tempfile
 import time
 import traceback
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -135,7 +136,7 @@ def ffprobe_facts(path):
             "vertical": h > 0 and w > 0 and (h / w) >= 1.6}
 
 
-def detect_silences(path, noise_db=-32, min_d=0.7):
+def detect_silences(path, noise_db=-30, min_d=0.55):
     """Retourne [(début, fin), …] des silences (pauses > min_d secondes)."""
     p = subprocess.run(["ffmpeg", "-i", path, "-af",
                         f"silencedetect=noise={noise_db}dB:d={min_d}", "-f", "null", "-"],
@@ -195,14 +196,16 @@ def loudnorm(src, dst, music_path=None, music_gain_db=-21):
 
 # ---------------------------------------------------------------- Groq (Whisper + LLM)
 def groq_transcribe(path):
-    """Transcription avec timestamps par mot (Groq Whisper). None si pas de clé/échec."""
+    """Transcription avec timestamps par mot (Groq Whisper). None si pas de clé/échec.
+    IMPORTANT : les timestamps par mot ne sont dispos QUE sur whisper-large-v3
+    (le modèle 'turbo' les refuse -> réponse vide -> 'pas de parole')."""
     if not GROQ_KEY:
         return None
     boundary = "----skillora" + str(int(time.time()))
     with open(path, "rb") as f:
         audio = f.read()
     parts = []
-    for name, val in [("model", "whisper-large-v3-turbo"), ("response_format", "verbose_json"),
+    for name, val in [("model", "whisper-large-v3"), ("response_format", "verbose_json"),
                       ("timestamp_granularities[]", "word")]:
         parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"\r\n\r\n{val}\r\n".encode())
     parts.append((f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"a.mp3\"\r\n"
@@ -215,6 +218,12 @@ def groq_transcribe(path):
                         "Content-Type": f"multipart/form-data; boundary={boundary}"},
                        body, timeout=300)
         return json.loads(raw)
+    except urllib.error.HTTPError as e:
+        try:
+            print("groq_transcribe HTTP", e.code, ":", e.read().decode()[:300], file=sys.stderr)
+        except Exception:
+            print("groq_transcribe HTTP", e.code, file=sys.stderr)
+        return None
     except Exception as e:
         print("groq_transcribe:", e, file=sys.stderr)
         return None
@@ -266,8 +275,9 @@ def groq_plan(facts, transcript_text, context):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
-        if not transcript_text:
-            merged["subtitles"] = False
+        # Les sous-titres sont notre effet phare : dès qu'il y a de la parole, on les
+        # met — l'IA ne peut pas les désactiver (elle ne décide que du style/hook).
+        merged["subtitles"] = bool(transcript_text and len(transcript_text.split()) >= 3)
         return merged
     except Exception as e:
         print("groq_plan:", e, file=sys.stderr)

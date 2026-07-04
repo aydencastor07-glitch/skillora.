@@ -528,7 +528,7 @@ def groq_plan(facts, transcript_text, context):
         "{\"subtitles\": bool,  // sous-titres seulement s'il y a de la parole utile\n"
         " \"cut_silences\": bool,\n"
         " \"hook_text\": \"accroche ultra courte (<=42 caractères, langue de la transcription) ou vide\",\n"
-        " \"music_mood\": \"chill|hype|emotional|cinematic ou vide si la vidéo a déjà son ambiance\",\n"
+        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic — choisis presque toujours une ambiance adaptée au contenu (fond musical discret sous la voix) ; vide UNIQUEMENT si la vidéo contient déjà de la musique\",\n"
         " \"keywords\": [\"3-6 mots EXACTS de la transcription à mettre en avant (prix, chiffres, mots forts : '0€', 'gratuit', 'secret'…) — copie-les tels quels\"],\n"
         " \"sfx\": [{\"word\": \"mot EXACT de la transcription\", \"sound\": \"typing|click|ding|cash|magic|impact|pop\"}],  // 2-5 bruitages qui renforcent le SENS : taper un code->typing, cliquer->click, argent/prix->cash, chiffre choc->ding, révélation/surprise->magic, punchline->impact\n"
         " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"]}"
@@ -727,19 +727,25 @@ def overlay_broll(src, dst, brolls, duration):
 
 # ---------------------------------------------------------------- musique (bucket)
 def pick_music(mood):
-    """Choisit une piste libre de droits du bucket musique (manifest.json). None si absent."""
+    """Choisit une piste du bucket musique d'après le NOM du fichier :
+    'hype-01.mp3' -> ambiance hype. Aucun manifest nécessaire. None si vide."""
     if not mood:
         return None
     try:
-        st, raw = http("GET", f"{SB_URL}/storage/v1/object/public/{MUSIC_BUCKET}/manifest.json", timeout=30)
-        tracks = [t for t in json.loads(raw) if t.get("mood") == mood]
-        if not tracks:
+        st, raw = http("POST", f"{SB_URL}/storage/v1/object/list/{MUSIC_BUCKET}",
+                       sb_headers(), {"prefix": "", "limit": 300}, timeout=30)
+        items = json.loads(raw)
+        names = [it.get("name", "") for it in items
+                 if it.get("name", "").lower().startswith(str(mood).lower())
+                 and it.get("name", "").lower().endswith((".mp3", ".m4a", ".wav", ".ogg"))]
+        if not names:
             return None
-        t = tracks[int(time.time()) % len(tracks)]
-        out = tempfile.mktemp(suffix=os.path.splitext(t["file"])[1] or ".mp3")
-        urllib.request.urlretrieve(f"{SB_URL}/storage/v1/object/public/{MUSIC_BUCKET}/{t['file']}", out)
+        name = names[int(time.time()) % len(names)]
+        out = tempfile.mktemp(suffix=os.path.splitext(name)[1] or ".mp3")
+        urllib.request.urlretrieve(f"{SB_URL}/storage/v1/object/public/{MUSIC_BUCKET}/{urllib.parse.quote(name)}", out)
         return out
-    except Exception:
+    except Exception as e:
+        print("pick_music:", e, file=sys.stderr)
         return None  # pas de bibliothèque musicale -> on saute, silencieusement
 
 

@@ -46,6 +46,10 @@ POLL_SECONDS = float(os.environ.get("POLL_SECONDS", "3"))
 MAX_DURATION_S = float(os.environ.get("MAX_DURATION_S", "300"))  # 5 min max en v1
 
 FONT = os.environ.get("SUB_FONT", "DejaVu Sans")
+# User-Agent navigateur UNIQUEMENT pour Groq (derrière Cloudflare, qui renvoie 403
+# au User-Agent Python par défaut). Ne jamais l'envoyer à Supabase : leur pare-feu
+# rejette ce UA falsifié avec un 401.
+GROQ_UA = "Mozilla/5.0 (X11; Linux x86_64) Skillora-Worker/1.0"
 
 if not SB_URL or not SB_KEY:
     print("SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sont obligatoires.", file=sys.stderr)
@@ -55,11 +59,7 @@ if not SB_URL or not SB_KEY:
 # ---------------------------------------------------------------- HTTP utils
 def http(method, url, headers=None, data=None, timeout=120):
     req = urllib.request.Request(url, method=method)
-    hdrs = dict(headers or {})
-    # Groq est derrière Cloudflare, qui renvoie 403 aux requêtes sans User-Agent
-    # "navigateur" (le défaut Python-urllib est bloqué). On force un UA normal.
-    hdrs.setdefault("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Skillora-Worker/1.0")
-    for k, v in hdrs.items():
+    for k, v in (headers or {}).items():
         req.add_header(k, v)
     body = None
     if data is not None:
@@ -219,7 +219,8 @@ def groq_transcribe(path):
     try:
         st, raw = http("POST", "https://api.groq.com/openai/v1/audio/transcriptions",
                        {"Authorization": "Bearer " + GROQ_KEY,
-                        "Content-Type": f"multipart/form-data; boundary={boundary}"},
+                        "Content-Type": f"multipart/form-data; boundary={boundary}",
+                        "User-Agent": GROQ_UA},
                        body, timeout=300)
         return json.loads(raw)
     except urllib.error.HTTPError as e:
@@ -267,7 +268,7 @@ def groq_plan(facts, transcript_text, context):
     )
     try:
         st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
-                       {"Authorization": "Bearer " + GROQ_KEY},
+                       {"Authorization": "Bearer " + GROQ_KEY, "User-Agent": GROQ_UA},
                        {"model": "llama-3.3-70b-versatile",
                         "messages": [{"role": "user", "content": prompt}],
                         "temperature": 0.2, "response_format": {"type": "json_object"}},

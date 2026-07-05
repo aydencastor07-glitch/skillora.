@@ -24,6 +24,7 @@ Env conseillé: GROQ_API_KEY  (transcription Whisper + plan d'amélioration LLM)
 Env optionnel: PEXELS_API_KEY (b-roll), MUSIC_BUCKET (musique libre de droits)
 """
 
+import base64
 import json
 import os
 import re
@@ -52,6 +53,9 @@ FILLERS = {"euh", "heu", "hum", "hmm", "uh", "um", "euhh", "mmm", "ben"}
 # qui renvoient 403 au User-Agent Python par défaut. Ne JAMAIS l'envoyer à
 # Supabase : leur pare-feu rejette ce UA falsifié avec un 401.
 GROQ_UA = "Mozilla/5.0 (X11; Linux x86_64) Skillora-Worker/1.0"
+# Modèle multimodal Groq : donne des YEUX au worker (ouverture captivante ?
+# mouvements ? objets visibles ?) pour monter comme un vrai monteur.
+GROQ_VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
 
 
 def download(url, out, ua=GROQ_UA):
@@ -371,18 +375,24 @@ def sfx_event_times(words, plan_sfx, kws):
     return events[:8]
 
 
-def head_tail_spans(words, duration, silences=None, lead=0.7, tail_gap=1.0):
+def head_tail_spans(words, duration, silences=None, lead=0.7, tail_gap=1.0, keep_opening=None):
     """Démarrage mou (personnage figé/muet) et fin vide -> plages à couper.
-    Combine les mots (transcription) ET les silences détectés au début."""
+    Combine les mots (transcription) ET les silences détectés au début.
+    keep_opening (analyse visuelle) : True = l'ouverture est captivante, on la
+    GARDE même sans parole ; False = ouverture statique, coupe agressive."""
     spans = []
     head_end = 0.0
+    if keep_opening is False:
+        lead = 0.35  # ouverture pas captivante -> on saute direct au premier mot
     if words:
         first = float(words[0].get("start", 0))
         if first > lead:
-            head_end = max(head_end, first - 0.25)
+            head_end = max(head_end, first - (0.15 if keep_opening is False else 0.25))
     for (s, e) in silences or []:
         if s < 0.2 and e > 0.8:  # silence qui colle au tout début
             head_end = max(head_end, e - 0.25)
+    if keep_opening is True:
+        head_end = 0.0  # action captivante au début : on n'y touche pas
     if head_end > 0.3:
         spans.append((0.0, head_end))
     if words:
@@ -559,7 +569,8 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
             seen = {name: 0 for name in used}
             for (t, name) in events:
                 j = seen[name]; seen[name] += 1
-                ms = int(max(0.0, t) * 1000)
+                # pré-déclenchement de 80 ms : le son claque PILE sur le mot (réflexe de monteur)
+                ms = int(max(0.0, t - 0.08) * 1000)
                 lab = f"m_{name}{j}"
                 fc.append(f"[{name}{j}]adelay={ms}|{ms},volume={VOL.get(name, 0.8)}[{lab}]")
                 mix_inputs.append(f"[{lab}]")
@@ -640,7 +651,62 @@ def extract_audio_mp3(src, dst):
     run(["ffmpeg", "-y", "-i", src, "-vn", "-acodec", "libmp3lame", "-b:a", "96k", "-ac", "1", dst])
 
 
-def groq_plan(facts, transcript_text, context):
+def extract_frames(src, times, work, width=480):
+    """Extrait des images clefs (réduites) pour l'analyse visuelle."""
+    frames = []
+    for i, t in enumerate(times):
+        p = os.path.join(work, f"fr_{i}.jpg")
+        try:
+            run(["ffmpeg", "-y", "-ss", f"{max(0.0, t):.2f}", "-i", src, "-frames:v", "1",
+                 "-vf", f"scale={width}:-2", "-q:v", "7", p], timeout=120)
+            if os.path.exists(p):
+                frames.append((t, p))
+        except Exception:
+            pass
+    return frames
+
+
+def groq_vision(frames, transcript_text, duration):
+    """Les YEUX du worker : décrit l'ouverture (captivante ou pas), les scènes,
+    les mouvements et les objets visibles. None si pas de clé / échec."""
+    if not GROQ_KEY or not frames:
+        return None
+    content = [{"type": "text", "text": (
+        "Tu es un monteur vidéo pro. Analyse ces images extraites d'une vidéo courte "
+        f"({duration:.0f}s) avec leur timestamp, plus le début de la transcription.\n"
+        f"Transcription: {transcript_text[:600] or '(aucune parole)'}\n\n"
+        "Réponds UNIQUEMENT ce JSON:\n"
+        "{\"opening_captivating\": bool,  // les 1res secondes montrent-elles une action/un visuel qui accroche ? false si personnage figé/statique\n"
+        " \"opening_note\": \"pourquoi, en 1 phrase\",\n"
+        " \"scenes\": [{\"t\": secondes, \"action\": \"description courte\", \"motion\": bool}],  // une entrée par image\n"
+        " \"objects\": [\"objets/éléments importants visibles\"]}"
+    )}]
+    for (t, p) in frames:
+        with open(p, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+        content.append({"type": "text", "text": f"Image à t={t:.1f}s :"})
+        content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}})
+    try:
+        st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
+                       {"Authorization": "Bearer " + GROQ_KEY, "User-Agent": GROQ_UA},
+                       {"model": GROQ_VISION_MODEL,
+                        "messages": [{"role": "user", "content": content}],
+                        "temperature": 0.2, "response_format": {"type": "json_object"}},
+                       timeout=120)
+        out = json.loads(raw)
+        return json.loads(out["choices"][0]["message"]["content"])
+    except urllib.error.HTTPError as e:
+        try:
+            print("groq_vision HTTP", e.code, ":", e.read().decode()[:300], file=sys.stderr)
+        except Exception:
+            print("groq_vision HTTP", e.code, file=sys.stderr)
+        return None
+    except Exception as e:
+        print("groq_vision:", e, file=sys.stderr)
+        return None
+
+
+def groq_plan(facts, transcript_text, context, vision=None):
     """Demande au LLM le plan d'amélioration adapté à CE créateur. Fallback: règles."""
     fallback = {
         "subtitles": bool(transcript_text and len(transcript_text.split()) >= 8),
@@ -661,7 +727,15 @@ def groq_plan(facts, transcript_text, context):
         return fallback
     niche = str(context.get("niche", "") or "")
     feedback = str(context.get("feedback", "") or "")
+    vis_txt = ""
+    if vision:
+        sc = "; ".join(f"t={s.get('t', 0)}s {s.get('action', '')}" + (" (mouvement)" if s.get("motion") else "")
+                       for s in (vision.get("scenes") or [])[:8])
+        vis_txt = ("Analyse VISUELLE de la vidéo : ouverture captivante: "
+                   f"{'oui' if vision.get('opening_captivating') else 'non'} ({vision.get('opening_note', '')}). "
+                   f"Scènes: {sc or 'n/a'}. Objets visibles: {', '.join((vision.get('objects') or [])[:8]) or 'n/a'}.\n")
     prompt = (
+        vis_txt +
         "Tu améliores une vidéo courte pour un créateur. Décide ce qui est UTILE — pas tout systématiquement.\n"
         f"Faits: durée {facts['duration']:.0f}s, format {'vertical' if facts['vertical'] else 'horizontal'}, "
         f"parole: {'oui' if transcript_text else 'non'}.\n"
@@ -942,7 +1016,7 @@ def process(job):
         seed = int(str(job["id"]).replace("-", "")[:8], 16) & 0xFFFF
         steps.done("dl", f"{facts['duration']:.0f}s · {facts['width']}x{facts['height']}")
 
-        steps.start("analyze", "Analyse : qu'est-ce qui manque à ta vidéo ?")
+        steps.start("analyze", "Analyse : le worker regarde et écoute ta vidéo…")
         silences = detect_silences(src) if facts["has_audio"] else []
         first_tr = None
         if facts["has_audio"]:
@@ -950,9 +1024,20 @@ def process(job):
             extract_audio_mp3(src, mp3)
             first_tr = groq_transcribe(mp3)
         tr_text = (first_tr or {}).get("text", "").strip() if first_tr else ""
-        plan = groq_plan(facts, tr_text, context)
+        # Les YEUX : images clefs (ouverture x2 + réparties) -> analyse visuelle
+        d = facts["duration"]
+        ftimes = [0.3, 1.0] + [round(d * k / 6.0, 2) for k in range(2, 6)]
+        vision = None
+        try:
+            vision = groq_vision(extract_frames(src, [t for t in ftimes if t < d - 0.2], work), tr_text, d)
+        except Exception as e:
+            print("vision:", e, file=sys.stderr)
+        plan = groq_plan(facts, tr_text, context, vision)
         update_job(job["id"], {"plan": plan})
-        steps.done("analyze", "parole détectée" if tr_text else "pas de parole détectée")
+        det = "parole détectée" if tr_text else "pas de parole détectée"
+        if vision:
+            det += " · lecture visuelle OK" + ("" if vision.get("opening_captivating") else " · ouverture à couper")
+        steps.done("analyze", det)
 
         cur = src
         tr1_words = (first_tr or {}).get("words") or []
@@ -961,7 +1046,9 @@ def process(job):
         if plan.get("cut_silences") and tr_text and (silences or tr1_words):
             steps.start("cut", "Coupe des temps morts et des « euh »…")
             out = os.path.join(work, "cut.mp4")
-            extra_cuts = filler_spans(tr1_words) + head_tail_spans(tr1_words, facts["duration"], silences)
+            extra_cuts = filler_spans(tr1_words) + head_tail_spans(
+                tr1_words, facts["duration"], silences,
+                keep_opening=(vision or {}).get("opening_captivating"))
             if cut_spans(cur, out, silences, extra_cuts, facts["duration"]):
                 cur = out
                 facts = ffprobe_facts(cur)
@@ -1029,6 +1116,12 @@ def process(job):
                 sfx_ev += [(t, "pop") for (t, _p, _y) in emo
                            if not any(abs(t - e[0]) < 0.4 for e in sfx_ev)]
                 wh_extra = list(broll_cuts) + ([slide[0], slide[1] - 0.25] if slide else [])
+                # Whoosh sur les scènes en mouvement repérées par la vision
+                # (timestamps de la vidéo ORIGINALE : valides seulement si on n'a pas coupé)
+                if vision and cur == src:
+                    dur_c = ffprobe_facts(cur)["duration"]
+                    wh_extra += [float(s.get("t", 0)) for s in (vision.get("scenes") or [])
+                                 if s.get("motion") and 1.0 < float(s.get("t", 0)) < dur_c - 1.5][:4]
                 if zoom_punch(cur, out, words, facts["has_audio"], work,
                               sfx_events=sorted(sfx_ev),
                               extra_whooshes=wh_extra or None,

@@ -751,6 +751,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         "emojis": [],
         "sub_position": "dynamic",
         "sub_style": "group",
+        "sub_style_id": 0,
         "highlight": "yellow",
         "broll_keywords": [],
     }
@@ -782,6 +783,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         " \"emojis\": [{\"word\": \"mot EXACT de la transcription\", \"emoji\": \"un seul émoji\"}],  // 3-6 émojis : TOUT ce qui s'illustre (téléphone->📱, courir->🏃, rire->😂, sport->🏋️, champion->🏆, argent->💰, feu->🔥, idée->💡)\n"
         " \"sub_position\": \"dynamic|bottom|middle\",  // dynamic par défaut ; bottom si des éléments importants occupent le centre de l'image ; middle pour les vidéos très rythmées\n"
         " \"sub_style\": \"group|word\",  // group = 3 mots à la fois (défaut) ; word = mot par mot, pour les vidéos punchy et rapides\n"
+        " \"sub_style_id\": 0,  // style visuel des sous-titres selon le TYPE de vidéo : 0=signature (défaut sûr) ; 2=bleu Hormozi (business/motivation) ; 3=cartoon (fun/vlog) ; 4=script néon (lifestyle/mode) ; 5=vert fluo (tech/gadgets) ; 6=ombre floue (docu/voyage) ; 7=rétro ombre jaune (créatif) ; 8=machine à écrire (mystère/code) ; 9=badge boîte (fond chargé) ; 10=dégradé or (luxe/flex) ; 11=sticker bulle (memes/humour) ; 12=karaoké rempli (podcast/monologue) ; 15=glitch (gaming/IA) ; 16=contour évidé (sport/musique) ; 17=ghost (dramatique) ; 18=serif cinéma (histoire/documentaire haut de gamme) ; 20=néon pulsé (edits musicaux)\n"
         " \"highlight\": \"yellow|green|red|cyan\",  // couleur des mots forts, adaptée à l'ambiance\n"
         " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"]}"
     )
@@ -796,7 +798,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         plan = json.loads(out["choices"][0]["message"]["content"])
         merged = dict(fallback)
         for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx",
-                  "emojis", "sub_position", "sub_style", "highlight", "broll_keywords"):
+                  "emojis", "sub_position", "sub_style", "sub_style_id", "highlight", "broll_keywords"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -820,20 +822,84 @@ def ass_time(t):
 
 YELLOW = "&H0000D4FF&"   # jaune vif (BGR)
 GREEN = "&H0084DC3D&"    # vert Skillora (BGR)
+WHITE = "&H00FFFFFF&"
+BLACK = "&H00000000&"
 HI_COLORS = {"yellow": "&H0000D4FF&", "green": "&H0084DC3D&",
              "red": "&H004040FF&", "cyan": "&H00FFD400&"}
 
+# ── Catalogue de styles de sous-titres (l'IA choisit selon le type de vidéo) ──
+# kar : 'switch' = le mot change de couleur en étant prononcé ; 'fill' = remplissage
+# progressif (\kf) ; None = mot fort coloré. fx : animation d'apparition.
+SUB_STYLES = {
+    0:  dict(name="Signature Skillora", font="Anton", size=124, kar=None, hi="dyn",
+             prim=WHITE, sec=WHITE, out=BLACK, outw=10, shad=3, bs=1, fx="pop", chunk=3, upper=True),
+    1:  dict(name="Par défaut", font="DejaVu Sans", size=92, kar=None, hi=None,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=4, shad=1, bs=1, fx=None, chunk=3, upper=False),
+    2:  dict(name="Hormozi bleu", font="Anton", size=128, kar="switch", hi=None,
+             prim="&H00FEF200&", sec=WHITE, out=BLACK, outw=11, shad=3, bs=1, fx=None, chunk=3, upper=True),
+    3:  dict(name="Cartoon jaune", font="Luckiest Guy", size=118, kar=None, hi="yellow",
+             prim=WHITE, sec=WHITE, out=BLACK, outw=9, shad=2, bs=1, fx="bounce", chunk=3, upper=True),
+    4:  dict(name="Script néon", font="Pacifico", size=104, kar=None, hi=None, italic=True,
+             prim="&H0060F2FE&", sec=WHITE, out="&H0030D5FF&", outw=3, shad=0, bs=1, blur=6, fx="pop", chunk=3, upper=False),
+    5:  dict(name="Tech vert fluo", font="Orbitron", size=92, kar=None, hi="green",
+             prim=WHITE, sec=WHITE, out="&H0000FF6A&", outw=2, shad=0, bs=1, fx=None, chunk=3, upper=True),
+    6:  dict(name="Docu ombre floue", font="Anton", size=112, kar=None, hi=None,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=5, shad=7, bs=1, blur=9, fx=None, chunk=4, upper=True),
+    7:  dict(name="Rétro ombre jaune", font="Anton", size=118, kar=None, hi=None,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=4, shad=9, shadc="&H0000D4FF&", bs=1, fx="pop", chunk=3, upper=True),
+    8:  dict(name="Typewriter", font="Courier Prime", size=84, kar=None, hi=None, bold=True,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=4, shad=1, bs=1, fx="typewriter", chunk=3, upper=False),
+    9:  dict(name="Badge boîte", font="Anton", size=104, kar=None, hi="yellow",
+             prim=WHITE, sec=WHITE, out="&H50000000&", outw=14, shad=0, bs=3, fx=None, chunk=3, upper=True),
+    10: dict(name="Dégradé or", font="Anton", size=128, kar=None, hi=None,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=8, shad=3, bs=1, fx="gradient", chunk=2, upper=True),
+    11: dict(name="Sticker bulle", font="Luckiest Guy", size=120, kar=None, hi=None,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=16, shad=0, bs=1, fx="sticker", chunk=2, upper=True),
+    12: dict(name="Karaoké fill", font="Anton", size=120, kar="fill", hi=None,
+             prim="&H0000D4FF&", sec="&H60FFFFFF&", out=BLACK, outw=9, shad=2, bs=1, fx=None, chunk=4, upper=True),
+    15: dict(name="Glitch gaming", font="Orbitron", size=96, kar=None, hi="cyan", bold=True,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=3, shad=0, bs=1, fx="glitch", chunk=2, upper=True),
+    16: dict(name="Outline évidé", font="Anton", size=132, kar="switch", hi=None,
+             prim="&H0000D4FF&", sec="&HFF000000&", out="&H0000FF6A&", outw=3, shad=0, bs=1, fx=None, chunk=2, upper=True),
+    17: dict(name="Ghost dramatique", font="Anton", size=126, kar=None, hi=None,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=8, shad=2, bs=1, fx="ghost", chunk=2, upper=True),
+    18: dict(name="Cinéma serif", font="Playfair Display", size=92, kar=None, hi=None,
+             prim=WHITE, sec=WHITE, out=BLACK, outw=3, shad=2, bs=1, fx=None, chunk=1, upper=False),
+    20: dict(name="Néon pulsé", font="Orbitron", size=104, kar=None, hi=None, bold=True,
+             prim=WHITE, sec=WHITE, out="&H00FEF200&", outw=4, shad=0, bs=1, blur=4, fx="pulse", chunk=2, upper=True),
+}
+
+
+def _grad_text(txt):
+    """Faux dégradé : chaque lettre colorée du jaune (FFD400) vers l'orange (FF7A00)."""
+    chars = [c for c in txt]
+    n = max(1, len(chars) - 1)
+    out = []
+    for i, c in enumerate(chars):
+        if c == " ":
+            out.append(" ")
+            continue
+        r = 0xFF
+        g = int(0xD4 + (0x7A - 0xD4) * i / n)
+        b = 0x00
+        out.append(f"{{\\c&H{b:02X}{g:02X}{r:02X}&}}{c}")
+    return "".join(out)
+
 
 def build_ass(words, hook_text, keywords=None, slide=None, sub_position="dynamic",
-              highlight="yellow", sub_style="group", layout=None, play_w=1080, play_h=1920):
-    """Sous-titres 'montage dynamique' (style CapCut) :
-    - MAJUSCULES, très gros, blanc, contour noir épais, pop d'apparition ;
-    - le mot fort de la phrase en JAUNE ;
-    - un mot-clé seul = affiché GÉANT au centre ;
-    - la position alterne par phrase (bas / milieu / haut) ;
-    - pendant l'effet 'côté', gros texte jaune dans la zone libre à gauche."""
+              highlight="yellow", sub_style="group", style_id=0, layout=None,
+              play_w=1080, play_h=1920):
+    """Sous-titres 'montage dynamique' pilotés par le catalogue SUB_STYLES.
+    Mécanique commune : position par phrase, mot fort géant (Mega), verrou
+    anti-chevauchement, texte géant pendant l'effet 'côté'."""
+    spec = SUB_STYLES.get(int(style_id) if str(style_id).isdigit() else 0, SUB_STYLES[0])
     kwhits = {round(k["start"], 2) for k in (keywords or [])}
-    HI = HI_COLORS.get(str(highlight).lower(), YELLOW)
+    hi_mode = spec.get("hi")
+    HI = HI_COLORS.get(str(highlight).lower(), YELLOW) if hi_mode == "dyn" else HI_COLORS.get(hi_mode or "", None)
+    fx = spec.get("fx")
+    bold = -1 if spec.get("bold", True) else 0
+    italic = -1 if spec.get("italic") else 0
+    shadc = spec.get("shadc", "&HB4000000&")
     head = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {play_w}
@@ -842,30 +908,37 @@ WrapStyle: 2
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Sub,{FONT},124,&H00FFFFFF,&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,10,3,5,40,40,0,1
-Style: Mega,{FONT},185,{YELLOW.rstrip('&')},&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,12,4,5,40,40,0,1
-Style: Hook,{FONT},86,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,1,0,3,14,0,8,60,60,210,1
+Style: Sub,{spec['font']},{spec['size']},{spec['prim'].rstrip('&')},{spec['sec'].rstrip('&')},{spec['out'].rstrip('&')},{shadc.rstrip('&')},{bold},{italic},0,0,100,100,1,0,{spec['bs']},{spec['outw']},{spec['shad']},5,40,40,0,1
+Style: Mega,Anton,185,{YELLOW.rstrip('&')},&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,12,4,5,40,40,0,1
+Style: Hook,Anton,86,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,1,0,3,14,0,8,60,60,210,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
-    POP = "\\fad(25,35)\\t(0,100,\\fscx115\\fscy115)\\t(100,180,\\fscx100\\fscy100)"
+    FX = {
+        "pop": "\\fad(25,35)\\t(0,100,\\fscx115\\fscy115)\\t(100,180,\\fscx100\\fscy100)",
+        "bounce": "\\fad(20,30)\\t(0,90,\\fscx118\\fscy86)\\t(90,180,\\fscx98\\fscy108)\\t(180,260,\\fscx100\\fscy100)",
+        "sticker": "\\fad(15,25)\\t(0,110,\\fscx135\\fscy135)\\t(110,200,\\fscx100\\fscy100)",
+        "ghost": "\\blur12\\fscx130\\fscy130\\t(0,160,\\blur0\\fscx100\\fscy100)\\fad(30,40)",
+    }
     MEGAPOP = "\\fad(20,40)\\t(0,120,\\fscx130\\fscy130)\\t(120,220,\\fscx100\\fscy100)"
-    # Position par mot (partagée avec les émojis) + style : groupes de 3 ou mot-par-mot
+    base_blur = f"\\blur{spec['blur']}" if spec.get("blur") else ""
     if layout is None:
         layout = sentence_layout(words, sub_position)
-    chunk = 1 if str(sub_style).lower() == "word" else 3
+    chunk = 1 if str(sub_style).lower() == "word" else int(spec.get("chunk", 3))
     lines = []
     if hook_text:
         safe = str(hook_text).upper().replace("{", "").replace("}", "").replace("\n", " ")
         lines.append(f"Dialogue: 2,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200)}}{safe}")
 
     # Découpe en groupes ; la position vient de `layout` (partagé avec les émojis).
-    # On collecte d'abord les cues, puis on VERROUILLE : un sous-titre se termine
-    # toujours AVANT que le suivant apparaisse (jamais deux à l'écran).
     prev_end = None
     group, gfirst = [], 0
-    cues = []  # (start, end, mega, y, txt)
+    cues = []  # [start, end, mega, y, txt_stylé, txt_brut]
+
+    def wtxt(it):
+        w = str(it["word"]).strip().replace("{", "").replace("}", "").strip(",.;:!?")
+        return w.upper() if spec.get("upper") else w
 
     def flush():
         nonlocal group
@@ -877,25 +950,34 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         if end - start < 0.35:
             end = start + 0.35
         solo_kw = len(g) == 1 and round(float(g[0]["start"]), 2) in kwhits
-        parts = []
-        for it in g:
-            word = str(it["word"]).strip().upper().replace("{", "").replace("}", "").strip(",.;:!?")
-            if round(float(it["start"]), 2) in kwhits and not solo_kw:
-                parts.append(f"{{\\c{HI}}}{word}{{\\c&H00FFFFFF&}}")
-            else:
-                parts.append(word)
-        txt = " ".join(parts)
+        if spec.get("kar") in ("switch", "fill") and not solo_kw:
+            tag = "\\kf" if spec["kar"] == "fill" else "\\k"
+            parts = []
+            for it in g:
+                k = max(1, int(round((float(it["end"]) - float(it["start"])) * 100)))
+                parts.append(f"{{{tag}{k}}}{wtxt(it)}")
+            txt = " ".join(parts)
+        else:
+            parts = []
+            for it in g:
+                word = wtxt(it)
+                if HI and round(float(it["start"]), 2) in kwhits and not solo_kw:
+                    parts.append(f"{{\\c{HI}}}{word}{{\\c{spec['prim']}}}")
+                else:
+                    parts.append(word)
+            txt = " ".join(parts)
+        raw = " ".join(wtxt(it) for it in g)
         if slide and slide[0] <= start <= slide[1]:
-            return  # pendant l'effet 'côté', pas de sous-titre normal (le Mega est affiché)
+            return  # pendant l'effet 'côté', pas de sous-titre normal
         y = layout[gfirst] if gfirst < len(layout) else 1430
-        cues.append([start, end, solo_kw, y, txt])
+        cues.append([start, end, solo_kw, y, txt, raw])
 
     for i, w in enumerate(words):
         ws = float(w["start"])
         if prev_end is not None and ws - prev_end > 0.8:
-            flush()  # nouvelle phrase
+            flush()
         is_kw = round(ws, 2) in kwhits
-        if is_kw and group:  # le mot fort a son propre affichage géant
+        if is_kw and group:
             flush()
         if not group:
             gfirst = i
@@ -909,13 +991,48 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         cap = cues[i + 1][0] - 0.02
         want = max(cues[i][1], cues[i][0] + 0.15)
         cues[i][1] = min(want, cap) if cap > cues[i][0] + 0.05 else max(cues[i][0] + 0.03, cap)
-    for (start, end, mega, y, txt) in cues:
+
+    for (start, end, mega, y, txt, raw) in cues:
         if mega:
-            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Mega,,0,0,0,,"
-                         f"{{\\an5\\pos(540,960){MEGAPOP}}}{txt}")
-        else:
+            lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Mega,,0,0,0,,"
+                         f"{{\\an5\\pos(540,960){MEGAPOP}}}{txt if HI else raw}")
+            continue
+        pos = f"\\an5\\pos(540,{y})"
+        if fx == "typewriter":
+            # lettre par lettre avec curseur (style machine à écrire)
+            steps = min(len(raw), 36)
+            if steps <= 1:
+                lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{{{pos}{base_blur}}}{raw}")
+                continue
+            per = max(0.03, (end - start) * 0.6 / steps)
+            for si in range(1, steps + 1):
+                a = start + (si - 1) * per
+                b = start + si * per if si < steps else end
+                shown = raw[:int(len(raw) * si / steps)]
+                cur = "▌" if si < steps else ""
+                lines.append(f"Dialogue: 1,{ass_time(a)},{ass_time(b)},Sub,,0,0,0,,{{{pos}{base_blur}}}{shown}{cur}")
+            continue
+        if fx == "gradient":
+            body = _grad_text(raw)
+            lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,"
+                         f"{{{pos}{FX['pop']}{base_blur}}}{body}")
+            continue
+        if fx == "glitch":
+            # aberration chromatique : couches rouge et cyan décalées sous le texte
             lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,"
-                         f"{{\\an5\\pos(540,{y}){POP}}}{txt}")
+                         f"{{\\an5\\pos(536,{y - 3})\\c&H0000F2&\\alpha&H78&\\blur1}}{raw}")
+            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,"
+                         f"{{\\an5\\pos(544,{y + 3})\\c&HFEF200&\\alpha&H78&\\blur1}}{raw}")
+            lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{{{pos}}}{txt}")
+            continue
+        if fx == "pulse":
+            dur_ms = max(200, int((end - start) * 1000))
+            h = dur_ms // 2
+            anim = f"\\blur2\\t(0,{h},\\blur7)\\t({h},{dur_ms},\\blur2)"
+            lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{{{pos}{anim}}}{txt}")
+            continue
+        anim = FX.get(fx, "")
+        lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{{{pos}{anim}{base_blur}}}{txt}")
 
     # Texte géant pendant l'effet 'la vidéo se pousse sur le côté'
     if slide:
@@ -1211,6 +1328,7 @@ def process(job):
                                   sub_position=str(plan.get("sub_position") or "dynamic"),
                                   highlight=str(plan.get("highlight") or "yellow"),
                                   sub_style=str(plan.get("sub_style") or "group"),
+                                  style_id=plan.get("sub_style_id") or 0,
                                   layout=sentence_layout(words, str(plan.get("sub_position") or "dynamic"), seed)))
             out = os.path.join(work, "subs.mp4")
             burn_subs(cur, out, ass)

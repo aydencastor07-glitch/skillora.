@@ -21,10 +21,19 @@ echo "[1/5] Installation de ffmpeg et Python…"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq ffmpeg fonts-dejavu-core fontconfig python3 curl >/dev/null
-# Police "Anton" (Google Fonts, licence OFL) : le look "impact" des sous-titres viraux
+# Polices Google Fonts (licence OFL) : les looks du catalogue de sous-titres
 mkdir -p /usr/share/fonts/truetype/custom
-curl -fsSL "https://github.com/google/fonts/raw/main/ofl/anton/Anton-Regular.ttf" \
-  -o /usr/share/fonts/truetype/custom/Anton-Regular.ttf && fc-cache -f >/dev/null 2>&1 || true
+GF="https://raw.githubusercontent.com/google/fonts/main"
+for f in "ofl/anton/Anton-Regular.ttf" \
+         "apache/luckiestguy/LuckiestGuy-Regular.ttf" \
+         "ofl/pacifico/Pacifico-Regular.ttf" \
+         "ofl/orbitron/Orbitron%5Bwght%5D.ttf" \
+         "ofl/courierprime/CourierPrime-Regular.ttf" \
+         "ofl/courierprime/CourierPrime-Bold.ttf" \
+         "ofl/playfairdisplay/PlayfairDisplay%5Bwght%5D.ttf"; do
+  curl -fsSL "$GF/$f" -o "/usr/share/fonts/truetype/custom/$(basename "${f//%5B/_}" | sed 's/%5D//')" || true
+done
+fc-cache -f >/dev/null 2>&1 || true
 echo "      ✅ fait"
 
 echo "[2/5] Téléchargement du worker…"

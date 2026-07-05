@@ -224,6 +224,32 @@ def zoom_boundaries(words, duration, max_len=4.0, gap_split=0.8):
     return [b for b in bounds if b < duration - 1.0]
 
 
+# Intentions de bruitage -> mots-clés cherchés dans les noms de fichiers du bucket.
+# L'IA choisit une intention ; le worker trouve le fichier correspondant.
+SFX_INTENTS = {
+    "typing": ["typing", "keyboard", "keypress", "keypad"],
+    "click": ["click", "mouse"],
+    "pop": ["pop"],
+    "whoosh": ["whoosh", "swish", "swoosh", "swipe"],
+    "cash": ["cash", "money", "register", "coin", "kaching", "chaching"],
+    "ding": ["ding", "chime", "bell", "glocken", "correct", "notification"],
+    "impact": ["impact", "hit", "punch", "boom", "slam", "bass drop", "dramatic"],
+    "explosion": ["explosion", "explos", "blast"],
+    "magic": ["magic", "glitter", "sparkle", "reveal", "shimmer", "fairy"],
+    "glitch": ["glitch", "hack", "teleren", "digital", "error"],
+    "camera": ["camera", "shutter", "flash", "photo"],
+    "beep": ["beep", "censure", "censor", "bleep"],
+    "scratch": ["scratch", "record", "vinyl", "rewind"],
+    "applause": ["applause", "cheers", "clap", "crowd"],
+    "fail": ["fail", "trumpet", "fart", "whistle", "sad"],
+    "scream": ["scream", "horror", "surprised", "shock"],
+    "heartbeat": ["heartbeat", "heart"],
+    "riser": ["riser", "rise", "tension", "brass crisis", "crisis", "metallic"],
+    "airhorn": ["airhorn", "air horn", "horn"],
+    "boom": ["boom", "cinematic"],
+}
+
+
 def make_whoosh(path):
     """Petit 'whoosh' synthétisé par nous (aucun droit d'auteur)."""
     run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anoisesrc=color=pink:duration=0.3:amplitude=0.6",
@@ -280,23 +306,33 @@ def make_sfx_bank(work):
          "-ar", "44100", "-ac", "2", typing])
     bank["typing"] = typing
 
-    # Bruitages PRO uploadés par l'admin dans le bucket public 'sfx-library'
-    # (typing.mp3, cash.mp3, …) : ils REMPLACENT les sons synthétisés.
+    # Bruitages PRO uploadés dans le bucket public 'sfx-library'. Matching SOUPLE
+    # par mots-clés : les noms descriptifs (keyboard_typing-01.mp3, cash_register-01.mp3,
+    # teleren_hack_glitch-01.mp3…) sont rattachés à une "intention" que l'IA peut demander.
     try:
         st, raw = http("POST", f"{SB_URL}/storage/v1/object/list/sfx-library",
-                       sb_headers(), {"prefix": "", "limit": 100}, timeout=20)
-        for it in json.loads(raw):
-            name = str(it.get("name", ""))
-            base = name.rsplit(".", 1)[0].lower()
-            if base in bank and name.lower().endswith((".mp3", ".wav", ".m4a", ".ogg")):
-                rawp = os.path.join(work, "dl_" + name.replace("/", "_"))
-                urllib.request.urlretrieve(
-                    f"{SB_URL}/storage/v1/object/public/sfx-library/{urllib.parse.quote(name)}", rawp)
-                out = os.path.join(work, f"pro_{base}.wav")
-                # normalise : 1,6 s max avec fondu de sortie, 44100 stéréo
-                run(["ffmpeg", "-y", "-i", rawp, "-t", "1.6",
-                     "-af", "afade=t=out:st=1.25:d=0.35", "-ar", "44100", "-ac", "2", out])
-                bank[base] = out
+                       sb_headers(), {"prefix": "", "limit": 300}, timeout=25)
+        files = [str(it.get("name", "")) for it in json.loads(raw)
+                 if str(it.get("name", "")).lower().endswith((".mp3", ".wav", ".m4a", ".ogg"))]
+        by_intent = {}
+        for name in files:
+            n = norm_token(name.rsplit(".", 1)[0].replace("-", "_").replace("_", " "))
+            for intent, kws in SFX_INTENTS.items():
+                if any(kw in n for kw in kws):
+                    by_intent.setdefault(intent, []).append(name)
+        for intent, matches in by_intent.items():
+            name = matches[hash(intent + str(len(files))) % len(matches)]  # varie si plusieurs
+            try:
+                rawp = os.path.join(work, "dl_" + re.sub(r"[^a-z0-9.]", "_", name.lower()))
+                download(f"{SB_URL}/storage/v1/object/public/sfx-library/{urllib.parse.quote(name)}", rawp)
+                out = os.path.join(work, f"pro_{intent}.wav")
+                run(["ffmpeg", "-y", "-i", rawp, "-t", "2.2",
+                     "-af", "afade=t=out:st=1.9:d=0.3", "-ar", "44100", "-ac", "2", out])
+                bank[intent] = out  # remplace/ajoute cette intention
+            except Exception as e:
+                print("sfx dl", name, e, file=sys.stderr)
+        if by_intent:
+            print("sfx-library: intentions disponibles ->", sorted(by_intent.keys()), file=sys.stderr)
     except Exception as e:
         print("sfx-library:", e, file=sys.stderr)
     return bank
@@ -500,8 +536,15 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
         for (t, name) in (sfx_events or [])[:10]:
             events.append((t, name if name in bank else "pop"))
         # volume par type : les bruitages "sens" doivent s'entendre par-dessus la voix
-        VOL = {"whoosh": 0.5, "pop": 0.8, "click": 0.9, "typing": 0.9,
-               "ding": 0.75, "cash": 0.8, "magic": 0.75, "impact": 0.85}
+        # Repli des intentions non présentes dans la banque -> son le plus proche
+        NEAR = {"explosion": "impact", "boom": "impact", "glitch": "beep", "camera": "click",
+                "scratch": "whoosh", "applause": "magic", "fail": "pop", "scream": "impact",
+                "heartbeat": "impact", "riser": "whoosh", "airhorn": "ding", "beep": "pop"}
+        events = [(t, name if name in bank else NEAR.get(name, "pop")) for (t, name) in events]
+        VOL = {"whoosh": 0.5, "pop": 0.8, "click": 0.9, "typing": 0.9, "ding": 0.8,
+               "cash": 0.85, "magic": 0.8, "impact": 0.9, "explosion": 0.9, "glitch": 0.8,
+               "camera": 0.85, "beep": 0.85, "scratch": 0.8, "applause": 0.7, "fail": 0.85,
+               "scream": 0.85, "heartbeat": 0.6, "riser": 0.7, "airhorn": 0.9, "boom": 0.9}
         used = sorted({name for (_t, name) in events})
         if events:
             idx = {}
@@ -630,7 +673,7 @@ def groq_plan(facts, transcript_text, context):
         " \"hook_text\": \"accroche ultra courte (<=42 caractères, langue de la transcription) ou vide\",\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic — choisis presque toujours une ambiance adaptée au contenu (fond musical discret sous la voix) ; vide UNIQUEMENT si la vidéo contient déjà de la musique\",\n"
         " \"keywords\": [\"3-6 mots EXACTS de la transcription à mettre en avant (prix, chiffres, mots forts : '0€', 'gratuit', 'secret'…) — copie-les tels quels\"],\n"
-        " \"sfx\": [{\"word\": \"mot EXACT de la transcription\", \"sound\": \"typing|click|ding|cash|magic|impact|pop\"}],  // 2-5 bruitages qui renforcent le SENS : taper un code->typing, cliquer->click, argent/prix->cash, chiffre choc->ding, révélation/surprise->magic, punchline->impact\n"
+        " \"sfx\": [{\"word\": \"mot EXACT de la transcription\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|explosion|magic|glitch|camera|beep|scratch|applause|fail|scream|heartbeat|riser|airhorn|boom\"}],  // 3-7 bruitages qui renforcent le SENS de la vidéo (monteur pro) : taper->typing, cliquer->click, argent/prix->cash, bonne réponse/chiffre->ding, punchline/choc->impact, révélation->magic, bug/tech->glitch, photo->camera, gros mot censuré->beep, échec drôle->fail, applaudir/gagner->applause, montée de tension->riser, transition->whoosh\n"
         " \"emojis\": [{\"word\": \"mot EXACT de la transcription\", \"emoji\": \"un seul émoji\"}],  // 3-6 émojis : TOUT ce qui s'illustre (téléphone->📱, courir->🏃, rire->😂, sport->🏋️, champion->🏆, argent->💰, feu->🔥, idée->💡)\n"
         " \"sub_position\": \"dynamic|bottom|middle\",  // dynamic par défaut ; bottom si des éléments importants occupent le centre de l'image ; middle pour les vidéos très rythmées\n"
         " \"sub_style\": \"group|word\",  // group = 3 mots à la fois (défaut) ; word = mot par mot, pour les vidéos punchy et rapides\n"

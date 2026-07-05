@@ -411,11 +411,15 @@ def head_tail_spans(words, duration, silences=None, lead=0.7, tail_gap=1.0, keep
     return spans
 
 
-def sentence_layout(words, sub_position="dynamic", seed=0):
+def sentence_layout(words, sub_position="dynamic", seed=0, bands=None):
     """Position Y du sous-titre pour CHAQUE mot (change à chaque phrase).
-    Partagé entre les sous-titres et les émojis (collés au-dessus du texte)."""
+    Partagé entre les sous-titres et les émojis. `bands` (analyse visuelle) :
+    positions autorisées qui ÉVITENT le visage du créateur."""
     sp = str(sub_position).lower()
-    base = [1430] * 3 if sp == "bottom" else ([960] * 3 if sp == "middle" else [1430, 960, 620])
+    if bands:
+        base = list(bands) * 3
+    else:
+        base = [1430] * 3 if sp == "bottom" else ([960] * 3 if sp == "middle" else [1430, 960, 620])
     ys, sent, prev = [], seed % 3, None
     for w in words or []:
         ws = float(w.get("start", 0))
@@ -472,6 +476,31 @@ def emoji_events(words, plan_emojis, work, layout=None):
     return events
 
 
+def brand_events(words, plan_brands, work, layout=None):
+    """Logos de marques CITÉES (Simple Icons) : téléchargés en SVG puis convertis
+    en PNG (rsvg-convert). Positionnés comme les émojis, au-dessus du sous-titre.
+    Sauté proprement si rsvg-convert absent ou logo introuvable."""
+    events = []
+    for i, item in enumerate((plan_brands or [])[:2]):
+        target = norm_token((item or {}).get("word", ""))
+        slug = re.sub(r"[^a-z0-9]", "", str((item or {}).get("slug", "")).lower())
+        if not target or not slug:
+            continue
+        try:
+            svg = os.path.join(work, f"brand_{i}.svg")
+            png = os.path.join(work, f"brand_{i}.png")
+            download(f"https://cdn.simpleicons.org/{slug}", svg)
+            run(["rsvg-convert", "-w", "220", "-o", png, svg], timeout=60)
+            for idx, w in enumerate(words or []):
+                if norm_token(w.get("word", "")) == target:
+                    suby = layout[idx] if layout and idx < len(layout) else 1430
+                    events.append((float(w["start"]), png, max(150, suby - 280)))
+                    break
+        except Exception as e:
+            print("brand:", slug, e, file=sys.stderr)
+    return events
+
+
 def overlay_emojis(src, dst, events):
     """Incruste chaque émoji (~1 s) au-dessus du sous-titre du moment."""
     if not events:
@@ -491,19 +520,22 @@ def overlay_emojis(src, dst, events):
 
 
 def slide_aside(src, dst, t1, dur=1.5):
-    """Effet 'la vidéo se pousse sur le côté' : fond = la vidéo zoomée-floutée
-    (aucune bordure noire), la vidéo rétrécit à droite, gros texte ajouté via
-    l'ASS au même moment. Timeline inchangée."""
+    """Effet 'zoom à côté' PRO : la vidéo est ZOOMÉE (1.35x) et GLISSE vers la
+    gauche — tout reste dans l'image, aucune bordure ni fond flou. Le sujet part
+    à gauche, le gros texte (ASS) occupe l'espace libéré à droite.
+    Timeline inchangée."""
     facts = ffprobe_facts(src)
     W, H = facts["width"], facts["height"]
     t2 = t1 + dur
-    bw, bh = int(W * 1.25) // 2 * 2, int(H * 1.25) // 2 * 2
-    fw, fh = int(W * 0.62) // 2 * 2, int(H * 0.62) // 2 * 2
-    fc = (f"[0:v]split=3[base][b1][b2];"
-          f"[b1]scale={bw}:{bh},boxblur=22:2,crop={W}:{H}[bg];"
-          f"[b2]scale={fw}:{fh}[fg];"
-          f"[bg][fg]overlay=x={W - fw - 30}:y=(H-h)/2[slide];"
-          f"[base][slide]overlay=enable='between(t,{t1:.3f},{t2:.3f})'[v]")
+    sw, sh = int(W * 1.35) // 2 * 2, int(H * 1.35) // 2 * 2
+    base_x = (sw - W) // 2
+    y_c = (sh - H) // 2
+    # p monte en 0,3 s, reste à 1, redescend en 0,3 s -> glissement doux
+    p = (f"(min(1\\,max(0\\,(t-{t1:.3f})/0.3))*min(1\\,max(0\\,({t2:.3f}-t)/0.3)))")
+    x_expr = f"{base_x}+{base_x}*{p}"
+    fc = (f"[0:v]split=2[base][z];"
+          f"[z]scale={sw}:{sh},crop={W}:{H}:'{x_expr}':{y_c}[zc];"
+          f"[base][zc]overlay=0:0:enable='between(t,{t1:.3f},{t2:.3f})'[v]")
     run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc, "-map", "[v]", "-map", "0:a?",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
     return t2
@@ -701,6 +733,7 @@ def groq_vision(frames, transcript_text, duration):
         " // ATTENTION: un visage qui regarde la caméra sans bouger/parler n'est PAS captivant\n"
         " \"opening_note\": \"pourquoi, en 1 phrase\",\n"
         " \"scenes\": [{\"t\": secondes, \"action\": \"description courte\", \"motion\": bool}],  // une entrée par image\n"
+        " \"face_y\": \"top|middle|bottom|none\",  // où se trouve le VISAGE du créateur la plupart du temps\n"
         " \"objects\": [\"objets/éléments importants visibles\"]}"
     )}]
     for (t, p) in frames:
@@ -749,6 +782,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         "keywords": [],
         "sfx": [],
         "emojis": [],
+        "brands": [],
         "sub_position": "dynamic",
         "sub_style": "group",
         "sub_style_id": 0,
@@ -781,6 +815,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         " \"keywords\": [\"3-6 mots EXACTS de la transcription à mettre en avant (prix, chiffres, mots forts : '0€', 'gratuit', 'secret'…) — copie-les tels quels\"],\n"
         " \"sfx\": [{\"word\": \"mot EXACT de la transcription\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|explosion|magic|glitch|camera|beep|scratch|applause|fail|scream|heartbeat|riser|airhorn|boom\"}],  // 3-7 bruitages qui renforcent le SENS de la vidéo (monteur pro) : taper->typing, cliquer->click, argent/prix->cash, bonne réponse/chiffre->ding, punchline/choc->impact, révélation->magic, bug/tech->glitch, photo->camera, gros mot censuré->beep, échec drôle->fail, applaudir/gagner->applause, montée de tension->riser, transition->whoosh\n"
         " \"emojis\": [{\"word\": \"mot EXACT de la transcription\", \"emoji\": \"un seul émoji\"}],  // 3-6 émojis : TOUT ce qui s'illustre (téléphone->📱, courir->🏃, rire->😂, sport->🏋️, champion->🏆, argent->💰, feu->🔥, idée->💡)\n"
+        " \"brands\": [{\"word\": \"mot EXACT\", \"slug\": \"slug simpleicons en minuscules\"}],  // 0-2 logos de marques/apps CITÉES dans la parole (netflix, tiktok, instagram, youtube, spotify, amazon, temu, shein, whatsapp…)\n"
         " \"sub_position\": \"dynamic|bottom|middle\",  // dynamic par défaut ; bottom si des éléments importants occupent le centre de l'image ; middle pour les vidéos très rythmées\n"
         " \"sub_style\": \"group|word\",  // group = 3 mots à la fois (défaut) ; word = mot par mot, pour les vidéos punchy et rapides\n"
         " \"sub_style_id\": 0,  // style visuel des sous-titres selon le TYPE de vidéo : 0=signature (défaut sûr) ; 2=bleu Hormozi (business/motivation) ; 3=cartoon (fun/vlog) ; 4=script néon (lifestyle/mode) ; 5=vert fluo (tech/gadgets) ; 6=ombre floue (docu/voyage) ; 7=rétro ombre jaune (créatif) ; 8=machine à écrire (mystère/code) ; 9=badge boîte (fond chargé) ; 10=dégradé or (luxe/flex) ; 11=sticker bulle (memes/humour) ; 12=karaoké rempli (podcast/monologue) ; 15=glitch (gaming/IA) ; 16=contour évidé (sport/musique) ; 17=ghost (dramatique) ; 18=serif cinéma (histoire/documentaire haut de gamme) ; 20=néon pulsé (edits musicaux)\n"
@@ -798,7 +833,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         plan = json.loads(out["choices"][0]["message"]["content"])
         merged = dict(fallback)
         for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx",
-                  "emojis", "sub_position", "sub_style", "sub_style_id", "highlight", "broll_keywords"):
+                  "emojis", "brands", "sub_position", "sub_style", "sub_style_id", "highlight", "broll_keywords"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -940,6 +975,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         w = str(it["word"]).strip().replace("{", "").replace("}", "").strip(",.;:!?")
         return w.upper() if spec.get("upper") else w
 
+    def fit(raw, size):
+        """Anti-débordement : réduit la taille si le texte est trop large pour l'écran."""
+        est = max(1, len(raw)) * size * 0.55
+        return "" if est <= 980 else f"\\fs{max(44, int(size * 980 / est))}"
+
     def flush():
         nonlocal group
         if not group:
@@ -995,9 +1035,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     for (start, end, mega, y, txt, raw) in cues:
         if mega:
             lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Mega,,0,0,0,,"
-                         f"{{\\an5\\pos(540,960){MEGAPOP}}}{txt if HI else raw}")
+                         f"{{\\an5\\pos(540,960){fit(raw, 185)}{MEGAPOP}}}{txt if HI else raw}")
             continue
-        pos = f"\\an5\\pos(540,{y})"
+        pos = f"\\an5\\pos(540,{y}){fit(raw, spec['size'])}"
         if fx == "typewriter":
             # lettre par lettre avec curseur (style machine à écrire)
             steps = min(len(raw), 36)
@@ -1019,10 +1059,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             continue
         if fx == "glitch":
             # aberration chromatique : couches rouge et cyan décalées sous le texte
+            fz = fit(raw, spec['size'])
             lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,"
-                         f"{{\\an5\\pos(536,{y - 3})\\c&H0000F2&\\alpha&H78&\\blur1}}{raw}")
+                         f"{{\\an5\\pos(536,{y - 3}){fz}\\c&H0000F2&\\alpha&H78&\\blur1}}{raw}")
             lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,"
-                         f"{{\\an5\\pos(544,{y + 3})\\c&HFEF200&\\alpha&H78&\\blur1}}{raw}")
+                         f"{{\\an5\\pos(544,{y + 3}){fz}\\c&HFEF200&\\alpha&H78&\\blur1}}{raw}")
             lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{{{pos}}}{txt}")
             continue
         if fx == "pulse":
@@ -1038,8 +1079,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     if slide:
         t1, t2, text = slide
         safe = str(text).upper().replace("{", "").replace("}", "")
+        # le sujet glisse à GAUCHE -> texte dans l'espace libéré à DROITE
         lines.append(f"Dialogue: 3,{ass_time(t1 + 0.10)},{ass_time(t2)},Mega,,0,0,0,,"
-                     f"{{\\an5\\pos(210,960)\\fs150{MEGAPOP}}}{safe}")
+                     f"{{\\an5\\pos(800,960)\\fs140{MEGAPOP}}}{safe}")
     return head + "\n".join(lines) + "\n"
 
 
@@ -1264,6 +1306,10 @@ def process(job):
         #    zooms avant/arrière + whoosh + pops. Timeline inchangée -> timings des
         #    sous-titres valides ; on zoome AVANT d'incruster les sous-titres.
         kws = keyword_times(words, plan.get("keywords"))
+        # Position des sous-titres : évite le VISAGE repéré par l'analyse visuelle
+        face = str((vision or {}).get("face_y") or "").lower()
+        bands = [1430, 1180] if face in ("middle", "top") else ([960, 620] if face == "bottom" else None)
+        layout = sentence_layout(words, str(plan.get("sub_position") or "dynamic"), seed, bands=bands)
         slide = None
         if len(words) >= 6 and ffprobe_facts(cur)["duration"] > 6:
             steps.start("fx", "Montage dynamique (zooms, effets, sons)…")
@@ -1280,8 +1326,8 @@ def process(job):
                     cur = outs
                     slide = (t1, t2, cand[0]["text"])
                 out = os.path.join(work, "fx.mp4")
-                layout = sentence_layout(words, str(plan.get("sub_position") or "dynamic"), seed)
                 emo = emoji_events(words, plan.get("emojis"), work, layout)
+                emo += brand_events(words, plan.get("brands"), work, layout)
                 # Un seul effet à la fois : pas d'émoji pendant l'effet 'côté' ou un b-roll
                 busy = ([(slide[0] - 0.3, slide[1] + 0.3)] if slide else []) + \
                        [(bc - 0.3, bc + 1.6) for bc in broll_cuts]
@@ -1329,7 +1375,7 @@ def process(job):
                                   highlight=str(plan.get("highlight") or "yellow"),
                                   sub_style=str(plan.get("sub_style") or "group"),
                                   style_id=plan.get("sub_style_id") or 0,
-                                  layout=sentence_layout(words, str(plan.get("sub_position") or "dynamic"), seed)))
+                                  layout=layout))
             out = os.path.join(work, "subs.mp4")
             burn_subs(cur, out, ass)
             cur = out

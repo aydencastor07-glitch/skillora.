@@ -20,7 +20,7 @@ echo ""
 echo "[1/5] Installation de ffmpeg et Python…"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq ffmpeg fonts-dejavu-core fontconfig python3 curl >/dev/null
+apt-get install -y -qq ffmpeg fonts-dejavu-core fontconfig python3 curl librsvg2-bin >/dev/null
 # Polices Google Fonts (licence OFL) : les looks du catalogue de sous-titres
 mkdir -p /usr/share/fonts/truetype/custom
 GF="https://raw.githubusercontent.com/google/fonts/main"

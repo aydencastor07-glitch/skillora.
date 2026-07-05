@@ -691,6 +691,7 @@ def groq_vision(frames, transcript_text, duration):
     les mouvements et les objets visibles. None si pas de clé / échec."""
     if not GROQ_KEY or not frames:
         return None
+    frames = frames[:5]  # garde-fou : la limite dure du modèle est 5 images
     content = [{"type": "text", "text": (
         "Tu es un monteur vidéo pro. Analyse ces images extraites d'une vidéo courte "
         f"({duration:.0f}s) avec leur timestamp, plus le début de la transcription.\n"
@@ -1066,7 +1067,8 @@ def process(job):
         tr_text = (first_tr or {}).get("text", "").strip() if first_tr else ""
         # Les YEUX : images clefs (ouverture x2 + réparties) -> analyse visuelle
         d = facts["duration"]
-        ftimes = [0.3, 1.0] + [round(d * k / 6.0, 2) for k in range(2, 6)]
+        # 5 images MAX (limite du modèle vision Groq) : ouverture x2 + 3 réparties
+        ftimes = [0.3, 1.0] + [round(d * k / 5.0, 2) for k in range(2, 5)]
         vision = None
         try:
             vision = groq_vision(extract_frames(src, [t for t in ftimes if t < d - 0.2], work), tr_text, d)

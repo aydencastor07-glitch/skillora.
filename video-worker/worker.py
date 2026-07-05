@@ -53,9 +53,15 @@ FILLERS = {"euh", "heu", "hum", "hmm", "uh", "um", "euhh", "mmm", "ben"}
 # qui renvoient 403 au User-Agent Python par défaut. Ne JAMAIS l'envoyer à
 # Supabase : leur pare-feu rejette ce UA falsifié avec un 401.
 GROQ_UA = "Mozilla/5.0 (X11; Linux x86_64) Skillora-Worker/1.0"
-# Modèle multimodal Groq : donne des YEUX au worker (ouverture captivante ?
-# mouvements ? objets visibles ?) pour monter comme un vrai monteur.
-GROQ_VISION_MODEL = os.environ.get("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
+# Modèles multimodaux Groq (essayés dans l'ordre jusqu'à ce qu'un réponde) :
+# donnent des YEUX au worker. Le premier qui marche est mémorisé.
+VISION_MODELS = [m for m in [os.environ.get("GROQ_VISION_MODEL", "")] if m] + [
+    "meta-llama/llama-4-scout-17b-16e-instruct",
+    "meta-llama/llama-4-maverick-17b-128e-instruct",
+    "llama-3.2-90b-vision-preview",
+    "llama-3.2-11b-vision-preview",
+]
+_VISION_MODEL_OK = []  # cache du modèle qui répond (worker longue durée)
 
 
 def download(url, out, ua=GROQ_UA):
@@ -277,7 +283,7 @@ def make_sfx_bank(work):
         p = os.path.join(work, f"sfx_{name}.wav")
         run(["ffmpeg", "-y", "-f", "lavfi", "-i", f"aevalsrc={expr}:d={dur}:s=44100",
              "-af", "volume=1.0", "-ar", "44100", "-ac", "2", p])
-        bank[name] = p
+        bank[name] = [p]  # liste : plusieurs variantes possibles par intention
 
     # clic souris / bouton
     synth("click", "'0.9*sin(2*PI*2100*t)*exp(-55*t)+0.5*sin(2*PI*3400*t)*exp(-70*t)'", "0.12")
@@ -292,11 +298,11 @@ def make_sfx_bank(work):
     # pop
     pop = os.path.join(work, "sfx_pop.wav")
     make_pop(pop)
-    bank["pop"] = pop
+    bank["pop"] = [pop]
     # whoosh
     wh = os.path.join(work, "sfx_whoosh.wav")
     make_whoosh(wh)
-    bank["whoosh"] = wh
+    bank["whoosh"] = [wh]
     # clavier qui tape = rafale de 6 clics irréguliers
     typing = os.path.join(work, "sfx_typing.wav")
     delays = [0, 90, 160, 270, 350, 460]
@@ -306,9 +312,9 @@ def make_sfx_bank(work):
         fc.append(f"[c{i}]adelay={d}|{d},volume={vol:.2f}[t{i}]")
     fc.append("".join(f"[t{i}]" for i in range(len(delays))) +
               f"amix=inputs={len(delays)}:normalize=0,volume=1.2")
-    run(["ffmpeg", "-y", "-i", bank["click"], "-filter_complex", ";".join(fc),
+    run(["ffmpeg", "-y", "-i", bank["click"][0], "-filter_complex", ";".join(fc),
          "-ar", "44100", "-ac", "2", typing])
-    bank["typing"] = typing
+    bank["typing"] = [typing]
 
     # Bruitages PRO uploadés dans le bucket public 'sfx-library'. Matching SOUPLE
     # par mots-clés : les noms descriptifs (keyboard_typing-01.mp3, cash_register-01.mp3,
@@ -325,16 +331,19 @@ def make_sfx_bank(work):
                 if any(kw in n for kw in kws):
                     by_intent.setdefault(intent, []).append(name)
         for intent, matches in by_intent.items():
-            name = matches[hash(intent + str(len(files))) % len(matches)]  # varie si plusieurs
-            try:
-                rawp = os.path.join(work, "dl_" + re.sub(r"[^a-z0-9.]", "_", name.lower()))
-                download(f"{SB_URL}/storage/v1/object/public/sfx-library/{urllib.parse.quote(name)}", rawp)
-                out = os.path.join(work, f"pro_{intent}.wav")
-                run(["ffmpeg", "-y", "-i", rawp, "-t", "2.2",
-                     "-af", "afade=t=out:st=1.9:d=0.3", "-ar", "44100", "-ac", "2", out])
-                bank[intent] = out  # remplace/ajoute cette intention
-            except Exception as e:
-                print("sfx dl", name, e, file=sys.stderr)
+            paths = []
+            for j, name in enumerate(matches[:3]):  # jusqu'à 3 VARIANTES par intention
+                try:
+                    rawp = os.path.join(work, "dl_" + re.sub(r"[^a-z0-9.]", "_", name.lower()))
+                    download(f"{SB_URL}/storage/v1/object/public/sfx-library/{urllib.parse.quote(name)}", rawp)
+                    out = os.path.join(work, f"pro_{intent}_{j}.wav")
+                    run(["ffmpeg", "-y", "-i", rawp, "-t", "2.2",
+                         "-af", "afade=t=out:st=1.9:d=0.3", "-ar", "44100", "-ac", "2", out])
+                    paths.append(out)
+                except Exception as e:
+                    print("sfx dl", name, e, file=sys.stderr)
+            if paths:
+                bank[intent] = paths  # remplace les sons synthétisés
         if by_intent:
             print("sfx-library: intentions disponibles ->", sorted(by_intent.keys()), file=sys.stderr)
     except Exception as e:
@@ -555,24 +564,35 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
                "cash": 0.85, "magic": 0.8, "impact": 0.9, "explosion": 0.9, "glitch": 0.8,
                "camera": 0.85, "beep": 0.85, "scratch": 0.8, "applause": 0.7, "fail": 0.85,
                "scream": 0.85, "heartbeat": 0.6, "riser": 0.7, "airhorn": 0.9, "boom": 0.9}
-        used = sorted({name for (_t, name) in events})
-        if events:
+        # Résout chaque événement vers un FICHIER concret, en tournant entre les
+        # variantes de l'intention (6 whooshs différents -> jamais deux fois le même à la suite)
+        rot = {}
+        resolved = []  # (t, fichier, volume)
+        for (t, name) in events:
+            paths = bank.get(name) or []
+            if not paths:
+                continue
+            k = rot.get(name, seed % max(1, len(paths)))
+            rot[name] = k + 1
+            resolved.append((t, paths[k % len(paths)], VOL.get(name, 0.8)))
+        if resolved:
+            uniq = sorted({p for (_t, p, _v) in resolved})
             idx = {}
-            for k, name in enumerate(used):
-                cmd += ["-i", bank[name]]
-                idx[name] = k + 1  # l'entrée 0 est la vidéo
-            counts = {name: sum(1 for (_t, n2) in events if n2 == name) for name in used}
+            for k, p in enumerate(uniq):
+                cmd += ["-i", p]
+                idx[p] = k + 1  # l'entrée 0 est la vidéo
+            counts = {p: sum(1 for (_t, p2, _v) in resolved if p2 == p) for p in uniq}
             mix_inputs = []
-            for name in used:
-                c = counts[name]
-                fc.append(f"[{idx[name]}:a]asplit={c}" + "".join(f"[{name}{j}]" for j in range(c)))
-            seen = {name: 0 for name in used}
-            for (t, name) in events:
-                j = seen[name]; seen[name] += 1
+            for k, p in enumerate(uniq):
+                fc.append(f"[{idx[p]}:a]asplit={counts[p]}" + "".join(f"[f{k}_{j}]" for j in range(counts[p])))
+            seen = {p: 0 for p in uniq}
+            for (t, p, vol) in resolved:
+                k = uniq.index(p)
+                j = seen[p]; seen[p] += 1
                 # pré-déclenchement de 80 ms : le son claque PILE sur le mot (réflexe de monteur)
                 ms = int(max(0.0, t - 0.08) * 1000)
-                lab = f"m_{name}{j}"
-                fc.append(f"[{name}{j}]adelay={ms}|{ms},volume={VOL.get(name, 0.8)}[{lab}]")
+                lab = f"mx{k}_{j}"
+                fc.append(f"[f{k}_{j}]adelay={ms}|{ms},volume={vol}[{lab}]")
                 mix_inputs.append(f"[{lab}]")
             fc.append("[0:a]" + "".join(mix_inputs) +
                       f"amix=inputs={len(mix_inputs) + 1}:duration=first:dropout_transition=0:normalize=0[am]")
@@ -677,6 +697,7 @@ def groq_vision(frames, transcript_text, duration):
         f"Transcription: {transcript_text[:600] or '(aucune parole)'}\n\n"
         "Réponds UNIQUEMENT ce JSON:\n"
         "{\"opening_captivating\": bool,  // les 1res secondes montrent-elles une action/un visuel qui accroche ? false si personnage figé/statique\n"
+        " // ATTENTION: un visage qui regarde la caméra sans bouger/parler n'est PAS captivant\n"
         " \"opening_note\": \"pourquoi, en 1 phrase\",\n"
         " \"scenes\": [{\"t\": secondes, \"action\": \"description courte\", \"motion\": bool}],  // une entrée par image\n"
         " \"objects\": [\"objets/éléments importants visibles\"]}"
@@ -686,24 +707,33 @@ def groq_vision(frames, transcript_text, duration):
             b64 = base64.b64encode(f.read()).decode()
         content.append({"type": "text", "text": f"Image à t={t:.1f}s :"})
         content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}})
-    try:
-        st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
-                       {"Authorization": "Bearer " + GROQ_KEY, "User-Agent": GROQ_UA},
-                       {"model": GROQ_VISION_MODEL,
-                        "messages": [{"role": "user", "content": content}],
-                        "temperature": 0.2, "response_format": {"type": "json_object"}},
-                       timeout=120)
-        out = json.loads(raw)
-        return json.loads(out["choices"][0]["message"]["content"])
-    except urllib.error.HTTPError as e:
+    models = _VISION_MODEL_OK + [m for m in VISION_MODELS if m not in _VISION_MODEL_OK]
+    for model in models:
         try:
-            print("groq_vision HTTP", e.code, ":", e.read().decode()[:300], file=sys.stderr)
-        except Exception:
-            print("groq_vision HTTP", e.code, file=sys.stderr)
-        return None
-    except Exception as e:
-        print("groq_vision:", e, file=sys.stderr)
-        return None
+            st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
+                           {"Authorization": "Bearer " + GROQ_KEY, "User-Agent": GROQ_UA},
+                           {"model": model,
+                            "messages": [{"role": "user", "content": content}],
+                            "temperature": 0.2, "response_format": {"type": "json_object"}},
+                           timeout=120)
+            out = json.loads(raw)
+            if not _VISION_MODEL_OK:
+                _VISION_MODEL_OK.append(model)
+                print("groq_vision: modèle OK ->", model, file=sys.stderr)
+            return json.loads(out["choices"][0]["message"]["content"])
+        except urllib.error.HTTPError as e:
+            try:
+                body = e.read().decode()[:200]
+            except Exception:
+                body = ""
+            print("groq_vision HTTP", e.code, "(", model, "):", body, file=sys.stderr)
+            if e.code in (400, 404, 422):
+                continue  # modèle inconnu/décommissionné -> on tente le suivant
+            return None
+        except Exception as e:
+            print("groq_vision:", e, file=sys.stderr)
+            return None
+    return None
 
 
 def groq_plan(facts, transcript_text, context, vision=None):
@@ -829,12 +859,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         safe = str(hook_text).upper().replace("{", "").replace("}", "").replace("\n", " ")
         lines.append(f"Dialogue: 2,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200)}}{safe}")
 
-    # Découpe en groupes ; la position vient de `layout` (partagé avec les émojis)
+    # Découpe en groupes ; la position vient de `layout` (partagé avec les émojis).
+    # On collecte d'abord les cues, puis on VERROUILLE : un sous-titre se termine
+    # toujours AVANT que le suivant apparaisse (jamais deux à l'écran).
     prev_end = None
     group, gfirst = [], 0
+    cues = []  # (start, end, mega, y, txt)
 
     def flush():
-        nonlocal lines, group
+        nonlocal group
         if not group:
             return
         g = group
@@ -854,12 +887,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         if slide and slide[0] <= start <= slide[1]:
             return  # pendant l'effet 'côté', pas de sous-titre normal (le Mega est affiché)
         y = layout[gfirst] if gfirst < len(layout) else 1430
-        if solo_kw:
-            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Mega,,0,0,0,,"
-                         f"{{\\an5\\pos(540,960){MEGAPOP}}}{txt}")
-        else:
-            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,"
-                         f"{{\\an5\\pos(540,{y}){POP}}}{txt}")
+        cues.append([start, end, solo_kw, y, txt])
 
     for i, w in enumerate(words):
         ws = float(w["start"])
@@ -875,6 +903,18 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             flush()
         prev_end = float(w["end"])
     flush()
+
+    for i in range(len(cues) - 1):  # verrou anti-chevauchement (la non-superposition PRIME)
+        cap = cues[i + 1][0] - 0.02
+        want = max(cues[i][1], cues[i][0] + 0.15)
+        cues[i][1] = min(want, cap) if cap > cues[i][0] + 0.05 else max(cues[i][0] + 0.03, cap)
+    for (start, end, mega, y, txt) in cues:
+        if mega:
+            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Mega,,0,0,0,,"
+                         f"{{\\an5\\pos(540,960){MEGAPOP}}}{txt}")
+        else:
+            lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,"
+                         f"{{\\an5\\pos(540,{y}){POP}}}{txt}")
 
     # Texte géant pendant l'effet 'la vidéo se pousse sur le côté'
     if slide:
@@ -935,7 +975,7 @@ def overlay_broll(src, dst, brolls, duration):
     Retourne les instants de coupe (pour y mixer des whooshs de transition)."""
     if not brolls:
         return []
-    seg = 1.6
+    seg = 1.3
     slots = []
     n = len(brolls)
     for i in range(n):
@@ -1046,9 +1086,17 @@ def process(job):
         if plan.get("cut_silences") and tr_text and (silences or tr1_words):
             steps.start("cut", "Coupe des temps morts et des « euh »…")
             out = os.path.join(work, "cut.mp4")
+            # Garde-fou : "captivante" ne suffit pas — il faut du VRAI mouvement tôt
+            # ou une parole qui démarre vite. Un visage figé n'est pas captivant.
+            keep = (vision or {}).get("opening_captivating")
+            if keep:
+                early_motion = any(s.get("motion") and float(s.get("t", 9)) <= 1.6
+                                   for s in (vision or {}).get("scenes") or [])
+                early_speech = bool(tr1_words) and float(tr1_words[0].get("start", 9)) < 1.0
+                if not (early_motion or early_speech):
+                    keep = False
             extra_cuts = filler_spans(tr1_words) + head_tail_spans(
-                tr1_words, facts["duration"], silences,
-                keep_opening=(vision or {}).get("opening_captivating"))
+                tr1_words, facts["duration"], silences, keep_opening=keep)
             if cut_spans(cur, out, silences, extra_cuts, facts["duration"]):
                 cur = out
                 facts = ffprobe_facts(cur)
@@ -1072,7 +1120,8 @@ def process(job):
         brolls, broll_cuts = [], []
         if plan.get("broll_keywords"):
             steps.start("broll", "Recherche de plans d'illustration…")
-            brolls = pexels_broll(plan["broll_keywords"])
+            # 1 seul plan d'illustration max : un effet à la fois à l'écran
+            brolls = pexels_broll(plan["broll_keywords"], want=1)
             if brolls:
                 out = os.path.join(work, "broll.mp4")
                 broll_cuts = overlay_broll(cur, out, brolls, ffprobe_facts(cur)["duration"])
@@ -1102,7 +1151,9 @@ def process(job):
             try:
                 dur_cur = ffprobe_facts(cur)["duration"]
                 # Effet "côté" sur le 1er mot fort court (ex: 0€), hors début/fin
-                cand = [k for k in kws if len(k["text"]) <= 7 and 1.0 < k["start"] < dur_cur - 3.0]
+                # et JAMAIS pendant un b-roll (un seul effet à la fois à l'écran)
+                cand = [k for k in kws if len(k["text"]) <= 7 and 1.0 < k["start"] < dur_cur - 3.0
+                        and not any(bc - 1.8 < k["start"] < bc + 1.8 for bc in broll_cuts)]
                 if cand:
                     t1 = max(0.5, cand[0]["start"] - 0.15)
                     outs = os.path.join(work, "slide.mp4")
@@ -1112,6 +1163,10 @@ def process(job):
                 out = os.path.join(work, "fx.mp4")
                 layout = sentence_layout(words, str(plan.get("sub_position") or "dynamic"), seed)
                 emo = emoji_events(words, plan.get("emojis"), work, layout)
+                # Un seul effet à la fois : pas d'émoji pendant l'effet 'côté' ou un b-roll
+                busy = ([(slide[0] - 0.3, slide[1] + 0.3)] if slide else []) + \
+                       [(bc - 0.3, bc + 1.6) for bc in broll_cuts]
+                emo = [e for e in emo if not any(a <= e[0] <= b for (a, b) in busy)]
                 sfx_ev = sfx_event_times(words, plan.get("sfx"), kws)
                 sfx_ev += [(t, "pop") for (t, _p, _y) in emo
                            if not any(abs(t - e[0]) < 0.4 for e in sfx_ev)]

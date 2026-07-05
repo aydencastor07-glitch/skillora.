@@ -277,6 +277,26 @@ def make_sfx_bank(work):
     run(["ffmpeg", "-y", "-i", bank["click"], "-filter_complex", ";".join(fc),
          "-ar", "44100", "-ac", "2", typing])
     bank["typing"] = typing
+
+    # Bruitages PRO uploadés par l'admin dans le bucket public 'sfx-library'
+    # (typing.mp3, cash.mp3, …) : ils REMPLACENT les sons synthétisés.
+    try:
+        st, raw = http("POST", f"{SB_URL}/storage/v1/object/list/sfx-library",
+                       sb_headers(), {"prefix": "", "limit": 100}, timeout=20)
+        for it in json.loads(raw):
+            name = str(it.get("name", ""))
+            base = name.rsplit(".", 1)[0].lower()
+            if base in bank and name.lower().endswith((".mp3", ".wav", ".m4a", ".ogg")):
+                rawp = os.path.join(work, "dl_" + name.replace("/", "_"))
+                urllib.request.urlretrieve(
+                    f"{SB_URL}/storage/v1/object/public/sfx-library/{urllib.parse.quote(name)}", rawp)
+                out = os.path.join(work, f"pro_{base}.wav")
+                # normalise : 1,6 s max avec fondu de sortie, 44100 stéréo
+                run(["ffmpeg", "-y", "-i", rawp, "-t", "1.6",
+                     "-af", "afade=t=out:st=1.25:d=0.35", "-ar", "44100", "-ac", "2", out])
+                bank[base] = out
+    except Exception as e:
+        print("sfx-library:", e, file=sys.stderr)
     return bank
 
 
@@ -343,6 +363,50 @@ def keyword_times(words, plan_keywords, max_n=6, min_gap=1.5):
     return hits
 
 
+EMOJI_CDN = "https://raw.githubusercontent.com/jdecked/twemoji/main/assets/72x72/{}.png"
+
+
+def emoji_events(words, plan_emojis, work):
+    """[(t, chemin_png)] : télécharge l'émoji Twemoji (CC-BY, usage libre) du mot exact."""
+    events = []
+    for i, item in enumerate((plan_emojis or [])[:4]):
+        target = norm_token((item or {}).get("word", ""))
+        emo = str((item or {}).get("emoji", "")).strip()
+        if not target or not emo:
+            continue
+        code = "-".join(f"{ord(c):x}" for c in emo if ord(c) != 0xFE0F)
+        if not code:
+            continue
+        try:
+            p = os.path.join(work, f"emoji_{i}.png")
+            download(EMOJI_CDN.format(code), p)
+            for w in words or []:
+                if norm_token(w.get("word", "")) == target:
+                    events.append((float(w["start"]), p))
+                    break
+        except Exception as e:
+            print("emoji:", emo, e, file=sys.stderr)
+    return events
+
+
+def overlay_emojis(src, dst, events):
+    """Affiche chaque émoji en GRAND (haut de l'image) pendant ~0,9 s au moment du mot."""
+    if not events:
+        return False
+    fc, last = [], "[0:v]"
+    inputs = []
+    for i, (t, png) in enumerate(events[:4]):
+        inputs += ["-i", png]
+        fc.append(f"[{i + 1}:v]scale=190:-1[e{i}]")
+        nxt = f"[o{i}]"
+        fc.append(f"{last}[e{i}]overlay=(W-w)/2:330:enable='between(t,{t:.3f},{t + 0.9:.3f})'{nxt}")
+        last = nxt
+    run(["ffmpeg", "-y", "-i", src, *inputs,
+         "-filter_complex", ";".join(fc), "-map", last, "-map", "0:a?",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+    return True
+
+
 def slide_aside(src, dst, t1, dur=1.5):
     """Effet 'la vidéo se pousse sur le côté' : fond = la vidéo zoomée-floutée
     (aucune bordure noire), la vidéo rétrécit à droite, gros texte ajouté via
@@ -376,7 +440,7 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
     if len(bounds) < 2 or len(bounds) > 60:
         return False
     edges = bounds + [duration]
-    ZOOMS = [1.0, 1.08, 1.0, 1.13]  # alternance zoom avant / arrière
+    ZOOMS = [1.0, 1.13, 1.0, 1.2]  # alternance zoom avant / arrière — punchs bien VISIBLES
     fc, vlabels = [], []
     zoomed_i = 0
     for i in range(len(edges) - 1):
@@ -512,6 +576,9 @@ def groq_plan(facts, transcript_text, context):
         "music_mood": "" if transcript_text else "chill",
         "keywords": [],
         "sfx": [],
+        "emojis": [],
+        "sub_position": "dynamic",
+        "highlight": "yellow",
         "broll_keywords": [],
     }
     if not GROQ_KEY:
@@ -531,6 +598,9 @@ def groq_plan(facts, transcript_text, context):
         " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic — choisis presque toujours une ambiance adaptée au contenu (fond musical discret sous la voix) ; vide UNIQUEMENT si la vidéo contient déjà de la musique\",\n"
         " \"keywords\": [\"3-6 mots EXACTS de la transcription à mettre en avant (prix, chiffres, mots forts : '0€', 'gratuit', 'secret'…) — copie-les tels quels\"],\n"
         " \"sfx\": [{\"word\": \"mot EXACT de la transcription\", \"sound\": \"typing|click|ding|cash|magic|impact|pop\"}],  // 2-5 bruitages qui renforcent le SENS : taper un code->typing, cliquer->click, argent/prix->cash, chiffre choc->ding, révélation/surprise->magic, punchline->impact\n"
+        " \"emojis\": [{\"word\": \"mot EXACT de la transcription\", \"emoji\": \"un seul émoji\"}],  // 2-4 émojis qui illustrent un mot (courir->🏃, champion->🏆, argent->💰, feu->🔥)\n"
+        " \"sub_position\": \"dynamic|bottom|middle\",  // dynamic par défaut ; bottom si des éléments importants occupent le centre de l'image ; middle pour les vidéos très rythmées\n"
+        " \"highlight\": \"yellow|green|red|cyan\",  // couleur des mots forts, adaptée à l'ambiance\n"
         " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"]}"
     )
     try:
@@ -543,7 +613,8 @@ def groq_plan(facts, transcript_text, context):
         out = json.loads(raw)
         plan = json.loads(out["choices"][0]["message"]["content"])
         merged = dict(fallback)
-        for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx", "broll_keywords"):
+        for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx",
+                  "emojis", "sub_position", "highlight", "broll_keywords"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -567,9 +638,12 @@ def ass_time(t):
 
 YELLOW = "&H0000D4FF&"   # jaune vif (BGR)
 GREEN = "&H0084DC3D&"    # vert Skillora (BGR)
+HI_COLORS = {"yellow": "&H0000D4FF&", "green": "&H0084DC3D&",
+             "red": "&H004040FF&", "cyan": "&H00FFD400&"}
 
 
-def build_ass(words, hook_text, keywords=None, slide=None, play_w=1080, play_h=1920):
+def build_ass(words, hook_text, keywords=None, slide=None, sub_position="dynamic",
+              highlight="yellow", play_w=1080, play_h=1920):
     """Sous-titres 'montage dynamique' (style CapCut) :
     - MAJUSCULES, très gros, blanc, contour noir épais, pop d'apparition ;
     - le mot fort de la phrase en JAUNE ;
@@ -577,6 +651,7 @@ def build_ass(words, hook_text, keywords=None, slide=None, play_w=1080, play_h=1
     - la position alterne par phrase (bas / milieu / haut) ;
     - pendant l'effet 'côté', gros texte jaune dans la zone libre à gauche."""
     kwhits = {round(k["start"], 2) for k in (keywords or [])}
+    HI = HI_COLORS.get(str(highlight).lower(), YELLOW)
     head = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {play_w}
@@ -594,7 +669,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     POP = "\\fad(25,35)\\t(0,100,\\fscx115\\fscy115)\\t(100,180,\\fscx100\\fscy100)"
     MEGAPOP = "\\fad(20,40)\\t(0,120,\\fscx130\\fscy130)\\t(120,220,\\fscx100\\fscy100)"
-    YPOS = [1430, 960, 620]  # bas -> milieu -> haut, alterne à chaque phrase
+    # Position selon le type de vidéo : dynamique (alterne), toujours bas, ou toujours milieu
+    sp = str(sub_position).lower()
+    YPOS = [1430] * 3 if sp == "bottom" else ([960] * 3 if sp == "middle" else [1430, 960, 620])
     lines = []
     if hook_text:
         safe = str(hook_text).upper().replace("{", "").replace("}", "").replace("\n", " ")
@@ -617,7 +694,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         for it in g:
             word = str(it["word"]).strip().upper().replace("{", "").replace("}", "").strip(",.;:!?")
             if round(float(it["start"]), 2) in kwhits and not solo_kw:
-                parts.append(f"{{\\c{YELLOW}}}{word}{{\\c&H00FFFFFF&}}")
+                parts.append(f"{{\\c{HI}}}{word}{{\\c&H00FFFFFF&}}")
             else:
                 parts.append(word)
         txt = " ".join(parts)
@@ -655,8 +732,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 
 def burn_subs(src, dst, ass_path):
+    """Incruste les sous-titres + passe 'clarté' gratuite : léger débruitage,
+    netteté et couleurs plus vives (compense les caméras moyennes)."""
     safe = ass_path.replace("\\", "/").replace(":", "\\:")
-    run(["ffmpeg", "-y", "-i", src, "-vf", f"ass='{safe}'",
+    run(["ffmpeg", "-y", "-i", src,
+         "-vf", f"ass='{safe}',hqdn3d=1.5:1.5:3:3,unsharp=5:5:0.5,eq=contrast=1.04:saturation=1.13",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
 
 
@@ -697,9 +777,10 @@ def pexels_broll(keywords, want=2, min_h=1000):
 
 def overlay_broll(src, dst, brolls, duration):
     """Incruste chaque b-roll en plein cadre ~1,6 s, réparti dans la vidéo
-    (jamais dans les 3 premières secondes : le hook doit rester le créateur)."""
+    (jamais dans les 3 premières secondes : le hook doit rester le créateur).
+    Retourne les instants de coupe (pour y mixer des whooshs de transition)."""
     if not brolls:
-        return False
+        return []
     seg = 1.6
     slots = []
     n = len(brolls)
@@ -708,7 +789,7 @@ def overlay_broll(src, dst, brolls, duration):
         if t + seg < duration - 1.0:
             slots.append(t)
     if not slots:
-        return False
+        return []
     inputs = ["-i", src]
     for b in brolls[:len(slots)]:
         inputs += ["-i", b]
@@ -722,7 +803,7 @@ def overlay_broll(src, dst, brolls, duration):
     run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
          "-map", last, "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
          "-crf", "20", "-c:a", "copy", dst])
-    return True
+    return slots[:len(brolls)]
 
 
 # ---------------------------------------------------------------- musique (bucket)
@@ -814,16 +895,17 @@ def process(job):
         else:
             steps.skip("frame", "Recadrage 9:16", "déjà au bon format")
 
-        # 3. B-roll
-        brolls = []
+        # 3. B-roll (les instants de coupe recevront un whoosh de transition)
+        brolls, broll_cuts = [], []
         if plan.get("broll_keywords"):
             steps.start("broll", "Recherche de plans d'illustration…")
             brolls = pexels_broll(plan["broll_keywords"])
             if brolls:
                 out = os.path.join(work, "broll.mp4")
-                if overlay_broll(cur, out, brolls, ffprobe_facts(cur)["duration"]):
+                broll_cuts = overlay_broll(cur, out, brolls, ffprobe_facts(cur)["duration"])
+                if broll_cuts:
                     cur = out
-                steps.done("broll", f"{len(brolls)} plan(s) inséré(s)")
+                steps.done("broll", f"{len(broll_cuts)} plan(s) inséré(s)")
             else:
                 steps.done("broll", "aucun plan adapté trouvé")
         else:
@@ -855,16 +937,27 @@ def process(job):
                     cur = outs
                     slide = (t1, t2, cand[0]["text"])
                 out = os.path.join(work, "fx.mp4")
+                emo = emoji_events(words, plan.get("emojis"), work)
+                sfx_ev = sfx_event_times(words, plan.get("sfx"), kws)
+                sfx_ev += [(t, "pop") for (t, _p) in emo
+                           if not any(abs(t - e[0]) < 0.4 for e in sfx_ev)]
+                wh_extra = list(broll_cuts) + ([slide[0], slide[1] - 0.25] if slide else [])
                 if zoom_punch(cur, out, words, facts["has_audio"], work,
-                              sfx_events=sfx_event_times(words, plan.get("sfx"), kws),
-                              extra_whooshes=([slide[0], slide[1] - 0.25] if slide else None),
+                              sfx_events=sorted(sfx_ev),
+                              extra_whooshes=wh_extra or None,
                               avoid=(slide[0], slide[1]) if slide else None):
                     cur = out
+                if emo:
+                    oute = os.path.join(work, "emoji.mp4")
+                    if overlay_emojis(cur, oute, emo):
+                        cur = oute
                 detail = "zooms + sons"
                 if slide:
                     detail += f" + focus « {slide[2]} »"
                 if kws:
                     detail += f" + {len(kws)} mot(s) fort(s)"
+                if emo:
+                    detail += f" + {len(emo)} émoji(s)"
                 steps.done("fx", detail)
             except Exception as e:
                 print("fx:", e, file=sys.stderr)
@@ -877,7 +970,9 @@ def process(job):
             steps.start("subs", "Sous-titres animés…")
             ass = os.path.join(work, "subs.ass")
             with open(ass, "w", encoding="utf-8") as f:
-                f.write(build_ass(words, str(plan.get("hook_text") or ""), keywords=kws, slide=slide))
+                f.write(build_ass(words, str(plan.get("hook_text") or ""), keywords=kws, slide=slide,
+                                  sub_position=str(plan.get("sub_position") or "dynamic"),
+                                  highlight=str(plan.get("highlight") or "yellow")))
             out = os.path.join(work, "subs.mp4")
             burn_subs(cur, out, ass)
             cur = out

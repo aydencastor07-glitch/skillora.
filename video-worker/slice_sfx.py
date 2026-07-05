@@ -63,16 +63,25 @@ CLIPS = [
     ("magic_reveal-01.mp3", 137, 140), ("surprised_horror_synth-01.mp3", 140, 145),
 ]
 
-pub = f"{SB_URL}/storage/v1/object/public/{BUCKET}/{PACK}"
 work = tempfile.mkdtemp(prefix="sfx-")
 local = os.path.join(work, "pack.mp3")
-print(f"[1/3] Téléchargement de {PACK}…")
-try:
-    req = urllib.request.Request(pub, headers={"User-Agent": "Mozilla/5.0 Skillora"})
-    with urllib.request.urlopen(req, timeout=120) as r, open(local, "wb") as f:
-        f.write(r.read())
-except Exception as e:
-    print(f"❌ Impossible de télécharger {pub}\n   Vérifie que le fichier '{PACK}' est bien dans le bucket '{BUCKET}'. ({e})")
+# Le pack peut être dans sfx-library OU music-library (on cherche aux deux endroits).
+print(f"[1/3] Recherche de {PACK}…")
+found = False
+for src_bucket in (BUCKET, "music-library"):
+    pub = f"{SB_URL}/storage/v1/object/public/{src_bucket}/{PACK}"
+    try:
+        req = urllib.request.Request(pub, headers={"User-Agent": "Mozilla/5.0 Skillora"})
+        with urllib.request.urlopen(req, timeout=120) as r, open(local, "wb") as f:
+            f.write(r.read())
+        print(f"      trouvé dans '{src_bucket}'")
+        found = True
+        break
+    except Exception:
+        continue
+if not found:
+    print(f"❌ '{PACK}' introuvable dans 'sfx-library' ni 'music-library'.")
+    print("   Vérifie le nom exact du fichier (pack.mp3) dans un de ces buckets.")
     sys.exit(1)
 
 # Durée réelle du pack (on ignore les clips au-delà)

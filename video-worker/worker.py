@@ -925,6 +925,43 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
     return True
 
 
+VIZ_COLORS = {"cyan": "0x22D3EE", "white": "0xFFFFFF", "pink": "0xFF5FA2",
+              "green": "0x3DDC84", "violet": "0x9D5CFF", "gold": "0xFFC542"}
+
+
+def music_visualizer(src, dst, work, accent="cyan", baseline_y=0.60):
+    """Incruste un ÉGALISEUR réactif au son (barres qui montent avec la musique),
+    pour les vidéos image+musique. Barres centrées, en bas, comme les lecteurs
+    TikTok/Spotify. False si l'audio ne s'y prête pas."""
+    facts = ffprobe_facts(src)
+    if not facts["has_audio"]:
+        return False
+    W, H = facts["width"] or 1080, facts["height"] or 1920
+    col = VIZ_COLORS.get(str(accent).lower(), VIZ_COLORS["cyan"])
+    bw, bh = int(W * 0.74), 230
+    y = int(H * baseline_y)
+    x = (W - bw) // 2
+    # showfreqs = spectre en barres. On booste la luminosité + un léger halo (glow)
+    # pour que les barres ressortent quel que soit le fond, colorkey rend le noir
+    # transparent, et on miroir verticalement (barres qui montent du centre).
+    fc = (f"[0:a]showfreqs=s={bw}x{bh}:mode=bar:ascale=cbrt:fscale=log:"
+          f"win_size=2048:colors={col}|0xFFFFFF,"
+          f"format=rgba,eq=brightness=0.06:saturation=1.4,"
+          f"split=2[bars][g];[g]gblur=sigma=6[glow];"
+          f"[glow][bars]overlay=0:0[viz0];"
+          f"[viz0]colorkey=0x000000:0.28:0.08,split=2[vz][vzm];[vzm]vflip[vzf];"
+          f"[0:v][vz]overlay={x}:{y}:format=auto[a1];"
+          f"[a1][vzf]overlay={x}:{y - bh + 4}:format=auto[v]")
+    try:
+        run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc,
+             "-map", "[v]", "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
+             "-crf", "20", "-c:a", "copy", dst], timeout=600)
+        return os.path.exists(dst) and os.path.getsize(dst) > 50000
+    except Exception as e:
+        print("music_visualizer:", e, file=sys.stderr)
+        return False
+
+
 def reframe_916(src, dst, w, h):
     """Passe au format 9:16 style clip : la vidéo entière au centre, et le fond
     (haut/bas) = la même vidéo zoomée-floutée. AUCUNE bordure noire."""
@@ -1100,6 +1137,39 @@ def groq_transcribe(path):
         return None
 
 
+def classify_audio(tr, silences, beats, duration):
+    """MUSIQUE ou VOIX ? Un créateur peut poser une CHANSON (paroles) sur sa vidéo :
+    il ne faut SURTOUT PAS la sous-titrer comme une voix off. On distingue :
+    - 'speech' : vraie voix off / narration (pauses naturelles, Whisper confiant)
+    - 'music'  : chanson / musique (son continu, beat régulier, Whisper hésite)
+    - 'silent' : rien d'exploitable
+    Signaux acoustiques ; l'IA (champ audio_type) tranche les cas ambigus."""
+    if not tr:
+        return "silent"
+    words = tr.get("words") or []
+    text = (tr.get("text") or "").strip()
+    if len(text) < 8 or len(words) < 4:
+        return "silent"
+    segs = tr.get("segments") or []
+    nsp = [float(s.get("no_speech_prob", 0)) for s in segs if "no_speech_prob" in s]
+    alp = [float(s.get("avg_logprob", 0)) for s in segs if "avg_logprob" in s]
+    avg_nsp = sum(nsp) / len(nsp) if nsp else 0.0     # haut = pas de vraie parole
+    avg_alp = sum(alp) / len(alp) if alp else 0.0     # bas = Whisper peu sûr (chant)
+    sil = sum(e - s for (s, e) in (silences or []))
+    sil_ratio = sil / duration if duration else 0     # parole = pauses ; musique = continu
+    strong_beats = len(beats or []) >= max(6, duration / 1.2)
+    score = 0
+    if avg_nsp > 0.5:
+        score += 2
+    if avg_alp < -0.75:
+        score += 1
+    if sil_ratio < 0.08:
+        score += 1
+    if strong_beats:
+        score += 1
+    return "music" if score >= 3 else "speech"
+
+
 def extract_audio_mp3(src, dst):
     run(["ffmpeg", "-y", "-i", src, "-vn", "-acodec", "libmp3lame", "-b:a", "96k", "-ac", "1", dst])
 
@@ -1250,6 +1320,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         "color_grade": "",
         "bg_text": "",
         "objects": [],
+        "audio_type": "voice" if transcript_text else "none",
     }
     if not GROQ_KEY:
         return fallback
@@ -1279,7 +1350,8 @@ def groq_plan(facts, transcript_text, context, vision=None):
         "Réponds UNIQUEMENT ce JSON:\n"
         "{\"subtitles\": bool,  // sous-titres seulement s'il y a de la parole utile\n"
         " \"cut_silences\": bool,\n"
-        " \"hook_text\": \"accroche ultra courte (<=42 caractères). S'il y a de la parole, langue de la transcription. S'il N'Y A PAS de parole (vidéo muette/esthétique), DÉDUIS une accroche de ce que l'IA a VU (résumé/scènes) — ex: 'POV: coucher de soleil à Bali', 'Le café parfait en 30s'. Vide seulement si vraiment rien à dire\",\n"
+        " \"audio_type\": \"voice|music|none\",  // 'voice' = vraie voix off / narration / quelqu'un qui EXPLIQUE ou PARLE ; 'music' = CHANSON / musique avec des paroles chantées (À NE PAS sous-titrer !) ; 'none' = pas de son utile. Regarde le texte : des instructions/explications = voice ; des paroles de chanson = music\n"
+        " \"hook_text\": \"accroche ultra courte (<=42 caractères). S'il y a de la parole, langue de la transcription. S'il N'Y A PAS de parole (vidéo muette/esthétique/musique), DÉDUIS une accroche de ce que l'IA a VU (résumé/scènes) — ex: 'POV: coucher de soleil à Bali', 'Le café parfait en 30s'. Vide seulement si vraiment rien à dire\",\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic — choisis presque toujours une ambiance adaptée au contenu (fond musical discret sous la voix) ; vide UNIQUEMENT si la vidéo contient déjà de la musique\",\n"
         " \"keywords\": [\"3-6 mots EXACTS de la transcription à mettre en avant (prix, chiffres, mots forts : '0€', 'gratuit', 'secret'…) — copie-les tels quels\"],\n"
         " \"sfx\": [{\"word\": \"mot EXACT de la transcription\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|explosion|magic|glitch|camera|beep|scratch|applause|fail|scream|heartbeat|riser|airhorn|boom\"}],  // 3-7 bruitages qui renforcent le SENS de la vidéo (monteur pro) : taper->typing, cliquer->click, argent/prix->cash, bonne réponse/chiffre->ding, punchline/choc->impact, révélation->magic, bug/tech->glitch, photo->camera, gros mot censuré->beep, échec drôle->fail, applaudir/gagner->applause, montée de tension->riser, transition->whoosh\n"
@@ -1307,7 +1379,8 @@ def groq_plan(facts, transcript_text, context, vision=None):
         merged = dict(fallback)
         for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx",
                   "emojis", "brands", "sub_position", "sub_style", "sub_style_id", "highlight",
-                  "broll_keywords", "transition", "color_grade", "bg_text", "objects"):
+                  "broll_keywords", "transition", "color_grade", "bg_text", "objects",
+                  "audio_type"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -1903,8 +1976,25 @@ def process(job):
             plan["color_grade"] = rec["grade"]
         if not str(plan.get("transition") or ""):
             plan["transition"] = rec["trans"]
+        # MUSIQUE ou VOIX ? Croise l'acoustique et le jugement de l'IA. Si c'est
+        # une CHANSON, on NE sous-titre PAS les paroles : on la traite comme une
+        # vidéo sans voix (montage rythmé, musique gardée au premier plan).
+        acoustic = classify_audio(first_tr, silences, beats, d) if tr_text else "silent"
+        is_music = (str(plan.get("audio_type") or "") == "music") or acoustic == "music"
+        if is_music:
+            plan["subtitles"] = False
+            plan["cut_silences"] = False  # ne pas charcuter une chanson
+            plan["music_mood"] = ""       # la chanson EST déjà la musique : pas d'ajout
+            tr_text_sub = ""  # plus de texte de paroles pour les sous-titres
+        else:
+            tr_text_sub = tr_text
+        # Image quasi fixe + musique -> on ajoutera un égaliseur réactif au son
+        near_static = len(cuts) <= 2 and not any(
+            s.get("motion") for s in (vision or {}).get("scenes") or [])
+        want_visualizer = is_music and near_static and facts["has_audio"]
         update_job(job["id"], {"plan": plan})
-        det = "parole détectée" if tr_text else "pas de parole détectée"
+        det = ("musique détectée (pas de sous-titres)" if is_music
+               else ("voix détectée" if tr_text else "pas de parole détectée"))
         if vision:
             det += (f" · {vision.get('frames_analyzed', 0)} images analysées"
                     f" · type: {vision.get('video_type', '?')}"
@@ -2144,6 +2234,24 @@ def process(job):
                 steps.done("fx", "montage rythmé non appliqué (on continue)")
         else:
             steps.skip("fx", "Montage dynamique", "vidéo trop courte")
+
+        # 5c. ÉGALISEUR réactif au son (image quasi fixe + musique -> on la fait vivre)
+        if want_visualizer:
+            steps.start("viz", "Égaliseur audio réactif…")
+            mood = str((vision or {}).get("mood") or "").lower()
+            accent = "cyan"
+            for key, c in (("or", "gold"), ("lux", "gold"), ("rose", "pink"), ("pink", "pink"),
+                           ("violet", "violet"), ("purple", "violet"), ("sombre", "violet"),
+                           ("dark", "violet"), ("vert", "green"), ("green", "green")):
+                if key in mood:
+                    accent = c
+                    break
+            outv = os.path.join(work, "viz.mp4")
+            if music_visualizer(cur, outv, work, accent=accent):
+                cur = outv
+                steps.done("viz", "barres synchronisées au son")
+            else:
+                steps.done("viz", "non applicable")
 
         # 6. Sous-titres + hook incrustés par-dessus
         if words:

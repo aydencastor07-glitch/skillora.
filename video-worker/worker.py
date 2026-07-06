@@ -736,8 +736,91 @@ def slide_aside(src, dst, t1, dur=1.5):
     return t2
 
 
+# ── RECETTES DE MONTAGE PAR TYPE DE VIDÉO (issues de la recherche pro) ──────────
+# Chaque style a son pacing, son intensité de zoom, son étalonnage par défaut,
+# sa famille de transition, sa densité de bruitages. L'IA choisit le type ;
+# ces réglages traduisent le type en montage concret.
+#   zooms   : profil de zoom (1.0 = pas de zoom ; >1 = punch-in)
+#   cut_s   : cadence de coupe cible (secondes) pour le montage sans voix
+#   grade   : étalonnage par défaut si l'IA n'en a pas choisi
+#   trans   : famille de transition par défaut pour les b-rolls
+#   sfx     : "high"/"med"/"low" — densité des bruitages de transition
+#   slowmo  : True = ralenti d'emphase autorisé sur le meilleur moment
+RECIPES = {
+    "energetic":        dict(zooms=[1.0, 1.16, 1.0, 1.22, 1.08], cut_s=2.2, grade="vibrant_pop",
+                             trans="zoom_blur", sfx="high", slowmo=True),
+    "vlog":             dict(zooms=[1.0, 1.10, 1.0, 1.14], cut_s=2.8, grade="",
+                             trans="whip", sfx="med", slowmo=True),
+    "talk_facecam":     dict(zooms=[1.0, 1.09, 1.0, 1.13], cut_s=3.0, grade="",
+                             trans="fade", sfx="med", slowmo=False),
+    "horror":           dict(zooms=[1.0, 1.06, 1.0, 1.28], cut_s=3.6, grade="bw_horror",
+                             trans="dip_black", sfx="med", slowmo=True),
+    "luxury_aesthetic": dict(zooms=[1.0, 1.05, 1.0, 1.04], cut_s=3.4, grade="warm_luxury",
+                             trans="scale_reveal", sfx="low", slowmo=True),
+    "product":          dict(zooms=[1.0, 1.14, 1.0, 1.18], cut_s=2.6, grade="cold_cinematic",
+                             trans="white_flash", sfx="high", slowmo=False),
+    "story":            dict(zooms=[1.0, 1.08, 1.0, 1.12], cut_s=3.4, grade="cold_cinematic",
+                             trans="fade", sfx="med", slowmo=False),
+    "other":            dict(zooms=[1.0, 1.13, 1.0, 1.2], cut_s=2.6, grade="",
+                             trans="fade", sfx="med", slowmo=False),
+}
+
+
+def recipe_for(video_type):
+    return RECIPES.get(str(video_type or "").lower(), RECIPES["other"])
+
+
+def speed_ramp(src, dst, segments):
+    """Vitesse dynamique : applique un facteur de vitesse par segment, le reste à
+    1x. segments = [(start, end, factor)] (factor<1 = ralenti, >1 = accéléré).
+    Recompose la vidéo (setpts) ET l'audio (atempo) puis concatène. La timeline
+    change -> à réserver aux vidéos SANS sous-titres. False si rien à faire."""
+    facts = ffprobe_facts(src)
+    dur, has_a = facts["duration"], facts["has_audio"]
+    segs = sorted((max(0.0, s), min(dur, e), f) for (s, e, f) in segments
+                  if e - s > 0.15 and 0.25 <= f <= 4.0 and s < dur)
+    if not segs:
+        return False
+    # Construit la liste complète des tranches (1x entre les segments ralentis)
+    slices, cursor = [], 0.0
+    for (s, e, f) in segs:
+        if s > cursor + 0.05:
+            slices.append((cursor, s, 1.0))
+        slices.append((s, e, f))
+        cursor = max(cursor, e)
+    if cursor < dur - 0.05:
+        slices.append((cursor, dur, 1.0))
+    fc, vmaps, amaps = [], [], []
+    for i, (s, e, f) in enumerate(slices):
+        fc.append(f"[0:v]trim=start={s:.3f}:end={e:.3f},setpts=(PTS-STARTPTS)/{f:.3f}[v{i}]")
+        vmaps.append(f"[v{i}]")
+        if has_a:
+            # atempo n'accepte que 0.5..2.0 -> on chaîne pour les gros facteurs
+            tempo, chain = f, []
+            while tempo < 0.5:
+                chain.append("atempo=0.5")
+                tempo /= 0.5
+            while tempo > 2.0:
+                chain.append("atempo=2.0")
+                tempo /= 2.0
+            chain.append(f"atempo={tempo:.4f}")
+            fc.append(f"[0:a]atrim=start={s:.3f}:end={e:.3f},asetpts=PTS-STARTPTS,"
+                      + ",".join(chain) + f"[a{i}]")
+            amaps.append(f"[a{i}]")
+    n = len(slices)
+    if has_a:
+        fc.append("".join(f"{vmaps[i]}{amaps[i]}" for i in range(n)) + f"concat=n={n}:v=1:a=1[v][a]")
+        maps = ["-map", "[v]", "-map", "[a]", "-c:a", "aac"]
+    else:
+        fc.append("".join(vmaps) + f"concat=n={n}:v=1:a=0[v]")
+        maps = ["-map", "[v]"]
+    run(["ffmpeg", "-y", "-i", src, "-filter_complex", ";".join(fc), *maps,
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", dst])
+    return True
+
+
 def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes=None,
-               avoid=None, seed=0, bounds_override=None):
+               avoid=None, seed=0, bounds_override=None, zooms=None):
     """Zooms dynamiques : punch-in/out alterné à chaque phrase, la caméra GLISSE
     latéralement pendant les segments zoomés (panoramique), whoosh aux punchs et
     bruitages contextuels (typing/ding/cash/…) bien audibles sur les mots forts.
@@ -760,8 +843,8 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
     if len(bounds) < 2:
         return False
     edges = bounds + [duration]
-    base_zooms = [1.0, 1.13, 1.0, 1.2]  # alternance zoom avant / arrière — punchs bien VISIBLES
-    r = seed % 4
+    base_zooms = list(zooms) if zooms else [1.0, 1.13, 1.0, 1.2]  # profil de la recette
+    r = seed % len(base_zooms)
     ZOOMS = base_zooms[r:] + base_zooms[:r]  # varie d'un job à l'autre (anti-figé)
     fc, vlabels = [], []
     zoomed_i = 0
@@ -1813,6 +1896,13 @@ def process(job):
         except Exception as e:
             print("vision:", e, file=sys.stderr)
         plan = groq_plan(facts, tr_text, context, vision)
+        # Recette de montage selon le type de vidéo détecté : comble les choix que
+        # l'IA n'a pas faits (étalonnage, transition) avec les réglages du style.
+        rec = recipe_for((vision or {}).get("video_type"))
+        if not str(plan.get("color_grade") or ""):
+            plan["color_grade"] = rec["grade"]
+        if not str(plan.get("transition") or ""):
+            plan["transition"] = rec["trans"]
         update_job(job["id"], {"plan": plan})
         det = "parole détectée" if tr_text else "pas de parole détectée"
         if vision:
@@ -1968,7 +2058,8 @@ def process(job):
                 if zoom_punch(cur, out, words, facts["has_audio"], work,
                               sfx_events=sorted(sfx_ev),
                               extra_whooshes=wh_extra or None,
-                              avoid=(slide[0], slide[1]) if slide else None, seed=seed):
+                              avoid=(slide[0], slide[1]) if slide else None, seed=seed,
+                              zooms=rec["zooms"]):
                     cur = out
                 if objs:  # après les zooms : les objets restent stables à l'écran
                     outo = os.path.join(work, "objs.mp4")
@@ -2011,7 +2102,7 @@ def process(job):
                 if len(rhythm) < 3:
                     rhythm = [c for c in src_cuts if 0.3 < c < dur_cur - 0.4]
                 if len(rhythm) < 3:
-                    every = 3.5 if vtype in ("luxury_aesthetic", "story") else 2.2
+                    every = rec["cut_s"]  # cadence de coupe propre au style
                     rhythm = [round(t, 2) for t in _frange(0.6, dur_cur - 0.6, every)]
                 # Pas trop serré : un zoom toutes ~1.4 s max (sinon illisible)
                 thinned, lastb = [], -9.0
@@ -2027,8 +2118,18 @@ def process(job):
                 out = os.path.join(work, "fx.mp4")
                 if zoom_punch(cur, out, [], facts["has_audio"], work,
                               sfx_events=sorted(sfx_ev), seed=seed,
-                              bounds_override=rhythm):
+                              bounds_override=rhythm, zooms=rec["zooms"]):
                     cur = out
+                # VITESSE DYNAMIQUE : ralenti d'emphase sur le meilleur moment
+                # (réservé aux styles qui s'y prêtent, jamais avec des sous-titres).
+                ramped = False
+                if rec["slowmo"] and best and timeline_intact:
+                    bm = best[0]
+                    if 0.8 < bm < dur_cur - 1.2:
+                        outr = os.path.join(work, "ramp.mp4")
+                        if speed_ramp(cur, outr, [(bm - 0.15, bm + 0.55, 0.5)]):
+                            cur = outr
+                            ramped = True
                 # Gros objets/logos si des marques sont citées à l'écran (sans parole)
                 objs = brand_events([{"start": (best[0] if best else 1.5)}], plan.get("brands"), work) if plan.get("brands") else []
                 if objs:
@@ -2036,7 +2137,8 @@ def process(job):
                     outo = os.path.join(work, "objs.mp4")
                     if overlay_objects(cur, outo, objs, seed=seed):
                         cur = outo
-                steps.done("fx", f"{len(rhythm)} accents rythmés + {len(sfx_ev)} son(s) · type {vtype}")
+                steps.done("fx", f"{len(rhythm)} accents rythmés + {len(sfx_ev)} son(s)"
+                           + (" + ralenti" if ramped else "") + f" · type {vtype}")
             except Exception as e:
                 print("fx-novoice:", e, file=sys.stderr)
                 steps.done("fx", "montage rythmé non appliqué (on continue)")

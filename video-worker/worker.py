@@ -616,7 +616,7 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
     if has_audio:
         bank = make_sfx_bank(work)
         events = [(t, "whoosh") for t in ([b for b in bounds[1:]] + list(extra_whooshes or []))[:14]]
-        for (t, name) in (sfx_events or [])[:10]:
+        for (t, name) in (sfx_events or [])[:14]:
             events.append((t, name if name in bank else "pop"))
         # volume par type : les bruitages "sens" doivent s'entendre par-dessus la voix
         # Repli des intentions non présentes dans la banque -> son le plus proche
@@ -820,6 +820,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         "sub_style_id": 0,
         "highlight": "yellow",
         "broll_keywords": [],
+        "transition": "",
     }
     if not GROQ_KEY:
         return fallback
@@ -852,7 +853,8 @@ def groq_plan(facts, transcript_text, context, vision=None):
         " \"sub_style\": \"group|word\",  // group = 3 mots à la fois (défaut) ; word = mot par mot, pour les vidéos punchy et rapides\n"
         " \"sub_style_id\": 0,  // style visuel des sous-titres selon le TYPE de vidéo : 0=signature (défaut sûr) ; 2=bleu Hormozi (business/motivation) ; 3=cartoon (fun/vlog) ; 4=script néon (lifestyle/mode) ; 5=vert fluo (tech/gadgets) ; 6=ombre floue (docu/voyage) ; 7=rétro ombre jaune (créatif) ; 8=machine à écrire (mystère/code) ; 9=badge boîte (fond chargé) ; 10=dégradé or (luxe/flex) ; 11=sticker bulle (memes/humour) ; 12=karaoké rempli (podcast/monologue) ; 15=glitch (gaming/IA) ; 16=contour évidé (sport/musique) ; 17=ghost (dramatique) ; 18=serif cinéma (histoire/documentaire haut de gamme) ; 20=néon pulsé (edits musicaux)\n"
         " \"highlight\": \"yellow|green|red|cyan\",  // couleur des mots forts, adaptée à l'ambiance\n"
-        " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"]}"
+        " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"],\n"
+        " \"transition\": \"film_fade_dissolve|whip_pan_right|soft_swipe_blur|zoom_in_motion_blur|scale_up_reveal|white_flash_glare|chromatic_flash_burst|burn_out_edge\"}  // transition de monteur pour insérer les plans d'illustration, adaptée au TON de la vidéo : fondu=lifestyle/docu/émotion ; whip pan=énergique/vlog/humour ; balayage doux=mode/beauté ; zoom flou=tech/gaming/punchy ; scale up=luxe/cinématique ; flash blanc=révélation/produit/photo ; flash chromatique=gaming/glitch/IA ; noir=dramatique/tension"
     )
     try:
         st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
@@ -865,7 +867,8 @@ def groq_plan(facts, transcript_text, context, vision=None):
         plan = json.loads(out["choices"][0]["message"]["content"])
         merged = dict(fallback)
         for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx",
-                  "emojis", "brands", "sub_position", "sub_style", "sub_style_id", "highlight", "broll_keywords"):
+                  "emojis", "brands", "sub_position", "sub_style", "sub_style_id", "highlight",
+                  "broll_keywords", "transition"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -1161,31 +1164,136 @@ def pexels_broll(keywords, want=2, min_h=1000):
     return files
 
 
-def overlay_broll(src, dst, brolls, duration):
-    """Incruste chaque b-roll en plein cadre ~1,6 s, réparti dans la vidéo
-    (jamais dans les 3 premières secondes : le hook doit rester le créateur).
-    Retourne les instants de coupe (pour y mixer des whooshs de transition)."""
+# --- Transitions premium (catalogue style CapCut -> 9 familles réalisables en FFmpeg pur).
+# Chaque nom du catalogue est rattaché à la famille la plus proche visuellement.
+TRANSITION_FAMILIES = ("cut", "fade", "whip", "swipe", "zoom_blur", "scale_reveal",
+                       "white_flash", "chroma_flash", "dip_black")
+TRANSITION_NEAR = {
+    "cut_clean_direct": "cut", "mosaic_grid_snap": "cut",
+    "film_fade_dissolve": "fade", "smoke_vapor_dissolve": "fade",
+    "cross_fade_blur": "fade", "echo_motion_ghost": "fade",
+    "whip_pan_right": "whip", "cube_gallery_rotation": "whip",
+    "skewed_panels_slide": "whip", "multi_frame_slide": "whip",
+    "card_deck_flip": "whip", "triple_slide_panel": "whip",
+    "soft_swipe_blur": "swipe", "split_screen_slide": "swipe",
+    "shadow_wipe_ambient": "swipe", "directional_shadow_swipe": "swipe",
+    "radial_radar_wipe": "swipe",
+    "zoom_in_motion_blur": "zoom_blur", "warp_speed_distortion": "zoom_blur",
+    "punch_in_instant": "zoom_blur", "snap_zoom_bounce": "zoom_blur",
+    "snap_back_bounce": "zoom_blur",
+    "scale_up_reveal": "scale_reveal",
+    "white_flash_glare": "white_flash", "light_leak_flare_v3": "white_flash",
+    "light_leak_soft": "white_flash",
+    "chromatic_flash_burst": "chroma_flash",
+    "burn_out_edge": "dip_black",
+}
+# Le son de CHAQUE transition (réflexe de monteur : une transition s'entend).
+TR_SOUND = {"whip": "whoosh", "swipe": "whoosh", "fade": "whoosh", "zoom_blur": "whoosh",
+            "scale_reveal": "magic", "white_flash": "camera",
+            "chroma_flash": "glitch", "dip_black": "impact"}
+BROLL_SEG = 1.3  # durée d'un plan d'illustration incrusté
+
+
+def resolve_transition(name, seed=0):
+    """Nom du catalogue (ou famille) -> famille implémentée. Si l'IA n'a rien
+    choisi, on tourne dans les familles premium selon le job (anti-figé)."""
+    n = str(name or "").strip().lower()
+    if n in TRANSITION_FAMILIES:
+        return n
+    if n in TRANSITION_NEAR:
+        return TRANSITION_NEAR[n]
+    premium = ("fade", "whip", "zoom_blur", "white_flash", "swipe", "scale_reveal")
+    return premium[seed % len(premium)]
+
+
+def overlay_broll(src, dst, brolls, duration, transition="fade", seed=0):
+    """Incruste chaque b-roll en plein cadre ~1,3 s, réparti dans la vidéo
+    (jamais dans les 3 premières secondes : le hook doit rester le créateur),
+    avec une VRAIE transition de monteur à l'entrée ET à la sortie du plan
+    (fondu, balayage, zoom fluide, flash, noir…) au lieu d'une coupure sèche.
+    Retourne les instants d'entrée des plans (pour y caler les sons)."""
     if not brolls:
         return []
-    seg = 1.3
+    seg = BROLL_SEG
+    fam = transition if transition in TRANSITION_FAMILIES else "fade"
+    W, H = 1080, 1920
     slots = []
     n = len(brolls)
     for i in range(n):
         t = 3.0 + (duration - 5.0) * (i + 1) / (n + 1)
         if t + seg < duration - 1.0:
-            slots.append(t)
+            slots.append(round(t, 3))
     if not slots:
         return []
     inputs = ["-i", src]
     for b in brolls[:len(slots)]:
         inputs += ["-i", b]
     fc, last = [], "[0:v]"
+    flashes = []        # (couleur, instant, opacité) — flash blanc / passage au noir
+    shift_windows = []  # fenêtres du décalage chromatique (chroma_flash)
     for i, t in enumerate(slots[:len(brolls)]):
-        fc.append(f"[{i+1}:v]scale=1080:1920:force_original_aspect_ratio=increase,"
-                  f"crop=1080:1920,setpts=PTS-STARTPTS+{t}/TB[b{i}]")
+        t2 = t + seg
+        pre = (f"[{i+1}:v]scale={W}:{H}:force_original_aspect_ratio=increase,"
+               f"crop={W}:{H}")
+        if fam == "zoom_blur":
+            # Le plan arrive en zoom arrière ultra rapide (punch) + flou de mouvement
+            pre += (f",fps=30,zoompan=z='if(lte(in,8),1.55-0.55*in/8,1)'"
+                    f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={W}x{H}:fps=30"
+                    f",setpts=PTS-STARTPTS,gblur=sigma=7:enable='lte(t,0.16)'"
+                    f",setpts=PTS+{t:.3f}/TB")
+        elif fam == "scale_reveal":
+            # Révélation cinématique : le plan pousse lentement + fondu doux
+            frames = max(2, int(seg * 30))
+            pre += (f",fps=30,zoompan=z='1+0.12*in/{frames}'"
+                    f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s={W}x{H}:fps=30"
+                    f",format=yuva420p,setpts=PTS-STARTPTS+{t:.3f}/TB"
+                    f",fade=t=in:st={t:.3f}:d=0.22:alpha=1"
+                    f",fade=t=out:st={t2 - 0.22:.3f}:d=0.22:alpha=1")
+        elif fam == "fade":
+            pre += (f",format=yuva420p,setpts=PTS-STARTPTS+{t:.3f}/TB"
+                    f",fade=t=in:st={t:.3f}:d=0.25:alpha=1"
+                    f",fade=t=out:st={t2 - 0.25:.3f}:d=0.25:alpha=1")
+        else:
+            pre += f",setpts=PTS-STARTPTS+{t:.3f}/TB"
+        fc.append(pre + f"[b{i}]")
+        x_expr = "0"
+        if fam in ("whip", "swipe"):
+            # Le plan GLISSE à l'écran (rapide=whip, doux=swipe), entre d'un côté
+            # et ressort de l'autre — côté alterné selon le job (anti-figé)
+            d_in = 0.22 if fam == "whip" else 0.4
+            off = W if (seed + i) % 2 == 0 else -W
+            x_expr = (f"({off})*pow(1-min((t-{t:.3f})/{d_in:.2f}\\,1)\\,2)"
+                      f"-({off})*pow(max(0\\,(t-{t2 - d_in:.3f})/{d_in:.2f})\\,2)")
         nxt = f"[v{i}]"
-        fc.append(f"{last}[b{i}]overlay=enable='between(t,{t},{t + seg})':eof_action=pass{nxt}")
+        fc.append(f"{last}[b{i}]overlay=x='{x_expr}':y=0:"
+                  f"enable='between(t,{t:.3f},{t2:.3f})':eof_action=pass{nxt}")
         last = nxt
+        if fam == "white_flash":
+            flashes += [("white", t, 0.95), ("white", t2, 0.95)]
+        elif fam == "dip_black":
+            flashes += [("black", t, 1.0), ("black", t2, 1.0)]
+        elif fam == "chroma_flash":
+            flashes += [("white", t, 0.55), ("white", t2, 0.55)]
+            shift_windows += [t, t2]
+    # Flashs aux frontières (le flash CACHE la coupure : c'est ça le côté premium)
+    base_idx = len(brolls[:len(slots)]) + 1
+    for j, (col, tb, amp) in enumerate(flashes):
+        d_in, d_out = (0.07, 0.16) if col == "white" else (0.12, 0.14)
+        start = max(0.0, tb - d_in)
+        dur_f = d_in + d_out + 0.05
+        inputs += ["-f", "lavfi", "-i", f"color={col}:s={W}x{H}:r=30:d={dur_f:.2f}"]
+        fc.append(f"[{base_idx + j}:v]format=yuva420p,colorchannelmixer=aa={amp:.2f},"
+                  f"fade=t=in:d={d_in:.2f}:alpha=1,"
+                  f"fade=t=out:st={d_in:.2f}:d={d_out:.2f}:alpha=1,"
+                  f"setpts=PTS+{start:.3f}/TB[fl{j}]")
+        nxt = f"[vf{j}]"
+        fc.append(f"{last}[fl{j}]overlay=0:0:"
+                  f"enable='between(t,{start:.3f},{start + dur_f:.3f})':eof_action=pass{nxt}")
+        last = nxt
+    if shift_windows:
+        en = "+".join(f"between(t,{tb - 0.06:.3f},{tb + 0.12:.3f})" for tb in shift_windows)
+        fc.append(f"{last}rgbashift=rh=18:bh=-18:enable='{en}'[vsh]")
+        last = "[vsh]"
     run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
          "-map", last, "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
          "-crf", "20", "-c:a", "copy", dst])
@@ -1309,18 +1417,20 @@ def process(job):
         else:
             steps.skip("frame", "Recadrage 9:16", "déjà au bon format")
 
-        # 3. B-roll (les instants de coupe recevront un whoosh de transition)
+        # 3. B-roll inséré avec une transition premium (choisie par l'IA selon le ton)
         brolls, broll_cuts = [], []
+        br_fam = resolve_transition(plan.get("transition"), seed)
         if plan.get("broll_keywords"):
             steps.start("broll", "Recherche de plans d'illustration…")
             # 1 seul plan d'illustration max : un effet à la fois à l'écran
             brolls = pexels_broll(plan["broll_keywords"], want=1)
             if brolls:
                 out = os.path.join(work, "broll.mp4")
-                broll_cuts = overlay_broll(cur, out, brolls, ffprobe_facts(cur)["duration"])
+                broll_cuts = overlay_broll(cur, out, brolls, ffprobe_facts(cur)["duration"],
+                                           transition=br_fam, seed=seed)
                 if broll_cuts:
                     cur = out
-                steps.done("broll", f"{len(broll_cuts)} plan(s) inséré(s)")
+                steps.done("broll", f"{len(broll_cuts)} plan(s) inséré(s) (transition {br_fam})")
             else:
                 steps.done("broll", "aucun plan adapté trouvé")
         else:
@@ -1367,7 +1477,13 @@ def process(job):
                 sfx_ev = sfx_event_times(words, plan.get("sfx"), kws)
                 sfx_ev += [(t, "pop") for (t, _p, _y) in emo
                            if not any(abs(t - e[0]) < 0.4 for e in sfx_ev)]
-                wh_extra = list(broll_cuts) + ([slide[0], slide[1] - 0.25] if slide else [])
+                # Chaque transition de b-roll a SON bruitage (flash->appareil photo,
+                # chromatique->glitch, noir->impact, balayage->whoosh, reveal->magic)
+                tr_snd = TR_SOUND.get(br_fam)
+                if tr_snd:
+                    for bc in broll_cuts:
+                        sfx_ev += [(bc, tr_snd), (bc + BROLL_SEG, tr_snd)]
+                wh_extra = [slide[0], slide[1] - 0.25] if slide else []
                 # Whoosh sur les scènes en mouvement repérées par la vision
                 # (timestamps de la vidéo ORIGINALE : valides seulement si on n'a pas coupé)
                 if vision and cur == src:

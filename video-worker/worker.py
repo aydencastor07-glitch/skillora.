@@ -358,6 +358,38 @@ def norm_token(w):
 KEYWORD_RX = re.compile(r"^\d|€|\$|%|^(gratuit|gratuits|free|promo|code|secret|jamais|incroyable|zero|zéro|euros?|dollars?)$")
 
 
+def groq_qc(frames):
+    """Contrôle qualité par l'IA : le worker REGARDE sa propre vidéo finale.
+    Renvoie {"subs_visible": bool, "face_covered": bool, "issue": str} ou None."""
+    if not GROQ_KEY or not frames:
+        return None
+    content = [{"type": "text", "text": (
+        "Tu es contrôleur qualité de vidéos TikTok montées (sous-titres incrustés).\n"
+        "Regarde ces images du RENDU FINAL et réponds UNIQUEMENT ce JSON:\n"
+        "{\"subs_visible\": bool,   // les sous-titres sont-ils bien lisibles et entièrement dans l'écran ?\n"
+        " \"face_covered\": bool,   // le TEXTE recouvre-t-il le visage de la personne ?\n"
+        " \"issue\": \"problème visuel principal en 1 phrase, ou vide\"}"
+    )}]
+    for (t, p) in frames[:3]:
+        with open(p, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+        content.append({"type": "text", "text": f"Image à t={t:.1f}s :"})
+        content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}})
+    models = _VISION_MODEL_OK + [m for m in VISION_MODELS if m not in _VISION_MODEL_OK]
+    for model in models[:2]:
+        try:
+            st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
+                           {"Authorization": "Bearer " + GROQ_KEY, "User-Agent": GROQ_UA},
+                           {"model": model, "messages": [{"role": "user", "content": content}],
+                            "temperature": 0.1, "response_format": {"type": "json_object"}},
+                           timeout=90)
+            out = json.loads(raw)
+            return json.loads(out["choices"][0]["message"]["content"])
+        except Exception as e:
+            print("groq_qc:", e, file=sys.stderr)
+    return None
+
+
 def sfx_event_times(words, plan_sfx, kws):
     """Associe chaque bruitage choisi par l'IA au timestamp de son mot exact.
     Fallback : les mots forts sans bruitage reçoivent un 'ding' (argent -> 'cash')."""
@@ -1368,18 +1400,41 @@ def process(job):
         # 6. Sous-titres + hook incrustés par-dessus
         if words:
             steps.start("subs", "Sous-titres animés…")
-            ass = os.path.join(work, "subs.ass")
-            with open(ass, "w", encoding="utf-8") as f:
-                f.write(build_ass(words, str(plan.get("hook_text") or ""), keywords=kws, slide=slide,
-                                  sub_position=str(plan.get("sub_position") or "dynamic"),
-                                  highlight=str(plan.get("highlight") or "yellow"),
-                                  sub_style=str(plan.get("sub_style") or "group"),
-                                  style_id=plan.get("sub_style_id") or 0,
-                                  layout=layout))
-            out = os.path.join(work, "subs.mp4")
-            burn_subs(cur, out, ass)
-            cur = out
+            presubs = cur  # gardé pour le re-rendu si le contrôle qualité corrige
+
+            def render_subs(lay, dst_name):
+                ass_p = os.path.join(work, dst_name + ".ass")
+                with open(ass_p, "w", encoding="utf-8") as f:
+                    f.write(build_ass(words, str(plan.get("hook_text") or ""), keywords=kws, slide=slide,
+                                      sub_position=str(plan.get("sub_position") or "dynamic"),
+                                      highlight=str(plan.get("highlight") or "yellow"),
+                                      sub_style=str(plan.get("sub_style") or "group"),
+                                      style_id=plan.get("sub_style_id") or 0,
+                                      layout=lay))
+                out_p = os.path.join(work, dst_name + ".mp4")
+                burn_subs(presubs, out_p, ass_p)
+                return out_p
+
+            cur = render_subs(layout, "subs")
             steps.done("subs", f"{len(words)} mots synchronisés")
+
+            # 6b. CONTRÔLE QUALITÉ : le worker regarde son propre rendu et corrige.
+            steps.start("qc", "Contrôle qualité : l'IA vérifie le rendu…")
+            try:
+                mids = [float(words[len(words) // 3]["start"]) + 0.1,
+                        float(words[(2 * len(words)) // 3]["start"]) + 0.1]
+                qc = groq_qc(extract_frames(cur, mids, work, width=540))
+                if qc and (qc.get("face_covered") or qc.get("subs_visible") is False):
+                    fix_lay = sentence_layout(words, "bottom", seed, bands=[1430, 1560])
+                    cur = render_subs(fix_lay, "subs_fix")
+                    steps.done("qc", "corrigé : sous-titres repositionnés en bas")
+                elif qc:
+                    steps.done("qc", "rendu validé" + (f" · note: {qc.get('issue')}" if qc.get("issue") else ""))
+                else:
+                    steps.done("qc", "vérification indisponible")
+            except Exception as e:
+                print("qc:", e, file=sys.stderr)
+                steps.done("qc", "vérification indisponible")
         elif plan.get("subtitles") and facts["has_audio"]:
             steps.done("subs", "transcription indisponible")
         else:

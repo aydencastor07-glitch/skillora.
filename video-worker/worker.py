@@ -172,6 +172,97 @@ def detect_silences(path, noise_db=-30, min_d=0.55):
     return list(zip(starts, ends[:len(starts)]))
 
 
+def _frange(start, stop, step):
+    """range() en flottants (le pas peut être décimal)."""
+    out, t = [], start
+    while t < stop:
+        out.append(round(t, 3))
+        t += step
+    return out
+
+
+def scene_cuts(path, threshold=0.30, cap=60):
+    """Détecte les CHANGEMENTS DE PLAN sur TOUTE la vidéo (analyse chaque image,
+    c'est gratuit). Retourne les instants où l'image change franchement -> ce sont
+    les vrais points de coupe/transition d'un vlog ou d'un montage multi-plans."""
+    try:
+        p = subprocess.run(
+            ["ffmpeg", "-i", path, "-filter:v",
+             f"select='gt(scene,{threshold})',metadata=print:file=-",
+             "-an", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=600)
+        times = [round(float(m), 3) for m in re.findall(r"pts_time:([\d.]+)", p.stdout + p.stderr)]
+        out = []
+        for t in sorted(times):  # déduplique les cuts trop rapprochés (< 0.4 s)
+            if not out or t - out[-1] >= 0.4:
+                out.append(t)
+        return out[:cap]
+    except Exception as e:
+        print("scene_cuts:", e, file=sys.stderr)
+        return []
+
+
+def audio_energy(path, duration, win=0.5):
+    """Énergie sonore fenêtre par fenêtre (RMS) sur toute la vidéo -> repère les
+    moments FORTS (action, choc, drop) vs les moments calmes. Stdlib pur via WAV
+    mono 8 kHz. Retourne [(t, niveau 0..1)] ou [] si pas d'audio."""
+    try:
+        wav = path + ".energy.wav"
+        run(["ffmpeg", "-y", "-i", path, "-ac", "1", "-ar", "8000",
+             "-vn", "-f", "wav", wav], timeout=300)
+        import wave as _wave
+        import array as _array
+        with _wave.open(wav, "rb") as wf:
+            sr = wf.getframerate()
+            raw = wf.readframes(wf.getnframes())
+        os.remove(wav)
+        samples = _array.array("h")
+        samples.frombytes(raw)
+        step = max(1, int(sr * win))
+        out, peak = [], 1.0
+        for i in range(0, len(samples), step):
+            chunk = samples[i:i + step]
+            if not chunk:
+                continue
+            rms = (sum(v * v for v in chunk) / len(chunk)) ** 0.5
+            out.append([round(i / sr, 3), rms])
+            peak = max(peak, rms)
+        for e in out:
+            e[1] = round(min(1.0, e[1] / peak), 3)
+        return [(t, lv) for (t, lv) in out]
+    except Exception as e:
+        print("audio_energy:", e, file=sys.stderr)
+        return []
+
+
+def detect_beats(path, duration):
+    """Estime les TEMPS FORTS de la musique/ambiance (pour caler coupes et zooms
+    sur le rythme, façon edit TikTok). Onsets par montée d'énergie ; si le tempo
+    est régulier, on renvoie une grille régulière. [] si rien d'exploitable."""
+    energy = audio_energy(path, duration, win=0.10)
+    if len(energy) < 8:
+        return []
+    lv = [e[1] for e in energy]
+    ts = [e[0] for e in energy]
+    onsets = []
+    for i in range(2, len(lv)):
+        rise = lv[i] - (lv[i - 1] + lv[i - 2]) / 2
+        if rise > 0.14 and lv[i] > 0.42:
+            if not onsets or ts[i] - onsets[-1] >= 0.28:  # anti-doublons (>210 bpm)
+                onsets.append(ts[i])
+    if len(onsets) < 6:
+        return []
+    gaps = sorted(onsets[i + 1] - onsets[i] for i in range(len(onsets) - 1))
+    med = gaps[len(gaps) // 2]
+    if 0.3 <= med <= 1.2:  # 50–200 bpm plausible -> grille régulière propre
+        grid, t = [], onsets[0]
+        while t < duration - 0.2:
+            grid.append(round(t, 3))
+            t += med
+        return grid[:80]
+    return onsets[:80]
+
+
 def filler_spans(words):
     """Plages des 'euh/hum…' à retirer, d'après les timestamps par mot."""
     spans = []
@@ -645,18 +736,28 @@ def slide_aside(src, dst, t1, dur=1.5):
     return t2
 
 
-def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes=None, avoid=None, seed=0):
+def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes=None,
+               avoid=None, seed=0, bounds_override=None):
     """Zooms dynamiques : punch-in/out alterné à chaque phrase, la caméra GLISSE
     latéralement pendant les segments zoomés (panoramique), whoosh aux punchs et
     bruitages contextuels (typing/ding/cash/…) bien audibles sur les mots forts.
     La timeline ne change pas -> timings des sous-titres valides.
-    `sfx_events` = [(t, nom_du_son)] ; `avoid` = fenêtre sans punch (effet 'côté')."""
+    `sfx_events` = [(t, nom_du_son)] ; `avoid` = fenêtre sans punch (effet 'côté') ;
+    `bounds_override` = points de zoom imposés (rythme sans voix : beats/plans)."""
     facts = ffprobe_facts(src)
     duration, W, H = facts["duration"], facts["width"], facts["height"]
-    bounds = zoom_boundaries(words, duration)
+    if bounds_override is not None:
+        bounds = [b for b in sorted(set(round(x, 2) for x in bounds_override)) if 0.0 <= b < duration - 0.4]
+        if not bounds or bounds[0] > 0.3:
+            bounds = [0.0] + bounds
+    else:
+        bounds = zoom_boundaries(words, duration)
     if avoid:
         bounds = [b for b in bounds if not (avoid[0] - 0.5 <= b <= avoid[1] + 0.5)] or [0.0]
-    if len(bounds) < 2 or len(bounds) > 60:
+    if len(bounds) > 48:  # trop de points (beats rapides) -> on garde 1 sur N
+        keep = max(1, len(bounds) // 40)
+        bounds = bounds[::keep]
+    if len(bounds) < 2:
         return False
     edges = bounds + [duration]
     base_zooms = [1.0, 1.13, 1.0, 1.2]  # alternance zoom avant / arrière — punchs bien VISIBLES
@@ -854,10 +955,22 @@ def depth_text(src, dst, text, work, face_y="", duration=0.0):
         return False
 
 
-def loudnorm(src, dst, music_path=None, music_gain_db=-21):
-    """Normalise la voix à -14 LUFS ; mixe la musique en dessous si fournie."""
+def loudnorm(src, dst, music_path=None, music_gain_db=-21, music_foreground=False):
+    """Normalise la voix à -14 LUFS ; mixe la musique en dessous si fournie.
+    music_foreground=True (vidéo sans voix) : la musique passe au PREMIER PLAN,
+    forte, et devient le moteur sonore de la vidéo."""
     # Le tag 'skillora-improved' permet de refuser une 2e amélioration (doublons de sous-titres).
-    if music_path:
+    if music_path and music_foreground:
+        # Pas de voix : la musique porte la vidéo (forte), l'audio original reste
+        # en ambiance discrète en dessous.
+        run(["ffmpeg", "-y", "-i", src, "-stream_loop", "-1", "-i", music_path,
+             "-filter_complex",
+             "[0:a]volume=-16dB[amb];[1:a]volume=0dB[m];"
+             "[m][amb]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,"
+             "loudnorm=I=-13:TP=-1.5:LRA=11[a]",
+             "-map", "0:v", "-map", "[a]", "-metadata", "comment=skillora-improved",
+             "-c:v", "copy", "-c:a", "aac", "-shortest", dst])
+    elif music_path:
         run(["ffmpeg", "-y", "-i", src, "-stream_loop", "-1", "-i", music_path,
              "-filter_complex",
              f"[1:a]volume={music_gain_db}dB[m];[0:a][m]amix=inputs=2:duration=first:dropout_transition=3,loudnorm=I=-14:TP=-1.5:LRA=11[a]",
@@ -923,25 +1036,13 @@ def extract_frames(src, times, work, width=480):
     return frames
 
 
-def groq_vision(frames, transcript_text, duration):
-    """Les YEUX du worker : décrit l'ouverture (captivante ou pas), les scènes,
-    les mouvements et les objets visibles. None si pas de clé / échec."""
+def _vision_call(prompt, frames):
+    """UN appel au modèle de vision (max 5 images, limite dure). Retourne le JSON
+    décodé ou None. Gère le repli entre modèles."""
     if not GROQ_KEY or not frames:
         return None
-    frames = frames[:5]  # garde-fou : la limite dure du modèle est 5 images
-    content = [{"type": "text", "text": (
-        "Tu es un monteur vidéo pro. Analyse ces images extraites d'une vidéo courte "
-        f"({duration:.0f}s) avec leur timestamp, plus le début de la transcription.\n"
-        f"Transcription: {transcript_text[:600] or '(aucune parole)'}\n\n"
-        "Réponds UNIQUEMENT ce JSON:\n"
-        "{\"opening_captivating\": bool,  // les 1res secondes montrent-elles une action/un visuel qui accroche ? false si personnage figé/statique\n"
-        " // ATTENTION: un visage qui regarde la caméra sans bouger/parler n'est PAS captivant\n"
-        " \"opening_note\": \"pourquoi, en 1 phrase\",\n"
-        " \"scenes\": [{\"t\": secondes, \"action\": \"description courte\", \"motion\": bool}],  // une entrée par image\n"
-        " \"face_y\": \"top|middle|bottom|none\",  // où se trouve le VISAGE du créateur la plupart du temps\n"
-        " \"objects\": [\"objets/éléments importants visibles\"]}"
-    )}]
-    for (t, p) in frames:
+    content = [{"type": "text", "text": prompt}]
+    for (t, p) in frames[:5]:
         with open(p, "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
         content.append({"type": "text", "text": f"Image à t={t:.1f}s :"})
@@ -958,21 +1059,90 @@ def groq_vision(frames, transcript_text, duration):
             out = json.loads(raw)
             if not _VISION_MODEL_OK:
                 _VISION_MODEL_OK.append(model)
-                print("groq_vision: modèle OK ->", model, file=sys.stderr)
+                print("_vision_call: modèle OK ->", model, file=sys.stderr)
             return json.loads(out["choices"][0]["message"]["content"])
         except urllib.error.HTTPError as e:
             try:
                 body = e.read().decode()[:200]
             except Exception:
                 body = ""
-            print("groq_vision HTTP", e.code, "(", model, "):", body, file=sys.stderr)
+            print("_vision_call HTTP", e.code, "(", model, "):", body, file=sys.stderr)
             if e.code in (400, 404, 422):
-                continue  # modèle inconnu/décommissionné -> on tente le suivant
+                continue
             return None
         except Exception as e:
-            print("groq_vision:", e, file=sys.stderr)
+            print("_vision_call:", e, file=sys.stderr)
             return None
     return None
+
+
+def groq_vision_full(src, work, duration, transcript_text, scenecuts=None):
+    """Les YEUX du worker — regarde TOUTE la vidéo (pas 5 images).
+    On échantillonne densément (≈1 image / 2,5 s + chaque changement de plan),
+    par lots de 5 images -> plusieurs appels -> une carte complète de la vidéo :
+    type de vidéo, scènes horodatées, meilleurs moments, où mettre les effets."""
+    if not GROQ_KEY:
+        return None
+    # Points d'échantillonnage : grille dense + chaque changement de plan détecté
+    n = max(6, min(24, int(duration / 2.5) + 2))
+    grid = [round(duration * (k + 0.5) / n, 2) for k in range(n)]
+    times = sorted(set([0.3, 1.0] + grid + [round(t, 2) for t in (scenecuts or [])]))
+    times = [t for t in times if 0 <= t < duration - 0.15][:24]
+    frames = extract_frames(src, times, work, width=448)
+    if not frames:
+        return None
+    # 1) Chaque lot de 5 images -> description des scènes de ce segment
+    all_scenes = []
+    faces, objs = [], []
+    for bi in range(0, len(frames), 5):
+        batch = frames[bi:bi + 5]
+        seg = _vision_call(
+            "Tu es un monteur vidéo pro. Voici des images successives d'une vidéo courte "
+            f"({duration:.0f}s), avec leur timestamp. "
+            f"Transcription (contexte): {transcript_text[:400] or '(aucune parole)'}\n"
+            "Décris CE QUI SE PASSE à chaque image. Réponds UNIQUEMENT ce JSON:\n"
+            "{\"scenes\": [{\"t\": secondes, \"action\": \"ce qu'on voit (court)\", "
+            "\"motion\": bool, \"interest\": 0-10, \"shot\": \"wide|medium|close|product|text|other\"}], "
+            "// une entrée par image, interest=à quel point le moment est fort/captivant\n"
+            " \"face_y\": \"top|middle|bottom|none\", \"objects\": [\"éléments importants\"]}",
+            batch)
+        if seg:
+            all_scenes += seg.get("scenes") or []
+            if seg.get("face_y") and seg["face_y"] != "none":
+                faces.append(seg["face_y"])
+            objs += seg.get("objects") or []
+    if not all_scenes:
+        return None
+    all_scenes.sort(key=lambda s: float(s.get("t", 0)))
+    # 2) Un appel de SYNTHÈSE (2 images clefs) -> type de vidéo + ouverture + ambiance
+    key_frames = [frames[0]] + ([frames[len(frames) // 2]] if len(frames) > 1 else [])
+    scenes_txt = "; ".join(f"t={float(s.get('t',0)):.0f}s {s.get('action','')}"
+                           f"(int {s.get('interest','?')})" for s in all_scenes[:20])
+    synth = _vision_call(
+        "Tu es directeur de post-production. Voici le résumé des scènes d'une vidéo "
+        f"de {duration:.0f}s : {scenes_txt}\n"
+        f"Transcription: {transcript_text[:400] or '(aucune parole — vidéo sans voix off)'}\n"
+        "En regardant aussi ces 2 images clefs, classe la vidéo. Réponds UNIQUEMENT ce JSON:\n"
+        "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|product|story|other\", "
+        "// le STYLE de montage adapté\n"
+        " \"opening_captivating\": bool,  // les 1res s accrochent-elles ? (visage figé = non)\n"
+        " \"opening_note\": \"pourquoi (court)\",\n"
+        " \"mood\": \"ambiance en 1-2 mots\",\n"
+        " \"has_person\": bool,  // une personne est-elle clairement filmée ?\n"
+        " \"best_moments\": [secondes],  // 2-5 instants les PLUS forts (à mettre en valeur)\n"
+        " \"summary\": \"de quoi parle la vidéo, 1 phrase\"}",
+        key_frames)
+    result = {
+        "scenes": all_scenes,
+        "face_y": max(set(faces), key=faces.count) if faces else "none",
+        "objects": list(dict.fromkeys(objs))[:12],
+        "frames_analyzed": len(frames),
+    }
+    if synth:
+        result.update({k: synth[k] for k in
+                       ("video_type", "opening_captivating", "opening_note", "mood",
+                        "has_person", "best_moments", "summary") if k in synth})
+    return result
 
 
 def groq_plan(facts, transcript_text, context, vision=None):
@@ -1005,10 +1175,17 @@ def groq_plan(facts, transcript_text, context, vision=None):
     vis_txt = ""
     if vision:
         sc = "; ".join(f"t={s.get('t', 0)}s {s.get('action', '')}" + (" (mouvement)" if s.get("motion") else "")
-                       for s in (vision.get("scenes") or [])[:8])
-        vis_txt = ("Analyse VISUELLE de la vidéo : ouverture captivante: "
-                   f"{'oui' if vision.get('opening_captivating') else 'non'} ({vision.get('opening_note', '')}). "
-                   f"Scènes: {sc or 'n/a'}. Objets visibles: {', '.join((vision.get('objects') or [])[:8]) or 'n/a'}.\n")
+                       for s in (vision.get("scenes") or [])[:12])
+        vis_txt = ("Analyse VISUELLE de TOUTE la vidéo (" + str(vision.get("frames_analyzed", "?")) + " images) :\n"
+                   f"- Type détecté: {vision.get('video_type', '?')} · ambiance: {vision.get('mood', '?')} · "
+                   f"personne filmée: {'oui' if vision.get('has_person') else 'non'}.\n"
+                   f"- Résumé: {vision.get('summary', 'n/a')}\n"
+                   f"- Ouverture captivante: {'oui' if vision.get('opening_captivating') else 'non'} "
+                   f"({vision.get('opening_note', '')}).\n"
+                   f"- Scènes: {sc or 'n/a'}\n"
+                   f"- Objets visibles: {', '.join((vision.get('objects') or [])[:10]) or 'n/a'}\n"
+                   "Adapte TOUTES tes décisions (style de sous-titres, étalonnage, transitions, hook, "
+                   "musique) à CE type de vidéo et à CETTE ambiance.\n")
     prompt = (
         vis_txt +
         "Tu améliores une vidéo courte pour un créateur. Décide ce qui est UTILE — pas tout systématiquement.\n"
@@ -1019,7 +1196,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         "Réponds UNIQUEMENT ce JSON:\n"
         "{\"subtitles\": bool,  // sous-titres seulement s'il y a de la parole utile\n"
         " \"cut_silences\": bool,\n"
-        " \"hook_text\": \"accroche ultra courte (<=42 caractères, langue de la transcription) ou vide\",\n"
+        " \"hook_text\": \"accroche ultra courte (<=42 caractères). S'il y a de la parole, langue de la transcription. S'il N'Y A PAS de parole (vidéo muette/esthétique), DÉDUIS une accroche de ce que l'IA a VU (résumé/scènes) — ex: 'POV: coucher de soleil à Bali', 'Le café parfait en 30s'. Vide seulement si vraiment rien à dire\",\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic — choisis presque toujours une ambiance adaptée au contenu (fond musical discret sous la voix) ; vide UNIQUEMENT si la vidéo contient déjà de la musique\",\n"
         " \"keywords\": [\"3-6 mots EXACTS de la transcription à mettre en avant (prix, chiffres, mots forts : '0€', 'gratuit', 'secret'…) — copie-les tels quels\"],\n"
         " \"sfx\": [{\"word\": \"mot EXACT de la transcription\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|explosion|magic|glitch|camera|beep|scratch|applause|fail|scream|heartbeat|riser|airhorn|boom\"}],  // 3-7 bruitages qui renforcent le SENS de la vidéo (monteur pro) : taper->typing, cliquer->click, argent/prix->cash, bonne réponse/chiffre->ding, punchline/choc->impact, révélation->magic, bug/tech->glitch, photo->camera, gros mot censuré->beep, échec drôle->fail, applaudir/gagner->applause, montée de tension->riser, transition->whoosh\n"
@@ -1617,27 +1794,31 @@ def process(job):
         steps.done("dl", f"{facts['duration']:.0f}s · {facts['width']}x{facts['height']}")
 
         steps.start("analyze", "Analyse : le worker regarde et écoute ta vidéo…")
+        d = facts["duration"]
         silences = detect_silences(src) if facts["has_audio"] else []
+        # Analyse de TOUTE la vidéo (gratuit, image par image) : changements de plan,
+        # énergie sonore, temps forts du rythme -> base d'un vrai montage.
+        cuts = scene_cuts(src)
+        beats = detect_beats(src, d) if facts["has_audio"] else []
         first_tr = None
         if facts["has_audio"]:
             mp3 = os.path.join(work, "a.mp3")
             extract_audio_mp3(src, mp3)
             first_tr = groq_transcribe(mp3)
         tr_text = (first_tr or {}).get("text", "").strip() if first_tr else ""
-        # Les YEUX : images clefs (ouverture x2 + réparties) -> analyse visuelle
-        d = facts["duration"]
-        # 5 images MAX (limite du modèle vision Groq) : ouverture x2 + 3 réparties
-        ftimes = [0.3, 1.0] + [round(d * k / 5.0, 2) for k in range(2, 5)]
+        # Les YEUX : vision sur TOUTE la vidéo (plusieurs lots de 5 images).
         vision = None
         try:
-            vision = groq_vision(extract_frames(src, [t for t in ftimes if t < d - 0.2], work), tr_text, d)
+            vision = groq_vision_full(src, work, d, tr_text, scenecuts=cuts)
         except Exception as e:
             print("vision:", e, file=sys.stderr)
         plan = groq_plan(facts, tr_text, context, vision)
         update_job(job["id"], {"plan": plan})
         det = "parole détectée" if tr_text else "pas de parole détectée"
         if vision:
-            det += " · lecture visuelle OK" + ("" if vision.get("opening_captivating") else " · ouverture à couper")
+            det += (f" · {vision.get('frames_analyzed', 0)} images analysées"
+                    f" · type: {vision.get('video_type', '?')}"
+                    f" · {len(cuts)} plan(s)")
         steps.done("analyze", det)
 
         cur = src
@@ -1730,6 +1911,7 @@ def process(job):
         bands = [1430, 1180] if face in ("middle", "top") else ([960, 620] if face == "bottom" else None)
         layout = sentence_layout(words, str(plan.get("sub_position") or "dynamic"), seed, bands=bands)
         slide = None
+        music_fg = False  # musique au premier plan (mode sans voix)
         if len(words) >= 6 and ffprobe_facts(cur)["duration"] > 6:
             steps.start("fx", "Montage dynamique (zooms, effets, sons)…")
             try:
@@ -1809,8 +1991,57 @@ def process(job):
             except Exception as e:
                 print("fx:", e, file=sys.stderr)
                 steps.done("fx", "effets non appliqués (on continue sans)")
+        elif ffprobe_facts(cur)["duration"] > 4 and (cuts or beats or facts["has_audio"]):
+            # ── MONTAGE SANS VOIX : le rythme vient de la MUSIQUE et de l'IMAGE ──
+            # (vlog muet, edit esthétique, ambiance…). Pas de mots -> on cale les
+            # zooms et les transitions sur les BEATS et les CHANGEMENTS DE PLAN.
+            steps.start("fx", "Montage rythmé (beats + plans + sons)…")
+            try:
+                dur_cur = ffprobe_facts(cur)["duration"]
+                music_fg = True
+                vtype = str((vision or {}).get("video_type") or "energetic")
+                # Les beats/plans ont été mesurés sur la vidéo ORIGINALE : ils ne sont
+                # valides que si la timeline n'a pas changé (pas de coupe).
+                timeline_intact = abs(dur_cur - d) < 0.4
+                src_beats = beats if timeline_intact else []
+                src_cuts = cuts if timeline_intact else []
+                # Points de rythme : beats musicaux en priorité, sinon plans détectés,
+                # sinon grille régulière calée sur le style de la vidéo.
+                rhythm = [b for b in src_beats if 0.3 < b < dur_cur - 0.4]
+                if len(rhythm) < 3:
+                    rhythm = [c for c in src_cuts if 0.3 < c < dur_cur - 0.4]
+                if len(rhythm) < 3:
+                    every = 3.5 if vtype in ("luxury_aesthetic", "story") else 2.2
+                    rhythm = [round(t, 2) for t in _frange(0.6, dur_cur - 0.6, every)]
+                # Pas trop serré : un zoom toutes ~1.4 s max (sinon illisible)
+                thinned, lastb = [], -9.0
+                for b in rhythm:
+                    if b - lastb >= 1.3:
+                        thinned.append(b)
+                        lastb = b
+                rhythm = thinned[:40]
+                # Whoosh sur chaque changement de plan + impact sur les temps forts
+                best = [float(x) for x in ((vision or {}).get("best_moments") or []) if timeline_intact and 0.4 < float(x) < dur_cur - 0.4]
+                sfx_ev = [(c, "whoosh") for c in src_cuts if 0.4 < c < dur_cur - 0.4][:12]
+                sfx_ev += [(t, "impact") for t in best][:4]
+                out = os.path.join(work, "fx.mp4")
+                if zoom_punch(cur, out, [], facts["has_audio"], work,
+                              sfx_events=sorted(sfx_ev), seed=seed,
+                              bounds_override=rhythm):
+                    cur = out
+                # Gros objets/logos si des marques sont citées à l'écran (sans parole)
+                objs = brand_events([{"start": (best[0] if best else 1.5)}], plan.get("brands"), work) if plan.get("brands") else []
+                if objs:
+                    objs = [(min(dur_cur - (OBJ_IN + OBJ_HOLD + OBJ_OUT) - 0.3, max(1.0, o[0])), o[1]) for o in objs][:1]
+                    outo = os.path.join(work, "objs.mp4")
+                    if overlay_objects(cur, outo, objs, seed=seed):
+                        cur = outo
+                steps.done("fx", f"{len(rhythm)} accents rythmés + {len(sfx_ev)} son(s) · type {vtype}")
+            except Exception as e:
+                print("fx-novoice:", e, file=sys.stderr)
+                steps.done("fx", "montage rythmé non appliqué (on continue)")
         else:
-            steps.skip("fx", "Montage dynamique", "pas assez de parole")
+            steps.skip("fx", "Montage dynamique", "vidéo trop courte")
 
         # 6. Sous-titres + hook incrustés par-dessus
         if words:
@@ -1853,15 +2084,35 @@ def process(job):
         elif plan.get("subtitles") and facts["has_audio"]:
             steps.done("subs", "transcription indisponible")
         else:
+            # Pas de sous-titres (vidéo sans voix) : on applique quand même le hook
+            # texte que l'IA a déduit de ce qu'elle a VU, + l'étalonnage couleur.
             steps.skip("subs", "Sous-titres", "pas de parole — pas de sous-titres")
+            hook = str(plan.get("hook_text") or "").strip()
+            grade = str(plan.get("color_grade") or "")
+            if hook or grade:
+                steps.start("look", "Accroche + étalonnage…")
+                try:
+                    ass_p = os.path.join(work, "look.ass")
+                    with open(ass_p, "w", encoding="utf-8") as f:
+                        f.write(build_ass([], hook, style_id=plan.get("sub_style_id") or 0, seed=seed))
+                    out_l = os.path.join(work, "look.mp4")
+                    burn_subs(cur, out_l, ass_p, grade=grade)
+                    cur = out_l
+                    steps.done("look", (f"« {hook} »" if hook else "") + (" · couleurs" if grade else ""))
+                except Exception as e:
+                    print("look:", e, file=sys.stderr)
+                    steps.done("look", "non appliqué")
 
         # 5. Musique + normalisation du son
         steps.start("audio", "Mixage du son…")
         music = pick_music(str(plan.get("music_mood") or ""))
         out = os.path.join(work, "final.mp4")
-        loudnorm(cur, out, music_path=music)
+        loudnorm(cur, out, music_path=music, music_foreground=music_fg and not words)
         cur = out
-        steps.done("audio", "musique ajoutée" if music else "voix normalisée")
+        if music:
+            steps.done("audio", "musique au premier plan" if (music_fg and not words) else "musique ajoutée")
+        else:
+            steps.done("audio", "son normalisé")
 
         steps.start("up", "Envoi de la vidéo améliorée…")
         url = upload_result(job, cur)

@@ -20,7 +20,10 @@ echo ""
 echo "[1/5] Installation de ffmpeg et Python…"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq ffmpeg fonts-dejavu-core fontconfig python3 curl librsvg2-bin >/dev/null
+apt-get install -y -qq ffmpeg fonts-dejavu-core fontconfig python3 python3-pip curl librsvg2-bin >/dev/null
+# Détourage IA (texte 3D derrière la personne) — optionnel : le worker marche sans
+pip3 install -q --break-system-packages rembg onnxruntime pillow >/dev/null 2>&1 || \
+  echo "      (rembg non installé : l'effet 'texte derrière la personne' sera sauté)"
 # Polices Google Fonts (licence OFL) : les looks du catalogue de sous-titres
 mkdir -p /usr/share/fonts/truetype/custom
 GF="https://raw.githubusercontent.com/google/fonts/main"

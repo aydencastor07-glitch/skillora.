@@ -480,6 +480,7 @@ def keyword_times(words, plan_keywords, max_n=6, min_gap=1.5):
 
 
 EMOJI_CDN = "https://raw.githubusercontent.com/jdecked/twemoji/main/assets/72x72/{}.png"
+EMOJI_SVG = "https://raw.githubusercontent.com/jdecked/twemoji/main/assets/svg/{}.svg"
 
 
 def emoji_events(words, plan_emojis, work, layout=None):
@@ -508,29 +509,100 @@ def emoji_events(words, plan_emojis, work, layout=None):
     return events
 
 
-def brand_events(words, plan_brands, work, layout=None):
-    """Logos de marques CITÉES (Simple Icons) : téléchargés en SVG puis convertis
-    en PNG (rsvg-convert). Positionnés comme les émojis, au-dessus du sous-titre.
-    Sauté proprement si rsvg-convert absent ou logo introuvable."""
+def brand_events(words, plan_brands, work):
+    """Logos OFFICIELS de marques CITÉES -> gros objets animés à l'écran.
+    1) Simple Icons (SVG monochrome, converti via rsvg-convert) ;
+    2) repli : favicon officiel du site via Google (PNG couleur, marche pour
+       TOUTES les marques du monde — Temu, Shein… absentes de Simple Icons)."""
     events = []
     for i, item in enumerate((plan_brands or [])[:2]):
         target = norm_token((item or {}).get("word", ""))
         slug = re.sub(r"[^a-z0-9]", "", str((item or {}).get("slug", "")).lower())
         if not target or not slug:
             continue
+        png = os.path.join(work, f"brand_{i}.png")
+        got = False
         try:
             svg = os.path.join(work, f"brand_{i}.svg")
-            png = os.path.join(work, f"brand_{i}.png")
             download(f"https://cdn.simpleicons.org/{slug}", svg)
-            run(["rsvg-convert", "-w", "220", "-o", png, svg], timeout=60)
-            for idx, w in enumerate(words or []):
+            run(["rsvg-convert", "-w", "300", "-o", png, svg], timeout=60)
+            got = os.path.exists(png) and os.path.getsize(png) > 500
+        except Exception as e:
+            print("brand simpleicons:", slug, e, file=sys.stderr)
+        if not got:
+            try:
+                download(f"https://www.google.com/s2/favicons?domain={slug}.com&sz=256", png)
+                got = os.path.exists(png) and os.path.getsize(png) > 500
+            except Exception as e:
+                print("brand favicon:", slug, e, file=sys.stderr)
+        if not got:
+            continue
+        for w in (words or []):
+            if norm_token(w.get("word", "")) == target:
+                events.append((float(w["start"]), png))
+                break
+    return events
+
+
+def object_events(words, plan_objects, work):
+    """Gros objets qui illustrent le sujet (voiture, téléphone, produit…) :
+    émoji Twemoji rendu en GRAND depuis le SVG (net à 300 px)."""
+    events = []
+    for i, item in enumerate((plan_objects or [])[:2]):
+        target = norm_token((item or {}).get("word", ""))
+        emo = str((item or {}).get("emoji", "")).strip()
+        if not target or not emo:
+            continue
+        code = "-".join(f"{ord(c):x}" for c in emo if ord(c) != 0xFE0F)
+        if not code:
+            continue
+        try:
+            png = os.path.join(work, f"obj_{i}.png")
+            try:
+                svg = os.path.join(work, f"obj_{i}.svg")
+                download(EMOJI_SVG.format(code), svg)
+                run(["rsvg-convert", "-w", "300", "-o", png, svg], timeout=60)
+                assert os.path.exists(png) and os.path.getsize(png) > 500
+            except Exception:
+                download(EMOJI_CDN.format(code), png)  # repli 72px (flou mais présent)
+            for w in (words or []):
                 if norm_token(w.get("word", "")) == target:
-                    suby = layout[idx] if layout and idx < len(layout) else 1430
-                    events.append((float(w["start"]), png, max(150, suby - 280)))
+                    events.append((float(w["start"]), png))
                     break
         except Exception as e:
-            print("brand:", slug, e, file=sys.stderr)
+            print("object:", emo, e, file=sys.stderr)
     return events
+
+
+OBJ_IN, OBJ_HOLD, OBJ_OUT = 0.45, 1.5, 0.45  # entrée glissée / pause / sortie
+
+
+def overlay_objects(src, dst, events, seed=0):
+    """Objets/logos animés façon monteur : l'objet GLISSE depuis un bord,
+    s'ARRÊTE au milieu de l'écran (tiers haut, jamais sur les sous-titres),
+    puis REPART de l'autre côté — accélérations douces. Sens alterné par job."""
+    if not events:
+        return False
+    fc, last = [], "[0:v]"
+    inputs = []
+    for i, (t, png) in enumerate(events[:3]):
+        inputs += ["-i", png]
+        t_in_end = t + OBJ_IN
+        t_out = t + OBJ_IN + OBJ_HOLD
+        t_end = t_out + OBJ_OUT
+        sgn = 1 if (seed + i) % 2 == 0 else -1  # gauche->droite puis l'inverse
+        # x : hors-champ -> centre (ease-out) ; puis centre -> hors-champ opposé (ease-in)
+        x_expr = (f"(W-w)/2-({sgn})*(W+w)/2*pow(1-min((t-{t:.3f})/{OBJ_IN}\\,1)\\,2)"
+                  f"+({sgn})*(W+w)/2*pow(max(0\\,(t-{t_out:.3f})/{OBJ_OUT})\\,2)")
+        fc.append(f"[{i + 1}:v]scale=300:-1[ob{i}]")
+        nxt = f"[oo{i}]"
+        fc.append(f"{last}[ob{i}]overlay=x='{x_expr}':y=400:"
+                  f"enable='between(t,{t:.3f},{t_end:.3f})'{nxt}")
+        last = nxt
+    run(["ffmpeg", "-y", "-i", src, *inputs,
+         "-filter_complex", ";".join(fc), "-map", last, "-map", "0:a?",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+    return True
 
 
 def overlay_emojis(src, dst, events):
@@ -681,6 +753,107 @@ def reframe_916(src, dst, w, h):
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
 
 
+# ---------------------------------------------------------------- texte derrière la personne
+_REMBG_SESSION = None
+
+
+def _rembg_session():
+    """Charge (une fois) le modèle IA de détourage. None si rembg absent."""
+    global _REMBG_SESSION
+    if _REMBG_SESSION is not None:
+        return _REMBG_SESSION
+    try:
+        from rembg import new_session
+        _REMBG_SESSION = new_session("u2netp")
+    except Exception as e:
+        print("rembg indisponible:", e, file=sys.stderr)
+        _REMBG_SESSION = False
+    return _REMBG_SESSION
+
+
+def _bg_text_png(text, out_png, y_center):
+    """Rend le texte en PNG transparent 1080x1920, effet 3D extrudé (couches
+    décalées sombres + face blanche) — style 'ME AT 7:00' des edits pro."""
+    safe = re.sub(r"[^A-Z0-9 ÀÂÉÈÊËÎÏÔÙÛÇ€$%!?:'.,-]", "", str(text).upper())[:18].strip()
+    if not safe:
+        return False
+    lines_txt = [safe]
+    if len(safe) > 10 and " " in safe:  # 2 lignes équilibrées si trop long
+        mid = min(range(len(safe)), key=lambda i: abs(i - len(safe) // 2) if safe[i] == " " else 999)
+        if safe[mid] == " ":
+            lines_txt = [safe[:mid].strip(), safe[mid + 1:].strip()]
+    maxlen = max(len(l) for l in lines_txt)
+    fs = max(96, min(330, int(1020 / (max(1, maxlen) * 0.56))))
+    font = "/usr/share/fonts/truetype/custom/Anton-Regular.ttf"
+    fspec = f"fontfile={font}" if os.path.exists(font) else "font=Anton"
+    dt = []
+    for li, ltxt in enumerate(lines_txt):
+        esc = ltxt.replace("\\", "").replace("'", "’").replace(":", "\\:").replace(",", "\\,").replace("%", "\\%")
+        y0 = y_center - (len(lines_txt) - 1) * (fs // 2 + 20) + li * (fs + 40) - fs // 2
+        for k in range(10, 0, -1):  # extrusion 3D (profondeur vers le bas-droite)
+            dt.append(f"drawtext={fspec}:text='{esc}':fontsize={fs}"
+                      f":fontcolor=0x0E0E12@0.92:x=(w-text_w)/2+{k * 4}:y={y0}+{k * 4}")
+        dt.append(f"drawtext={fspec}:text='{esc}':fontsize={fs}"
+                  f":fontcolor=white@0.96:x=(w-text_w)/2:y={y0}")
+    run(["ffmpeg", "-y", "-f", "lavfi", "-i", "color=black@0.0:s=1080x1920:r=1:d=1,format=rgba",
+         "-vf", ",".join(dt), "-frames:v", "1", out_png])
+    return os.path.exists(out_png) and os.path.getsize(out_png) > 1000
+
+
+def depth_text(src, dst, text, work, face_y="", duration=0.0):
+    """Effet 'texte DERRIÈRE le personnage' sans fond vert : l'IA détoure la
+    personne image par image (rembg), le texte 3D est posé sur la vidéo, puis
+    la personne est ré-incrustée PAR-DESSUS le texte. False si impossible."""
+    sess = _rembg_session()
+    if not sess:
+        return False
+    try:
+        from rembg import remove
+        t0 = 0.4
+        t1 = min(3.4, float(duration) - 0.6)
+        if t1 - t0 < 1.2:
+            return False
+        y_center = {"top": 900, "middle": 620, "bottom": 460}.get(str(face_y).lower(), 700)
+        txt_png = os.path.join(work, "bgtext.png")
+        if not _bg_text_png(text, txt_png, y_center):
+            return False
+        dtd = os.path.join(work, "dt")
+        os.makedirs(dtd, exist_ok=True)
+        run(["ffmpeg", "-y", "-i", src, "-ss", f"{t0:.2f}", "-to", f"{t1:.2f}",
+             "-vf", "fps=30,scale=540:960", os.path.join(dtd, "f_%03d.png")])
+        frames = sorted(f for f in os.listdir(dtd) if f.startswith("f_"))
+        if len(frames) < 20:
+            return False
+        for f in frames:
+            with open(os.path.join(dtd, f), "rb") as fh:
+                cut = remove(fh.read(), session=sess)
+            with open(os.path.join(dtd, "p" + f[1:]), "wb") as fh:
+                fh.write(cut)
+        # Une personne est-elle vraiment là ? (aire du détourage sur l'image du milieu)
+        from PIL import Image
+        mid = os.path.join(dtd, "p" + frames[len(frames) // 2][1:])
+        alpha = Image.open(mid).convert("RGBA").getchannel("A")
+        cover = sum(1 for a in alpha.getdata() if a > 96) / (540 * 960)
+        if cover < 0.04 or cover > 0.72:
+            print(f"depth_text: personne non exploitable (aire {cover:.0%})", file=sys.stderr)
+            return False
+        D = t1 - t0
+        fc = (f"[1:v]format=rgba,fade=t=in:d=0.25:alpha=1,"
+              f"fade=t=out:st={D - 0.30:.2f}:d=0.30:alpha=1,setpts=PTS+{t0:.2f}/TB[txt];"
+              f"[2:v]format=rgba,scale=1080:1920,setpts=PTS-STARTPTS+{t0:.2f}/TB[per];"
+              f"[0:v][txt]overlay=0:0:enable='between(t,{t0:.2f},{t1:.2f})':eof_action=pass[a];"
+              f"[a][per]overlay=0:0:enable='between(t,{t0:.2f},{t1:.2f})':eof_action=pass[v]")
+        run(["ffmpeg", "-y", "-i", src,
+             "-loop", "1", "-t", f"{D + 0.05:.2f}", "-i", txt_png,
+             "-framerate", "30", "-start_number", "1", "-i", os.path.join(dtd, "p_%03d.png"),
+             "-filter_complex", fc, "-map", "[v]", "-map", "0:a?",
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+        return os.path.exists(dst) and os.path.getsize(dst) > 50000
+    except Exception as e:
+        print("depth_text:", e, file=sys.stderr)
+        return False
+
+
 def loudnorm(src, dst, music_path=None, music_gain_db=-21):
     """Normalise la voix à -14 LUFS ; mixe la musique en dessous si fournie."""
     # Le tag 'skillora-improved' permet de refuser une 2e amélioration (doublons de sous-titres).
@@ -821,6 +994,9 @@ def groq_plan(facts, transcript_text, context, vision=None):
         "highlight": "yellow",
         "broll_keywords": [],
         "transition": "",
+        "color_grade": "",
+        "bg_text": "",
+        "objects": [],
     }
     if not GROQ_KEY:
         return fallback
@@ -851,10 +1027,13 @@ def groq_plan(facts, transcript_text, context, vision=None):
         " \"brands\": [{\"word\": \"mot EXACT\", \"slug\": \"slug simpleicons en minuscules\"}],  // 0-2 logos de marques/apps CITÉES dans la parole (netflix, tiktok, instagram, youtube, spotify, amazon, temu, shein, whatsapp…)\n"
         " \"sub_position\": \"dynamic|bottom|middle\",  // dynamic par défaut ; bottom si des éléments importants occupent le centre de l'image ; middle pour les vidéos très rythmées\n"
         " \"sub_style\": \"group|word\",  // group = 3 mots à la fois (défaut) ; word = mot par mot, pour les vidéos punchy et rapides\n"
-        " \"sub_style_id\": 0,  // style visuel des sous-titres selon le TYPE de vidéo : 0=signature (défaut sûr) ; 2=bleu Hormozi (business/motivation) ; 3=cartoon (fun/vlog) ; 4=script néon (lifestyle/mode) ; 5=vert fluo (tech/gadgets) ; 6=ombre floue (docu/voyage) ; 7=rétro ombre jaune (créatif) ; 8=machine à écrire (mystère/code) ; 9=badge boîte (fond chargé) ; 10=dégradé or (luxe/flex) ; 11=sticker bulle (memes/humour) ; 12=karaoké rempli (podcast/monologue) ; 15=glitch (gaming/IA) ; 16=contour évidé (sport/musique) ; 17=ghost (dramatique) ; 18=serif cinéma (histoire/documentaire haut de gamme) ; 20=néon pulsé (edits musicaux)\n"
+        " \"sub_style_id\": 0,  // style visuel des sous-titres selon le TYPE de vidéo : 0=signature (défaut sûr) ; 2=bleu Hormozi (business/motivation) ; 3=cartoon (fun/vlog) ; 4=script néon (lifestyle/mode) ; 5=vert fluo (tech/gadgets) ; 6=ombre floue (docu/voyage) ; 7=rétro ombre jaune (créatif) ; 8=machine à écrire (mystère/code) ; 9=badge boîte (fond chargé) ; 10=dégradé or (luxe/flex) ; 11=sticker bulle (memes/humour) ; 12=karaoké rempli (podcast/monologue) ; 15=glitch (gaming/IA) ; 16=contour évidé (sport/musique) ; 17=ghost (dramatique) ; 18=serif cinéma (histoire/documentaire haut de gamme) ; 20=néon pulsé (edits musicaux) ; 21=horreur rouge empilé (horreur/creepy/mystère/caméra de surveillance/faits sombres — mots rouges qui s'accumulent à l'écran)\n"
         " \"highlight\": \"yellow|green|red|cyan\",  // couleur des mots forts, adaptée à l'ambiance\n"
         " \"broll_keywords\": [\"2-3 mots-clés ANGLAIS, OBLIGATOIRES dès que la parole mentionne un objet, un lieu, une activité ou un produit (ex: 'online shopping', 'gym workout') — vide UNIQUEMENT si la personne ne parle que d'elle-même face caméra\"],\n"
-        " \"transition\": \"film_fade_dissolve|whip_pan_right|soft_swipe_blur|zoom_in_motion_blur|scale_up_reveal|white_flash_glare|chromatic_flash_burst|burn_out_edge\"}  // transition de monteur pour insérer les plans d'illustration, adaptée au TON de la vidéo : fondu=lifestyle/docu/émotion ; whip pan=énergique/vlog/humour ; balayage doux=mode/beauté ; zoom flou=tech/gaming/punchy ; scale up=luxe/cinématique ; flash blanc=révélation/produit/photo ; flash chromatique=gaming/glitch/IA ; noir=dramatique/tension"
+        " \"transition\": \"film_fade_dissolve|whip_pan_right|soft_swipe_blur|zoom_in_motion_blur|scale_up_reveal|white_flash_glare|chromatic_flash_burst|burn_out_edge\",  // transition de monteur pour insérer les plans d'illustration, adaptée au TON de la vidéo : fondu=lifestyle/docu/émotion ; whip pan=énergique/vlog/humour ; balayage doux=mode/beauté ; zoom flou=tech/gaming/punchy ; scale up=luxe/cinématique ; flash blanc=révélation/produit/photo ; flash chromatique=gaming/glitch/IA ; noir=dramatique/tension\n"
+        " \"color_grade\": \"|dark_moody|warm_luxury|cold_cinematic|vibrant_pop|bw_horror|vintage_warm\",  // étalonnage couleur — VIDE (aucun) par défaut ! Choisis-en un UNIQUEMENT si le ton s'y prête vraiment : dark_moody=motivation sombre/gym ; warm_luxury=luxe/lifestyle doré ; cold_cinematic=tech/business froid ; vibrant_pop=fun/vlog coloré ; bw_horror=horreur/creepy (noir et blanc + grain) ; vintage_warm=nostalgie/rétro\n"
+        " \"bg_text\": \"texte TRÈS court (<=16 caractères, ex 'ME AT 7:00', '0€ DE PUB') affiché en GÉANT derrière la personne au début (effet 3D pro) — UNIQUEMENT si une personne est clairement visible en pied ou buste face caméra, sinon vide\",\n"
+        " \"objects\": [{\"word\": \"mot EXACT de la transcription\", \"emoji\": \"un émoji OBJET\"}]}  // 0-2 GROS objets animés qui traversent l'écran (voiture 🚗, téléphone 📱, produit 📦…) quand la parole cite un objet IMPORTANT — différent des petits émojis de sous-titres"
     )
     try:
         st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
@@ -868,7 +1047,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         merged = dict(fallback)
         for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx",
                   "emojis", "brands", "sub_position", "sub_style", "sub_style_id", "highlight",
-                  "broll_keywords", "transition"):
+                  "broll_keywords", "transition", "color_grade", "bg_text", "objects"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -937,7 +1116,61 @@ SUB_STYLES = {
              prim=WHITE, sec=WHITE, out=BLACK, outw=3, shad=2, bs=1, fx=None, chunk=1, upper=False),
     20: dict(name="Néon pulsé", font="Orbitron", size=104, kar=None, hi=None, bold=True,
              prim=WHITE, sec=WHITE, out="&H00FEF200&", outw=4, shad=0, bs=1, blur=4, fx="pulse", chunk=2, upper=True),
+    # 21 = horreur : mots ROUGES qui s'accumulent en escalier (rendu spécial, voir build_ass)
+    21: dict(name="Horreur rouge empilé", font="Anton", size=140, kar=None, hi=None,
+             prim="&H001414E8&", sec=WHITE, out="&H000000A0&", outw=2, shad=0, bs=1, fx="stack", chunk=1, upper=True),
 }
+
+
+def _horror_stack(words, layout, seed, fit):
+    """Style 21 : chaque mot apparaît et RESTE à l'écran, empilé en escalier
+    (décalages gauche/droite, légères rotations), rouge + halo — puis l'écran se
+    vide à la fin de la phrase. Look 'CapCut horreur' des vidéos creepy."""
+    RED = "&H001414E8&"          # rouge vif (BGR)
+    GLOW = "&H000000B4&"         # halo rouge sombre
+    XOFF = [-150, 130, -180, 90, -110, 160]   # escalier gauche/droite
+    lines = []
+    # Découpe en phrases : pause > 0.8 s ou 6 mots max
+    phrases, cur = [], []
+    for w in words:
+        if cur and (float(w["start"]) - float(cur[-1]["end"]) > 0.8 or len(cur) >= 6):
+            phrases.append(cur)
+            cur = []
+        cur.append(w)
+    if cur:
+        phrases.append(cur)
+    base_y = 640
+    if layout:
+        base_y = max(340, min(1000, int(sum(layout) / len(layout)) - 320))
+    for pi, ph in enumerate(phrases):
+        ph_end = float(ph[-1]["end"]) + 0.30
+        if pi + 1 < len(phrases):
+            ph_end = min(ph_end, float(phrases[pi + 1][0]["start"]) - 0.05)
+        n = len(ph)
+        step = 158 if n <= 5 else 132
+        for wi, w in enumerate(ph):
+            raw = str(w["word"]).strip().replace("{", "").replace("}", "").strip(",.;:!?").upper()
+            if not raw:
+                continue
+            ws = float(w["start"])
+            if ph_end - ws < 0.12:
+                continue
+            # GROS comme les edits CapCut : les mots courts dominent l'écran
+            size = 215 if len(raw) <= 4 else (175 if len(raw) <= 7 else 135)
+            fz = fit(raw, size)
+            x = 540 + XOFF[(wi + seed) % len(XOFF)]
+            # le mot reste DANS l'écran malgré le décalage
+            half = int(len(raw) * size * 0.30)
+            x = max(60 + half, min(1020 - half, x))
+            y = base_y + wi * step
+            rot = ((seed * 7 + wi * 5 + pi * 3) % 13) - 6   # -6°..+6°
+            pop = "\\fad(40,0)\\t(0,90,\\fscx112\\fscy112)\\t(90,170,\\fscx100\\fscy100)"
+            # couche halo (dessous) + couche texte
+            lines.append(f"Dialogue: 0,{ass_time(ws)},{ass_time(ph_end)},Sub,,0,0,0,,"
+                         f"{{\\an5\\pos({x},{y})\\frz{rot}\\fs{size}{fz}\\c{RED}\\alpha&H60&\\blur16}}{raw}")
+            lines.append(f"Dialogue: 1,{ass_time(ws)},{ass_time(ph_end)},Sub,,0,0,0,,"
+                         f"{{\\an5\\pos({x},{y})\\frz{rot}\\fs{size}{fz}\\c{RED}\\3c{GLOW}\\blur2{pop}}}{raw}")
+    return lines
 
 
 def _grad_text(txt):
@@ -958,7 +1191,7 @@ def _grad_text(txt):
 
 def build_ass(words, hook_text, keywords=None, slide=None, sub_position="dynamic",
               highlight="yellow", sub_style="group", style_id=0, layout=None,
-              play_w=1080, play_h=1920):
+              play_w=1080, play_h=1920, seed=0):
     """Sous-titres 'montage dynamique' pilotés par le catalogue SUB_STYLES.
     Mécanique commune : position par phrase, mot fort géant (Mega), verrou
     anti-chevauchement, texte géant pendant l'effet 'côté'."""
@@ -1000,6 +1233,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     if hook_text:
         safe = str(hook_text).upper().replace("{", "").replace("}", "").replace("\n", " ")
         lines.append(f"Dialogue: 2,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200)}}{safe}")
+
+    def fit_early(raw, size):
+        est = max(1, len(raw)) * size * 0.55
+        return "" if est <= 980 else f"\\fs{max(44, int(size * 980 / est))}"
+
+    if spec.get("fx") == "stack":
+        # Style 21 : rendu spécial 'mots empilés' — remplace toute la mécanique de groupes
+        lines += _horror_stack(words, layout, seed, fit_early)
+        return head + "\n".join(lines) + "\n"
 
     # Découpe en groupes ; la position vient de `layout` (partagé avec les émojis).
     prev_end = None
@@ -1120,12 +1362,30 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     return head + "\n".join(lines) + "\n"
 
 
-def burn_subs(src, dst, ass_path):
+# Étalonnages (color grading) — appliqués SEULEMENT quand l'IA juge que le ton
+# de la vidéo s'y prête (jamais systématique). Sous la vidéo, avant les sous-titres.
+GRADES = {
+    "dark_moody":     "eq=contrast=1.10:brightness=-0.03:saturation=0.88,"
+                      "colorbalance=bs=.06:bm=.03,vignette=PI/5",
+    "warm_luxury":    "eq=contrast=1.06:saturation=1.05,"
+                      "colorbalance=rs=.05:rm=.04:bs=-.04,vignette=PI/6",
+    "cold_cinematic": "eq=contrast=1.10:saturation=0.92,colorbalance=bs=.08:bm=.05:rs=-.03",
+    "vibrant_pop":    "eq=contrast=1.09:saturation=1.30:brightness=0.01",
+    "bw_horror":      "hue=s=0,eq=contrast=1.28:brightness=-0.04,"
+                      "vignette=PI/4.6,noise=alls=7:allf=t",
+    "vintage_warm":   "curves=preset=vintage,eq=saturation=1.02,noise=alls=5:allf=t",
+}
+
+
+def burn_subs(src, dst, ass_path, grade=""):
     """Incruste les sous-titres + passe 'clarté' gratuite : léger débruitage,
-    netteté et couleurs plus vives (compense les caméras moyennes)."""
+    netteté et couleurs plus vives. `grade` = étalonnage optionnel (GRADES),
+    appliqué SOUS les sous-titres (le texte garde ses vraies couleurs)."""
     safe = ass_path.replace("\\", "/").replace(":", "\\:")
+    g = GRADES.get(str(grade or "").lower())
+    pre = (g + ",") if g else ""
     run(["ffmpeg", "-y", "-i", src,
-         "-vf", f"ass='{safe}',hqdn3d=1.5:1.5:3:3,unsharp=5:5:0.5,eq=contrast=1.04:saturation=1.13",
+         "-vf", f"{pre}ass='{safe}',hqdn3d=1.5:1.5:3:3,unsharp=5:5:0.5,eq=contrast=1.04:saturation=1.13",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
 
 
@@ -1436,6 +1696,23 @@ def process(job):
         else:
             steps.skip("broll", "Plans d'illustration", "pas utile pour cette vidéo")
 
+        # 3b. Texte 3D DERRIÈRE la personne (détourage IA — marche sans fond vert).
+        # Remplace le hook classique quand il est appliqué.
+        bg_until = 1.0
+        if plan.get("bg_text") and str((vision or {}).get("face_y") or ""):
+            dur_now = ffprobe_facts(cur)["duration"]
+            if dur_now > 4.5:
+                steps.start("depth", "Texte 3D derrière le sujet…")
+                outd = os.path.join(work, "depth.mp4")
+                if depth_text(cur, outd, str(plan["bg_text"]), work,
+                              face_y=str(vision.get("face_y")), duration=dur_now):
+                    cur = outd
+                    bg_until = 3.6  # pas d'effet 'côté' pendant le texte 3D
+                    plan["hook_text"] = ""
+                    steps.done("depth", f"« {str(plan['bg_text']).upper()} »")
+                else:
+                    steps.done("depth", "non applicable (personne pas assez visible)")
+
         # 4. Transcription finale (timings exacts sur la vidéo coupée)
         words = []
         if plan.get("subtitles") and facts["has_audio"]:
@@ -1459,7 +1736,7 @@ def process(job):
                 dur_cur = ffprobe_facts(cur)["duration"]
                 # Effet "côté" sur le 1er mot fort court (ex: 0€), hors début/fin
                 # et JAMAIS pendant un b-roll (un seul effet à la fois à l'écran)
-                cand = [k for k in kws if len(k["text"]) <= 7 and 1.0 < k["start"] < dur_cur - 3.0
+                cand = [k for k in kws if len(k["text"]) <= 7 and bg_until < k["start"] < dur_cur - 3.0
                         and not any(bc - 1.8 < k["start"] < bc + 1.8 for bc in broll_cuts)]
                 if cand:
                     t1 = max(0.5, cand[0]["start"] - 0.15)
@@ -1469,14 +1746,30 @@ def process(job):
                     slide = (t1, t2, cand[0]["text"])
                 out = os.path.join(work, "fx.mp4")
                 emo = emoji_events(words, plan.get("emojis"), work, layout)
-                emo += brand_events(words, plan.get("brands"), work, layout)
-                # Un seul effet à la fois : pas d'émoji pendant l'effet 'côté' ou un b-roll
-                busy = ([(slide[0] - 0.3, slide[1] + 0.3)] if slide else []) + \
-                       [(bc - 0.3, bc + 1.6) for bc in broll_cuts]
+                # GROS objets animés : logos officiels des marques citées + objets emoji.
+                # Ils traversent l'écran (glissent, s'arrêtent, repartent).
+                obj_span = OBJ_IN + OBJ_HOLD + OBJ_OUT
+                objs = brand_events(words, plan.get("brands"), work) + \
+                       object_events(words, plan.get("objects"), work)
+                busy0 = ([(slide[0] - 0.3, slide[1] + 0.3)] if slide else []) + \
+                        [(bc - 0.3, bc + 1.6) for bc in broll_cuts]
+                objs = [o for o in objs if 1.2 < o[0] < dur_cur - obj_span - 0.4
+                        and not any(a - 0.5 <= o[0] <= b + 0.5 for (a, b) in busy0)]
+                sel, last_t = [], -9.0
+                for (ot, op) in sorted(objs):  # espacés d'au moins 3 s
+                    if ot - last_t >= 3.0:
+                        sel.append((ot, op))
+                        last_t = ot
+                objs = sel[:3]
+                # Un seul effet à la fois : pas d'émoji pendant 'côté', b-roll ou objet
+                busy = busy0 + [(ot - 0.3, ot + obj_span + 0.3) for (ot, _p) in objs]
                 emo = [e for e in emo if not any(a <= e[0] <= b for (a, b) in busy)]
                 sfx_ev = sfx_event_times(words, plan.get("sfx"), kws)
                 sfx_ev += [(t, "pop") for (t, _p, _y) in emo
                            if not any(abs(t - e[0]) < 0.4 for e in sfx_ev)]
+                # whoosh à l'ENTRÉE et à la SORTIE de chaque objet animé
+                for (ot, _p) in objs:
+                    sfx_ev += [(ot, "whoosh"), (ot + OBJ_IN + OBJ_HOLD, "whoosh")]
                 # Chaque transition de b-roll a SON bruitage (flash->appareil photo,
                 # chromatique->glitch, noir->impact, balayage->whoosh, reveal->magic)
                 tr_snd = TR_SOUND.get(br_fam)
@@ -1495,6 +1788,10 @@ def process(job):
                               extra_whooshes=wh_extra or None,
                               avoid=(slide[0], slide[1]) if slide else None, seed=seed):
                     cur = out
+                if objs:  # après les zooms : les objets restent stables à l'écran
+                    outo = os.path.join(work, "objs.mp4")
+                    if overlay_objects(cur, outo, objs, seed=seed):
+                        cur = outo
                 if emo:
                     oute = os.path.join(work, "emoji.mp4")
                     if overlay_emojis(cur, oute, emo):
@@ -1506,6 +1803,8 @@ def process(job):
                     detail += f" + {len(kws)} mot(s) fort(s)"
                 if emo:
                     detail += f" + {len(emo)} émoji(s)"
+                if objs:
+                    detail += f" + {len(objs)} objet(s)/logo(s) animé(s)"
                 steps.done("fx", detail)
             except Exception as e:
                 print("fx:", e, file=sys.stderr)
@@ -1526,9 +1825,9 @@ def process(job):
                                       highlight=str(plan.get("highlight") or "yellow"),
                                       sub_style=str(plan.get("sub_style") or "group"),
                                       style_id=plan.get("sub_style_id") or 0,
-                                      layout=lay))
+                                      layout=lay, seed=seed))
                 out_p = os.path.join(work, dst_name + ".mp4")
-                burn_subs(presubs, out_p, ass_p)
+                burn_subs(presubs, out_p, ass_p, grade=str(plan.get("color_grade") or ""))
                 return out_p
 
             cur = render_subs(layout, "subs")

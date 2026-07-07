@@ -748,26 +748,165 @@ def slide_aside(src, dst, t1, dur=1.5):
 #   slowmo  : True = ralenti d'emphase autorisé sur le meilleur moment
 RECIPES = {
     "energetic":        dict(zooms=[1.0, 1.16, 1.0, 1.22, 1.08], cut_s=2.2, grade="vibrant_pop",
-                             trans="zoom_blur", sfx="high", slowmo=True),
+                             trans="zoom_blur", sfx="high", slowmo=True,
+                             effects=["hdr", "shake", "flash"]),
     "vlog":             dict(zooms=[1.0, 1.10, 1.0, 1.14], cut_s=2.8, grade="",
-                             trans="whip", sfx="med", slowmo=True),
+                             trans="whip", sfx="med", slowmo=True,
+                             effects=["hdr"]),
     "talk_facecam":     dict(zooms=[1.0, 1.09, 1.0, 1.13], cut_s=3.0, grade="",
-                             trans="fade", sfx="med", slowmo=False),
+                             trans="fade", sfx="med", slowmo=False,
+                             effects=["hdr"]),
     "horror":           dict(zooms=[1.0, 1.06, 1.0, 1.28], cut_s=3.6, grade="bw_horror",
-                             trans="dip_black", sfx="med", slowmo=True),
+                             trans="dip_black", sfx="med", slowmo=True,
+                             effects=["grain_vignette", "shake", "rgbsplit"]),
     "luxury_aesthetic": dict(zooms=[1.0, 1.05, 1.0, 1.04], cut_s=3.4, grade="warm_luxury",
-                             trans="scale_reveal", sfx="low", slowmo=True),
+                             trans="scale_reveal", sfx="low", slowmo=True,
+                             effects=["glow", "vignette"]),
     "product":          dict(zooms=[1.0, 1.14, 1.0, 1.18], cut_s=2.6, grade="cold_cinematic",
-                             trans="white_flash", sfx="high", slowmo=False),
+                             trans="white_flash", sfx="high", slowmo=False,
+                             effects=["hdr", "flash"]),
     "story":            dict(zooms=[1.0, 1.08, 1.0, 1.12], cut_s=3.4, grade="cold_cinematic",
-                             trans="fade", sfx="med", slowmo=False),
+                             trans="fade", sfx="med", slowmo=False,
+                             effects=["grain", "vignette"]),
     "other":            dict(zooms=[1.0, 1.13, 1.0, 1.2], cut_s=2.6, grade="",
-                             trans="fade", sfx="med", slowmo=False),
+                             trans="fade", sfx="med", slowmo=False,
+                             effects=["hdr"]),
 }
 
 
 def recipe_for(video_type):
     return RECIPES.get(str(video_type or "").lower(), RECIPES["other"])
+
+
+# ── MOTEUR D'EFFETS (catalogue style CapCut -> familles FFmpeg réalisables) ─────
+# Rattache chaque nom du catalogue à une famille implémentée. Dosage subtil/pro.
+EFFECTS_NEAR = {
+    # groupe RYTHME / IMPACT (le plus utilisé — sport, énergique, viral)
+    "shake_blur_impact": "shake", "pure_camera_shake": "shake",
+    "earthquake_heavy_shake": "shake", "rhythmic_bass_shake": "shake",
+    "scale_bounce_impact": "bounce", "snap_zoom_bounce": "bounce",
+    "white_exposure_flash": "flash", "smooth_white_pulse": "flash",
+    "black_fade_pulse": "flash_black", "black_strobe_pulse": "flash_black",
+    "strobe_light_flash": "strobe",
+    "chromatic_aberration_loop": "rgbsplit", "glitch_shake_distortion": "rgbsplit",
+    "chromatic_shatter_flash": "flash", "warp_glitch_flare": "rgbsplit",
+    "radial_zoom_blur_v2": "zoomblur",
+    # groupe AMBIANCE / ESTHÉTIQUE
+    "vignette_shadow_focus": "vignette", "grainy_vignette_vintage": "grain_vignette",
+    "grunge_texture_overlay": "grain_vignette", "god_rays_volumetric": "godrays",
+    "dreamy_glow_soft": "glow", "neon_glow_v2": "glow", "edge_glow_neon_line": "glow",
+    "dust_particles_float": "grain", "vintage_film_projector": "grain_vignette",
+    # groupe OPTIMISATION IMAGE (utile partout)
+    "hdr_sharpen_contrast": "hdr", "vibrant_hdr_boost": "hdr",
+    # groupe RÉTRO / GLITCH
+    "retro_crt_tv_glitch": "rgbsplit", "sci_fi_glitch_flash": "flash",
+    "light_leak_orange_burn": "grain", "light_leak_cold_neon": "grain",
+}
+# Effets "look" continus (une passe -vf) vs "impact" ponctuels (fenêtres de temps)
+LOOK_EFFECTS = {"hdr", "vignette", "grain_vignette", "grain", "glow", "godrays"}
+IMPACT_EFFECTS = {"shake", "bounce", "flash", "flash_black", "strobe", "rgbsplit", "zoomblur"}
+
+
+def resolve_effects(names):
+    """Noms du catalogue (ou familles) -> familles implémentées, dédupliquées."""
+    out = []
+    for n in (names or []):
+        f = str(n or "").strip().lower()
+        f = f if (f in LOOK_EFFECTS or f in IMPACT_EFFECTS) else EFFECTS_NEAR.get(f)
+        if f and f not in out:
+            out.append(f)
+    return out
+
+
+def look_chain(effects, intensity=1.0):
+    """Chaîne -vf LINÉAIRE des effets 'look' CONTINUS (netteté HDR, grain,
+    vignette) — subtile et pro, composable avec les sous-titres en une passe.
+    Le glow/god-rays (graphes blend) sont gérés à part (look_glow). '' si aucun."""
+    fx = [e for e in (effects or []) if e in LOOK_EFFECTS]
+    if not fx:
+        return ""
+    parts = []
+    if "hdr" in fx:
+        # aspect '4K' : micro-contraste + netteté + couleurs vives (sans surcharge)
+        parts.append(f"unsharp=5:5:{0.7 * intensity:.2f}:5:5:0.0")
+        parts.append(f"eq=contrast={1 + 0.06 * intensity:.3f}:saturation={1 + 0.14 * intensity:.3f}:gamma=0.98")
+    if "grain" in fx or "grain_vignette" in fx:
+        parts.append(f"noise=alls={max(1, int(8 * intensity))}:allf=t")
+    if "vignette" in fx or "grain_vignette" in fx:
+        parts.append(f"vignette=PI/{5.0 - 0.6 * intensity:.2f}")
+    return ",".join(parts)
+
+
+def look_glow(src, dst, kind="glow", intensity=1.0):
+    """Effets 'look' à base de blend (lueur onirique / rayons divins) — une passe
+    dédiée. kind = 'glow' (halo doux) ou 'godrays' (faisceaux lumineux)."""
+    if kind == "godrays":
+        graph = (f"[0:v]split[ro][rl];[rl]gblur=sigma=14,eq=brightness={0.06 * intensity:.3f}[rll];"
+                 f"[ro][rll]blend=all_mode=screen:all_opacity={0.34 * intensity:.2f}[v]")
+    else:
+        graph = (f"[0:v]split[go][gb];[gb]gblur=sigma={7 * intensity:.1f}[gbb];"
+                 f"[go][gbb]blend=all_mode=screen:all_opacity={0.26 * intensity:.2f}[v]")
+    try:
+        run(["ffmpeg", "-y", "-i", src, "-filter_complex", graph, "-map", "[v]", "-map", "0:a?",
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+        return os.path.exists(dst) and os.path.getsize(dst) > 40000
+    except Exception as e:
+        print("look_glow:", e, file=sys.stderr)
+        return False
+
+
+def impact_fx(src, dst, shakes=None, flashes=None, blacks=None, splits=None, seed=0):
+    """Effets d'IMPACT ponctuels calés sur les beats/temps forts, en UNE passe :
+    - shakes  : secousse de caméra brève (bass hit) — subtile
+    - flashes : flash blanc doux sur le beat
+    - blacks  : micro-coupure au noir
+    - splits  : décalage RGB (glitch) bref
+    Dosage pro : amplitudes modérées. False si rien à faire."""
+    shakes, flashes = shakes or [], flashes or []
+    blacks, splits = blacks or [], splits or []
+    if not (shakes or flashes or blacks or splits):
+        return False
+    facts = ffprobe_facts(src)
+    W, H = facts["width"] or 1080, facts["height"] or 1920
+    fc = []
+    # 1) Secousse : on agrandit de 6% pour avoir de la marge, puis on décale le
+    #    cadrage avec une oscillation amortie pendant chaque fenêtre de shake.
+    sw, sh = (W * 106) // 100 // 2 * 2, (H * 106) // 100 // 2 * 2
+    def osc(axis_phase):
+        terms = []
+        for k, t in enumerate(shakes[:8]):
+            a = 15 - (k % 3) * 2  # amplitude px, légèrement variable
+            terms.append(f"{a}*sin({38 + (seed + k) % 7}*(t-{t:.3f})+{axis_phase})"
+                         f"*exp(-6*(t-{t:.3f}))*between(t,{t:.3f},{t + 0.5:.3f})")
+        return "(" + "+".join(terms) + ")" if terms else "0"
+    xexpr = f"(iw-{W})/2+{osc(0)}" if shakes else f"(iw-{W})/2"
+    yexpr = f"(ih-{H})/2+{osc(1.6)}" if shakes else f"(ih-{H})/2"
+    fc.append(f"[0:v]scale={sw}:{sh},crop={W}:{H}:'{xexpr}':'{yexpr}'[base]")
+    last = "[base]"
+    inputs = ["-i", src]
+    idx = 1
+    # 2) Flashs (blanc doux) et micro-noirs
+    for kind, times, amp in (("white", flashes, 0.55), ("black", blacks, 0.85)):
+        for t in times[:8]:
+            dur_f = 0.20
+            start = max(0.0, t - 0.04)
+            inputs += ["-f", "lavfi", "-i", f"color={kind}:s={W}x{H}:r=30:d={dur_f + 0.05:.2f}"]
+            fc.append(f"[{idx}:v]format=yuva420p,colorchannelmixer=aa={amp:.2f},"
+                      f"fade=t=in:d=0.05:alpha=1,fade=t=out:st=0.06:d={dur_f - 0.06:.2f}:alpha=1,"
+                      f"setpts=PTS+{start:.3f}/TB[fx{idx}]")
+            nxt = f"[c{idx}]"
+            fc.append(f"{last}[fx{idx}]overlay=0:0:enable='between(t,{start:.3f},{start + dur_f:.3f})':eof_action=pass{nxt}")
+            last = nxt
+            idx += 1
+    # 3) Décalage RGB (glitch) bref
+    if splits:
+        en = "+".join(f"between(t,{t - 0.03:.3f},{t + 0.12:.3f})" for t in splits[:8])
+        fc.append(f"{last}rgbashift=rh=14:bh=-14:enable='{en}'[v]")
+        last = "[v]"
+    run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
+         "-map", last, "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
+         "-crf", "20", "-c:a", "copy", dst])
+    return True
 
 
 def speed_ramp(src, dst, segments):
@@ -1321,6 +1460,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         "bg_text": "",
         "objects": [],
         "audio_type": "voice" if transcript_text else "none",
+        "effects": [],
     }
     if not GROQ_KEY:
         return fallback
@@ -1365,7 +1505,8 @@ def groq_plan(facts, transcript_text, context, vision=None):
         " \"transition\": \"film_fade_dissolve|whip_pan_right|soft_swipe_blur|zoom_in_motion_blur|scale_up_reveal|white_flash_glare|chromatic_flash_burst|burn_out_edge\",  // transition de monteur pour insérer les plans d'illustration, adaptée au TON de la vidéo : fondu=lifestyle/docu/émotion ; whip pan=énergique/vlog/humour ; balayage doux=mode/beauté ; zoom flou=tech/gaming/punchy ; scale up=luxe/cinématique ; flash blanc=révélation/produit/photo ; flash chromatique=gaming/glitch/IA ; noir=dramatique/tension\n"
         " \"color_grade\": \"|dark_moody|warm_luxury|cold_cinematic|vibrant_pop|bw_horror|vintage_warm\",  // étalonnage couleur — VIDE (aucun) par défaut ! Choisis-en un UNIQUEMENT si le ton s'y prête vraiment : dark_moody=motivation sombre/gym ; warm_luxury=luxe/lifestyle doré ; cold_cinematic=tech/business froid ; vibrant_pop=fun/vlog coloré ; bw_horror=horreur/creepy (noir et blanc + grain) ; vintage_warm=nostalgie/rétro\n"
         " \"bg_text\": \"texte TRÈS court (<=16 caractères, ex 'ME AT 7:00', '0€ DE PUB') affiché en GÉANT derrière la personne au début (effet 3D pro) — UNIQUEMENT si une personne est clairement visible en pied ou buste face caméra, sinon vide\",\n"
-        " \"objects\": [{\"word\": \"mot EXACT de la transcription\", \"emoji\": \"un émoji OBJET\"}]}  // 0-2 GROS objets animés qui traversent l'écran (voiture 🚗, téléphone 📱, produit 📦…) quand la parole cite un objet IMPORTANT — différent des petits émojis de sous-titres"
+        " \"objects\": [{\"word\": \"mot EXACT de la transcription\", \"emoji\": \"un émoji OBJET\"}],  // 0-2 GROS objets animés qui traversent l'écran (voiture 🚗, téléphone 📱, produit 📦…) quand la parole cite un objet IMPORTANT — différent des petits émojis de sous-titres\n"
+        " \"effects\": [\"hdr|shake|flash|rgbsplit|glow|godrays|grain|vignette|grain_vignette\"]}  // 0-3 effets vidéo SUBTILS et PRO adaptés au type : hdr=netteté/couleurs (presque toujours utile) ; shake=secousse sur les impacts (sport/énergique) ; flash=flash blanc sur un temps fort ; rgbsplit=glitch (tech/gaming/horreur) ; glow=lueur douce (beauté/luxe) ; godrays=rayons lumineux (lifestyle/motivation) ; grain+vignette=grain cinéma (docu/rétro/histoire). Reste SOBRE — jamais surchargé"
     )
     try:
         st, raw = http("POST", "https://api.groq.com/openai/v1/chat/completions",
@@ -1380,7 +1521,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
         for k in ("subtitles", "cut_silences", "hook_text", "music_mood", "keywords", "sfx",
                   "emojis", "brands", "sub_position", "sub_style", "sub_style_id", "highlight",
                   "broll_keywords", "transition", "color_grade", "bg_text", "objects",
-                  "audio_type"):
+                  "audio_type", "effects"):
             if k in plan:
                 merged[k] = plan[k]
         merged["reframe"] = not facts["vertical"]
@@ -1976,6 +2117,8 @@ def process(job):
             plan["color_grade"] = rec["grade"]
         if not str(plan.get("transition") or ""):
             plan["transition"] = rec["trans"]
+        # Effets vidéo : base de la recette + ce que l'IA a ajouté (subtil, pro)
+        effects_sel = resolve_effects(list(rec["effects"]) + list(plan.get("effects") or []))
         # MUSIQUE ou VOIX ? Croise l'acoustique et le jugement de l'IA. Si c'est
         # une CHANSON, on NE sous-titre PAS les paroles : on la traite comme une
         # vidéo sans voix (montage rythmé, musique gardée au premier plan).
@@ -2092,6 +2235,7 @@ def process(job):
         layout = sentence_layout(words, str(plan.get("sub_position") or "dynamic"), seed, bands=bands)
         slide = None
         music_fg = False  # musique au premier plan (mode sans voix)
+        impact_pts = []   # instants (timeline COURANTE) pour shake/flash/glitch
         if len(words) >= 6 and ffprobe_facts(cur)["duration"] > 6:
             steps.start("fx", "Montage dynamique (zooms, effets, sons)…")
             try:
@@ -2168,6 +2312,8 @@ def process(job):
                     detail += f" + {len(emo)} émoji(s)"
                 if objs:
                     detail += f" + {len(objs)} objet(s)/logo(s) animé(s)"
+                # Ancres d'impact (mots forts) pour d'éventuels effets shake/flash
+                impact_pts = [float(k["start"]) for k in kws[:4]]
                 steps.done("fx", detail)
             except Exception as e:
                 print("fx:", e, file=sys.stderr)
@@ -2227,6 +2373,7 @@ def process(job):
                     outo = os.path.join(work, "objs.mp4")
                     if overlay_objects(cur, outo, objs, seed=seed):
                         cur = outo
+                impact_pts = (best[:3] or rhythm[1:4])
                 steps.done("fx", f"{len(rhythm)} accents rythmés + {len(sfx_ev)} son(s)"
                            + (" + ralenti" if ramped else "") + f" · type {vtype}")
             except Exception as e:
@@ -2234,6 +2381,44 @@ def process(job):
                 steps.done("fx", "montage rythmé non appliqué (on continue)")
         else:
             steps.skip("fx", "Montage dynamique", "vidéo trop courte")
+
+        # 5b. EFFETS VIDÉO (subtils, pro) : look continu (HDR/grain/vignette/lueur)
+        #     + impacts ponctuels (secousse/flash/glitch) calés sur les temps forts.
+        if effects_sel:
+            steps.start("effects", "Effets vidéo…")
+            applied = []
+            try:
+                inten = 0.7 if str((vision or {}).get("video_type")) in ("luxury_aesthetic", "story", "talk_facecam") else 1.0
+                # a) look continu linéaire (grain, vignette, HDR)
+                lc = look_chain(effects_sel, intensity=inten)
+                if lc:
+                    outl = os.path.join(work, "look.mp4")
+                    run(["ffmpeg", "-y", "-i", cur, "-vf", lc, "-c:v", "libx264",
+                         "-preset", "veryfast", "-crf", "20", "-c:a", "copy", outl])
+                    cur = outl
+                    applied.append("look")
+                # b) lueur / rayons (passe blend dédiée)
+                for gk in ("glow", "godrays"):
+                    if gk in effects_sel:
+                        outg = os.path.join(work, f"{gk}.mp4")
+                        if look_glow(cur, outg, kind=gk, intensity=inten):
+                            cur = outg
+                            applied.append(gk)
+                # c) impacts ponctuels sur les temps forts (subtil : peu et bien placés)
+                dur_now = ffprobe_facts(cur)["duration"]
+                pts = [t for t in (impact_pts or []) if 0.4 < float(t) < dur_now - 0.4][:4]
+                sh = pts if "shake" in effects_sel else []
+                fl = pts[:1] if "flash" in effects_sel else []
+                sp = pts[:2] if "rgbsplit" in effects_sel else []
+                if sh or fl or sp:
+                    outi = os.path.join(work, "impact.mp4")
+                    if impact_fx(cur, outi, shakes=sh, flashes=fl, splits=sp, seed=seed):
+                        cur = outi
+                        applied.append("impacts")
+                steps.done("effects", " + ".join(applied) if applied else "aucun applicable")
+            except Exception as e:
+                print("effects:", e, file=sys.stderr)
+                steps.done("effects", "effets non appliqués (on continue)")
 
         # 5c. ÉGALISEUR réactif au son (image quasi fixe + musique -> on la fait vivre)
         if want_visualizer:

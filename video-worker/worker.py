@@ -43,6 +43,7 @@ SB_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "")
 MUSIC_BUCKET = os.environ.get("MUSIC_BUCKET", "music-library")
+STYLE_BUCKET = os.environ.get("STYLE_BUCKET", "style-library")  # styles appris des vidéos virales
 POLL_SECONDS = float(os.environ.get("POLL_SECONDS", "3"))
 MAX_DURATION_S = float(os.environ.get("MAX_DURATION_S", "300"))  # 5 min max en v1
 
@@ -307,6 +308,116 @@ def dead_time_spans(duration, silences, freezes, min_len=1.2):
         if silent_frac(s, end) >= 0.6 or (e is None and silent_frac(s, min(end, s + 3)) >= 0.5):
             spans.append((max(0.0, s - 0.1), end))
     return spans
+
+
+def frame_colors(src, duration, work, n=6):
+    """Mesure les couleurs moyennes de la vidéo (luminosité, saturation, chaleur)
+    sur n images réparties. Utilise PIL. Retourne un dict ou {} si indispo."""
+    try:
+        from PIL import Image
+    except Exception:
+        return {}
+    times = [duration * (k + 0.5) / n for k in range(n)]
+    frames = extract_frames(src, [t for t in times if t < duration - 0.1], work, width=160)
+    if not frames:
+        return {}
+    br, sat, warm, samp = 0.0, 0.0, 0.0, 0
+    for (_t, p) in frames:
+        try:
+            im = Image.open(p).convert("RGB")
+        except Exception:
+            continue
+        px = list(im.getdata())
+        if not px:
+            continue
+        step = max(1, len(px) // 800)  # échantillonne ~800 pixels
+        px = px[::step]
+        for (r, g, b) in px:
+            mx, mn = max(r, g, b), min(r, g, b)
+            br += (r + g + b) / 3.0
+            sat += (mx - mn) / (mx + 1e-6)
+            warm += (r - b)
+        samp += len(px)
+    if not samp:
+        return {}
+    return {"brightness": round(br / samp / 255.0, 3),   # 0..1
+            "saturation": round(sat / samp, 3),           # 0..1
+            "warmth": round(warm / samp / 255.0, 3)}       # -1..1 (chaud>0, froid<0)
+
+
+def color_to_grade(colors):
+    """Traduit une signature couleur (frame_colors) en un étalonnage du catalogue."""
+    if not colors:
+        return ""
+    b, s, w = colors.get("brightness", 0.5), colors.get("saturation", 0.3), colors.get("warmth", 0.0)
+    if s < 0.10:
+        return "bw_horror"          # quasi noir et blanc
+    if b < 0.32:
+        return "dark_moody"         # sombre
+    if w > 0.10 and s > 0.22:
+        return "warm_luxury"        # chaud et riche
+    if w < -0.06:
+        return "cold_cinematic"     # froid / bleuté
+    if s > 0.42:
+        return "vibrant_pop"        # très saturé
+    return ""
+
+
+def analyze_reference(src, work, category=""):
+    """Extrait le STYLE mesurable d'une vidéo virale de référence :
+    cadence de coupe, couleurs (étalonnage), énergie / rythme, mouvement.
+    -> profil de style réutilisable pour améliorer les vidéos de cette catégorie.
+    N'utilise PAS Groq (la catégorie est fournie) : rapide et gratuit."""
+    facts = ffprobe_facts(src)
+    d = facts["duration"] or 1.0
+    cuts = scene_cuts(src)
+    gaps = [cuts[i + 1] - cuts[i] for i in range(len(cuts) - 1)] if len(cuts) >= 2 else []
+    cadence = sorted(gaps)[len(gaps) // 2] if gaps else d
+    cut_s = round(min(4.0, max(1.4, cadence)), 2)
+    colors = frame_colors(src, d, work)
+    grade = color_to_grade(colors)
+    beats = detect_beats(src, d) if facts["has_audio"] else []
+    energy = audio_energy(src, d) if facts["has_audio"] else []
+    avg_e = round(sum(lv for _t, lv in energy) / len(energy), 3) if energy else 0.0
+    music_driven = len(beats) >= max(6, d / 1.4)
+    shots_per_min = round(len(cuts) / (d / 60.0), 1) if d else 0
+    intensity = round(min(1.0, 0.4 + shots_per_min / 40.0 + avg_e * 0.4), 2)
+    return {
+        "category": str(category or "").strip().lower(),
+        "duration": round(d, 1),
+        "cut_s": cut_s,
+        "shots_per_min": shots_per_min,
+        "grade": grade,
+        "colors": colors,
+        "music_driven": bool(music_driven),
+        "avg_energy": avg_e,
+        "intensity": intensity,
+    }
+
+
+def merge_profiles(profiles):
+    """Agrège plusieurs profils d'une même catégorie -> un profil moyen robuste."""
+    profiles = [p for p in profiles if p]
+    if not profiles:
+        return {}
+    n = len(profiles)
+
+    def avg(key, default=0.0):
+        vals = [float(p.get(key, default) or 0) for p in profiles]
+        return sum(vals) / n
+
+    grades = [p.get("grade") for p in profiles if p.get("grade")]
+    grade = max(set(grades), key=grades.count) if grades else ""
+    return {
+        "category": profiles[0].get("category", ""),
+        "samples": n,
+        "cut_s": round(avg("cut_s", 2.6), 2),
+        "shots_per_min": round(avg("shots_per_min"), 1),
+        "grade": grade,
+        "music_driven": sum(1 for p in profiles if p.get("music_driven")) > n / 2,
+        "avg_energy": round(avg("avg_energy"), 3),
+        "intensity": round(avg("intensity", 0.6), 2),
+    }
 
 
 def filler_spans(words):
@@ -2087,6 +2198,30 @@ def overlay_broll(src, dst, brolls, duration, transition="fade", seed=0):
     return slots[:len(brolls)]
 
 
+# ---------------------------------------------------------------- styles appris
+_STYLE_CACHE = {}
+
+
+def load_style_profile(category):
+    """Charge le style APPRIS des vidéos virales pour cette catégorie
+    (style-library/{categorie}.json). None si absent. Mis en cache."""
+    cat = str(category or "").strip().lower()
+    if not cat:
+        return None
+    if cat in _STYLE_CACHE:
+        return _STYLE_CACHE[cat]
+    prof = None
+    try:
+        url = f"{SB_URL}/storage/v1/object/public/{STYLE_BUCKET}/{urllib.parse.quote(cat)}.json"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 Skillora"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            prof = json.loads(r.read().decode())
+    except Exception:
+        prof = None  # pas de style appris pour cette catégorie -> défauts codés
+    _STYLE_CACHE[cat] = prof
+    return prof
+
+
 # ---------------------------------------------------------------- musique (bucket)
 def pick_music(mood):
     """Choisit une piste du bucket musique d'après le NOM du fichier :
@@ -2183,7 +2318,23 @@ def process(job):
         plan = groq_plan(facts, tr_text, context, vision)
         # Recette de montage selon le type de vidéo détecté : comble les choix que
         # l'IA n'a pas faits (étalonnage, transition) avec les réglages du style.
-        rec = recipe_for((vision or {}).get("video_type"))
+        vtype = str((vision or {}).get("video_type") or "")
+        rec = dict(recipe_for(vtype))
+        # STYLE APPRIS : si tu as envoyé des vidéos virales de cette catégorie, le
+        # worker applique leur style mesuré (cadence de coupe, étalonnage,
+        # intensité) — il PRIME sur les réglages codés en dur.
+        learned = load_style_profile(vtype)
+        learn_note = ""
+        if learned:
+            if learned.get("cut_s"):
+                rec["cut_s"] = float(learned["cut_s"])
+            if learned.get("grade"):
+                rec["grade"] = learned["grade"]
+            # intensité apprise -> ampleur des zooms (montage nerveux vs posé)
+            inten = float(learned.get("intensity") or 0.6)
+            base = rec["zooms"]
+            rec["zooms"] = [1.0 if z <= 1.0 else round(1.0 + (z - 1.0) * (0.6 + inten), 3) for z in base]
+            learn_note = f" · style appris ({learned.get('samples', 1)} réf.)"
         if not str(plan.get("color_grade") or ""):
             plan["color_grade"] = rec["grade"]
         if not str(plan.get("transition") or ""):
@@ -2213,6 +2364,7 @@ def process(job):
             det += (f" · {vision.get('frames_analyzed', 0)} images analysées"
                     f" · type: {vision.get('video_type', '?')}"
                     f" · {len(cuts)} plan(s)")
+        det += learn_note
         steps.done("analyze", det)
 
         cur = src

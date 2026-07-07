@@ -263,6 +263,52 @@ def detect_beats(path, duration):
     return onsets[:80]
 
 
+def freeze_spans(path, noise="-58dB", d=1.0):
+    """Détecte les passages où l'image est FIGÉE (logo de fin, carte statique,
+    écran gelé) via freezedetect. Retourne [(début, fin|None)] ; fin=None = gel
+    qui va jusqu'au bout de la vidéo."""
+    try:
+        p = subprocess.run(["ffmpeg", "-i", path, "-vf", f"freezedetect=n={noise}:d={d}",
+                            "-map", "0:v:0", "-an", "-f", "null", "-"],
+                           capture_output=True, text=True, timeout=600)
+        out = p.stderr
+        starts = [float(m) for m in re.findall(r"lavfi\.freezedetect\.freeze_start[=:] ?([\d.]+)", out)]
+        if not starts:
+            starts = [float(m) for m in re.findall(r"freeze_start[=:] ?([\d.]+)", out)]
+        ends = [float(m) for m in re.findall(r"freeze_end[=:] ?([\d.]+)", out)]
+        spans = []
+        for i, s in enumerate(starts):
+            spans.append((s, ends[i] if i < len(ends) else None))
+        return spans
+    except Exception as e:
+        print("freeze_spans:", e, file=sys.stderr)
+        return []
+
+
+def dead_time_spans(duration, silences, freezes, min_len=1.2):
+    """Temps MORTS à couper (partout, même sans parole) : un passage est mort s'il
+    est À LA FOIS figé (image gelée) ET silencieux. Cible surtout les logos/cartes
+    de fin sans son. Retourne des plages [(début, fin)] à retirer."""
+    sils = [(float(s), float(e)) for (s, e) in (silences or [])]
+
+    def silent_frac(a, b):
+        if b <= a:
+            return 0.0
+        cov = sum(max(0.0, min(b, e) - max(a, s)) for (s, e) in sils)
+        return cov / (b - a)
+
+    spans = []
+    for (s, e) in (freezes or []):
+        end = duration if e is None else e
+        if end - s < min_len:
+            continue
+        # figé + majoritairement silencieux -> mort. Un gel jusqu'à la fin (logo
+        # de fin) est coupé même sans info de silence précise.
+        if silent_frac(s, end) >= 0.6 or (e is None and silent_frac(s, min(end, s + 3)) >= 0.5):
+            spans.append((max(0.0, s - 0.1), end))
+    return spans
+
+
 def filler_spans(words):
     """Plages des 'euh/hum…' à retirer, d'après les timestamps par mot."""
     spans = []
@@ -747,29 +793,32 @@ def slide_aside(src, dst, t1, dur=1.5):
 #   sfx     : "high"/"med"/"low" — densité des bruitages de transition
 #   slowmo  : True = ralenti d'emphase autorisé sur le meilleur moment
 RECIPES = {
-    "energetic":        dict(zooms=[1.0, 1.16, 1.0, 1.22, 1.08], cut_s=2.2, grade="vibrant_pop",
-                             trans="zoom_blur", sfx="high", slowmo=True,
-                             effects=["hdr", "shake", "flash"]),
-    "vlog":             dict(zooms=[1.0, 1.10, 1.0, 1.14], cut_s=2.8, grade="",
-                             trans="whip", sfx="med", slowmo=True,
+    # Transitions par défaut = FONDU propre (les slides/zooms brusques faisaient
+    # "cheap"/horrible). L'IA peut choisir plus punchy si le style s'y prête.
+    # SFX en 'low' partout : les sons soulignent, ils n'envahissent pas.
+    "energetic":        dict(zooms=[1.0, 1.14, 1.0, 1.18], cut_s=2.4, grade="vibrant_pop",
+                             trans="fade", sfx="med", slowmo=True,
                              effects=["hdr"]),
-    "talk_facecam":     dict(zooms=[1.0, 1.09, 1.0, 1.13], cut_s=3.0, grade="",
-                             trans="fade", sfx="med", slowmo=False,
+    "vlog":             dict(zooms=[1.0, 1.09, 1.0, 1.12], cut_s=2.8, grade="",
+                             trans="fade", sfx="low", slowmo=True,
                              effects=["hdr"]),
-    "horror":           dict(zooms=[1.0, 1.06, 1.0, 1.28], cut_s=3.6, grade="bw_horror",
-                             trans="dip_black", sfx="med", slowmo=True,
-                             effects=["grain_vignette", "shake", "rgbsplit"]),
+    "talk_facecam":     dict(zooms=[1.0, 1.08, 1.0, 1.12], cut_s=3.0, grade="",
+                             trans="fade", sfx="low", slowmo=False,
+                             effects=["hdr"]),
+    "horror":           dict(zooms=[1.0, 1.06, 1.0, 1.26], cut_s=3.6, grade="bw_horror",
+                             trans="dip_black", sfx="low", slowmo=True,
+                             effects=["grain_vignette"]),
     "luxury_aesthetic": dict(zooms=[1.0, 1.05, 1.0, 1.04], cut_s=3.4, grade="warm_luxury",
-                             trans="scale_reveal", sfx="low", slowmo=True,
+                             trans="fade", sfx="low", slowmo=True,
                              effects=["glow", "vignette"]),
-    "product":          dict(zooms=[1.0, 1.14, 1.0, 1.18], cut_s=2.6, grade="cold_cinematic",
-                             trans="white_flash", sfx="high", slowmo=False,
-                             effects=["hdr", "flash"]),
-    "story":            dict(zooms=[1.0, 1.08, 1.0, 1.12], cut_s=3.4, grade="cold_cinematic",
-                             trans="fade", sfx="med", slowmo=False,
+    "product":          dict(zooms=[1.0, 1.12, 1.0, 1.16], cut_s=2.6, grade="cold_cinematic",
+                             trans="fade", sfx="low", slowmo=False,
+                             effects=["hdr"]),
+    "story":            dict(zooms=[1.0, 1.07, 1.0, 1.11], cut_s=3.4, grade="cold_cinematic",
+                             trans="fade", sfx="low", slowmo=False,
                              effects=["grain", "vignette"]),
-    "other":            dict(zooms=[1.0, 1.13, 1.0, 1.2], cut_s=2.6, grade="",
-                             trans="fade", sfx="med", slowmo=False,
+    "other":            dict(zooms=[1.0, 1.11, 1.0, 1.16], cut_s=2.8, grade="",
+                             trans="fade", sfx="low", slowmo=False,
                              effects=["hdr"]),
 }
 
@@ -1010,19 +1059,23 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
     maps = ["-map", "[vz]"]
     if has_audio:
         bank = make_sfx_bank(work)
-        events = [(t, "whoosh") for t in ([b for b in bounds[1:]] + list(extra_whooshes or []))[:14]]
-        for (t, name) in (sfx_events or [])[:14]:
+        # SOBRIÉTÉ : PAS de whoosh sur chaque zoom (c'était du bruit partout).
+        # Whoosh UNIQUEMENT sur les vraies transitions (b-roll, effet 'côté'),
+        # peu nombreuses. Les bruitages de SENS (typing/cash/ding…) viennent de
+        # sfx_events, eux aussi limités.
+        events = [(t, "whoosh") for t in list(extra_whooshes or [])[:4]]
+        for (t, name) in (sfx_events or [])[:6]:
             events.append((t, name if name in bank else "pop"))
-        # volume par type : les bruitages "sens" doivent s'entendre par-dessus la voix
         # Repli des intentions non présentes dans la banque -> son le plus proche
         NEAR = {"explosion": "impact", "boom": "impact", "glitch": "beep", "camera": "click",
                 "scratch": "whoosh", "applause": "magic", "fail": "pop", "scream": "impact",
                 "heartbeat": "impact", "riser": "whoosh", "airhorn": "ding", "beep": "pop"}
         events = [(t, name if name in bank else NEAR.get(name, "pop")) for (t, name) in events]
-        VOL = {"whoosh": 0.5, "pop": 0.8, "click": 0.9, "typing": 0.9, "ding": 0.8,
-               "cash": 0.85, "magic": 0.8, "impact": 0.9, "explosion": 0.9, "glitch": 0.8,
-               "camera": 0.85, "beep": 0.85, "scratch": 0.8, "applause": 0.7, "fail": 0.85,
-               "scream": 0.85, "heartbeat": 0.6, "riser": 0.7, "airhorn": 0.9, "boom": 0.9}
+        # Volumes DISCRETS : les sons soulignent, ils ne dominent pas la vidéo.
+        VOL = {"whoosh": 0.32, "pop": 0.5, "click": 0.6, "typing": 0.6, "ding": 0.55,
+               "cash": 0.58, "magic": 0.55, "impact": 0.62, "explosion": 0.62, "glitch": 0.55,
+               "camera": 0.58, "beep": 0.55, "scratch": 0.55, "applause": 0.5, "fail": 0.58,
+               "scream": 0.58, "heartbeat": 0.42, "riser": 0.5, "airhorn": 0.6, "boom": 0.62}
         # Résout chaque événement vers un FICHIER concret, en tournant entre les
         # variantes de l'intention (6 whooshs différents -> jamais deux fois le même à la suite)
         rot = {}
@@ -2090,6 +2143,24 @@ def process(job):
         seed = int(str(job["id"]).replace("-", "")[:8], 16) & 0xFFFF
         steps.done("dl", f"{facts['duration']:.0f}s · {facts['width']}x{facts['height']}")
 
+        # ÉTAPE 0 : couper les TEMPS MORTS figés + silencieux (logo/carte de fin
+        # sans son, écran gelé), AVANT toute analyse. Marche même sans parole.
+        steps.start("trim", "Repérage des temps morts…")
+        sil0 = detect_silences(src, noise_db=-40, min_d=0.5) if facts["has_audio"] else [(0.0, facts["duration"])]
+        deads = dead_time_spans(facts["duration"], sil0, freeze_spans(src))
+        # garde-fou : ne jamais retirer plus de 45 % de la vidéo
+        total_dead = sum(e - s for (s, e) in deads)
+        if deads and total_dead < facts["duration"] * 0.45:
+            outc = os.path.join(work, "trim.mp4")
+            if cut_spans(src, outc, [], deads, facts["duration"]):
+                src = outc
+                facts = ffprobe_facts(src)
+                steps.done("trim", f"{total_dead:.0f}s de temps mort retiré(s)")
+            else:
+                steps.done("trim", "aucun temps mort")
+        else:
+            steps.done("trim", "aucun temps mort")
+
         steps.start("analyze", "Analyse : le worker regarde et écoute ta vidéo…")
         d = facts["duration"]
         silences = detect_silences(src) if facts["has_audio"] else []
@@ -2347,10 +2418,18 @@ def process(job):
                         thinned.append(b)
                         lastb = b
                 rhythm = thinned[:40]
-                # Whoosh sur chaque changement de plan + impact sur les temps forts
+                # SOBRIÉTÉ : quelques sons SEULEMENT, aux vrais moments forts.
+                # Pas un whoosh à chaque coupe (c'était du bruit partout).
                 best = [float(x) for x in ((vision or {}).get("best_moments") or []) if timeline_intact and 0.4 < float(x) < dur_cur - 0.4]
-                sfx_ev = [(c, "whoosh") for c in src_cuts if 0.4 < c < dur_cur - 0.4][:12]
-                sfx_ev += [(t, "impact") for t in best][:4]
+                # au plus 1 whoosh toutes les ~4 s, sur les changements de plan
+                sfx_ev, lastw = [], -9.0
+                for c in [c for c in src_cuts if 0.4 < c < dur_cur - 0.4]:
+                    if c - lastw >= 4.0:
+                        sfx_ev.append((c, "whoosh"))
+                        lastw = c
+                    if len(sfx_ev) >= 3:
+                        break
+                sfx_ev += [(t, "impact") for t in best[:2]]
                 out = os.path.join(work, "fx.mp4")
                 if zoom_punch(cur, out, [], facts["has_audio"], work,
                               sfx_events=sorted(sfx_ev), seed=seed,

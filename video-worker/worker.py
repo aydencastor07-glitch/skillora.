@@ -1023,9 +1023,12 @@ def enhance_chain(enh):
     wa = clamp(enh.get("warmth", 0), -0.15, 0.15, 0.0)
     sh = clamp(enh.get("sharpen", 0), 0.0, 1.0, 0.0)
     parts = []
-    # netteté : un minimum systématique (les vidéos smartphone en ont besoin)
-    parts.append(f"unsharp=5:5:{0.3 + 0.6 * sh:.2f}:5:5:0.0")
-    parts.append("hqdn3d=1.5:1.5:3:3")  # léger débruitage
+    # RESTAURATION (ordre pro) : 1) débruitage, 2) netteté adaptative CAS (nette
+    # SANS halos), 3) micro-détail à l'unsharp. Récupère un maximum de netteté
+    # perçue sur les vidéos basse qualité / recadrées.
+    parts.append("hqdn3d=2:1.5:5:5")                          # débruitage (nettoie avant d'affiner)
+    parts.append(f"cas=strength={0.35 + 0.45 * sh:.2f}")     # netteté adaptative au contraste
+    parts.append(f"unsharp=3:3:{0.2 + 0.45 * sh:.2f}:3:3:0.0")  # micro-détail
     if abs(br) > 0.005 or abs(co - 1) > 0.005 or abs(sa - 1) > 0.005:
         parts.append(f"eq=brightness={br:.3f}:contrast={co:.3f}:saturation={sa:.3f}")
     if abs(wa) > 0.01:  # chaleur : + = plus chaud (rouge↑ bleu↓)

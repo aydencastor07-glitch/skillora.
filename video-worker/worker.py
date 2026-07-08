@@ -2747,11 +2747,18 @@ def process(job):
             plan["transition"] = rec["trans"]
         # Effets vidéo : base de la recette + ce que l'IA a ajouté (subtil, pro)
         effects_sel = resolve_effects(list(rec["effects"]) + list(plan.get("effects") or []))
-        # MUSIQUE ou VOIX ? Croise l'acoustique et le jugement de l'IA. Si c'est
-        # une CHANSON, on NE sous-titre PAS les paroles : on la traite comme une
-        # vidéo sans voix (montage rythmé, musique gardée au premier plan).
-        acoustic = classify_audio(first_tr, silences, beats, d) if tr_text else "silent"
-        is_music = (str(plan.get("audio_type") or "") == "music") or acoustic == "music"
+        # MUSIQUE ou VOIX ? Gemini a VU et ENTENDU la vidéo -> son avis PRIME.
+        # (Bug corrigé : mon détecteur acoustique prenait une voix sur fond musical
+        # pour une chanson et coupait les sous-titres.) L'acoustique n'est utilisée
+        # QU'EN REPLI, quand Gemini n'a rien dit.
+        gem_audio = str((gem or {}).get("audio_type") or "")
+        if gem_audio == "voice":
+            is_music = False
+        elif gem_audio == "music":
+            is_music = True
+        else:
+            acoustic = classify_audio(first_tr, silences, beats, d) if tr_text else "silent"
+            is_music = (str(plan.get("audio_type") or "") == "music") or acoustic == "music"
         if is_music:
             plan["subtitles"] = False
             plan["cut_silences"] = False  # ne pas charcuter une chanson
@@ -2801,25 +2808,32 @@ def process(job):
         else:
             steps.skip("cut", "Coupe des temps morts", "pas nécessaire")
 
-        # 2. Recadrage 9:16 — INTELLIGENT (suit le sujet) si Gemini le recommande
+        # 2. Recadrage 9:16 — une vidéo HORIZONTALE devient verticale en REMPLISSANT
+        # l'écran avec le sujet (crop intelligent), jamais le flou-bordures moche.
+        # Suit le sujet si Gemini fournit un track, sinon crop centré. Le flou-bordures
+        # n'est qu'un ultime repli si le crop échoue.
         gem_track = (vision or {}).get("subject_track") or []
-        want_smart = bool(gem and (gem or {}).get("needs_reframe") and gem_track)
-        if plan.get("reframe") or want_smart:
+        if plan.get("reframe"):
             out = os.path.join(work, "frame.mp4")
-            did = False
-            if want_smart:
-                steps.start("frame", "Recadrage vertical qui SUIT le sujet…")
-                if smart_reframe(cur, out, gem_track):
-                    cur = out
-                    did = True
-                    steps.done("frame", "cadrage qui suit le sujet")
-            if not did and plan.get("reframe"):
-                steps.start("frame", "Recadrage vertical 9:16…")
+            following = bool(gem and (gem or {}).get("needs_reframe") and gem_track)
+            steps.start("frame", "Recadrage vertical qui SUIT le sujet…" if following
+                        else "Recadrage vertical (sujet centré)…")
+            if smart_reframe(cur, out, gem_track if following else []):
+                cur = out
+                steps.done("frame", "cadrage qui suit le sujet" if following
+                           else "cadrage vertical plein écran (sujet centré)")
+            else:
                 reframe_916(cur, out, facts["width"], facts["height"])
                 cur = out
-                did = True
-                steps.done("frame")
-            if not did:
+                steps.done("frame", "recadrage (repli)")
+        elif gem and (gem or {}).get("needs_reframe") and gem_track:
+            # déjà vertical mais sujet décentré -> on recompose en le suivant
+            out = os.path.join(work, "frame.mp4")
+            steps.start("frame", "Recomposition (le sujet reste cadré)…")
+            if smart_reframe(cur, out, gem_track):
+                cur = out
+                steps.done("frame", "sujet recadré")
+            else:
                 steps.skip("frame", "Recadrage 9:16", "déjà au bon format")
         else:
             steps.skip("frame", "Recadrage 9:16", "déjà au bon format")

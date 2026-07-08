@@ -1313,6 +1313,69 @@ def reframe_916(src, dst, w, h):
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
 
 
+def _piecewise_expr(points, var="t", default=0.0):
+    """Construit une expression ffmpeg interpolée linéairement entre des points
+    (t, valeur) triés. Renvoie une chaîne utilisable dans crop/overlay."""
+    pts = sorted((float(t), float(v)) for (t, v) in points)
+    if not pts:
+        return f"{default}"
+    if len(pts) == 1:
+        return f"{pts[0][1]:.2f}"
+    expr = f"{pts[0][1]:.2f}"  # avant le 1er point : valeur du 1er point
+    for i in range(len(pts) - 1):
+        t0, v0 = pts[i]
+        t1, v1 = pts[i + 1]
+        if t1 - t0 < 0.05:
+            continue
+        slope = (v1 - v0) / (t1 - t0)
+        seg = f"({v0:.2f}+({slope:.3f})*({var}-{t0:.3f}))"
+        expr = f"if(lt({var},{t1:.3f}),{expr},{seg})"
+    # après le dernier point : valeur du dernier point
+    expr = f"if(gte({var},{pts[-1][0]:.3f}),{pts[-1][1]:.2f},{expr})"
+    return expr
+
+
+def smart_reframe(src, dst, track, target_w=1080, target_h=1920):
+    """Recadrage 9:16 INTELLIGENT : la fenêtre verticale SUIT le sujet grâce au
+    track de Gemini [{t, x}] (x = centre horizontal 0..1). Panoramique fluide,
+    sujet toujours cadré. Retombe sur un crop centré si le track est vide.
+    Idéal pour passer une vidéo horizontale/carrée en vertical sans perdre le sujet."""
+    facts = ffprobe_facts(src)
+    W, H = facts["width"], facts["height"]
+    if not W or not H:
+        return False
+    # on met la source à la hauteur cible, la largeur suit le ratio
+    scaled_w = max(target_w, int(round(target_h * W / H)))
+    scaled_w = scaled_w // 2 * 2
+    room = scaled_w - target_w  # marge horizontale disponible pour suivre le sujet
+    if room <= 2:
+        # déjà assez vertical -> pas de room : simple mise à l'échelle + crop centré
+        room = 0
+    # points (t, x_pixel_offset) : x_center*scaled_w - target_w/2, borné à [0, room]
+    pts = []
+    for p in (track or []):
+        try:
+            t = float(p.get("t"))
+            x = min(1.0, max(0.0, float(p.get("x"))))
+            off = min(room, max(0, x * scaled_w - target_w / 2))
+            pts.append((t, off))
+        except Exception:
+            pass
+    if room and pts:
+        xexpr = _piecewise_expr(pts, var="t", default=room / 2)
+    else:
+        xexpr = f"{room // 2}"
+    fc = (f"[0:v]scale={scaled_w}:{target_h}:flags=lanczos,"
+          f"crop={target_w}:{target_h}:'{xexpr}':0[v]")
+    try:
+        run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc, "-map", "[v]", "-map", "0:a?",
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+        return os.path.exists(dst) and os.path.getsize(dst) > 2000
+    except Exception as e:
+        print("smart_reframe:", e, file=sys.stderr)
+        return False
+
+
 # ---------------------------------------------------------------- texte derrière la personne
 _REMBG_SESSION = None
 
@@ -1823,6 +1886,8 @@ def gemini_analyze_video(path, duration):
         " \"outro_start\": s_ou_null,  // LE PLUS IMPORTANT : la SECONDE EXACTE où commence l'écran de fin / l'outro / la carte avec un LOGO (Instagram, TikTok…) ou un @pseudo, MÊME s'il y a de la musique ou une animation dessus. Regarde bien la FIN. Si la vidéo se termine par un logo/pseudo/carte de fin, donne la seconde où ça commence pour qu'on le COUPE. null s'il n'y a pas d'écran de fin\n"
         " \"dead_time\": [{\"start\": s, \"end\": s}],  // AUTRES temps morts à couper (secondes précises) : intros lentes/vides, blancs, moments où il ne se passe rien\n"
         " \"enhance\": {\"brightness\": -0.15..0.15, \"contrast\": 0.9..1.25, \"saturation\": 0.9..1.35, \"warmth\": -0.15..0.15, \"sharpen\": 0..1},  // AMÉLIORATION IMAGE que tu recommandes APRÈS avoir VU la vidéo : corrige ce qui cloche (trop sombre -> brightness+ ; terne -> saturation+/contrast+ ; flou/pas net -> sharpen+ ; froid/chaud à corriger -> warmth). Valeurs neutres (0, 1, 1, 0, 0) si l'image est déjà parfaite. Sois utile : presque toutes les vidéos smartphone gagnent en netteté et en punch\n"
+        " \"needs_reframe\": bool,  // true si la vidéo gagnerait à être recadrée en vertical en SUIVANT le sujet (source horizontale/carrée, OU sujet souvent décentré) ; false si déjà bien cadré vertical\n"
+        " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=tout à gauche, 0.5=centre, 1=tout à droite) à 6-10 instants répartis, pour que le cadrage le SUIVE ; [] sinon\n"
         " \"scenes\": [{\"t\": s, \"action\": \"ce qu'on voit\", \"motion\": bool, \"interest\": 0-10}],\n"
         " \"best_moments\": [s, ...],  // 0-4 instants VRAIMENT forts, ou [] si la vidéo est régulière\n"
         " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\"}"
@@ -1833,6 +1898,32 @@ def gemini_analyze_video(path, duration):
     res["engine"] = "gemini"
     res["frames_analyzed"] = "toute la vidéo"
     return res
+
+
+def gemini_qc(path, duration, had_subs=False):
+    """CONTRÔLE QUALITÉ : Gemini regarde la vidéo AMÉLIORÉE (le rendu final) et
+    dit s'il reste des problèmes : temps mort/logo restant, sous-titres qui
+    couvrent le visage ou mal synchro, montage trop chargé, son déséquilibré.
+    Renvoie {ok, score, remaining_dead_time[], subs_cover_face, too_busy, note}.
+    None si pas de clé / échec."""
+    if not GEMINI_KEY:
+        return None
+    uri = gemini_upload(path)
+    if not uri:
+        return None
+    prompt = (
+        "Tu es un directeur de post-production TRÈS exigeant. Voici une vidéo courte "
+        f"({duration:.0f}s) qui vient d'être montée automatiquement pour devenir un reel "
+        "viral. CONTRÔLE-la et dis ce qui ne va ENCORE pas. Réponds UNIQUEMENT ce JSON:\n"
+        "{\"score\": 0-10,  // qualité globale du montage\n"
+        " \"ok\": bool,  // true si publiable tel quel\n"
+        " \"remaining_dead_time\": [{\"start\": s, \"end\": s}],  // temps morts/logos/écrans de fin qu'il RESTE à couper (secondes précises), [] si aucun\n"
+        + (" \"subs_cover_face\": bool,  // les sous-titres cachent-ils le visage ou un élément important ?\n" if had_subs else "")
+        + " \"too_busy\": bool,  // le montage est-il TROP chargé (trop d'effets/zooms/sons) ?\n"
+        " \"note\": \"le problème principal en 1 phrase, ou 'RAS'\"}"
+    )
+    res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
+    return res if isinstance(res, dict) else None
 
 
 def remap_after_cut(t, deads):
@@ -1861,6 +1952,9 @@ def remap_vision(vision, deads):
                    if remap_after_cut(s.get("t"), deads) is not None]
     v["best_moments"] = [x for x in (remap_after_cut(b, deads) for b in (vision.get("best_moments") or []))
                          if x is not None]
+    v["subject_track"] = [dict(p, t=remap_after_cut(p.get("t"), deads))
+                          for p in (vision.get("subject_track") or [])
+                          if remap_after_cut(p.get("t"), deads) is not None]
     v["dead_time"] = []  # déjà coupés
     return v
 
@@ -2707,13 +2801,26 @@ def process(job):
         else:
             steps.skip("cut", "Coupe des temps morts", "pas nécessaire")
 
-        # 2. Recadrage 9:16
-        if plan.get("reframe"):
-            steps.start("frame", "Recadrage vertical 9:16…")
+        # 2. Recadrage 9:16 — INTELLIGENT (suit le sujet) si Gemini le recommande
+        gem_track = (vision or {}).get("subject_track") or []
+        want_smart = bool(gem and (gem or {}).get("needs_reframe") and gem_track)
+        if plan.get("reframe") or want_smart:
             out = os.path.join(work, "frame.mp4")
-            reframe_916(cur, out, facts["width"], facts["height"])
-            cur = out
-            steps.done("frame")
+            did = False
+            if want_smart:
+                steps.start("frame", "Recadrage vertical qui SUIT le sujet…")
+                if smart_reframe(cur, out, gem_track):
+                    cur = out
+                    did = True
+                    steps.done("frame", "cadrage qui suit le sujet")
+            if not did and plan.get("reframe"):
+                steps.start("frame", "Recadrage vertical 9:16…")
+                reframe_916(cur, out, facts["width"], facts["height"])
+                cur = out
+                did = True
+                steps.done("frame")
+            if not did:
+                steps.skip("frame", "Recadrage 9:16", "déjà au bon format")
         else:
             steps.skip("frame", "Recadrage 9:16", "déjà au bon format")
 
@@ -3072,6 +3179,43 @@ def process(job):
                 except Exception as e:
                     print("look:", e, file=sys.stderr)
                     steps.done("look", "non appliqué")
+
+        # 6c. CONTRÔLE QUALITÉ GEMINI : il regarde le RENDU final et corrige ce qui
+        # reste (temps mort/logo oublié…). C'est ce qui rend le résultat FIABLE.
+        if GEMINI_KEY and ffprobe_facts(cur)["duration"] > 2:
+            steps.start("gqc", "Gemini vérifie le résultat final…")
+            try:
+                dur_qc = ffprobe_facts(cur)["duration"]
+                qcg = gemini_qc(cur, dur_qc, had_subs=bool(words))
+                fixed = []
+                if qcg:
+                    rem = []
+                    for dt in (qcg.get("remaining_dead_time") or []):
+                        try:
+                            a, b = float(dt.get("start")), float(dt.get("end"))
+                            if b - a >= 0.6 and 0 <= a < dur_qc:
+                                rem.append((max(0.0, a), min(dur_qc, b)))
+                        except Exception:
+                            pass
+                    rem = sorted(set((round(a, 2), round(b, 2)) for (a, b) in rem))
+                    if rem and sum(e - s for s, e in rem) < dur_qc * 0.4:
+                        outqc = os.path.join(work, "qc_fix.mp4")
+                        if cut_spans(cur, outqc, [], rem, dur_qc):
+                            cur = outqc
+                            fixed.append(f"{sum(e - s for s, e in rem):.0f}s de temps mort en plus")
+                    note = str(qcg.get("note") or "").strip()
+                    sc = qcg.get("score")
+                    det = (f"note {sc}/10" if sc is not None else "vérifié")
+                    if fixed:
+                        det += " · corrigé : " + ", ".join(fixed)
+                    elif note and note.upper() not in ("RAS", "R.A.S", "RAS."):
+                        det += f" · {note}"
+                    steps.done("gqc", det)
+                else:
+                    steps.done("gqc", "vérification indisponible")
+            except Exception as e:
+                print("gqc:", e, file=sys.stderr)
+                steps.done("gqc", "vérification indisponible")
 
         # 5. Musique + normalisation du son
         steps.start("audio", "Mixage du son…")

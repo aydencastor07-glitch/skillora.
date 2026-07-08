@@ -466,7 +466,7 @@ def cut_spans(src, dst, silences, fillers, duration, keep_pad=0.22):
     run(["ffmpeg", "-y", "-i", src,
          "-vf", f"select='{expr}',setpts=N/FRAME_RATE/TB",
          "-af", f"aselect='{expr}',asetpts=N/SR/TB",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", dst])
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", dst])
     return True
 
 
@@ -852,7 +852,7 @@ def overlay_objects(src, dst, events, seed=0):
         last = nxt
     run(["ffmpeg", "-y", "-i", src, *inputs,
          "-filter_complex", ";".join(fc), "-map", last, "-map", "0:a?",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
     return True
 
 
@@ -870,7 +870,7 @@ def overlay_emojis(src, dst, events):
         last = nxt
     run(["ffmpeg", "-y", "-i", src, *inputs,
          "-filter_complex", ";".join(fc), "-map", last, "-map", "0:a?",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
     return True
 
 
@@ -892,7 +892,7 @@ def slide_aside(src, dst, t1, dur=1.5):
           f"[z]scale={sw}:{sh},crop={W}:{H}:'{x_expr}':{y_c}[zc];"
           f"[base][zc]overlay=0:0:enable='between(t,{t1:.3f},{t2:.3f})'[v]")
     run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc, "-map", "[v]", "-map", "0:a?",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
     return t2
 
 
@@ -1044,7 +1044,7 @@ def look_glow(src, dst, kind="glow", intensity=1.0):
                  f"[go][gbb]blend=all_mode=screen:all_opacity={0.26 * intensity:.2f}[v]")
     try:
         run(["ffmpeg", "-y", "-i", src, "-filter_complex", graph, "-map", "[v]", "-map", "0:a?",
-             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
         return os.path.exists(dst) and os.path.getsize(dst) > 40000
     except Exception as e:
         print("look_glow:", e, file=sys.stderr)
@@ -1101,7 +1101,7 @@ def impact_fx(src, dst, shakes=None, flashes=None, blacks=None, splits=None, see
         last = "[v]"
     run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
          "-map", last, "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
-         "-crf", "20", "-c:a", "copy", dst])
+         "-crf", "18", "-c:a", "copy", dst])
     return True
 
 
@@ -1150,7 +1150,7 @@ def speed_ramp(src, dst, segments):
         fc.append("".join(vmaps) + f"concat=n={n}:v=1:a=0[v]")
         maps = ["-map", "[v]"]
     run(["ffmpeg", "-y", "-i", src, "-filter_complex", ";".join(fc), *maps,
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", dst])
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", dst])
     return True
 
 
@@ -1195,7 +1195,7 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
             x0 = 0.5 + drift / 2
             x_expr = (f"{margin_expr}*({x0:.3f}-{drift:.3f}*min(t/{seg:.3f}\\,1)/2)")
             chain += (f",crop=trunc(iw/{f}/2)*2:trunc(ih/{f}/2)*2:'{x_expr}':(ih-ih/{f})/2"
-                      f",scale={W}:{H}")
+                      f",scale={W}:{H}:flags=lanczos")
             zoomed_i += 1
         chain += f",setsar=1[v{i}]"
         fc.append(chain)
@@ -1259,7 +1259,7 @@ def zoom_punch(src, dst, words, has_audio, work, sfx_events=None, extra_whooshes
         else:
             maps += ["-map", "0:a"]
     cmd += ["-filter_complex", ";".join(fc), *maps,
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", dst]
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", dst]
     run(cmd)
     return True
 
@@ -1294,7 +1294,7 @@ def music_visualizer(src, dst, work, accent="cyan", baseline_y=0.60):
     try:
         run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc,
              "-map", "[v]", "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
-             "-crf", "20", "-c:a", "copy", dst], timeout=600)
+             "-crf", "18", "-c:a", "copy", dst], timeout=600)
         return os.path.exists(dst) and os.path.getsize(dst) > 50000
     except Exception as e:
         print("music_visualizer:", e, file=sys.stderr)
@@ -1310,7 +1310,7 @@ def reframe_916(src, dst, w, h):
          "[fg]scale=1080:1920:force_original_aspect_ratio=decrease[f];"
          "[b][f]overlay=(W-w)/2:(H-h)/2[v]",
          "-map", "[v]", "-map", "0:a?",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
 
 
 def _piecewise_expr(points, var="t", default=0.0):
@@ -1369,7 +1369,7 @@ def smart_reframe(src, dst, track, target_w=1080, target_h=1920):
           f"crop={target_w}:{target_h}:'{xexpr}':0[v]")
     try:
         run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc, "-map", "[v]", "-map", "0:a?",
-             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
         return os.path.exists(dst) and os.path.getsize(dst) > 2000
     except Exception as e:
         print("smart_reframe:", e, file=sys.stderr)
@@ -1470,7 +1470,7 @@ def depth_text(src, dst, text, work, face_y="", duration=0.0):
              "-loop", "1", "-t", f"{D + 0.05:.2f}", "-i", txt_png,
              "-framerate", "30", "-start_number", "1", "-i", os.path.join(dtd, "p_%03d.png"),
              "-filter_complex", fc, "-map", "[v]", "-map", "0:a?",
-             "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
         return os.path.exists(dst) and os.path.getsize(dst) > 50000
     except Exception as e:
         print("depth_text:", e, file=sys.stderr)
@@ -1899,7 +1899,9 @@ def gemini_analyze_video(path, duration):
         " \"emojis\": [{\"word\": \"mot exact prononcé\", \"emoji\": \"un émoji\"}],  // 2-5 émojis sur ce qui s'illustre\n"
         " \"objects\": [{\"word\": \"mot exact\", \"emoji\": \"émoji OBJET\"}],  // 0-2 gros objets animés si un objet important est cité\n"
         " \"brands\": [{\"word\": \"mot exact\", \"slug\": \"slug minuscule\"}],  // 0-2 logos de marques CITÉES (netflix, tiktok, temu…)\n"
-        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic ou vide\"  // fond musical discret si utile ; vide si la vidéo a déjà sa musique\n"
+        " \"sfx\": [{\"word\": \"mot exact prononcé\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|magic|glitch|camera|beep|applause|riser|boom\"}],  // 0-5 bruitages qui RENFORCENT LE SENS, au bon endroit et adaptés au TON (un scientifique sérieux : très peu, sobres ; un edit fun : plus). taper->typing, argent/prix->cash, bonne réponse/chiffre->ding, choc/révélation->impact, tech/bug->glitch. Mets-en PEU et SEULEMENT si ça a du sens\n"
+        " \"add_music\": bool,  // faut-il AJOUTER un fond musical ? false pour un talking-head sérieux/scientifique (la voix suffit) ou si la vidéo a déjà sa musique ; true seulement si un fond discret aide vraiment\n"
+        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\"  // si add_music: ambiance ADAPTÉE au sujet (un scientifique -> cinematic/tech, PAS chill/plage) ; vide sinon\n"
         "}"
     )
     res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
@@ -2391,7 +2393,7 @@ def burn_subs(src, dst, ass_path, grade=""):
     pre = (g + ",") if g else ""
     run(["ffmpeg", "-y", "-i", src,
          "-vf", f"{pre}ass='{safe}'",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
 
 
 # ---------------------------------------------------------------- b-roll (Pexels)
@@ -2561,7 +2563,7 @@ def overlay_broll(src, dst, brolls, duration, transition="fade", seed=0):
         last = "[vsh]"
     run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
          "-map", last, "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
-         "-crf", "20", "-c:a", "copy", dst])
+         "-crf", "18", "-c:a", "copy", dst])
     return slots[:len(brolls)]
 
 
@@ -2726,15 +2728,17 @@ def process(job):
                 plan["audio_type"] = gem["audio_type"]
             if gem.get("hook_text") and not str(plan.get("hook_text") or "").strip():
                 plan["hook_text"] = gem["hook_text"]
-            # décisions directes : sous-titres, style, mots forts, émojis, objets, marques…
+            # décisions directes : sous-titres, style, mots forts, émojis, objets, sons…
             if isinstance(gem.get("subtitles"), bool):
                 plan["subtitles"] = gem["subtitles"]
-            for k in ("sub_style_id", "highlight", "music_mood"):
+            for k in ("sub_style_id", "highlight"):
                 if gem.get(k) not in (None, ""):
                     plan[k] = gem[k]
-            for k in ("keywords", "emojis", "objects", "brands"):
-                if isinstance(gem.get(k), list) and gem[k]:
-                    plan[k] = gem[k]
+            for k in ("keywords", "emojis", "objects", "brands", "sfx"):
+                if isinstance(gem.get(k), list):
+                    plan[k] = gem[k]  # Gemini décide (liste vide = rien, volontaire)
+            # MUSIQUE : Gemini a le contrôle TOTAL (fini la musique de plage forcée).
+            plan["music_mood"] = str(gem.get("music_mood") or "") if gem.get("add_music") else ""
             eng_note = " · réalisé par Gemini"
         else:
             eng_note = ""
@@ -3092,7 +3096,7 @@ def process(job):
                 if lc:
                     outl = os.path.join(work, "look.mp4")
                     run(["ffmpeg", "-y", "-i", cur, "-vf", lc, "-c:v", "libx264",
-                         "-preset", "veryfast", "-crf", "20", "-c:a", "copy", outl])
+                         "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outl])
                     cur = outl
                     applied.append("look")
                 # b) lueur / rayons (passe blend dédiée)
@@ -3131,7 +3135,7 @@ def process(job):
                 if ech:
                     outq = os.path.join(work, "quality.mp4")
                     run(["ffmpeg", "-y", "-i", cur, "-vf", ech, "-c:v", "libx264",
-                         "-preset", "veryfast", "-crf", "20", "-c:a", "copy", outq])
+                         "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outq])
                     cur = outq
                     steps.done("quality", "image nettoyée et rehaussée")
                 else:

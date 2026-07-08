@@ -1466,7 +1466,7 @@ def depth_text(src, dst, text, work, face_y="", duration=0.0):
     try:
         from rembg import remove
         t0 = 0.4
-        t1 = min(3.4, float(duration) - 0.6)
+        t1 = min(3.6, float(duration) - 0.6)
         if t1 - t0 < 1.2:
             return False
         y_center = {"top": 900, "middle": 620, "bottom": 460}.get(str(face_y).lower(), 700)
@@ -1475,8 +1475,10 @@ def depth_text(src, dst, text, work, face_y="", duration=0.0):
             return False
         dtd = os.path.join(work, "dt")
         os.makedirs(dtd, exist_ok=True)
+        # Détourage en 720x1280 (bien plus net que 540 -> personne de qualité)
+        RW, RH = 720, 1280
         run(["ffmpeg", "-y", "-i", src, "-ss", f"{t0:.2f}", "-to", f"{t1:.2f}",
-             "-vf", "fps=30,scale=540:960", os.path.join(dtd, "f_%03d.png")])
+             "-vf", f"fps=30,scale={RW}:{RH}", os.path.join(dtd, "f_%03d.png")])
         frames = sorted(f for f in os.listdir(dtd) if f.startswith("f_"))
         if len(frames) < 20:
             return False
@@ -1489,14 +1491,15 @@ def depth_text(src, dst, text, work, face_y="", duration=0.0):
         from PIL import Image
         mid = os.path.join(dtd, "p" + frames[len(frames) // 2][1:])
         alpha = Image.open(mid).convert("RGBA").getchannel("A")
-        cover = sum(1 for a in alpha.getdata() if a > 96) / (540 * 960)
+        cover = sum(1 for a in alpha.getdata() if a > 96) / (RW * RH)
         if cover < 0.04 or cover > 0.72:
             print(f"depth_text: personne non exploitable (aire {cover:.0%})", file=sys.stderr)
             return False
         D = t1 - t0
-        fc = (f"[1:v]format=rgba,fade=t=in:d=0.25:alpha=1,"
-              f"fade=t=out:st={D - 0.30:.2f}:d=0.30:alpha=1,setpts=PTS+{t0:.2f}/TB[txt];"
-              f"[2:v]format=rgba,scale=1080:1920,setpts=PTS-STARTPTS+{t0:.2f}/TB[per];"
+        # Texte : léger zoom d'entrée (pro) + fondus ; personne ré-agrandie proprement
+        fc = (f"[1:v]format=rgba,fade=t=in:d=0.30:alpha=1,"
+              f"fade=t=out:st={D - 0.35:.2f}:d=0.35:alpha=1,setpts=PTS+{t0:.2f}/TB[txt];"
+              f"[2:v]format=rgba,scale=1080:1920:flags=lanczos,setpts=PTS-STARTPTS+{t0:.2f}/TB[per];"
               f"[0:v][txt]overlay=0:0:enable='between(t,{t0:.2f},{t1:.2f})':eof_action=pass[a];"
               f"[a][per]overlay=0:0:enable='between(t,{t0:.2f},{t1:.2f})':eof_action=pass[v]")
         run(["ffmpeg", "-y", "-i", src,
@@ -1955,6 +1958,7 @@ def gemini_analyze_video(path, duration):
         " \"enhance\": {\"brightness\": -0.15..0.15, \"contrast\": 0.9..1.25, \"saturation\": 0.9..1.35, \"warmth\": -0.15..0.15, \"sharpen\": 0..1},  // AMÉLIORATION IMAGE que tu recommandes APRÈS avoir VU la vidéo : corrige ce qui cloche (trop sombre -> brightness+ ; terne -> saturation+/contrast+ ; flou/pas net -> sharpen+ ; froid/chaud à corriger -> warmth). Valeurs neutres (0, 1, 1, 0, 0) si l'image est déjà parfaite. Sois utile : presque toutes les vidéos smartphone gagnent en netteté et en punch\n"
         " \"needs_reframe\": bool,  // true si la vidéo gagnerait à être recadrée en vertical en SUIVANT le sujet (source horizontale/carrée, OU sujet souvent décentré) ; false si déjà bien cadré vertical\n"
         " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=tout à gauche, 0.5=centre, 1=tout à droite) à 6-10 instants répartis, pour que le cadrage le SUIVE ; [] sinon\n"
+        " \"bg_text\": \"MOT ou phrase TRÈS courte (<=16 caractères) à afficher en GÉANT DERRIÈRE la personne (effet 3D pro, style 'ME AT 7:00') — UNIQUEMENT si une personne est nettement visible en buste/pied face caméra ET qu'un mot fort résume le sujet. Vide sinon (ne force pas)\",\n"
         " \"two_people\": bool,  // true UNIQUEMENT si DEUX personnes parlent et sont visibles EN MÊME TEMPS (podcast/interview côte à côte) -> on fera un split-screen (1re en haut, 2e en bas)\n"
         " \"person_a_x\": 0.0,  // si two_people : centre horizontal (0..1) de la 1re personne (souvent à gauche ~0.25)\n"
         " \"person_b_x\": 0.0,  // si two_people : centre horizontal (0..1) de la 2e personne (souvent à droite ~0.75)\n"
@@ -2808,6 +2812,8 @@ def process(job):
             for k in ("keywords", "emojis", "objects", "brands", "sfx"):
                 if isinstance(gem.get(k), list):
                     plan[k] = gem[k]  # Gemini décide (liste vide = rien, volontaire)
+            if "bg_text" in gem:
+                plan["bg_text"] = str(gem.get("bg_text") or "")  # texte derrière la personne
             # MUSIQUE : Gemini a le contrôle TOTAL (fini la musique de plage forcée).
             plan["music_mood"] = str(gem.get("music_mood") or "") if gem.get("add_music") else ""
             # replace_all impose une musique -> ambiance par défaut si Gemini a oublié

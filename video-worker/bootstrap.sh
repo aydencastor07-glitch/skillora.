@@ -65,6 +65,11 @@ echo "   • Clé ElevenLabs pour des sous-titres TRÈS précis (Scribe) — OPT
 echo "     (elevenlabs.io > API Keys — laisse vide et Entrée sinon, Whisper prend le relais)"
 printf "   Colle-la ici : "
 read -r ELEVEN
+echo ""
+echo "   • Clé Gemini pour l'analyse vidéo complète (les yeux) — OPTIONNELLE"
+echo "     (aistudio.google.com > Get API key — GRATUIT, sans carte — laisse vide sinon)"
+printf "   Colle-la ici : "
+read -r GEMINI
 
 if [ -z "${SRK:-}" ] || [ -z "${GROQ:-}" ]; then
   echo ""
@@ -86,6 +91,7 @@ Environment=SUPABASE_SERVICE_ROLE_KEY=${SRK}
 Environment=GROQ_API_KEY=${GROQ}
 Environment=PEXELS_API_KEY=${PEXELS}
 Environment=ELEVENLABS_API_KEY=${ELEVEN}
+Environment=GEMINI_API_KEY=${GEMINI}
 ExecStart=/usr/bin/python3 -u /opt/skillora-worker/worker.py
 Restart=always
 RestartSec=5

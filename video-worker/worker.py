@@ -43,6 +43,8 @@ SB_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "")
 ELEVEN_KEY = os.environ.get("ELEVENLABS_API_KEY", "")  # Scribe : sous-titres au mot très précis
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GOOGLE_API_KEY", "")  # yeux : analyse vidéo
+GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
 MUSIC_BUCKET = os.environ.get("MUSIC_BUCKET", "music-library")
 STYLE_BUCKET = os.environ.get("STYLE_BUCKET", "style-library")  # styles appris des vidéos virales
 POLL_SECONDS = float(os.environ.get("POLL_SECONDS", "3"))
@@ -1656,6 +1658,168 @@ def groq_vision_full(src, work, duration, transcript_text, scenecuts=None):
     return result
 
 
+# ---------------------------------------------------------------- Gemini (les yeux)
+GEMINI_BASE = "https://generativelanguage.googleapis.com"
+
+
+def gemini_upload(path, mime="video/mp4"):
+    """Téléverse un fichier vers Gemini (Files API, protocole resumable) et renvoie
+    son file_uri une fois ACTIF. None si échec / pas de clé."""
+    if not GEMINI_KEY:
+        return None
+    try:
+        size = os.path.getsize(path)
+        # 1) démarrage : on récupère l'URL d'upload dans les en-têtes de réponse
+        start = urllib.request.Request(
+            f"{GEMINI_BASE}/upload/v1beta/files?key={GEMINI_KEY}",
+            data=json.dumps({"file": {"display_name": os.path.basename(path)}}).encode(),
+            method="POST", headers={
+                "X-Goog-Upload-Protocol": "resumable",
+                "X-Goog-Upload-Command": "start",
+                "X-Goog-Upload-Header-Content-Length": str(size),
+                "X-Goog-Upload-Header-Content-Type": mime,
+                "Content-Type": "application/json"})
+        with urllib.request.urlopen(start, timeout=60) as r:
+            upload_url = r.headers.get("X-Goog-Upload-URL")
+        if not upload_url:
+            return None
+        # 2) envoi des octets + finalisation
+        with open(path, "rb") as f:
+            blob = f.read()
+        up = urllib.request.Request(upload_url, data=blob, method="POST", headers={
+            "X-Goog-Upload-Offset": "0",
+            "X-Goog-Upload-Command": "upload, finalize",
+            "Content-Length": str(size)})
+        with urllib.request.urlopen(up, timeout=600) as r:
+            info = json.loads(r.read())
+        fobj = info.get("file", info)
+        name, uri, state = fobj.get("name"), fobj.get("uri"), fobj.get("state")
+        # 3) attente de l'état ACTIVE (Gemini "digère" la vidéo)
+        for _ in range(30):
+            if state == "ACTIVE":
+                return uri
+            if state == "FAILED":
+                return None
+            time.sleep(2)
+            st, raw = http("GET", f"{GEMINI_BASE}/v1beta/{name}?key={GEMINI_KEY}", {}, None, timeout=30)
+            fobj = json.loads(raw)
+            state, uri = fobj.get("state"), fobj.get("uri", uri)
+        return uri if state == "ACTIVE" else None
+    except urllib.error.HTTPError as e:
+        try:
+            print("gemini_upload HTTP", e.code, ":", e.read().decode()[:250], file=sys.stderr)
+        except Exception:
+            print("gemini_upload HTTP", e.code, file=sys.stderr)
+        return None
+    except Exception as e:
+        print("gemini_upload:", e, file=sys.stderr)
+        return None
+
+
+def gemini_generate(prompt, file_uri=None, mime="video/mp4", json_out=True):
+    """Appelle generateContent (avec un fichier optionnel). Renvoie le texte/JSON
+    décodé, ou None. Essaie les modèles dans l'ordre (repli automatique)."""
+    if not GEMINI_KEY:
+        return None
+    parts = []
+    if file_uri:
+        parts.append({"file_data": {"mime_type": mime, "file_uri": file_uri}})
+    parts.append({"text": prompt})
+    body = {"contents": [{"parts": parts}],
+            "generationConfig": {"temperature": 0.2}}
+    if json_out:
+        body["generationConfig"]["response_mime_type"] = "application/json"
+    for model in GEMINI_MODELS:
+        try:
+            st, raw = http("POST",
+                           f"{GEMINI_BASE}/v1beta/models/{model}:generateContent?key={GEMINI_KEY}",
+                           {"Content-Type": "application/json"}, body, timeout=180)
+            out = json.loads(raw)
+            cand = (out.get("candidates") or [{}])[0]
+            txt = "".join(p.get("text", "") for p in (cand.get("content", {}).get("parts") or []))
+            if not txt:
+                continue
+            return json.loads(txt) if json_out else txt
+        except urllib.error.HTTPError as e:
+            code = e.code
+            try:
+                msg = e.read().decode()[:200]
+            except Exception:
+                msg = ""
+            print("gemini_generate HTTP", code, "(", model, "):", msg, file=sys.stderr)
+            if code in (404, 400):
+                continue  # modèle indisponible -> suivant
+            if code == 429:
+                return None  # quota atteint
+        except Exception as e:
+            print("gemini_generate:", e, file=sys.stderr)
+    return None
+
+
+def gemini_analyze_video(path, duration):
+    """LES YEUX : Gemini regarde la vidéo ENTIÈRE et renvoie une compréhension
+    complète + les temps morts précis. Format aligné sur notre 'vision' + extras.
+    None si pas de clé / échec (on retombe sur l'analyse Groq par images)."""
+    if not GEMINI_KEY:
+        return None
+    uri = gemini_upload(path)
+    if not uri:
+        return None
+    prompt = (
+        "Tu es un monteur vidéo professionnel. Regarde cette vidéo courte "
+        f"({duration:.0f}s) en ENTIER (image ET son) et analyse-la précisément pour "
+        "la transformer en reel viral. Réponds UNIQUEMENT ce JSON:\n"
+        "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|product|story|other\",\n"
+        " \"audio_type\": \"voice|music|none\",  // voice=quelqu'un PARLE/explique ; music=CHANSON (ne pas sous-titrer les paroles) ; none=pas de son utile\n"
+        " \"summary\": \"de quoi parle la vidéo, 1 phrase\",\n"
+        " \"mood\": \"ambiance en 1-2 mots\",\n"
+        " \"has_person\": bool,\n"
+        " \"face_y\": \"top|middle|bottom|none\",  // position du visage la plupart du temps\n"
+        " \"opening_captivating\": bool,  // les 1res secondes accrochent-elles ? (visage figé/lent = non)\n"
+        " \"opening_note\": \"pourquoi (court)\",\n"
+        " \"dead_time\": [{\"start\": s, \"end\": s}],  // TEMPS MORTS à couper : logos de fin, écrans figés, blancs, moments vides/ennuyeux, intro lente. Sois précis (secondes)\n"
+        " \"scenes\": [{\"t\": s, \"action\": \"ce qu'on voit\", \"motion\": bool, \"interest\": 0-10}],  // moments clefs\n"
+        " \"best_moments\": [s, ...],  // 2-5 instants les PLUS forts à mettre en valeur\n"
+        " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\"}"
+    )
+    res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
+    if not isinstance(res, dict):
+        return None
+    res["engine"] = "gemini"
+    res["frames_analyzed"] = "toute la vidéo"
+    return res
+
+
+def remap_after_cut(t, deads):
+    """Reprojette un timestamp de la vidéo ORIGINALE vers la vidéo COUPÉE
+    (après retrait des plages `deads`). None si le point tombe dans une coupe."""
+    if t is None:
+        return None
+    t = float(t)
+    off = 0.0
+    for (s, e) in sorted(deads or []):
+        if e <= t:
+            off += (e - s)
+        elif s < t < e:
+            return None
+    return max(0.0, round(t - off, 3))
+
+
+def remap_vision(vision, deads):
+    """Applique remap_after_cut à tous les timestamps d'une analyse (scènes,
+    meilleurs moments, temps morts) après une coupe."""
+    if not vision or not deads:
+        return vision
+    v = dict(vision)
+    v["scenes"] = [dict(s, t=remap_after_cut(s.get("t"), deads))
+                   for s in (vision.get("scenes") or [])
+                   if remap_after_cut(s.get("t"), deads) is not None]
+    v["best_moments"] = [x for x in (remap_after_cut(b, deads) for b in (vision.get("best_moments") or []))
+                         if x is not None]
+    v["dead_time"] = []  # déjà coupés
+    return v
+
+
 def groq_plan(facts, transcript_text, context, vision=None):
     """Demande au LLM le plan d'amélioration adapté à CE créateur. Fallback: règles."""
     fallback = {
@@ -2333,17 +2497,41 @@ def process(job):
         seed = int(str(job["id"]).replace("-", "")[:8], 16) & 0xFFFF
         steps.done("dl", f"{facts['duration']:.0f}s · {facts['width']}x{facts['height']}")
 
-        # ÉTAPE 0 : couper les TEMPS MORTS figés + silencieux (logo/carte de fin
-        # sans son, écran gelé), AVANT toute analyse. Marche même sans parole.
+        # LES YEUX : Gemini regarde TOUTE la vidéo d'origine (image + son) et
+        # renvoie sa compréhension complète + les temps morts PRÉCIS. Sur la vidéo
+        # ORIGINALE (les timestamps seront reprojetés après la coupe).
+        gem = None
+        if GEMINI_KEY:
+            steps.start("see", "Gemini regarde toute ta vidéo…")
+            try:
+                gem = gemini_analyze_video(src, facts["duration"])
+            except Exception as e:
+                print("gemini:", e, file=sys.stderr)
+            steps.done("see", "vidéo comprise" if gem else "vision Gemini indisponible (on continue)")
+
+        # ÉTAPE 0 : couper les TEMPS MORTS. Priorité aux temps morts repérés par
+        # Gemini (précis, il voit les blancs/intros lentes), sinon détection
+        # figé+silencieux. Marche même sans parole.
         steps.start("trim", "Repérage des temps morts…")
         sil0 = detect_silences(src, noise_db=-40, min_d=0.5) if facts["has_audio"] else [(0.0, facts["duration"])]
         deads = dead_time_spans(facts["duration"], sil0, freeze_spans(src))
-        # garde-fou : ne jamais retirer plus de 45 % de la vidéo
+        if gem and gem.get("dead_time"):
+            for dt in gem["dead_time"]:
+                try:
+                    a, b = float(dt.get("start")), float(dt.get("end"))
+                    if b - a >= 0.6 and 0 <= a < facts["duration"]:
+                        deads.append((max(0.0, a), min(facts["duration"], b)))
+                except Exception:
+                    pass
+        # fusionne + trie les plages
+        deads = sorted(set((round(a, 2), round(b, 2)) for (a, b) in deads if b > a))
+        applied_deads = []
         total_dead = sum(e - s for (s, e) in deads)
         if deads and total_dead < facts["duration"] * 0.45:
             outc = os.path.join(work, "trim.mp4")
             if cut_spans(src, outc, [], deads, facts["duration"]):
                 src = outc
+                applied_deads = deads
                 facts = ffprobe_facts(src)
                 steps.done("trim", f"{total_dead:.0f}s de temps mort retiré(s)")
             else:
@@ -2354,8 +2542,7 @@ def process(job):
         steps.start("analyze", "Analyse : le worker regarde et écoute ta vidéo…")
         d = facts["duration"]
         silences = detect_silences(src) if facts["has_audio"] else []
-        # Analyse de TOUTE la vidéo (gratuit, image par image) : changements de plan,
-        # énergie sonore, temps forts du rythme -> base d'un vrai montage.
+        # Changements de plan + énergie + rythme (ffmpeg, précis, sur la vidéo coupée).
         cuts = scene_cuts(src)
         beats = detect_beats(src, d) if facts["has_audio"] else []
         first_tr = None
@@ -2364,13 +2551,22 @@ def process(job):
             extract_audio_mp3(src, mp3)
             first_tr = transcribe(mp3)
         tr_text = (first_tr or {}).get("text", "").strip() if first_tr else ""
-        # Les YEUX : vision sur TOUTE la vidéo (plusieurs lots de 5 images).
+        # Vision : Gemini (reprojeté après la coupe) en priorité, sinon Groq images.
         vision = None
-        try:
-            vision = groq_vision_full(src, work, d, tr_text, scenecuts=cuts)
-        except Exception as e:
-            print("vision:", e, file=sys.stderr)
+        if gem:
+            vision = remap_vision(gem, applied_deads)
+        else:
+            try:
+                vision = groq_vision_full(src, work, d, tr_text, scenecuts=cuts)
+            except Exception as e:
+                print("vision:", e, file=sys.stderr)
         plan = groq_plan(facts, tr_text, context, vision)
+        # Gemini a un avis fiable sur musique/voix et le hook -> on le respecte.
+        if gem:
+            if gem.get("audio_type"):
+                plan["audio_type"] = gem["audio_type"]
+            if gem.get("hook_text") and not str(plan.get("hook_text") or "").strip():
+                plan["hook_text"] = gem["hook_text"]
         # Recette de montage selon le type de vidéo détecté : comble les choix que
         # l'IA n'a pas faits (étalonnage, transition) avec les réglages du style.
         vtype = str((vision or {}).get("video_type") or "")
@@ -2812,7 +3008,8 @@ def process(job):
 
 def main():
     print("Skillora video-worker démarré.",
-          "Groq:", "oui" if GROQ_KEY else "NON (sous-titres/plan IA désactivés)",
+          "Groq:", "oui" if GROQ_KEY else "NON (plan IA désactivé)",
+          "· Yeux:", "Gemini (vidéo entière)" if GEMINI_KEY else "Groq (images)",
           "· Transcription:", "ElevenLabs Scribe" if ELEVEN_KEY else "Whisper (Groq)",
           "· Pexels:", "oui" if PEXELS_KEY else "non")
     while True:

@@ -2866,6 +2866,10 @@ def process(job):
         else:
             steps.skip("frame", "Recadrage 9:16", "déjà au bon format")
 
+        # Point de reprise « propre » (recadré, sans effets) : si Gemini juge le
+        # montage TROP CHARGÉ, on re-cuisine une version épurée à partir d'ici.
+        base_reframed = cur
+
         # 3. B-roll inséré avec une transition premium (choisie par l'IA selon le ton)
         brolls, broll_cuts = [], []
         br_fam = resolve_transition(plan.get("transition"), seed)
@@ -3222,15 +3226,18 @@ def process(job):
                     print("look:", e, file=sys.stderr)
                     steps.done("look", "non appliqué")
 
-        # 6c. CONTRÔLE QUALITÉ GEMINI : il regarde le RENDU final et corrige ce qui
-        # reste (temps mort/logo oublié…). C'est ce qui rend le résultat FIABLE.
+        # 6c. GEMINI GOÛTE LE PLAT (contrôle qualité) et, si ce n'est pas bon, il
+        # RE-CUISINE : coupe les temps morts restants, et si le montage est jugé
+        # TROP CHARGÉ (note < 7), il refait une version ÉPURÉE (juste qualité +
+        # sous-titres) à partir du point de reprise propre. On garde le meilleur.
         if GEMINI_KEY and ffprobe_facts(cur)["duration"] > 2:
-            steps.start("gqc", "Gemini vérifie le résultat final…")
+            steps.start("gqc", "Gemini goûte le résultat…")
             try:
                 dur_qc = ffprobe_facts(cur)["duration"]
                 qcg = gemini_qc(cur, dur_qc, had_subs=bool(words))
                 fixed = []
                 if qcg:
+                    # a) couper les temps morts/logos que Gemini repère encore
                     rem = []
                     for dt in (qcg.get("remaining_dead_time") or []):
                         try:
@@ -3244,9 +3251,40 @@ def process(job):
                         outqc = os.path.join(work, "qc_fix.mp4")
                         if cut_spans(cur, outqc, [], rem, dur_qc):
                             cur = outqc
-                            fixed.append(f"{sum(e - s for s, e in rem):.0f}s de temps mort en plus")
-                    note = str(qcg.get("note") or "").strip()
+                            fixed.append(f"{sum(e - s for s, e in rem):.0f}s de temps mort")
+                    # b) RE-CUISSON si trop chargé / note basse : version épurée
                     sc = qcg.get("score")
+                    too_busy = bool(qcg.get("too_busy"))
+                    low = (isinstance(sc, (int, float)) and sc < 7)
+                    if (too_busy or low) and ffprobe_facts(base_reframed)["duration"] > 1:
+                        try:
+                            clean = base_reframed
+                            # qualité (netteté/couleurs) sur la base propre
+                            ech = enhance_chain((gem or {}).get("enhance"))
+                            if ech:
+                                outc = os.path.join(work, "recook_q.mp4")
+                                run(["ffmpeg", "-y", "-i", clean, "-vf", ech, "-c:v", "libx264",
+                                     "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outc])
+                                clean = outc
+                            # sous-titres épurés (aucun zoom/effet/son parasite)
+                            if words:
+                                ass_c = os.path.join(work, "recook.ass")
+                                with open(ass_c, "w", encoding="utf-8") as f:
+                                    f.write(build_ass(words, str(plan.get("hook_text") or ""),
+                                                      keywords=kws, slide=None,
+                                                      sub_position=str(plan.get("sub_position") or "dynamic"),
+                                                      highlight=str(plan.get("highlight") or "yellow"),
+                                                      sub_style=str(plan.get("sub_style") or "group"),
+                                                      style_id=plan.get("sub_style_id") or 0,
+                                                      layout=None, seed=seed))
+                                outc2 = os.path.join(work, "recook.mp4")
+                                burn_subs(clean, outc2, ass_c, grade=str(plan.get("color_grade") or ""))
+                                clean = outc2
+                            cur = clean
+                            fixed.append("re-cuisiné en version épurée")
+                        except Exception as e:
+                            print("recook:", e, file=sys.stderr)
+                    note = str(qcg.get("note") or "").strip()
                     det = (f"note {sc}/10" if sc is not None else "vérifié")
                     if fixed:
                         det += " · corrigé : " + ", ".join(fixed)

@@ -1890,7 +1890,17 @@ def gemini_analyze_video(path, duration):
         " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=tout à gauche, 0.5=centre, 1=tout à droite) à 6-10 instants répartis, pour que le cadrage le SUIVE ; [] sinon\n"
         " \"scenes\": [{\"t\": s, \"action\": \"ce qu'on voit\", \"motion\": bool, \"interest\": 0-10}],\n"
         " \"best_moments\": [s, ...],  // 0-4 instants VRAIMENT forts, ou [] si la vidéo est régulière\n"
-        " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\"}"
+        " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\",\n"
+        "// --- TES DÉCISIONS DE MONTAGE (tu es le DIRECTEUR, on exécute fidèlement) ---\n"
+        " \"subtitles\": bool,  // ajouter des sous-titres animés ? OUI dès que quelqu'un PARLE (talking-head, explication, vlog, tuto). NON si musique/chanson ou aucune parole\n"
+        " \"sub_style_id\": 0,  // STYLE de sous-titres adapté : 0=signature (défaut sûr) ; 2=bleu Hormozi (business/motivation) ; 3=cartoon (fun/vlog) ; 4=script néon (mode) ; 5=vert tech (gadgets) ; 6=docu ombre ; 8=machine à écrire (mystère) ; 10=dégradé or (luxe) ; 12=karaoké (podcast) ; 15=glitch (gaming/IA) ; 18=serif cinéma (histoire) ; 20=néon (musique) ; 21=horreur rouge empilé (creepy)\n"
+        " \"highlight\": \"yellow|green|red|cyan\",  // couleur des mots forts\n"
+        " \"keywords\": [\"mots EXACTS prononcés à mettre en avant (prix, chiffres, mots-chocs), copiés tels qu'ils sont dits\"],\n"
+        " \"emojis\": [{\"word\": \"mot exact prononcé\", \"emoji\": \"un émoji\"}],  // 2-5 émojis sur ce qui s'illustre\n"
+        " \"objects\": [{\"word\": \"mot exact\", \"emoji\": \"émoji OBJET\"}],  // 0-2 gros objets animés si un objet important est cité\n"
+        " \"brands\": [{\"word\": \"mot exact\", \"slug\": \"slug minuscule\"}],  // 0-2 logos de marques CITÉES (netflix, tiktok, temu…)\n"
+        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic ou vide\"  // fond musical discret si utile ; vide si la vidéo a déjà sa musique\n"
+        "}"
     )
     res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
     if not isinstance(res, dict):
@@ -2708,12 +2718,26 @@ def process(job):
             except Exception as e:
                 print("vision:", e, file=sys.stderr)
         plan = groq_plan(facts, tr_text, context, vision)
-        # Gemini a un avis fiable sur musique/voix et le hook -> on le respecte.
+        # ── GEMINI EST LE DIRECTEUR ──────────────────────────────────────────────
+        # Il a VU et ENTENDU toute la vidéo : ses décisions de montage PRIMENT sur
+        # celles de groq_plan (qui ne devient qu'un repli quand Gemini est absent).
         if gem:
             if gem.get("audio_type"):
                 plan["audio_type"] = gem["audio_type"]
             if gem.get("hook_text") and not str(plan.get("hook_text") or "").strip():
                 plan["hook_text"] = gem["hook_text"]
+            # décisions directes : sous-titres, style, mots forts, émojis, objets, marques…
+            if isinstance(gem.get("subtitles"), bool):
+                plan["subtitles"] = gem["subtitles"]
+            for k in ("sub_style_id", "highlight", "music_mood"):
+                if gem.get(k) not in (None, ""):
+                    plan[k] = gem[k]
+            for k in ("keywords", "emojis", "objects", "brands"):
+                if isinstance(gem.get(k), list) and gem[k]:
+                    plan[k] = gem[k]
+            eng_note = " · réalisé par Gemini"
+        else:
+            eng_note = ""
         # INTENSITÉ DE MONTAGE (décidée par Gemini) : combien la vidéo doit être
         # travaillée. minimal = on coupe juste les temps morts, RIEN d'autre ;
         # moderate = zooms doux + sous-titres ; dynamic = effets + sons rythmés.
@@ -2778,7 +2802,7 @@ def process(job):
                     f" · type: {vision.get('video_type', '?')}"
                     f" · montage: {intensity_mode}"
                     f" · {len(cuts)} plan(s)")
-        det += learn_note
+        det += eng_note + learn_note
         steps.done("analyze", det)
 
         cur = src

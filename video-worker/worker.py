@@ -925,6 +925,10 @@ RECIPES = {
     "luxury_aesthetic": dict(zooms=[1.0, 1.05, 1.0, 1.04], cut_s=3.4, grade="warm_luxury",
                              trans="fade", sfx="low", slowmo=True,
                              effects=["glow", "vignette"]),
+    # Danse / performance : laisser respirer. Quasi aucun effet, pas de bruitages.
+    "dance":            dict(zooms=[1.0, 1.03, 1.0, 1.03], cut_s=3.6, grade="",
+                             trans="fade", sfx="none", slowmo=False,
+                             effects=[]),
     "product":          dict(zooms=[1.0, 1.12, 1.0, 1.16], cut_s=2.6, grade="cold_cinematic",
                              trans="fade", sfx="low", slowmo=False,
                              effects=["hdr"]),
@@ -1773,20 +1777,23 @@ def gemini_analyze_video(path, duration):
     if not uri:
         return None
     prompt = (
-        "Tu es un monteur vidéo professionnel. Regarde cette vidéo courte "
-        f"({duration:.0f}s) en ENTIER (image ET son) et analyse-la précisément pour "
-        "la transformer en reel viral. Réponds UNIQUEMENT ce JSON:\n"
-        "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|product|story|other\",\n"
-        " \"audio_type\": \"voice|music|none\",  // voice=quelqu'un PARLE/explique ; music=CHANSON (ne pas sous-titrer les paroles) ; none=pas de son utile\n"
+        "Tu es un monteur vidéo professionnel EXIGENT et SOBRE. Regarde cette vidéo "
+        f"courte ({duration:.0f}s) en ENTIER (image ET son). Ton rôle : dire ce qu'il "
+        "faut VRAIMENT améliorer, sans surcharger. Beaucoup de vidéos ont juste besoin "
+        "d'être RESSERRÉES (couper les temps morts) — pas d'effets partout.\n"
+        "Réponds UNIQUEMENT ce JSON:\n"
+        "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|dance|product|story|other\",\n"
+        " \"audio_type\": \"voice|music|none\",  // voice=quelqu'un PARLE/explique ; music=CHANSON/musique (ne PAS sous-titrer) ; none=pas de son utile\n"
+        " \"edit_intensity\": \"minimal|moderate|dynamic\",  // TRÈS IMPORTANT. minimal=vidéo déjà esthétique/fluide (danse, paysage, cinématique) -> on coupe juste les temps morts, PAS de zooms ni de bruitages ; moderate=talking-head/vlog -> zooms doux + sous-titres, sons rares ; dynamic=edit punchy/hype qui RÉCLAME des effets et des sons rythmés\n"
         " \"summary\": \"de quoi parle la vidéo, 1 phrase\",\n"
         " \"mood\": \"ambiance en 1-2 mots\",\n"
         " \"has_person\": bool,\n"
-        " \"face_y\": \"top|middle|bottom|none\",  // position du visage la plupart du temps\n"
-        " \"opening_captivating\": bool,  // les 1res secondes accrochent-elles ? (visage figé/lent = non)\n"
+        " \"face_y\": \"top|middle|bottom|none\",\n"
+        " \"opening_captivating\": bool,\n"
         " \"opening_note\": \"pourquoi (court)\",\n"
-        " \"dead_time\": [{\"start\": s, \"end\": s}],  // TEMPS MORTS à couper : logos de fin, écrans figés, blancs, moments vides/ennuyeux, intro lente. Sois précis (secondes)\n"
-        " \"scenes\": [{\"t\": s, \"action\": \"ce qu'on voit\", \"motion\": bool, \"interest\": 0-10}],  // moments clefs\n"
-        " \"best_moments\": [s, ...],  // 2-5 instants les PLUS forts à mettre en valeur\n"
+        " \"dead_time\": [{\"start\": s, \"end\": s}],  // TOUS les temps morts à couper, en SECONDES précises. INCLUS ABSOLUMENT : l'ÉCRAN DE FIN / OUTRO / carte avec un LOGO (Instagram, TikTok…) ou un @pseudo, MÊME s'il y a de la musique dessus ; les intros lentes/vides ; les blancs ; les moments où il ne se passe rien. Regarde surtout les 5 DERNIÈRES secondes : si c'est un logo/pseudo/écran figé, mets-le en dead_time\n"
+        " \"scenes\": [{\"t\": s, \"action\": \"ce qu'on voit\", \"motion\": bool, \"interest\": 0-10}],\n"
+        " \"best_moments\": [s, ...],  // 0-4 instants VRAIMENT forts, ou [] si la vidéo est régulière\n"
         " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\"}"
     )
     res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
@@ -2574,9 +2581,17 @@ def process(job):
                 plan["audio_type"] = gem["audio_type"]
             if gem.get("hook_text") and not str(plan.get("hook_text") or "").strip():
                 plan["hook_text"] = gem["hook_text"]
+        # INTENSITÉ DE MONTAGE (décidée par Gemini) : combien la vidéo doit être
+        # travaillée. minimal = on coupe juste les temps morts, RIEN d'autre ;
+        # moderate = zooms doux + sous-titres ; dynamic = effets + sons rythmés.
+        vtype = str((vision or {}).get("video_type") or "")
+        intensity_mode = str((gem or {}).get("edit_intensity") or "").lower()
+        if intensity_mode not in ("minimal", "moderate", "dynamic"):
+            intensity_mode = {"dance": "minimal", "luxury_aesthetic": "minimal",
+                              "story": "moderate", "energetic": "dynamic",
+                              "product": "dynamic"}.get(vtype, "moderate")
         # Recette de montage selon le type de vidéo détecté : comble les choix que
         # l'IA n'a pas faits (étalonnage, transition) avec les réglages du style.
-        vtype = str((vision or {}).get("video_type") or "")
         rec = dict(recipe_for(vtype))
         # STYLE APPRIS : si tu as envoyé des vidéos virales de cette catégorie, le
         # worker applique leur style mesuré (cadence de coupe, étalonnage,
@@ -2621,6 +2636,7 @@ def process(job):
         if vision:
             det += (f" · {vision.get('frames_analyzed', 0)} images analysées"
                     f" · type: {vision.get('video_type', '?')}"
+                    f" · montage: {intensity_mode}"
                     f" · {len(cuts)} plan(s)")
         det += learn_note
         steps.done("analyze", det)
@@ -2799,6 +2815,12 @@ def process(job):
             except Exception as e:
                 print("fx:", e, file=sys.stderr)
                 steps.done("fx", "effets non appliqués (on continue sans)")
+        elif intensity_mode == "minimal":
+            # Vidéo déjà esthétique/fluide (danse, paysage, cinématique) : on NE
+            # touche PAS au rythme. Pas de zooms, PAS de bruitages. On laisse
+            # respirer — les temps morts ont déjà été coupés, c'est l'essentiel.
+            music_fg = True
+            steps.skip("fx", "Montage rythmé", "vidéo déjà fluide — on la laisse respirer")
         elif ffprobe_facts(cur)["duration"] > 4 and (cuts or beats or facts["has_audio"]):
             # ── MONTAGE SANS VOIX : le rythme vient de la MUSIQUE et de l'IMAGE ──
             # (vlog muet, edit esthétique, ambiance…). Pas de mots -> on cale les
@@ -2828,18 +2850,21 @@ def process(job):
                         thinned.append(b)
                         lastb = b
                 rhythm = thinned[:40]
-                # SOBRIÉTÉ : quelques sons SEULEMENT, aux vrais moments forts.
-                # Pas un whoosh à chaque coupe (c'était du bruit partout).
+                # SOBRIÉTÉ pilotée par l'intensité : 'dynamic' = quelques sons aux
+                # vrais moments forts ; 'moderate' = presque rien (1 whoosh max).
                 best = [float(x) for x in ((vision or {}).get("best_moments") or []) if timeline_intact and 0.4 < float(x) < dur_cur - 0.4]
-                # au plus 1 whoosh toutes les ~4 s, sur les changements de plan
-                sfx_ev, lastw = [], -9.0
-                for c in [c for c in src_cuts if 0.4 < c < dur_cur - 0.4]:
-                    if c - lastw >= 4.0:
-                        sfx_ev.append((c, "whoosh"))
-                        lastw = c
-                    if len(sfx_ev) >= 3:
-                        break
-                sfx_ev += [(t, "impact") for t in best[:2]]
+                sfx_ev = []
+                if intensity_mode == "dynamic":
+                    lastw = -9.0
+                    for c in [c for c in src_cuts if 0.4 < c < dur_cur - 0.4]:
+                        if c - lastw >= 4.0:
+                            sfx_ev.append((c, "whoosh"))
+                            lastw = c
+                        if len(sfx_ev) >= 3:
+                            break
+                    sfx_ev += [(t, "impact") for t in best[:2]]
+                elif best:  # moderate : un seul accent, sur LE meilleur moment
+                    sfx_ev = [(best[0], "impact")]
                 out = os.path.join(work, "fx.mp4")
                 if zoom_punch(cur, out, [], facts["has_audio"], work,
                               sfx_events=sorted(sfx_ev), seed=seed,
@@ -2893,9 +2918,11 @@ def process(job):
                         if look_glow(cur, outg, kind=gk, intensity=inten):
                             cur = outg
                             applied.append(gk)
-                # c) impacts ponctuels sur les temps forts (subtil : peu et bien placés)
+                # c) impacts ponctuels (secousse/flash/glitch) : SEULEMENT en montage
+                # dynamique. Sur une vidéo minimal/modérée, on n'en met pas (sobriété).
                 dur_now = ffprobe_facts(cur)["duration"]
-                pts = [t for t in (impact_pts or []) if 0.4 < float(t) < dur_now - 0.4][:4]
+                pts = [t for t in (impact_pts or []) if 0.4 < float(t) < dur_now - 0.4][:4] \
+                    if intensity_mode == "dynamic" else []
                 sh = pts if "shake" in effects_sel else []
                 fl = pts[:1] if "flash" in effects_sel else []
                 sp = pts[:2] if "rgbsplit" in effects_sel else []

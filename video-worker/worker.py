@@ -1662,6 +1662,13 @@ def groq_vision_full(src, work, duration, transcript_text, scenecuts=None):
 GEMINI_BASE = "https://generativelanguage.googleapis.com"
 
 
+def _gemini_auth(extra=None):
+    # Les clés récentes (préfixe 'AQ.') s'authentifient par EN-TÊTE, pas par ?key=.
+    h = {"x-goog-api-key": GEMINI_KEY}
+    h.update(extra or {})
+    return h
+
+
 def gemini_upload(path, mime="video/mp4"):
     """Téléverse un fichier vers Gemini (Files API, protocole resumable) et renvoie
     son file_uri une fois ACTIF. None si échec / pas de clé."""
@@ -1671,14 +1678,14 @@ def gemini_upload(path, mime="video/mp4"):
         size = os.path.getsize(path)
         # 1) démarrage : on récupère l'URL d'upload dans les en-têtes de réponse
         start = urllib.request.Request(
-            f"{GEMINI_BASE}/upload/v1beta/files?key={GEMINI_KEY}",
+            f"{GEMINI_BASE}/upload/v1beta/files",
             data=json.dumps({"file": {"display_name": os.path.basename(path)}}).encode(),
-            method="POST", headers={
+            method="POST", headers=_gemini_auth({
                 "X-Goog-Upload-Protocol": "resumable",
                 "X-Goog-Upload-Command": "start",
                 "X-Goog-Upload-Header-Content-Length": str(size),
                 "X-Goog-Upload-Header-Content-Type": mime,
-                "Content-Type": "application/json"})
+                "Content-Type": "application/json"}))
         with urllib.request.urlopen(start, timeout=60) as r:
             upload_url = r.headers.get("X-Goog-Upload-URL")
         if not upload_url:
@@ -1701,7 +1708,7 @@ def gemini_upload(path, mime="video/mp4"):
             if state == "FAILED":
                 return None
             time.sleep(2)
-            st, raw = http("GET", f"{GEMINI_BASE}/v1beta/{name}?key={GEMINI_KEY}", {}, None, timeout=30)
+            st, raw = http("GET", f"{GEMINI_BASE}/v1beta/{name}", _gemini_auth(), None, timeout=30)
             fobj = json.loads(raw)
             state, uri = fobj.get("state"), fobj.get("uri", uri)
         return uri if state == "ACTIVE" else None
@@ -1732,8 +1739,8 @@ def gemini_generate(prompt, file_uri=None, mime="video/mp4", json_out=True):
     for model in GEMINI_MODELS:
         try:
             st, raw = http("POST",
-                           f"{GEMINI_BASE}/v1beta/models/{model}:generateContent?key={GEMINI_KEY}",
-                           {"Content-Type": "application/json"}, body, timeout=180)
+                           f"{GEMINI_BASE}/v1beta/models/{model}:generateContent",
+                           _gemini_auth({"Content-Type": "application/json"}), body, timeout=180)
             out = json.loads(raw)
             cand = (out.get("candidates") or [{}])[0]
             txt = "".join(p.get("text", "") for p in (cand.get("content", {}).get("parts") or []))

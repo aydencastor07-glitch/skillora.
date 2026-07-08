@@ -1589,6 +1589,40 @@ def transcribe(path):
     return groq_transcribe(path)
 
 
+def eleven_isolate(src_audio, dst_audio):
+    """Isole la VOIX en retirant la musique/bruit de fond (ElevenLabs Audio
+    Isolation). Permet de GARDER la voix et REMPLACER la musique de la vidéo.
+    True si réussi (dst_audio écrit), False sinon (clé absente / endpoint non
+    activé / échec) -> on garde alors le son original."""
+    if not ELEVEN_KEY:
+        return False
+    boundary = "----skillora-iso" + str(int(time.time()))
+    with open(src_audio, "rb") as f:
+        audio = f.read()
+    body = ((f"--{boundary}\r\nContent-Disposition: form-data; name=\"audio\"; "
+             "filename=\"a.mp3\"\r\nContent-Type: audio/mpeg\r\n\r\n").encode()
+            + audio + f"\r\n--{boundary}--\r\n".encode())
+    try:
+        st, raw = http("POST", "https://api.elevenlabs.io/v1/audio-isolation",
+                       {"xi-api-key": ELEVEN_KEY,
+                        "Content-Type": f"multipart/form-data; boundary={boundary}"},
+                       body, timeout=300)
+        if not raw or len(raw) < 2000:
+            return False
+        with open(dst_audio, "wb") as f:
+            f.write(raw)
+        return os.path.getsize(dst_audio) > 2000
+    except urllib.error.HTTPError as e:
+        try:
+            print("eleven_isolate HTTP", e.code, ":", e.read().decode()[:200], file=sys.stderr)
+        except Exception:
+            print("eleven_isolate HTTP", e.code, file=sys.stderr)
+        return False
+    except Exception as e:
+        print("eleven_isolate:", e, file=sys.stderr)
+        return False
+
+
 def classify_audio(tr, silences, beats, duration):
     """MUSIQUE ou VOIX ? Un créateur peut poser une CHANSON (paroles) sur sa vidéo :
     il ne faut SURTOUT PAS la sous-titrer comme une voix off. On distingue :
@@ -1893,15 +1927,16 @@ def gemini_analyze_video(path, duration):
         " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\",\n"
         "// --- TES DÉCISIONS DE MONTAGE (tu es le DIRECTEUR, on exécute fidèlement) ---\n"
         " \"subtitles\": bool,  // ajouter des sous-titres animés ? OUI dès que quelqu'un PARLE (talking-head, explication, vlog, tuto). NON si musique/chanson ou aucune parole\n"
-        " \"sub_style_id\": 0,  // STYLE de sous-titres adapté : 0=signature (défaut sûr) ; 2=bleu Hormozi (business/motivation) ; 3=cartoon (fun/vlog) ; 4=script néon (mode) ; 5=vert tech (gadgets) ; 6=docu ombre ; 8=machine à écrire (mystère) ; 10=dégradé or (luxe) ; 12=karaoké (podcast) ; 15=glitch (gaming/IA) ; 18=serif cinéma (histoire) ; 20=néon (musique) ; 21=horreur rouge empilé (creepy)\n"
+        " \"sub_style_id\": 0,  // CHOISIS le style qui COLLE VRAIMENT au contenu — VARIE, n'utilise PAS toujours 0 : 0=signature ; 2=bleu Hormozi (business/motivation/argent) ; 3=cartoon jaune (fun/vlog/humour) ; 4=script néon (mode/lifestyle) ; 5=vert tech (gadgets/tuto) ; 6=docu ombre (voyage/docu) ; 8=machine à écrire (mystère/storytelling) ; 10=dégradé or (luxe/flex) ; 12=karaoké (podcast/monologue) ; 15=glitch (gaming/IA/tech) ; 18=serif cinéma (histoire haut de gamme) ; 20=néon (musique/edit) ; 21=horreur rouge empilé (creepy/peur). Prends le style qui rendrait le mieux pour CETTE vidéo\n"
         " \"highlight\": \"yellow|green|red|cyan\",  // couleur des mots forts\n"
         " \"keywords\": [\"mots EXACTS prononcés à mettre en avant (prix, chiffres, mots-chocs), copiés tels qu'ils sont dits\"],\n"
         " \"emojis\": [{\"word\": \"mot exact prononcé\", \"emoji\": \"un émoji\"}],  // 2-5 émojis sur ce qui s'illustre\n"
         " \"objects\": [{\"word\": \"mot exact\", \"emoji\": \"émoji OBJET\"}],  // 0-2 gros objets animés si un objet important est cité\n"
         " \"brands\": [{\"word\": \"mot exact\", \"slug\": \"slug minuscule\"}],  // 0-2 logos de marques CITÉES (netflix, tiktok, temu…)\n"
         " \"sfx\": [{\"word\": \"mot exact prononcé\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|magic|glitch|camera|beep|applause|riser|boom\"}],  // 0-5 bruitages qui RENFORCENT LE SENS, au bon endroit et adaptés au TON (un scientifique sérieux : très peu, sobres ; un edit fun : plus). taper->typing, argent/prix->cash, bonne réponse/chiffre->ding, choc/révélation->impact, tech/bug->glitch. Mets-en PEU et SEULEMENT si ça a du sens\n"
-        " \"add_music\": bool,  // faut-il AJOUTER un fond musical ? false pour un talking-head sérieux/scientifique (la voix suffit) ou si la vidéo a déjà sa musique ; true seulement si un fond discret aide vraiment\n"
-        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\"  // si add_music: ambiance ADAPTÉE au sujet (un scientifique -> cinematic/tech, PAS chill/plage) ; vide sinon\n"
+        " \"audio_action\": \"keep|replace_music|replace_all\",  // que faire du SON d'origine ? keep=on le garde tel quel ; replace_music=GARDER la voix mais RETIRER la musique de fond de la vidéo (elle est mauvaise/gênante) pour mettre la nôtre ; replace_all=le son est nul/inutile, on le COUPE entièrement et on met de la musique\n"
+        " \"add_music\": bool,  // faut-il un fond musical ? false pour un talking-head sérieux (la voix suffit) ; true si un fond aide, ou obligatoire si audio_action=replace_all\n"
+        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\"  // si musique : ambiance ADAPTÉE au sujet (un scientifique -> cinematic/tech, PAS chill/plage) ; vide sinon\n"
         "}"
     )
     res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
@@ -2739,6 +2774,9 @@ def process(job):
                     plan[k] = gem[k]  # Gemini décide (liste vide = rien, volontaire)
             # MUSIQUE : Gemini a le contrôle TOTAL (fini la musique de plage forcée).
             plan["music_mood"] = str(gem.get("music_mood") or "") if gem.get("add_music") else ""
+            # replace_all impose une musique -> ambiance par défaut si Gemini a oublié
+            if str(gem.get("audio_action") or "") == "replace_all" and not plan["music_mood"]:
+                plan["music_mood"] = str(gem.get("music_mood") or "cinematic")
             eng_note = " · réalisé par Gemini"
         else:
             eng_note = ""
@@ -3297,16 +3335,56 @@ def process(job):
                 print("gqc:", e, file=sys.stderr)
                 steps.done("gqc", "vérification indisponible")
 
-        # 5. Musique + normalisation du son
+        # 5. SON : Gemini décide quoi faire du son d'origine.
+        #    keep = on garde ; replace_music = on GARDE la voix mais on retire la
+        #    musique de fond gênante (isolation ElevenLabs) et on met la nôtre ;
+        #    replace_all = son nul -> on le COUPE et on met de la musique.
         steps.start("audio", "Mixage du son…")
+        audio_action = str((gem or {}).get("audio_action") or "keep")
         music = pick_music(str(plan.get("music_mood") or ""))
         out = os.path.join(work, "final.mp4")
-        loudnorm(cur, out, music_path=music, music_foreground=music_fg and not words)
-        cur = out
-        if music:
-            steps.done("audio", "musique au premier plan" if (music_fg and not words) else "musique ajoutée")
+        audio_note = ""
+        if audio_action == "replace_all":
+            # Coupe le son d'origine, met la musique seule (ou silence si pas de musique)
+            if music:
+                run(["ffmpeg", "-y", "-i", cur, "-stream_loop", "-1", "-i", music,
+                     "-filter_complex", "[1:a]loudnorm=I=-13:TP=-1.5:LRA=11[a]",
+                     "-map", "0:v", "-map", "[a]", "-metadata", "comment=skillora-improved",
+                     "-c:v", "copy", "-c:a", "aac", "-shortest", out])
+                audio_note = "son d'origine remplacé par de la musique"
+            else:
+                run(["ffmpeg", "-y", "-i", cur, "-c:v", "copy", "-an",
+                     "-metadata", "comment=skillora-improved", out])
+                audio_note = "son d'origine retiré"
+            cur = out
+        elif audio_action == "replace_music" and words and ELEVEN_KEY:
+            # GARDER la voix, RETIRER la musique de fond, remettre la nôtre dessous
+            iso_ok = False
+            try:
+                cur_mp3 = os.path.join(work, "cur_audio.mp3")
+                extract_audio_mp3(cur, cur_mp3)
+                voice_wav = os.path.join(work, "voice_iso.mp3")
+                if eleven_isolate(cur_mp3, voice_wav):
+                    novideo = os.path.join(work, "voiced.mp4")
+                    run(["ffmpeg", "-y", "-i", cur, "-i", voice_wav,
+                         "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac",
+                         "-shortest", novideo])
+                    loudnorm(novideo, out, music_path=music, music_foreground=False)
+                    cur = out
+                    iso_ok = True
+                    audio_note = "voix isolée · musique remplacée"
+            except Exception as e:
+                print("replace_music:", e, file=sys.stderr)
+            if not iso_ok:
+                loudnorm(cur, out, music_path=music, music_foreground=music_fg and not words)
+                cur = out
+                audio_note = "musique ajoutée (isolation indispo)"
         else:
-            steps.done("audio", "son normalisé")
+            loudnorm(cur, out, music_path=music, music_foreground=music_fg and not words)
+            cur = out
+            audio_note = ("musique au premier plan" if (music_fg and not words)
+                          else ("musique ajoutée" if music else "son normalisé"))
+        steps.done("audio", audio_note)
 
         steps.start("up", "Envoi de la vidéo améliorée…")
         url = upload_result(job, cur)

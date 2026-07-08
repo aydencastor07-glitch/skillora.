@@ -1004,6 +1004,35 @@ def look_chain(effects, intensity=1.0):
     return ",".join(parts)
 
 
+def enhance_chain(enh):
+    """Chaîne -vf d'amélioration IMAGE recommandée par Gemini après avoir VU la
+    vidéo (luminosité, contraste, saturation, chaleur, netteté). '' si neutre.
+    Rend TOUTE vidéo visiblement plus nette et plus 'punchy' — même les vidéos
+    qu'on ne monte pas (danse, paysage)."""
+    if not isinstance(enh, dict):
+        enh = {}
+
+    def clamp(v, lo, hi, d):
+        try:
+            return max(lo, min(hi, float(v)))
+        except Exception:
+            return d
+    br = clamp(enh.get("brightness", 0), -0.15, 0.15, 0.0)
+    co = clamp(enh.get("contrast", 1), 0.9, 1.25, 1.0)
+    sa = clamp(enh.get("saturation", 1), 0.9, 1.35, 1.0)
+    wa = clamp(enh.get("warmth", 0), -0.15, 0.15, 0.0)
+    sh = clamp(enh.get("sharpen", 0), 0.0, 1.0, 0.0)
+    parts = []
+    # netteté : un minimum systématique (les vidéos smartphone en ont besoin)
+    parts.append(f"unsharp=5:5:{0.3 + 0.6 * sh:.2f}:5:5:0.0")
+    parts.append("hqdn3d=1.5:1.5:3:3")  # léger débruitage
+    if abs(br) > 0.005 or abs(co - 1) > 0.005 or abs(sa - 1) > 0.005:
+        parts.append(f"eq=brightness={br:.3f}:contrast={co:.3f}:saturation={sa:.3f}")
+    if abs(wa) > 0.01:  # chaleur : + = plus chaud (rouge↑ bleu↓)
+        parts.append(f"colorbalance=rs={wa * 0.4:.3f}:rm={wa * 0.3:.3f}:bs={-wa * 0.4:.3f}")
+    return ",".join(parts)
+
+
 def look_glow(src, dst, kind="glow", intensity=1.0):
     """Effets 'look' à base de blend (lueur onirique / rayons divins) — une passe
     dédiée. kind = 'glow' (halo doux) ou 'godrays' (faisceaux lumineux)."""
@@ -1791,7 +1820,9 @@ def gemini_analyze_video(path, duration):
         " \"face_y\": \"top|middle|bottom|none\",\n"
         " \"opening_captivating\": bool,\n"
         " \"opening_note\": \"pourquoi (court)\",\n"
-        " \"dead_time\": [{\"start\": s, \"end\": s}],  // TOUS les temps morts à couper, en SECONDES précises. INCLUS ABSOLUMENT : l'ÉCRAN DE FIN / OUTRO / carte avec un LOGO (Instagram, TikTok…) ou un @pseudo, MÊME s'il y a de la musique dessus ; les intros lentes/vides ; les blancs ; les moments où il ne se passe rien. Regarde surtout les 5 DERNIÈRES secondes : si c'est un logo/pseudo/écran figé, mets-le en dead_time\n"
+        " \"outro_start\": s_ou_null,  // LE PLUS IMPORTANT : la SECONDE EXACTE où commence l'écran de fin / l'outro / la carte avec un LOGO (Instagram, TikTok…) ou un @pseudo, MÊME s'il y a de la musique ou une animation dessus. Regarde bien la FIN. Si la vidéo se termine par un logo/pseudo/carte de fin, donne la seconde où ça commence pour qu'on le COUPE. null s'il n'y a pas d'écran de fin\n"
+        " \"dead_time\": [{\"start\": s, \"end\": s}],  // AUTRES temps morts à couper (secondes précises) : intros lentes/vides, blancs, moments où il ne se passe rien\n"
+        " \"enhance\": {\"brightness\": -0.15..0.15, \"contrast\": 0.9..1.25, \"saturation\": 0.9..1.35, \"warmth\": -0.15..0.15, \"sharpen\": 0..1},  // AMÉLIORATION IMAGE que tu recommandes APRÈS avoir VU la vidéo : corrige ce qui cloche (trop sombre -> brightness+ ; terne -> saturation+/contrast+ ; flou/pas net -> sharpen+ ; froid/chaud à corriger -> warmth). Valeurs neutres (0, 1, 1, 0, 0) si l'image est déjà parfaite. Sois utile : presque toutes les vidéos smartphone gagnent en netteté et en punch\n"
         " \"scenes\": [{\"t\": s, \"action\": \"ce qu'on voit\", \"motion\": bool, \"interest\": 0-10}],\n"
         " \"best_moments\": [s, ...],  // 0-4 instants VRAIMENT forts, ou [] si la vidéo est régulière\n"
         " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\"}"
@@ -2249,14 +2280,13 @@ GRADES = {
 
 
 def burn_subs(src, dst, ass_path, grade=""):
-    """Incruste les sous-titres + passe 'clarté' gratuite : léger débruitage,
-    netteté et couleurs plus vives. `grade` = étalonnage optionnel (GRADES),
-    appliqué SOUS les sous-titres (le texte garde ses vraies couleurs)."""
+    """Incruste les sous-titres (+ étalonnage optionnel SOUS le texte). La netteté
+    et le punch sont gérés ailleurs (passe qualité 'enhance', une seule fois)."""
     safe = ass_path.replace("\\", "/").replace(":", "\\:")
     g = GRADES.get(str(grade or "").lower())
     pre = (g + ",") if g else ""
     run(["ffmpeg", "-y", "-i", src,
-         "-vf", f"{pre}ass='{safe}',hqdn3d=1.5:1.5:3:3,unsharp=5:5:0.5,eq=contrast=1.04:saturation=1.13",
+         "-vf", f"{pre}ass='{safe}'",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "copy", dst])
 
 
@@ -2537,6 +2567,15 @@ def process(job):
                         deads.append((max(0.0, a), min(facts["duration"], b)))
                 except Exception:
                     pass
+        # ÉCRAN DE FIN / LOGO : Gemini donne la seconde où l'outro commence -> on
+        # coupe tout jusqu'à la fin (c'est le fix du logo Instagram qui restait).
+        if gem and gem.get("outro_start") is not None:
+            try:
+                osec = float(gem["outro_start"])
+                if 1.0 <= osec < facts["duration"] - 0.3:
+                    deads.append((osec, facts["duration"]))
+            except Exception:
+                pass
         # fusionne + trie les plages
         deads = sorted(set((round(a, 2), round(b, 2)) for (a, b) in deads if b > a))
         applied_deads = []
@@ -2935,6 +2974,26 @@ def process(job):
             except Exception as e:
                 print("effects:", e, file=sys.stderr)
                 steps.done("effects", "effets non appliqués (on continue)")
+
+        # 5b-bis. PASSE QUALITÉ (toujours) : netteté + couleurs réglées par Gemini
+        # d'après ce qu'il a VU. Rend TOUTE vidéo visiblement meilleure — même
+        # celles qu'on ne monte pas (danse, paysage). C'est le "on voit une
+        # différence" même en mode minimal.
+        if ffprobe_facts(cur)["duration"] > 0.5:
+            steps.start("quality", "Amélioration de l'image (netteté, couleurs)…")
+            try:
+                ech = enhance_chain((gem or {}).get("enhance"))
+                if ech:
+                    outq = os.path.join(work, "quality.mp4")
+                    run(["ffmpeg", "-y", "-i", cur, "-vf", ech, "-c:v", "libx264",
+                         "-preset", "veryfast", "-crf", "20", "-c:a", "copy", outq])
+                    cur = outq
+                    steps.done("quality", "image nettoyée et rehaussée")
+                else:
+                    steps.done("quality", "image déjà nickel")
+            except Exception as e:
+                print("quality:", e, file=sys.stderr)
+                steps.done("quality", "non appliqué")
 
         # 5c. ÉGALISEUR réactif au son (image quasi fixe + musique -> on la fait vivre)
         if want_visualizer:

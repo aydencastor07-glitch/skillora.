@@ -1929,16 +1929,29 @@ def gemini_generate(prompt, file_uri=None, mime="video/mp4", json_out=True):
     return None
 
 
-def gemini_analyze_video(path, duration):
+def gemini_analyze_video(path, duration, user_styles=None):
     """LES YEUX : Gemini regarde la vidéo ENTIÈRE et renvoie une compréhension
     complète + les temps morts précis. Format aligné sur notre 'vision' + extras.
+    `user_styles` = profils des vidéos VIRALES du créateur (sa mémoire) : si la
+    vidéo ressemble à l'une, Gemini monte DANS CE STYLE gagnant.
     None si pas de clé / échec (on retombe sur l'analyse Groq par images)."""
     if not GEMINI_KEY:
         return None
     uri = gemini_upload(path)
     if not uri:
         return None
+    mem = ""
+    if user_styles:
+        try:
+            summ = json.dumps(user_styles, ensure_ascii=False)[:2500]
+            mem = ("MÉMOIRE — voici le STYLE des vidéos de CE créateur qui ont fait BEAUCOUP "
+                   "DE VUES (ses vidéos gagnantes). Si la vidéo à monter ressemble à l'une de "
+                   "ces niches, REPRODUIS ce style gagnant (mêmes choix de sous-titres, rythme, "
+                   "effets, couleurs, hooks) en l'adaptant au contenu :\n" + summ + "\n\n")
+        except Exception:
+            mem = ""
     prompt = (
+        mem +
         "Tu es un monteur vidéo professionnel EXIGENT et SOBRE. Regarde cette vidéo "
         f"courte ({duration:.0f}s) en ENTIER (image ET son). Ton rôle : dire ce qu'il "
         "faut VRAIMENT améliorer, sans surcharger. Beaucoup de vidéos ont juste besoin "
@@ -2666,6 +2679,36 @@ def load_style_profile(category):
     return prof
 
 
+USERSTYLE_BUCKET = os.environ.get("USERSTYLE_BUCKET", "user-styles")
+
+
+def load_user_styles(user_id):
+    """Charge les PROFILS DE STYLE PERSONNELS d'un créateur, appris de SES vidéos
+    virales (user-styles/{user_id}/*.json). Retourne une liste (une entrée par
+    niche) ou [] si aucun. C'est la MÉMOIRE : ce qui marche pour CETTE personne."""
+    uid = str(user_id or "").strip()
+    if not uid:
+        return []
+    out = []
+    try:
+        st, raw = http("POST", f"{SB_URL}/storage/v1/object/list/{USERSTYLE_BUCKET}",
+                       sb_headers(), {"prefix": uid + "/", "limit": 50}, timeout=20)
+        for it in json.loads(raw):
+            name = it.get("name", "")
+            if not name.endswith(".json"):
+                continue
+            try:
+                url = f"{SB_URL}/storage/v1/object/public/{USERSTYLE_BUCKET}/{urllib.parse.quote(uid + '/' + name)}"
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 Skillora"})
+                with urllib.request.urlopen(req, timeout=15) as r:
+                    out.append(json.loads(r.read().decode()))
+            except Exception:
+                pass
+    except Exception as e:
+        print("load_user_styles:", e, file=sys.stderr)
+    return out
+
+
 # ---------------------------------------------------------------- musique (bucket)
 def pick_music(mood):
     """Choisit une piste du bucket musique d'après le NOM du fichier :
@@ -2728,11 +2771,15 @@ def process(job):
         gem = None
         if GEMINI_KEY:
             steps.start("see", "Gemini regarde toute ta vidéo…")
+            # MÉMOIRE : le style des vidéos VIRALES de ce créateur (s'il en a)
+            user_styles = load_user_styles(job.get("user_id"))
             try:
-                gem = gemini_analyze_video(src, facts["duration"])
+                gem = gemini_analyze_video(src, facts["duration"], user_styles=user_styles or None)
             except Exception as e:
                 print("gemini:", e, file=sys.stderr)
-            steps.done("see", "vidéo comprise" if gem else "vision Gemini indisponible (on continue)")
+            note_mem = f" · style perso ({len(user_styles)} niche(s))" if user_styles else ""
+            steps.done("see", ("vidéo comprise" + note_mem) if gem
+                       else "vision Gemini indisponible (on continue)")
 
         # ÉTAPE 0 : couper les TEMPS MORTS. Priorité aux temps morts repérés par
         # Gemini (précis, il voit les blancs/intros lentes), sinon détection

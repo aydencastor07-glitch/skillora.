@@ -1896,7 +1896,10 @@ def gemini_generate(prompt, file_uri=None, mime="video/mp4", json_out=True):
         return None
     parts = []
     if file_uri:
-        parts.append({"file_data": {"mime_type": mime, "file_uri": file_uri}})
+        fd = {"file_uri": file_uri}
+        if mime:  # les liens YouTube n'ont pas besoin de mime_type
+            fd["mime_type"] = mime
+        parts.append({"file_data": fd})
     parts.append({"text": prompt})
     body = {"contents": [{"parts": parts}],
             "generationConfig": {"temperature": 0.2}}
@@ -1998,6 +2001,48 @@ def gemini_analyze_video(path, duration, user_styles=None):
     res["engine"] = "gemini"
     res["frames_analyzed"] = "toute la vidéo"
     return res
+
+
+STUDY_DNA = ("video_type", "sub_style_id", "highlight", "edit_intensity",
+             "color_grade", "music_mood")
+
+
+def gemini_study_url(url):
+    """Fait ÉTUDIER une vidéo virale de RÉFÉRENCE à Gemini depuis son LIEN.
+    - lien YouTube : Gemini l'analyse DIRECTEMENT (pas de téléchargement) ;
+    - autre lien mp4 : on télécharge puis on analyse.
+    Retourne l'ADN de style {video_type, sub_style_id, edit_intensity, …} ou None.
+    C'est ce qui permet à l'agent de faire 'visiter internet' à Gemini."""
+    if not GEMINI_KEY or not url:
+        return None
+    prompt = (
+        "Regarde cette vidéo courte VIRALE (elle a très bien marché). En monteur pro, "
+        "décris SON STYLE DE MONTAGE pour qu'on puisse le reproduire. Réponds UNIQUEMENT ce JSON:\n"
+        "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|dance|product|story|other\",\n"
+        " \"sub_style_id\": 0,  // 0 signature ; 2 Hormozi ; 3 cartoon ; 4 néon ; 5 tech ; 6 docu ; 8 machine à écrire ; 10 or ; 12 karaoké ; 15 glitch ; 18 serif ; 20 néon ; 21 horreur\n"
+        " \"highlight\": \"yellow|green|red|cyan\",\n"
+        " \"edit_intensity\": \"minimal|moderate|dynamic\",\n"
+        " \"color_grade\": \"|dark_moody|warm_luxury|cold_cinematic|vibrant_pop|bw_horror|vintage_warm\",\n"
+        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic ou vide\",\n"
+        " \"why_viral\": \"ce qui rend cette vidéo accrocheuse, 1 phrase\"}"
+    )
+    low = url.lower()
+    try:
+        if "youtu" in low:
+            return gemini_generate(prompt, file_uri=url, mime=None, json_out=True)
+        tmp = tempfile.mktemp(suffix=".mp4")
+        download(url, tmp)
+        uri = gemini_upload(tmp)
+        try:
+            os.remove(tmp)
+        except Exception:
+            pass
+        if not uri:
+            return None
+        return gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
+    except Exception as e:
+        print("gemini_study_url:", e, file=sys.stderr)
+        return None
 
 
 def gemini_qc(path, duration, had_subs=False):
@@ -2895,7 +2940,16 @@ def process(job):
             inten = float(learned.get("intensity") or 0.6)
             base = rec["zooms"]
             rec["zooms"] = [1.0 if z <= 1.0 else round(1.0 + (z - 1.0) * (0.6 + inten), 3) for z in base]
-            learn_note = f" · style appris ({learned.get('samples', 1)} réf.)"
+            # style de sous-titres / couleur / intensité APPRIS des vidéos virales
+            # de cette niche : appliqués si Gemini ne l'a pas déjà décidé.
+            if not gem:
+                if learned.get("sub_style_id") is not None:
+                    plan["sub_style_id"] = learned["sub_style_id"]
+                if learned.get("highlight"):
+                    plan["highlight"] = learned["highlight"]
+                if learned.get("edit_intensity") in ("minimal", "moderate", "dynamic"):
+                    intensity_mode = learned["edit_intensity"]
+            learn_note = f" · style viral appris ({learned.get('samples', 1)} réf.)"
         if not str(plan.get("color_grade") or ""):
             plan["color_grade"] = rec["grade"]
         if not str(plan.get("transition") or ""):

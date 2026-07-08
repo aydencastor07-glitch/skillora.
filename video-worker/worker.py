@@ -1376,6 +1376,36 @@ def smart_reframe(src, dst, track, target_w=1080, target_h=1920):
         return False
 
 
+def split_two_reframe(src, dst, xa, xb, target_w=1080, target_h=1920):
+    """SPLIT-SCREEN 2 personnages (façon Opus Clip) : quand DEUX personnes parlent
+    en même temps, on cadre la 1re en HAUT et la 2e en BAS, chacune bien centrée
+    sur elle (xa, xb = centres horizontaux 0..1). Chaque moitié utilise toute la
+    hauteur de la source -> recadrage moins agressif = meilleure qualité.
+    False si impossible."""
+    facts = ffprobe_facts(src)
+    W, H = facts["width"], facts["height"]
+    if not W or not H:
+        return False
+    half = target_h // 2  # 960 : hauteur de chaque personne
+    cw = int(H * target_w / half) // 2 * 2  # largeur de crop (ratio 1080:960)
+    cw = min(cw, W)
+
+    def xoff(x):
+        x = min(1.0, max(0.0, float(x)))
+        return int(min(W - cw, max(0, x * W - cw / 2)))
+    fc = (f"[0:v]split=2[a][b];"
+          f"[a]crop={cw}:{H}:{xoff(xa)}:0,scale={target_w}:{half}:flags=lanczos[pa];"
+          f"[b]crop={cw}:{H}:{xoff(xb)}:0,scale={target_w}:{half}:flags=lanczos[pb];"
+          f"[pa][pb]vstack=inputs=2[v]")
+    try:
+        run(["ffmpeg", "-y", "-i", src, "-filter_complex", fc, "-map", "[v]", "-map", "0:a?",
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", dst])
+        return os.path.exists(dst) and os.path.getsize(dst) > 2000
+    except Exception as e:
+        print("split_two_reframe:", e, file=sys.stderr)
+        return False
+
+
 # ---------------------------------------------------------------- texte derrière la personne
 _REMBG_SESSION = None
 
@@ -1922,6 +1952,9 @@ def gemini_analyze_video(path, duration):
         " \"enhance\": {\"brightness\": -0.15..0.15, \"contrast\": 0.9..1.25, \"saturation\": 0.9..1.35, \"warmth\": -0.15..0.15, \"sharpen\": 0..1},  // AMÉLIORATION IMAGE que tu recommandes APRÈS avoir VU la vidéo : corrige ce qui cloche (trop sombre -> brightness+ ; terne -> saturation+/contrast+ ; flou/pas net -> sharpen+ ; froid/chaud à corriger -> warmth). Valeurs neutres (0, 1, 1, 0, 0) si l'image est déjà parfaite. Sois utile : presque toutes les vidéos smartphone gagnent en netteté et en punch\n"
         " \"needs_reframe\": bool,  // true si la vidéo gagnerait à être recadrée en vertical en SUIVANT le sujet (source horizontale/carrée, OU sujet souvent décentré) ; false si déjà bien cadré vertical\n"
         " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=tout à gauche, 0.5=centre, 1=tout à droite) à 6-10 instants répartis, pour que le cadrage le SUIVE ; [] sinon\n"
+        " \"two_people\": bool,  // true UNIQUEMENT si DEUX personnes parlent et sont visibles EN MÊME TEMPS (podcast/interview côte à côte) -> on fera un split-screen (1re en haut, 2e en bas)\n"
+        " \"person_a_x\": 0.0,  // si two_people : centre horizontal (0..1) de la 1re personne (souvent à gauche ~0.25)\n"
+        " \"person_b_x\": 0.0,  // si two_people : centre horizontal (0..1) de la 2e personne (souvent à droite ~0.75)\n"
         " \"scenes\": [{\"t\": s, \"action\": \"ce qu'on voit\", \"motion\": bool, \"interest\": 0-10}],\n"
         " \"best_moments\": [s, ...],  // 0-4 instants VRAIMENT forts, ou [] si la vidéo est régulière\n"
         " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\",\n"
@@ -2879,7 +2912,23 @@ def process(job):
         # Suit le sujet si Gemini fournit un track, sinon crop centré. Le flou-bordures
         # n'est qu'un ultime repli si le crop échoue.
         gem_track = (vision or {}).get("subject_track") or []
-        if plan.get("reframe"):
+        two_people = bool(gem and (gem or {}).get("two_people"))
+        if two_people:
+            # SPLIT-SCREEN : les deux personnes, l'une en haut, l'autre en bas
+            out = os.path.join(work, "frame.mp4")
+            xa = (gem or {}).get("person_a_x", 0.25)
+            xb = (gem or {}).get("person_b_x", 0.75)
+            steps.start("frame", "Split-screen : les 2 personnes cadrées…")
+            if split_two_reframe(cur, out, xa, xb):
+                cur = out
+                steps.done("frame", "split-screen (2 personnes)")
+            elif plan.get("reframe"):
+                reframe_916(cur, out, facts["width"], facts["height"])
+                cur = out
+                steps.done("frame", "recadrage (repli)")
+            else:
+                steps.skip("frame", "Recadrage 9:16", "déjà au bon format")
+        elif plan.get("reframe"):
             out = os.path.join(work, "frame.mp4")
             following = bool(gem and (gem or {}).get("needs_reframe") and gem_track)
             steps.start("frame", "Recadrage vertical qui SUIT le sujet…" if following

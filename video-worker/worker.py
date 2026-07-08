@@ -42,6 +42,7 @@ SB_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SB_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "")
+ELEVEN_KEY = os.environ.get("ELEVENLABS_API_KEY", "")  # Scribe : sous-titres au mot très précis
 MUSIC_BUCKET = os.environ.get("MUSIC_BUCKET", "music-library")
 STYLE_BUCKET = os.environ.get("STYLE_BUCKET", "style-library")  # styles appris des vidéos virales
 POLL_SECONDS = float(os.environ.get("POLL_SECONDS", "3"))
@@ -1440,6 +1441,56 @@ def groq_transcribe(path):
         return None
 
 
+def eleven_transcribe(path):
+    """Transcription au mot TRÈS précise via ElevenLabs Scribe (verbatim, timings
+    exacts, gère les répétitions) -> bien meilleurs sous-titres que Whisper.
+    Renvoie {text, words:[{word,start,end}], language} au format du worker.
+    None si pas de clé / échec (on retombe alors sur Whisper)."""
+    if not ELEVEN_KEY:
+        return None
+    boundary = "----skillora-scribe" + str(int(time.time()))
+    with open(path, "rb") as f:
+        audio = f.read()
+    parts = []
+    for name, val in [("model_id", "scribe_v1"), ("timestamps_granularity", "word")]:
+        parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"\r\n\r\n{val}\r\n".encode())
+    parts.append((f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"a.mp3\"\r\n"
+                  "Content-Type: audio/mpeg\r\n\r\n").encode() + audio + b"\r\n")
+    parts.append(f"--{boundary}--\r\n".encode())
+    body = b"".join(parts)
+    try:
+        st, raw = http("POST", "https://api.elevenlabs.io/v1/speech-to-text",
+                       {"xi-api-key": ELEVEN_KEY,
+                        "Content-Type": f"multipart/form-data; boundary={boundary}"},
+                       body, timeout=300)
+        resp = json.loads(raw)
+        words = [{"word": w["text"], "start": float(w["start"]), "end": float(w["end"])}
+                 for w in resp.get("words", [])
+                 if w.get("type", "word") == "word" and str(w.get("text", "")).strip()]
+        if not words:
+            return None
+        return {"text": resp.get("text", ""), "words": words,
+                "language": resp.get("language_code"), "engine": "scribe"}
+    except urllib.error.HTTPError as e:
+        try:
+            print("eleven_transcribe HTTP", e.code, ":", e.read().decode()[:300], file=sys.stderr)
+        except Exception:
+            print("eleven_transcribe HTTP", e.code, file=sys.stderr)
+        return None
+    except Exception as e:
+        print("eleven_transcribe:", e, file=sys.stderr)
+        return None
+
+
+def transcribe(path):
+    """Transcripteur unifié : ElevenLabs Scribe en priorité (précision au mot),
+    Whisper (Groq) en filet de sécurité. Renvoie le format {text, words[...]}."""
+    tr = eleven_transcribe(path)
+    if tr and tr.get("words"):
+        return tr
+    return groq_transcribe(path)
+
+
 def classify_audio(tr, silences, beats, duration):
     """MUSIQUE ou VOIX ? Un créateur peut poser une CHANSON (paroles) sur sa vidéo :
     il ne faut SURTOUT PAS la sous-titrer comme une voix off. On distingue :
@@ -1470,6 +1521,10 @@ def classify_audio(tr, silences, beats, duration):
         score += 1
     if strong_beats:
         score += 1
+    # Scribe ne fournit pas les indices de confiance de Whisper (segs vide) :
+    # on s'appuie alors sur l'acoustique (son continu + beat régulier = musique).
+    if not segs and strong_beats and sil_ratio < 0.05:
+        score += 2
     return "music" if score >= 3 else "speech"
 
 
@@ -2307,7 +2362,7 @@ def process(job):
         if facts["has_audio"]:
             mp3 = os.path.join(work, "a.mp3")
             extract_audio_mp3(src, mp3)
-            first_tr = groq_transcribe(mp3)
+            first_tr = transcribe(mp3)
         tr_text = (first_tr or {}).get("text", "").strip() if first_tr else ""
         # Les YEUX : vision sur TOUTE la vidéo (plusieurs lots de 5 images).
         vision = None
@@ -2445,7 +2500,7 @@ def process(job):
         if plan.get("subtitles") and facts["has_audio"]:
             mp3b = os.path.join(work, "b.mp3")
             extract_audio_mp3(cur, mp3b)
-            tr2 = groq_transcribe(mp3b)
+            tr2 = transcribe(mp3b)
             words = (tr2 or {}).get("words") or []
 
         # 5. Montage dynamique : mots forts, effet "la vidéo se pousse sur le côté",
@@ -2758,6 +2813,7 @@ def process(job):
 def main():
     print("Skillora video-worker démarré.",
           "Groq:", "oui" if GROQ_KEY else "NON (sous-titres/plan IA désactivés)",
+          "· Transcription:", "ElevenLabs Scribe" if ELEVEN_KEY else "Whisper (Groq)",
           "· Pexels:", "oui" if PEXELS_KEY else "non")
     while True:
         job = claim_job()

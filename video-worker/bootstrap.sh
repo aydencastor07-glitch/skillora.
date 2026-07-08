@@ -60,6 +60,11 @@ echo "   • Clé Pexels pour les plans b-roll — OPTIONNELLE"
 echo "     (pexels.com/api — laisse vide et Entrée si tu ne l'as pas encore)"
 printf "   Colle-la ici : "
 read -r PEXELS
+echo ""
+echo "   • Clé ElevenLabs pour des sous-titres TRÈS précis (Scribe) — OPTIONNELLE"
+echo "     (elevenlabs.io > API Keys — laisse vide et Entrée sinon, Whisper prend le relais)"
+printf "   Colle-la ici : "
+read -r ELEVEN
 
 if [ -z "${SRK:-}" ] || [ -z "${GROQ:-}" ]; then
   echo ""
@@ -80,6 +85,7 @@ Environment=SUPABASE_URL=${SUPABASE_URL}
 Environment=SUPABASE_SERVICE_ROLE_KEY=${SRK}
 Environment=GROQ_API_KEY=${GROQ}
 Environment=PEXELS_API_KEY=${PEXELS}
+Environment=ELEVENLABS_API_KEY=${ELEVEN}
 ExecStart=/usr/bin/python3 -u /opt/skillora-worker/worker.py
 Restart=always
 RestartSec=5

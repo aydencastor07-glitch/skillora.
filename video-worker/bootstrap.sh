@@ -70,6 +70,11 @@ echo "   • Clé Gemini pour l'analyse vidéo complète (les yeux) — OPTIONNE
 echo "     (aistudio.google.com > Get API key — GRATUIT, sans carte — laisse vide sinon)"
 printf "   Colle-la ici : "
 read -r GEMINI
+echo ""
+echo "   • Clé SociaVault (agent Éclaireur : liens TikTok frais pour l'étude) — OPTIONNELLE"
+echo "     (sociavault.com > API Keys — laisse vide et Entrée sinon)"
+printf "   Colle-la ici : "
+read -r SOCIAV
 
 if [ -z "${SRK:-}" ] || [ -z "${GROQ:-}" ]; then
   echo ""
@@ -92,6 +97,7 @@ Environment=GROQ_API_KEY=${GROQ}
 Environment=PEXELS_API_KEY=${PEXELS}
 Environment=ELEVENLABS_API_KEY=${ELEVEN}
 Environment=GEMINI_API_KEY=${GEMINI}
+Environment=SOCIAVAULT_API_KEY=${SOCIAV}
 ExecStart=/usr/bin/python3 -u /opt/skillora-worker/worker.py
 Restart=always
 RestartSec=5

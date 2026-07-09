@@ -33,7 +33,8 @@ create table if not exists public.winning_videos (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid references auth.users(id) on delete cascade,  -- null autorisé pour du purement global
   platform     text not null,
-  video_url    text not null,
+  video_url    text not null,               -- lien "page" (tiktok.com/@x/video/…, youtube…)
+  media_url    text,                        -- lien mp4 DIRECT (CDN) si connu — c'est lui que Gemini télécharge
   views        bigint not null default 0,
   create_time  bigint,                       -- horodatage de publication (unix), pour trier/journaliser
   niche        text,                          -- optionnel : Gemini la détecte à l'étude

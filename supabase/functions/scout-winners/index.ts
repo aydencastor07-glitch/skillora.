@@ -41,7 +41,18 @@ function median(nums: number[]) {
   return a.length % 2 ? a[m] : Math.round((a[m - 1] + a[m]) / 2);
 }
 
-// ---- récupération des vidéos récentes { url, views, create_time } par plateforme ----
+// ---- récupération des vidéos récentes { url, media_url, views, create_time } par plateforme ----
+// media_url = lien mp4 DIRECT (CDN) quand la plateforme le donne : c'est lui que Gemini pourra
+// télécharger pour étudier la vidéo (les pages TikTok/Instagram ne sont pas des fichiers vidéo).
+function tiktokPlayUrl(v: any): string {
+  const cands = [v?.video?.play_addr?.url_list, v?.video?.download_addr?.url_list,
+                 v?.video?.play_addr_h264?.url_list, v?.video?.bit_rate?.[0]?.play_addr?.url_list];
+  for (const c of cands) {
+    const arr = Array.isArray(c) ? c : (c ? Object.values(c) : []);
+    for (const u of arr) if (typeof u === "string" && u.startsWith("http")) return u;
+  }
+  return "";
+}
 async function tiktokVideos(handle: string, key: string) {
   const data = await svGet(`/tiktok/videos?handle=${encodeURIComponent(handle)}&count=30`, key);
   const d = data.data ?? data;
@@ -51,6 +62,7 @@ async function tiktokVideos(handle: string, key: string) {
     views: Number(v?.statistics?.play_count ?? 0),
     create_time: Number(v?.create_time ?? 0),
     url: v?.aweme_id ? `https://www.tiktok.com/@${handle}/video/${v.aweme_id}` : "",
+    media_url: tiktokPlayUrl(v),
   })).filter((x) => x.url);
 }
 async function instagramVideos(handle: string, key: string) {
@@ -60,10 +72,12 @@ async function instagramVideos(handle: string, key: string) {
   return (arr as any[]).map((it: any) => {
     const v = it.node ?? it;
     const code = v.code ?? v.shortcode ?? v.short_code ?? "";
+    const media = v.video_versions?.[0]?.url ?? v.video_url ?? "";
     return {
       views: Number(v.play_count ?? v.view_count ?? v.video_view_count ?? v.ig_play_count ?? v.views ?? 0),
       create_time: Number(v.taken_at ?? v.taken_at_timestamp ?? v.timestamp ?? 0),
       url: code ? `https://www.instagram.com/p/${code}/` : "",
+      media_url: typeof media === "string" && media.startsWith("http") ? media : "",
     };
   }).filter((x) => x.url);
 }
@@ -84,6 +98,7 @@ async function youtubeVideos(handle: string, key: string) {
       views: Number(v.view_count ?? v.views ?? v.viewCount ?? v.statistics?.viewCount ?? 0),
       create_time: Number.isFinite(ts) ? ts : 0,
       url: v.url ?? (id ? `https://youtube.com/watch?v=${id}` : ""),
+      media_url: "",  // YouTube : Gemini lit le lien directement, pas besoin de mp4
     };
   }).filter((x) => x.url);
 }
@@ -129,7 +144,7 @@ serve(async (req) => {
       // anti-crédits : on ne rescane pas trop souvent (sauf force / juste après connexion)
       if (base && !force && base.last_scanned_at && Date.parse(base.last_scanned_at) > cutoff) continue;
 
-      let vids: { views: number; create_time: number; url: string }[] = [];
+      let vids: { views: number; create_time: number; url: string; media_url?: string }[] = [];
       try { vids = await fetchVideos(acc.platform, handle, SV_KEY); }
       catch (e) { console.error("scout fetch", acc.platform, handle, String(e)); continue; }
       scanned++;
@@ -153,11 +168,11 @@ serve(async (req) => {
         if (!v.create_time || v.create_time <= baselineSec) continue;   // publiée AVANT la connexion -> ignorée
         if (v.views >= creatorThreshold) {
           rows.push({ user_id: acc.user_id, platform: acc.platform, video_url: v.url,
-            views: v.views, create_time: v.create_time, scope: "creator" });
+            media_url: v.media_url || null, views: v.views, create_time: v.create_time, scope: "creator" });
         }
         if (v.views >= GLOBAL_MIN_VIEWS) {
           rows.push({ user_id: acc.user_id, platform: acc.platform, video_url: v.url,
-            views: v.views, create_time: v.create_time, scope: "global" });
+            media_url: v.media_url || null, views: v.views, create_time: v.create_time, scope: "global" });
         }
       }
       if (rows.length) {

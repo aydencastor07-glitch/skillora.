@@ -3638,9 +3638,37 @@ def merge_winner_style(bucket, key, niche, dna, views, scope):
     return prof
 
 
+SOCIAVAULT_KEY = os.environ.get("SOCIAVAULT_API_KEY", "")
+
+
+def sv_fresh_media(page_url):
+    """Redemande à SociaVault un lien mp4 FRAIS pour une vidéo TikTok (les liens CDN
+    expirent au bout de quelques heures). None si pas de clé / échec."""
+    if not SOCIAVAULT_KEY or "tiktok.com" not in page_url:
+        return None
+    try:
+        req = urllib.request.Request(
+            "https://api.sociavault.com/v1/scrape/tiktok/video?url=" + urllib.parse.quote(page_url, safe=""),
+            headers={"X-API-Key": SOCIAVAULT_KEY})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            data = json.loads(r.read().decode())
+        d = data.get("data") or data
+        v = d.get("aweme_detail") or d.get("video") or d
+        vid = v.get("video") or {}
+        for cand in (vid.get("play_addr"), vid.get("download_addr"), vid.get("play_addr_h264")):
+            urls = (cand or {}).get("url_list") or []
+            urls = urls if isinstance(urls, list) else list(urls.values())
+            for u in urls:
+                if isinstance(u, str) and u.startswith("http"):
+                    return u
+    except Exception as e:
+        print("sv_fresh_media:", e, file=sys.stderr)
+    return None
+
+
 def study_winner(row):
     """Fait étudier UNE vidéo gagnante par Gemini et enrichit la mémoire de style.
-    YouTube : analyse directe du lien ; sinon téléchargement + analyse."""
+    YouTube : analyse directe du lien ; sinon téléchargement du mp4 (media_url) + analyse."""
     win_id = row["id"]
     url = row.get("video_url") or ""
     scope = row.get("scope") or "creator"
@@ -3651,9 +3679,26 @@ def study_winner(row):
         if "youtu" in low:
             gem = gemini_study_url(url)  # analyse directe, pas de téléchargement
         else:
+            # ordre d'essai : mp4 direct connu -> lien page -> mp4 frais via SociaVault
+            candidates = [u for u in (row.get("media_url"), url) if u]
             tmp = tempfile.mktemp(suffix=".mp4")
             try:
-                download(url, tmp)
+                got = False
+                for cand in candidates:
+                    try:
+                        download(cand, tmp)
+                        if os.path.getsize(tmp) > 50000:  # une vraie vidéo, pas une page d'erreur
+                            got = True
+                            break
+                    except Exception:
+                        pass
+                if not got:
+                    fresh = sv_fresh_media(url)
+                    if fresh:
+                        download(fresh, tmp)
+                        got = os.path.getsize(tmp) > 50000
+                if not got:
+                    raise RuntimeError("téléchargement impossible (lien expiré ?)")
                 dur = ffprobe_facts(tmp)["duration"]
                 gem = gemini_analyze_video(tmp, dur)
             finally:

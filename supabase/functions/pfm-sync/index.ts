@@ -109,6 +109,17 @@ serve(async (req) => {
       });
     }
     if (rows.length) await admin.from("social_connections").upsert(rows, { onConflict: "user_id,provider_account_id" });
+
+    // Agent Éclaireur : dès la connexion, on pose la LIGNE DE BASE (baseline_at = maintenant) pour les
+    // plateformes analysables. Coût 0 crédit (simple insert DB) — l'edge function scout-winners fera les
+    // vrais relevés plus tard. Ainsi on n'apprendra QUE des vidéos publiées APRÈS cette connexion.
+    const SCOUT_PLATFORMS = ["tiktok", "tiktok_business", "instagram", "youtube"];
+    const baselines = rows
+      .filter((r) => r.handle_verified && r.handle && SCOUT_PLATFORMS.includes(r.platform))
+      .map((r) => ({ user_id: userId, platform: r.platform, handle: String(r.handle).replace(/^@/, "") }));
+    if (baselines.length) {
+      try { await admin.from("scout_accounts").upsert(baselines, { onConflict: "user_id,platform,handle", ignoreDuplicates: true }); } catch (_e) { /* la table peut ne pas exister avant migration */ }
+    }
     const keep = rows.map((r) => r.provider_account_id);
     for (const e of (existingRows || [])) { if (keep.indexOf(e.provider_account_id) < 0) { try { await admin.from("social_connections").delete().eq("user_id", userId).eq("provider_account_id", e.provider_account_id); } catch (_e) {} } }
 

@@ -3560,6 +3560,127 @@ def process(job):
         shutil.rmtree(work, ignore_errors=True)
 
 
+# ==================================================================================
+# Agent ÉCLAIREUR — consommateur : le worker fait ÉTUDIER les vidéos gagnantes au repos.
+# La file `winning_videos` est remplie par l'edge function scout-winners (autonome).
+# scope='creator' -> user-styles/{user_id}/{niche}.json ; scope='global' -> style-library/{niche}.json.
+# ==================================================================================
+CREATOR_DNA = ("video_type", "sub_style_id", "highlight", "edit_intensity",
+               "color_grade", "music_mood", "audio_action")
+
+
+def claim_winner():
+    """Attribue atomiquement UNE vidéo gagnante à étudier (statut -> 'studying')."""
+    try:
+        st, raw = http("POST", SB_URL + "/rest/v1/rpc/claim_winning_video", sb_headers(), {})
+        rows = json.loads(raw or b"[]")
+        return rows[0] if rows else None
+    except Exception as e:
+        print("claim_winner:", e, file=sys.stderr)
+        return None
+
+
+def mark_winner(win_id, patch):
+    try:
+        http("PATCH", SB_URL + "/rest/v1/winning_videos?id=eq." + win_id,
+             sb_headers({"Prefer": "return=minimal"}), patch)
+    except Exception as e:
+        print("mark_winner:", e, file=sys.stderr)
+
+
+def _read_style_json(bucket, key):
+    """Lit un profil de style existant (ou None) depuis le storage public."""
+    try:
+        url = f"{SB_URL}/storage/v1/object/public/{bucket}/{urllib.parse.quote(key)}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 Skillora"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode())
+    except Exception:
+        return None
+
+
+def _write_style_json(bucket, key, profile):
+    http("POST", f"{SB_URL}/storage/v1/object/{bucket}/{urllib.parse.quote(key)}",
+         sb_headers({"Content-Type": "application/json", "x-upsert": "true"}),
+         json.dumps(profile, ensure_ascii=False).encode())
+
+
+def merge_winner_style(bucket, key, niche, dna, views, scope):
+    """Fusion INCRÉMENTALE d'une gagnante dans le profil de style (un vote par champ).
+    On garde `_votes` (comptage par valeur) pour choisir la valeur majoritaire au fil de l'eau."""
+    prof = _read_style_json(bucket, key) or {"video_type": niche, "samples": 0, "_votes": {}}
+    votes = prof.get("_votes") or {}
+    fields = CREATOR_DNA if scope == "creator" else STUDY_DNA
+    for f in fields:
+        val = dna.get(f)
+        if val in (None, ""):
+            continue
+        vf = votes.setdefault(f, {})
+        vf[str(val)] = vf.get(str(val), 0) + 1
+        prof[f] = max(vf, key=vf.get)  # valeur la plus souvent gagnante
+    # sub_style_id : on le garde numérique si possible
+    if "sub_style_id" in prof:
+        try:
+            prof["sub_style_id"] = int(prof["sub_style_id"])
+        except Exception:
+            pass
+    prof["_votes"] = votes
+    prof["video_type"] = niche
+    prof["samples"] = int(prof.get("samples", 0)) + 1
+    prof["avg_views"] = int((int(prof.get("avg_views", 0)) * (prof["samples"] - 1) + int(views or 0)) / prof["samples"])
+    prof["source"] = "scout_creator" if scope == "creator" else "scout_viral"
+    # cadence/intensité indicatives déduites de l'intensité apprise (comme study_niche.py)
+    inten = str(prof.get("edit_intensity") or "moderate")
+    prof["cut_s"] = {"minimal": 3.6, "moderate": 3.0, "dynamic": 2.3}.get(inten, 2.8)
+    prof["intensity"] = {"minimal": 0.4, "moderate": 0.6, "dynamic": 0.9}.get(inten, 0.6)
+    prof["grade"] = prof.get("color_grade") or ""
+    _write_style_json(bucket, key, prof)
+    return prof
+
+
+def study_winner(row):
+    """Fait étudier UNE vidéo gagnante par Gemini et enrichit la mémoire de style.
+    YouTube : analyse directe du lien ; sinon téléchargement + analyse."""
+    win_id = row["id"]
+    url = row.get("video_url") or ""
+    scope = row.get("scope") or "creator"
+    views = int(row.get("views") or 0)
+    try:
+        low = url.lower()
+        gem = None
+        if "youtu" in low:
+            gem = gemini_study_url(url)  # analyse directe, pas de téléchargement
+        else:
+            tmp = tempfile.mktemp(suffix=".mp4")
+            try:
+                download(url, tmp)
+                dur = ffprobe_facts(tmp)["duration"]
+                gem = gemini_analyze_video(tmp, dur)
+            finally:
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+        if not gem or not isinstance(gem, dict):
+            mark_winner(win_id, {"status": "error", "error": "Gemini n'a pas pu analyser.",
+                                 "finished_at": "now()"})
+            return
+        niche = re.sub(r"[^a-z0-9_]", "", str(row.get("niche") or gem.get("video_type") or "other").lower()) or "other"
+        if scope == "creator" and row.get("user_id"):
+            bucket, key = USERSTYLE_BUCKET, f"{row['user_id']}/{niche}.json"
+        else:
+            bucket, key = STYLE_BUCKET, f"{niche}.json"
+        prof = merge_winner_style(bucket, key, niche, gem, views, scope)
+        _STYLE_CACHE.pop(niche, None)  # invalide le cache pour usage immédiat
+        mark_winner(win_id, {"status": "done", "niche": niche,
+                             "study_result": {"sub_style_id": prof.get("sub_style_id"),
+                                              "edit_intensity": prof.get("edit_intensity"),
+                                              "samples": prof.get("samples")},
+                             "finished_at": "now()"})
+        print(f"Éclaireur: étudié {scope}/{niche} ({views} vues) -> {bucket}/{key}")
+    except Exception as e:
+        traceback.print_exc()
+        mark_winner(win_id, {"status": "error", "error": str(e)[:500], "finished_at": "now()"})
+
+
 def main():
     print("Skillora video-worker démarré.",
           "Groq:", "oui" if GROQ_KEY else "NON (plan IA désactivé)",
@@ -3571,8 +3692,14 @@ def main():
         if job:
             print("Job réclamé:", job["id"])
             process(job)
-        else:
-            time.sleep(POLL_SECONDS)
+            continue
+        # Au repos : l'Éclaireur fait étudier UNE vidéo gagnante par Gemini (apprentissage autonome).
+        win = claim_winner() if GEMINI_KEY else None
+        if win:
+            print("Éclaireur: gagnante réclamée:", win.get("video_url", "")[:60])
+            study_winner(win)
+            continue
+        time.sleep(POLL_SECONDS)
 
 
 if __name__ == "__main__":

@@ -3726,6 +3726,49 @@ def study_winner(row):
         mark_winner(win_id, {"status": "error", "error": str(e)[:500], "finished_at": "now()"})
 
 
+# --- déclenchement automatique des agents (aucun cron à configurer) -------------
+# Le worker tourne 24h/24 avec la clé service : c'est LUI qui réveille les agents.
+#   scout-winners : ~1x/jour (les comptes connectés) ; scout-explore : ~1x/semaine (internet).
+# L'horloge est PERSISTÉE dans style-library/_scout_state.json pour survivre aux redémarrages
+# (sinon chaque restart relancerait une recherche = crédits SociaVault gaspillés).
+_SCOUT_CHECK_S = 1800          # on regarde l'horloge au plus toutes les 30 min
+_WINNERS_EVERY_S = 24 * 3600   # balayage des comptes connectés : 1x/jour
+_EXPLORE_EVERY_S = 7 * 24 * 3600  # recherche internet : 1x/semaine
+_scout_next_check = 0.0
+
+
+def _invoke_edge(name):
+    try:
+        st, raw = http("POST", f"{SB_URL}/functions/v1/{name}", sb_headers(), {}, timeout=300)
+        print(f"Agent {name}:", (raw or b"")[:200].decode(errors="replace"))
+    except Exception as e:
+        print(f"Agent {name}:", e, file=sys.stderr)
+
+
+def scout_tick():
+    """Réveille les agents Éclaireur/Chercheur quand c'est l'heure. Silencieux sinon."""
+    global _scout_next_check
+    now = time.time()
+    if now < _scout_next_check:
+        return
+    _scout_next_check = now + _SCOUT_CHECK_S
+    state = _read_style_json(STYLE_BUCKET, "_scout_state.json") or {}
+    changed = False
+    if now - float(state.get("last_winners", 0)) > _WINNERS_EVERY_S:
+        _invoke_edge("scout-winners")
+        state["last_winners"] = now
+        changed = True
+    if now - float(state.get("last_explore", 0)) > _EXPLORE_EVERY_S:
+        _invoke_edge("scout-explore")
+        state["last_explore"] = now
+        changed = True
+    if changed:
+        try:
+            _write_style_json(STYLE_BUCKET, "_scout_state.json", state)
+        except Exception as e:
+            print("scout_tick state:", e, file=sys.stderr)
+
+
 def main():
     print("Skillora video-worker démarré.",
           "Groq:", "oui" if GROQ_KEY else "NON (plan IA désactivé)",
@@ -3738,7 +3781,8 @@ def main():
             print("Job réclamé:", job["id"])
             process(job)
             continue
-        # Au repos : l'Éclaireur fait étudier UNE vidéo gagnante par Gemini (apprentissage autonome).
+        # Au repos : 1) réveiller les agents si c'est l'heure ; 2) faire étudier UNE gagnante par Gemini.
+        scout_tick()
         win = claim_winner() if GEMINI_KEY else None
         if win:
             print("Éclaireur: gagnante réclamée:", win.get("video_url", "")[:60])

@@ -194,32 +194,60 @@
   .hero h1 { min-height:2.6em; }
   .hero h1 .typed-caret { display:inline-block; width:4px; height:.82em; background:var(--blue-light); margin-left:6px; vertical-align:-.08em; animation:caretBlink 1s steps(1) infinite; border-radius:2px; }
   .p1s .p2-scene { inset:58px 0 0; }
-  .pv-cover { position:relative; height:225px; border-radius:16px; overflow:hidden; background:linear-gradient(165deg,#39404d,#20242e 70%); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; }
-  .pv-cover .person { font-size:4.6rem; filter:grayscale(.55) brightness(.82); }
-  .pv-cover .fname { position:absolute; top:9px; left:11px; font-size:.6rem; color:rgba(255,255,255,0.55); background:rgba(0,0,0,0.4); padding:3px 8px; border-radius:999px; }
-  .pv-cover.pro { background:
-      radial-gradient(90% 70% at 50% 108%, rgba(255,92,124,0.5), transparent 60%),
-      radial-gradient(120% 90% at 10% -10%, rgba(47,123,255,0.55), transparent 55%),
-      linear-gradient(165deg,#141c3a,#3d1257 78%); border-color:rgba(94,155,255,0.45); box-shadow:0 14px 40px -18px rgba(47,123,255,0.65); }
-  .pv-cover.pro .person { filter:none; text-shadow:0 10px 30px rgba(0,0,0,0.55); transform:scale(1.08); }
-  .pv-subs { position:absolute; left:0; right:0; bottom:16px; text-align:center; font-family:'Sora',sans-serif; font-weight:800; line-height:1.12; text-transform:uppercase; letter-spacing:.4px; }
-  .pv-subs .l1 { display:block; font-size:.98rem; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,0.7), 0 0 18px rgba(0,0,0,0.8); }
-  .pv-subs .l2 { display:inline-block; margin-top:3px; font-size:1.05rem; color:#0d1220; background:#ffd54d; padding:2px 9px; border-radius:7px; transform:rotate(-1.5deg); box-shadow:0 6px 16px -6px rgba(255,213,77,0.6); }
-  .pv-chip { position:absolute; top:9px; right:10px; font-size:.56rem; font-weight:800; color:#0d1220; background:linear-gradient(135deg,#9be8ff,#4d8fff); padding:3px 8px; border-radius:999px; }
-  .pv-row { display:flex; align-items:center; justify-content:space-between; margin-top:10px; }
+  /* — carte vidéo (comme l'app) : vraie personne à gauche, infos à droite — */
+  .pvv { display:flex; gap:11px; background:var(--surface); border:1px solid var(--border); border-radius:15px; padding:10px; }
+  .pvv .th { position:relative; flex:none; width:86px; height:150px; border-radius:11px; overflow:hidden; }
+  .pvv .th img { width:100%; height:100%; object-fit:cover; display:block; filter:saturate(.55) brightness(.86) contrast(.94); }
+  .pvv.pro .th img { filter:saturate(1.4) contrast(1.14) brightness(1.05); animation:pvKen 4.5s ease-in-out infinite alternate; }
+  @keyframes pvKen { 0%{transform:scale(1) translateY(0)} 100%{transform:scale(1.14) translateY(-5px)} }
+  .pvv .th .subs { position:absolute; left:3px; right:3px; bottom:7px; text-align:center; font-family:'Sora',sans-serif; font-weight:800; text-transform:uppercase; line-height:1.05; }
+  .pvv .th .subs .w1 { display:block; font-size:.6rem; color:#fff; text-shadow:0 1px 0 #000, 0 0 8px rgba(0,0,0,0.9); }
+  .pvv .th .subs .w2 { display:inline-block; margin-top:2px; font-size:.66rem; color:#111; background:#ffd54d; padding:1px 5px; border-radius:4px; transform:rotate(-2deg); animation:pvPop 1.1s ease infinite alternate; }
+  @keyframes pvPop { 0%{transform:rotate(-2deg) scale(1)} 100%{transform:rotate(-2deg) scale(1.12)} }
+  .pvv .th .fx { position:absolute; top:5px; left:5px; font-size:.8rem; animation:pvPop 1.4s ease infinite alternate; }
+  .pvv .meta { flex:1; min-width:0; padding-top:3px; }
+  .pvv .meta .t1 { font-family:'Fraunces',serif; font-weight:700; font-size:.95rem; }
+  .pvv .meta .t2 { font-size:.62rem; color:var(--muted); margin-top:3px; line-height:1.5; }
+  .pvv .meta .t3 { font-size:.62rem; margin-top:7px; color:var(--green); font-weight:700; }
+  .pvv.pro .meta .tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+  .pvv.pro .meta .tags span { font-size:.53rem; font-weight:700; color:#bcd4ff; background:rgba(47,123,255,0.12); border:1px solid rgba(94,155,255,0.28); padding:2px 6px; border-radius:999px; }
+  /* — panneau POTENTIEL VIRAL (repris du design de l'app) — */
+  .pvp { margin-top:10px; background:var(--surface); border:1px solid var(--border); border-radius:15px; padding:11px 12px; }
+  .pvp .lbl { font-size:.54rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted2); }
+  .pvp .in { display:flex; gap:13px; align-items:center; margin-top:7px; }
+  .pvp .big { flex:none; text-align:center; }
+  .pvp .big .n { font-family:'Fraunces',serif; font-weight:700; font-size:2.05rem; line-height:1; color:#ff5c5c; }
+  .pvp .big .s { font-size:.56rem; color:var(--muted); margin-top:2px; }
+  .pvp.good .big .n { color:var(--green); }
+  .pvp .bars { flex:1; display:flex; flex-direction:column; gap:6px; }
+  .pvb { display:flex; align-items:center; gap:7px; font-size:.58rem; color:var(--muted); }
+  .pvb b { flex:none; width:58px; font-weight:600; color:var(--muted); }
+  .pvb .tr { flex:1; height:4px; border-radius:999px; background:rgba(255,255,255,0.09); overflow:hidden; }
+  .pvb .tr i { display:block; height:100%; width:0; border-radius:999px; background:#ff5c5c; transition:width 1s cubic-bezier(.25,1,.35,1) .35s; }
+  .pvp.good .pvb .tr i { background:var(--green); }
+  .pvb .v { flex:none; width:22px; text-align:right; font-weight:700; color:#ff9d9d; }
+  .pvp.good .pvb .v { color:#7fe6a9; }
+  .p2-scene.on .pvb .tr i { width:var(--w); }
   .p3-note.good { background:rgba(61,220,132,0.12); border:1px solid rgba(61,220,132,0.4); color:#3ddc84; }
-  .pv-btn { position:relative; margin-top:11px; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:14px; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; font-weight:800; font-size:.86rem; font-family:'Sora',sans-serif; box-shadow:0 12px 28px -10px rgba(47,123,255,0.75), inset 0 1px 0 rgba(255,255,255,0.25); overflow:hidden; transition:transform .18s ease; }
-  .pv-btn::after { content:''; position:absolute; top:0; bottom:0; width:46px; left:-70px; background:linear-gradient(100deg,transparent,rgba(255,255,255,0.35),transparent); animation:pvShine 2.4s ease infinite; }
+  /* — bouton Améliorer : version premium — */
+  .pv-btn { position:relative; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:999px; background:linear-gradient(135deg,#3b82f6, #7c3aed 90%); color:#fff; font-weight:800; font-size:.88rem; font-family:'Sora',sans-serif; letter-spacing:.2px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 1px rgba(124,58,237,0.35), 0 14px 32px -10px rgba(93,63,211,0.8); overflow:hidden; transition:transform .18s ease; animation:pvGlow 2.6s ease-in-out infinite; }
+  @keyframes pvGlow { 0%,100%{ box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 1px rgba(124,58,237,0.35), 0 14px 32px -10px rgba(93,63,211,0.8); } 50%{ box-shadow:inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 1px rgba(124,58,237,0.55), 0 14px 42px -8px rgba(93,63,211,1); } }
+  .pv-btn::after { content:''; position:absolute; top:0; bottom:0; width:46px; left:-70px; background:linear-gradient(100deg,transparent,rgba(255,255,255,0.4),transparent); animation:pvShine 2.6s ease infinite; }
   .pv-btn.press { transform:scale(.93); }
   @keyframes pvShine { 0%{left:-70px} 55%,100%{left:120%} }
-  .pv-tap { position:absolute; right:14px; bottom:-14px; font-size:1.5rem; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5)); animation:pvTap 3.4s ease infinite; }
-  @keyframes pvTap { 0%,42%{ transform:translate(14px,16px) scale(1); opacity:0 } 55%{ opacity:1; transform:translate(0,0) scale(1) } 66%{ transform:translate(0,0) scale(.82) } 78%,100%{ transform:translate(0,0) scale(1); opacity:0 } }
+  .pv-tap { position:absolute; right:14px; bottom:-14px; font-size:1.5rem; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5)); animation:pvTap 3.8s ease infinite; }
+  @keyframes pvTap { 0%,50%{ transform:translate(14px,16px) scale(1); opacity:0 } 62%{ opacity:1; transform:translate(0,0) scale(1) } 72%{ transform:translate(0,0) scale(.8) } 84%,100%{ transform:translate(0,0) scale(1); opacity:0 } }
   .pv-load { margin-top:14px; }
   .pv-load .bar { height:7px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden; }
   .pv-load .bar i { display:block; height:100%; width:12%; border-radius:999px; background:linear-gradient(90deg,#4d8fff,#9be8ff); animation:pvLoad 1.9s ease forwards; }
   @keyframes pvLoad { 0%{width:8%} 60%{width:64%} 100%{width:96%} }
-  .pv-scan { position:absolute; inset:0; background:linear-gradient(180deg,transparent,rgba(94,155,255,0.22),transparent); height:52px; animation:pvScan 1.5s linear infinite; }
-  @keyframes pvScan { 0%{transform:translateY(-60px)} 100%{transform:translateY(240px)} }
+  .pv-scan { position:absolute; inset:0; background:linear-gradient(180deg,transparent,rgba(94,155,255,0.28),transparent); height:52px; animation:pvScan 1.4s linear infinite; }
+  @keyframes pvScan { 0%{transform:translateY(-60px)} 100%{transform:translateY(190px)} }
+  .pv-steps { display:flex; flex-direction:column; gap:7px; margin-top:12px; }
+  .pv-steps .st { display:flex; align-items:center; gap:8px; font-size:.68rem; color:var(--white); opacity:0; transform:translateX(-8px); transition:opacity .35s ease, transform .35s ease; }
+  .p2-scene.on .pv-steps .st { opacity:1; transform:none; }
+  .p2-scene.on .pv-steps .st:nth-child(1){transition-delay:.2s} .p2-scene.on .pv-steps .st:nth-child(2){transition-delay:.7s}
+  .p2-scene.on .pv-steps .st:nth-child(3){transition-delay:1.2s} .p2-scene.on .pv-steps .st:nth-child(4){transition-delay:1.7s}
   /* ===== Section Améliorer ma vidéo (téléphone 3) ===== */
   .amv { padding:84px 0 30px; }
   .amv-grid { display:grid; grid-template-columns:1.06fr .94fr; gap:48px; align-items:center; }
@@ -470,39 +498,74 @@
           <div class="p2-body">
             <div class="p2-title">Améliorer ma vidéo</div>
 
-            <!-- Scène 1 : la vidéo brute, notée en rouge -->
+            <!-- Scène 1 : ta vidéo, notée en rouge (design de l'app) -->
             <div class="p2-scene on" data-s="0">
-              <div class="pv-cover">
-                <span class="fname">🎥 ma-video.mp4 · 0:42</span>
-                <span class="person">🧍‍♂️</span>
+              <div class="pvv">
+                <div class="th"><img src="assets/demo-video.jpg" alt=""></div>
+                <div class="meta">
+                  <div class="t1">Ta vidéo</div>
+                  <div class="t2">Format vertical · 0:27<br>Filmée au téléphone</div>
+                  <div class="t3">✦ Analysée par Skillora</div>
+                </div>
               </div>
-              <div class="pv-row">
-                <span class="p3-note bad">4,1 / 10</span>
-                <span class="p3-iss">✗ image terne</span>
-                <span class="p3-iss">✗ pas de sous-titres</span>
+              <div class="pvp">
+                <div class="lbl">Potentiel viral</div>
+                <div class="in">
+                  <div class="big"><div class="n">4.1</div><div class="s">sur 10</div></div>
+                  <div class="bars">
+                    <div class="pvb"><b>Accroche</b><span class="tr"><i style="--w:38%"></i></span><span class="v">3.8</span></div>
+                    <div class="pvb"><b>Rythme</b><span class="tr"><i style="--w:41%"></i></span><span class="v">4.1</span></div>
+                    <div class="pvb"><b>Sous-titres</b><span class="tr"><i style="--w:8%"></i></span><span class="v">0.8</span></div>
+                    <div class="pvb"><b>Image</b><span class="tr"><i style="--w:45%"></i></span><span class="v">4.5</span></div>
+                  </div>
+                </div>
               </div>
               <div class="pv-btn" id="pvBtn">✨ Améliorer ma vidéo<span class="pv-tap">👆</span></div>
             </div>
-            <!-- Scène 2 : amélioration -->
+            <!-- Scène 2 : amélioration en cours -->
             <div class="p2-scene" data-s="1">
-              <div class="pv-cover">
-                <span class="person">🧍‍♂️</span>
-                <span class="pv-scan"></span>
+              <div class="pvv">
+                <div class="th"><img src="assets/demo-video.jpg" alt=""><span class="pv-scan"></span></div>
+                <div class="meta">
+                  <div class="t1">Amélioration…</div>
+                  <div class="pv-steps">
+                    <span class="st">✂️ Temps morts coupés</span>
+                    <span class="st">💬 Sous-titres animés</span>
+                    <span class="st">🔍 Zooms &amp; recadrage</span>
+                    <span class="st">🎵 Musique &amp; sons calés</span>
+                  </div>
+                </div>
               </div>
               <div class="pv-load"><div class="bar"><i></i></div></div>
-              <div class="p2-scan-t" style="margin-top:10px">Amélioration en cours…</div>
             </div>
-            <!-- Scène 3 : la même vidéo, version pro -->
+            <!-- Scène 3 : la même vidéo, version pro (notes en vert) -->
             <div class="p2-scene" data-s="2">
-              <div class="pv-cover pro">
-                <span class="pv-chip">✨ Améliorée</span>
-                <span class="person">🧍‍♂️</span>
-                <div class="pv-subs"><span class="l1">Ce détail change</span><span class="l2">TOUT 🔥</span></div>
+              <div class="pvv pro">
+                <div class="th">
+                  <img src="assets/demo-video.jpg" alt="">
+                  <span class="fx">⚡</span>
+                  <div class="subs"><span class="w1">Ce détail change</span><span class="w2">TOUT 🔥</span></div>
+                </div>
+                <div class="meta">
+                  <div class="t1">Ta vidéo <span style="font-size:.7rem">✨</span></div>
+                  <div class="t3">✦ Améliorée par Skillora</div>
+                  <div class="tags">
+                    <span>✂️ Coupes</span><span>💬 Sous-titres animés</span>
+                    <span>🔍 Zooms</span><span>🎵 Musique</span><span>🎨 Couleurs ciné</span>
+                  </div>
+                </div>
               </div>
-              <div class="pv-row">
-                <span class="p3-note good">9,5 / 10</span>
-                <span class="p3-iss" style="color:#7fe6a9;background:rgba(61,220,132,0.08);border-color:rgba(61,220,132,0.25)">✓ sous-titres</span>
-                <span class="p3-iss" style="color:#7fe6a9;background:rgba(61,220,132,0.08);border-color:rgba(61,220,132,0.25)">✓ couleurs ciné</span>
+              <div class="pvp good">
+                <div class="lbl">Potentiel viral</div>
+                <div class="in">
+                  <div class="big"><div class="n">9.5</div><div class="s">sur 10</div></div>
+                  <div class="bars">
+                    <div class="pvb"><b>Accroche</b><span class="tr"><i style="--w:95%"></i></span><span class="v">9.5</span></div>
+                    <div class="pvb"><b>Rythme</b><span class="tr"><i style="--w:92%"></i></span><span class="v">9.2</span></div>
+                    <div class="pvb"><b>Sous-titres</b><span class="tr"><i style="--w:98%"></i></span><span class="v">9.8</span></div>
+                    <div class="pvb"><b>Image</b><span class="tr"><i style="--w:94%"></i></span><span class="v">9.4</span></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -836,7 +899,7 @@
   /* ===== Texte qui s'écrit tout seul (héro) ===== */
   (function(){
     var el = document.getElementById('typedTxt'); if (!el) return;
-    var PHRASES = ["Tes vidéos méritent d'exploser.", 'De vidéo basique à vidéo de pro.', 'Publiée partout. En 3 clics.'];
+    var PHRASES = ["Tes vidéos méritent d'exploser.", 'De vidéo basique à vidéo de pro. En un clic.', 'Publiée sur tous tes comptes. Au bon moment.'];
     var pi = 0, ci = PHRASES[0].length, deleting = true;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // on laisse la 1re phrase statique
     setTimeout(function tick(){
@@ -955,8 +1018,8 @@
     var scenes = root.querySelectorAll('.p2-scene');
     var btn = document.getElementById('pvBtn');
     var cur = 0;
-    // Durée de chaque scène (vidéo brute + clic, amélioration, résultat pro)
-    var DUR = [3400, 2300, 4600];
+    // Durée de chaque scène (vidéo notée + clic, amélioration, résultat pro)
+    var DUR = [4200, 3000, 5200];
     function show(i){
       cur = i;
       scenes.forEach(function(s, k){ s.classList.toggle('on', k === i); });

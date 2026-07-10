@@ -3711,28 +3711,67 @@ def merge_winner_style(bucket, key, niche, dna, views, scope):
 SOCIAVAULT_KEY = os.environ.get("SOCIAVAULT_API_KEY", "")
 
 
-def sv_fresh_media(page_url):
-    """Redemande à SociaVault un lien mp4 FRAIS pour une vidéo TikTok (les liens CDN
-    expirent au bout de quelques heures). None si pas de clé / échec."""
-    if not SOCIAVAULT_KEY or "tiktok.com" not in page_url:
+def _deep_media(o, depth=0):
+    """Cherche un lien mp4 n'importe où dans une réponse (video_versions, playable_url…)."""
+    if depth > 6:
         return None
-    try:
-        req = urllib.request.Request(
-            "https://api.sociavault.com/v1/scrape/tiktok/video?url=" + urllib.parse.quote(page_url, safe=""),
-            headers={"X-API-Key": SOCIAVAULT_KEY})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            data = json.loads(r.read().decode())
-        d = data.get("data") or data
-        v = d.get("aweme_detail") or d.get("video") or d
-        vid = v.get("video") or {}
-        for cand in (vid.get("play_addr"), vid.get("download_addr"), vid.get("play_addr_h264")):
-            urls = (cand or {}).get("url_list") or []
-            urls = urls if isinstance(urls, list) else list(urls.values())
-            for u in urls:
-                if isinstance(u, str) and u.startswith("http"):
-                    return u
-    except Exception as e:
-        print("sv_fresh_media:", e, file=sys.stderr)
+    if isinstance(o, list):
+        for it in o:
+            r = _deep_media(it, depth + 1)
+            if r:
+                return r
+        return None
+    if isinstance(o, dict):
+        vv = o.get("video_versions")
+        if isinstance(vv, list) and vv and isinstance(vv[0], dict) and str(vv[0].get("url", "")).startswith("http"):
+            return vv[0]["url"]
+        for k, v in o.items():
+            if isinstance(v, str) and v.startswith("http") and re.search(
+                    r"playable_url|^video_url$|browser_native_hd|browser_native_sd", k, re.I):
+                return v
+        for v in o.values():
+            if isinstance(v, (dict, list)):
+                r = _deep_media(v, depth + 1)
+                if r:
+                    return r
+    return None
+
+
+def sv_fresh_media(page_url):
+    """Redemande à SociaVault un lien mp4 FRAIS (les liens CDN TikTok/Instagram
+    expirent au bout de quelques heures). None si pas de clé / échec."""
+    if not SOCIAVAULT_KEY:
+        return None
+    if "tiktok.com" in page_url:
+        try:
+            req = urllib.request.Request(
+                "https://api.sociavault.com/v1/scrape/tiktok/video?url=" + urllib.parse.quote(page_url, safe=""),
+                headers={"X-API-Key": SOCIAVAULT_KEY})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                data = json.loads(r.read().decode())
+            d = data.get("data") or data
+            v = d.get("aweme_detail") or d.get("video") or d
+            vid = v.get("video") or {}
+            for cand in (vid.get("play_addr"), vid.get("download_addr"), vid.get("play_addr_h264")):
+                urls = (cand or {}).get("url_list") or []
+                urls = urls if isinstance(urls, list) else list(urls.values())
+                for u in urls:
+                    if isinstance(u, str) and u.startswith("http"):
+                        return u
+            return _deep_media(d)
+        except Exception as e:
+            print("sv_fresh_media tiktok:", e, file=sys.stderr)
+        return None
+    if "instagram.com" in page_url:
+        try:
+            req = urllib.request.Request(
+                "https://api.sociavault.com/v1/scrape/instagram/post-info?url=" + urllib.parse.quote(page_url, safe=""),
+                headers={"X-API-Key": SOCIAVAULT_KEY})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                data = json.loads(r.read().decode())
+            return _deep_media(data.get("data") or data)
+        except Exception as e:
+            print("sv_fresh_media instagram:", e, file=sys.stderr)
     return None
 
 

@@ -54,8 +54,70 @@ const DEFAULT_NICHES: Record<string, string> = {
   tech: "tech gadgets unboxing",
 };
 
+// Hashtag Instagram par niche (un mot, sans #)
+const IG_TAGS: Record<string, string> = {
+  talk_facecam: "storytime", energetic: "edits", vlog: "dayinmylife", horror: "scarystories",
+  luxury_aesthetic: "luxurylifestyle", dance: "dancechallenge", product: "unboxing",
+  story: "motivation", football: "football", basketball: "basketball", edit: "edits",
+  gym: "gymmotivation", food: "foodasmr", comedy: "comedyvideos", gaming: "gamingclips",
+  cars: "carsofinstagram", fashion: "ootd", beauty: "makeuptransformation",
+  motivation: "motivationdaily", lifestyle: "aestheticlifestyle", travel: "travelreels",
+  pets: "funnypets", tech: "techtok",
+};
+
 function j(o: unknown, s = 200) {
   return new Response(JSON.stringify(o), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
+}
+// Cherche un lien mp4 N'IMPORTE OÙ dans l'objet (video_versions, playable_url, video_url…)
+function deepFindMedia(o: any, depth = 0): string {
+  if (!o || typeof o !== "object" || depth > 6) return "";
+  if (Array.isArray(o)) {
+    for (const it of o) { const r = deepFindMedia(it, depth + 1); if (r) return r; }
+    return "";
+  }
+  const vv = o.video_versions;
+  if (Array.isArray(vv) && vv[0] && typeof vv[0].url === "string" && vv[0].url.startsWith("http")) return vv[0].url;
+  for (const [k, v] of Object.entries(o)) {
+    if (typeof v === "string" && v.startsWith("http") &&
+        /playable_url|^video_url$|browser_native_hd|browser_native_sd/i.test(k)) return v;
+  }
+  for (const v of Object.values(o)) {
+    if (v && typeof v === "object") { const r = deepFindMedia(v, depth + 1); if (r) return r; }
+  }
+  return "";
+}
+// Cherche un compteur de vues N'IMPORTE OÙ dans l'objet
+function deepFindViews(o: any, depth = 0): number {
+  if (!o || typeof o !== "object" || depth > 6) return 0;
+  let best = 0;
+  for (const [k, v] of Object.entries(o)) {
+    if (/^(views?|view_count|viewcount|play_count|playcount|video_view_count|ig_play_count|video_play_count)$/i.test(k)) {
+      best = Math.max(best, parseViews(v));
+    } else if (v && typeof v === "object") {
+      best = Math.max(best, deepFindViews(v, depth + 1));
+    }
+  }
+  return best;
+}
+// Trouve le 1er tableau d'objets (la liste de posts) où qu'il soit dans la réponse
+function firstArray(o: any, depth = 0): any[] {
+  if (!o || depth > 5) return [];
+  if (Array.isArray(o)) return o.filter((x) => x && typeof x === "object");
+  if (typeof o !== "object") return [];
+  for (const v of Object.values(o)) {
+    const r = firstArray(v, depth + 1);
+    if (r.length) return r;
+  }
+  return [];
+}
+// Trouve un lien facebook.com de vidéo/reel dans l'objet
+function deepFindFbUrl(o: any, depth = 0): string {
+  if (!o || typeof o !== "object" || depth > 6) return "";
+  for (const v of Object.values(o)) {
+    if (typeof v === "string" && /facebook\.com\/(reel\/|watch|[^"]*\/videos\/)/.test(v)) return v.split("?")[0];
+    if (v && typeof v === "object") { const r = deepFindFbUrl(v, depth + 1); if (r) return r; }
+  }
+  return "";
 }
 async function svGet(path: string, key: string) {
   const r = await fetch(SV_SCRAPE + path, { headers: { "X-API-Key": key } });
@@ -152,10 +214,44 @@ serve(async (req) => {
         for (const v of yt) found.push({ ...v, platform: "youtube" });
       } catch (e) { console.error("explore youtube", niche, String(e)); }
 
+      // --- Instagram (posts du hashtag de la niche ; mp4 requis pour l'étude) ---
+      try {
+        const tag = IG_TAGS[niche] ?? niche;
+        const data = await svGet(`/instagram/hashtag?tag=${encodeURIComponent(tag)}&limit=30`, SV_KEY);
+        searched++;
+        for (const it of firstArray(data.data ?? data)) {
+          const v = it?.node ?? it;
+          const code = v?.code ?? v?.shortcode ?? v?.short_code ?? "";
+          const media = deepFindMedia(v);
+          if (!code || !media) continue;   // pas de mp4 -> Gemini ne pourrait pas l'étudier
+          found.push({
+            views: deepFindViews(v),
+            create_time: Number(v?.taken_at ?? v?.taken_at_timestamp ?? v?.timestamp ?? 0),
+            url: `https://www.instagram.com/p/${code}/`,
+            media_url: media, platform: "instagram",
+          });
+        }
+      } catch (e) { console.error("explore instagram", niche, String(e)); }
+
+      // --- Facebook (recherche ; best-effort, mp4 requis) ---
+      try {
+        const data = await svGet(`/facebook/search?query=${encodeURIComponent(String(query))}`, SV_KEY);
+        searched++;
+        for (const it of firstArray(data.data ?? data)) {
+          const media = deepFindMedia(it);
+          const urlFb = deepFindFbUrl(it);
+          if (!media || !urlFb) continue;
+          found.push({
+            views: deepFindViews(it), create_time: 0,
+            url: urlFb, media_url: media, platform: "facebook",
+          });
+        }
+      } catch (e) { console.error("explore facebook", niche, String(e)); }
+
       const rows = found
         .filter((x) => x.url && x.views >= GLOBAL_MIN_VIEWS)
         .sort((a, b) => b.views - a.views)
-        .slice(0, maxPerNiche * 2)   // top TikTok + top YouTube confondus
+        .slice(0, maxPerNiche * 3)   // top toutes plateformes confondues (TikTok/YouTube/IG/FB)
         .map((x) => ({
           user_id: null, platform: x.platform, video_url: x.url, media_url: x.media_url || null,
           views: x.views, create_time: x.create_time, niche, scope: "global",

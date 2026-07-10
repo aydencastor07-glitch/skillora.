@@ -71,6 +71,40 @@ function tiktokPlayUrl(v: any): string {
   }
   return "";
 }
+// "1,2 M de vues" / "1.2M views" / 1200000 -> nombre
+function parseViews(x: any): number {
+  if (typeof x === "number") return x;
+  if (!x) return 0;
+  const s = String(x).replace(/[\s, ]/g, "").toLowerCase();
+  const m = s.match(/([\d.]+)\s*(k|m|b|md)?/);
+  if (!m) return 0;
+  const n = parseFloat(m[1]);
+  const mult = m[2] === "k" ? 1e3 : (m[2] === "m" ? 1e6 : (m[2] ? 1e9 : 1));
+  return Math.round(n * mult);
+}
+// Recherche YouTube (Shorts + vidéos). Gemini lit les liens YouTube DIRECTEMENT,
+// donc pas besoin de media_url : l'étude est gratuite en téléchargement.
+async function youtubeSearch(query: string, key: string) {
+  const data = await svGet(`/youtube/search?query=${encodeURIComponent(query)}&uploadDate=this_month`, key);
+  const d = data.data ?? data;
+  const groups = [d.shorts, d.videos, d.results, d.items].filter(Array.isArray) as any[][];
+  const out: { views: number; create_time: number; url: string; media_url: string }[] = [];
+  for (const g of groups) {
+    for (const v of g) {
+      const id = v.video_id ?? v.videoId ?? v.id ?? "";
+      if (!id || typeof id !== "string") continue;
+      const views = parseViews(v.view_count ?? v.views ?? v.viewCount ?? v.view_count_text ??
+                               v.viewCountText ?? v.short_view_count ?? v.stats?.views);
+      const isShort = String(v.type ?? v.url ?? "").includes("short") || g === d.shorts;
+      out.push({
+        views, create_time: 0,
+        url: isShort ? `https://youtube.com/shorts/${id}` : `https://youtube.com/watch?v=${id}`,
+        media_url: "",
+      });
+    }
+  }
+  return out;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
@@ -89,31 +123,41 @@ serve(async (req) => {
     const report: Record<string, number> = {};
     for (const [rawNiche, query] of Object.entries(niches)) {
       const niche = String(rawNiche).toLowerCase().replace(/[^a-z0-9_]/g, "") || "other";
-      let data: any = null;
-      try {
-        data = await svGet(`/tiktok/search/keyword?query=${encodeURIComponent(String(query))}` +
-                           `&sort_by=most-liked&date_posted=${DATE_POSTED}&region=US`, SV_KEY);
-        searched++;
-      } catch (e) { console.error("explore", niche, String(e)); continue; }
-      const d = data.data ?? data;
-      const list = d.aweme_list ?? d.videos ?? {};
-      const arr = Array.isArray(list) ? list : Object.values(list);
+      const found: { views: number; create_time: number; url: string; media_url: string; platform: string }[] = [];
 
-      const rows = (arr as any[])
-        .map((v: any) => {
+      // --- TikTok (recherche par mot-clé, tri most-liked, fenêtre 3 mois) ---
+      try {
+        const data = await svGet(`/tiktok/search/keyword?query=${encodeURIComponent(String(query))}` +
+                                 `&sort_by=most-liked&date_posted=${DATE_POSTED}&region=US`, SV_KEY);
+        searched++;
+        const d = data.data ?? data;
+        const list = d.aweme_list ?? d.videos ?? {};
+        const arr = Array.isArray(list) ? list : Object.values(list);
+        for (const v of arr as any[]) {
           const handle = v?.author?.unique_id ?? v?.author?.uniqueId ?? "";
-          return {
+          if (!v?.aweme_id || !handle) continue;
+          found.push({
             views: Number(v?.statistics?.play_count ?? 0),
             create_time: Number(v?.create_time ?? 0),
-            url: (v?.aweme_id && handle) ? `https://www.tiktok.com/@${handle}/video/${v.aweme_id}` : "",
-            media_url: tiktokPlayUrl(v),
-          };
-        })
+            url: `https://www.tiktok.com/@${handle}/video/${v.aweme_id}`,
+            media_url: tiktokPlayUrl(v), platform: "tiktok",
+          });
+        }
+      } catch (e) { console.error("explore tiktok", niche, String(e)); }
+
+      // --- YouTube (Shorts + vidéos du mois ; Gemini lit les liens directement) ---
+      try {
+        const yt = await youtubeSearch(String(query), SV_KEY);
+        searched++;
+        for (const v of yt) found.push({ ...v, platform: "youtube" });
+      } catch (e) { console.error("explore youtube", niche, String(e)); }
+
+      const rows = found
         .filter((x) => x.url && x.views >= GLOBAL_MIN_VIEWS)
         .sort((a, b) => b.views - a.views)
-        .slice(0, maxPerNiche)
+        .slice(0, maxPerNiche * 2)   // top TikTok + top YouTube confondus
         .map((x) => ({
-          user_id: null, platform: "tiktok", video_url: x.url, media_url: x.media_url || null,
+          user_id: null, platform: x.platform, video_url: x.url, media_url: x.media_url || null,
           views: x.views, create_time: x.create_time, niche, scope: "global",
         }));
 

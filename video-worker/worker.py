@@ -1932,11 +1932,12 @@ def gemini_generate(prompt, file_uri=None, mime="video/mp4", json_out=True):
     return None
 
 
-def gemini_analyze_video(path, duration, user_styles=None):
+def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
     """LES YEUX : Gemini regarde la vidéo ENTIÈRE et renvoie une compréhension
     complète + les temps morts précis. Format aligné sur notre 'vision' + extras.
-    `user_styles` = profils des vidéos VIRALES du créateur (sa mémoire) : si la
-    vidéo ressemble à l'une, Gemini monte DANS CE STYLE gagnant.
+    `user_styles` = profils des vidéos VIRALES du créateur (sa mémoire perso) ;
+    `style_library` = l'ÉCOLE : les styles viraux appris par niche sur internet
+    (avec leurs techniques signature). Gemini s'en inspire pour diriger le montage.
     None si pas de clé / échec (on retombe sur l'analyse Groq par images)."""
     if not GEMINI_KEY:
         return None
@@ -1953,6 +1954,16 @@ def gemini_analyze_video(path, duration, user_styles=None):
                    "effets, couleurs, hooks) en l'adaptant au contenu :\n" + summ + "\n\n")
         except Exception:
             mem = ""
+    if style_library:
+        try:
+            summ = json.dumps(style_library, ensure_ascii=False)[:3000]
+            mem += ("ÉCOLE — voici les STYLES VIRAUX appris automatiquement par NICHE "
+                    "(vidéos qui ont explosé sur internet), avec leurs TECHNIQUES SIGNATURE. "
+                    "Identifie la niche de la vidéo à monter et INSPIRE-toi du style gagnant "
+                    "de cette niche (rythme, étalonnage, sous-titres, techniques) :\n"
+                    + summ + "\n\n")
+        except Exception:
+            pass
     prompt = (
         mem +
         "Tu es un monteur vidéo professionnel EXIGENT et SOBRE. Regarde cette vidéo "
@@ -2026,6 +2037,7 @@ def gemini_study_url(url):
         " \"edit_intensity\": \"minimal|moderate|dynamic\",\n"
         " \"color_grade\": \"|dark_moody|warm_luxury|cold_cinematic|vibrant_pop|bw_horror|vintage_warm\",\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic ou vide\",\n"
+        " \"signature_moves\": [\"2-3 TECHNIQUES SIGNATURE précises qui font le succès du montage, avec le MOMENT (ex: 'ralenti x0.3 pile sur le but', 'zoom punch à chaque punchline', 'texte qui claque au drop')\"],\n"
         " \"why_viral\": \"ce qui rend cette vidéo accrocheuse, 1 phrase\"}"
     )
     low = url.lower()
@@ -2726,6 +2738,43 @@ def load_style_profile(category):
     return prof
 
 
+_STYLE_INDEX = {"at": 0.0, "data": None}
+
+
+def load_style_index():
+    """L'ÉCOLE en résumé : liste compacte de TOUS les styles appris par niche
+    (style-library), avec leurs techniques signature. Donnée à Gemini quand il
+    dirige un montage. Rafraîchie toutes les 30 min."""
+    now = time.time()
+    if _STYLE_INDEX["data"] is not None and now - _STYLE_INDEX["at"] < 1800:
+        return _STYLE_INDEX["data"]
+    out = []
+    try:
+        st, raw = http("POST", f"{SB_URL}/storage/v1/object/list/{STYLE_BUCKET}",
+                       sb_headers(), {"prefix": "", "limit": 100}, timeout=20)
+        for it in json.loads(raw):
+            name = it.get("name", "")
+            if not name.endswith(".json") or name.startswith("_"):
+                continue
+            cat = name[:-5]
+            prof = load_style_profile(cat)
+            if not prof:
+                continue
+            entry = {"niche": cat}
+            for k in ("edit_intensity", "color_grade", "sub_style_id", "music_mood", "cut_s"):
+                if prof.get(k) not in (None, ""):
+                    entry[k] = prof[k]
+            moves = prof.get("signature_moves")
+            if isinstance(moves, list) and moves:
+                entry["techniques"] = moves[:3]
+            out.append(entry)
+    except Exception as e:
+        print("load_style_index:", e, file=sys.stderr)
+    _STYLE_INDEX["data"] = out
+    _STYLE_INDEX["at"] = now
+    return out
+
+
 USERSTYLE_BUCKET = os.environ.get("USERSTYLE_BUCKET", "user-styles")
 
 
@@ -2821,7 +2870,8 @@ def process(job):
             # MÉMOIRE : le style des vidéos VIRALES de ce créateur (s'il en a)
             user_styles = load_user_styles(job.get("user_id"))
             try:
-                gem = gemini_analyze_video(src, facts["duration"], user_styles=user_styles or None)
+                gem = gemini_analyze_video(src, facts["duration"], user_styles=user_styles or None,
+                                           style_library=load_style_index() or None)
             except Exception as e:
                 print("gemini:", e, file=sys.stderr)
             note_mem = f" · style perso ({len(user_styles)} niche(s))" if user_styles else ""
@@ -3433,10 +3483,18 @@ def process(job):
         if GEMINI_KEY and ffprobe_facts(cur)["duration"] > 2:
             steps.start("gqc", "Gemini goûte le résultat…")
             try:
-                dur_qc = ffprobe_facts(cur)["duration"]
-                qcg = gemini_qc(cur, dur_qc, had_subs=bool(words))
-                fixed = []
-                if qcg:
+                dets = []
+                recooked = False
+                for rnd in range(3):  # LE CHEF GOÛTE JUSQU'À 3 FOIS : goûte -> corrige -> regoûte
+                    dur_qc = ffprobe_facts(cur)["duration"]
+                    if dur_qc <= 2:
+                        break
+                    steps.start("gqc", f"Gemini goûte le résultat (passage {rnd + 1})…")
+                    qcg = gemini_qc(cur, dur_qc, had_subs=bool(words))
+                    if not qcg:
+                        break
+                    sc = qcg.get("score")
+                    fixed = []
                     # a) couper les temps morts/logos que Gemini repère encore
                     rem = []
                     for dt in (qcg.get("remaining_dead_time") or []):
@@ -3448,15 +3506,14 @@ def process(job):
                             pass
                     rem = sorted(set((round(a, 2), round(b, 2)) for (a, b) in rem))
                     if rem and sum(e - s for s, e in rem) < dur_qc * 0.4:
-                        outqc = os.path.join(work, "qc_fix.mp4")
+                        outqc = os.path.join(work, f"qc_fix{rnd}.mp4")
                         if cut_spans(cur, outqc, [], rem, dur_qc):
                             cur = outqc
                             fixed.append(f"{sum(e - s for s, e in rem):.0f}s de temps mort")
-                    # b) RE-CUISSON si trop chargé / note basse : version épurée
-                    sc = qcg.get("score")
+                    # b) RE-CUISSON si trop chargé / note basse : version épurée (une seule fois)
                     too_busy = bool(qcg.get("too_busy"))
                     low = (isinstance(sc, (int, float)) and sc < 7)
-                    if (too_busy or low) and ffprobe_facts(base_reframed)["duration"] > 1:
+                    if (too_busy or low) and not recooked and ffprobe_facts(base_reframed)["duration"] > 1:
                         try:
                             clean = base_reframed
                             # qualité (netteté/couleurs) sur la base propre
@@ -3481,18 +3538,21 @@ def process(job):
                                 burn_subs(clean, outc2, ass_c, grade=str(plan.get("color_grade") or ""))
                                 clean = outc2
                             cur = clean
+                            recooked = True
                             fixed.append("re-cuisiné en version épurée")
                         except Exception as e:
                             print("recook:", e, file=sys.stderr)
                     note = str(qcg.get("note") or "").strip()
-                    det = (f"note {sc}/10" if sc is not None else "vérifié")
+                    det = (f"{sc}/10" if sc is not None else "vérifié")
                     if fixed:
                         det += " · corrigé : " + ", ".join(fixed)
                     elif note and note.upper() not in ("RAS", "R.A.S", "RAS."):
                         det += f" · {note}"
-                    steps.done("gqc", det)
-                else:
-                    steps.done("gqc", "vérification indisponible")
+                    dets.append(det)
+                    satisfied = bool(qcg.get("ok")) or (isinstance(sc, (int, float)) and sc >= 8)
+                    if satisfied or not fixed:
+                        break  # le chef est content, ou plus rien à corriger : inutile de regoûter
+                steps.done("gqc", " → ".join(dets) if dets else "vérification indisponible")
             except Exception as e:
                 print("gqc:", e, file=sys.stderr)
                 steps.done("gqc", "vérification indisponible")
@@ -3627,6 +3687,13 @@ def merge_winner_style(bucket, key, niche, dna, views, scope):
             prof["sub_style_id"] = int(prof["sub_style_id"])
         except Exception:
             pass
+    # techniques signature : on accumule les meilleures trouvailles (8 max)
+    moves = prof.get("signature_moves") if isinstance(prof.get("signature_moves"), list) else []
+    for m in (dna.get("signature_moves") or []):
+        m = str(m).strip()
+        if m and m not in moves:
+            moves.append(m)
+    prof["signature_moves"] = moves[-8:]
     prof["_votes"] = votes
     prof["video_type"] = niche
     prof["samples"] = int(prof.get("samples", 0)) + 1

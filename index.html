@@ -30,7 +30,8 @@
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html { scroll-behavior:smooth; }
   body { background:var(--bg); color:var(--white); font-family:'Sora',-apple-system,BlinkMacSystemFont,sans-serif; overflow-x:hidden; line-height:1.5; }
-  h1,h2,h3,.display { font-family:'Fraunces','Sora',serif; font-weight:600; letter-spacing:-0.01em; line-height:1.08; }
+  /* Typo SaaS/tech : géométrique et nette (le serif Fraunces reste réservé aux maquettes de l'app) */
+  h1,h2,h3,.display { font-family:'Sora',-apple-system,sans-serif; font-weight:800; letter-spacing:-0.025em; line-height:1.12; }
   a { color:inherit; text-decoration:none; }
   img,svg { display:block; max-width:100%; }
   button { font-family:inherit; cursor:pointer; }
@@ -190,9 +191,23 @@
   /* ===== Section Publier (phone 2 + points) ===== */
   .pub { padding:84px 0 30px; }
   .pub-grid { display:grid; grid-template-columns:.94fr 1.06fr; gap:48px; align-items:center; }
-  /* ===== Héros : titre qui s'écrit + téléphone Améliorer (avant/après) ===== */
-  .hero h1 { min-height:2.6em; }
-  .hero h1 .typed-caret { display:inline-block; width:4px; height:.82em; background:var(--blue-light); margin-left:6px; vertical-align:-.08em; animation:caretBlink 1s steps(1) infinite; border-radius:2px; }
+  /* ===== Héros : segment rotatif (la phrase reste, seul un morceau change) ===== */
+  .hero h1 { min-height:2.4em; }
+  .hero h1 .rotwrap { color:var(--blue-light); }
+  .hero h1 .typed-caret { display:inline-block; width:4px; height:.8em; background:var(--blue-light); margin-left:5px; vertical-align:-.06em; animation:caretBlink 1s steps(1) infinite; border-radius:2px; }
+  @media (max-width:560px) { .hero h1 { min-height:2.45em; } }
+  /* variantes rouges du panneau de note (le style p2 que l'on aime) */
+  .p2-scene .scorebad .p2-score { color:#ff5c5c; text-shadow:0 0 30px rgba(255,92,92,0.45); }
+  .p2-scene .scorebad .p2-score-l { color:#ff9d9d; }
+  .p2-bars.bad .p2-bar .tr i { background:#ff5c5c; }
+  /* sous-titres nouvelle génération sur la vignette améliorée */
+  .capk { position:absolute; left:2px; right:2px; bottom:8px; text-align:center; font-family:'Sora',sans-serif; font-weight:800; text-transform:uppercase; line-height:1.15; letter-spacing:.2px; }
+  .capk .w { display:inline-block; margin:0 1px; font-size:.62rem; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.8); opacity:0; animation:capIn 3s ease infinite; }
+  .capk .w.big { font-size:.72rem; }
+  .capk .w.key { color:#3ddc84; text-shadow:0 2px 6px rgba(0,0,0,0.9), 0 0 14px rgba(61,220,132,0.85); }
+  .capk .w:nth-child(1){animation-delay:0s} .capk .w:nth-child(2){animation-delay:.16s}
+  .capk .w:nth-child(3){animation-delay:.32s} .capk .w:nth-child(4){animation-delay:.48s}
+  @keyframes capIn { 0%{opacity:0; transform:translateY(5px) scale(.8)} 7%{opacity:1; transform:none} 82%{opacity:1} 93%,100%{opacity:0} }
   .p1s .p2-scene { inset:58px 0 0; }
   /* — carte vidéo (comme l'app) : vraie personne à gauche, infos à droite — */
   .pvv { display:flex; gap:11px; background:var(--surface); border:1px solid var(--border); border-radius:15px; padding:10px; }
@@ -468,8 +483,8 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <div class="kicker reveal">Améliore · Note · Publie partout — au bon moment</div>
-      <h1 class="reveal reveal-d1"><span id="typedTxt">Tes vidéos méritent d'exploser.</span><span class="typed-caret"></span></h1>
+      <div class="kicker reveal">Améliore · Note · Publie partout</div>
+      <h1 class="reveal reveal-d1">Ta vidéo, <span class="rotwrap"><span id="typedTxt">prête à exploser.</span><span class="typed-caret"></span></span></h1>
       <p class="hero-sub reveal reveal-d2">Tu filmes, tu crées, tu postes… et rien ne décolle ? Envoie ta vidéo à Skillora : elle ressort <b>au niveau des pros</b> — et part sur <b>tous tes comptes, au meilleur moment</b>. En 3 clics.</p>
       <div class="hero-cta reveal reveal-d3">
         <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
@@ -498,32 +513,43 @@
           <div class="p2-body">
             <div class="p2-title">Améliorer ma vidéo</div>
 
-            <!-- Scène 1 : ta vidéo, notée en rouge (design de l'app) -->
+            <!-- Scène 1 : scan de la vidéo -->
             <div class="p2-scene on" data-s="0">
               <div class="pvv">
-                <div class="th"><img src="assets/demo-video.jpg" alt=""></div>
+                <div class="th"><img src="assets/demo-video.jpg" alt=""><span class="pv-scan"></span></div>
                 <div class="meta">
                   <div class="t1">Ta vidéo</div>
                   <div class="t2">Format vertical · 0:27<br>Filmée au téléphone</div>
-                  <div class="t3">✦ Analysée par Skillora</div>
                 </div>
               </div>
-              <div class="pvp">
-                <div class="lbl">Potentiel viral</div>
-                <div class="in">
-                  <div class="big"><div class="n">4.1</div><div class="s">sur 10</div></div>
-                  <div class="bars">
-                    <div class="pvb"><b>Accroche</b><span class="tr"><i style="--w:38%"></i></span><span class="v">3.8</span></div>
-                    <div class="pvb"><b>Rythme</b><span class="tr"><i style="--w:41%"></i></span><span class="v">4.1</span></div>
-                    <div class="pvb"><b>Sous-titres</b><span class="tr"><i style="--w:8%"></i></span><span class="v">0.8</span></div>
-                    <div class="pvb"><b>Image</b><span class="tr"><i style="--w:45%"></i></span><span class="v">4.5</span></div>
-                  </div>
+              <div class="p2-scan-t" style="margin-top:12px">Analyse en cours… <b>calcul du potentiel viral</b></div>
+            </div>
+            <!-- Scène 2 : la note (rouge) — le style qu'on aime -->
+            <div class="p2-scene" data-s="1">
+              <div class="p2-score-wrap scorebad">
+                <span class="p2-score">4,1<small> / 10</small></span>
+                <div class="p2-score-l">Peut faire beaucoup mieux 😬</div>
+              </div>
+              <div class="p2-bars bad">
+                <div class="p2-bar"><span>Accroche</span><span class="tr"><i style="--w:38%"></i></span></div>
+                <div class="p2-bar"><span>Rythme</span><span class="tr"><i style="--w:41%"></i></span></div>
+                <div class="p2-bar"><span>Sous-titres</span><span class="tr"><i style="--w:8%"></i></span></div>
+                <div class="p2-bar"><span>Image</span><span class="tr"><i style="--w:45%"></i></span></div>
+              </div>
+            </div>
+            <!-- Scène 3 : le clic qui change tout -->
+            <div class="p2-scene" data-s="2">
+              <div class="pvv">
+                <div class="th"><img src="assets/demo-video.jpg" alt=""></div>
+                <div class="meta">
+                  <div class="t1">4,1 / 10</div>
+                  <div class="t2">Cette vidéo mérite mieux.<br>Un clic suffit.</div>
                 </div>
               </div>
               <div class="pv-btn" id="pvBtn">✨ Améliorer ma vidéo<span class="pv-tap">👆</span></div>
             </div>
-            <!-- Scène 2 : amélioration en cours -->
-            <div class="p2-scene" data-s="1">
+            <!-- Scène 4 : amélioration en cours -->
+            <div class="p2-scene" data-s="3">
               <div class="pvv">
                 <div class="th"><img src="assets/demo-video.jpg" alt=""><span class="pv-scan"></span></div>
                 <div class="meta">
@@ -538,34 +564,25 @@
               </div>
               <div class="pv-load"><div class="bar"><i></i></div></div>
             </div>
-            <!-- Scène 3 : la même vidéo, version pro (notes en vert) -->
-            <div class="p2-scene" data-s="2">
+            <!-- Scène 5 : la même vidéo, version pro + note verte -->
+            <div class="p2-scene" data-s="4">
               <div class="pvv pro">
                 <div class="th">
                   <img src="assets/demo-video.jpg" alt="">
-                  <span class="fx">⚡</span>
-                  <div class="subs"><span class="w1">Ce détail change</span><span class="w2">TOUT 🔥</span></div>
+                  <div class="capk"><span class="w">CE</span> <span class="w">DÉTAIL</span><br><span class="w big">CHANGE</span> <span class="w big key">TOUT</span></div>
                 </div>
                 <div class="meta">
-                  <div class="t1">Ta vidéo <span style="font-size:.7rem">✨</span></div>
+                  <div class="t1">Ta vidéo ✨</div>
                   <div class="t3">✦ Améliorée par Skillora</div>
                   <div class="tags">
-                    <span>✂️ Coupes</span><span>💬 Sous-titres animés</span>
-                    <span>🔍 Zooms</span><span>🎵 Musique</span><span>🎨 Couleurs ciné</span>
+                    <span>✂️ Coupes</span><span>💬 Sous-titres</span>
+                    <span>🔍 Zooms</span><span>🎵 Musique</span>
                   </div>
                 </div>
               </div>
-              <div class="pvp good">
-                <div class="lbl">Potentiel viral</div>
-                <div class="in">
-                  <div class="big"><div class="n">9.5</div><div class="s">sur 10</div></div>
-                  <div class="bars">
-                    <div class="pvb"><b>Accroche</b><span class="tr"><i style="--w:95%"></i></span><span class="v">9.5</span></div>
-                    <div class="pvb"><b>Rythme</b><span class="tr"><i style="--w:92%"></i></span><span class="v">9.2</span></div>
-                    <div class="pvb"><b>Sous-titres</b><span class="tr"><i style="--w:98%"></i></span><span class="v">9.8</span></div>
-                    <div class="pvb"><b>Image</b><span class="tr"><i style="--w:94%"></i></span><span class="v">9.4</span></div>
-                  </div>
-                </div>
+              <div class="p2-score-wrap" style="padding-top:10px">
+                <span class="p2-score" style="font-size:2.3rem">9,5<small> / 10</small></span>
+                <div class="p2-score-l">Prête à exploser 🔥</div>
               </div>
             </div>
           </div>
@@ -899,7 +916,7 @@
   /* ===== Texte qui s'écrit tout seul (héro) ===== */
   (function(){
     var el = document.getElementById('typedTxt'); if (!el) return;
-    var PHRASES = ["Tes vidéos méritent d'exploser.", 'De vidéo basique à vidéo de pro. En un clic.', 'Publiée sur tous tes comptes. Au bon moment.'];
+    var PHRASES = ['prête à exploser.', "améliorée par l'IA.", 'notée sur 10.', 'publiée partout.'];
     var pi = 0, ci = PHRASES[0].length, deleting = true;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // on laisse la 1re phrase statique
     setTimeout(function tick(){
@@ -1018,15 +1035,15 @@
     var scenes = root.querySelectorAll('.p2-scene');
     var btn = document.getElementById('pvBtn');
     var cur = 0;
-    // Durée de chaque scène (vidéo notée + clic, amélioration, résultat pro)
-    var DUR = [4200, 3000, 5200];
+    // Durée de chaque scène (scan, note rouge, clic, amélioration, résultat pro)
+    var DUR = [2600, 3600, 3200, 3200, 5400];
     function show(i){
       cur = i;
       scenes.forEach(function(s, k){ s.classList.toggle('on', k === i); });
-      if (i === 0 && btn) {
+      if (i === 2 && btn) {
         btn.classList.remove('press');
-        setTimeout(function(){ btn.classList.add('press'); }, 2600);   // le doigt "clique"
-        setTimeout(function(){ btn.classList.remove('press'); }, 2900);
+        setTimeout(function(){ btn.classList.add('press'); }, 2300);   // le doigt "clique"
+        setTimeout(function(){ btn.classList.remove('press'); }, 2650);
       }
     }
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // scène 1 statique

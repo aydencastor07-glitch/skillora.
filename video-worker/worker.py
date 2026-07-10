@@ -3775,6 +3775,18 @@ def sv_fresh_media(page_url):
     return None
 
 
+def _study_fail(row, msg):
+    """Échec d'étude : on REMET EN FILE (3 essais max) — souvent c'est juste le quota
+    Gemini gratuit qui demande de patienter, pas une vraie erreur."""
+    attempts = int(row.get("attempts") or 0) + 1
+    if attempts < 3:
+        mark_winner(row["id"], {"status": "queued", "attempts": attempts, "error": msg[:200]})
+        print(f"Éclaireur: étude reportée (essai {attempts}/3): {msg[:80]}")
+    else:
+        mark_winner(row["id"], {"status": "error", "attempts": attempts,
+                                "error": msg[:500], "finished_at": "now()"})
+
+
 def study_winner(row):
     """Fait étudier UNE vidéo gagnante par Gemini et enrichit la mémoire de style.
     YouTube : analyse directe du lien ; sinon téléchargement du mp4 (media_url) + analyse."""
@@ -3814,8 +3826,7 @@ def study_winner(row):
                 if os.path.exists(tmp):
                     os.remove(tmp)
         if not gem or not isinstance(gem, dict):
-            mark_winner(win_id, {"status": "error", "error": "Gemini n'a pas pu analyser.",
-                                 "finished_at": "now()"})
+            _study_fail(row, "Gemini n'a pas pu analyser (quota ? on réessaiera).")
             return
         niche = re.sub(r"[^a-z0-9_]", "",
                        str(row.get("niche") or gem.get("niche") or gem.get("video_type") or "other").lower()) or "other"
@@ -3833,7 +3844,7 @@ def study_winner(row):
         print(f"Éclaireur: étudié {scope}/{niche} ({views} vues) -> {bucket}/{key}")
     except Exception as e:
         traceback.print_exc()
-        mark_winner(win_id, {"status": "error", "error": str(e)[:500], "finished_at": "now()"})
+        _study_fail(row, str(e))
 
 
 # --- déclenchement automatique des agents (aucun cron à configurer) -------------
@@ -3898,6 +3909,9 @@ def main():
         if win:
             print("Éclaireur: gagnante réclamée:", win.get("video_url", "")[:60])
             study_winner(win)
+            # PAUSE entre deux études : le niveau gratuit de Gemini limite le rythme —
+            # l'école n'est pas pressée, mieux vaut 1 vidéo bien étudiée / 45 s que des refus.
+            time.sleep(45)
             continue
         time.sleep(POLL_SECONDS)
 

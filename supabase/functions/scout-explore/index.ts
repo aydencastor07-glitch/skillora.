@@ -19,19 +19,39 @@ const cors = {
 };
 const SV_SCRAPE = "https://api.sociavault.com/v1/scrape";
 const GLOBAL_MIN_VIEWS = 50000;   // même seuil que scout-winners : l'école de Gemini
-const DEFAULT_MAX_PER_NICHE = 3;  // les 3 meilleures par style suffisent (Gemini agrège par vote)
+const DEFAULT_MAX_PER_NICHE = 3;  // les 3 meilleures par niche suffisent (Gemini agrège par vote)
+// Fenêtre LARGE : une vidéo d'il y a 2-3 mois qui a fait des millions de vues est une
+// EXCELLENTE prof. Le tri "most-liked" + le seuil de vues font le filtre qualité.
+const DATE_POSTED = "last-3-months";
 
-// Requêtes de recherche par style — le vocabulaire des créateurs, pas du jargon.
+// Requêtes de recherche par NICHE — le vocabulaire des créateurs, pas du jargon.
+// Couvre les grands univers de contenu, pas seulement les styles de montage.
 const DEFAULT_NICHES: Record<string, string> = {
+  // styles de montage
   talk_facecam: "storytime advice talking to camera",
   energetic: "high energy edit fast cuts",
-  vlog: "day in my life vlog aesthetic",
+  vlog: "day in my life vlog",
   horror: "pov horror story scary",
   luxury_aesthetic: "luxury lifestyle aesthetic",
   dance: "dance trend choreography",
   product: "product review unboxing",
-  story: "emotional storytelling motivation",
-  other: "viral video satisfying",
+  story: "emotional storytelling",
+  // univers de contenu (ce que publient vraiment les créateurs)
+  football: "football skills highlights",
+  basketball: "basketball highlights hoops",
+  edit: "4k edit transition velocity",
+  gym: "gym motivation fitness transformation",
+  food: "recipe cooking asmr food",
+  comedy: "funny skit comedy",
+  gaming: "gaming clip funny moments",
+  cars: "car edit supercar",
+  fashion: "outfit fashion grwm",
+  beauty: "makeup transformation beauty",
+  motivation: "motivational speech discipline mindset",
+  lifestyle: "aesthetic routine lifestyle",
+  travel: "travel destination cinematic",
+  pets: "funny pets cute animals",
+  tech: "tech gadgets unboxing",
 };
 
 function j(o: unknown, s = 200) {
@@ -72,7 +92,7 @@ serve(async (req) => {
       let data: any = null;
       try {
         data = await svGet(`/tiktok/search/keyword?query=${encodeURIComponent(String(query))}` +
-                           `&sort_by=most-liked&date_posted=this-week&region=US`, SV_KEY);
+                           `&sort_by=most-liked&date_posted=${DATE_POSTED}&region=US`, SV_KEY);
         searched++;
       } catch (e) { console.error("explore", niche, String(e)); continue; }
       const d = data.data ?? data;

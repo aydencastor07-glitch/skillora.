@@ -1961,6 +1961,7 @@ def gemini_analyze_video(path, duration, user_styles=None):
         "d'être RESSERRÉES (couper les temps morts) — pas d'effets partout.\n"
         "Réponds UNIQUEMENT ce JSON:\n"
         "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|dance|product|story|other\",\n"
+        " \"niche\": \"le SUJET en 1 mot simple minuscule (ex: football, basketball, gym, edit, food, comedy, gaming, cars, fashion, motivation, lifestyle, horror, dance, luxe...)\",\n"
         " \"audio_type\": \"voice|music|none\",  // voice=quelqu'un PARLE/explique ; music=CHANSON/musique (ne PAS sous-titrer) ; none=pas de son utile\n"
         " \"edit_intensity\": \"minimal|moderate|dynamic\",  // TRÈS IMPORTANT. minimal=vidéo déjà esthétique/fluide (danse, paysage, cinématique) -> on coupe juste les temps morts, PAS de zooms ni de bruitages ; moderate=talking-head/vlog -> zooms doux + sous-titres, sons rares ; dynamic=edit punchy/hype qui RÉCLAME des effets et des sons rythmés\n"
         " \"summary\": \"de quoi parle la vidéo, 1 phrase\",\n"
@@ -2003,7 +2004,7 @@ def gemini_analyze_video(path, duration, user_styles=None):
     return res
 
 
-STUDY_DNA = ("video_type", "sub_style_id", "highlight", "edit_intensity",
+STUDY_DNA = ("video_type", "niche", "sub_style_id", "highlight", "edit_intensity",
              "color_grade", "music_mood")
 
 
@@ -2019,6 +2020,7 @@ def gemini_study_url(url):
         "Regarde cette vidéo courte VIRALE (elle a très bien marché). En monteur pro, "
         "décris SON STYLE DE MONTAGE pour qu'on puisse le reproduire. Réponds UNIQUEMENT ce JSON:\n"
         "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|dance|product|story|other\",\n"
+        " \"niche\": \"le SUJET en 1 mot simple minuscule (football, basketball, gym, edit, food, comedy, gaming, cars, fashion, motivation, lifestyle...)\",\n"
         " \"sub_style_id\": 0,  // 0 signature ; 2 Hormozi ; 3 cartoon ; 4 néon ; 5 tech ; 6 docu ; 8 machine à écrire ; 10 or ; 12 karaoké ; 15 glitch ; 18 serif ; 20 néon ; 21 horreur\n"
         " \"highlight\": \"yellow|green|red|cyan\",\n"
         " \"edit_intensity\": \"minimal|moderate|dynamic\",\n"
@@ -2926,10 +2928,11 @@ def process(job):
         # Recette de montage selon le type de vidéo détecté : comble les choix que
         # l'IA n'a pas faits (étalonnage, transition) avec les réglages du style.
         rec = dict(recipe_for(vtype))
-        # STYLE APPRIS : si tu as envoyé des vidéos virales de cette catégorie, le
-        # worker applique leur style mesuré (cadence de coupe, étalonnage,
-        # intensité) — il PRIME sur les réglages codés en dur.
-        learned = load_style_profile(vtype)
+        # STYLE APPRIS : d'abord le style de la NICHE précise (football, gym, edit…)
+        # apprise par les agents, sinon celui du type de montage. Il PRIME sur les
+        # réglages codés en dur.
+        vniche = re.sub(r"[^a-z0-9_]", "", str((vision or {}).get("niche") or "").lower())
+        learned = (load_style_profile(vniche) if vniche else None) or load_style_profile(vtype)
         learn_note = ""
         if learned:
             if learned.get("cut_s"):
@@ -3708,7 +3711,8 @@ def study_winner(row):
             mark_winner(win_id, {"status": "error", "error": "Gemini n'a pas pu analyser.",
                                  "finished_at": "now()"})
             return
-        niche = re.sub(r"[^a-z0-9_]", "", str(row.get("niche") or gem.get("video_type") or "other").lower()) or "other"
+        niche = re.sub(r"[^a-z0-9_]", "",
+                       str(row.get("niche") or gem.get("niche") or gem.get("video_type") or "other").lower()) or "other"
         if scope == "creator" and row.get("user_id"):
             bucket, key = USERSTYLE_BUCKET, f"{row['user_id']}/{niche}.json"
         else:
@@ -3758,9 +3762,10 @@ def scout_tick():
         _invoke_edge("scout-winners")
         state["last_winners"] = now
         changed = True
-    if now - float(state.get("last_explore", 0)) > _EXPLORE_EVERY_S:
+    # clé "v2" : les niches ont été élargies -> on relance une exploration tout de suite
+    if now - float(state.get("last_explore_v2", 0)) > _EXPLORE_EVERY_S:
         _invoke_edge("scout-explore")
-        state["last_explore"] = now
+        state["last_explore_v2"] = now
         changed = True
     if changed:
         try:

@@ -263,6 +263,52 @@
   .p2-scene.on .pv-steps .st { opacity:1; transform:none; }
   .p2-scene.on .pv-steps .st:nth-child(1){transition-delay:.2s} .p2-scene.on .pv-steps .st:nth-child(2){transition-delay:.7s}
   .p2-scene.on .pv-steps .st:nth-child(3){transition-delay:1.2s} .p2-scene.on .pv-steps .st:nth-child(4){transition-delay:1.7s}
+  /* ===== L'HISTOIRE COMPLÈTE (un seul téléphone) ===== */
+  /* note (rouge/verte) avec la vidéo À CÔTÉ de la note */
+  .pvr { display:flex; gap:13px; align-items:center; }
+  .pvr .th { position:relative; flex:none; width:82px; height:142px; border-radius:11px; overflow:hidden; }
+  .pvr .th img { width:100%; height:100%; object-fit:cover; display:block; filter:saturate(.6) brightness(.88); }
+  .pvr.good .th img { filter:saturate(1.35) contrast(1.12) brightness(1.04); }
+  .pvr .sc { flex:1; text-align:center; }
+  .pvr .p2-score { font-size:2.5rem; }
+  .pvr-bars { margin-top:13px; }
+  /* amélioration : l'animation SUR la vidéo (balayage d'étalonnage + sous-titres + badges) */
+  .imp { position:relative; width:152px; height:262px; margin:4px auto 0; border-radius:15px; overflow:hidden; box-shadow:0 18px 44px -16px rgba(47,123,255,0.55); }
+  .imp img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .imp .base { filter:saturate(.55) brightness(.85); }
+  .imp .grade { filter:saturate(1.4) contrast(1.14) brightness(1.05); clip-path:inset(0 100% 0 0); }
+  .p2-scene.on .imp .grade { animation:impWipe 2.4s cubic-bezier(.4,0,.2,1) .5s forwards; }
+  @keyframes impWipe { to { clip-path:inset(0 0 0 0); } }
+  .imp .wline { position:absolute; top:0; bottom:0; left:0; width:3px; background:linear-gradient(180deg,transparent,#9be8ff,transparent); box-shadow:0 0 14px rgba(94,155,255,0.9); opacity:0; }
+  .p2-scene.on .imp .wline { animation:impLine 2.4s cubic-bezier(.4,0,.2,1) .5s forwards; }
+  @keyframes impLine { 0%{opacity:1; left:0} 96%{opacity:1} 100%{opacity:0; left:calc(100% - 3px)} }
+  .imp .capk { bottom:36px; }
+  .imp .capk .w { animation-delay:1.4s; font-size:.72rem; }
+  .imp .capk .w.big { font-size:.84rem; }
+  .imp .capk .w:nth-child(2){animation-delay:1.55s} .imp .capk .w:nth-child(3){animation-delay:1.7s} .imp .capk .w:nth-child(4){animation-delay:1.85s}
+  .imp-badge { position:absolute; font-size:1rem; background:rgba(10,14,24,0.85); border:1px solid rgba(94,155,255,0.4); border-radius:10px; padding:4px 7px; opacity:0; transform:scale(.5); }
+  .p2-scene.on .imp-badge { animation:impBadge .5s cubic-bezier(.2,1.4,.4,1) forwards; }
+  .imp-badge.b1 { top:10px; left:8px; } .p2-scene.on .imp-badge.b1 { animation-delay:1s }
+  .imp-badge.b2 { top:52px; right:8px; } .p2-scene.on .imp-badge.b2 { animation-delay:1.5s }
+  .imp-badge.b3 { top:110px; left:8px; } .p2-scene.on .imp-badge.b3 { animation-delay:2s }
+  @keyframes impBadge { to { opacity:1; transform:scale(1); } }
+  .imp-t { text-align:center; margin-top:11px; font-size:.72rem; color:var(--muted); }
+  .imp-t b { color:var(--white); }
+  /* publication : la vidéo voyage vers chaque plateforme */
+  .up-rows { display:flex; flex-direction:column; gap:9px; margin-top:8px; }
+  .up-row { display:flex; align-items:center; gap:8px; }
+  .up-row .track { position:relative; flex:1; height:22px; border-radius:999px; background:rgba(255,255,255,0.06); border:1px solid var(--border); overflow:hidden; }
+  .up-row .fill { position:absolute; inset:0; width:0; background:linear-gradient(90deg, rgba(61,220,132,0.16), rgba(61,220,132,0.34)); border-radius:999px; }
+  .up-row.go .fill { animation:upFill 2.5s cubic-bezier(.45,0,.3,1) forwards; }
+  @keyframes upFill { to { width:100%; } }
+  .up-row .mini { position:absolute; top:2px; left:2px; width:12px; height:18px; border-radius:4px; overflow:hidden; }
+  .up-row .mini img { width:100%; height:100%; object-fit:cover; }
+  .up-row.go .mini { animation:upMini 2.5s cubic-bezier(.45,0,.3,1) forwards; }
+  @keyframes upMini { to { left:calc(100% - 15px); } }
+  .up-row .pc { flex:none; width:24px; height:24px; }
+  .up-row .pct { flex:none; width:33px; text-align:right; font-size:.62rem; font-weight:800; color:var(--green); font-variant-numeric:tabular-nums; }
+  .up-done { text-align:center; margin-top:10px; font-size:.7rem; font-weight:700; color:var(--green); opacity:0; transition:opacity .4s ease 2.7s; }
+  .p2-scene.on .up-done { opacity:1; }
   /* ===== Section Améliorer ma vidéo (téléphone 3) ===== */
   .amv { padding:84px 0 30px; }
   .amv-grid { display:grid; grid-template-columns:1.06fr .94fr; gap:48px; align-items:center; }
@@ -488,7 +534,6 @@
       <p class="hero-sub reveal reveal-d2">Tu filmes, tu crées, tu postes… et rien ne décolle ? Envoie ta vidéo à Skillora : elle ressort <b>au niveau des pros</b> — et part sur <b>tous tes comptes, au meilleur moment</b>. En 3 clics.</p>
       <div class="hero-cta reveal reveal-d3">
         <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
-        <a class="btn-ghost-lg" href="#publier">Voir la démo</a>
       </div>
       <div class="hero-note reveal reveal-d3">Ton compte est prêt en 30 secondes.</div>
       <div class="hero-plats reveal reveal-d3">
@@ -511,78 +556,104 @@
             <div class="ph-bell">🔔<i>3</i></div>
           </div>
           <div class="p2-body">
-            <div class="p2-title">Améliorer ma vidéo</div>
+            <div class="p2-title" id="pvTitle">Ta vidéo</div>
 
-            <!-- Scène 1 : scan de la vidéo -->
+            <!-- Scène 1 : la vidéo À CÔTÉ de sa note rouge + bouton Améliorer -->
             <div class="p2-scene on" data-s="0">
-              <div class="pvv">
-                <div class="th"><img src="assets/demo-video.jpg" alt=""><span class="pv-scan"></span></div>
-                <div class="meta">
-                  <div class="t1">Ta vidéo</div>
-                  <div class="t2">Format vertical · 0:27<br>Filmée au téléphone</div>
+              <div class="pvr">
+                <div class="th"><img src="assets/demo-video.jpg" alt=""></div>
+                <div class="sc scorebad">
+                  <span class="p2-score">4,1<small> / 10</small></span>
+                  <div class="p2-score-l">Peut faire mieux 😬</div>
                 </div>
               </div>
-              <div class="p2-scan-t" style="margin-top:12px">Analyse en cours… <b>calcul du potentiel viral</b></div>
-            </div>
-            <!-- Scène 2 : la note (rouge) — le style qu'on aime -->
-            <div class="p2-scene" data-s="1">
-              <div class="p2-score-wrap scorebad">
-                <span class="p2-score">4,1<small> / 10</small></span>
-                <div class="p2-score-l">Peut faire beaucoup mieux 😬</div>
-              </div>
-              <div class="p2-bars bad">
+              <div class="p2-bars bad pvr-bars">
                 <div class="p2-bar"><span>Accroche</span><span class="tr"><i style="--w:38%"></i></span></div>
                 <div class="p2-bar"><span>Rythme</span><span class="tr"><i style="--w:41%"></i></span></div>
                 <div class="p2-bar"><span>Sous-titres</span><span class="tr"><i style="--w:8%"></i></span></div>
                 <div class="p2-bar"><span>Image</span><span class="tr"><i style="--w:45%"></i></span></div>
               </div>
-            </div>
-            <!-- Scène 3 : le clic qui change tout -->
-            <div class="p2-scene" data-s="2">
-              <div class="pvv">
-                <div class="th"><img src="assets/demo-video.jpg" alt=""></div>
-                <div class="meta">
-                  <div class="t1">4,1 / 10</div>
-                  <div class="t2">Cette vidéo mérite mieux.<br>Un clic suffit.</div>
-                </div>
-              </div>
               <div class="pv-btn" id="pvBtn">✨ Améliorer ma vidéo<span class="pv-tap">👆</span></div>
             </div>
-            <!-- Scène 4 : amélioration en cours -->
-            <div class="p2-scene" data-s="3">
-              <div class="pvv">
-                <div class="th"><img src="assets/demo-video.jpg" alt=""><span class="pv-scan"></span></div>
-                <div class="meta">
-                  <div class="t1">Amélioration…</div>
-                  <div class="pv-steps">
-                    <span class="st">✂️ Temps morts coupés</span>
-                    <span class="st">💬 Sous-titres animés</span>
-                    <span class="st">🔍 Zooms &amp; recadrage</span>
-                    <span class="st">🎵 Musique &amp; sons calés</span>
-                  </div>
-                </div>
+
+            <!-- Scène 2 : l'amélioration SUR la vidéo (balayage, sous-titres, badges) -->
+            <div class="p2-scene" data-s="1">
+              <div class="imp">
+                <img class="base" src="assets/demo-video.jpg" alt="">
+                <img class="grade" src="assets/demo-video.jpg" alt="">
+                <span class="wline"></span>
+                <span class="imp-badge b1">✂️</span>
+                <span class="imp-badge b2">🎵</span>
+                <span class="imp-badge b3">🔍</span>
+                <div class="capk"><span class="w">CE</span> <span class="w">DÉTAIL</span><br><span class="w big">CHANGE</span> <span class="w big key">TOUT</span></div>
               </div>
-              <div class="pv-load"><div class="bar"><i></i></div></div>
+              <div class="imp-t">Amélioration <b>en direct</b>…</div>
             </div>
-            <!-- Scène 5 : la même vidéo, version pro + note verte -->
-            <div class="p2-scene" data-s="4">
-              <div class="pvv pro">
-                <div class="th">
-                  <img src="assets/demo-video.jpg" alt="">
-                  <div class="capk"><span class="w">CE</span> <span class="w">DÉTAIL</span><br><span class="w big">CHANGE</span> <span class="w big key">TOUT</span></div>
-                </div>
-                <div class="meta">
-                  <div class="t1">Ta vidéo ✨</div>
-                  <div class="t3">✦ Améliorée par Skillora</div>
-                  <div class="tags">
-                    <span>✂️ Coupes</span><span>💬 Sous-titres</span>
-                    <span>🔍 Zooms</span><span>🎵 Musique</span>
-                  </div>
+
+            <!-- Scène 3 : les notes en VERT + bouton Publier -->
+            <div class="p2-scene" data-s="2">
+              <div class="pvr good">
+                <div class="th"><img src="assets/demo-video.jpg" alt=""><div class="capk"><span class="w big key" style="animation:none;opacity:1">TOUT 🔥</span></div></div>
+                <div class="sc">
+                  <span class="p2-score">9,5<small> / 10</small></span>
+                  <div class="p2-score-l">Prête à exploser 🔥</div>
                 </div>
               </div>
-              <div class="p2-score-wrap" style="padding-top:10px">
-                <span class="p2-score" style="font-size:2.3rem">9,5<small> / 10</small></span>
-                <div class="p2-score-l">Prête à exploser 🔥</div>
+              <div class="p2-bars pvr-bars">
+                <div class="p2-bar"><span>Accroche</span><span class="tr"><i style="--w:95%"></i></span></div>
+                <div class="p2-bar"><span>Rythme</span><span class="tr"><i style="--w:92%"></i></span></div>
+                <div class="p2-bar"><span>Sous-titres</span><span class="tr"><i style="--w:98%"></i></span></div>
+                <div class="p2-bar"><span>Image</span><span class="tr"><i style="--w:94%"></i></span></div>
+              </div>
+              <div class="pv-btn" id="pvBtn2">🚀 Publier sur tous mes comptes<span class="pv-tap">👆</span></div>
+            </div>
+
+            <!-- Scène 4 : sélection de toutes les plateformes (l'animation aimée) -->
+            <div class="p2-scene" data-s="3">
+              <div class="p2-sub" style="margin-top:2px">Une vidéo, tous tes comptes — au meilleur moment.</div>
+              <div class="p2-plats" id="p1Plats" style="margin-top:12px">
+                <span class="pc" style="background:#010101" data-pi="tiktok"><span class="ck">✓</span></span>
+                <span class="pc" data-pi="youtube"><span class="ck">✓</span></span>
+                <span class="pc" data-pi="instagram"><span class="ck">✓</span></span>
+                <span class="pc" style="background:#1877F2" data-pi="facebook"><span class="ck">✓</span></span>
+                <span class="pc" style="background:#000" data-pi="x"><span class="ck">✓</span></span>
+                <span class="pc" style="background:#000" data-pi="threads"><span class="ck">✓</span></span>
+              </div>
+              <div class="p2-when" style="margin-top:14px">
+                <div class="wl">Quand publier</div>
+                <div class="p2-chips"><span class="p2-chip sel">⏰ Au bon moment</span><span class="p2-chip">Maintenant</span></div>
+              </div>
+              <div class="p2-all"><span>Sélectionner tous mes comptes</span><span class="sw"></span></div>
+            </div>
+
+            <!-- Scène 5 : la vidéo VOYAGE vers chaque plateforme -->
+            <div class="p2-scene" data-s="4">
+              <div class="p2-sub" style="margin-top:2px">Ta vidéo part sur chaque réseau…</div>
+              <div class="up-rows">
+                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" style="background:#010101" data-pi="tiktok"></span></div>
+                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" data-pi="youtube"></span></div>
+                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" data-pi="instagram"></span></div>
+                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" style="background:#1877F2" data-pi="facebook"></span></div>
+                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" style="background:#000" data-pi="x"></span></div>
+                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" style="background:#000" data-pi="threads"></span></div>
+              </div>
+              <div class="up-done">✓ 100 % — publiée sur les 6 plateformes</div>
+            </div>
+
+            <!-- Scène 6 : succès -->
+            <div class="p2-scene" data-s="5">
+              <div class="p2-success">
+                <div class="big">✓</div>
+                <div class="st">Publiée partout 🎉</div>
+                <div class="ss">Ta vidéo améliorée part sur chaque réseau<br>quand <b style="color:var(--green)">son audience est la plus active</b>.</div>
+                <div class="prow">
+                  <span class="pc" style="background:#010101" data-pi="tiktok"></span>
+                  <span class="pc" data-pi="youtube"></span>
+                  <span class="pc" data-pi="instagram"></span>
+                  <span class="pc" style="background:#1877F2" data-pi="facebook"></span>
+                  <span class="pc" style="background:#000" data-pi="x"></span>
+                  <span class="pc" style="background:#000" data-pi="threads"></span>
+                </div>
               </div>
             </div>
           </div>
@@ -644,104 +715,6 @@
           </div>
         </div>
         <div class="toast green toast-b"><span class="ic">🎉</span><span><span class="t1">Félicitations !</span><span class="t2">Objectif atteint : <b style="color:var(--green)">1 000 abonnés</b> sur ton compte TikTok.</span></span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= SECTION PUBLIER ================= -->
-<section class="pub" id="publier">
-  <div class="wrap pub-grid">
-    <!-- Téléphone 2 : flux Publier animé en boucle -->
-    <div class="phone-zone reveal">
-      <div class="phone">
-        <div class="phone-screen p2s" id="p2s">
-          <div class="ph-head">
-            <div class="ph-logo"><img src="/apple-touch-icon.png" alt="" onerror="this.style.display='none'">Skill<span>ora</span></div>
-            <div class="ph-bell">🔔<i>1</i></div>
-          </div>
-          <div class="p2-body">
-            <div class="p2-title">Publier</div>
-            <div class="p2-sub">Une vidéo, toutes tes plateformes — au meilleur moment.</div>
-            <div class="p2-plats" id="p2Plats">
-              <span class="pc" style="background:#010101" data-pi="tiktok"><span class="ck">✓</span></span>
-              <span class="pc" data-pi="youtube"><span class="ck">✓</span></span>
-              <span class="pc" data-pi="instagram"><span class="ck">✓</span></span>
-              <span class="pc" style="background:#1877F2" data-pi="facebook"><span class="ck">✓</span></span>
-              <span class="pc" style="background:#000" data-pi="x"><span class="ck">✓</span></span>
-              <span class="pc" style="background:#000" data-pi="threads"><span class="ck">✓</span></span>
-            </div>
-
-            <!-- Scène 1 : import -->
-            <div class="p2-scene on" data-s="0">
-              <div class="p2-drop">
-                <div class="di">⬆️</div>
-                <div class="dt">Importe ta vidéo</div>
-                <div class="ds">Skillora l'analyse en quelques secondes : note, légende et meilleur moment.</div>
-                <div class="db">Choisir une vidéo</div>
-              </div>
-            </div>
-            <!-- Scène 2 : scan -->
-            <div class="p2-scene" data-s="1">
-              <div class="p2-vid"><span class="vplay">▶</span><span class="corners"></span><span class="scanline"></span></div>
-              <div class="p2-scan-t">Analyse en cours… <b>calcul du potentiel viral</b></div>
-            </div>
-            <!-- Scène 3 : note -->
-            <div class="p2-scene" data-s="2">
-              <div class="p2-score-wrap">
-                <span class="p2-score">8,7<small> / 10</small></span>
-                <div class="p2-score-l">Fort potentiel viral 🔥</div>
-              </div>
-              <div class="p2-bars">
-                <div class="p2-bar"><span>Accroche</span><span class="tr"><i style="--w:92%"></i></span></div>
-                <div class="p2-bar"><span>Format</span><span class="tr"><i style="--w:88%"></i></span></div>
-                <div class="p2-bar"><span>Rétention</span><span class="tr"><i style="--w:84%"></i></span></div>
-                <div class="p2-bar"><span>Légende</span><span class="tr"><i style="--w:90%"></i></span></div>
-              </div>
-            </div>
-            <!-- Scène 4 : quand + où -->
-            <div class="p2-scene" data-s="3">
-              <div class="p2-when">
-                <div class="wl">Quand publier</div>
-                <div class="p2-chips"><span class="p2-chip sel">⏰ Au bon moment</span><span class="p2-chip">Maintenant</span></div>
-              </div>
-              <div class="p2-all"><span>Sélectionner tous mes comptes</span><span class="sw"></span></div>
-              <div class="p2-pubbtn">Publier partout →</div>
-            </div>
-            <!-- Scène 5 : succès -->
-            <div class="p2-scene" data-s="4">
-              <div class="p2-success">
-                <div class="big">✓</div>
-                <div class="st">Publiée partout 🎉</div>
-                <div class="ss">Ta vidéo part sur chaque réseau<br>quand <b style="color:var(--green)">son audience est la plus active</b>.</div>
-                <div class="prow">
-                  <span class="pc" style="background:#010101" data-pi="tiktok"></span>
-                  <span class="pc" data-pi="youtube"></span>
-                  <span class="pc" data-pi="instagram"></span>
-                  <span class="pc" style="background:#1877F2" data-pi="facebook"></span>
-                  <span class="pc" style="background:#000" data-pi="x"></span>
-                  <span class="pc" style="background:#000" data-pi="threads"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="ph-nav">
-            <span class="seg"><span>🏠 Accueil</span><span>✏️ Studio</span></span>
-            <span class="plus">+</span>
-            <span class="prof">👤 Profil ›</span>
-          </div>
-        </div>
-        <div class="toast green toast-c"><span class="ic">⏰</span><span><span class="t1">Publié au bon moment</span><span class="t2">Sur 6 plateformes — sans lever le petit doigt.</span></span></div>
-      </div>
-    </div>
-
-    <div class="pub-txt">
-      <div class="sec-kicker reveal">La démo, en vrai</div>
-      <h2 class="reveal reveal-d1">3 clics. Toutes tes plateformes. Au bon moment.</h2>
-      <div class="pub-pts">
-        <div class="pub-pt reveal reveal-d1"><span class="n">1</span><div><h3>Importe ta vidéo</h3><p>Skillora la <b>scanne en quelques secondes</b> : accroche, format, rétention, légende — et te donne sa <b>note de potentiel viral sur 10</b>, avant que tu publies.</p></div></div>
-        <div class="pub-pt reveal reveal-d2"><span class="n">2</span><div><h3>Sélectionne tout d'un coup</h3><p>Un seul bouton pour choisir <b>tous tes comptes</b> — TikTok, Instagram, YouTube, Facebook, X, Threads. Fini le compte par compte.</p></div></div>
-        <div class="pub-pt reveal reveal-d3"><span class="n">3</span><div><h3>Publie au bon moment</h3><p>Chaque réseau reçoit ta vidéo <b>quand son audience est la plus active</b>. Tu publies une fois, Skillora s'occupe du reste.</p></div></div>
       </div>
     </div>
   </div>
@@ -1029,21 +1002,44 @@
     })();
   })();
 
-  /* ===== Phone héros : boucle Améliorer ma vidéo (brute -> pro) ===== */
+  /* ===== Phone héros : L'HISTOIRE COMPLÈTE (note rouge -> amélioration -> vert -> publication) ===== */
   (function(){
     var root = document.getElementById('p1s'); if (!root) return;
     var scenes = root.querySelectorAll('.p2-scene');
     var btn = document.getElementById('pvBtn');
-    var cur = 0;
-    // Durée de chaque scène (scan, note rouge, clic, amélioration, résultat pro)
-    var DUR = [2600, 3600, 3200, 3200, 5400];
+    var btn2 = document.getElementById('pvBtn2');
+    var title = document.getElementById('pvTitle');
+    var plats = root.querySelectorAll('#p1Plats .pc');
+    var pcts = root.querySelectorAll('.up-row .pct');
+    var rows = root.querySelectorAll('.up-row');
+    var TITLES = ['Ta vidéo', 'Amélioration ✨', 'Ta vidéo', 'Publier', 'Publication…', 'Publier'];
+    var cur = 0, pctTimer = null;
+    // Durées : note rouge + clic, amélioration sur la vidéo, note verte + clic,
+    // sélection des plateformes, envoi vers chaque réseau, succès.
+    var DUR = [4600, 3900, 4400, 3400, 3600, 3800];
+    function press(b, at){
+      if (!b) return;
+      b.classList.remove('press');
+      setTimeout(function(){ b.classList.add('press'); }, at);
+      setTimeout(function(){ b.classList.remove('press'); }, at + 350);
+    }
     function show(i){
       cur = i;
       scenes.forEach(function(s, k){ s.classList.toggle('on', k === i); });
-      if (i === 2 && btn) {
-        btn.classList.remove('press');
-        setTimeout(function(){ btn.classList.add('press'); }, 2300);   // le doigt "clique"
-        setTimeout(function(){ btn.classList.remove('press'); }, 2650);
+      if (title) title.textContent = TITLES[i] || 'Skillora';
+      if (i === 0) { press(btn, 3600); plats.forEach(function(p){ p.classList.remove('sel'); }); }
+      if (i === 2) press(btn2, 2800);
+      if (i === 3) plats.forEach(function(p, k){ setTimeout(function(){ p.classList.add('sel'); }, 700 + k * 150); });
+      if (i === 4) {
+        // redémarre les barres + le compteur commun (toutes à la même vitesse)
+        rows.forEach(function(r){ r.classList.remove('go'); void r.offsetWidth; r.classList.add('go'); });
+        if (pctTimer) clearInterval(pctTimer);
+        var t0 = Date.now();
+        pctTimer = setInterval(function(){
+          var p = Math.min(100, Math.round((Date.now() - t0) / 25));
+          pcts.forEach(function(el){ el.textContent = p + '%'; });
+          if (p >= 100) clearInterval(pctTimer);
+        }, 50);
       }
     }
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // scène 1 statique

@@ -190,6 +190,36 @@
   /* ===== Section Publier (phone 2 + points) ===== */
   .pub { padding:84px 0 30px; }
   .pub-grid { display:grid; grid-template-columns:.94fr 1.06fr; gap:48px; align-items:center; }
+  /* ===== Héros : titre qui s'écrit + téléphone Améliorer (avant/après) ===== */
+  .hero h1 { min-height:2.6em; }
+  .hero h1 .typed-caret { display:inline-block; width:4px; height:.82em; background:var(--blue-light); margin-left:6px; vertical-align:-.08em; animation:caretBlink 1s steps(1) infinite; border-radius:2px; }
+  .p1s .p2-scene { inset:58px 0 0; }
+  .pv-cover { position:relative; height:225px; border-radius:16px; overflow:hidden; background:linear-gradient(165deg,#39404d,#20242e 70%); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; }
+  .pv-cover .person { font-size:4.6rem; filter:grayscale(.55) brightness(.82); }
+  .pv-cover .fname { position:absolute; top:9px; left:11px; font-size:.6rem; color:rgba(255,255,255,0.55); background:rgba(0,0,0,0.4); padding:3px 8px; border-radius:999px; }
+  .pv-cover.pro { background:
+      radial-gradient(90% 70% at 50% 108%, rgba(255,92,124,0.5), transparent 60%),
+      radial-gradient(120% 90% at 10% -10%, rgba(47,123,255,0.55), transparent 55%),
+      linear-gradient(165deg,#141c3a,#3d1257 78%); border-color:rgba(94,155,255,0.45); box-shadow:0 14px 40px -18px rgba(47,123,255,0.65); }
+  .pv-cover.pro .person { filter:none; text-shadow:0 10px 30px rgba(0,0,0,0.55); transform:scale(1.08); }
+  .pv-subs { position:absolute; left:0; right:0; bottom:16px; text-align:center; font-family:'Sora',sans-serif; font-weight:800; line-height:1.12; text-transform:uppercase; letter-spacing:.4px; }
+  .pv-subs .l1 { display:block; font-size:.98rem; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,0.7), 0 0 18px rgba(0,0,0,0.8); }
+  .pv-subs .l2 { display:inline-block; margin-top:3px; font-size:1.05rem; color:#0d1220; background:#ffd54d; padding:2px 9px; border-radius:7px; transform:rotate(-1.5deg); box-shadow:0 6px 16px -6px rgba(255,213,77,0.6); }
+  .pv-chip { position:absolute; top:9px; right:10px; font-size:.56rem; font-weight:800; color:#0d1220; background:linear-gradient(135deg,#9be8ff,#4d8fff); padding:3px 8px; border-radius:999px; }
+  .pv-row { display:flex; align-items:center; justify-content:space-between; margin-top:10px; }
+  .p3-note.good { background:rgba(61,220,132,0.12); border:1px solid rgba(61,220,132,0.4); color:#3ddc84; }
+  .pv-btn { position:relative; margin-top:11px; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:14px; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; font-weight:800; font-size:.86rem; font-family:'Sora',sans-serif; box-shadow:0 12px 28px -10px rgba(47,123,255,0.75), inset 0 1px 0 rgba(255,255,255,0.25); overflow:hidden; transition:transform .18s ease; }
+  .pv-btn::after { content:''; position:absolute; top:0; bottom:0; width:46px; left:-70px; background:linear-gradient(100deg,transparent,rgba(255,255,255,0.35),transparent); animation:pvShine 2.4s ease infinite; }
+  .pv-btn.press { transform:scale(.93); }
+  @keyframes pvShine { 0%{left:-70px} 55%,100%{left:120%} }
+  .pv-tap { position:absolute; right:14px; bottom:-14px; font-size:1.5rem; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.5)); animation:pvTap 3.4s ease infinite; }
+  @keyframes pvTap { 0%,42%{ transform:translate(14px,16px) scale(1); opacity:0 } 55%{ opacity:1; transform:translate(0,0) scale(1) } 66%{ transform:translate(0,0) scale(.82) } 78%,100%{ transform:translate(0,0) scale(1); opacity:0 } }
+  .pv-load { margin-top:14px; }
+  .pv-load .bar { height:7px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden; }
+  .pv-load .bar i { display:block; height:100%; width:12%; border-radius:999px; background:linear-gradient(90deg,#4d8fff,#9be8ff); animation:pvLoad 1.9s ease forwards; }
+  @keyframes pvLoad { 0%{width:8%} 60%{width:64%} 100%{width:96%} }
+  .pv-scan { position:absolute; inset:0; background:linear-gradient(180deg,transparent,rgba(94,155,255,0.22),transparent); height:52px; animation:pvScan 1.5s linear infinite; }
+  @keyframes pvScan { 0%{transform:translateY(-60px)} 100%{transform:translateY(240px)} }
   /* ===== Section Améliorer ma vidéo (téléphone 3) ===== */
   .amv { padding:84px 0 30px; }
   .amv-grid { display:grid; grid-template-columns:1.06fr .94fr; gap:48px; align-items:center; }
@@ -410,13 +440,12 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <div class="kicker reveal">Montage IA · Analyse · Scripts · Note virale · Publication partout</div>
-      <h1 class="reveal reveal-d1">Plus de vues. Sur tous tes réseaux. <span class="hl">Une seule app.</span></h1>
-      <div class="typed-line reveal reveal-d2"><span id="typedTxt">Ta vidéo, prête à percer.</span><span class="typed-caret"></span></div>
-      <p class="hero-sub reveal reveal-d2">Envoie ta vidéo : Skillora la rend <b>prête à percer</b> — sous-titres, coupes, musique — la note, puis la <b>publie sur tous tes réseaux au bon moment</b>. Tes stats, tes idées et tes scripts au même endroit.</p>
+      <div class="kicker reveal">Améliore · Note · Publie partout — au bon moment</div>
+      <h1 class="reveal reveal-d1"><span id="typedTxt">Tes vidéos méritent d'exploser.</span><span class="typed-caret"></span></h1>
+      <p class="hero-sub reveal reveal-d2">Tu filmes, tu crées, tu postes… et rien ne décolle ? Envoie ta vidéo à Skillora : elle ressort <b>au niveau des pros</b> — et part sur <b>tous tes comptes, au meilleur moment</b>. En 3 clics.</p>
       <div class="hero-cta reveal reveal-d3">
         <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
-        <a class="btn-ghost-lg" href="#ameliorer">Voir la démo</a>
+        <a class="btn-ghost-lg" href="#publier">Voir la démo</a>
       </div>
       <div class="hero-note reveal reveal-d3">Ton compte est prêt en 30 secondes.</div>
       <div class="hero-plats reveal reveal-d3">
@@ -430,25 +459,59 @@
       </div>
     </div>
 
-    <!-- Téléphone 1 : dashboard + carrousel de comptes -->
+    <!-- Téléphone 1 : Améliorer ma vidéo — avant/après (la force, vue en premier) -->
     <div class="phone-zone reveal reveal-d2">
       <div class="phone">
-        <div class="phone-screen">
+        <div class="phone-screen p2s p1s" id="p1s">
           <div class="ph-head">
             <div class="ph-logo"><img src="/apple-touch-icon.png" alt="" onerror="this.style.display='none'">Skill<span>ora</span></div>
             <div class="ph-bell">🔔<i>3</i></div>
           </div>
-          <div class="ph-greet"><div class="g1">Bonjour Léa 👋</div><div class="g2">Voici ton tableau de bord.</div></div>
-          <div class="car-track" id="carTrack"></div>
-          <div class="car-dots" id="carDots"></div>
+          <div class="p2-body">
+            <div class="p2-title">Améliorer ma vidéo</div>
+
+            <!-- Scène 1 : la vidéo brute, notée en rouge -->
+            <div class="p2-scene on" data-s="0">
+              <div class="pv-cover">
+                <span class="fname">🎥 ma-video.mp4 · 0:42</span>
+                <span class="person">🧍‍♂️</span>
+              </div>
+              <div class="pv-row">
+                <span class="p3-note bad">4,1 / 10</span>
+                <span class="p3-iss">✗ image terne</span>
+                <span class="p3-iss">✗ pas de sous-titres</span>
+              </div>
+              <div class="pv-btn" id="pvBtn">✨ Améliorer ma vidéo<span class="pv-tap">👆</span></div>
+            </div>
+            <!-- Scène 2 : amélioration -->
+            <div class="p2-scene" data-s="1">
+              <div class="pv-cover">
+                <span class="person">🧍‍♂️</span>
+                <span class="pv-scan"></span>
+              </div>
+              <div class="pv-load"><div class="bar"><i></i></div></div>
+              <div class="p2-scan-t" style="margin-top:10px">Amélioration en cours…</div>
+            </div>
+            <!-- Scène 3 : la même vidéo, version pro -->
+            <div class="p2-scene" data-s="2">
+              <div class="pv-cover pro">
+                <span class="pv-chip">✨ Améliorée</span>
+                <span class="person">🧍‍♂️</span>
+                <div class="pv-subs"><span class="l1">Ce détail change</span><span class="l2">TOUT 🔥</span></div>
+              </div>
+              <div class="pv-row">
+                <span class="p3-note good">9,5 / 10</span>
+                <span class="p3-iss" style="color:#7fe6a9;background:rgba(61,220,132,0.08);border-color:rgba(61,220,132,0.25)">✓ sous-titres</span>
+                <span class="p3-iss" style="color:#7fe6a9;background:rgba(61,220,132,0.08);border-color:rgba(61,220,132,0.25)">✓ couleurs ciné</span>
+              </div>
+            </div>
+          </div>
           <div class="ph-nav">
-            <span class="seg"><b>🏠 Accueil</b><span>✏️ Studio</span></span>
+            <span class="seg"><span>🏠 Accueil</span><b>✏️ Studio</b></span>
             <span class="plus">+</span>
             <span class="prof">👤 Profil ›</span>
           </div>
         </div>
-        <div class="toast green toast-a"><span class="ic">🎉</span><span><span class="t1">Félicitations !</span><span class="t2">Objectif atteint : <b style="color:var(--green)">1 000 abonnés</b> sur ton compte TikTok.</span></span></div>
-        <div class="toast toast-b"><span class="ic">🚀</span><span><span class="t1">Ça décolle !</span><span class="t2">Ta dernière publication a dépassé <b style="color:var(--white)">1,3M de vues</b>.</span></span></div>
       </div>
     </div>
   </div>
@@ -470,77 +533,37 @@
   </div>
 </section>
 
-<!-- ================= SECTION AMÉLIORER MA VIDÉO (la force) ================= -->
-<section class="amv" id="ameliorer">
+<!-- ================= SECTION TABLEAU DE BORD (le QG) ================= -->
+<section class="amv" id="tableau">
   <div class="wrap amv-grid">
     <div class="amv-txt">
-      <div class="sec-kicker blue reveal">🎬 Améliorer ma vidéo</div>
-      <h2 class="reveal reveal-d1">Ta vidéo filmée au téléphone.<br>Rendue prête à percer.</h2>
+      <div class="sec-kicker blue reveal">📊 Ton QG</div>
+      <h2 class="reveal reveal-d1">Tous tes comptes.<br>Tout ce qui marche. Un seul endroit.</h2>
       <div class="pub-pts">
-        <div class="pub-pt reveal reveal-d1"><span class="n">1</span><div><h3>Envoie ta vidéo telle quelle</h3><p>Filmée au téléphone, sans montage, avec des blancs — <b>peu importe</b>. Tu l'envoies, c'est tout.</p></div></div>
-        <div class="pub-pt reveal reveal-d2"><span class="n">2</span><div><h3>Récupère-la prête à publier</h3><p><b>Sous-titres animés</b>, temps morts coupés, musique, format vertical parfait — <b>en quelques minutes</b>, pas en heures.</p></div></div>
-        <div class="pub-pt reveal reveal-d3"><span class="n">3</span><div><h3>Dans le style qui fait des vues</h3><p>Skillora connaît les <b>codes des vidéos virales de ta niche</b> — et les applique à la tienne. Mis à jour chaque semaine.</p></div></div>
+        <div class="pub-pt reveal reveal-d1"><span class="n">1</span><div><h3>Vois ce qui marche vraiment</h3><p>Tes vraies stats, tes <b>vidéos gagnantes</b>, ta niche — sur chaque plateforme, sans ouvrir 6 applis.</p></div></div>
+        <div class="pub-pt reveal reveal-d2"><span class="n">2</span><div><h3>Des idées et des scripts chaque jour</h3><p>Calés sur <b>ta niche</b> et sur ce qui a déjà marché pour toi — pas des textes génériques.</p></div></div>
+        <div class="pub-pt reveal reveal-d3"><span class="n">3</span><div><h3>Suis ta croissance en direct</h3><p>Objectifs d'abonnés, félicitations, <b>alertes quand une vidéo décolle</b>.</p></div></div>
       </div>
     </div>
 
-    <!-- Téléphone 3 : avant/après Améliorer ma vidéo -->
+    <!-- Téléphone 3 : dashboard + carrousel de comptes -->
     <div class="phone-zone reveal">
       <div class="phone">
-        <div class="phone-screen p2s p3s" id="p3s">
+        <div class="phone-screen">
           <div class="ph-head">
             <div class="ph-logo"><img src="/apple-touch-icon.png" alt="" onerror="this.style.display='none'">Skill<span>ora</span></div>
-            <div class="ph-bell">🔔<i>2</i></div>
+            <div class="ph-bell">🔔<i>3</i></div>
           </div>
-          <div class="p2-body">
-            <div class="p2-title">Améliorer ma vidéo</div>
-            <div class="p2-sub">Ta vidéo brute devient un montage de pro.</div>
-
-            <!-- Scène 1 : vidéo brute -->
-            <div class="p2-scene on" data-s="0">
-              <div class="p2-vid"><span class="vplay">▶</span><span class="corners"></span></div>
-              <div class="p3-note bad">Note actuelle : 4,2 / 10</div>
-              <div class="p3-issues">
-                <span class="p3-iss">✗ 9 s de temps morts</span>
-                <span class="p3-iss">✗ pas de sous-titres</span>
-                <span class="p3-iss">✗ son déséquilibré</span>
-              </div>
-            </div>
-            <!-- Scène 2 : l'IA monte -->
-            <div class="p2-scene" data-s="1">
-              <div class="p2-scan-t">Amélioration en cours…</div>
-              <div class="p3-checks">
-                <div class="p3-check"><span class="ok">✂️</span>Temps morts coupés (9 s gagnées)</div>
-                <div class="p3-check"><span class="ok">💬</span>Sous-titres animés ajoutés</div>
-                <div class="p3-check"><span class="ok">🎵</span>Musique calée sur le rythme</div>
-                <div class="p3-check"><span class="ok">🔍</span>Recadrage qui suit le sujet</div>
-                <div class="p3-check"><span class="ok">🎨</span>Étalonnage cinéma appliqué</div>
-              </div>
-            </div>
-            <!-- Scène 3 : la note grimpe -->
-            <div class="p2-scene" data-s="2">
-              <div class="p3-chef">
-                <span class="em">🔥</span>
-                <div class="t">Note virale</div>
-                <div class="s">Ta vidéo est maintenant<br>au niveau pour percer.</div>
-                <div class="p3-scorerow"><span class="p3-old">4,2</span><span class="p3-arrow">→</span><span class="p3-new">8,9 / 10</span></div>
-              </div>
-            </div>
-            <!-- Scène 4 : succès -->
-            <div class="p2-scene" data-s="3">
-              <div class="p2-success">
-                <div class="big">✓</div>
-                <div class="st">Prête à publier 🎉</div>
-                <div class="ss">Dans le style des vidéos qui font<br><b style="color:var(--green)">des millions de vues dans ta niche</b>.</div>
-              </div>
-            </div>
-          </div>
+          <div class="ph-greet"><div class="g1">Bonjour Léa 👋</div><div class="g2">Voici ton tableau de bord.</div></div>
+          <div class="car-track" id="carTrack"></div>
+          <div class="car-dots" id="carDots"></div>
           <div class="ph-nav">
-            <span class="seg"><span>🏠 Accueil</span><b>✏️ Studio</b></span>
+            <span class="seg"><b>🏠 Accueil</b><span>✏️ Studio</span></span>
             <span class="plus">+</span>
             <span class="prof">👤 Profil ›</span>
           </div>
         </div>
-        <div class="toast green toast-b"><span class="ic">🎬</span><span><span class="t1">Montage terminé</span><span class="t2">Ta vidéo est passée de <b style="color:#ff5c5c">4,2</b> à <b style="color:var(--green)">8,9/10</b>.</span></span></div>
+        <div class="toast green toast-b"><span class="ic">🎉</span><span><span class="t1">Félicitations !</span><span class="t2">Objectif atteint : <b style="color:var(--green)">1 000 abonnés</b> sur ton compte TikTok.</span></span></div>
       </div>
     </div>
   </div>
@@ -813,7 +836,7 @@
   /* ===== Texte qui s'écrit tout seul (héro) ===== */
   (function(){
     var el = document.getElementById('typedTxt'); if (!el) return;
-    var PHRASES = ['Ta vidéo, prête à percer.', 'Sache ce qui marche avant de poster.', 'Des idées et des scripts calés sur ta niche.', 'Publie partout en un clic.', 'Le style qui fait des vues dans ta niche.'];
+    var PHRASES = ["Tes vidéos méritent d'exploser.", 'De vidéo basique à vidéo de pro.', 'Publiée partout. En 3 clics.'];
     var pi = 0, ci = PHRASES[0].length, deleting = true;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // on laisse la 1re phrase statique
     setTimeout(function tick(){
@@ -926,18 +949,25 @@
     })();
   })();
 
-  /* ===== Phone 3 : boucle Améliorer ma vidéo (brute -> montage pro) ===== */
+  /* ===== Phone héros : boucle Améliorer ma vidéo (brute -> pro) ===== */
   (function(){
-    var root = document.getElementById('p3s'); if (!root) return;
+    var root = document.getElementById('p1s'); if (!root) return;
     var scenes = root.querySelectorAll('.p2-scene');
+    var btn = document.getElementById('pvBtn');
     var cur = 0;
-    // Durée de chaque scène (brute, montage, chef, succès)
-    var DUR = [2800, 3600, 3400, 3000];
+    // Durée de chaque scène (vidéo brute + clic, amélioration, résultat pro)
+    var DUR = [3400, 2300, 4600];
     function show(i){
       cur = i;
       scenes.forEach(function(s, k){ s.classList.toggle('on', k === i); });
+      if (i === 0 && btn) {
+        btn.classList.remove('press');
+        setTimeout(function(){ btn.classList.add('press'); }, 2600);   // le doigt "clique"
+        setTimeout(function(){ btn.classList.remove('press'); }, 2900);
+      }
     }
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // scène 1 statique
+    show(0);
     (function loop(){
       setTimeout(function(){ show((cur + 1) % scenes.length); loop(); }, DUR[cur]);
     })();

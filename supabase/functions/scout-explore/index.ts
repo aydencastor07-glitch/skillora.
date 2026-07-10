@@ -146,8 +146,9 @@ function parseViews(x: any): number {
 }
 // Recherche YouTube (Shorts + vidéos). Gemini lit les liens YouTube DIRECTEMENT,
 // donc pas besoin de media_url : l'étude est gratuite en téléchargement.
-async function youtubeSearch(query: string, key: string) {
-  const data = await svGet(`/youtube/search?query=${encodeURIComponent(query)}&uploadDate=this_month`, key);
+async function youtubeSearch(query: string, key: string, uploadDate = "this_month") {
+  const data = await svGet(`/youtube/search?query=${encodeURIComponent(query)}` +
+                           (uploadDate ? `&uploadDate=${uploadDate}` : ""), key);
   const d = data.data ?? data;
   const groups = [d.shorts, d.videos, d.results, d.items].filter(Array.isArray) as any[][];
   const out: { views: number; create_time: number; url: string; media_url: string }[] = [];
@@ -187,30 +188,41 @@ serve(async (req) => {
       const niche = String(rawNiche).toLowerCase().replace(/[^a-z0-9_]/g, "") || "other";
       const found: { views: number; create_time: number; url: string; media_url: string; platform: string }[] = [];
 
-      // --- TikTok (recherche par mot-clé, tri most-liked, fenêtre 3 mois) ---
-      try {
-        const data = await svGet(`/tiktok/search/keyword?query=${encodeURIComponent(String(query))}` +
-                                 `&sort_by=most-liked&date_posted=${DATE_POSTED}&region=US`, SV_KEY);
-        searched++;
-        const d = data.data ?? data;
-        const list = d.aweme_list ?? d.videos ?? {};
-        const arr = Array.isArray(list) ? list : Object.values(list);
-        for (const v of arr as any[]) {
-          const handle = v?.author?.unique_id ?? v?.author?.uniqueId ?? "";
-          if (!v?.aweme_id || !handle) continue;
-          found.push({
-            views: Number(v?.statistics?.play_count ?? 0),
-            create_time: Number(v?.create_time ?? 0),
-            url: `https://www.tiktok.com/@${handle}/video/${v.aweme_id}`,
-            media_url: tiktokPlayUrl(v), platform: "tiktok",
-          });
-        }
-      } catch (e) { console.error("explore tiktok", niche, String(e)); }
+      // --- TikTok (recherche par mot-clé, tri most-liked) ---
+      // Repli progressif : fenêtre 3 mois -> 1 mois -> sans filtre de date, au cas où
+      // SociaVault refuse une valeur de date_posted ou renvoie une liste vide.
+      let ttArr: any[] = [];
+      for (const dp of [DATE_POSTED, "this-month", ""]) {
+        try {
+          const q = `/tiktok/search/keyword?query=${encodeURIComponent(String(query))}` +
+                    `&sort_by=most-liked&region=US` + (dp ? `&date_posted=${dp}` : "");
+          const data = await svGet(q, SV_KEY);
+          searched++;
+          const d = data.data ?? data;
+          const list = d.aweme_list ?? d.videos ?? {};
+          ttArr = Array.isArray(list) ? list : Object.values(list);
+          if (ttArr.length) break;
+        } catch (e) { console.error("explore tiktok", niche, dp || "no-date", String(e)); }
+      }
+      for (const v of ttArr as any[]) {
+        const handle = v?.author?.unique_id ?? v?.author?.uniqueId ?? "";
+        if (!v?.aweme_id || !handle) continue;
+        found.push({
+          views: Number(v?.statistics?.play_count ?? 0),
+          create_time: Number(v?.create_time ?? 0),
+          url: `https://www.tiktok.com/@${handle}/video/${v.aweme_id}`,
+          media_url: tiktokPlayUrl(v), platform: "tiktok",
+        });
+      }
 
-      // --- YouTube (Shorts + vidéos du mois ; Gemini lit les liens directement) ---
+      // --- YouTube (Shorts + vidéos ; Gemini lit les liens directement) ---
       try {
-        const yt = await youtubeSearch(String(query), SV_KEY);
+        let yt = await youtubeSearch(String(query), SV_KEY);
         searched++;
+        if (!yt.length) {              // repli : sans filtre de date
+          yt = await youtubeSearch(String(query), SV_KEY, "");
+          searched++;
+        }
         for (const v of yt) found.push({ ...v, platform: "youtube" });
       } catch (e) { console.error("explore youtube", niche, String(e)); }
 

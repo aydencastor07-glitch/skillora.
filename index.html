@@ -11,8 +11,8 @@
   })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skillora — Tous tes réseaux. Toute ta croissance. Une seule app.</title>
-<meta name="description" content="Skillora analyse tes comptes, écrit tes idées et scripts, note tes vidéos avant publication, puis publie sur toutes tes plateformes au bon moment. TikTok, Instagram, YouTube, Facebook, X, Threads.">
+<title>Skillora — L'IA qui monte tes vidéos, écrit tes scripts et publie partout.</title>
+<meta name="description" content="Montage vidéo par IA, analyse de tes comptes, idées et scripts dans ta niche, note virale avant publication — puis publication sur toutes tes plateformes au bon moment. TikTok, Instagram, YouTube, Facebook, X, Threads.">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -171,9 +171,16 @@
 
   /* ===== Bande "tout ce que fait Skillora" ===== */
   .feats { padding:74px 0 0; }
-  .feats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:13px; }
+  .feats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:13px; }
   .feat { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 15px; display:flex; gap:12px; align-items:flex-start; transition:border-color .25s, transform .25s; }
   .feat:hover { border-color:rgba(94,155,255,0.35); transform:translateY(-2px); }
+  .feat-star { grid-column:span 2; background:linear-gradient(135deg, rgba(47,123,255,0.13), rgba(47,123,255,0.04) 55%, var(--surface)); border-color:rgba(94,155,255,0.35); }
+  .feat-star .fi { background:rgba(47,123,255,0.22); border-color:rgba(94,155,255,0.45); }
+  .feat-star h3 { font-size:.98rem; }
+  .feat-star p { font-size:.8rem; color:var(--text, #cfd8ea); }
+  .feat-tag { display:inline-block; margin-left:7px; padding:2px 8px; border-radius:999px; font-size:.6rem; font-weight:800; letter-spacing:.4px; text-transform:uppercase; background:rgba(61,220,132,0.14); border:1px solid rgba(61,220,132,0.35); color:#3ddc84; vertical-align:2px; }
+  @media (max-width:900px) { .feat-star { grid-column:span 2; } }
+  @media (max-width:560px) { .feat-star { grid-column:span 1; } }
   .feat .fi { flex:none; width:36px; height:36px; border-radius:11px; background:rgba(47,123,255,0.12); border:1px solid rgba(47,123,255,0.22); display:flex; align-items:center; justify-content:center; font-size:1.05rem; }
   .feat h3 { font-family:'Sora',sans-serif; font-weight:700; font-size:.88rem; }
   .feat p { color:var(--muted); font-size:.76rem; line-height:1.5; margin-top:2px; }
@@ -183,6 +190,32 @@
   /* ===== Section Publier (phone 2 + points) ===== */
   .pub { padding:84px 0 30px; }
   .pub-grid { display:grid; grid-template-columns:.94fr 1.06fr; gap:48px; align-items:center; }
+  /* ===== Section Améliorer ma vidéo (téléphone 3) ===== */
+  .amv { padding:84px 0 30px; }
+  .amv-grid { display:grid; grid-template-columns:1.06fr .94fr; gap:48px; align-items:center; }
+  .sec-kicker.blue { color:var(--blue-light); background:rgba(47,123,255,0.1); border-color:rgba(94,155,255,0.3); }
+  .p3s .p2-scene { inset:64px 0 0; }
+  .p3-note { display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:5px 11px; border-radius:999px; font-weight:800; font-size:.8rem; }
+  .p3-note.bad { background:rgba(255,92,92,0.12); border:1px solid rgba(255,92,92,0.35); color:#ff5c5c; }
+  .p3-issues { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .p3-iss { font-size:.66rem; color:#ff9d9d; background:rgba(255,92,92,0.08); border:1px solid rgba(255,92,92,0.22); padding:4px 9px; border-radius:999px; }
+  .p3-checks { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .p3-check { display:flex; align-items:center; gap:9px; font-size:.78rem; color:var(--white); background:rgba(61,220,132,0.06); border:1px solid rgba(61,220,132,0.18); border-radius:11px; padding:8px 11px; opacity:0; transform:translateX(-8px); transition:opacity .4s ease, transform .4s ease; }
+  .p3-check .ok { color:#3ddc84; font-weight:800; }
+  .p2-scene.on .p3-check { opacity:1; transform:translateX(0); }
+  .p2-scene.on .p3-check:nth-child(1){ transition-delay:.15s } .p2-scene.on .p3-check:nth-child(2){ transition-delay:.55s }
+  .p2-scene.on .p3-check:nth-child(3){ transition-delay:.95s } .p2-scene.on .p3-check:nth-child(4){ transition-delay:1.35s }
+  .p2-scene.on .p3-check:nth-child(5){ transition-delay:1.75s }
+  .p3-chef { text-align:center; padding-top:8px; }
+  .p3-chef .em { font-size:2.6rem; display:block; }
+  .p3-chef .t { font-weight:800; font-size:.95rem; margin-top:8px; color:var(--white); font-family:'Sora',sans-serif; }
+  .p3-chef .s { font-size:.74rem; color:var(--muted); margin-top:5px; line-height:1.5; }
+  .p3-scorerow { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:14px; }
+  .p3-old { font-weight:800; font-size:1.25rem; color:#ff5c5c; text-decoration:line-through; opacity:.75; }
+  .p3-arrow { color:var(--muted); font-size:1.1rem; }
+  .p3-new { font-family:'Sora',sans-serif; font-weight:800; font-size:2rem; color:#3ddc84; transform:scale(.6); opacity:0; transition:transform .5s cubic-bezier(.2,1.4,.4,1) .5s, opacity .4s ease .5s; }
+  .p2-scene.on .p3-new { transform:scale(1); opacity:1; }
+  @media (max-width:900px) { .amv-grid { grid-template-columns:1fr; gap:40px; } .amv .pub-txt, .amv .amv-txt { text-align:left; } }
   .sec-kicker { display:inline-flex; font-weight:700; font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--green); background:var(--green-glow); border:1px solid rgba(61,220,132,0.28); padding:6px 13px; border-radius:999px; margin-bottom:16px; }
   .pub h2 { font-size:clamp(1.65rem,3.6vw,2.35rem); }
   .pub-pts { margin-top:26px; display:flex; flex-direction:column; gap:16px; }
@@ -363,11 +396,11 @@
       <a href="#pricing">Tarifs</a>
       <a href="#faq">FAQ</a>
       <a class="btn-ghost-nav mob-only" href="app.html">Connexion</a>
-      <a class="btn-primary-nav mob-only" href="signup.html">Commencer gratuitement</a>
+      <a class="btn-primary-nav mob-only" href="signup.html">Créer mon compte</a>
     </div>
     <div class="nav-cta">
       <a class="btn-ghost-nav" href="app.html">Connexion</a>
-      <a class="btn-primary-nav" href="signup.html">Commencer gratuitement</a>
+      <a class="btn-primary-nav" href="signup.html">Créer mon compte</a>
     </div>
     <button class="nav-burger" onclick="document.querySelector('.nav-links').classList.toggle('mob-open')" aria-label="Menu"><span></span></button>
   </div>
@@ -377,15 +410,15 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <div class="kicker reveal">Analyse · Idées · Scripts · Note virale · Publication</div>
-      <h1 class="reveal reveal-d1">Tous tes réseaux. Toute ta croissance. <span class="hl">Une seule app.</span></h1>
-      <div class="typed-line reveal reveal-d2"><span id="typedTxt">Analyse ce qui marche pour toi.</span><span class="typed-caret"></span></div>
-      <p class="hero-sub reveal reveal-d2">Skillora <b>analyse tes comptes</b>, comprend ce qui marche, <b>écrit tes idées et tes scripts</b>, note tes vidéos avant publication — puis les <b>publie partout au bon moment</b>.</p>
+      <div class="kicker reveal">Montage IA · Analyse · Scripts · Note virale · Publication partout</div>
+      <h1 class="reveal reveal-d1">Ton équipe de création complète. <span class="hl">Une seule app.</span></h1>
+      <div class="typed-line reveal reveal-d2"><span id="typedTxt">Monte tes vidéos comme un pro.</span><span class="typed-caret"></span></div>
+      <p class="hero-sub reveal reveal-d2">Skillora <b>améliore tes vidéos comme un monteur pro</b>, <b>analyse tes comptes</b>, écrit tes <b>idées et tes scripts</b>, note tes vidéos avant publication — puis les <b>publie sur tous tes réseaux au bon moment</b>.</p>
       <div class="hero-cta reveal reveal-d3">
-        <a class="btn-primary-lg" href="signup.html">Commencer gratuitement →</a>
-        <a class="btn-ghost-lg" href="#publier">Voir la démo</a>
+        <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
+        <a class="btn-ghost-lg" href="#ameliorer">Voir la démo</a>
       </div>
-      <div class="hero-note reveal reveal-d3">30 secondes pour créer ton compte — sans carte bancaire.</div>
+      <div class="hero-note reveal reveal-d3">Ton compte est prêt en 30 secondes.</div>
       <div class="hero-plats reveal reveal-d3">
         <span class="lbl">Fonctionne avec</span>
         <span class="hp-chip" style="background:#010101" data-pi="tiktok"></span>
@@ -425,12 +458,90 @@
 <section class="feats" id="fonctionnalites">
   <div class="wrap">
     <div class="feats-grid">
-      <div class="feat reveal"><span class="fi">📊</span><div><h3>Analyse tes comptes</h3><p>Tes vraies stats, ta niche détectée, tes vidéos gagnantes — sur chaque plateforme.</p></div></div>
-      <div class="feat reveal reveal-d1"><span class="fi">💡</span><div><h3>Idées chaque jour</h3><p>Des idées de contenu basées sur ce qui marche déjà pour ton compte.</p></div></div>
-      <div class="feat reveal reveal-d2"><span class="fi">✍️</span><div><h3>Scripts Studio</h3><p>Hook, structure, CTA — écrits pour ta niche, pas des textes génériques.</p></div></div>
-      <div class="feat reveal"><span class="fi">🎯</span><div><h3>Note virale</h3><p>Ta vidéo scannée et notée sur 10 avant de partir — accroche, format, rétention.</p></div></div>
-      <div class="feat reveal reveal-d1"><span class="fi">🚀</span><div><h3>Publie partout</h3><p>6 plateformes, tous tes comptes en un bouton, chacune au bon moment.</p></div></div>
-      <div class="feat reveal reveal-d2"><span class="fi">🏆</span><div><h3>Objectifs & alertes</h3><p>Jalons d'abonnés, félicitations, alertes quand une vidéo décolle.</p></div></div>
+      <div class="feat feat-star reveal"><span class="fi">🎬</span><div><h3>Montage IA <span class="feat-tag">Notre force</span></h3><p>Envoie ta vidéo brute : l'IA coupe les temps morts, ajoute sous-titres animés, musique, zooms et recadrage — comme un monteur pro.</p></div></div>
+      <div class="feat feat-star reveal reveal-d1"><span class="fi">🧠</span><div><h3>Une IA qui apprend</h3><p>Elle étudie chaque semaine les vidéos qui explosent dans ta niche — et monte les tiennes dans le style qui marche <b>maintenant</b>.</p></div></div>
+      <div class="feat reveal reveal-d2"><span class="fi">📊</span><div><h3>Analyse tes comptes</h3><p>Tes vraies stats, ta niche détectée, tes vidéos gagnantes — sur chaque plateforme, au même endroit.</p></div></div>
+      <div class="feat reveal"><span class="fi">💡</span><div><h3>Idées chaque jour</h3><p>Des idées de contenu basées sur ce qui marche déjà pour ton compte.</p></div></div>
+      <div class="feat reveal reveal-d1"><span class="fi">✍️</span><div><h3>Scripts Studio</h3><p>Hook, structure, CTA — écrits pour ta niche, pas des textes génériques.</p></div></div>
+      <div class="feat reveal reveal-d2"><span class="fi">🎯</span><div><h3>Note virale</h3><p>Ta vidéo scannée et notée sur 10 avant de partir — accroche, format, rétention.</p></div></div>
+      <div class="feat reveal"><span class="fi">🚀</span><div><h3>Publie partout</h3><p>6 plateformes, tous tes comptes en un bouton, chacune au bon moment.</p></div></div>
+      <div class="feat reveal reveal-d1"><span class="fi">🏆</span><div><h3>Objectifs & alertes</h3><p>Jalons d'abonnés, félicitations, alertes quand une vidéo décolle.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SECTION AMÉLIORER MA VIDÉO (la force) ================= -->
+<section class="amv" id="ameliorer">
+  <div class="wrap amv-grid">
+    <div class="amv-txt">
+      <div class="sec-kicker blue reveal">🎬 Notre force — Montage IA</div>
+      <h2 class="reveal reveal-d1">Envoie ta vidéo brute.<br>Récupère un montage de pro.</h2>
+      <div class="pub-pts">
+        <div class="pub-pt reveal reveal-d1"><span class="n">1</span><div><h3>L'IA regarde TOUTE ta vidéo</h3><p>Elle comprend le contenu, repère les <b>temps morts</b>, le sujet, l'ambiance — comme un monteur qui visionne avant de couper.</p></div></div>
+        <div class="pub-pt reveal reveal-d2"><span class="n">2</span><div><h3>Elle monte dans le style qui marche</h3><p>Coupes, <b>sous-titres animés</b>, musique, zooms, recadrage intelligent — dans le <b>style des vidéos virales de ta niche</b>, qu'elle étudie chaque semaine.</p></div></div>
+        <div class="pub-pt reveal reveal-d3"><span class="n">3</span><div><h3>Le chef goûte le résultat</h3><p>L'IA <b>revoit son propre montage</b>, corrige ce qui ne va pas, et regoûte — jusqu'à ce que ce soit digne d'être publié.</p></div></div>
+      </div>
+    </div>
+
+    <!-- Téléphone 3 : avant/après Améliorer ma vidéo -->
+    <div class="phone-zone reveal">
+      <div class="phone">
+        <div class="phone-screen p2s p3s" id="p3s">
+          <div class="ph-head">
+            <div class="ph-logo"><img src="/apple-touch-icon.png" alt="" onerror="this.style.display='none'">Skill<span>ora</span></div>
+            <div class="ph-bell">🔔<i>2</i></div>
+          </div>
+          <div class="p2-body">
+            <div class="p2-title">Améliorer ma vidéo</div>
+            <div class="p2-sub">Ta vidéo brute devient un montage de pro.</div>
+
+            <!-- Scène 1 : vidéo brute -->
+            <div class="p2-scene on" data-s="0">
+              <div class="p2-vid"><span class="vplay">▶</span><span class="corners"></span></div>
+              <div class="p3-note bad">Note actuelle : 4,2 / 10</div>
+              <div class="p3-issues">
+                <span class="p3-iss">✗ 9 s de temps morts</span>
+                <span class="p3-iss">✗ pas de sous-titres</span>
+                <span class="p3-iss">✗ son déséquilibré</span>
+              </div>
+            </div>
+            <!-- Scène 2 : l'IA monte -->
+            <div class="p2-scene" data-s="1">
+              <div class="p2-scan-t">L'IA monte ta vidéo… <b>comme un monteur pro</b></div>
+              <div class="p3-checks">
+                <div class="p3-check"><span class="ok">✂️</span>Temps morts coupés (9 s gagnées)</div>
+                <div class="p3-check"><span class="ok">💬</span>Sous-titres animés ajoutés</div>
+                <div class="p3-check"><span class="ok">🎵</span>Musique calée sur le rythme</div>
+                <div class="p3-check"><span class="ok">🔍</span>Recadrage qui suit le sujet</div>
+                <div class="p3-check"><span class="ok">🎨</span>Étalonnage cinéma appliqué</div>
+              </div>
+            </div>
+            <!-- Scène 3 : le chef goûte -->
+            <div class="p2-scene" data-s="2">
+              <div class="p3-chef">
+                <span class="em">👨‍🍳</span>
+                <div class="t">Le chef goûte le résultat…</div>
+                <div class="s">Pas encore parfait ? Il corrige<br>et regoûte — jusqu'à 3 fois.</div>
+                <div class="p3-scorerow"><span class="p3-old">4,2</span><span class="p3-arrow">→</span><span class="p3-new">8,9 / 10</span></div>
+              </div>
+            </div>
+            <!-- Scène 4 : succès -->
+            <div class="p2-scene" data-s="3">
+              <div class="p2-success">
+                <div class="big">✓</div>
+                <div class="st">Montage prêt 🎉</div>
+                <div class="ss">Dans le style des vidéos qui font<br><b style="color:var(--green)">des millions de vues dans ta niche</b>.</div>
+              </div>
+            </div>
+          </div>
+          <div class="ph-nav">
+            <span class="seg"><span>🏠 Accueil</span><b>✏️ Studio</b></span>
+            <span class="plus">+</span>
+            <span class="prof">👤 Profil ›</span>
+          </div>
+        </div>
+        <div class="toast green toast-a"><span class="ic">🎬</span><span><span class="t1">Montage terminé</span><span class="t2">Ta vidéo est passée de <b style="color:#ff5c5c">4,2</b> à <b style="color:var(--green)">8,9/10</b>.</span></span></div>
+      </div>
     </div>
   </div>
 </section>
@@ -547,11 +658,11 @@
   <div class="wrap">
     <div class="tst-row">
       <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je contrôle tout au même endroit, je publie sur toutes mes plateformes d'un coup — et surtout, <b>je sais déjà si ma vidéo va être virale ou pas</b>. Je ne publie plus jamais à l'aveugle. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#ff6b9d,#c44569)">L<span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Léa M.</div><div class="tst-meta">Créatrice lifestyle · 214K abonnés</div></div></div></div>
-      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« J'écrivais mes scripts avec ChatGPT : ils ne faisaient même pas 300 vues. Là, j'ai des <b>scripts optimisés pour MON compte, dans MA niche</b> — et ça se voit direct sur mes stats. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#4d8fff,#1a6fff)">M<span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Maxime R.</div><div class="tst-meta">Créateur fitness · 96K abonnés</div></div></div></div>
+      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je filmais bien mais je ne savais pas monter. Maintenant j'envoie ma vidéo brute et <b>je récupère un montage avec sous-titres, coupes et musique</b> — on dirait que j'ai un monteur à plein temps. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#4d8fff,#1a6fff)">M<span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Maxime R.</div><div class="tst-meta">Créateur fitness · 96K abonnés</div></div></div></div>
       <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Le mode "au bon moment" a changé mes premières heures de vues. Je ne choisis même plus l'heure : <b>chaque réseau part quand son audience est là</b>. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#3ddc84,#1d976c)">I<span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Inès K.</div><div class="tst-meta">Food & recettes · 158K abonnés</div></div></div></div>
       <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je clippe pour 4 comptes. Avant : 2 heures par jour à tout republier partout. Maintenant : <b>3 clics et tout part ensemble</b>, au bon moment sur chaque plateforme. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#f5c043,#e67e22)">S<span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Sarah B.</div><div class="tst-meta">Clippeuse · 4 comptes gérés</div></div></div></div>
       <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Le petit <b>+ vert à côté de mes abonnés</b> chaque matin, c'est devenu ma motivation. On voit enfin sa croissance pour de vrai, jour après jour. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#9b7bff,#5f27cd)">R<span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Ryan T.</div><div class="tst-meta">Gaming · 87K abonnés</div></div></div></div>
-      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« La note virale m'a évité de publier des vidéos moyennes. Je corrige l'accroche, je repasse le scan, et <b>je ne sors que mes meilleures</b>. Mon feed n'a jamais été aussi propre. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#00d2d3,#01a3a4)">D<span class="pl" style="background:#000" data-pi="x"></span></span><div><div class="tst-name">David O.</div><div class="tst-meta">Tech & IA · 61K abonnés</div></div></div></div>
+      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Le montage IA a coupé mes temps morts et mis les sous-titres tout seul. Ce qui me prenait <b>2 heures sur CapCut se fait en quelques minutes</b> — et le résultat est plus propre que le mien. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#00d2d3,#01a3a4)">D<span class="pl" style="background:#000" data-pi="x"></span></span><div><div class="tst-name">David O.</div><div class="tst-meta">Tech & IA · 61K abonnés</div></div></div></div>
     </div>
   </div>
 </section>
@@ -578,6 +689,7 @@
           <li><span class="ck">✓</span>Scans & scripts<b class="dyn" data-monthly="8 / jour" data-annual="200 / mois">8 / jour</b></li>
           <li><span class="ck">✓</span>Idées de contenu<b class="dyn" data-monthly="4 / jour" data-annual="8 / jour">4 / jour</b></li>
           <li><span class="ck">✓</span>Publications<b class="dyn" data-monthly="1 / jour" data-annual="2 / jour">1 / jour</b></li>
+          <li><span class="ck">✓</span>Montages vidéo IA<b>5 / mois</b></li>
         </ul>
         <a class="price-btn" href="signup.html">Choisir Starter</a>
       </div>
@@ -592,6 +704,7 @@
           <li><span class="ck">✓</span>Scans & scripts<b class="dyn" data-monthly="15 / jour" data-annual="400 / mois">15 / jour</b></li>
           <li><span class="ck">✓</span>Idées de contenu<b class="dyn" data-monthly="8 / jour" data-annual="16 / jour">8 / jour</b></li>
           <li><span class="ck">✓</span>Publications<b class="dyn" data-monthly="4 / jour" data-annual="8 / jour">4 / jour</b></li>
+          <li><span class="ck">✓</span>Montages vidéo IA<b>20 / mois</b></li>
           <li><span class="ck">✓</span>Publication multi-plateformes<b>✓</b></li>
         </ul>
         <a class="price-btn filled" href="signup.html">Choisir Growth</a>
@@ -604,6 +717,7 @@
         <ul class="price-feats">
           <li><span class="ck">✓</span>Comptes connectés<b class="dyn" data-monthly="8" data-annual="12">8</b></li>
           <li><span class="ck">✓</span>Scans & scripts<b class="dyn" data-monthly="28 / jour" data-annual="700 / mois">28 / jour</b></li>
+          <li><span class="ck">✓</span>Montages vidéo IA<b>60 / mois</b></li>
           <li><span class="ck">✓</span>Analyse de concurrents<b class="dyn" data-monthly="15 / mois" data-annual="30 / mois">15 / mois</b></li>
           <li><span class="ck">✓</span>Coach perso<b class="dyn" data-monthly="5 / mois" data-annual="10 / mois">5 / mois</b></li>
           <li><span class="ck">✓</span>Communauté VIP<b>✓</b></li>
@@ -618,9 +732,12 @@
 <section class="faq" id="faq">
   <div class="sec-head reveal"><h2>Questions fréquentes</h2></div>
   <div class="faq-list">
+    <details class="faq-item reveal"><summary>Est-ce que Skillora monte vraiment mes vidéos ?</summary><p>Oui. Tu envoies ta vidéo brute, et l'IA la regarde en entier puis la monte comme un pro : coupe des temps morts, sous-titres animés synchronisés, musique adaptée, zooms, recadrage vertical intelligent, étalonnage. Elle revoit ensuite son propre montage et le corrige jusqu'à ce qu'il soit digne d'être publié. Tu récupères une vidéo prête à poster.</p></details>
+    <details class="faq-item reveal"><summary>Comment l'IA sait ce qui marche dans ma niche ?</summary><p>Elle étudie en continu les vidéos qui explosent (50 000 vues et plus) dans plus de 20 niches — football, beauté, motivation, gaming, humour, luxe… — et retient leur style de montage : rythme, sous-titres, couleurs, techniques. Tes vidéos sont ensuite montées dans le style qui cartonne en ce moment dans TA niche, et le système s'améliore chaque semaine.</p></details>
     <details class="faq-item reveal"><summary>Comment Skillora sait si ma vidéo peut être virale ?</summary><p>Skillora analyse ta vidéo avant publication (accroche, format, rétention estimée, légende) et la compare à ce qui marche déjà sur ton compte et dans ta niche. Tu obtiens une note sur 10 et des conseils concrets pour l'améliorer — avant de publier.</p></details>
     <details class="faq-item reveal"><summary>Sur quelles plateformes puis-je publier ?</summary><p>TikTok, YouTube, Instagram, Facebook, X et Threads — depuis une seule publication, avec la possibilité de sélectionner tous tes comptes en un clic.</p></details>
     <details class="faq-item reveal"><summary>C'est quoi, « publier au bon moment » ?</summary><p>Au lieu de publier partout à la même heure, Skillora publie sur chaque réseau au moment où son audience est la plus active. Tu cliques une fois, chaque plateforme reçoit ta vidéo à son meilleur créneau.</p></details>
+    <details class="faq-item reveal"><summary>Mes vidéos restent-elles à moi ?</summary><p>Oui, à 100 %. Tes vidéos t'appartiennent, avant comme après le montage. Skillora ne les publie jamais sans ton accord et ne les partage avec personne.</p></details>
     <details class="faq-item reveal"><summary>Puis-je changer ou annuler mon abonnement ?</summary><p>Oui, à tout moment, sans engagement, directement depuis ton espace Profil.</p></details>
   </div>
 </section>
@@ -630,8 +747,8 @@
   <div class="wrap">
     <div class="final-cta-card reveal">
       <h2>Ta prochaine vidéo mérite mieux que le hasard.</h2>
-      <p>Scanne-la, note-la, publie-la partout au bon moment.</p>
-      <a class="btn-primary-lg" href="signup.html">Commencer gratuitement →</a>
+      <p>Monte-la comme un pro, note-la, publie-la partout au bon moment.</p>
+      <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
     </div>
   </div>
 </section>
@@ -641,7 +758,7 @@
     <div class="foot-top">
       <div class="foot-brand">
         <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'"><b class="logo-word">Skill<span>ora</span></b></div>
-        <p>La note virale de ta vidéo avant de publier — puis toutes tes plateformes, au bon moment.</p>
+        <p>L'IA qui monte tes vidéos comme un pro, les note avant publication — puis les publie sur toutes tes plateformes, au bon moment.</p>
       </div>
       <div class="foot-cols">
         <div class="foot-col"><h4>Produit</h4><a href="#fonctionnalites">Fonctionnalités</a><a href="#pricing">Tarifs</a><a href="app.html">Connexion</a></div>
@@ -696,7 +813,7 @@
   /* ===== Texte qui s'écrit tout seul (héro) ===== */
   (function(){
     var el = document.getElementById('typedTxt'); if (!el) return;
-    var PHRASES = ['Analyse ce qui marche pour toi.', 'Des idées et des scripts calés sur ta niche.', 'Ta vidéo notée avant publication.', 'Publie partout au bon moment.', 'Suis tes objectifs en direct.'];
+    var PHRASES = ['Monte tes vidéos comme un pro.', 'Analyse ce qui marche pour toi.', 'Des idées et des scripts calés sur ta niche.', 'Ta vidéo notée avant publication.', 'Publie partout au bon moment.', 'Une IA qui apprend des vidéos virales.'];
     var pi = 0, ci = PHRASES[0].length, deleting = true;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // on laisse la 1re phrase statique
     setTimeout(function tick(){
@@ -802,6 +919,23 @@
         plats.forEach(function(p, k){ setTimeout(function(){ p.classList.add('sel'); }, 900 + k * 140); });
       }
       if (i === 0) plats.forEach(function(p){ p.classList.remove('sel'); });
+    }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // scène 1 statique
+    (function loop(){
+      setTimeout(function(){ show((cur + 1) % scenes.length); loop(); }, DUR[cur]);
+    })();
+  })();
+
+  /* ===== Phone 3 : boucle Améliorer ma vidéo (brute -> montage pro) ===== */
+  (function(){
+    var root = document.getElementById('p3s'); if (!root) return;
+    var scenes = root.querySelectorAll('.p2-scene');
+    var cur = 0;
+    // Durée de chaque scène (brute, montage, chef, succès)
+    var DUR = [2800, 3600, 3400, 3000];
+    function show(i){
+      cur = i;
+      scenes.forEach(function(s, k){ s.classList.toggle('on', k === i); });
     }
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // scène 1 statique
     (function loop(){

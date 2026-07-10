@@ -141,14 +141,36 @@ serve(async (req) => {
       const { data: base } = await admin.from("scout_accounts")
         .select("*").eq("user_id", acc.user_id).eq("platform", acc.platform).eq("handle", handle).maybeSingle();
 
-      // anti-crédits : on ne rescane pas trop souvent (sauf force / juste après connexion)
-      if (base && !force && base.last_scanned_at && Date.parse(base.last_scanned_at) > cutoff) continue;
-
+      // ÉCONOMIE MAXIMALE (0 crédit) : si une ANALYSE récente de ce compte existe déjà en base
+      // (payée quand l'utilisateur a analysé son compte sur le site), on RÉUTILISE ses vidéos
+      // récentes au lieu de re-scraper. Une dépense, deux usages.
       let vids: { views: number; create_time: number; url: string; media_url?: string }[] = [];
-      try { vids = await fetchVideos(acc.platform, handle, SV_KEY); }
-      catch (e) { console.error("scout fetch", acc.platform, handle, String(e)); continue; }
+      let fromAnalysis = false;
+      try {
+        const aPlat = acc.platform.startsWith("tiktok") ? "tiktok" : acc.platform;
+        const { data: ana } = await admin.from("analyses")
+          .select("summary, created_at").eq("user_id", acc.user_id).eq("platform", aPlat)
+          .ilike("username", handle).order("created_at", { ascending: false }).limit(1).maybeSingle();
+        const rv = ana?.summary?.recent_videos;
+        if (ana && Array.isArray(rv) && rv.length && Date.parse(ana.created_at) > cutoff) {
+          vids = rv.map((v: any) => ({
+            views: Number(v.views) || 0, create_time: Number(v.create_time) || 0,
+            url: String(v.url || ""), media_url: "",
+          })).filter((v: any) => v.url);
+          fromAnalysis = vids.length > 0;
+        }
+      } catch (_e) { /* pas d'analyse exploitable -> scrape classique */ }
+
+      if (!fromAnalysis) {
+        // anti-crédits : on ne rescane pas trop souvent (sauf force / juste après connexion)
+        if (base && !force && base.last_scanned_at && Date.parse(base.last_scanned_at) > cutoff) continue;
+        try { vids = await fetchVideos(acc.platform, handle, SV_KEY); }
+        catch (e) { console.error("scout fetch", acc.platform, handle, String(e)); continue; }
+      }
       scanned++;
-      const med = median(vids.map((v) => v.views));
+      // médiane : fiable seulement sur un vrai scrape (30 vidéos) ; sinon on garde celle connue
+      const med = fromAnalysis ? (base?.median_views || median(vids.map((v) => v.views)))
+                               : median(vids.map((v) => v.views));
 
       // 1ʳᵉ vue : on pose la ligne de base et on N'APPREND RIEN du passé.
       if (!base) {

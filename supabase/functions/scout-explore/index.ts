@@ -150,14 +150,16 @@ async function youtubeSearch(query: string, key: string, uploadDate = "this_mont
   const data = await svGet(`/youtube/search?query=${encodeURIComponent(query)}` +
                            (uploadDate ? `&uploadDate=${uploadDate}` : ""), key);
   const d = data.data ?? data;
-  const groups = [d.shorts, d.videos, d.results, d.items].filter(Array.isArray) as any[][];
+  let groups = [d.shorts, d.videos, d.results, d.items].filter(Array.isArray) as any[][];
+  if (!groups.length) groups = [firstArray(d)];   // dernier recours : 1er tableau trouvé
   const out: { views: number; create_time: number; url: string; media_url: string }[] = [];
   for (const g of groups) {
-    for (const v of g) {
+    for (const it of g) {
+      const v = it?.video ?? it?.short ?? it;      // résultat parfois emballé
       const id = v.video_id ?? v.videoId ?? v.id ?? "";
       if (!id || typeof id !== "string") continue;
       const views = parseViews(v.view_count ?? v.views ?? v.viewCount ?? v.view_count_text ??
-                               v.viewCountText ?? v.short_view_count ?? v.stats?.views);
+                               v.viewCountText ?? v.short_view_count ?? v.stats?.views) || deepFindViews(v);
       const isShort = String(v.type ?? v.url ?? "").includes("short") || g === d.shorts;
       out.push({
         views, create_time: 0,
@@ -178,8 +180,17 @@ serve(async (req) => {
       { auth: { persistSession: false } });
 
     const body = await req.json().catch(() => ({}));
-    const niches: Record<string, string> = (body.niches && typeof body.niches === "object" && Object.keys(body.niches).length)
+    let niches: Record<string, string> = (body.niches && typeof body.niches === "object" && Object.keys(body.niches).length)
       ? body.niches : DEFAULT_NICHES;
+    // ÉCONOMIE DE CRÉDITS : par défaut, ROTATION de 8 niches par passage (au fil des
+    // semaines, toutes les niches sont couvertes). body.all=true pour tout faire d'un coup.
+    if (!body.niches && !body.all) {
+      const keys = Object.keys(niches);
+      const week = Math.floor(Date.now() / 604800000);
+      const start = (week * 8) % keys.length;
+      const pick = Array.from({ length: 8 }, (_, i) => keys[(start + i) % keys.length]);
+      niches = Object.fromEntries(pick.map((k) => [k, niches[k]]));
+    }
     const maxPerNiche = Math.max(1, Math.min(10, Number(body.max_per_niche) || DEFAULT_MAX_PER_NICHE));
 
     let queued = 0, searched = 0;
@@ -199,19 +210,23 @@ serve(async (req) => {
           const data = await svGet(q, SV_KEY);
           searched++;
           const d = data.data ?? data;
-          const list = d.aweme_list ?? d.videos ?? {};
+          // la RECHERCHE renvoie la liste sous plusieurs noms selon les cas
+          const list = d.aweme_list ?? d.search_item_list ?? d.item_list ?? d.videos ?? d.data ?? {};
           ttArr = Array.isArray(list) ? list : Object.values(list);
+          if (!ttArr.length) ttArr = firstArray(d);   // dernier recours : 1er tableau trouvé
           if (ttArr.length) break;
         } catch (e) { console.error("explore tiktok", niche, dp || "no-date", String(e)); }
       }
-      for (const v of ttArr as any[]) {
+      for (const it of ttArr as any[]) {
+        // chaque résultat de recherche est souvent EMBALLÉ : {aweme_info: {...}} ou {item: {...}}
+        const v = it?.aweme_info ?? it?.item ?? it;
         const handle = v?.author?.unique_id ?? v?.author?.uniqueId ?? "";
         if (!v?.aweme_id || !handle) continue;
         found.push({
-          views: Number(v?.statistics?.play_count ?? 0),
+          views: Number(v?.statistics?.play_count ?? 0) || deepFindViews(v),
           create_time: Number(v?.create_time ?? 0),
           url: `https://www.tiktok.com/@${handle}/video/${v.aweme_id}`,
-          media_url: tiktokPlayUrl(v), platform: "tiktok",
+          media_url: tiktokPlayUrl(v) || deepFindMedia(v), platform: "tiktok",
         });
       }
 

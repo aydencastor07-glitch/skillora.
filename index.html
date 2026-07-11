@@ -183,6 +183,8 @@
   @media (max-width:900px) { .feat-star { grid-column:span 2; } }
   @media (max-width:560px) { .feat-star { grid-column:span 1; } }
   .feat .fi { flex:none; width:36px; height:36px; border-radius:11px; background:rgba(47,123,255,0.12); border:1px solid rgba(47,123,255,0.22); display:flex; align-items:center; justify-content:center; font-size:1.05rem; }
+  .feat .fi svg { width:18px; height:18px; fill:none; stroke:var(--blue-light); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .feats .sec-head { margin-bottom:26px; }
   .feat h3 { font-family:'Sora',sans-serif; font-weight:700; font-size:.88rem; }
   .feat p { color:var(--muted); font-size:.76rem; line-height:1.5; margin-top:2px; }
   @media (max-width:900px) { .feats-grid { grid-template-columns:1fr 1fr; } }
@@ -670,16 +672,20 @@
 
 <!-- ================= TOUT CE QUE FAIT SKILLORA ================= -->
 <section class="feats" id="fonctionnalites">
+  <div class="sec-head reveal">
+    <h2>Tout ce qu'il faut pour percer.<br>Au même endroit.</h2>
+    <p>Chaque fonctionnalité remplace un outil, un abonnement ou des heures de travail.</p>
+  </div>
   <div class="wrap">
     <div class="feats-grid">
-      <div class="feat feat-star reveal"><span class="fi">🎬</span><div><h3>Améliorer ma vidéo <span class="feat-tag">Notre force</span></h3><p>Envoie ta vidéo filmée au téléphone — récupère-la prête à publier : sous-titres animés, coupes, musique, format parfait. En quelques minutes.</p></div></div>
-      <div class="feat feat-star reveal reveal-d1"><span class="fi">🔥</span><div><h3>Le style qui fait des vues</h3><p>Tes vidéos suivent les codes des vidéos virales de <b>ta niche</b> — mis à jour chaque semaine, automatiquement.</p></div></div>
-      <div class="feat reveal reveal-d2"><span class="fi">📊</span><div><h3>Analyse tes comptes</h3><p>Tes vraies stats, ta niche détectée, tes vidéos gagnantes — sur chaque plateforme, au même endroit.</p></div></div>
-      <div class="feat reveal"><span class="fi">💡</span><div><h3>Idées chaque jour</h3><p>Des idées de contenu basées sur ce qui marche déjà pour ton compte.</p></div></div>
-      <div class="feat reveal reveal-d1"><span class="fi">✍️</span><div><h3>Scripts Studio</h3><p>Hook, structure, CTA — écrits pour ta niche, pas des textes génériques.</p></div></div>
-      <div class="feat reveal reveal-d2"><span class="fi">🎯</span><div><h3>Note virale</h3><p>Ta vidéo scannée et notée sur 10 avant de partir — accroche, format, rétention.</p></div></div>
-      <div class="feat reveal"><span class="fi">🚀</span><div><h3>Publie partout</h3><p>6 plateformes, tous tes comptes en un bouton, chacune au bon moment.</p></div></div>
-      <div class="feat reveal reveal-d1"><span class="fi">🏆</span><div><h3>Objectifs & alertes</h3><p>Jalons d'abonnés, félicitations, alertes quand une vidéo décolle.</p></div></div>
+      <div class="feat feat-star reveal"><span class="fi"><svg viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></svg></span><div><h3>Améliore tes vidéos <span class="feat-tag">Notre force</span></h3><p>Envoie n'importe quelle vidéo : temps morts coupés, sous-titres animés, musique, zooms, format parfait — dans le <b>style qui marche dans ta niche</b>. Une vidéo pro en quelques minutes.</p></div></div>
+      <div class="feat feat-star reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg></span><div><h3>Sache si ça va percer — avant de poster</h3><p>Ta vidéo est <b>notée sur 10</b> : accroche, rythme, image… Tu vois ce qui bloque, tu corriges, et tu ne publies que tes meilleures.</p></div></div>
+      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg></span><div><h3>Publie partout en 3 clics</h3><p>Une seule vidéo → TikTok, YouTube, Instagram, Facebook, X, Threads. Tous tes comptes d'un coup.</p></div></div>
+      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><div><h3>Au meilleur moment</h3><p>Chaque réseau reçoit ta vidéo quand <b>ton audience y est active</b>. Sans y penser.</p></div></div>
+      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span><div><h3>Analyse tous tes comptes</h3><p>Tes stats réelles, tes vidéos gagnantes, ta niche — les 6 plateformes au même endroit.</p></div></div>
+      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></span><div><h3>Idées & scripts chaque jour</h3><p>Des idées basées sur ce qui marche pour toi, et des <b>scripts prêts à tourner</b> : hook, structure, CTA.</p></div></div>
+      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/></svg></span><div><h3>Hashtags & légendes optimisés</h3><p>Fini la chasse aux hashtags : la <b>meilleure description</b> et les hashtags qui font découvrir ta vidéo, générés automatiquement.</p></div></div>
+      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></span><div><h3>Objectifs & alertes</h3><p>1 000 abonnés atteints, une vidéo qui décolle — <b>tu le sais en direct</b>.</p></div></div>
     </div>
   </div>
 </section>
@@ -728,17 +734,17 @@
 <!-- ================= TÉMOIGNAGES ================= -->
 <section class="tst" id="avis">
   <div class="sec-head reveal">
-    <h2>Ils ne publient plus jamais à l'aveugle.</h2>
-    <p>Des créateurs qui ont arrêté de deviner — et commencé à savoir.</p>
+    <h2>Eux, ils créent.<br>Skillora fait le reste.</h2>
+    <p>Des créateurs qui ont récupéré leur temps — et leurs vues.</p>
   </div>
   <div class="wrap">
     <div class="tst-row">
-      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je contrôle tout au même endroit, je publie sur toutes mes plateformes d'un coup — et surtout, <b>je sais déjà si ma vidéo va être virale ou pas</b>. Je ne publie plus jamais à l'aveugle. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#ff6b9d,#c44569)">L<span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Léa M.</div><div class="tst-meta">Créatrice lifestyle · 214K abonnés</div></div></div></div>
-      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je filmais bien mais je ne savais pas monter. Maintenant j'envoie ma vidéo telle quelle et <b>je la récupère avec sous-titres, coupes et musique</b> — mes vues ont suivi direct. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#4d8fff,#1a6fff)">M<span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Maxime R.</div><div class="tst-meta">Créateur fitness · 96K abonnés</div></div></div></div>
-      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Le mode "au bon moment" a changé mes premières heures de vues. Je ne choisis même plus l'heure : <b>chaque réseau part quand son audience est là</b>. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#3ddc84,#1d976c)">I<span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Inès K.</div><div class="tst-meta">Food & recettes · 158K abonnés</div></div></div></div>
-      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je clippe pour 4 comptes. Avant : 2 heures par jour à tout republier partout. Maintenant : <b>3 clics et tout part ensemble</b>, au bon moment sur chaque plateforme. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#f5c043,#e67e22)">S<span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Sarah B.</div><div class="tst-meta">Clippeuse · 4 comptes gérés</div></div></div></div>
-      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Le petit <b>+ vert à côté de mes abonnés</b> chaque matin, c'est devenu ma motivation. On voit enfin sa croissance pour de vrai, jour après jour. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#9b7bff,#5f27cd)">R<span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Ryan T.</div><div class="tst-meta">Gaming · 87K abonnés</div></div></div></div>
-      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Le montage IA a coupé mes temps morts et mis les sous-titres tout seul. Ce qui me prenait <b>2 heures sur CapCut se fait en quelques minutes</b> — et le résultat est plus propre que le mien. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#00d2d3,#01a3a4)">D<span class="pl" style="background:#000" data-pi="x"></span></span><div><div class="tst-name">David O.</div><div class="tst-meta">Tech & IA · 61K abonnés</div></div></div></div>
+      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Un clic et ma vidéo est passée de simple à professionnelle — sous-titres animés, coupes, musique. <b>Je n'ouvre même plus mon appli de montage.</b> »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#ff6b9d,#c44569)">L<span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Léa M.</div><div class="tst-meta">Créatrice lifestyle · 214K abonnés</div></div></div></div>
+      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je gère 4 comptes. Avant, je passais des heures à republier la même vidéo partout. Maintenant : <b>une vidéo, tous mes comptes, et ça part quand mon audience est là</b>. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#f5c043,#e67e22)">S<span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Sarah B.</div><div class="tst-meta">Clippeuse · 4 comptes gérés</div></div></div></div>
+      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Tous mes comptes, toutes mes stats, ce qui marche et ce qui flop — <b>au même endroit</b>. Je ne devine plus, je vois. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#9b7bff,#5f27cd)">R<span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Ryan T.</div><div class="tst-meta">Gaming · 87K abonnés</div></div></div></div>
+      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je perdais un temps fou à chercher des hashtags et à écrire mes descriptions. Là j'envoie ma vidéo et <b>j'ai la légende et les hashtags optimisés, direct</b>. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#3ddc84,#1d976c)">I<span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Inès K.</div><div class="tst-meta">Food & recettes · 158K abonnés</div></div></div></div>
+      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je donne juste le sujet, je reçois <b>un script avec le hook et le CTA, calé sur ma niche</b>. Mes vidéos accrochent beaucoup mieux depuis. »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#4d8fff,#1a6fff)">M<span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Maxime R.</div><div class="tst-meta">Créateur fitness · 96K abonnés</div></div></div></div>
+      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« La note sur 10 avant de publier m'a évité de sortir des vidéos moyennes. <b>Je corrige ce qui bloque et je ne publie que mes meilleures.</b> »</p><div class="tst-who"><span class="tst-av" style="background:linear-gradient(135deg,#00d2d3,#01a3a4)">D<span class="pl" style="background:#000" data-pi="x"></span></span><div><div class="tst-name">David O.</div><div class="tst-meta">Tech & IA · 61K abonnés</div></div></div></div>
     </div>
   </div>
 </section>
@@ -889,7 +895,7 @@
   /* ===== Texte qui s'écrit tout seul (héro) ===== */
   (function(){
     var el = document.getElementById('typedTxt'); if (!el) return;
-    var PHRASES = ['les publie partout en 3 clics.', 'les note avant de publier.', 'choisit le meilleur moment.', 'analyse tous tes comptes.', 'connaît le style qui perce.'];
+    var PHRASES = ['les publie sur tous tes réseaux en 3 clics.', 'te dit si elles vont percer — et pourquoi.', 'choisit le meilleur moment pour publier.', 'analyse tous tes comptes.', "t'écrit des scripts prêts à tourner."];
     var pi = 0, ci = PHRASES[0].length, deleting = true;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // on laisse la 1re phrase statique
     setTimeout(function tick(){

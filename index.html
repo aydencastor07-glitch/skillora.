@@ -345,7 +345,16 @@
   .p3-arrow { color:var(--muted); font-size:1.1rem; }
   .p3-new { font-family:'Sora',sans-serif; font-weight:800; font-size:2rem; color:#3ddc84; transform:scale(.6); opacity:0; transition:transform .5s cubic-bezier(.2,1.4,.4,1) .5s, opacity .4s ease .5s; }
   .p2-scene.on .p3-new { transform:scale(1); opacity:1; }
-  @media (max-width:900px) { .amv-grid { grid-template-columns:1fr; gap:40px; } .amv .pub-txt, .amv .amv-txt { text-align:left; } }
+  .amv .pub-pts { gap:12px; margin-top:24px; }
+  .amv .pub-pt { background:var(--surface); border:1px solid var(--border); border-radius:15px; padding:14px 15px; text-align:left; transition:border-color .25s; }
+  .amv .pub-pt:hover { border-color:rgba(94,155,255,0.35); }
+  .amv .pub-pt .n { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,#4d8fff,#7c3aed); font-size:.78rem; box-shadow:none; }
+  .amv h2 { letter-spacing:-0.03em; }
+  @media (max-width:900px) {
+    .amv-grid { grid-template-columns:1fr; gap:40px; }
+    .amv .amv-txt { text-align:center; }
+    .amv .amv-txt h2 { text-align:center; }
+  }
   .sec-kicker { display:inline-flex; font-weight:700; font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--green); background:var(--green-glow); border:1px solid rgba(61,220,132,0.28); padding:6px 13px; border-radius:999px; margin-bottom:16px; }
   .pub h2 { font-size:clamp(1.65rem,3.6vw,2.35rem); }
   .pub-pts { margin-top:26px; display:flex; flex-direction:column; gap:16px; }
@@ -712,9 +721,9 @@
       <div class="sec-kicker blue reveal">📊 Ton QG</div>
       <h2 class="reveal reveal-d1">Tous tes réseaux.<br>Un seul tableau de bord.</h2>
       <div class="pub-pts">
-        <div class="pub-pt reveal reveal-d1"><span class="n">1</span><div><h3>Vois ce qui marche vraiment</h3><p>Tes vraies stats, tes <b>vidéos gagnantes</b>, ta niche — sur chaque plateforme, sans ouvrir 6 applis.</p></div></div>
-        <div class="pub-pt reveal reveal-d2"><span class="n">2</span><div><h3>Des idées et des scripts chaque jour</h3><p>Calés sur <b>ta niche</b> et sur ce qui a déjà marché pour toi — pas des textes génériques.</p></div></div>
-        <div class="pub-pt reveal reveal-d3"><span class="n">3</span><div><h3>Suis ta croissance en direct</h3><p>Objectifs d'abonnés, félicitations, <b>alertes quand une vidéo décolle</b>.</p></div></div>
+        <div class="pub-pt reveal reveal-d1"><span class="n">1</span><div><h3>Vois ce qui marche vraiment</h3><p>Tes stats et tes <b>vidéos gagnantes</b>, réseau par réseau — sans ouvrir six applis.</p></div></div>
+        <div class="pub-pt reveal reveal-d2"><span class="n">2</span><div><h3>Reçois des idées et des scripts chaque jour</h3><p>Écrits pour <b>ta niche</b>, à partir de ce qui a déjà marché pour toi.</p></div></div>
+        <div class="pub-pt reveal reveal-d3"><span class="n">3</span><div><h3>Suis ta croissance en direct</h3><p>Tes objectifs avancent, et tu reçois une <b>alerte dès qu'une vidéo décolle</b>.</p></div></div>
       </div>
     </div>
 

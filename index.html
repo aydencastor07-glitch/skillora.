@@ -74,7 +74,7 @@
   .hero { padding:58px 0 30px; }
   .hero-grid { display:grid; grid-template-columns:1.06fr .94fr; gap:44px; align-items:center; }
   .kicker { display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--blue-light); background:rgba(47,123,255,0.1); border:1px solid rgba(47,123,255,0.24); padding:6px 13px; border-radius:999px; margin-bottom:18px; }
-  .hero h1 { font-size:clamp(2.15rem,5.4vw,3.4rem); }
+  .hero h1 { font-size:clamp(1.8rem,4.6vw,2.75rem); }
   .hero h1 .hl { color:var(--blue-light); }
   .typed-line { margin-top:16px; font-family:'Sora',sans-serif; font-weight:700; font-size:clamp(1.02rem,2.6vw,1.3rem); color:var(--green); min-height:1.5em; letter-spacing:-0.01em; }
   .typed-caret { display:inline-block; width:2px; height:1.05em; background:var(--green); margin-left:2px; vertical-align:-0.15em; animation:caretBlink 1s step-end infinite; }
@@ -192,10 +192,10 @@
   .pub { padding:84px 0 30px; }
   .pub-grid { display:grid; grid-template-columns:.94fr 1.06fr; gap:48px; align-items:center; }
   /* ===== Héros : segment rotatif (la phrase reste, seul un morceau change) ===== */
-  .hero h1 { min-height:2.4em; }
+  .hero h1 { min-height:3.4em; }
   .hero h1 .rotwrap { color:var(--blue-light); }
   .hero h1 .typed-caret { display:inline-block; width:4px; height:.8em; background:var(--blue-light); margin-left:5px; vertical-align:-.06em; animation:caretBlink 1s steps(1) infinite; border-radius:2px; }
-  @media (max-width:560px) { .hero h1 { min-height:2.45em; } }
+  @media (max-width:560px) { .hero h1 { min-height:4.6em; } }
   /* variantes rouges du panneau de note (le style p2 que l'on aime) */
   .p2-scene .scorebad .p2-score { color:#ff5c5c; text-shadow:0 0 30px rgba(255,92,92,0.45); }
   .p2-scene .scorebad .p2-score-l { color:#ff9d9d; }
@@ -529,9 +529,9 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <div class="kicker reveal">Améliore · Note · Publie partout</div>
-      <h1 class="reveal reveal-d1">Ta vidéo, <span class="rotwrap"><span id="typedTxt">prête à exploser.</span><span class="typed-caret"></span></span></h1>
-      <p class="hero-sub reveal reveal-d2">Tu filmes, tu crées, tu postes… et rien ne décolle ? Envoie ta vidéo à Skillora : elle ressort <b>au niveau des pros</b> — et part sur <b>tous tes comptes, au meilleur moment</b>. En 3 clics.</p>
+      <div class="kicker reveal">La plateforme tout-en-un des créateurs</div>
+      <h1 class="reveal reveal-d1">L'IA qui améliore tes vidéos, <span class="rotwrap"><span id="typedTxt">les publie partout en 3 clics.</span><span class="typed-caret"></span></span></h1>
+      <p class="hero-sub reveal reveal-d2">Clip, facecam, edit, repost — <b>n'importe quelle vidéo</b>. Skillora la rend <b>meilleure</b>, te dit <b>si elle va percer avant de la poster</b>, et la publie sur <b>tous tes comptes au meilleur moment</b>. Pendant que toi, tu crées.</p>
       <div class="hero-cta reveal reveal-d3">
         <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
       </div>
@@ -889,7 +889,7 @@
   /* ===== Texte qui s'écrit tout seul (héro) ===== */
   (function(){
     var el = document.getElementById('typedTxt'); if (!el) return;
-    var PHRASES = ['prête à exploser.', "améliorée par l'IA.", 'notée sur 10.', 'publiée partout.'];
+    var PHRASES = ['les publie partout en 3 clics.', 'les note avant de publier.', 'choisit le meilleur moment.', 'analyse tous tes comptes.', 'connaît le style qui perce.'];
     var pi = 0, ci = PHRASES[0].length, deleting = true;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // on laisse la 1re phrase statique
     setTimeout(function tick(){

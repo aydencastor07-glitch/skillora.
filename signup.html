@@ -498,6 +498,15 @@
   // Parrainage : mémorise le code du parrain (?ref=) pour l'enregistrer une fois le compte confirmé (dans app.html)
   try { var _rp = new URLSearchParams(location.search).get('ref'); if (_rp) localStorage.setItem('skillora_ref', _rp); } catch(e){}
 
+  // Adresse de retour après connexion : TOUJOURS le domaine officiel en production.
+  // (Si le site est ouvert via une autre adresse — www., préversion Vercel… — Google
+  // refuserait ou renverrait au mauvais endroit. En local on garde l'adresse locale.)
+  function appReturnUrl() {
+    var h = String(location.hostname || '');
+    if (h === 'skillora.me' || h.slice(-12) === '.skillora.me') return 'https://skillora.me/app.html';
+    return window.location.origin + '/app.html';
+  }
+
   let currentStep = 1;
   const totalSteps = 2;
   let pendingEmail = null;
@@ -573,7 +582,7 @@
         password: pass,
         options: {
           data: { full_name: name },
-          emailRedirectTo: window.location.origin + '/app.html'
+          emailRedirectTo: appReturnUrl()
         }
       });
 
@@ -644,7 +653,7 @@
       await supabaseClient.auth.resend({
         type: 'signup',
         email: pendingEmail,
-        options: { emailRedirectTo: window.location.origin + '/app.html' }
+        options: { emailRedirectTo: appReturnUrl() }
       });
       btn.textContent = '✓ Email renvoyé';
       setTimeout(function(){ btn.textContent = original; btn.disabled = false; }, 4000);
@@ -659,7 +668,7 @@
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/app.html'
+          redirectTo: appReturnUrl()
         }
       });
       if (error) alert('Erreur Google : ' + error.message);

@@ -1813,6 +1813,26 @@
 </head>
 <body>
 
+<script>
+/* Garde d'accès : le dashboard ne doit JAMAIS s'afficher sans connexion.
+   Vérification synchrone (avant tout rendu) : soit un jeton de session Supabase
+   existe déjà sur cet appareil, soit on arrive d'une connexion Google/email
+   (jeton dans l'URL). Sinon → page de connexion. Fonctionne même si le CDN
+   Supabase ne répond pas, contrairement à la vérification asynchrone plus bas. */
+(function () {
+  try {
+    var h = String(window.location.hash || '');
+    if (h.indexOf('access_token') >= 0 || h.indexOf('refresh_token') >= 0 || h.indexOf('type=') >= 0) return;
+    var hasToken = false;
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('sb-') === 0 && k.indexOf('-auth-token') > 0 && localStorage.getItem(k)) { hasToken = true; break; }
+    }
+    if (!hasToken) { window.location.replace('signup.html'); }
+  } catch (e) { /* stockage inaccessible : on laisse la vérification asynchrone décider */ }
+})();
+</script>
+
 <canvas id="starfield"></canvas>
 <div class="bg-glow g1"></div>
 <div class="bg-glow g2"></div>
@@ -2601,6 +2621,7 @@
   (function(){
     try {
       var v = localStorage.getItem('skillora_view');
+      if (v === 'library') v = null; // ancien système ebook retiré
       if (v && v !== 'home' && document.getElementById('view-' + v)) {
         var vs = document.querySelectorAll('.view');
         for (var i=0;i<vs.length;i++) vs[i].classList.remove('active');
@@ -3063,17 +3084,17 @@
   }
 
   async function checkOnboarding(user) {
+    // L'ancien parcours « choisis tes ebooks » est SUPPRIMÉ : le site a changé de système.
+    // On charge juste le profil, on marque onboarding_done pour les anciens comptes, et on entre.
     try {
       var { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
       window._userProfile = prof || {};
-      if (!prof || !prof.onboarding_done) { showOnboarding(); return; }
-      // marquer les suggestions en bibliothèque
-      (prof.recommended_books || []).forEach(function(id){
-        var el = document.querySelector('.book[data-book="' + id + '"]');
-        if (el) el.classList.add('suggested');
-      });
+      if (prof && !prof.onboarding_done) {
+        try { await sb.from('profiles').update({ onboarding_done: true }).eq('id', user.id); } catch(e2) {}
+        window._userProfile.onboarding_done = true;
+      }
       loadHomeDashboard();
-    } catch(e) { console.log('ob check error', e); }
+    } catch(e) { console.log('profile load error', e); }
   }
 
   async function signOut() { try { localStorage.removeItem('sk_home_html'); localStorage.removeItem('sk_growth'); localStorage.removeItem('sk_pubposts'); } catch(e){} try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
@@ -5254,6 +5275,7 @@
   function restoreLastView() {
     try {
       var v = localStorage.getItem('skillora_view');
+      if (v === 'library') return; // ancien système ebook retiré
       if (v && v !== 'home' && document.getElementById('view-' + v)) {
         switchView(v, null);
       }

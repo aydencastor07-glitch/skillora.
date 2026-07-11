@@ -345,10 +345,17 @@
   .p3-arrow { color:var(--muted); font-size:1.1rem; }
   .p3-new { font-family:'Sora',sans-serif; font-weight:800; font-size:2rem; color:#3ddc84; transform:scale(.6); opacity:0; transition:transform .5s cubic-bezier(.2,1.4,.4,1) .5s, opacity .4s ease .5s; }
   .p2-scene.on .p3-new { transform:scale(1); opacity:1; }
-  .amv .pub-pts { gap:12px; margin-top:24px; }
-  .amv .pub-pt { background:var(--surface); border:1px solid var(--border); border-radius:15px; padding:14px 15px; text-align:left; transition:border-color .25s; }
-  .amv .pub-pt:hover { border-color:rgba(94,155,255,0.35); }
-  .amv .pub-pt .n { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,#4d8fff,#7c3aed); font-size:.78rem; box-shadow:none; }
+  .amv .pub-pts { gap:26px; margin-top:30px; }
+  /* pas de bloc : texte libre, décalé en escalier (1 -> 2 -> 3) */
+  .amv .pub-pt { background:none; border:none; padding:0; text-align:left; }
+  .amv .pub-pt:nth-child(2) { margin-left:clamp(18px,6vw,64px); }
+  .amv .pub-pt:nth-child(3) { margin-left:clamp(36px,12vw,128px); }
+  .amv .pub-pt .n { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,#4d8fff,#7c3aed); font-size:.78rem; box-shadow:0 8px 20px -8px rgba(93,63,211,0.8); }
+  /* grandit quand on arrive dessus, rétrécit quand on le quitte — un par un */
+  .gz-item { transform:scale(.88); opacity:.35; transform-origin:left center; transition:transform .6s cubic-bezier(.2,.9,.25,1), opacity .6s ease; }
+  .gz-item.gz { transform:scale(1); opacity:1; }
+  .gz-item:nth-child(2).gz { transition-delay:.12s; }
+  .gz-item:nth-child(3).gz { transition-delay:.24s; }
   .amv h2 { letter-spacing:-0.03em; }
   @media (max-width:900px) {
     .amv-grid { grid-template-columns:1fr; gap:40px; }
@@ -721,9 +728,9 @@
       <div class="sec-kicker blue reveal">📊 Ton QG</div>
       <h2 class="reveal reveal-d1">Tous tes réseaux.<br>Un seul tableau de bord.</h2>
       <div class="pub-pts">
-        <div class="pub-pt reveal reveal-d1"><span class="n">1</span><div><h3>Vois ce qui marche vraiment</h3><p>Tes stats et tes <b>vidéos gagnantes</b>, réseau par réseau — sans ouvrir six applis.</p></div></div>
-        <div class="pub-pt reveal reveal-d2"><span class="n">2</span><div><h3>Reçois des idées et des scripts chaque jour</h3><p>Écrits pour <b>ta niche</b>, à partir de ce qui a déjà marché pour toi.</p></div></div>
-        <div class="pub-pt reveal reveal-d3"><span class="n">3</span><div><h3>Suis ta croissance en direct</h3><p>Tes objectifs avancent, et tu reçois une <b>alerte dès qu'une vidéo décolle</b>.</p></div></div>
+        <div class="pub-pt gz-item"><span class="n">1</span><div><h3>Vois ce qui marche vraiment</h3><p>Tes stats et tes <b>vidéos gagnantes</b>, réseau par réseau — sans ouvrir six applis.</p></div></div>
+        <div class="pub-pt gz-item"><span class="n">2</span><div><h3>Reçois des idées et des scripts chaque jour</h3><p>Écrits pour <b>ta niche</b>, à partir de ce qui a déjà marché pour toi.</p></div></div>
+        <div class="pub-pt gz-item"><span class="n">3</span><div><h3>Suis ta croissance en direct</h3><p>Tes objectifs avancent, et tu reçois une <b>alerte dès qu'une vidéo décolle</b>.</p></div></div>
       </div>
     </div>
 
@@ -1077,6 +1084,16 @@
     (function loop(){
       setTimeout(function(){ show((cur + 1) % scenes.length); loop(); }, DUR[cur]);
     })();
+  })();
+
+  /* ===== Grandit à l'arrivée, rétrécit au départ (sections sans bloc) ===== */
+  (function(){
+    var els = document.querySelectorAll('.gz-item');
+    if (!els.length || !('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('gz'); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ en.target.classList.toggle('gz', en.isIntersecting); });
+    }, { threshold: 0.35 });
+    els.forEach(function(e){ io.observe(e); });
   })();
 
   /* ===== Reveal au scroll (avec filets de sécurité) ===== */

@@ -75,6 +75,11 @@ echo "   • Clé SociaVault (agent Éclaireur : liens TikTok frais pour l'étud
 echo "     (sociavault.com > API Keys — laisse vide et Entrée sinon)"
 printf "   Colle-la ici : "
 read -r SOCIAV
+echo ""
+echo "   • Clé OpenRouter (Gemini PAYANT sans limites, ~centimes/vidéo) — RECOMMANDÉE"
+echo "     (openrouter.ai > Keys — laisse vide et Entrée sinon)"
+printf "   Colle-la ici : "
+read -r OPENR
 
 if [ -z "${SRK:-}" ] || [ -z "${GROQ:-}" ]; then
   echo ""
@@ -98,6 +103,7 @@ Environment=PEXELS_API_KEY=${PEXELS}
 Environment=ELEVENLABS_API_KEY=${ELEVEN}
 Environment=GEMINI_API_KEY=${GEMINI}
 Environment=SOCIAVAULT_API_KEY=${SOCIAV}
+Environment=OPENROUTER_API_KEY=${OPENR}
 ExecStart=/usr/bin/python3 -u /opt/skillora-worker/worker.py
 Restart=always
 RestartSec=5

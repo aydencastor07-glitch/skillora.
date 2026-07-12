@@ -44,6 +44,9 @@ GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "")
 ELEVEN_KEY = os.environ.get("ELEVENLABS_API_KEY", "")  # Scribe : sous-titres au mot très précis
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "") or os.environ.get("GOOGLE_API_KEY", "")  # yeux : analyse vidéo
+# Canal PAYANT : les mêmes yeux Gemini via OpenRouter — AUCUNE limite du gratuit.
+# Priorité : OpenRouter d'abord, Gemini gratuit en secours si OpenRouter échoue.
+OPENROUTER_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
 MUSIC_BUCKET = os.environ.get("MUSIC_BUCKET", "music-library")
 STYLE_BUCKET = os.environ.get("STYLE_BUCKET", "style-library")  # styles appris des vidéos virales
@@ -2012,6 +2015,81 @@ def gemini_generate(prompt, file_uri=None, mime="video/mp4", json_out=True):
     return None
 
 
+OR_MODELS = ("google/gemini-2.5-flash", "google/gemini-2.0-flash-001")
+
+
+def _video_proxy(path, max_mb=18):
+    """Si la vidéo est trop lourde pour un envoi base64, fabrique une copie
+    allégée (640 px de haut) — largement suffisant pour l'ANALYSE. Renvoie
+    (chemin, est_temporaire)."""
+    try:
+        if os.path.getsize(path) <= max_mb * 1024 * 1024:
+            return path, False
+        small = tempfile.mktemp(suffix=".mp4")
+        run(["ffmpeg", "-y", "-i", path, "-vf", "scale=-2:640",
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "30",
+             "-c:a", "aac", "-b:a", "64k", small], timeout=600)
+        if os.path.exists(small) and os.path.getsize(small) > 10000:
+            return small, True
+    except Exception as e:
+        print("_video_proxy:", e, file=sys.stderr)
+    return path, False
+
+
+def or_generate(prompt, video_path=None, video_url=None, json_out=True):
+    """Canal PAYANT (OpenRouter) : mêmes yeux Gemini, sans limites du gratuit.
+    Vidéo locale -> data-URL base64 (compressée si lourde) ; lien YouTube ->
+    passé tel quel. Renvoie le JSON décodé (ou le texte), sinon None."""
+    if not OPENROUTER_KEY:
+        return None
+    content = [{"type": "text", "text": prompt}]
+    proxy, is_tmp = None, False
+    try:
+        if video_path:
+            proxy, is_tmp = _video_proxy(video_path)
+            with open(proxy, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode()
+            content.append({"type": "video_url",
+                            "video_url": {"url": "data:video/mp4;base64," + b64}})
+        elif video_url:
+            content.append({"type": "video_url", "video_url": {"url": video_url}})
+        body = {"model": OR_MODELS[0],
+                "models": list(OR_MODELS),  # repli automatique côté OpenRouter
+                "messages": [{"role": "user", "content": content}],
+                "temperature": 0.2}
+        if json_out:
+            body["response_format"] = {"type": "json_object"}
+        st, raw = http("POST", "https://openrouter.ai/api/v1/chat/completions",
+                       {"Authorization": "Bearer " + OPENROUTER_KEY,
+                        "X-Title": "Skillora"}, body, timeout=300)
+        out = json.loads(raw)
+        txt = (((out.get("choices") or [{}])[0]).get("message") or {}).get("content") or ""
+        if not txt:
+            print("or_generate: réponse vide:", str(out)[:250], file=sys.stderr)
+            return None
+        if json_out:
+            t = txt.strip()
+            if t.startswith("```"):
+                t = re.sub(r"^```[a-z]*\s*|\s*```$", "", t)
+            return json.loads(t)
+        return txt
+    except urllib.error.HTTPError as e:
+        try:
+            print("or_generate HTTP", e.code, ":", e.read().decode()[:250], file=sys.stderr)
+        except Exception:
+            print("or_generate HTTP", e.code, file=sys.stderr)
+        return None
+    except Exception as e:
+        print("or_generate:", e, file=sys.stderr)
+        return None
+    finally:
+        if is_tmp and proxy and os.path.exists(proxy):
+            try:
+                os.remove(proxy)
+            except Exception:
+                pass
+
+
 def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
     """LES YEUX : Gemini regarde la vidéo ENTIÈRE et renvoie une compréhension
     complète + les temps morts précis. Format aligné sur notre 'vision' + extras.
@@ -2019,10 +2097,7 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
     `style_library` = l'ÉCOLE : les styles viraux appris par niche sur internet
     (avec leurs techniques signature). Gemini s'en inspire pour diriger le montage.
     None si pas de clé / échec (on retombe sur l'analyse Groq par images)."""
-    if not GEMINI_KEY:
-        return None
-    uri = gemini_upload(path)
-    if not uri:
+    if not (GEMINI_KEY or OPENROUTER_KEY):
         return None
     mem = ""
     if user_styles:
@@ -2095,7 +2170,12 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"transition\": \"fade|whip|zoom_blur|white_flash|swipe|scale_reveal|glitch|blur_wipe|shake|color_flash|dip_black\"  // la famille de transition qui colle au ton : whip/zoom_blur=énergique ; fade/scale_reveal=posé ; white_flash/color_flash=punchy ; glitch=tech/gaming ; shake=impact/hype ; blur_wipe=doux moderne ; dip_black=dramatique\n"
         "}"
     )
-    res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
+    # PRIORITÉ au canal payant (OpenRouter) ; le gratuit ne sert que de secours.
+    res = or_generate(prompt, video_path=path, json_out=True) if OPENROUTER_KEY else None
+    if not isinstance(res, dict) and GEMINI_KEY:
+        uri = gemini_upload(path)
+        if uri:
+            res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
     if not isinstance(res, dict):
         return None
     res["engine"] = "gemini"
@@ -2131,17 +2211,24 @@ def gemini_study_url(url):
     low = url.lower()
     try:
         if "youtu" in low:
-            return gemini_generate(prompt, file_uri=url, mime=None, json_out=True)
+            res = or_generate(prompt, video_url=url, json_out=True) if OPENROUTER_KEY else None
+            if not isinstance(res, dict) and GEMINI_KEY:
+                res = gemini_generate(prompt, file_uri=url, mime=None, json_out=True)
+            return res if isinstance(res, dict) else None
         tmp = tempfile.mktemp(suffix=".mp4")
         download(url, tmp)
-        uri = gemini_upload(tmp)
         try:
-            os.remove(tmp)
-        except Exception:
-            pass
-        if not uri:
-            return None
-        return gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
+            res = or_generate(prompt, video_path=tmp, json_out=True) if OPENROUTER_KEY else None
+            if not isinstance(res, dict) and GEMINI_KEY:
+                uri = gemini_upload(tmp)
+                if uri:
+                    res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
+            return res if isinstance(res, dict) else None
+        finally:
+            try:
+                os.remove(tmp)
+            except Exception:
+                pass
     except Exception as e:
         print("gemini_study_url:", e, file=sys.stderr)
         return None
@@ -2153,10 +2240,7 @@ def gemini_qc(path, duration, had_subs=False):
     couvrent le visage ou mal synchro, montage trop chargé, son déséquilibré.
     Renvoie {ok, score, remaining_dead_time[], subs_cover_face, too_busy, note}.
     None si pas de clé / échec."""
-    if not GEMINI_KEY:
-        return None
-    uri = gemini_upload(path)
-    if not uri:
+    if not (GEMINI_KEY or OPENROUTER_KEY):
         return None
     prompt = (
         "Tu es un directeur de post-production TRÈS exigeant. Voici une vidéo courte "
@@ -2169,7 +2253,11 @@ def gemini_qc(path, duration, had_subs=False):
         + " \"too_busy\": bool,  // le montage est-il TROP chargé (trop d'effets/zooms/sons) ?\n"
         " \"note\": \"le problème principal en 1 phrase, ou 'RAS'\"}"
     )
-    res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
+    res = or_generate(prompt, video_path=path, json_out=True) if OPENROUTER_KEY else None
+    if not isinstance(res, dict) and GEMINI_KEY:
+        uri = gemini_upload(path)
+        if uri:
+            res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
     return res if isinstance(res, dict) else None
 
 
@@ -2992,7 +3080,7 @@ def process(job):
         # renvoie sa compréhension complète + les temps morts PRÉCIS. Sur la vidéo
         # ORIGINALE (les timestamps seront reprojetés après la coupe).
         gem = None
-        if GEMINI_KEY:
+        if GEMINI_KEY or OPENROUTER_KEY:
             steps.start("see", "Gemini regarde toute ta vidéo…")
             # MÉMOIRE : le style des vidéos VIRALES de ce créateur (s'il en a)
             user_styles = load_user_styles(job.get("user_id"))
@@ -3778,10 +3866,10 @@ CREATOR_DNA = ("video_type", "sub_style_id", "highlight", "edit_intensity",
 GEMINI_REST_S = 6 * 3600
 _gemini_rest_until = 0.0
 
-# BUDGET QUOTIDIEN de l'école : au maximum N études par jour, pour que le quota
-# gratuit de Gemini serve D'ABORD aux montages des clients. L'école apprend vite
-# quand même : 8/jour = ~240 vidéos gagnantes étudiées par mois.
-STUDY_BUDGET_PER_DAY = 8
+# BUDGET QUOTIDIEN de l'école. Avec OpenRouter (payant, ~1 centime/étude) :
+# 80/jour, soit moins de 1 $/jour au pire. Sans : 8/jour pour préserver le
+# quota GRATUIT de Gemini pour les montages des clients.
+STUDY_BUDGET_PER_DAY = 80 if OPENROUTER_KEY else 8
 
 
 def _study_budget_left():
@@ -4074,7 +4162,8 @@ def scout_tick():
 def main():
     print("Skillora video-worker démarré.",
           "Groq:", "oui" if GROQ_KEY else "NON (plan IA désactivé)",
-          "· Yeux:", "Gemini (vidéo entière)" if GEMINI_KEY else "Groq (images)",
+          "· Yeux:", ("Gemini via OpenRouter (PAYANT, sans limite) + secours gratuit" if OPENROUTER_KEY
+                      else ("Gemini gratuit (vidéo entière)" if GEMINI_KEY else "Groq (images)")),
           "· Transcription:", "ElevenLabs Scribe" if ELEVEN_KEY else "Whisper (Groq)",
           "· Pexels:", "oui" if PEXELS_KEY else "non")
     while True:
@@ -4085,7 +4174,7 @@ def main():
             continue
         # Au repos : 1) réveiller les agents si c'est l'heure ; 2) faire étudier UNE gagnante par Gemini.
         scout_tick()
-        school_open = (GEMINI_KEY and time.time() >= _gemini_rest_until
+        school_open = ((GEMINI_KEY or OPENROUTER_KEY) and time.time() >= _gemini_rest_until
                        and _study_budget_left() > 0)
         win = claim_winner() if school_open else None
         if win:

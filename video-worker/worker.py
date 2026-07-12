@@ -4069,11 +4069,18 @@ def study_winner(row):
             candidates = [u for u in (row.get("media_url"), url) if u]
             tmp = tempfile.mktemp(suffix=".mp4")
             try:
+                def _is_video(p):
+                    # les liens expirés renvoient des pages d'erreur parfois > 50 Ko :
+                    # seul ffprobe fait foi (vraie vidéo lisible, durée > 0,5 s)
+                    try:
+                        return os.path.getsize(p) > 50000 and ffprobe_facts(p)["duration"] > 0.5
+                    except Exception:
+                        return False
                 got = False
                 for cand in candidates:
                     try:
                         download(cand, tmp)
-                        if os.path.getsize(tmp) > 50000:  # une vraie vidéo, pas une page d'erreur
+                        if _is_video(tmp):
                             got = True
                             break
                     except Exception:
@@ -4082,7 +4089,7 @@ def study_winner(row):
                     fresh = sv_fresh_media(url)
                     if fresh:
                         download(fresh, tmp)
-                        got = os.path.getsize(tmp) > 50000
+                        got = _is_video(tmp)
                 if not got:
                     raise RuntimeError("téléchargement impossible (lien expiré ?)")
                 dur = ffprobe_facts(tmp)["duration"]

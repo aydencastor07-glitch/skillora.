@@ -2012,10 +2012,16 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
             pass
     prompt = (
         mem +
-        "Tu es un monteur vidéo professionnel EXIGENT et SOBRE. Regarde cette vidéo "
-        f"courte ({duration:.0f}s) en ENTIER (image ET son). Ton rôle : dire ce qu'il "
-        "faut VRAIMENT améliorer, sans surcharger. Beaucoup de vidéos ont juste besoin "
-        "d'être RESSERRÉES (couper les temps morts) — pas d'effets partout.\n"
+        "Tu es un MONTEUR PROFESSIONNEL EXPERT, niveau CapCut Pro. Tu maîtrises TOUTE la "
+        "table de montage et tu peux tout utiliser : coupes, recadrage qui SUIT le sujet, "
+        "21 styles de sous-titres animés, mots forts colorés, émojis/objets/logos en "
+        "superposition, texte 3D derrière la personne, split-screen, transitions, "
+        "étalonnage des couleurs, bruitages, musique, accroche. "
+        f"Regarde cette vidéo courte ({duration:.0f}s) en ENTIER (image ET son), puis "
+        "DIRIGE le montage comme un expert : corrige, ajuste, superpose, améliore — on "
+        "exécute fidèlement chacune de tes décisions. Un expert DOSE : utilise chaque "
+        "outil quand il SERT le contenu, jamais pour décorer. Beaucoup de vidéos ont "
+        "surtout besoin d'être RESSERRÉES (couper tout ce qui n'apporte rien).\n"
         "Réponds UNIQUEMENT ce JSON:\n"
         "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|dance|product|story|other\",\n"
         " \"niche\": \"le SUJET en 1 mot simple minuscule (ex: football, basketball, gym, edit, food, comedy, gaming, cars, fashion, motivation, lifestyle, horror, dance, luxe...)\",\n"
@@ -2050,7 +2056,9 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"sfx\": [{\"word\": \"mot exact prononcé\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|magic|glitch|camera|beep|applause|riser|boom\"}],  // 0-5 bruitages qui RENFORCENT LE SENS, au bon endroit et adaptés au TON (un scientifique sérieux : très peu, sobres ; un edit fun : plus). taper->typing, argent/prix->cash, bonne réponse/chiffre->ding, choc/révélation->impact, tech/bug->glitch. Mets-en PEU et SEULEMENT si ça a du sens\n"
         " \"audio_action\": \"keep|replace_music|replace_all\",  // que faire du SON d'origine ? keep=on le garde tel quel ; replace_music=GARDER la voix mais RETIRER la musique de fond de la vidéo (elle est mauvaise/gênante) pour mettre la nôtre ; replace_all=le son est nul/inutile, on le COUPE entièrement et on met de la musique\n"
         " \"add_music\": bool,  // faut-il un fond musical ? false pour un talking-head sérieux (la voix suffit) ; true si un fond aide, ou obligatoire si audio_action=replace_all\n"
-        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\"  // si musique : ambiance ADAPTÉE au sujet (un scientifique -> cinematic/tech, PAS chill/plage) ; vide sinon\n"
+        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\",  // si musique : ambiance ADAPTÉE au sujet (un scientifique -> cinematic/tech, PAS chill/plage) ; vide sinon\n"
+        " \"color_grade\": \"dark_moody|warm_luxury|cold_cinematic|vibrant_pop|bw_horror|vintage_warm|none\",  // le LOOK couleur final que TU choisis après avoir vu l'image (none = image déjà parfaite ou étalonnage risqué)\n"
+        " \"transition\": \"fade|whip|zoom_blur|white_flash|swipe|scale_reveal\"  // la famille de transition qui colle au ton (whip/zoom_blur = énergique ; fade/scale_reveal = posé ; white_flash = punchy)\n"
         "}"
     )
     res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
@@ -3010,6 +3018,11 @@ def process(job):
             for k in ("keywords", "emojis", "objects", "brands", "sfx"):
                 if isinstance(gem.get(k), list):
                     plan[k] = gem[k]  # Gemini décide (liste vide = rien, volontaire)
+            for k in ("color_grade", "transition"):
+                if str(gem.get(k) or "").strip().lower() not in ("", "none"):
+                    plan[k] = str(gem[k]).strip().lower()
+            if str(gem.get("color_grade") or "").strip().lower() == "none":
+                plan["color_grade"] = "__none__"  # décision explicite : PAS d'étalonnage
             if "bg_text" in gem:
                 plan["bg_text"] = str(gem.get("bg_text") or "")  # texte derrière la personne
             # MUSIQUE : Gemini a le contrôle TOTAL (fini la musique de plage forcée).

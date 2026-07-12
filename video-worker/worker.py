@@ -3631,6 +3631,13 @@ def process(job):
 CREATOR_DNA = ("video_type", "sub_style_id", "highlight", "edit_intensity",
                "color_grade", "music_mood", "audio_action")
 
+# DISJONCTEUR « les clients d'abord » : si Gemini refuse une étude (quota du niveau
+# gratuit), l'ÉCOLE se met en pause 6 h pour garder tout le quota restant aux
+# montages des clients. Sans ça, une grosse file d'étude peut vider le quota du
+# jour et le montage suivant d'un client se fait « à l'aveugle » (vécu le 10/07).
+GEMINI_REST_S = 6 * 3600
+_gemini_rest_until = 0.0
+
 
 def claim_winner():
     """Attribue atomiquement UNE vidéo gagnante à étudier (statut -> 'studying')."""
@@ -3826,7 +3833,10 @@ def study_winner(row):
                 if os.path.exists(tmp):
                     os.remove(tmp)
         if not gem or not isinstance(gem, dict):
+            global _gemini_rest_until
+            _gemini_rest_until = time.time() + GEMINI_REST_S
             _study_fail(row, "Gemini n'a pas pu analyser (quota ? on réessaiera).")
+            print("Éclaireur: quota Gemini atteint -> école en pause 6 h (le quota restant est réservé aux clients).")
             return
         niche = re.sub(r"[^a-z0-9_]", "",
                        str(row.get("niche") or gem.get("niche") or gem.get("video_type") or "other").lower()) or "other"
@@ -3905,7 +3915,8 @@ def main():
             continue
         # Au repos : 1) réveiller les agents si c'est l'heure ; 2) faire étudier UNE gagnante par Gemini.
         scout_tick()
-        win = claim_winner() if GEMINI_KEY else None
+        school_open = GEMINI_KEY and time.time() >= _gemini_rest_until
+        win = claim_winner() if school_open else None
         if win:
             print("Éclaireur: gagnante réclamée:", win.get("video_url", "")[:60])
             study_winner(win)

@@ -874,26 +874,60 @@ def object_events(words, plan_objects, work):
 OBJ_IN, OBJ_HOLD, OBJ_OUT = 0.45, 1.5, 0.45  # entrée glissée / pause / sortie
 
 
-def overlay_objects(src, dst, events, seed=0):
-    """Objets/logos animés façon monteur : l'objet GLISSE depuis un bord,
-    s'ARRÊTE au milieu de l'écran (tiers haut, jamais sur les sous-titres),
-    puis REPART de l'autre côté — accélérations douces. Sens alterné par job."""
+def _obj_free_y(face_y):
+    """Hauteur (en fraction de H) où poser un objet/logo SANS couvrir le visage
+    ni les sous-titres (bas). Le placement dépend d'où est le visage."""
+    f = str(face_y or "").lower()
+    if f == "top":
+        return 0.50   # visage en haut -> objet sous le visage, au-dessus des sous-titres
+    if f == "bottom":
+        return 0.14   # visage en bas -> objet en haut
+    if f == "middle":
+        return 0.12   # visage au centre -> objet tout en haut
+    return 0.20       # pas de visage -> tiers haut classique
+
+
+def overlay_objects(src, dst, events, seed=0, face_y=None):
+    """Objets/logos animés façon monteur PRO :
+    - 3 animations différentes, alternées (jamais deux fois la même à la suite) :
+        0 = glisse latérale avec LÉGER DÉPASSEMENT puis retour (ease-out-back)
+        1 = tombe du haut et REBONDIT en place, repart vers le haut
+        2 = monte du bas, se pose en douceur, sort par le côté
+    - placement INTELLIGENT : jamais sur le visage (face_y), jamais sur les
+      sous-titres — hauteurs en fraction de H (marche à toutes les résolutions)."""
     if not events:
         return False
+    yf = _obj_free_y(face_y)
     fc, last = [], "[0:v]"
     inputs = []
     for i, (t, png) in enumerate(events[:3]):
         inputs += ["-i", png]
-        t_in_end = t + OBJ_IN
         t_out = t + OBJ_IN + OBJ_HOLD
         t_end = t_out + OBJ_OUT
-        sgn = 1 if (seed + i) % 2 == 0 else -1  # gauche->droite puis l'inverse
-        # x : hors-champ -> centre (ease-out) ; puis centre -> hors-champ opposé (ease-in)
-        x_expr = (f"(W-w)/2-({sgn})*(W+w)/2*pow(1-min((t-{t:.3f})/{OBJ_IN}\\,1)\\,2)"
-                  f"+({sgn})*(W+w)/2*pow(max(0\\,(t-{t_out:.3f})/{OBJ_OUT})\\,2)")
+        style = (seed + i) % 3
+        sgn = 1 if (seed + i) % 2 == 0 else -1
+        # p = progression d'entrée (0..1), q = progression de sortie (0..1)
+        p = f"min((t-{t:.3f})/{OBJ_IN}\\,1)"
+        q = f"max(0\\,(t-{t_out:.3f})/{OBJ_OUT})"
+        # ease-out-back : dépasse la cible de ~8 % puis revient (rendu 'monteur pro')
+        eb = f"(1 + 2.6*pow({p}-1\\,3) + 1.6*pow({p}-1\\,2))"
+        if style == 0:
+            # glisse latérale avec dépassement, sort de l'autre côté
+            x = (f"(W-w)/2 - ({sgn})*(W+w)/2*(1-{eb})"
+                 f" + ({sgn})*(W+w)/2*pow({q}\\,2)")
+            y = f"H*{yf:.3f}"
+        elif style == 1:
+            # tombe du haut avec rebond (dépassement vers le bas puis retour), sort vers le haut
+            x = "(W-w)/2"
+            y = (f"H*{yf:.3f} - (H*{yf:.3f}+h)*(1-{eb})"
+                 f" - (H*{yf:.3f}+h)*pow({q}\\,2)")
+        else:
+            # monte du bas (depuis sous la zone sous-titres), se pose, sort latéralement
+            x = f"(W-w)/2 + ({sgn})*(W+w)/2*pow({q}\\,2)"
+            y = f"H*{yf:.3f} + (H*0.78-H*{yf:.3f})*(1-{eb})"
         fc.append(f"[{i + 1}:v]scale=300:-1[ob{i}]")
         nxt = f"[oo{i}]"
-        fc.append(f"{last}[ob{i}]overlay=x='{x_expr}':y=400:"
+        fc.append(f"{last}[ob{i}]overlay=x='{x}':y='{y}':"
                   f"enable='between(t,{t:.3f},{t_end:.3f})'{nxt}")
         last = nxt
     run(["ffmpeg", "-y", "-i", src, *inputs,
@@ -3303,7 +3337,7 @@ def process(job):
                     cur = out
                 if objs:  # après les zooms : les objets restent stables à l'écran
                     outo = os.path.join(work, "objs.mp4")
-                    if overlay_objects(cur, outo, objs, seed=seed):
+                    if overlay_objects(cur, outo, objs, seed=seed, face_y=(vision or {}).get("face_y")):
                         cur = outo
                 if emo:
                     oute = os.path.join(work, "emoji.mp4")
@@ -3394,7 +3428,7 @@ def process(job):
                 if objs:
                     objs = [(min(dur_cur - (OBJ_IN + OBJ_HOLD + OBJ_OUT) - 0.3, max(1.0, o[0])), o[1]) for o in objs][:1]
                     outo = os.path.join(work, "objs.mp4")
-                    if overlay_objects(cur, outo, objs, seed=seed):
+                    if overlay_objects(cur, outo, objs, seed=seed, face_y=(vision or {}).get("face_y")):
                         cur = outo
                 impact_pts = (best[:3] or rhythm[1:4])
                 steps.done("fx", f"{len(rhythm)} accents rythmés + {len(sfx_ev)} son(s)"

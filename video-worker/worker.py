@@ -3638,6 +3638,36 @@ CREATOR_DNA = ("video_type", "sub_style_id", "highlight", "edit_intensity",
 GEMINI_REST_S = 6 * 3600
 _gemini_rest_until = 0.0
 
+# BUDGET QUOTIDIEN de l'école : au maximum N études par jour, pour que le quota
+# gratuit de Gemini serve D'ABORD aux montages des clients. L'école apprend vite
+# quand même : 8/jour = ~240 vidéos gagnantes étudiées par mois.
+STUDY_BUDGET_PER_DAY = 8
+
+
+def _study_budget_left():
+    """Nombre d'études encore autorisées aujourd'hui (état persisté côté storage)."""
+    try:
+        st = _read_style_json(STYLE_BUCKET, "_scout_state.json") or {}
+        today = time.strftime("%Y-%m-%d")
+        if st.get("study_day") != today:
+            return STUDY_BUDGET_PER_DAY
+        return max(0, STUDY_BUDGET_PER_DAY - int(st.get("study_count") or 0))
+    except Exception:
+        return STUDY_BUDGET_PER_DAY
+
+
+def _study_budget_spend():
+    """Note qu'une étude a été consommée aujourd'hui."""
+    try:
+        st = _read_style_json(STYLE_BUCKET, "_scout_state.json") or {}
+        today = time.strftime("%Y-%m-%d")
+        if st.get("study_day") != today:
+            st["study_day"], st["study_count"] = today, 0
+        st["study_count"] = int(st.get("study_count") or 0) + 1
+        _write_style_json(STYLE_BUCKET, "_scout_state.json", st)
+    except Exception as e:
+        print("study budget:", e, file=sys.stderr)
+
 
 def claim_winner():
     """Attribue atomiquement UNE vidéo gagnante à étudier (statut -> 'studying')."""
@@ -3915,10 +3945,13 @@ def main():
             continue
         # Au repos : 1) réveiller les agents si c'est l'heure ; 2) faire étudier UNE gagnante par Gemini.
         scout_tick()
-        school_open = GEMINI_KEY and time.time() >= _gemini_rest_until
+        school_open = (GEMINI_KEY and time.time() >= _gemini_rest_until
+                       and _study_budget_left() > 0)
         win = claim_winner() if school_open else None
         if win:
-            print("Éclaireur: gagnante réclamée:", win.get("video_url", "")[:60])
+            print("Éclaireur: gagnante réclamée:", win.get("video_url", "")[:60],
+                  "· budget du jour restant:", _study_budget_left() - 1)
+            _study_budget_spend()
             study_winner(win)
             # PAUSE entre deux études : le niveau gratuit de Gemini limite le rythme —
             # l'école n'est pas pressée, mieux vaut 1 vidéo bien étudiée / 45 s que des refus.

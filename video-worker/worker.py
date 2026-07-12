@@ -748,7 +748,14 @@ def emoji_events(words, plan_emojis, work, layout=None):
             continue
         try:
             p = os.path.join(work, f"emoji_{i}.png")
-            download(EMOJI_CDN.format(code), p)
+            # SVG rendu en 300 px puis réduit à l'écran -> NET (le PNG 72 px agrandi était flou)
+            try:
+                svg = os.path.join(work, f"emoji_{i}.svg")
+                download(EMOJI_SVG.format(code), svg)
+                run(["rsvg-convert", "-w", "300", "-o", p, svg], timeout=60)
+                assert os.path.exists(p) and os.path.getsize(p) > 500
+            except Exception:
+                download(EMOJI_CDN.format(code), p)  # repli 72px
             for idx, w in enumerate(words or []):
                 if norm_token(w.get("word", "")) == target:
                     suby = layout[idx] if layout and idx < len(layout) else 1430
@@ -2939,6 +2946,12 @@ def process(job):
             except Exception as e:
                 print("vision:", e, file=sys.stderr)
         plan = groq_plan(facts, tr_text, context, vision)
+        # MODE SOBRE : si Gemini n'a pas VU la vidéo, on s'interdit les décorations
+        # risquées (émojis, objets, logos, b-roll, texte 3D). Un montage propre et
+        # sobre vaut toujours mieux qu'un montage décoré à l'aveugle.
+        if not gem:
+            for k in ("emojis", "objects", "brands", "broll_keywords", "bg_text"):
+                plan.pop(k, None)
         # ── GEMINI EST LE DIRECTEUR ──────────────────────────────────────────────
         # Il a VU et ENTENDU toute la vidéo : ses décisions de montage PRIMENT sur
         # celles de groq_plan (qui ne devient qu'un repli quand Gemini est absent).

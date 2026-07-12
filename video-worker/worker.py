@@ -2092,7 +2092,7 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"add_music\": bool,  // faut-il un fond musical ? false pour un talking-head sérieux (la voix suffit) ; true si un fond aide, ou obligatoire si audio_action=replace_all\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\",  // si musique : ambiance ADAPTÉE au sujet (un scientifique -> cinematic/tech, PAS chill/plage) ; vide sinon\n"
         " \"color_grade\": \"dark_moody|warm_luxury|cold_cinematic|vibrant_pop|bw_horror|vintage_warm|none\",  // le LOOK couleur final que TU choisis après avoir vu l'image (none = image déjà parfaite ou étalonnage risqué)\n"
-        " \"transition\": \"fade|whip|zoom_blur|white_flash|swipe|scale_reveal\"  // la famille de transition qui colle au ton (whip/zoom_blur = énergique ; fade/scale_reveal = posé ; white_flash = punchy)\n"
+        " \"transition\": \"fade|whip|zoom_blur|white_flash|swipe|scale_reveal|glitch|blur_wipe|shake|color_flash|dip_black\"  // la famille de transition qui colle au ton : whip/zoom_blur=énergique ; fade/scale_reveal=posé ; white_flash/color_flash=punchy ; glitch=tech/gaming ; shake=impact/hype ; blur_wipe=doux moderne ; dip_black=dramatique\n"
         "}"
     )
     res = gemini_generate(prompt, file_uri=uri, mime="video/mp4", json_out=True)
@@ -2669,7 +2669,8 @@ def pexels_broll(keywords, want=2, min_h=1000):
 # --- Transitions premium (catalogue style CapCut -> 9 familles réalisables en FFmpeg pur).
 # Chaque nom du catalogue est rattaché à la famille la plus proche visuellement.
 TRANSITION_FAMILIES = ("cut", "fade", "whip", "swipe", "zoom_blur", "scale_reveal",
-                       "white_flash", "chroma_flash", "dip_black")
+                       "white_flash", "chroma_flash", "dip_black",
+                       "glitch", "blur_wipe", "shake", "color_flash")
 TRANSITION_NEAR = {
     "cut_clean_direct": "cut", "mosaic_grid_snap": "cut",
     "film_fade_dissolve": "fade", "smoke_vapor_dissolve": "fade",
@@ -2688,11 +2689,23 @@ TRANSITION_NEAR = {
     "light_leak_soft": "white_flash",
     "chromatic_flash_burst": "chroma_flash",
     "burn_out_edge": "dip_black",
+    # noms « CapCut Tendance » (fr) -> familles implémentées
+    "bogue": "glitch", "glitch_burst": "glitch",
+    "floutage": "blur_wipe", "floutage_vertical": "blur_wipe", "sortie_avec_floutage": "blur_wipe",
+    "secouement": "shake", "secouer": "shake", "secouement_x": "shake",
+    "zoom_tremblant": "shake", "claquement": "shake",
+    "flash_et_couleurs": "color_flash", "flash_en_couleur": "color_flash",
+    "flash_avec_couleur": "color_flash", "fondu_lumineux": "color_flash",
+    "flash_blanc": "white_flash", "flash_basique": "white_flash",
+    "fondu_au_noir": "dip_black", "noir_basique": "dip_black",
+    "melange": "fade", "clignement": "dip_black",
 }
 # Le son de CHAQUE transition (réflexe de monteur : une transition s'entend).
 TR_SOUND = {"whip": "whoosh", "swipe": "whoosh", "fade": "whoosh", "zoom_blur": "whoosh",
             "scale_reveal": "magic", "white_flash": "camera",
-            "chroma_flash": "glitch", "dip_black": "impact"}
+            "chroma_flash": "glitch", "dip_black": "impact",
+            "glitch": "glitch", "blur_wipe": "whoosh", "shake": "impact",
+            "color_flash": "camera"}
 BROLL_SEG = 1.3  # durée d'un plan d'illustration incrusté
 
 
@@ -2733,6 +2746,8 @@ def overlay_broll(src, dst, brolls, duration, transition="fade", seed=0):
     fc, last = [], "[0:v]"
     flashes = []        # (couleur, instant, opacité) — flash blanc / passage au noir
     shift_windows = []  # fenêtres du décalage chromatique (chroma_flash)
+    blur_windows = []   # fenêtres de flou (blur_wipe)
+    shake_windows = []  # fenêtres de tremblement (shake)
     for i, t in enumerate(slots[:len(brolls)]):
         t2 = t + seg
         pre = (f"[{i+1}:v]scale={W}:{H}:force_original_aspect_ratio=increase,"
@@ -2777,6 +2792,21 @@ def overlay_broll(src, dst, brolls, duration, transition="fade", seed=0):
         elif fam == "chroma_flash":
             flashes += [("white", t, 0.55), ("white", t2, 0.55)]
             shift_windows += [t, t2]
+        elif fam == "glitch":
+            # « Bogue » : double burst de décalage RGB + micro-flash discret
+            flashes += [("white", t, 0.35), ("white", t2, 0.35)]
+            shift_windows += [t, t + 0.1, t2, t2 + 0.1]
+        elif fam == "blur_wipe":
+            # « Floutage » : l'image devient floue au moment de la coupure
+            blur_windows += [t, t2]
+        elif fam == "shake":
+            # « Secouement » : la caméra tremble à la coupure + petit flash
+            flashes += [("white", t, 0.30), ("white", t2, 0.30)]
+            shake_windows += [t, t2]
+        elif fam == "color_flash":
+            # « Flash et couleurs » : flash teinté (couleur alternée par job)
+            col = ("orange", "cyan", "magenta")[seed % 3]
+            flashes += [(col, t, 0.75), (col, t2, 0.75)]
     # Flashs aux frontières (le flash CACHE la coupure : c'est ça le côté premium)
     base_idx = len(brolls[:len(slots)]) + 1
     for j, (col, tb, amp) in enumerate(flashes):
@@ -2796,6 +2826,15 @@ def overlay_broll(src, dst, brolls, duration, transition="fade", seed=0):
         en = "+".join(f"between(t,{tb - 0.06:.3f},{tb + 0.12:.3f})" for tb in shift_windows)
         fc.append(f"{last}rgbashift=rh=18:bh=-18:enable='{en}'[vsh]")
         last = "[vsh]"
+    if blur_windows:
+        en = "+".join(f"between(t,{tb - 0.18:.3f},{tb + 0.18:.3f})" for tb in blur_windows)
+        fc.append(f"{last}gblur=sigma=13:enable='{en}'[vbl]")
+        last = "[vbl]"
+    if shake_windows:
+        # tremblement : micro-rotation rapide, uniquement dans les fenêtres (angle nul sinon)
+        cond = "+".join(f"between(t,{tb - 0.05:.3f},{tb + 0.28:.3f})" for tb in shake_windows)
+        fc.append(f"{last}rotate='if({cond}\\,0.02*sin(t*85)\\,0)':ow=iw:oh=ih:c=black[vsk]")
+        last = "[vsk]"
     run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
          "-map", last, "-map", "0:a?", "-c:v", "libx264", "-preset", "veryfast",
          "-crf", "18", "-c:a", "copy", dst])

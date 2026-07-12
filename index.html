@@ -123,10 +123,25 @@
 
   /* ===== Téléphone (cadre) ===== */
   .phone-zone { position:relative; display:flex; justify-content:center; }
-  /* Grands écrans : le téléphone grandit avec la fenêtre (sinon il paraît perdu/fin) */
-  @media (min-width:1200px) { .phone { width:clamp(310px, 23vw, 354px); } }
   .phone { position:relative; width:min(310px,86vw); border-radius:46px; background:#0a0f1e; border:1.5px solid rgba(255,255,255,0.13); box-shadow:0 40px 90px -30px rgba(0,0,0,0.85), 0 0 0 8px rgba(255,255,255,0.02), 0 30px 80px -20px rgba(47,123,255,0.14); padding:10px; }
   .phone::before { content:''; position:absolute; top:20px; left:50%; transform:translateX(-50%); width:86px; height:22px; border-radius:999px; background:#04060d; z-index:5; border:1px solid rgba(255,255,255,0.06); }
+  /* Ordinateurs : le téléphone garde SES proportions ; c'est un zoom global (JS plus bas)
+     qui le fait tenir entièrement dans le premier écran, quelle que soit la hauteur. */
+  @media (min-width:901px) { .hero { padding:24px 0 26px; } }
+  /* Écrans d'ordinateur peu hauts (portables) : on compacte la colonne de texte
+     pour que téléphone + textes essentiels tiennent dans le premier écran. */
+  @media (min-width:901px) and (max-height:780px) {
+    .hero { padding:16px 0 14px; }
+    .kicker { margin-bottom:12px; padding:5px 11px; }
+    .hero h1 { font-size:clamp(1.65rem, 2.7vw, 2.15rem); }
+    .hero-sub { font-size:.88rem; margin-top:11px; line-height:1.55; max-width:440px; }
+    .hero-how { margin-top:14px; gap:6px; }
+    .hero-how .hh { font-size:.72rem; padding:6px 11px; }
+    .hero-cta { margin-top:16px; }
+    .btn-primary-lg { padding:12px 22px; font-size:.9rem; }
+    .hero-note { margin-top:9px; }
+    .hero-plats { margin-top:14px; }
+  }
   .phone-screen { border-radius:37px; overflow:hidden; background:
     radial-gradient(ellipse 260px 180px at 20% -4%, rgba(47,123,255,0.14), transparent 60%),
     #04060d; height:600px; position:relative; }
@@ -1198,6 +1213,26 @@
       e.preventDefault(); dz.classList.remove('over');
       start(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
     });
+  })();
+
+
+  /* ===== Ordinateur : le téléphone héros tient TOUJOURS entier dans le premier écran =====
+     On ne touche pas à sa maquette (pixels fixes) : on le met à l'échelle comme un zoom photo. */
+  (function(){
+    var ph = document.querySelector('.hero .phone');
+    var zone = document.querySelector('.hero .phone-zone');
+    if (!ph || !zone) return;
+    function fit(){
+      if (window.innerWidth <= 900) { ph.style.transform = ''; zone.style.height = ''; return; }
+      var H = ph.offsetHeight;                      // hauteur naturelle de la maquette
+      var avail = window.innerHeight - 165;         // place sous la barre de navigation
+      var f = Math.min(1.15, Math.max(0.55, avail / H)); // léger zoom sur grands écrans, réduit sur petits
+      ph.style.transformOrigin = 'top center';
+      ph.style.transform = 'scale(' + f + ')';
+      zone.style.height = Math.round(H * f) + 'px'; // la grille suit la taille réelle affichée
+    }
+    fit();
+    window.addEventListener('resize', fit);
   })();
 
   /* ===== Reveal au scroll (avec filets de sécurité) ===== */

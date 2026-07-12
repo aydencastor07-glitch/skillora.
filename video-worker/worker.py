@@ -3870,7 +3870,7 @@ _gemini_rest_until = 0.0
 # 150/jour (~1,50 $/jour au pire) — assez pour avaler une récolte « lance tout »
 # complète AVANT que les liens TikTok expirent (~24 h). Sans : 8/jour pour
 # préserver le quota GRATUIT de Gemini pour les montages des clients.
-STUDY_BUDGET_PER_DAY = 150 if OPENROUTER_KEY else 8
+STUDY_BUDGET_PER_DAY = 300 if OPENROUTER_KEY else 8
 
 
 def _study_budget_left():
@@ -4190,9 +4190,9 @@ def main():
                   "· budget du jour restant:", _study_budget_left() - 1)
             _study_budget_spend()
             study_winner(win)
-            # PAUSE entre deux études : le niveau gratuit de Gemini limite le rythme —
-            # l'école n'est pas pressée, mieux vaut 1 vidéo bien étudiée / 45 s que des refus.
-            time.sleep(45)
+            # PAUSE entre deux études : 8 s en payant (OpenRouter n'impose pas de rythme),
+            # 45 s en gratuit (le quota Gemini punit la vitesse).
+            time.sleep(8 if OPENROUTER_KEY else 45)
             continue
         time.sleep(POLL_SECONDS)
 

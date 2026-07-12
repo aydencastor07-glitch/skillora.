@@ -11,23 +11,23 @@
   })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skillora — L'IA qui améliore tes vidéos et les publie partout</title>
-<meta name="description" content="Skillora rend ta vidéo pro en un clic, te dit si elle va percer, et la publie sur TikTok, YouTube, Instagram, Facebook, X et Threads — au meilleur moment.">
+<title>Skillora — The AI that upgrades your videos and posts them everywhere</title>
+<meta name="description" content="Skillora makes your video pro in one click, tells you if it will take off, and posts it to TikTok, YouTube, Instagram, Facebook, X and Threads at the best time.">
 <link rel="canonical" href="https://skillora.me/">
 <meta name="robots" content="index,follow">
 <!-- Partage réseaux sociaux (carte riche) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Skillora">
-<meta property="og:locale" content="fr_FR">
+<meta property="og:locale" content="en_US">
 <meta property="og:url" content="https://skillora.me/">
-<meta property="og:title" content="Skillora — L'IA qui améliore tes vidéos et les publie partout">
-<meta property="og:description" content="Ta vidéo devient pro en un clic, notée avant publication, publiée sur tous tes réseaux au meilleur moment.">
+<meta property="og:title" content="Skillora — The AI that upgrades your videos and posts them everywhere">
+<meta property="og:description" content="Your video goes pro in one click — scored before you post, published everywhere at the best time.">
 <meta property="og:image" content="https://skillora.me/assets/og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Skillora — L'IA qui améliore tes vidéos et les publie partout">
-<meta name="twitter:description" content="Ta vidéo devient pro en un clic, notée avant publication, publiée sur tous tes réseaux au meilleur moment.">
+<meta name="twitter:title" content="Skillora — The AI that upgrades your videos and posts them everywhere">
+<meta name="twitter:description" content="Your video goes pro in one click — scored before you post, published everywhere at the best time.">
 <meta name="twitter:image" content="https://skillora.me/assets/og-cover.jpg">
 <!-- Données structurées Google (fiche riche) -->
 <script type="application/ld+json">
@@ -39,8 +39,7 @@
   "image": "https://skillora.me/assets/og-cover.jpg",
   "applicationCategory": "MultimediaApplication",
   "operatingSystem": "Web",
-  "inLanguage": "fr",
-  "description": "Skillora rend ta vidéo pro en un clic, te dit si elle va percer, et la publie sur TikTok, YouTube, Instagram, Facebook, X et Threads au meilleur moment.",
+  "description": "Skillora makes your video pro in one click, tells you if it will take off, and posts it to TikTok, YouTube, Instagram, Facebook, X and Threads at the best time.",
   "offers": { "@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": "25", "highPrice": "89", "offerCount": "3" },
   "publisher": { "@type": "Organization", "name": "Skillora", "url": "https://skillora.me/", "logo": "https://skillora.me/apple-touch-icon.png" }
 }
@@ -526,10 +525,26 @@
   /* ===== CTA finale + footer ===== */
   .final-cta { padding:70px 0 115px; text-align:center; }
   .final-cta-inner { max-width:760px; margin:0 auto; }
-  .final-cta-inner h2 { font-size:clamp(2rem,7vw,3.1rem); line-height:1.08; letter-spacing:-0.03em; margin-bottom:16px; }
-  .final-cta-inner p { color:var(--muted); font-size:clamp(.94rem,2.6vw,1.05rem); margin:0 auto 28px; max-width:34em; }
-  .final-cta-inner .hero-note { margin-top:13px; }
+  .final-cta-inner h2 { font-size:clamp(1.7rem,6vw,2.6rem); line-height:1.1; letter-spacing:-0.03em; margin-bottom:8px; }
+  .final-cta-inner .hero-note { margin-top:14px; }
   .gz-center { transform-origin:center; }
+  /* Zone de dépôt : le visiteur essaie avec SA vidéo (rien n'est envoyé : aperçu local) */
+  .drop { max-width:500px; margin:26px auto 0; border:1.5px dashed rgba(94,155,255,0.42); border-radius:20px; background:rgba(47,123,255,0.05); padding:32px 22px; cursor:pointer; transition:border-color .2s, background .2s; }
+  .drop:hover, .drop.over { border-color:var(--blue-light); background:rgba(47,123,255,0.1); }
+  .drop.busy { cursor:default; border-style:solid; border-color:rgba(94,155,255,0.32); display:flex; gap:16px; align-items:center; text-align:left; padding:16px; }
+  .dz-ic { width:52px; height:52px; margin:0 auto 12px; border-radius:15px; background:linear-gradient(135deg,#4d8fff,#7c8cff); display:flex; align-items:center; justify-content:center; box-shadow:0 16px 34px -14px rgba(47,123,255,0.8); }
+  .dz-ic svg { width:24px; height:24px; stroke:#fff; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .dz-t1 { font-weight:700; font-size:.98rem; }
+  .dz-t2 { color:var(--muted); font-size:.8rem; margin-top:5px; }
+  .dz-prev { width:86px; aspect-ratio:9/16; border-radius:12px; overflow:hidden; position:relative; flex:none; background:#000; box-shadow:0 10px 26px -12px rgba(0,0,0,0.8); }
+  .dz-prev video, .dz-prev img { width:100%; height:100%; object-fit:cover; }
+  .dz-scan { position:absolute; left:0; right:0; height:34%; background:linear-gradient(180deg, transparent, rgba(120,170,255,0.4), transparent); animation:dzscan 1.5s linear infinite; }
+  @keyframes dzscan { 0% { top:-35%; } 100% { top:100%; } }
+  .dz-side { flex:1; min-width:0; }
+  .dz-step { font-size:.86rem; font-weight:600; margin-bottom:10px; min-height:1.3em; }
+  .dz-bar { height:7px; border-radius:99px; background:rgba(255,255,255,0.09); overflow:hidden; }
+  .dz-bar span { display:block; height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,#4d8fff,#7c8cff); transition:width .12s linear; }
+  .dz-pct { margin-top:8px; font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums; }
   .foot { border-top:1px solid var(--border); padding:42px 0 28px; }
   .foot-top { display:flex; justify-content:space-between; gap:38px; flex-wrap:wrap; margin-bottom:30px; }
   .foot-brand p { color:var(--muted); font-size:.82rem; max-width:270px; margin-top:9px; line-height:1.5; }
@@ -897,10 +912,14 @@
 <section class="final-cta">
   <div class="wrap">
     <div class="final-cta-inner gz-item gz-center">
-      <h2>Envoie une vidéo.<br><span class="hl-brand">Regarde-la percer.</span></h2>
-      <p>Pro en un clic, publiée sur tous tes réseaux au meilleur moment — pendant que toi, tu crées.</p>
-      <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
-      <div class="hero-note">Ton compte est prêt en 30 secondes.</div>
+      <h2>Ajoute ta vidéo. <span class="hl-brand">On l'améliore.</span></h2>
+      <div class="drop" id="dropZone">
+        <div class="dz-ic"><svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></svg></div>
+        <div class="dz-t1">Dépose ta vidéo ici</div>
+        <div class="dz-t2">ou touche pour la choisir — clip, facecam, edit, repost</div>
+      </div>
+      <input type="file" id="dropInput" accept="video/*,image/*" style="display:none">
+      <div class="hero-note">Ta vidéo reste sur ton appareil.</div>
     </div>
   </div>
 </section>
@@ -1133,6 +1152,52 @@
       entries.forEach(function(en){ en.target.classList.toggle('gz', en.isIntersecting); });
     }, { threshold: 0.35 });
     els.forEach(function(e){ io.observe(e); });
+  })();
+
+  /* ===== Zone de dépôt finale : essai avec SA vidéo (aperçu 100% local, rien n'est envoyé) ===== */
+  (function(){
+    var dz = document.getElementById('dropZone');
+    var inp = document.getElementById('dropInput');
+    if (!dz || !inp) return;
+    function start(file){
+      if (!file || dz.classList.contains('busy')) return;
+      var url = '';
+      try { url = URL.createObjectURL(file); } catch(e) {}
+      var isImg = (file.type || '').indexOf('image') === 0;
+      var media = isImg
+        ? '<img src="' + url + '" alt="">'
+        : '<video src="' + url + '" muted autoplay loop playsinline></video>';
+      dz.classList.add('busy');
+      dz.innerHTML =
+        '<div class="dz-prev">' + media + '<span class="dz-scan"></span></div>' +
+        '<div class="dz-side">' +
+          '<div class="dz-step" id="dzStep">Analyse de ta vidéo…</div>' +
+          '<div class="dz-bar"><span id="dzFill"></span></div>' +
+          '<div class="dz-pct" id="dzPct">0%</div>' +
+        '</div>';
+      var steps = ['Analyse de ta vidéo…', 'Coupes & rythme ✂️', 'Sous-titres dynamiques 💬', 'Colorimétrie & son 🎨', 'Derniers réglages…'];
+      var t0 = Date.now(), DUR = 3600;
+      var iv = setInterval(function(){
+        var p = Math.min(100, Math.round((Date.now() - t0) / DUR * 100));
+        var f = document.getElementById('dzFill'), pc = document.getElementById('dzPct'), st = document.getElementById('dzStep');
+        if (f) f.style.width = p + '%';
+        if (pc) pc.textContent = p + '%';
+        if (st && p < 100) st.textContent = steps[Math.min(steps.length - 1, Math.floor(p / (100 / steps.length)))];
+        if (p >= 100) {
+          clearInterval(iv);
+          if (st) st.textContent = 'Prête ✅ Crée ton compte pour la récupérer';
+          setTimeout(function(){ window.location.href = 'signup.html'; }, 1100);
+        }
+      }, 60);
+    }
+    dz.addEventListener('click', function(){ if (!dz.classList.contains('busy')) inp.click(); });
+    inp.addEventListener('change', function(){ start(inp.files && inp.files[0]); });
+    dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('over'); });
+    dz.addEventListener('dragleave', function(){ dz.classList.remove('over'); });
+    dz.addEventListener('drop', function(e){
+      e.preventDefault(); dz.classList.remove('over');
+      start(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+    });
   })();
 
   /* ===== Reveal au scroll (avec filets de sécurité) ===== */

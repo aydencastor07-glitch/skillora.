@@ -289,6 +289,45 @@ def freeze_spans(path, noise="-58dB", d=1.0):
         return []
 
 
+def flat_spans(path, min_len=0.5):
+    """Détecte les passages où l'écran est une COULEUR UNIE (image noire, verte,
+    blanche, écran vide…) : rien à montrer -> temps mort, quelle que soit la bande
+    son. Mesure la plage de luminance (YMAX-YMIN) image par image : un écran plat
+    a une plage quasi nulle, une vraie scène jamais. Échantillonné à 4 img/s.
+    (Un flash blanc de transition dure ~2 images : min_len=0.5 s le protège.)"""
+    try:
+        safe = path.replace("\\", "/").replace("'", r"\'")
+        p = subprocess.run(
+            ["ffprobe", "-v", "error", "-f", "lavfi",
+             "-i", f"movie='{safe}',fps=4,signalstats",
+             "-show_entries", "frame=pts_time:frame_tags=lavfi.signalstats.YMIN,lavfi.signalstats.YMAX",
+             "-of", "csv=p=0"],
+            capture_output=True, text=True, timeout=600)
+        spans, start, last_t = [], None, 0.0
+        for line in p.stdout.splitlines():
+            parts = line.strip().split(",")
+            if len(parts) < 3:
+                continue
+            try:
+                t, ymin, ymax = float(parts[0]), float(parts[1]), float(parts[2])
+            except ValueError:
+                continue
+            last_t = t
+            if (ymax - ymin) <= 26:          # écran (quasi) uni, peu importe la couleur
+                if start is None:
+                    start = t
+            else:
+                if start is not None and t - start >= min_len:
+                    spans.append((max(0.0, start - 0.05), t))
+                start = None
+        if start is not None and last_t - start >= min_len:
+            spans.append((max(0.0, start - 0.05), last_t + 0.3))
+        return spans
+    except Exception as e:
+        print("flat_spans:", e, file=sys.stderr)
+        return []
+
+
 def dead_time_spans(duration, silences, freezes, min_len=1.2):
     """Temps MORTS à couper (partout, même sans parole) : un passage est mort s'il
     est À LA FOIS figé (image gelée) ET silencieux. Cible surtout les logos/cartes
@@ -2891,6 +2930,8 @@ def process(job):
         steps.start("trim", "Repérage des temps morts…")
         sil0 = detect_silences(src, noise_db=-40, min_d=0.5) if facts["has_audio"] else [(0.0, facts["duration"])]
         deads = dead_time_spans(facts["duration"], sil0, freeze_spans(src))
+        # + écrans d'une couleur unie (noir/vert/blanc…) : morts par définition
+        deads += flat_spans(src)
         if gem and gem.get("dead_time"):
             for dt in gem["dead_time"]:
                 try:

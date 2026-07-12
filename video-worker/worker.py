@@ -3867,9 +3867,10 @@ GEMINI_REST_S = 6 * 3600
 _gemini_rest_until = 0.0
 
 # BUDGET QUOTIDIEN de l'école. Avec OpenRouter (payant, ~1 centime/étude) :
-# 80/jour, soit moins de 1 $/jour au pire. Sans : 8/jour pour préserver le
-# quota GRATUIT de Gemini pour les montages des clients.
-STUDY_BUDGET_PER_DAY = 80 if OPENROUTER_KEY else 8
+# 150/jour (~1,50 $/jour au pire) — assez pour avaler une récolte « lance tout »
+# complète AVANT que les liens TikTok expirent (~24 h). Sans : 8/jour pour
+# préserver le quota GRATUIT de Gemini pour les montages des clients.
+STUDY_BUDGET_PER_DAY = 150 if OPENROUTER_KEY else 8
 
 
 def _study_budget_left():

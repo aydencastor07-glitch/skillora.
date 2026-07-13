@@ -8312,7 +8312,7 @@
       var res = await fetch(SB_URL + '/functions/v1/grade-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY },
-        body: JSON.stringify({ platform: 'tiktok', niche: niche, duration_s: Math.round(dur), top_hashtags: Array.isArray(tags) ? tags : [], frames: frames, transcript: transcript })
+        body: JSON.stringify({ platform: 'tiktok', niche: niche, duration_s: Math.round(dur), top_hashtags: Array.isArray(tags) ? tags : [], frames: frames, transcript: transcript, width: video.videoWidth || 0, height: video.videoHeight || 0 })
       });
       var data = await res.json();
       if (!res.ok || data.error) { pubShowError((data.error || ('Erreur ' + res.status)) + (data.detail ? ' — ' + data.detail : '')); return; }

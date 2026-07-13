@@ -504,10 +504,19 @@ def cut_spans(src, dst, silences, fillers, duration, keep_pad=0.22):
     removed = duration - sum(e - s for s, e in keep)
     if removed < 0.9 or not keep:  # pas la peine de ré-encoder pour < 1 s
         return False
-    expr = "+".join(f"between(t,{s:.3f},{e:.3f})" for (s, e) in keep)
-    run(["ffmpeg", "-y", "-i", src,
-         "-vf", f"select='{expr}',setpts=N/FRAME_RATE/TB",
-         "-af", f"aselect='{expr}',asetpts=N/SR/TB",
+    # SYNCHRO LABIALE GARANTIE : découpe par segments trim/atrim + concat.
+    # (L'ancienne méthode select + setpts=N/FRAME_RATE/TB supposait une cadence
+    # d'images CONSTANTE ; or les vidéos de téléphone sont à cadence VARIABLE ->
+    # l'image dérivait par rapport au son après chaque coupe, de pire en pire.)
+    keep = keep[:80]  # garde-fou ffmpeg (jamais atteint en pratique)
+    fc = []
+    for i, (a, b) in enumerate(keep):
+        fc.append(f"[0:v]trim=start={a:.3f}:end={b:.3f},setpts=PTS-STARTPTS[v{i}]")
+        fc.append(f"[0:a]atrim=start={a:.3f}:end={b:.3f},asetpts=PTS-STARTPTS[a{i}]")
+    pairs = "".join(f"[v{i}][a{i}]" for i in range(len(keep)))
+    fc.append(f"{pairs}concat=n={len(keep)}:v=1:a=1[vo][ao]")
+    run(["ffmpeg", "-y", "-i", src, "-filter_complex", ";".join(fc),
+         "-map", "[vo]", "-map", "[ao]",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "aac", dst])
     return True
 
@@ -2164,7 +2173,7 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"brands\": [{\"word\": \"mot exact\", \"slug\": \"slug minuscule\"}],  // 0-2 logos de marques CITÉES (netflix, tiktok, temu…)\n"
         " \"sfx\": [{\"word\": \"mot exact prononcé\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|magic|glitch|camera|beep|applause|riser|boom\"}],  // 0-5 bruitages qui RENFORCENT LE SENS, au bon endroit et adaptés au TON (un scientifique sérieux : très peu, sobres ; un edit fun : plus). taper->typing, argent/prix->cash, bonne réponse/chiffre->ding, choc/révélation->impact, tech/bug->glitch. Mets-en PEU et SEULEMENT si ça a du sens\n"
         " \"audio_action\": \"keep|replace_music|replace_all\",  // que faire du SON d'origine ? keep=on le garde tel quel ; replace_music=GARDER la voix mais RETIRER la musique de fond de la vidéo (elle est mauvaise/gênante) pour mettre la nôtre ; replace_all=le son est nul/inutile, on le COUPE entièrement et on met de la musique\n"
-        " \"add_music\": bool,  // faut-il un fond musical ? false pour un talking-head sérieux (la voix suffit) ; true si un fond aide, ou obligatoire si audio_action=replace_all\n"
+        " \"add_music\": bool,  // faut-il un fond musical ? RÈGLE STRICTE : false dès que quelqu'un PARLE face caméra (storytime, vlog parlé, explication) — la voix EST le contenu, une musique d'ambiance ferait amateur. true seulement si le fond apporte vraiment (edit, cinématique, pas de parole), obligatoire si audio_action=replace_all\n"
         " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\",  // si musique : ambiance ADAPTÉE au sujet (un scientifique -> cinematic/tech, PAS chill/plage) ; vide sinon\n"
         " \"color_grade\": \"dark_moody|warm_luxury|cold_cinematic|vibrant_pop|bw_horror|vintage_warm|none\",  // le LOOK couleur final que TU choisis après avoir vu l'image (none = image déjà parfaite ou étalonnage risqué)\n"
         " \"transition\": \"fade|whip|zoom_blur|white_flash|swipe|scale_reveal|glitch|blur_wipe|shake|color_flash|dip_black\"  // la famille de transition qui colle au ton : whip/zoom_blur=énergique ; fade/scale_reveal=posé ; white_flash/color_flash=punchy ; glitch=tech/gaming ; shake=impact/hype ; blur_wipe=doux moderne ; dip_black=dramatique\n"
@@ -2251,6 +2260,8 @@ def gemini_qc(path, duration, had_subs=False):
         " \"remaining_dead_time\": [{\"start\": s, \"end\": s}],  // temps morts/logos/écrans de fin qu'il RESTE à couper (secondes précises), [] si aucun\n"
         + (" \"subs_cover_face\": bool,  // les sous-titres cachent-ils le visage ou un élément important ?\n" if had_subs else "")
         + " \"too_busy\": bool,  // le montage est-il TROP chargé (trop d'effets/zooms/sons) ?\n"
+        " \"lips_desync\": bool,  // GRAVE : la bouche est-elle désynchronisée avec la voix à un moment ? Regarde attentivement au milieu ET à la fin\n"
+        " \"music_mismatch\": bool,  // la musique de fond jure-t-elle avec le contenu (ex: ambiance plage sur quelqu'un qui parle sérieusement) ?\n"
         " \"note\": \"le problème principal en 1 phrase, ou 'RAS'\"}"
     )
     res = or_generate(prompt, video_path=path, json_out=True) if OPENROUTER_KEY else None
@@ -3188,6 +3199,13 @@ def process(job):
                 plan["bg_text"] = str(gem.get("bg_text") or "")  # texte derrière la personne
             # MUSIQUE : Gemini a le contrôle TOTAL (fini la musique de plage forcée).
             plan["music_mood"] = str(gem.get("music_mood") or "") if gem.get("add_music") else ""
+            # RÈGLE PRO (code, pas une consigne) : quelqu'un qui PARLE face caméra
+            # (facecam/vlog/story) n'a PAS de musique de fond — la voix EST le
+            # contenu. Seule exception : un montage résolument dynamic.
+            if (str(gem.get("audio_type") or "") == "voice"
+                    and str(gem.get("video_type") or "") in ("talk_facecam", "vlog", "story")
+                    and str(gem.get("edit_intensity") or "") != "dynamic"):
+                plan["music_mood"] = ""
             # replace_all impose une musique -> ambiance par défaut si Gemini a oublié
             if str(gem.get("audio_action") or "") == "replace_all" and not plan["music_mood"]:
                 plan["music_mood"] = str(gem.get("music_mood") or "cinematic")
@@ -3740,7 +3758,10 @@ def process(job):
                             fixed.append(f"{sum(e - s for s, e in rem):.0f}s de temps mort")
                     # b) RE-CUISSON si trop chargé / note basse : version épurée (une seule fois)
                     too_busy = bool(qcg.get("too_busy"))
-                    low = (isinstance(sc, (int, float)) and sc < 7)
+                    desync = bool(qcg.get("lips_desync"))
+                    if desync:
+                        dets.append("⚠ désynchro détectée par le chef")
+                    low = (isinstance(sc, (int, float)) and sc < 7) or desync
                     if (too_busy or low) and not recooked and ffprobe_facts(base_reframed)["duration"] > 1:
                         try:
                             clean = base_reframed
@@ -3777,7 +3798,7 @@ def process(job):
                     elif note and note.upper() not in ("RAS", "R.A.S", "RAS."):
                         det += f" · {note}"
                     dets.append(det)
-                    satisfied = bool(qcg.get("ok")) or (isinstance(sc, (int, float)) and sc >= 8)
+                    satisfied = (bool(qcg.get("ok")) or (isinstance(sc, (int, float)) and sc >= 8)) and not desync
                     if satisfied or not fixed:
                         break  # le chef est content, ou plus rien à corriger : inutile de regoûter
                 steps.done("gqc", " → ".join(dets) if dets else "vérification indisponible")

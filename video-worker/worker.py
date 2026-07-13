@@ -2162,13 +2162,13 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"enhance\": {\"brightness\": -0.15..0.15, \"contrast\": 0.9..1.25, \"saturation\": 0.9..1.35, \"warmth\": -0.15..0.15, \"sharpen\": 0..1},  // AMÉLIORATION IMAGE que tu recommandes APRÈS avoir VU la vidéo : corrige ce qui cloche (trop sombre -> brightness+ ; terne -> saturation+/contrast+ ; flou/pas net -> sharpen+ ; froid/chaud à corriger -> warmth). Valeurs neutres (0, 1, 1, 0, 0) si l'image est déjà parfaite. Sois utile : presque toutes les vidéos smartphone gagnent en netteté et en punch\n"
         " \"needs_reframe\": bool,  // true si la vidéo gagnerait à être recadrée en vertical en SUIVANT le sujet (source horizontale/carrée, OU sujet souvent décentré) ; false si déjà bien cadré vertical\n"
         " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=tout à gauche, 0.5=centre, 1=tout à droite) à 6-10 instants répartis, pour que le cadrage le SUIVE ; [] sinon\n"
-        " \"bg_text\": \"MOT ou phrase TRÈS courte (<=16 caractères) à afficher en GÉANT DERRIÈRE la personne (effet 3D pro, style 'ME AT 7:00') — UNIQUEMENT si une personne est nettement visible en buste/pied face caméra ET qu'un mot fort résume le sujet. Vide sinon (ne force pas)\",\n"
+        " \"bg_text\": \"MOT ou phrase TRÈS courte (<=16 caractères), DANS LA LANGUE PARLÉE de la vidéo, à afficher en GÉANT DERRIÈRE la personne (effet 3D pro, style 'ME AT 7:00') — UNIQUEMENT si une personne est nettement visible en buste/pied face caméra ET qu'un mot fort résume le sujet. Vide sinon (ne force pas)\",\n"
         " \"two_people\": bool,  // true UNIQUEMENT si DEUX personnes parlent et sont visibles EN MÊME TEMPS (podcast/interview côte à côte) -> on fera un split-screen (1re en haut, 2e en bas)\n"
         " \"person_a_x\": 0.0,  // si two_people : centre horizontal (0..1) de la 1re personne (souvent à gauche ~0.25)\n"
         " \"person_b_x\": 0.0,  // si two_people : centre horizontal (0..1) de la 2e personne (souvent à droite ~0.75)\n"
         " \"scenes\": [{\"t\": s, \"action\": \"ce qu'on voit\", \"motion\": bool, \"interest\": 0-10}],\n"
         " \"best_moments\": [s, ...],  // 0-4 instants VRAIMENT forts, ou [] si la vidéo est régulière\n"
-        " \"hook_text\": \"accroche <=42 caractères déduite du contenu, ou vide\",\n"
+        " \"hook_text\": \"accroche <=42 caractères déduite du contenu, DANS LA LANGUE PARLÉE de la vidéo (elle parle anglais -> accroche en ANGLAIS ; français -> français). Ou vide\",\n"
         "// --- TES DÉCISIONS DE MONTAGE (tu es le DIRECTEUR, on exécute fidèlement) ---\n"
         " \"subtitles\": bool,  // ajouter des sous-titres animés ? OUI dès que quelqu'un PARLE (talking-head, explication, vlog, tuto). NON si musique/chanson ou aucune parole\n"
         " \"sub_style_id\": 0,  // CHOISIS le style qui COLLE VRAIMENT au contenu — VARIE, n'utilise PAS toujours 0 : 0=signature ; 2=bleu Hormozi (business/motivation/argent) ; 3=cartoon jaune (fun/vlog/humour) ; 4=script néon (mode/lifestyle) ; 5=vert tech (gadgets/tuto) ; 6=docu ombre (voyage/docu) ; 8=machine à écrire (mystère/storytelling) ; 10=dégradé or (luxe/flex) ; 12=karaoké (podcast/monologue) ; 15=glitch (gaming/IA/tech) ; 18=serif cinéma (histoire haut de gamme) ; 20=néon (musique/edit) ; 21=horreur rouge empilé (creepy/peur). Prends le style qui rendrait le mieux pour CETTE vidéo\n"
@@ -2562,7 +2562,7 @@ WrapStyle: 2
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Sub,{spec['font']},{spec['size']},{spec['prim'].rstrip('&')},{spec['sec'].rstrip('&')},{spec['out'].rstrip('&')},{shadc.rstrip('&')},{bold},{italic},0,0,100,100,1,0,{spec['bs']},{spec['outw']},{spec['shad']},5,40,40,0,1
 Style: Mega,Anton,185,{YELLOW.rstrip('&')},&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,12,4,5,40,40,0,1
-Style: Hook,Anton,86,&H00FFFFFF,&H00FFFFFF,&H00000000,&H78000000,-1,0,0,0,100,100,1,0,3,14,0,8,60,60,210,1
+Style: Hook,Anton,94,&H00FFFFFF,&H00FFFFFF,&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,5,2,8,70,70,165,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -2581,7 +2581,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     lines = []
     if hook_text:
         safe = str(hook_text).upper().replace("{", "").replace("}", "").replace("\n", " ")
-        lines.append(f"Dialogue: 2,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200)}}{safe}")
+        est = max(1, len(safe)) * 94 * 0.55
+        shrink = "" if est <= 940 else f"\\fs{max(52, int(94 * 940 / est))}"
+        lines.append(f"Dialogue: 2,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200){shrink}}}{safe}")
 
     def fit_early(raw, size):
         est = max(1, len(raw)) * size * 0.55
@@ -2638,18 +2640,48 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         y = layout[gfirst] if gfirst < len(layout) else 1430
         cues.append([start, end, solo_kw, y, txt, raw])
 
+    # DÉCOUPAGE DE MONTEUR PRO : une ligne = une PENSÉE, pas un compteur de mots.
+    # 1) coupure aux vraies pauses de parole et à la ponctuation ;
+    # 2) une ligne ne se termine JAMAIS sur un mot de liaison (« and », « my »,
+    #    « de », « que »…) : on attend le mot qui complète le sens.
+    LINKERS = {
+        "and", "but", "or", "so", "to", "of", "my", "your", "the", "a", "an", "i",
+        "in", "on", "at", "we", "is", "are", "was", "it", "that", "this", "for",
+        "with", "as", "by", "be", "im", "i'm", "you", "he", "she", "they",
+        "et", "ou", "de", "du", "des", "le", "la", "les", "un", "une", "je", "tu",
+        "il", "elle", "on", "que", "qui", "dans", "pour", "avec", "mais", "donc",
+        "si", "au", "aux", "ce", "cette", "mon", "ma", "mes", "ton", "ta", "tes",
+        "son", "sa", "ses", "est", "sont", "sur", "en", "ne", "pas", "plus", "très",
+    }
+
+    def _linker(it):
+        return str(it.get("word", "")).strip().strip(",.;:!?…").lower() in LINKERS
+
+    def _sentence_end(it):
+        t = str(it.get("word", "")).strip()
+        return bool(t) and t[-1] in ".!?…"
+
     for i, w in enumerate(words):
         ws = float(w["start"])
-        if prev_end is not None and ws - prev_end > 0.8:
-            flush()
+        if prev_end is not None and ws - prev_end > 0.55:
+            flush()  # vraie pause de parole -> nouvelle pensée
         is_kw = round(ws, 2) in kwhits
         if is_kw and group:
             flush()
         if not group:
             gfirst = i
         group.append(w)
-        if is_kw or len(group) == chunk:
+        if is_kw:
             flush()
+        elif _sentence_end(w) and len(group) >= 2:
+            flush()  # fin de phrase (ponctuation) -> on coupe au sens
+        elif len(group) >= chunk:
+            # taille atteinte MAIS jamais finir sur une liaison : on retient la
+            # ligne un ou deux mots de plus, le temps que la pensée se termine.
+            if _linker(w) and len(group) < chunk + 2 and i + 1 < len(words):
+                pass
+            else:
+                flush()
         prev_end = float(w["end"])
     flush()
 

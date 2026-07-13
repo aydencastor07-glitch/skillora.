@@ -2161,7 +2161,7 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"dead_time\": [{\"start\": s, \"end\": s}],  // AUTRES temps morts à couper (secondes précises) : intros lentes/vides, blancs, moments où il ne se passe rien\n"
         " \"enhance\": {\"brightness\": -0.15..0.15, \"contrast\": 0.9..1.25, \"saturation\": 0.9..1.35, \"warmth\": -0.15..0.15, \"sharpen\": 0..1},  // AMÉLIORATION IMAGE que tu recommandes APRÈS avoir VU la vidéo : corrige ce qui cloche (trop sombre -> brightness+ ; terne -> saturation+/contrast+ ; flou/pas net -> sharpen+ ; froid/chaud à corriger -> warmth). Valeurs neutres (0, 1, 1, 0, 0) si l'image est déjà parfaite. Sois utile : presque toutes les vidéos smartphone gagnent en netteté et en punch\n"
         " \"needs_reframe\": bool,  // true si la vidéo gagnerait à être recadrée en vertical en SUIVANT le sujet (source horizontale/carrée, OU sujet souvent décentré) ; false si déjà bien cadré vertical\n"
-        " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=tout à gauche, 0.5=centre, 1=tout à droite) à 6-10 instants répartis, pour que le cadrage le SUIVE ; [] sinon\n"
+        " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=gauche, 0.5=centre, 1=droite) à 8-12 instants répartis sur TOUTE la durée. RÈGLE ABSOLUE : la PERSONNE QUI PARLE doit être ENTIÈRE et CENTRÉE dans le cadre à chaque instant — si ton track est faux, elle sera coupée hors champ (épaules sans tête = inacceptable). Sois PRÉCIS, vérifie chaque point ; [] sinon\n"
         " \"bg_text\": \"MOT ou phrase TRÈS courte (<=16 caractères), DANS LA LANGUE PARLÉE de la vidéo, à afficher en GÉANT DERRIÈRE la personne (effet 3D pro, style 'ME AT 7:00') — UNIQUEMENT si une personne est nettement visible en buste/pied face caméra ET qu'un mot fort résume le sujet. Vide sinon (ne force pas)\",\n"
         " \"two_people\": bool,  // true UNIQUEMENT si DEUX personnes parlent et sont visibles EN MÊME TEMPS (podcast/interview côte à côte) -> on fera un split-screen (1re en haut, 2e en bas)\n"
         " \"person_a_x\": 0.0,  // si two_people : centre horizontal (0..1) de la 1re personne (souvent à gauche ~0.25)\n"
@@ -2271,6 +2271,7 @@ def gemini_qc(path, duration, had_subs=False):
         + " \"too_busy\": bool,  // le montage est-il TROP chargé (trop d'effets/zooms/sons) ?\n"
         " \"lips_desync\": bool,  // GRAVE : la bouche est-elle désynchronisée avec la voix à un moment ? Regarde attentivement au milieu ET à la fin\n"
         " \"music_mismatch\": bool,  // la musique de fond jure-t-elle avec le contenu (ex: ambiance plage sur quelqu'un qui parle sérieusement) ?\n"
+        " \"subject_cut\": bool,  // GRAVE : la personne principale est-elle COUPÉE ou hors champ à un moment (tête tronquée, seulement les épaules) ?\n"
         " \"needs\": [\"more_dynamic|calmer|voice_louder|replace_bad_music\"],  // ORDONNANCE : ce que la vidéo RÉCLAME pour atteindre 8+/10 — more_dynamic = punch-ins/mouvement en plus ; calmer = trop chargé, alléger ; voice_louder = la voix doit dominer le mix ; replace_bad_music = la musique D'ORIGINE est mauvaise/trop forte, la remplacer. Liste vide si rien\n"
         " \"note\": \"le problème principal en 1 phrase, ou 'RAS'\"}"
     )
@@ -3837,6 +3838,8 @@ def process(job):
                     desync = bool(qcg.get("lips_desync"))
                     if desync:
                         dets.append("⚠ désynchro détectée par le chef")
+                    if bool(qcg.get("subject_cut")):
+                        dets.append("⚠ sujet coupé/hors champ signalé par le chef")
                     needs = set(str(x) for x in (qcg.get("needs") or []))
                     # ordonnances AUDIO : appliquées au mixage final (après la boucle)
                     if "voice_louder" in needs or "replace_bad_music" in needs:

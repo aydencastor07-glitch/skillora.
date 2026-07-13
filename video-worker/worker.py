@@ -2269,6 +2269,7 @@ def gemini_qc(path, duration, had_subs=False):
         + " \"too_busy\": bool,  // le montage est-il TROP chargé (trop d'effets/zooms/sons) ?\n"
         " \"lips_desync\": bool,  // GRAVE : la bouche est-elle désynchronisée avec la voix à un moment ? Regarde attentivement au milieu ET à la fin\n"
         " \"music_mismatch\": bool,  // la musique de fond jure-t-elle avec le contenu (ex: ambiance plage sur quelqu'un qui parle sérieusement) ?\n"
+        " \"needs\": [\"more_dynamic|calmer|voice_louder|replace_bad_music\"],  // ORDONNANCE : ce que la vidéo RÉCLAME pour atteindre 8+/10 — more_dynamic = punch-ins/mouvement en plus ; calmer = trop chargé, alléger ; voice_louder = la voix doit dominer le mix ; replace_bad_music = la musique D'ORIGINE est mauvaise/trop forte, la remplacer. Liste vide si rien\n"
         " \"note\": \"le problème principal en 1 phrase, ou 'RAS'\"}"
     )
     res = or_generate(prompt, video_path=path, json_out=True) if OPENROUTER_KEY else None
@@ -3820,10 +3821,29 @@ def process(job):
                     desync = bool(qcg.get("lips_desync"))
                     if desync:
                         dets.append("⚠ désynchro détectée par le chef")
+                    needs = set(str(x) for x in (qcg.get("needs") or []))
+                    # ordonnances AUDIO : appliquées au mixage final (après la boucle)
+                    if "voice_louder" in needs or "replace_bad_music" in needs:
+                        plan["_qc_quiet_music"] = True
+                        if "replace_bad_music" in needs:
+                            plan["_qc_replace_music"] = True
+                        fixed.append("mix voix d'abord programmé")
                     low = (isinstance(sc, (int, float)) and sc < 7) or desync
-                    if (too_busy or low) and not recooked and ffprobe_facts(base_reframed)["duration"] > 1:
+                    want_dyn = "more_dynamic" in needs and bool(words)
+                    if (too_busy or low or want_dyn) and not recooked and ffprobe_facts(base_reframed)["duration"] > 1:
                         try:
                             clean = base_reframed
+                            # LE REMÈDE SUIT LE DIAGNOSTIC : « trop statique » -> on
+                            # re-cuisine en version DYNAMISÉE (punch-ins à chaque
+                            # phrase), pas en version épurée (l'inverse !).
+                            if want_dyn:
+                                outz = os.path.join(work, "recook_dyn.mp4")
+                                try:
+                                    if zoom_punch(clean, outz, words, ffprobe_facts(clean)["has_audio"],
+                                                  work, seed=seed + 1):
+                                        clean = outz
+                                except Exception as ez:
+                                    print("recook dyn:", ez, file=sys.stderr)
                             # qualité (netteté/couleurs) sur la base propre
                             ech = enhance_chain((gem or {}).get("enhance"))
                             if ech:
@@ -3847,7 +3867,8 @@ def process(job):
                                 clean = outc2
                             cur = clean
                             recooked = True
-                            fixed.append("re-cuisiné en version épurée")
+                            fixed.append("re-cuisiné en version dynamisée (punch-ins)" if want_dyn
+                                         else "re-cuisiné en version épurée")
                         except Exception as e:
                             print("recook:", e, file=sys.stderr)
                     note = str(qcg.get("note") or "").strip()
@@ -3871,10 +3892,17 @@ def process(job):
         #    replace_all = son nul -> on le COUPE et on met de la musique.
         steps.start("audio", "Mixage du son…")
         audio_action = str((gem or {}).get("audio_action") or "keep")
+        # ordonnance du chef : musique d'origine mauvaise/trop forte -> on la remplace
+        if plan.get("_qc_replace_music") and audio_action == "keep":
+            audio_action = "replace_music"
+            if not str(plan.get("music_mood") or ""):
+                plan["music_mood"] = "cinematic"
         music = pick_music(str(plan.get("music_mood") or ""))
         # dosage décidé par le directeur : whisper = tapis discret, low = fond, full = moteur
         music_db = {"whisper": -30, "low": -21, "full": -14}.get(
             str(plan.get("music_volume") or "").lower(), -21)
+        if plan.get("_qc_quiet_music"):
+            music_db = min(music_db, -28)  # ordonnance du chef : la voix domine
         out = os.path.join(work, "final.mp4")
         audio_note = ""
         if audio_action == "replace_all":

@@ -1621,9 +1621,15 @@ def loudnorm(src, dst, music_path=None, music_gain_db=-21, music_foreground=Fals
              "-map", "0:v", "-map", "[a]", "-metadata", "comment=skillora-improved",
              "-c:v", "copy", "-c:a", "aac", "-shortest", dst])
     elif music_path:
+        # DUCKING de studio : la musique s'abaisse automatiquement dès que la voix
+        # parle (sidechain) et remonte dans les respirations — le réflexe d'un pro.
         run(["ffmpeg", "-y", "-i", src, "-stream_loop", "-1", "-i", music_path,
              "-filter_complex",
-             f"[1:a]volume={music_gain_db}dB[m];[0:a][m]amix=inputs=2:duration=first:dropout_transition=3,loudnorm=I=-14:TP=-1.5:LRA=11[a]",
+             f"[1:a]volume={music_gain_db}dB[m];"
+             "[0:a]asplit=2[voz][key];"
+             "[m][key]sidechaincompress=threshold=0.03:ratio=6:attack=120:release=500[md];"
+             "[voz][md]amix=inputs=2:duration=first:dropout_transition=3:normalize=0,"
+             "loudnorm=I=-14:TP=-1.5:LRA=11[a]",
              "-map", "0:v", "-map", "[a]", "-metadata", "comment=skillora-improved",
              "-c:v", "copy", "-c:a", "aac", "-shortest", dst])
     else:
@@ -2173,8 +2179,9 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"brands\": [{\"word\": \"mot exact\", \"slug\": \"slug minuscule\"}],  // 0-2 logos de marques CITÉES (netflix, tiktok, temu…)\n"
         " \"sfx\": [{\"word\": \"mot exact prononcé\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|magic|glitch|camera|beep|applause|riser|boom\"}],  // 0-5 bruitages qui RENFORCENT LE SENS, au bon endroit et adaptés au TON (un scientifique sérieux : très peu, sobres ; un edit fun : plus). taper->typing, argent/prix->cash, bonne réponse/chiffre->ding, choc/révélation->impact, tech/bug->glitch. Mets-en PEU et SEULEMENT si ça a du sens\n"
         " \"audio_action\": \"keep|replace_music|replace_all\",  // que faire du SON d'origine ? keep=on le garde tel quel ; replace_music=GARDER la voix mais RETIRER la musique de fond de la vidéo (elle est mauvaise/gênante) pour mettre la nôtre ; replace_all=le son est nul/inutile, on le COUPE entièrement et on met de la musique\n"
-        " \"add_music\": bool,  // faut-il un fond musical ? RÈGLE STRICTE : false dès que quelqu'un PARLE face caméra (storytime, vlog parlé, explication) — la voix EST le contenu, une musique d'ambiance ferait amateur. true seulement si le fond apporte vraiment (edit, cinématique, pas de parole), obligatoire si audio_action=replace_all\n"
-        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\",  // si musique : ambiance ADAPTÉE au sujet (un scientifique -> cinematic/tech, PAS chill/plage) ; vide sinon\n"
+        " \"add_music\": bool,  // PENSE COMME UN CRÉATEUR : demande-toi ce que l'OREILLE doit suivre. Quelqu'un PARLE -> l'oreille suit la VOIX : pas de musique par défaut ; un tapis discret SEULEMENT s'il amplifie l'émotion du récit. Personne ne parle -> la musique EST le moteur, obligatoire\n"
+        " \"music_volume\": \"whisper|low|full\",  // le DOSAGE d'un pro : whisper = tapis à peine audible sous la voix (récit émotionnel) ; low = fond présent mais la voix domine largement ; full = musique moteur, UNIQUEMENT si personne ne parle\n"
+        " \"music_mood\": \"chill|hype|emotional|cinematic|dark|vlog|luxury|funny|tech|epic\",  // choisis comme un directeur artistique : la musique raconte la MÊME histoire que l'image (sujet + énergie + émotion). Une fille qui raconte sa journée -> rien, ou un tapis doux discret ; un edit voiture -> hype/epic ; une histoire touchante -> emotional. JAMAIS une ambiance vacances/plage sur quelqu'un qui parle sérieusement\n"
         " \"color_grade\": \"dark_moody|warm_luxury|cold_cinematic|vibrant_pop|bw_horror|vintage_warm|none\",  // le LOOK couleur final que TU choisis après avoir vu l'image (none = image déjà parfaite ou étalonnage risqué)\n"
         " \"transition\": \"fade|whip|zoom_blur|white_flash|swipe|scale_reveal|glitch|blur_wipe|shake|color_flash|dip_black\"  // la famille de transition qui colle au ton : whip/zoom_blur=énergique ; fade/scale_reveal=posé ; white_flash/color_flash=punchy ; glitch=tech/gaming ; shake=impact/hype ; blur_wipe=doux moderne ; dip_black=dramatique\n"
         "}"
@@ -3199,13 +3206,19 @@ def process(job):
                 plan["bg_text"] = str(gem.get("bg_text") or "")  # texte derrière la personne
             # MUSIQUE : Gemini a le contrôle TOTAL (fini la musique de plage forcée).
             plan["music_mood"] = str(gem.get("music_mood") or "") if gem.get("add_music") else ""
-            # RÈGLE PRO (code, pas une consigne) : quelqu'un qui PARLE face caméra
-            # (facecam/vlog/story) n'a PAS de musique de fond — la voix EST le
-            # contenu. Seule exception : un montage résolument dynamic.
+            plan["music_volume"] = str(gem.get("music_volume") or "").lower()
+            # DOSAGE PRO (code) : sur quelqu'un qui PARLE face caméra, une musique
+            # RYTHMÉE/ambiance (chill, hype, funny…) est hors sujet -> retirée. Un
+            # tapis ÉMOTIONNEL (emotional/cinematic/dark) reste permis, mais à
+            # peine audible (whisper) et il sera ducké sous la voix. La voix reste
+            # le contenu — c'est comme ça qu'un vrai créateur mixe un récit parlé.
             if (str(gem.get("audio_type") or "") == "voice"
                     and str(gem.get("video_type") or "") in ("talk_facecam", "vlog", "story")
                     and str(gem.get("edit_intensity") or "") != "dynamic"):
-                plan["music_mood"] = ""
+                if str(plan.get("music_mood") or "") not in ("emotional", "cinematic", "dark", ""):
+                    plan["music_mood"] = ""
+                else:
+                    plan["music_volume"] = "whisper"
             # replace_all impose une musique -> ambiance par défaut si Gemini a oublié
             if str(gem.get("audio_action") or "") == "replace_all" and not plan["music_mood"]:
                 plan["music_mood"] = str(gem.get("music_mood") or "cinematic")
@@ -3813,6 +3826,9 @@ def process(job):
         steps.start("audio", "Mixage du son…")
         audio_action = str((gem or {}).get("audio_action") or "keep")
         music = pick_music(str(plan.get("music_mood") or ""))
+        # dosage décidé par le directeur : whisper = tapis discret, low = fond, full = moteur
+        music_db = {"whisper": -30, "low": -21, "full": -14}.get(
+            str(plan.get("music_volume") or "").lower(), -21)
         out = os.path.join(work, "final.mp4")
         audio_note = ""
         if audio_action == "replace_all":
@@ -3840,18 +3856,18 @@ def process(job):
                     run(["ffmpeg", "-y", "-i", cur, "-i", voice_wav,
                          "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac",
                          "-shortest", novideo])
-                    loudnorm(novideo, out, music_path=music, music_foreground=False)
+                    loudnorm(novideo, out, music_path=music, music_gain_db=music_db, music_foreground=False)
                     cur = out
                     iso_ok = True
                     audio_note = "voix isolée · musique remplacée"
             except Exception as e:
                 print("replace_music:", e, file=sys.stderr)
             if not iso_ok:
-                loudnorm(cur, out, music_path=music, music_foreground=music_fg and not words)
+                loudnorm(cur, out, music_path=music, music_gain_db=music_db, music_foreground=music_fg and not words)
                 cur = out
                 audio_note = "musique ajoutée (isolation indispo)"
         else:
-            loudnorm(cur, out, music_path=music, music_foreground=music_fg and not words)
+            loudnorm(cur, out, music_path=music, music_gain_db=music_db, music_foreground=music_fg and not words)
             cur = out
             audio_note = ("musique au premier plan" if (music_fg and not words)
                           else ("musique ajoutée" if music else "son normalisé"))

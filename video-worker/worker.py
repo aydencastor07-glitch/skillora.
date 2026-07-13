@@ -2171,6 +2171,8 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"hook_text\": \"accroche <=42 caractères déduite du contenu, DANS LA LANGUE PARLÉE de la vidéo (elle parle anglais -> accroche en ANGLAIS ; français -> français). Ou vide\",\n"
         "// --- TES DÉCISIONS DE MONTAGE (tu es le DIRECTEUR, on exécute fidèlement) ---\n"
         " \"subtitles\": bool,  // ajouter des sous-titres animés ? OUI dès que quelqu'un PARLE (talking-head, explication, vlog, tuto). NON si musique/chanson ou aucune parole\n"
+        " \"burned_subs\": \"none|bottom|middle|top\",  // la vidéo contient-elle DÉJÀ des sous-titres incrustés dans l'image ? Donne leur ZONE (bottom = tiers bas, middle = au centre, top = en haut). none si aucun. REGARDE BIEN : beaucoup de vidéos en ont déjà\n"
+        " \"sub_style\": \"group|word\",  // affichage des sous-titres : group = par pensées de 2-4 mots (défaut, posé) ; word = MOT PAR MOT qui claque (débit rapide, contenu punchy) — VARIE selon le rythme de la parole\n"
         " \"sub_style_id\": 0,  // INTERDIT de répondre 0 par réflexe (0 = seulement si AUCUN autre ne colle). Choisis comme un directeur artistique : 0=signature ; 2=bleu Hormozi (business/motivation/argent) ; 3=cartoon jaune (fun/vlog/humour) ; 4=script néon (mode/lifestyle) ; 5=vert tech (gadgets/tuto) ; 6=docu ombre (voyage/docu) ; 8=machine à écrire (mystère/storytelling) ; 10=dégradé or (luxe/flex) ; 12=karaoké (podcast/monologue) ; 15=glitch (gaming/IA/tech) ; 18=serif cinéma (histoire haut de gamme) ; 20=néon (musique/edit) ; 21=horreur rouge empilé (creepy/peur). Prends le style qui rendrait le mieux pour CETTE vidéo\n"
         " \"highlight\": \"yellow|green|red|cyan\",  // couleur des mots forts\n"
         " \"keywords\": [\"mots EXACTS prononcés à mettre en avant (prix, chiffres, mots-chocs), copiés tels qu'ils sont dits\"],\n"
@@ -2738,6 +2740,10 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{{{pos}{anim}}}{txt}")
             continue
         anim = FX.get(fx, "")
+        if not anim and not spec.get("kar"):
+            # pop d'apparition (le texte « tombe » avec un léger rebond) : fini les
+            # sous-titres figés — chaque style a du mouvement par défaut
+            anim = "\\fscx74\\fscy74\\t(0,90,\\fscx104\\fscy104)\\t(90,150,\\fscx100\\fscy100)"
         lines.append(f"Dialogue: 1,{ass_time(start)},{ass_time(end)},Sub,,0,0,0,,{{{pos}{anim}{base_blur}}}{txt}")
 
     # Texte géant pendant l'effet 'la vidéo se pousse sur le côté'
@@ -3230,7 +3236,7 @@ def process(job):
             # décisions directes : sous-titres, style, mots forts, émojis, objets, sons…
             if isinstance(gem.get("subtitles"), bool):
                 plan["subtitles"] = gem["subtitles"]
-            for k in ("sub_style_id", "highlight"):
+            for k in ("sub_style_id", "highlight", "sub_style"):
                 if gem.get(k) not in (None, ""):
                     plan[k] = gem[k]
             for k in ("keywords", "emojis", "objects", "brands", "sfx"):
@@ -3373,6 +3379,31 @@ def process(job):
                 steps.done("cut", "rien à couper")
         else:
             steps.skip("cut", "Coupe des temps morts", "pas nécessaire")
+
+        # 1b. SOUS-TITRES DÉJÀ INCRUSTÉS dans la vidéo d'origine (repérés par Gemini) :
+        # en bas/en haut -> on recadre légèrement pour les sortir du champ (zoom ~1,18x)
+        # et on met les nôtres, propres. Au centre -> impossible à effacer proprement
+        # sans GPU : on garde ceux d'origine et on n'ajoute PAS de doublon.
+        bsub = str((gem or {}).get("burned_subs") or "none").lower()
+        if bsub in ("bottom", "top"):
+            steps.start("subclean", "Retrait des sous-titres d'origine…")
+            outb = os.path.join(work, "nosubs.mp4")
+            band = 0.85
+            y0 = "0" if bsub == "bottom" else f"ih*{1 - band:.2f}"
+            try:
+                run(["ffmpeg", "-y", "-i", cur, "-vf",
+                     f"crop=iw*{band}:ih*{band}:(iw-ow)/2:{y0},"
+                     "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
+                     "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outb])
+                cur = outb
+                facts = ffprobe_facts(cur)
+                steps.done("subclean", "anciens sous-titres sortis du champ (recadrage léger)")
+            except Exception as e:
+                print("subclean:", e, file=sys.stderr)
+                steps.done("subclean", "recadrage impossible, cadre conservé")
+        elif bsub == "middle":
+            plan["subtitles"] = False
+            steps.done("subclean", "Sous-titres d'origine au centre : conservés, pas de doublon")
 
         # 2. Recadrage 9:16 — une vidéo HORIZONTALE devient verticale en REMPLISSANT
         # l'écran avec le sujet (crop intelligent), jamais le flou-bordures moche.

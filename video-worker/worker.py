@@ -2150,7 +2150,7 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         "{\"video_type\": \"talk_facecam|vlog|horror|luxury_aesthetic|energetic|dance|product|story|other\",\n"
         " \"niche\": \"le SUJET en 1 mot simple minuscule (ex: football, basketball, gym, edit, food, comedy, gaming, cars, fashion, motivation, lifestyle, horror, dance, luxe...)\",\n"
         " \"audio_type\": \"voice|music|none\",  // voice=quelqu'un PARLE/explique ; music=CHANSON/musique (ne PAS sous-titrer) ; none=pas de son utile\n"
-        " \"edit_intensity\": \"minimal|moderate|dynamic\",  // TRÈS IMPORTANT. minimal=vidéo déjà esthétique/fluide (danse, paysage, cinématique) -> on coupe juste les temps morts, PAS de zooms ni de bruitages ; moderate=talking-head/vlog -> zooms doux + sous-titres, sons rares ; dynamic=edit punchy/hype qui RÉCLAME des effets et des sons rythmés\n"
+        " \"edit_intensity\": \"minimal|moderate|dynamic\",  // TRÈS IMPORTANT. minimal=vidéo déjà esthétique/fluide (danse, paysage, cinématique) -> on coupe juste les temps morts, PAS de zooms ni de bruitages ; moderate=talking-head/vlog -> RÈGLE DE RÉTENTION d'un monteur pro : l'image ne reste JAMAIS identique plus de ~4 s — punch-in à chaque phrase forte, 2-4 bruitages qui SOULIGNENT le sens, 1-3 émojis quand ça illustre, un plan d'illustration si un objet/lieu est cité ; dynamic=edit punchy/hype qui RÉCLAME des effets et des sons rythmés partout\n"
         " \"summary\": \"de quoi parle la vidéo, 1 phrase\",\n"
         " \"mood\": \"ambiance en 1-2 mots\",\n"
         " \"has_person\": bool,\n"
@@ -2171,7 +2171,7 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"hook_text\": \"accroche <=42 caractères déduite du contenu, DANS LA LANGUE PARLÉE de la vidéo (elle parle anglais -> accroche en ANGLAIS ; français -> français). Ou vide\",\n"
         "// --- TES DÉCISIONS DE MONTAGE (tu es le DIRECTEUR, on exécute fidèlement) ---\n"
         " \"subtitles\": bool,  // ajouter des sous-titres animés ? OUI dès que quelqu'un PARLE (talking-head, explication, vlog, tuto). NON si musique/chanson ou aucune parole\n"
-        " \"sub_style_id\": 0,  // CHOISIS le style qui COLLE VRAIMENT au contenu — VARIE, n'utilise PAS toujours 0 : 0=signature ; 2=bleu Hormozi (business/motivation/argent) ; 3=cartoon jaune (fun/vlog/humour) ; 4=script néon (mode/lifestyle) ; 5=vert tech (gadgets/tuto) ; 6=docu ombre (voyage/docu) ; 8=machine à écrire (mystère/storytelling) ; 10=dégradé or (luxe/flex) ; 12=karaoké (podcast/monologue) ; 15=glitch (gaming/IA/tech) ; 18=serif cinéma (histoire haut de gamme) ; 20=néon (musique/edit) ; 21=horreur rouge empilé (creepy/peur). Prends le style qui rendrait le mieux pour CETTE vidéo\n"
+        " \"sub_style_id\": 0,  // INTERDIT de répondre 0 par réflexe (0 = seulement si AUCUN autre ne colle). Choisis comme un directeur artistique : 0=signature ; 2=bleu Hormozi (business/motivation/argent) ; 3=cartoon jaune (fun/vlog/humour) ; 4=script néon (mode/lifestyle) ; 5=vert tech (gadgets/tuto) ; 6=docu ombre (voyage/docu) ; 8=machine à écrire (mystère/storytelling) ; 10=dégradé or (luxe/flex) ; 12=karaoké (podcast/monologue) ; 15=glitch (gaming/IA/tech) ; 18=serif cinéma (histoire haut de gamme) ; 20=néon (musique/edit) ; 21=horreur rouge empilé (creepy/peur). Prends le style qui rendrait le mieux pour CETTE vidéo\n"
         " \"highlight\": \"yellow|green|red|cyan\",  // couleur des mots forts\n"
         " \"keywords\": [\"mots EXACTS prononcés à mettre en avant (prix, chiffres, mots-chocs), copiés tels qu'ils sont dits\"],\n"
         " \"emojis\": [{\"word\": \"mot exact prononcé\", \"emoji\": \"un émoji\"}],  // 2-5 émojis sur ce qui s'illustre\n"
@@ -2343,6 +2343,11 @@ def groq_plan(facts, transcript_text, context, vision=None):
     feedback = str(context.get("feedback", "") or "")
     vis_txt = ""
     if vision:
+        _vobj = []
+        for _o in (vision.get("objects") or [])[:10]:
+            _t = _o if isinstance(_o, str) else str((_o or {}).get("word") or (_o or {}).get("emoji") or "")
+            if _t.strip():
+                _vobj.append(_t.strip())
         sc = "; ".join(f"t={s.get('t', 0)}s {s.get('action', '')}" + (" (mouvement)" if s.get("motion") else "")
                        for s in (vision.get("scenes") or [])[:12])
         vis_txt = ("Analyse VISUELLE de TOUTE la vidéo (" + str(vision.get("frames_analyzed", "?")) + " images) :\n"
@@ -2352,7 +2357,7 @@ def groq_plan(facts, transcript_text, context, vision=None):
                    f"- Ouverture captivante: {'oui' if vision.get('opening_captivating') else 'non'} "
                    f"({vision.get('opening_note', '')}).\n"
                    f"- Scènes: {sc or 'n/a'}\n"
-                   f"- Objets visibles: {', '.join((vision.get('objects') or [])[:10]) or 'n/a'}\n"
+                   f"- Objets visibles: {', '.join(_vobj) if _vobj else 'n/a'}\n"
                    "Adapte TOUTES tes décisions (style de sous-titres, étalonnage, transitions, hook, "
                    "musique) à CE type de vidéo et à CETTE ambiance.\n")
     prompt = (
@@ -3229,6 +3234,9 @@ def process(job):
             for k in ("keywords", "emojis", "objects", "brands", "sfx"):
                 if isinstance(gem.get(k), list):
                     plan[k] = gem[k]  # Gemini décide (liste vide = rien, volontaire)
+            # ceinture : les mots-clés doivent être des TEXTES, même si l'IA renvoie des fiches
+            plan["keywords"] = [x if isinstance(x, str) else str((x or {}).get("word") or "")
+                                for x in (plan.get("keywords") or []) if x]
             for k in ("color_grade", "transition"):
                 if str(gem.get(k) or "").strip().lower() not in ("", "none"):
                     plan[k] = str(gem[k]).strip().lower()
@@ -3286,9 +3294,12 @@ def process(job):
             rec["zooms"] = [1.0 if z <= 1.0 else round(1.0 + (z - 1.0) * (0.6 + inten), 3) for z in base]
             # style de sous-titres / couleur / intensité APPRIS des vidéos virales
             # de cette niche : appliqués si Gemini ne l'a pas déjà décidé.
+            gsid = (gem or {}).get("sub_style_id")
+            if learned.get("sub_style_id") is not None and gsid in (None, "", 0):
+                # Gemini n'a pas fait de vrai choix de style -> celui appris des
+                # vidéos VIRALES de la niche (fini le style par défaut à répétition)
+                plan["sub_style_id"] = learned["sub_style_id"]
             if not gem:
-                if learned.get("sub_style_id") is not None:
-                    plan["sub_style_id"] = learned["sub_style_id"]
                 if learned.get("highlight"):
                     plan["highlight"] = learned["highlight"]
                 if learned.get("edit_intensity") in ("minimal", "moderate", "dynamic"):

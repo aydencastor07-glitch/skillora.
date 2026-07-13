@@ -610,7 +610,7 @@ def make_sfx_bank(work):
     delays = [0, 90, 160, 270, 350, 460]
     fc = [f"[0:a]asplit={len(delays)}" + "".join(f"[c{i}]" for i in range(len(delays)))]
     for i, d in enumerate(delays):
-        vol = 0.8 + (i % 3) * 0.12
+        vol = 0.5 + (i % 3) * 0.08  # le bruitage SOULIGNE, il ne domine jamais la voix
         fc.append(f"[c{i}]adelay={d}|{d},volume={vol:.2f}[t{i}]")
     fc.append("".join(f"[t{i}]" for i in range(len(delays))) +
               f"amix=inputs={len(delays)}:normalize=0,volume=1.2")
@@ -2177,7 +2177,7 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"emojis\": [{\"word\": \"mot exact prononcé\", \"emoji\": \"un émoji\"}],  // 2-5 émojis sur ce qui s'illustre\n"
         " \"objects\": [{\"word\": \"mot exact\", \"emoji\": \"émoji OBJET\"}],  // 0-2 gros objets animés si un objet important est cité\n"
         " \"brands\": [{\"word\": \"mot exact\", \"slug\": \"slug minuscule\"}],  // 0-2 logos de marques CITÉES (netflix, tiktok, temu…)\n"
-        " \"sfx\": [{\"word\": \"mot exact prononcé\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|magic|glitch|camera|beep|applause|riser|boom\"}],  // 0-5 bruitages qui RENFORCENT LE SENS, au bon endroit et adaptés au TON (un scientifique sérieux : très peu, sobres ; un edit fun : plus). taper->typing, argent/prix->cash, bonne réponse/chiffre->ding, choc/révélation->impact, tech/bug->glitch. Mets-en PEU et SEULEMENT si ça a du sens\n"
+        " \"sfx\": [{\"word\": \"mot exact prononcé\", \"sound\": \"typing|click|pop|whoosh|cash|ding|impact|magic|glitch|camera|beep|applause|riser|boom\"}],  // 0-3 MAX, placés comme un monteur pro : un seul aux ENDROITS QUI COMPTENT — un chiffre/prix révélé (cash/ding), LA punchline (impact), une révélation (whoosh). Un bruitage est RARE, c'est ce qui lui donne son impact. Sur quelqu'un qui parle calmement : souvent AUCUN. Dans le doute -> liste vide\n"
         " \"audio_action\": \"keep|replace_music|replace_all\",  // que faire du SON d'origine ? keep=on le garde tel quel ; replace_music=GARDER la voix mais RETIRER la musique de fond de la vidéo (elle est mauvaise/gênante) pour mettre la nôtre ; replace_all=le son est nul/inutile, on le COUPE entièrement et on met de la musique\n"
         " \"add_music\": bool,  // PENSE COMME UN CRÉATEUR : demande-toi ce que l'OREILLE doit suivre. Quelqu'un PARLE -> l'oreille suit la VOIX : pas de musique par défaut ; un tapis discret SEULEMENT s'il amplifie l'émotion du récit. Personne ne parle -> la musique EST le moteur, obligatoire\n"
         " \"music_volume\": \"whisper|low|full\",  // le DOSAGE d'un pro : whisper = tapis à peine audible sous la voix (récit émotionnel) ; low = fond présent mais la voix domine largement ; full = musique moteur, UNIQUEMENT si personne ne parle\n"
@@ -2620,6 +2620,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         g = group
         group = []
         start, end = float(g[0]["start"]), float(g[-1]["end"])
+        start = max(0.0, start - 0.12)  # pré-roll : le texte tombe PILE sur la voix
         if end - start < 0.35:
             end = start + 0.35
         solo_kw = len(g) == 1 and round(float(g[0]["start"]), 2) in kwhits
@@ -3512,17 +3513,19 @@ def process(job):
                 busy = busy0 + [(ot - 0.3, ot + obj_span + 0.3) for (ot, _p) in objs]
                 emo = [e for e in emo if not any(a <= e[0] <= b for (a, b) in busy)]
                 sfx_ev = sfx_event_times(words, plan.get("sfx"), kws)
-                sfx_ev += [(t, "pop") for (t, _p, _y) in emo
-                           if not any(abs(t - e[0]) < 0.4 for e in sfx_ev)]
+                # pas de pop automatique sur chaque émoji : réservé au montage dynamic
+                if intensity_mode == "dynamic":
+                    sfx_ev += [(t, "pop") for (t, _p, _y) in emo
+                               if not any(abs(t - e[0]) < 0.4 for e in sfx_ev)]
                 # whoosh à l'ENTRÉE et à la SORTIE de chaque objet animé
                 for (ot, _p) in objs:
-                    sfx_ev += [(ot, "whoosh"), (ot + OBJ_IN + OBJ_HOLD, "whoosh")]
+                    sfx_ev += [(ot, "whoosh")]  # un seul son à l'entrée, pas à la sortie
                 # Chaque transition de b-roll a SON bruitage (flash->appareil photo,
                 # chromatique->glitch, noir->impact, balayage->whoosh, reveal->magic)
                 tr_snd = TR_SOUND.get(br_fam)
                 if tr_snd:
                     for bc in broll_cuts:
-                        sfx_ev += [(bc, tr_snd), (bc + BROLL_SEG, tr_snd)]
+                        sfx_ev += [(bc, tr_snd)]  # un seul son par plan inséré
                 wh_extra = [slide[0], slide[1] - 0.25] if slide else []
                 # Whoosh sur les scènes en mouvement repérées par la vision
                 # (timestamps de la vidéo ORIGINALE : valides seulement si on n'a pas coupé)
@@ -4253,7 +4256,8 @@ def main():
           "· Yeux:", ("Gemini via OpenRouter (PAYANT, sans limite) + secours gratuit" if OPENROUTER_KEY
                       else ("Gemini gratuit (vidéo entière)" if GEMINI_KEY else "Groq (images)")),
           "· Transcription:", "ElevenLabs Scribe" if ELEVEN_KEY else "Whisper (Groq)",
-          "· Pexels:", "oui" if PEXELS_KEY else "non")
+          "· Pexels:", "oui" if PEXELS_KEY else "non",
+          "· Émojis nets (rsvg):", "oui" if shutil.which("rsvg-convert") else "NON — installe librsvg2-bin !")
     while True:
         job = claim_job()
         if job:

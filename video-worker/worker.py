@@ -3380,30 +3380,15 @@ def process(job):
         else:
             steps.skip("cut", "Coupe des temps morts", "pas nécessaire")
 
-        # 1b. SOUS-TITRES DÉJÀ INCRUSTÉS dans la vidéo d'origine (repérés par Gemini) :
-        # en bas/en haut -> on recadre légèrement pour les sortir du champ (zoom ~1,18x)
-        # et on met les nôtres, propres. Au centre -> impossible à effacer proprement
-        # sans GPU : on garde ceux d'origine et on n'ajoute PAS de doublon.
+        # 1b. SOUS-TITRES DÉJÀ INCRUSTÉS (repérés par Gemini) : PAS de recadrage-zoom
+        # (ça dégrade la qualité de l'image — refusé). En test, on pose nos sous-titres
+        # propres par-dessus. PRÉVU : quand les sous-titres d'origine sont mauvais,
+        # l'app demandera au créateur d'envoyer une version SANS sous-titres incrustés,
+        # et le montage repartira de cette version propre.
         bsub = str((gem or {}).get("burned_subs") or "none").lower()
-        if bsub in ("bottom", "top"):
-            steps.start("subclean", "Retrait des sous-titres d'origine…")
-            outb = os.path.join(work, "nosubs.mp4")
-            band = 0.85
-            y0 = "0" if bsub == "bottom" else f"ih*{1 - band:.2f}"
-            try:
-                run(["ffmpeg", "-y", "-i", cur, "-vf",
-                     f"crop=iw*{band}:ih*{band}:(iw-ow)/2:{y0},"
-                     "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
-                     "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outb])
-                cur = outb
-                facts = ffprobe_facts(cur)
-                steps.done("subclean", "anciens sous-titres sortis du champ (recadrage léger)")
-            except Exception as e:
-                print("subclean:", e, file=sys.stderr)
-                steps.done("subclean", "recadrage impossible, cadre conservé")
-        elif bsub == "middle":
-            plan["subtitles"] = False
-            steps.done("subclean", "Sous-titres d'origine au centre : conservés, pas de doublon")
+        if bsub in ("bottom", "top", "middle"):
+            steps.skip("subclean", "Sous-titres d'origine",
+                       f"détectés ({bsub}) — qualité d'image préservée, les nôtres posés proprement")
 
         # 2. Recadrage 9:16 — une vidéo HORIZONTALE devient verticale en REMPLISSANT
         # l'écran avec le sujet (crop intelligent), jamais le flou-bordures moche.

@@ -653,6 +653,28 @@ def make_sfx_bank(work):
     return bank
 
 
+def mix_sfx_at(src, dst, events, work):
+    """ÉDITEUR TIMELINE : mixe des bruitages à des instants PRÉCIS choisis par le
+    créateur (timeline inchangée, vidéo copiée sans ré-encodage)."""
+    bank = make_sfx_bank(work)
+    evs = [(float(t), str(sn)) for (t, sn) in events if str(sn) in bank][:10]
+    if not evs:
+        return False
+    inputs = ["-i", src]
+    fc, amaps = [], []
+    for i, (t, sname) in enumerate(evs):
+        p = bank[sname][i % len(bank[sname])]
+        inputs += ["-i", p]
+        ms = max(0, int(t * 1000))
+        fc.append(f"[{i + 1}:a]adelay={ms}|{ms},volume=0.55[s{i}]")
+        amaps.append(f"[s{i}]")
+    fc.append("[0:a]" + "".join(amaps) +
+              f"amix=inputs={len(evs) + 1}:duration=first:dropout_transition=0:normalize=0[a]")
+    run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc),
+         "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", dst])
+    return True
+
+
 def norm_token(w):
     return re.sub(r"[^0-9a-zà-ÿ€$%]", "", str(w).lower())
 
@@ -3213,13 +3235,143 @@ def process(job):
         facts = ffprobe_facts(src)
         if facts["duration"] > MAX_DURATION_S:
             raise RuntimeError(f"Vidéo trop longue ({facts['duration']:.0f}s) — max {MAX_DURATION_S:.0f}s pour l'amélioration.")
-        if facts.get("improved"):
+        edl = context.get("edl") if isinstance(context.get("edl"), dict) else None
+        if facts.get("improved") and not edl:
             raise RuntimeError("Cette vidéo a DÉJÀ été améliorée par Skillora. Renvoie la vidéo originale "
                                "(sans les sous-titres incrustés) — l'améliorer deux fois créerait des doublons.")
         # Graine propre à ce job : deux vidéos identiques ne sortent pas identiques
         # (ordre des zooms, position de départ des sous-titres…)
         seed = int(str(job["id"]).replace("-", "")[:8], 16) & 0xFFFF
         steps.done("dl", f"{facts['duration']:.0f}s · {facts['width']}x{facts['height']}")
+
+        # ═══ ÉDITEUR TIMELINE (bouton « Modifier ») : le créateur a décidé, on
+        # exécute SES décisions au millimètre — aucune IA, 100 % déterministe. ═══
+        if edl:
+            cur = src
+            dur = facts["duration"]
+            # 1) COUPES : segments gardés [[début, fin], …]
+            keeps = []
+            for seg in (edl.get("keep") or []):
+                try:
+                    a, b = float(seg[0]), float(seg[1])
+                    if b - a >= 0.15:
+                        keeps.append((max(0.0, a), min(dur, b)))
+                except Exception:
+                    pass
+            if keeps:
+                keeps.sort()
+                remove, cursor = [], 0.0
+                for (a, b) in keeps:
+                    if a > cursor + 0.03:
+                        remove.append((cursor, a))
+                    cursor = max(cursor, b)
+                if cursor < dur - 0.03:
+                    remove.append((cursor, dur))
+                if remove:
+                    steps.start("cut", "Découpe selon ta timeline…")
+                    outc = os.path.join(work, "edl_cut.mp4")
+                    if cut_spans(cur, outc, [], remove, dur, keep_pad=0.0):
+                        cur = outc
+                        facts = ffprobe_facts(cur)
+                    steps.done("cut", f"{len(keeps)} segment(s) gardé(s) · {facts['duration']:.0f}s")
+            # 2) ÉTALONNAGE choisi
+            gname = str(edl.get("grade") or "")
+            gchain = GRADES.get(gname.lower())
+            if gchain:
+                steps.start("effects", "Ton étalonnage…")
+                outg = os.path.join(work, "edl_grade.mp4")
+                run(["ffmpeg", "-y", "-i", cur, "-vf", gchain, "-c:v", "libx264",
+                     "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outg])
+                cur = outg
+                steps.done("effects", gname)
+            # 3) SOUS-TITRES : le style que TU as choisi
+            if edl.get("subtitles"):
+                steps.start("subs", "Sous-titres avec TON style…")
+                mp3e = os.path.join(work, "edl.mp3")
+                extract_audio_mp3(cur, mp3e)
+                tre = transcribe(mp3e)
+                ewords = (tre or {}).get("words") or []
+                if ewords:
+                    asse = os.path.join(work, "edl.ass")
+                    with open(asse, "w", encoding="utf-8") as f:
+                        f.write(build_ass(ewords, "", keywords=[], slide=None,
+                                          sub_position=str(edl.get("sub_position") or "dynamic"),
+                                          highlight=str(edl.get("highlight") or "yellow"),
+                                          sub_style=str(edl.get("sub_mode") or "group"),
+                                          style_id=int(edl.get("sub_style_id") or 0),
+                                          layout=None, seed=seed))
+                    outs = os.path.join(work, "edl_subs.mp4")
+                    burn_subs(cur, outs, asse)
+                    cur = outs
+                steps.done("subs", f"{len(ewords)} mots · style {edl.get('sub_style_id') or 0}")
+            # 4) TEXTES à l'écran, aux instants choisis
+            texts = [t for t in (edl.get("texts") or [])
+                     if isinstance(t, dict) and str(t.get("text") or "").strip()][:8]
+            if texts:
+                steps.start("texts", "Tes textes à l'écran…")
+                vf = []
+                for t in texts:
+                    try:
+                        tt = max(0.0, float(t.get("t") or 0))
+                        te = float(t.get("end") or (tt + 2.5))
+                        yp = min(0.85, max(0.05, float(t.get("y") or 0.16)))
+                        txt = re.sub(r"[^0-9A-Za-zÀ-ÿ !?.€$%+\-]", "", str(t.get("text"))[:60]).strip()
+                        if txt:
+                            vf.append("drawtext=font=Anton:text=" + txt.replace(" ", "\\ ") +
+                                      f":fontsize=76:fontcolor=white:borderw=6:bordercolor=black"
+                                      f":x=(w-text_w)/2:y=h*{yp:.2f}:enable='between(t,{tt:.2f},{te:.2f})'")
+                    except Exception:
+                        pass
+                if vf:
+                    outt = os.path.join(work, "edl_texts.mp4")
+                    run(["ffmpeg", "-y", "-i", cur, "-vf", ",".join(vf), "-c:v", "libx264",
+                         "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outt])
+                    cur = outt
+                steps.done("texts", f"{len(vf)} texte(s)")
+            # 5) BRUITAGES aux instants choisis
+            sfx_pts = []
+            for x in (edl.get("sfx") or []):
+                try:
+                    sfx_pts.append((float(x.get("t")), str(x.get("sound") or "pop")))
+                except Exception:
+                    pass
+            if sfx_pts:
+                steps.start("fx", "Tes bruitages…")
+                outx = os.path.join(work, "edl_sfx.mp4")
+                if mix_sfx_at(cur, outx, sfx_pts, work):
+                    cur = outx
+                steps.done("fx", f"{len(sfx_pts)} son(s) posé(s)")
+            # 6) MUSIQUE : bibliothèque ou fichier uploadé, au volume choisi
+            mus = edl.get("music") if isinstance(edl.get("music"), dict) else None
+            music_path = None
+            mdb = -21
+            if mus:
+                mdb = {"whisper": -30, "low": -21, "full": -14}.get(str(mus.get("volume") or "low"), -21)
+                try:
+                    if mus.get("name"):
+                        music_path = os.path.join(work, "edl_music")
+                        download(f"{SB_URL}/storage/v1/object/public/{MUSIC_BUCKET}/" +
+                                 urllib.parse.quote(str(mus["name"])), music_path)
+                    elif str(mus.get("url") or "").startswith(SB_URL + "/storage/v1/object/public/post-media/"):
+                        music_path = os.path.join(work, "edl_music")
+                        download(str(mus["url"]), music_path)
+                except Exception as e:
+                    print("edl music:", e, file=sys.stderr)
+                    music_path = None
+            steps.start("audio", "Mixage du son…")
+            outm = os.path.join(work, "edl_final.mp4")
+            loudnorm(cur, outm, music_path=music_path, music_gain_db=mdb,
+                     music_foreground=bool(mus and mus.get("foreground")))
+            cur = outm
+            steps.done("audio", "ta musique mixée sous la voix" if music_path else "son normalisé")
+            # 7) ENVOI
+            steps.start("up", "Envoi de ta version…")
+            url = upload_result(job, cur)
+            steps.done("up")
+            update_job(job["id"], {"status": "done", "result_url": url,
+                                   "finished_at": "now()", "steps": steps.items})
+            print("Job ÉDITEUR", job["id"], "terminé:", url)
+            return
 
         # LES YEUX : Gemini regarde TOUTE la vidéo d'origine (image + son) et
         # renvoie sa compréhension complète + les temps morts PRÉCIS. Sur la vidéo

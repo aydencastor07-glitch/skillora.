@@ -1430,6 +1430,25 @@ def _piecewise_expr(points, var="t", default=0.0):
     return expr
 
 
+def _step_expr(points, var="t", default=0.0, min_jump=40.0):
+    """Expression ffmpeg en ESCALIER : à chaque point (t, valeur) le cadre SAUTE
+    à la nouvelle position et y RESTE jusqu'au point suivant — le recadrage d'un
+    monteur (on coupe, on recadre) au lieu d'un glissement qui laisse le sujet
+    décentré pendant tout le trajet. Les micro-écarts (<min_jump px) sont ignorés
+    pour éviter les sauts nerveux inutiles."""
+    pts = sorted((float(t), float(v)) for (t, v) in points)
+    if not pts:
+        return f"{default}"
+    kept = [pts[0]]
+    for (t, v) in pts[1:]:
+        if abs(v - kept[-1][1]) >= min_jump:
+            kept.append((t, v))
+    expr = f"{kept[0][1]:.2f}"
+    for (t, v) in kept[1:]:
+        expr = f"if(lt({var},{t:.3f}),{expr},{v:.2f})"
+    return expr
+
+
 def smart_reframe(src, dst, track, target_w=1080, target_h=1920):
     """Recadrage 9:16 INTELLIGENT : la fenêtre verticale SUIT le sujet grâce au
     track de Gemini [{t, x}] (x = centre horizontal 0..1). Panoramique fluide,
@@ -1457,7 +1476,9 @@ def smart_reframe(src, dst, track, target_w=1080, target_h=1920):
         except Exception:
             pass
     if room and pts:
-        xexpr = _piecewise_expr(pts, var="t", default=room / 2)
+        # ESCALIER : saut net à chaque point de track (recadrage de monteur),
+        # fini le panoramique qui laisse le sujet hors-centre entre deux points
+        xexpr = _step_expr(pts, var="t", default=room / 2)
     else:
         xexpr = f"{room // 2}"
     fc = (f"[0:v]scale={scaled_w}:{target_h}:flags=lanczos,"
@@ -2144,15 +2165,19 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         "1. RÉTENTION : sur une vidéo parlée, l'image ne reste jamais identique plus de ~4 s "
         "(punch-ins aux phrases fortes) — sauf si la vidéo est déjà rythmée par ses plans.\n"
         "2. SON : quelqu'un parle -> la voix est REINE (pas de musique, ou tapis émotionnel "
-        "whisper) ; personne ne parle -> la musique est le MOTEUR. Bruitages : 0-3, rares, "
-        "aux moments qui comptent. Jamais d'ambiance plage sur un propos sérieux.\n"
+        "whisper) ; personne ne parle -> la musique est le MOTEUR. Bruitages : une vidéo "
+        "parlée RYTHMÉE en a presque toujours 1-3, PILE aux moments qui comptent (chiffre, "
+        "punchline, révélation) — 0 seulement si le ton est calme/émotionnel. Jamais "
+        "d'ambiance plage sur un propos sérieux.\n"
         "3. CADRAGE : la personne qui parle est ENTIÈRE et CENTRÉE à CHAQUE instant. "
         "Donne un point de track à CHAQUE changement de plan (appuie-toi sur tes scenes) — "
         "une tête coupée est INACCEPTABLE. Deux personnes en même temps -> split-screen.\n"
         "4. SOUS-TITRES : découpe par pensées ou mot-par-mot selon le débit ; style choisi "
         "selon le contenu (jamais 0 par réflexe) ; TOUJOURS dans la langue parlée.\n"
         "5. DÉCORATIONS (émojis, objets, logos, b-roll, texte 3D) : des outils, pas des "
-        "obligations — chacun SEULEMENT quand il illustre vraiment, à sa juste place.\n"
+        "obligations — chacun quand il illustre vraiment, à sa juste place. Une vidéo "
+        "parlée dynamique SANS aucun émoji ni relief est fade : vise 1-3 émojis bien "
+        "placés quand le contenu s'y prête.\n"
         "6. ACCROCHE TEXTE : un OUTIL PONCTUEL, pas un réflexe — mets-la SEULEMENT si elle "
         "crée une vraie curiosité que la 1re phrase ne crée pas déjà. Beaucoup de vidéos "
         "n'en ont PAS besoin : hook_text vide alors.\n"
@@ -2602,11 +2627,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         layout = sentence_layout(words, sub_position)
     chunk = 1 if str(sub_style).lower() == "word" else int(spec.get("chunk", 3))
     lines = []
-    if hook_text:
+    # ACCROCHE TEXTE DÉSACTIVÉE à la demande du client (rendu jugé moche et
+    # répétitif) — une version graphique premium sera conçue plus tard.
+    if False and hook_text:
         safe = str(hook_text).upper().replace("{", "").replace("}", "").replace("\n", " ")
-        est = max(1, len(safe)) * 94 * 0.55
-        shrink = "" if est <= 940 else f"\\fs{max(52, int(94 * 940 / est))}"
-        lines.append(f"Dialogue: 2,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200){shrink}}}{safe}")
+        lines.append(f"Dialogue: 2,0:00:00.15,0:00:03.00,Hook,,0,0,0,,{{\\fad(140,200)}}{safe}")
 
     def fit_early(raw, size):
         est = max(1, len(raw)) * size * 0.55

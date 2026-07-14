@@ -3274,6 +3274,22 @@ def process(job):
                         cur = outc
                         facts = ffprobe_facts(cur)
                     steps.done("cut", f"{len(keeps)} segment(s) gardé(s) · {facts['duration']:.0f}s")
+            # 1b) FORMAT : recadrage au ratio choisi (sujet centré)
+            fmt = str(edl.get("format") or "")
+            RATIOS = {"9:16": 9/16, "1:1": 1.0, "4:5": 4/5}
+            if fmt in RATIOS:
+                steps.start("frame", "Recadrage au format " + fmt + "…")
+                ff = ffprobe_facts(cur); W, H = ff["width"], ff["height"]
+                if W and H:
+                    tr = RATIOS[fmt]
+                    tw, th = (W, int(round(W/tr))) if (W/H) > tr else (int(round(H*tr)), H)
+                    tw, th = min(tw, W)//2*2, min(th, H)//2*2
+                    outf = os.path.join(work, "edl_fmt.mp4")
+                    run(["ffmpeg", "-y", "-i", cur, "-vf",
+                         f"crop={tw}:{th}:(iw-ow)/2:(ih-oh)/2,scale=1080:-2:flags=lanczos",
+                         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-c:a", "copy", outf])
+                    cur = outf; facts = ffprobe_facts(cur)
+                steps.done("frame", "format " + fmt)
             # 2) ÉTALONNAGE choisi
             gname = str(edl.get("grade") or "")
             gchain = GRADES.get(gname.lower())

@@ -63,10 +63,17 @@ serve(async (req) => {
       } catch (_e) { /* fail open */ }
     }
 
-    // Pas plus d'un job actif à la fois par personne (le worker est partagé).
-    const { data: active } = await admin.from("video_jobs")
-      .select("id").eq("user_id", userId).in("status", ["queued", "processing"]).limit(1);
-    if (active && active.length) return json({ success: false, code: "busy", error: "Une amélioration est déjà en cours. Attends qu'elle se termine." }, 409);
+    // Plusieurs améliorations EN PARALLÈLE par personne : elles entrent en file et
+    // sont traitées l'une après l'autre. Seul garde-fou : un plafond anti-abus
+    // généreux, pour qu'une seule personne ne monopolise pas la file publique.
+    const MAX_PARALLEL = 5;
+    const { count: activeCount } = await admin.from("video_jobs")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId).in("status", ["queued", "processing"]);
+    if ((activeCount || 0) >= MAX_PARALLEL) {
+      return json({ success: false, code: "busy",
+        error: "Tu as déjà " + MAX_PARALLEL + " vidéos en file. Attends qu'une se termine pour en lancer une nouvelle." }, 409);
+    }
 
     const context = typeof body.context === "object" && body.context ? body.context : {};
     const { data: job, error } = await admin.from("video_jobs").insert({

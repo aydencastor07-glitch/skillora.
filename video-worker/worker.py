@@ -3888,20 +3888,24 @@ def process(job):
                         fixed.append("mix voix d'abord programmé")
                     low = (isinstance(sc, (int, float)) and sc < 7) or desync
                     want_dyn = "more_dynamic" in needs and bool(words)
-                    if (too_busy or low or want_dyn) and not recooked and ffprobe_facts(base_reframed)["duration"] > 1:
+                    # « PLUS DYNAMIQUE » : on ajoute des punch-ins PAR-DESSUS la vidéo
+                    # DÉJÀ cuisinée (émojis, sons, b-roll, effets CONSERVÉS). L'ancienne
+                    # version repartait de la base nue et JETAIT tout le travail — c'est
+                    # pour ça que les vidéos sortaient déshabillées.
+                    if want_dyn and not recooked:
+                        try:
+                            outz = os.path.join(work, "boost_dyn.mp4")
+                            if zoom_punch(cur, outz, words, ffprobe_facts(cur)["has_audio"],
+                                          work, seed=seed + 1):
+                                cur = outz
+                                recooked = True
+                                fixed.append("dynamisé : punch-ins ajoutés (tout le montage conservé)")
+                        except Exception as ez:
+                            print("boost dyn:", ez, file=sys.stderr)
+                    # « TROP CHARGÉ » uniquement : là oui, on repart d'une base propre.
+                    if too_busy and not recooked and ffprobe_facts(base_reframed)["duration"] > 1:
                         try:
                             clean = base_reframed
-                            # LE REMÈDE SUIT LE DIAGNOSTIC : « trop statique » -> on
-                            # re-cuisine en version DYNAMISÉE (punch-ins à chaque
-                            # phrase), pas en version épurée (l'inverse !).
-                            if want_dyn:
-                                outz = os.path.join(work, "recook_dyn.mp4")
-                                try:
-                                    if zoom_punch(clean, outz, words, ffprobe_facts(clean)["has_audio"],
-                                                  work, seed=seed + 1):
-                                        clean = outz
-                                except Exception as ez:
-                                    print("recook dyn:", ez, file=sys.stderr)
                             # qualité (netteté/couleurs) sur la base propre
                             ech = enhance_chain((gem or {}).get("enhance"))
                             if ech:
@@ -3925,8 +3929,7 @@ def process(job):
                                 clean = outc2
                             cur = clean
                             recooked = True
-                            fixed.append("re-cuisiné en version dynamisée (punch-ins)" if want_dyn
-                                         else "re-cuisiné en version épurée")
+                            fixed.append("re-cuisiné en version épurée")
                         except Exception as e:
                             print("recook:", e, file=sys.stderr)
                     note = str(qcg.get("note") or "").strip()

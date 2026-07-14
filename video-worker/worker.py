@@ -1396,6 +1396,26 @@ def music_visualizer(src, dst, work, accent="cyan", baseline_y=0.60):
         return False
 
 
+def detect_content_crop(path):
+    """Détecte les BANDES NOIRES (film horizontal collé dans un cadre vertical,
+    letterbox/pillarbox) via cropdetect. Renvoie (w, h, x, y) de l'image réelle,
+    ou None si pas de bandes significatives."""
+    try:
+        p = subprocess.run(["ffmpeg", "-ss", "1", "-t", "6", "-i", path,
+                            "-vf", "cropdetect=18:2:0", "-f", "null", "-"],
+                           capture_output=True, text=True, timeout=180)
+        crops = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", p.stderr or "")
+        if not crops:
+            return None
+        w, h, x, y = map(int, crops[-1])
+        if w < 64 or h < 64:
+            return None
+        return (w, h, x, y)
+    except Exception as e:
+        print("detect_content_crop:", e, file=sys.stderr)
+        return None
+
+
 def reframe_916(src, dst, w, h):
     """Passe au format 9:16 style clip : la vidéo entière au centre, et le fond
     (haut/bas) = la même vidéo zoomée-floutée. AUCUNE bordure noire."""
@@ -2200,7 +2220,7 @@ def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
         " \"dead_time\": [{\"start\": s, \"end\": s}],  // AUTRES temps morts à couper (secondes précises) : intros lentes/vides, blancs, moments où il ne se passe rien\n"
         " \"enhance\": {\"brightness\": -0.15..0.15, \"contrast\": 0.9..1.25, \"saturation\": 0.9..1.35, \"warmth\": -0.15..0.15, \"sharpen\": 0..1},  // AMÉLIORATION IMAGE que tu recommandes APRÈS avoir VU la vidéo : corrige ce qui cloche (trop sombre -> brightness+ ; terne -> saturation+/contrast+ ; flou/pas net -> sharpen+ ; froid/chaud à corriger -> warmth). Valeurs neutres (0, 1, 1, 0, 0) si l'image est déjà parfaite. Sois utile : presque toutes les vidéos smartphone gagnent en netteté et en punch\n"
         " \"needs_reframe\": bool,  // true si la vidéo gagnerait à être recadrée en vertical en SUIVANT le sujet (source horizontale/carrée, OU sujet souvent décentré) ; false si déjà bien cadré vertical\n"
-        " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=gauche, 0.5=centre, 1=droite) à 8-12 instants répartis sur TOUTE la durée. RÈGLE ABSOLUE : la PERSONNE doit être ENTIÈRE et CENTRÉE à chaque instant. La vidéo peut CHANGER DE PLAN : mets un point de track À CHAQUE changement de plan (sers-toi de tes scenes) + un juste après — c'est là que les têtes se font couper. Épaules sans tête = inacceptable ; [] sinon\n"
+        " \"subject_track\": [{\"t\": s, \"x\": 0.0}],  // si needs_reframe : position HORIZONTALE du sujet principal (x: 0=gauche, 0.5=centre, 1=droite) à 8-12 instants répartis sur TOUTE la durée. RÈGLE ABSOLUE : la PERSONNE doit être ENTIÈRE et CENTRÉE à chaque instant. La vidéo peut CHANGER DE PLAN : mets un point de track À CHAQUE changement de plan (sers-toi de tes scenes) + un juste après — c'est là que les têtes se font couper. Épaules sans tête = inacceptable. Si DEUX personnes (une de dos/épaule, une de face) : cadre TOUJOURS celle qui est DE FACE et bien visible — jamais le dos ou l'épaule de l'autre ; [] sinon\n"
         " \"bg_text\": \"MOT ou phrase TRÈS courte (<=16 caractères), DANS LA LANGUE PARLÉE de la vidéo, à afficher en GÉANT DERRIÈRE la personne (effet 3D pro, style 'ME AT 7:00') — UNIQUEMENT si une personne est nettement visible en buste/pied face caméra ET qu'un mot fort résume le sujet. Vide sinon (ne force pas)\",\n"
         " \"two_people\": bool,  // true UNIQUEMENT si DEUX personnes parlent et sont visibles EN MÊME TEMPS (podcast/interview côte à côte) -> on fera un split-screen (1re en haut, 2e en bas)\n"
         " \"person_a_x\": 0.0,  // si two_people : centre horizontal (0..1) de la 1re personne (souvent à gauche ~0.25)\n"
@@ -3429,6 +3449,32 @@ def process(job):
         if bsub in ("bottom", "top", "middle"):
             steps.skip("subclean", "Sous-titres d'origine",
                        f"détectés ({bsub}) — qualité d'image préservée, les nôtres posés proprement")
+
+        # 1c. BANDES NOIRES : un film horizontal collé dans un cadre vertical n'est
+        # PAS une vraie vidéo verticale. On extrait d'abord l'IMAGE RÉELLE, puis le
+        # recadrage intelligent 9:16 (escalier + track) fait son vrai travail.
+        try:
+            cdrop = detect_content_crop(cur)
+        except Exception:
+            cdrop = None
+        if cdrop:
+            cw, ch, cx, cy = cdrop
+            big_bars = (ch < facts["height"] * 0.82) or (cw < facts["width"] * 0.82)
+            sane = (cw * ch) > (facts["width"] * facts["height"] * 0.25)
+            if big_bars and sane:
+                steps.start("letterbox", "Retrait des bandes noires…")
+                outlb = os.path.join(work, "content.mp4")
+                try:
+                    run(["ffmpeg", "-y", "-i", cur, "-vf", f"crop={cw}:{ch}:{cx}:{cy}",
+                         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+                         "-c:a", "copy", outlb])
+                    cur = outlb
+                    facts = ffprobe_facts(cur)
+                    plan["reframe"] = True  # l'image réelle est horizontale -> recadrage intelligent
+                    steps.done("letterbox", f"image réelle {cw}x{ch} extraite — le recadrage travaille enfin sur la VRAIE image")
+                except Exception as e:
+                    print("letterbox:", e, file=sys.stderr)
+                    steps.done("letterbox", "détection incertaine, cadre conservé")
 
         # 2. Recadrage 9:16 — une vidéo HORIZONTALE devient verticale en REMPLISSANT
         # l'écran avec le sujet (crop intelligent), jamais le flou-bordures moche.

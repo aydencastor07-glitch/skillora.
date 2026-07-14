@@ -4385,6 +4385,19 @@ def scout_tick():
             print("scout_tick state:", e, file=sys.stderr)
 
 
+def recover_orphans():
+    """Au démarrage : un seul worker tourne, donc tout job encore 'processing'
+    est un ORPHELIN (le worker a été redémarré en plein montage). On le remet
+    en file : il repart tout seul, et le client n'est plus jamais bloqué par
+    « une amélioration est déjà en cours »."""
+    try:
+        http("PATCH", SB_URL + "/rest/v1/video_jobs?status=eq.processing",
+             sb_headers({"Prefer": "return=minimal"}),
+             {"status": "queued", "started_at": None})
+    except Exception as e:
+        print("recover_orphans:", e, file=sys.stderr)
+
+
 def main():
     print("Skillora video-worker démarré.",
           "Groq:", "oui" if GROQ_KEY else "NON (plan IA désactivé)",
@@ -4393,6 +4406,7 @@ def main():
           "· Transcription:", "ElevenLabs Scribe" if ELEVEN_KEY else "Whisper (Groq)",
           "· Pexels:", "oui" if PEXELS_KEY else "non",
           "· Émojis nets (rsvg):", "oui" if shutil.which("rsvg-convert") else "NON — installe librsvg2-bin !")
+    recover_orphans()  # les jobs interrompus par un redémarrage repartent seuls
     while True:
         job = claim_job()
         if job:

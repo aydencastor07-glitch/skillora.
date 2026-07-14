@@ -3331,11 +3331,29 @@ def process(job):
                         tt = max(0.0, float(t.get("t") or 0))
                         te = float(t.get("end") or (tt + 2.5))
                         yp = min(0.85, max(0.05, float(t.get("y") or 0.16)))
+                        xp = min(0.95, max(0.05, float(t.get("x") or 0.5)))
+                        anim = str(t.get("anim") or "fade").lower()
                         txt = re.sub(r"[^0-9A-Za-zÀ-ÿ !?.€$%+\-]", "", str(t.get("text"))[:60]).strip()
-                        if txt:
-                            vf.append("drawtext=font=Anton:text=" + txt.replace(" ", "\\ ") +
-                                      f":fontsize=76:fontcolor=white:borderw=6:bordercolor=black"
-                                      f":x=(w-text_w)/2:y=h*{yp:.2f}:enable='between(t,{tt:.2f},{te:.2f})'")
+                        if not txt:
+                            continue
+                        DI, DO = 0.3, 0.28  # durées d'entrée / sortie (keyframes)
+                        # p = progression d'entrée (0->1), q = progression de sortie (1->0)
+                        p = f"min(1,(t-{tt:.2f})/{DI})"
+                        q = f"min(1,({te:.2f}-t)/{DO})"
+                        xbase, ybase = f"(w-text_w)/2+w*{xp-0.5:.3f}", f"h*{yp:.2f}"
+                        alpha = f"min({p},{q})"  # fondu par défaut (entrée + sortie)
+                        xexpr, yexpr = xbase, ybase
+                        if anim == "slide_up":
+                            yexpr = f"{ybase}+h*0.08*(1-{p})"
+                        elif anim == "slide_left":
+                            xexpr = f"{xbase}-w*0.12*(1-{p})"
+                        elif anim == "pop":
+                            # léger rebond vertical à l'entrée (keyframe de position)
+                            yexpr = f"{ybase}-h*0.03*(1-{p})*(1-{p})"
+                        vf.append("drawtext=font=Anton:text=" + txt.replace(" ", "\\ ") +
+                                  f":fontsize=76:fontcolor=white:borderw=6:bordercolor=black"
+                                  f":alpha='{alpha}':x='{xexpr}':y='{yexpr}'"
+                                  f":enable='between(t,{tt:.2f},{te:.2f})'")
                     except Exception:
                         pass
                 if vf:

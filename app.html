@@ -8848,8 +8848,13 @@
     var ovl=document.getElementById('edOvl'), html='';
     var vr=document.getElementById('edVid').getBoundingClientRect(), ir=document.getElementById('edVinner').getBoundingClientRect();
     edP.texts.forEach(function(el){ if(cur>=el.t && cur<=el.end){
-      var fs=Math.max(13, (vr.height||200)*0.055);
-      html+='<div class="ovl-t" style="left:'+(el.x||50)+'%;top:'+(el.y||16)+'%;font-size:'+fs+'px">'+String(el.text).replace(/</g,'&lt;')+'</div>';
+      var fs=Math.max(13,(vr.height||200)*0.055), DI=0.3, DO=0.28;
+      var p=Math.min(1,(cur-el.t)/DI), q=Math.min(1,(el.end-cur)/DO), a=Math.min(p,q);
+      var an=el.anim||'fade', tx=0, ty=0;
+      if(an==='slide_up') ty=8*(1-p);
+      else if(an==='slide_left') tx=-12*(1-p);
+      else if(an==='pop') ty=-3*(1-p)*(1-p);
+      html+='<div class="ovl-t" style="left:'+(el.x||50)+'%;top:'+(el.y||16)+'%;font-size:'+fs+'px;opacity:'+a.toFixed(2)+';transform:translate(calc(-50% + '+tx+'%),calc(-50% + '+ty+'%))">'+String(el.text).replace(/</g,'&lt;')+'</div>';
     }});
     ovl.innerHTML=html;
   }
@@ -8868,6 +8873,7 @@
     if(k==='textsel'){ var el=edP.texts.filter(function(x){return x.id===edP.sel;})[0]; if(!el)return edCloseSheet();
       edSheetShell('Texte', '<div class="ed-row"><input class="ed-in" id="edTxtIn" value="'+String(el.text).replace(/"/g,'&quot;')+'" maxlength="60"></div>'+
         '<div class="ed-hint">Position :</div><div class="ed-grid"><button class="ed-opt" onclick="edTxtPos(50,16)">Haut</button><button class="ed-opt" onclick="edTxtPos(50,50)">Centre</button><button class="ed-opt" onclick="edTxtPos(50,84)">Bas</button><button class="ed-opt" onclick="edTxtPos(20,50)">Gauche</button></div>'+
+        '<div class="ed-hint" style="margin-top:10px;">Animation :</div><div class="ed-grid">'+[['fade','✨ Fondu'],['slide_up','⬆️ Glissé'],['slide_left','⬅️ Latéral'],['pop','🎯 Pop']].map(function(a){return '<button class="ed-opt'+((el.anim||'fade')===a[0]?' on':'')+'" onclick="edTxtAnim(\''+a[0]+'\')">'+a[1]+'<span class="ec">✓</span></button>';}).join('')+'</div>'+
         '<div class="ed-hint" style="margin-top:8px;">Apparaît de '+edFmt(el.t)+' à '+edFmt(el.end)+'. Glisse le bloc orange pour changer le moment.</div>'+
         '<button class="ed-del" onclick="edDelSel(\'texts\')">🗑️ Supprimer ce texte</button>');
       var inp=document.getElementById('edTxtIn'); inp.oninput=function(){ el.text=inp.value; edRenderBlocks(); edSync(); };
@@ -8890,6 +8896,7 @@
   }
   function edKeepsHtml(){ return edP.keeps.length? edP.keeps.map(function(k,i){return '<span class="ed-opt" style="display:inline-flex;width:auto;margin:3px 4px 0 0">✓ '+edFmt(k[0])+'→'+edFmt(k[1])+' <span style="color:#ff8a8a;cursor:pointer;margin-left:6px" onclick="edDelKeep('+i+')">✕</span></span>';}).join('') : '<span class="ed-hint">Toute la vidéo est gardée.</span>'; }
   function edTxtPos(x,y){ var el=edP.texts.filter(function(z){return z.id===edP.sel;})[0]; if(el){el.x=x;el.y=y;edSync();} }
+  function edTxtAnim(a){ var el=edP.texts.filter(function(z){return z.id===edP.sel;})[0]; if(el){el.anim=a; edSheet('textsel'); edSync();} }
   function edDelSel(kind){ edP[kind]=edP[kind].filter(function(x){return x.id!==edP.sel;}); edP.sel=null; edRenderBlocks(); edSync(); edCloseSheet(); }
   function edAddSfx(k){ var el={id:edUid(),t:edNow(),sound:k}; edP.sfx.push(el); edRenderBlocks(); }
   function edPickMusic(f){ var m=edC().musics.filter(function(x){return x.f===f;})[0]; edP.music={name:f,label:m?m.n:f,volume:(edP.music&&edP.music.volume)||'low'}; edRenderBlocks(); edSheet('music'); }
@@ -8909,7 +8916,7 @@
       if(edP.keeps.length) edl.keep=edP.keeps;
       if(edP.format) edl.format=edP.format;
       if(edP.grade) edl.grade=edP.grade;
-      if(edP.texts.length) edl.texts=edP.texts.map(function(t){return {t:t.t,end:t.end,text:t.text,y:(t.y||16)/100};});
+      if(edP.texts.length) edl.texts=edP.texts.map(function(t){return {t:t.t,end:t.end,text:t.text,x:(t.x||50)/100,y:(t.y||16)/100,anim:t.anim||'fade'};});
       if(edP.sfx.length) edl.sfx=edP.sfx.map(function(s){return {t:s.t,sound:s.sound};});
       if(edP.music) edl.music=edP.music;
       var sess=await sb.auth.getSession(); var token=sess.data.session.access_token;

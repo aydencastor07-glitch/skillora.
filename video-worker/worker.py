@@ -701,12 +701,23 @@ def sfx_event_times(words, plan_sfx, kws):
         sound = str((item or {}).get("sound", "pop")).strip().lower()
         if not target:
             continue
+        # matching SOUPLE : exact d'abord, sinon préfixe/contenu (l'oreille de
+        # Gemini et la transcription écrivent parfois le même mot différemment —
+        # avant, le son disparaissait alors en silence)
+        hit = None
         for w in words or []:
             t = float(w.get("start", 0))
-            if norm_token(w.get("word", "")) == target and t not in used_ts:
-                events.append((t, sound))
-                used_ts.add(t)
+            if t in used_ts:
+                continue
+            wt = norm_token(w.get("word", ""))
+            if wt == target:
+                hit = t
                 break
+            if hit is None and len(target) >= 4 and (wt.startswith(target[:4]) or target[:4] in wt):
+                hit = t  # candidat approché, gardé si aucun exact ensuite
+        if hit is not None:
+            events.append((hit, sound))
+            used_ts.add(hit)
     for k in kws or []:
         t = float(k["start"])
         if any(abs(t - e[0]) < 0.4 for e in events):
@@ -807,12 +818,19 @@ def emoji_events(words, plan_emojis, work, layout=None):
                 assert os.path.exists(p) and os.path.getsize(p) > 500
             except Exception:
                 download(EMOJI_CDN.format(code), p)  # repli 72px
+            hit_i = None
             for idx, w in enumerate(words or []):
-                if norm_token(w.get("word", "")) == target:
-                    suby = layout[idx] if layout and idx < len(layout) else 1430
-                    y = max(150, suby - 265)  # collé au-dessus de la ligne de texte
-                    events.append((float(w["start"]), p, y))
+                wt = norm_token(w.get("word", ""))
+                if wt == target:
+                    hit_i = idx
                     break
+                if hit_i is None and len(target) >= 4 and (wt.startswith(target[:4]) or target[:4] in wt):
+                    hit_i = idx  # match approché (transcription ≠ oreille de Gemini)
+            if hit_i is not None:
+                w = words[hit_i]
+                suby = layout[hit_i] if layout and hit_i < len(layout) else 1430
+                y = max(150, suby - 265)  # collé au-dessus de la ligne de texte
+                events.append((float(w["start"]), p, y))
         except Exception as e:
             print("emoji:", emo, e, file=sys.stderr)
     return events
@@ -2311,7 +2329,7 @@ def gemini_study_url(url):
         return None
 
 
-def gemini_qc(path, duration, had_subs=False):
+def gemini_qc(path, duration, had_subs=False, intent=""):
     """CONTRÔLE QUALITÉ : Gemini regarde la vidéo AMÉLIORÉE (le rendu final) et
     dit s'il reste des problèmes : temps mort/logo restant, sous-titres qui
     couvrent le visage ou mal synchro, montage trop chargé, son déséquilibré.
@@ -2319,10 +2337,14 @@ def gemini_qc(path, duration, had_subs=False):
     None si pas de clé / échec."""
     if not (GEMINI_KEY or OPENROUTER_KEY):
         return None
+    intent_txt = (f"\nINTENTIONS DU DIRECTEUR (ce qui DEVAIT être fait) : {intent}\n"
+                  "Vérifie que chaque intention est VISIBLE/AUDIBLE dans le rendu et bien exécutée — "
+                  "cite précisément l'outil raté dans 'note' (ex: 'émoji absent', 'son au mauvais moment').\n"
+                  ) if intent else ""
     prompt = (
         "Tu es un directeur de post-production TRÈS exigeant. Voici une vidéo courte "
         f"({duration:.0f}s) qui vient d'être montée automatiquement pour devenir un reel "
-        "viral. CONTRÔLE-la et dis ce qui ne va ENCORE pas. Réponds UNIQUEMENT ce JSON:\n"
+        f"viral.{intent_txt} CONTRÔLE-la et dis ce qui ne va ENCORE pas. Réponds UNIQUEMENT ce JSON:\n"
         "{\"score\": 0-10,  // qualité globale du montage\n"
         " \"ok\": bool,  // true si publiable tel quel\n"
         " \"remaining_dead_time\": [{\"start\": s, \"end\": s}],  // temps morts/logos/écrans de fin qu'il RESTE à couper (secondes précises), [] si aucun\n"
@@ -3898,7 +3920,14 @@ def process(job):
                     if dur_qc <= 2:
                         break
                     steps.start("gqc", f"Gemini goûte le résultat (passage {rnd + 1})…")
-                    qcg = gemini_qc(cur, dur_qc, had_subs=bool(words))
+                    _intent = ("sous-titres style " + str(plan.get("sub_style_id")) +
+                               " (" + str(plan.get("sub_style") or "group") + ")" +
+                               ", transition " + str(plan.get("transition") or "-") +
+                               ", étalonnage " + str(plan.get("color_grade") or "-") +
+                               ", musique " + (str(plan.get("music_mood") or "aucune")) +
+                               ", " + str(len(plan.get("sfx") or [])) + " bruitage(s), " +
+                               str(len(plan.get("emojis") or [])) + " émoji(s)")
+                    qcg = gemini_qc(cur, dur_qc, had_subs=bool(words), intent=_intent)
                     if not qcg:
                         break
                     sc = qcg.get("score")

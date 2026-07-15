@@ -2053,18 +2053,91 @@
 
     <!-- GÉNÉRATEUR IA — « Copier une vidéo » (bêta / mode test) -->
     <style>
-      .gen-inp{width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:12px;color:#eef2fb;font-family:inherit;font-size:.9rem;padding:12px 13px;margin-top:9px;resize:vertical;}
+      #genCard{position:relative;overflow:hidden;background:
+        radial-gradient(120% 90% at 100% 0%, rgba(124,58,237,.14), transparent 55%),
+        radial-gradient(120% 90% at 0% 0%, rgba(47,123,255,.14), transparent 55%),
+        var(--surface);border:1.5px solid var(--border2);}
+      .gen-head{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+      .gen-ic{flex:none;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:1.35rem;
+        background:linear-gradient(140deg,#7c3aed,#2f7bff);box-shadow:0 10px 22px -10px rgba(124,58,237,.8);}
+      .gen-htxt{flex:1;min-width:0;}
+      .gen-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.12rem;color:var(--white);display:flex;align-items:center;gap:8px;line-height:1.1;}
+      .gen-sub{font-size:.82rem;color:var(--muted);line-height:1.45;margin-top:5px;}
+      .badge-beta{font-size:.6rem;font-family:'Sora',sans-serif;font-weight:700;letter-spacing:.06em;background:rgba(124,58,237,.18);color:#c9b6ff;border:1px solid rgba(124,58,237,.45);padding:2px 8px;border-radius:999px;}
+      .gen-seg{display:flex;gap:7px;margin:15px 0 13px;}
+      .gen-seg button{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;border-radius:13px;
+        background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--muted);font-family:'Sora',sans-serif;font-weight:600;font-size:.76rem;cursor:pointer;transition:all .15s;}
+      .gen-seg button .gs-ic{font-size:1.25rem;line-height:1;}
+      .gen-seg button.active{background:linear-gradient(150deg,rgba(47,123,255,.22),rgba(124,58,237,.18));border-color:#4d8fff;color:#fff;box-shadow:0 8px 20px -12px rgba(47,123,255,.9);}
+      .gen-seg button:active{transform:scale(.96);}
+      .gen-pan{display:none;}
+      .gen-pan.on{display:block;animation:genFade .22s ease;}
+      @keyframes genFade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+      .gen-inp{width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1.5px solid var(--border2);border-radius:13px;color:#eef2fb;font-family:inherit;font-size:.92rem;padding:13px 14px;resize:vertical;transition:border-color .15s;}
       .gen-inp:focus{outline:none;border-color:#4d8fff;}
       .gen-inp::placeholder{color:#8a97b4;}
-      .badge-beta{font-size:.62rem;background:rgba(124,58,237,.16);color:#c4b5fd;border:1px solid rgba(124,58,237,.4);padding:2px 8px;border-radius:999px;vertical-align:2px;}
+      .gen-inwrap{position:relative;}
+      .gen-inwrap .gi-ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1rem;opacity:.7;pointer-events:none;}
+      .gen-inwrap input{padding-left:40px;}
+      .gen-drop{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;padding:26px 16px;border:2px dashed var(--border2);border-radius:15px;background:rgba(255,255,255,.02);cursor:pointer;transition:all .15s;}
+      .gen-drop:hover,.gen-drop.drag{border-color:#4d8fff;background:rgba(47,123,255,.06);}
+      .gen-drop .gd-ic{font-size:1.9rem;}
+      .gen-drop .gd-t{font-family:'Sora',sans-serif;font-weight:700;font-size:.9rem;color:var(--white);}
+      .gen-drop .gd-s{font-size:.76rem;color:var(--muted);}
+      .gen-file{display:none;align-items:center;gap:11px;background:rgba(61,220,132,.08);border:1px solid rgba(61,220,132,.32);border-radius:13px;padding:11px 13px;margin-top:2px;}
+      .gen-file video{width:52px;height:70px;object-fit:cover;border-radius:9px;background:#000;flex:none;}
+      .gen-file .gf-m{flex:1;min-width:0;}
+      .gen-file .gf-n{font-size:.82rem;color:var(--white);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .gen-file .gf-x{flex:none;background:none;border:none;color:var(--muted);font-size:1.15rem;cursor:pointer;padding:2px 6px;}
+      .gen-hint{display:flex;gap:8px;align-items:flex-start;font-size:.76rem;color:var(--muted);line-height:1.45;margin-top:11px;}
+      .gen-hint .gh-ic{flex:none;opacity:.8;}
       #genVid{width:150px;border-radius:14px;background:#000;}
     </style>
     <div class="pub-card reveal" id="genCard" style="animation-delay:.22s;margin-bottom:18px;">
-      <div class="pub-ey">Copier une vidéo <span class="badge-beta">BÊTA</span></div>
       <div id="genIntro">
-        <p class="pub-hint2">Colle le lien d'une vidéo virale (TikTok, YouTube, Reels…) <b>ou</b> décris ton idée. L'IA la regarde, écrit le plan, génère les images, les anime et monte <b>ta</b> version dans ce format.</p>
-        <input id="genLink" class="gen-inp" type="url" inputmode="url" placeholder="Lien de la vidéo à reproduire (optionnel)" />
-        <textarea id="genIdea" class="gen-inp" rows="3" placeholder="…ou décris ton idée (ex : une histoire courte effrayante dans un vieux manoir)"></textarea>
+        <div class="gen-head">
+          <div class="gen-ic">🎬</div>
+          <div class="gen-htxt">
+            <div class="gen-title">Copier une vidéo <span class="badge-beta">BÊTA</span></div>
+            <div class="gen-sub">Donne-nous une vidéo, un lien ou une idée — l'IA écrit le plan, génère les images, les anime et monte <b>ta</b> version dans ce format viral.</div>
+          </div>
+        </div>
+
+        <div class="gen-seg" id="genSeg">
+          <button type="button" class="active" data-mode="upload" onclick="genSetMode('upload')"><span class="gs-ic">⬆️</span>Ma vidéo</button>
+          <button type="button" data-mode="link" onclick="genSetMode('link')"><span class="gs-ic">🔗</span>Un lien</button>
+          <button type="button" data-mode="idea" onclick="genSetMode('idea')"><span class="gs-ic">✍️</span>Une idée</button>
+        </div>
+
+        <!-- Mode : uploader sa vidéo -->
+        <div class="gen-pan on" id="genPanUpload">
+          <input type="file" id="genFileInput" accept="video/*" style="display:none" onchange="genPickFile(this)" />
+          <div class="gen-drop" id="genDrop" onclick="document.getElementById('genFileInput').click()">
+            <div class="gd-ic">📤</div>
+            <div class="gd-t">Choisir une vidéo à reproduire</div>
+            <div class="gd-s">MP4 · jusqu'à 100 Mo</div>
+          </div>
+          <div class="gen-file" id="genFileBox">
+            <video id="genFilePrev" muted playsinline></video>
+            <div class="gf-m"><div class="gf-n" id="genFileName">vidéo.mp4</div><div class="gd-s">Prête à être reproduite</div></div>
+            <button type="button" class="gf-x" onclick="genClearFile()" title="Retirer">✕</button>
+          </div>
+        </div>
+
+        <!-- Mode : coller un lien -->
+        <div class="gen-pan" id="genPanLink">
+          <div class="gen-inwrap"><span class="gi-ic">🔗</span>
+            <input id="genLink" class="gen-inp" type="url" inputmode="url" placeholder="Colle le lien (TikTok, YouTube, Reels…)" />
+          </div>
+        </div>
+
+        <!-- Mode : écrire une idée / un script -->
+        <div class="gen-pan" id="genPanIdea">
+          <textarea id="genIdea" class="gen-inp" rows="4" placeholder="Décris ton idée OU colle ton script complet.&#10;Ex : Une histoire courte et effrayante dans un vieux manoir, voix off grave, ambiance tendue."></textarea>
+        </div>
+
+        <div class="gen-hint"><span class="gh-ic">✨</span><span>L'IA choisit seule le meilleur générateur (avatar parlant, voix off, faceless…) et garde ton personnage cohérent d'un plan à l'autre.</span></div>
+
         <button class="imp-btn" id="genGo" onclick="genStart()">🎬 Générer ma vidéo</button>
         <p class="imp-note" id="genNote" style="display:none;"></p>
       </div>
@@ -2082,6 +2155,7 @@
         </div>
       </div>
     </div>
+
 
 
     <!-- Studio = Script (toute la page). Les idées vivent dans la bulle 💡 flottante. -->
@@ -8765,7 +8839,40 @@
   }
 
   /* ── GÉNÉRATEUR IA (« Copier une vidéo ») — job créé via video-generate, traité par le video-worker ── */
-  var genJobId = null, genTimer = null, genUrl = null;
+  var genJobId = null, genTimer = null, genUrl = null, genMode = 'upload', genFile = null, genPrevUrl = null;
+
+  function genSetMode(m) {
+    genMode = m;
+    var seg = document.getElementById('genSeg');
+    if (seg) Array.prototype.forEach.call(seg.querySelectorAll('button'), function (b) {
+      b.classList.toggle('active', b.getAttribute('data-mode') === m);
+    });
+    ['upload', 'link', 'idea'].forEach(function (k) {
+      var p = document.getElementById('genPan' + k.charAt(0).toUpperCase() + k.slice(1));
+      if (p) p.classList.toggle('on', k === m);
+    });
+  }
+
+  function genPickFile(input) {
+    var f = input && input.files && input.files[0];
+    if (!f) return;
+    if (f.size > 100 * 1024 * 1024) { skModal({ icon: '📦', title: 'Vidéo trop lourde', message: 'Ta vidéo doit faire moins de 100 Mo.', cancelText: 'OK' }); input.value = ''; return; }
+    genFile = f;
+    if (genPrevUrl) { try { URL.revokeObjectURL(genPrevUrl); } catch (e) {} }
+    genPrevUrl = URL.createObjectURL(f);
+    var pv = document.getElementById('genFilePrev'); if (pv) { pv.src = genPrevUrl; try { pv.load(); } catch (e) {} }
+    var nm = document.getElementById('genFileName'); if (nm) nm.textContent = f.name || 'ta vidéo.mp4';
+    var dz = document.getElementById('genDrop'); if (dz) dz.style.display = 'none';
+    var fb = document.getElementById('genFileBox'); if (fb) fb.style.display = 'flex';
+  }
+
+  function genClearFile() {
+    genFile = null;
+    if (genPrevUrl) { try { URL.revokeObjectURL(genPrevUrl); } catch (e) {} genPrevUrl = null; }
+    var fi = document.getElementById('genFileInput'); if (fi) fi.value = '';
+    var fb = document.getElementById('genFileBox'); if (fb) fb.style.display = 'none';
+    var dz = document.getElementById('genDrop'); if (dz) dz.style.display = 'flex';
+  }
 
   function genReset() {
     if (genTimer) { clearInterval(genTimer); genTimer = null; }
@@ -8778,19 +8885,35 @@
   }
 
   async function genStart() {
-    var link = (document.getElementById('genLink').value || '').trim();
-    var idea = (document.getElementById('genIdea').value || '').trim();
-    if (!link && !idea) { skModal({ icon: '🎬', title: 'Rien à copier', message: 'Colle un lien de vidéo ou décris ton idée.', cancelText: 'OK' }); return; }
-    if (link && !/^https?:\/\//i.test(link)) { skModal({ icon: '🔗', title: 'Lien invalide', message: 'Le lien doit commencer par http(s)://', cancelText: 'OK' }); return; }
+    var link = (document.getElementById('genLink') || {}).value || '';
+    var idea = (document.getElementById('genIdea') || {}).value || '';
+    link = link.trim(); idea = idea.trim();
+    if (genMode === 'upload' && !genFile) { skModal({ icon: '🎬', title: 'Aucune vidéo', message: 'Choisis une vidéo à reproduire.', cancelText: 'OK' }); return; }
+    if (genMode === 'link' && !link) { skModal({ icon: '🔗', title: 'Aucun lien', message: 'Colle le lien d\'une vidéo.', cancelText: 'OK' }); return; }
+    if (genMode === 'link' && !/^https?:\/\//i.test(link)) { skModal({ icon: '🔗', title: 'Lien invalide', message: 'Le lien doit commencer par http(s)://', cancelText: 'OK' }); return; }
+    if (genMode === 'idea' && !idea) { skModal({ icon: '✍️', title: 'Décris ton idée', message: 'Écris ton idée ou colle ton script.', cancelText: 'OK' }); return; }
     var btn = document.getElementById('genGo'); btn.disabled = true; btn.textContent = 'Envoi…';
     try {
       var sess = await sb.auth.getSession();
       if (!sess.data.session) { window.location.href = 'signup.html'; return; }
-      var token = sess.data.session.access_token;
+      var token = sess.data.session.access_token, uid = sess.data.session.user.id;
+      var payload = { idea: '', source_url: '' };
+      if (genMode === 'upload') {
+        btn.textContent = 'Envoi de ta vidéo…';
+        var path = 'generate-src/' + uid + '/' + Date.now() + '.mp4';
+        var up = await sb.storage.from('post-media').upload(path, genFile, { contentType: genFile.type || 'video/mp4', upsert: false });
+        if (up.error) throw new Error(up.error.message);
+        payload.source_url = sb.storage.from('post-media').getPublicUrl(path).data.publicUrl;
+      } else if (genMode === 'link') {
+        payload.source_url = link;
+      } else {
+        payload.idea = idea;
+      }
+      btn.textContent = 'Lancement…';
       var res = await fetch(SB_URL + '/functions/v1/video-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY },
-        body: JSON.stringify({ idea: idea, source_url: link })
+        body: JSON.stringify(payload)
       });
       var data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || ('Erreur ' + res.status));
@@ -8831,12 +8954,6 @@
     } catch (e) {}
   }
 
-
-
-  /* ═══════════════ ÉDITEUR TIMELINE v2 — vrai NLE ═══════════════
-     Filmstrip + tête de lecture + pistes de blocs déplaçables + aperçu direct. */
-  var edP = null, edPrevAudio = null;
-  var ED_GUT = 12, ED_PPS = 80;   // marge gauche, pixels par seconde
   function edC(){
     if (window._edc) return window._edc;
     window._edc = {

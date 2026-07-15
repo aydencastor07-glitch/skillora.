@@ -4613,6 +4613,147 @@ def recover_orphans():
         print("recover_orphans:", e, file=sys.stderr)
 
 
+# ==========================================================================
+#  GÉNÉRATEUR IA — le produit « colle un lien / donne une idée -> on te
+#  reproduit TA version dans ce format viral ». Pipeline en 4 temps :
+#    1. LE DIRECTEUR (ci-dessous)   : idée/lien -> plan de génération JSON
+#    2. LES IMAGES (Nano Banana 2)  : chaque scène -> image nette + cohérence
+#    3. L'ANIMATION (image -> vidéo): Veo Lite / Kling 3.0 / Wan par scène
+#    4. LE MONTAGE FINAL            : clips + voix ElevenLabs + SFX + subs
+# ==========================================================================
+
+# Modèle image (génère d'abord les images, puis on les anime)
+OR_IMAGE_MODEL = "google/gemini-3.1-flash-image"  # « Nano Banana 2 »
+
+# Générateurs vidéo (image -> vidéo) accessibles via OpenRouter. Le directeur
+# choisit la clé selon le besoin ; on ne garde QUE des clés valides.
+OR_VIDEO_MODELS = {
+    "veo_lite": "google/veo-3.1-lite",          # le moins cher (non réaliste)
+    "kling3":   "kwaivgi/kling-v3.0-standard",  # avatars parlants, lip-sync
+    "wan":      "alibaba/wan-2.6",              # histoires / plans généraux
+    "hailuo":   "minimax/hailuo-2.3",           # mouvements dynamiques
+}
+
+# Bornes de sécurité du plan
+GEN_MIN_CLIP_S = 3
+GEN_MAX_CLIP_S = 8
+GEN_MAX_TOTAL_S = 120
+
+
+def _gen_clamp_scene(sc):
+    """Nettoie/borne une scène du plan pour qu'elle soit toujours exécutable."""
+    if not isinstance(sc, dict):
+        return None
+    try:
+        dur = float(sc.get("duration_s") or 4)
+    except Exception:
+        dur = 4.0
+    sc["duration_s"] = max(GEN_MIN_CLIP_S, min(GEN_MAX_CLIP_S, dur))
+    vm = str(sc.get("video_model") or "").strip()
+    if vm not in OR_VIDEO_MODELS:
+        vm = "veo_lite"
+    sc["video_model"] = vm
+    sc["image_prompt"] = str(sc.get("image_prompt") or "").strip()
+    sc["motion_prompt"] = str(sc.get("motion_prompt") or "").strip()
+    sc["spoken_text"] = str(sc.get("spoken_text") or "").strip()
+    sfx = sc.get("sfx")
+    sc["sfx"] = [str(x) for x in sfx] if isinstance(sfx, list) else []
+    caps = sc.get("captions")
+    sc["captions"] = [str(x) for x in caps] if isinstance(caps, list) else []
+    return sc
+
+
+def gen_director_plan(idea, source_url=None):
+    """LE CERVEAU / DIRECTEUR. Regarde la vidéo de référence (source_url) OU
+    part d'une idée texte, puis renvoie un PLAN DE GÉNÉRATION structuré : le
+    type de vidéo, le mode audio (voix native de l'avatar OU voix off
+    ElevenLabs), la langue, le personnage (pour la cohérence entre les clips),
+    et la liste des SCÈNES (image + animation + secondes + générateur + texte
+    parlé + SFX + sous-titres). Renvoie None si pas de clé / échec."""
+    if not OPENROUTER_KEY:
+        return None
+    idea = (idea or "").strip()
+    charter = (
+        "Tu es un DIRECTEUR VIDÉO IA de niveau studio. Ta mission : "
+        "reproduire une vidéo virale sous forme d'une NOUVELLE version "
+        "générée par IA (images puis animation). Tu décides de TOUT.\n\n"
+        "SI une vidéo de référence est fournie : regarde-la en entier "
+        "(image + son), comprends le format viral, le rythme, le ton, "
+        "puis recrée-la scène par scène avec nos outils.\n"
+        "SI seulement une idée texte est fournie : conçois la vidéo depuis zéro.\n\n"
+        "RÈGLES DE PRODUCTION (chacune est un OUTIL que tu doses) :\n"
+        "1. On génère d'abord une IMAGE nette par scène (jamais floue, jamais "
+        "un « rendu IA » cheap, arrière-plans détaillés et réalistes quand la "
+        "vidéo est réaliste), puis on l'ANIME (image -> vidéo).\n"
+        "2. Un plan dure de 3 à 8 secondes. Découpe la vidéo en plans courts et "
+        "cohérents qu'on assemblera — c'est plus rythmé ET moins cher.\n"
+        "3. AUDIO — deux branches, choisis-en UNE par vidéo :\n"
+        "   - 'native' : un personnage parle face caméra -> le générateur "
+        "vidéo produit lui-même la voix et le lip-sync (avatar Kling).\n"
+        "   - 'voiceover' : histoire / faceless -> voix off ElevenLabs + SFX + "
+        "musique, l'image n'a pas besoin de lip-sync.\n"
+        "4. GÉNÉRATEUR par scène : 'kling3' pour un avatar humain qui parle "
+        "(lip-sync réaliste) ; 'veo_lite' pour du non-réaliste pas cher ; "
+        "'wan' pour les histoires / plans larges ; 'hailuo' pour un plan très "
+        "dynamique. Par défaut 'veo_lite'.\n"
+        "5. COHÉRENCE PERSONNAGE (crucial pour les histoires) : si un même "
+        "personnage revient, décris-le une fois dans 'character.description' "
+        "TRÈS précisément (visage, âge, cheveux, tenue, couleurs) et RÉPÈTE "
+        "cette description au début de chaque image_prompt le concernant, pour "
+        "qu'il reste IDENTIQUE d'un clip à l'autre.\n"
+        "6. Sous-titres 'captions' : découpe par pensées courtes (pas au mot), "
+        "dans la langue parlée, jamais de mot esseulé.\n\n"
+        "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
+        "{\n"
+        "  \"video_type\": \"talking_head|story|faceless|product|other\",\n"
+        "  \"audio_mode\": \"native|voiceover\",\n"
+        "  \"language\": \"fr|en|...\",\n"
+        "  \"title\": \"...\",\n"
+        "  \"hook\": \"la 1re phrase qui accroche\",\n"
+        "  \"voiceover_script\": \"texte complet si audio_mode=voiceover, sinon vide\",\n"
+        "  \"character\": {\"present\": true, \"description\": \"desc precise reutilisable\"},\n"
+        "  \"music_mood\": \"aucune|douce|epique|tendue|joyeuse|...\",\n"
+        "  \"scenes\": [\n"
+        "    {\"index\":0,\"duration_s\":4,\"video_model\":\"veo_lite\",\n"
+        "     \"image_prompt\":\"image nette et detaillee de la scene\",\n"
+        "     \"motion_prompt\":\"comment l image bouge / le mouvement camera\",\n"
+        "     \"spoken_text\":\"ce que le perso dit si native, sinon vide\",\n"
+        "     \"sfx\":[\"whoosh\"], \"captions\":[\"bout de sous-titre\"]}\n"
+        "  ],\n"
+        "  \"total_duration_s\": 30\n"
+        "}\n"
+    )
+    if source_url:
+        prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à reproduire (regarde-la) — "
+                  "consigne du client : " + (idea or "reproduis ce format à l'identique."))
+        plan = or_generate(prompt, video_url=source_url, json_out=True)
+    else:
+        prompt = charter + "\nIDÉE DU CLIENT : " + (idea or "surprends-moi.")
+        plan = or_generate(prompt, json_out=True)
+    if not isinstance(plan, dict):
+        return None
+    # Bornage / nettoyage défensif
+    scenes = plan.get("scenes")
+    clean = []
+    if isinstance(scenes, list):
+        for i, sc in enumerate(scenes):
+            c = _gen_clamp_scene(sc)
+            if c and c["image_prompt"]:
+                c["index"] = i
+                clean.append(c)
+    plan["scenes"] = clean
+    am = str(plan.get("audio_mode") or "").strip()
+    plan["audio_mode"] = am if am in ("native", "voiceover") else "voiceover"
+    ch = plan.get("character")
+    if not isinstance(ch, dict):
+        plan["character"] = {"present": False, "description": ""}
+    total = sum(s["duration_s"] for s in clean)
+    plan["total_duration_s"] = min(GEN_MAX_TOTAL_S, round(total)) if total else 0
+    if not clean:
+        return None
+    return plan
+
+
 def main():
     print("Skillora video-worker démarré.",
           "Groq:", "oui" if GROQ_KEY else "NON (plan IA désactivé)",

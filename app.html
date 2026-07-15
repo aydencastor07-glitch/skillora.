@@ -2051,6 +2051,39 @@
       <div id="studioAccCtx" class="reveal" style="animation-delay:.24s;display:none;"></div>
     </div>
 
+    <!-- GÉNÉRATEUR IA — « Copier une vidéo » (bêta / mode test) -->
+    <style>
+      .gen-inp{width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:12px;color:#eef2fb;font-family:inherit;font-size:.9rem;padding:12px 13px;margin-top:9px;resize:vertical;}
+      .gen-inp:focus{outline:none;border-color:#4d8fff;}
+      .gen-inp::placeholder{color:#8a97b4;}
+      .badge-beta{font-size:.62rem;background:rgba(124,58,237,.16);color:#c4b5fd;border:1px solid rgba(124,58,237,.4);padding:2px 8px;border-radius:999px;vertical-align:2px;}
+      #genVid{width:150px;border-radius:14px;background:#000;}
+    </style>
+    <div class="pub-card reveal" id="genCard" style="animation-delay:.22s;margin-bottom:18px;">
+      <div class="pub-ey">Copier une vidéo <span class="badge-beta">BÊTA</span></div>
+      <div id="genIntro">
+        <p class="pub-hint2">Colle le lien d'une vidéo virale (TikTok, YouTube, Reels…) <b>ou</b> décris ton idée. L'IA la regarde, écrit le plan, génère les images, les anime et monte <b>ta</b> version dans ce format.</p>
+        <input id="genLink" class="gen-inp" type="url" inputmode="url" placeholder="Lien de la vidéo à reproduire (optionnel)" />
+        <textarea id="genIdea" class="gen-inp" rows="3" placeholder="…ou décris ton idée (ex : une histoire courte effrayante dans un vieux manoir)"></textarea>
+        <button class="imp-btn" id="genGo" onclick="genStart()">🎬 Générer ma vidéo</button>
+        <p class="imp-note" id="genNote" style="display:none;"></p>
+      </div>
+      <div id="genProgress" style="display:none;">
+        <div class="imp-steps" id="genSteps"></div>
+      </div>
+      <div id="genResult" style="display:none;">
+        <div class="imp-vrow">
+          <video id="genVid" playsinline controls loop></video>
+          <div class="imp-meta">
+            <div class="imp-ok">✅ Ta vidéo générée est prête</div>
+            <a class="imp-btn" id="genDl" download="skillora-video.mp4" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;">⬇️ Télécharger</a>
+            <button class="imp-ghost" onclick="genReset()">Recommencer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <!-- Studio = Script (toute la page). Les idées vivent dans la bulle 💡 flottante. -->
     <!-- Formulaire de creation premium (cache par defaut) -->
     <div class="np-form reveal" id="profileForm" style="display:none;animation-delay:.26s">
@@ -8730,6 +8763,75 @@
     document.getElementById('impIntro').style.display = 'block';
     var btn = document.getElementById('impGo'); btn.disabled = false; btn.textContent = '✨ Améliorer ma vidéo';
   }
+
+  /* ── GÉNÉRATEUR IA (« Copier une vidéo ») — job créé via video-generate, traité par le video-worker ── */
+  var genJobId = null, genTimer = null, genUrl = null;
+
+  function genReset() {
+    if (genTimer) { clearInterval(genTimer); genTimer = null; }
+    genJobId = null; genUrl = null;
+    var p = document.getElementById('genProgress'); if (p) p.style.display = 'none';
+    var r = document.getElementById('genResult'); if (r) r.style.display = 'none';
+    var i = document.getElementById('genIntro'); if (i) i.style.display = 'block';
+    var b = document.getElementById('genGo'); if (b) { b.disabled = false; b.textContent = '🎬 Générer ma vidéo'; }
+    var v = document.getElementById('genVid'); if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {} }
+  }
+
+  async function genStart() {
+    var link = (document.getElementById('genLink').value || '').trim();
+    var idea = (document.getElementById('genIdea').value || '').trim();
+    if (!link && !idea) { skModal({ icon: '🎬', title: 'Rien à copier', message: 'Colle un lien de vidéo ou décris ton idée.', cancelText: 'OK' }); return; }
+    if (link && !/^https?:\/\//i.test(link)) { skModal({ icon: '🔗', title: 'Lien invalide', message: 'Le lien doit commencer par http(s)://', cancelText: 'OK' }); return; }
+    var btn = document.getElementById('genGo'); btn.disabled = true; btn.textContent = 'Envoi…';
+    try {
+      var sess = await sb.auth.getSession();
+      if (!sess.data.session) { window.location.href = 'signup.html'; return; }
+      var token = sess.data.session.access_token;
+      var res = await fetch(SB_URL + '/functions/v1/video-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY },
+        body: JSON.stringify({ idea: idea, source_url: link })
+      });
+      var data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || ('Erreur ' + res.status));
+      genJobId = data.job_id;
+      document.getElementById('genIntro').style.display = 'none';
+      document.getElementById('genProgress').style.display = 'block';
+      genPoll();
+      genTimer = setInterval(genPoll, 3000);
+    } catch (e) {
+      btn.disabled = false; btn.textContent = '🎬 Générer ma vidéo';
+      skModal({ icon: '⚠️', title: 'Génération impossible', message: String(e.message || e), cancelText: 'OK' });
+    }
+  }
+
+  async function genPoll() {
+    if (!genJobId) return;
+    try {
+      var r = await sb.from('video_jobs').select('status,steps,result_url,error').eq('id', genJobId).single();
+      if (r.error) return;
+      var j = r.data;
+      var box = document.getElementById('genSteps');
+      if (box) box.innerHTML = (j.steps || []).map(function (s) {
+        return '<div class="imp-step ' + (s.state || '') + '"><span>' + impStepIcon(s.state) + '</span><div><b>' + s.label + '</b>' + (s.detail ? '<i>' + s.detail + '</i>' : '') + '</div></div>';
+      }).join('');
+      if (j.status === 'done') {
+        clearInterval(genTimer); genTimer = null; genUrl = j.result_url;
+        document.getElementById('genProgress').style.display = 'none';
+        document.getElementById('genResult').style.display = 'block';
+        var v = document.getElementById('genVid'); v.src = genUrl; v.load(); try { v.play(); } catch (e) {}
+        var dl = document.getElementById('genDl'); if (dl) dl.href = genUrl;
+      } else if (j.status === 'error') {
+        clearInterval(genTimer); genTimer = null;
+        document.getElementById('genProgress').style.display = 'none';
+        document.getElementById('genIntro').style.display = 'block';
+        var btn = document.getElementById('genGo'); btn.disabled = false; btn.textContent = '🎬 Générer ma vidéo';
+        skModal({ icon: '⚠️', title: 'Génération échouée', message: j.error || 'Erreur inconnue. Réessaie.', cancelText: 'OK' });
+      }
+    } catch (e) {}
+  }
+
+
 
   /* ═══════════════ ÉDITEUR TIMELINE v2 — vrai NLE ═══════════════
      Filmstrip + tête de lecture + pistes de blocs déplaçables + aperçu direct. */

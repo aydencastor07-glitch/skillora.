@@ -3229,6 +3229,12 @@ def process(job):
     try:
         context = job.get("context") or {}
 
+        # GÉNÉRATEUR IA (« Copier une vidéo ») : on ne télécharge pas,
+        # on GÉNÈRE une nouvelle vidéo depuis une idée / un lien.
+        if context.get("mode") == "generate":
+            generate_video_job(job, work, steps)
+            return
+
         steps.start("dl", "Téléchargement de ta vidéo…")
         src = os.path.join(work, "src.mp4")
         urllib.request.urlretrieve(job["source_url"], src)
@@ -5374,6 +5380,54 @@ def assemble_generated(plan, clips, job, workdir):
     except Exception as e:
         print("assemble_generated upload:", e, file=sys.stderr)
         return None
+
+
+def generate_video_job(job, work, steps):
+    """ORCHESTRATEUR du GÉNÉRATEUR IA (« Copier une vidéo » du Studio).
+    Enchaîne : Directeur (plan) -> Images (Nano Banana) -> Animation (clips) ->
+    Montage final -> upload. Met à jour l'avancement pour le client. Lève une
+    exception en cas d'échec (attrapée par process, qui marque le job 'error')."""
+    context = job.get("context") or {}
+    idea = str(context.get("idea") or "").strip()
+    source_url = (str(context.get("source_url") or "").strip()
+                  or str(job.get("source_url") or "").strip() or None)
+    uid = str(job.get("user_id") or "anon")
+    jid = str(job.get("id") or "gen")
+    if not OPENROUTER_KEY:
+        raise RuntimeError("La génération IA n'est pas encore activée (crédits manquants).")
+    if not (idea or source_url):
+        raise RuntimeError("Donne une idée ou colle le lien d'une vidéo à reproduire.")
+
+    steps.start("plan", "Le directeur regarde et écrit le plan…")
+    plan = gen_director_plan(idea, source_url=source_url)
+    if not plan or not plan.get("scenes"):
+        raise RuntimeError("Le directeur n'a pas pu établir de plan à partir de ça.")
+    update_job(jid, {"plan": {"gen": plan}})
+    steps.done("plan", "%d plans · %s" % (len(plan["scenes"]),
+               "voix off" if plan.get("audio_mode") == "voiceover" else "voix native"))
+
+    steps.start("img", "Génération des images (Nano Banana)…")
+    imgs = gen_images(plan, os.path.join(work, "img"))
+    if not imgs:
+        raise RuntimeError("La génération des images a échoué.")
+    steps.done("img", "%d images" % len(imgs))
+
+    steps.start("anim", "Animation des clips…")
+    clips = animate_batches(plan, imgs, os.path.join(work, "clips"), uid, jid)
+    if not clips:
+        raise RuntimeError("L'animation des clips a échoué.")
+    steps.done("anim", "%d clips" % len(clips))
+
+    steps.start("mux", "Montage final (voix, musique, sous-titres)…")
+    url = assemble_generated(plan, clips, job, os.path.join(work, "final"))
+    if not url:
+        raise RuntimeError("Le montage final a échoué.")
+    steps.done("mux", "Terminé")
+
+    update_job(jid, {"status": "done", "result_url": url,
+                     "finished_at": "now()", "steps": steps.items})
+    print("Génération", jid, "terminée:", url)
+    return url
 
 
 def main():

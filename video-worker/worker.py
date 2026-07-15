@@ -4647,7 +4647,7 @@ OR_VIDEO_MAXLEN = {"veo_lite": 8, "veo3": 8, "kling3": 10, "wan": 6}
 _LAST_VIDEO_ERR = ""  # dernière erreur de l'API vidéo (remontée jusqu'au job)
 
 # Bornes de sécurité du plan
-GEN_MIN_CLIP_S = 2
+GEN_MIN_CLIP_S = 4
 GEN_MAX_CLIP_S = 8
 GEN_MAX_TOTAL_S = 120
 
@@ -4770,14 +4770,16 @@ def gen_director_plan(idea, source_url=None):
         "1. IMAGE d'abord, nette et détaillée (jamais floue, jamais un « rendu "
         "IA » cheap ; arrière-plans réalistes quand la vidéo est réaliste), "
         "puis on l'anime.\n"
-        "2. Chaque plan dure 2 à 8 s. Découpe en plans courts qu'on assemble : "
-        "plus rythmé ET moins cher.\n"
+        "2. Découpe en 4 à 6 plans MAXIMUM (courte vidéo), chacun de 4 à 8 s. "
+        "Des plans PLUS LONGS et MOINS nombreux = plus cohérent, meilleur "
+        "lip-sync ET bien moins cher. Bannis les micro-plans de 2-3 s.\n"
         "3. AUDIO — une seule branche par vidéo :\n"
         "   - 'native' : un personnage PARLE face caméra -> le générateur "
-        "vidéo fait lui-même la voix + le lip-sync. Mets talking=true sur ces "
-        "plans. RÈGLE LANGUE : français -> le système utilisera Veo3 ; "
-        "anglais/espagnol -> Kling 3.0 (ne t'en occupe pas, indique juste "
-        "talking=true et la langue).\n"
+        "vidéo fait lui-même la voix + le lip-sync. Mets talking=true, et dans "
+        "spoken_text mets le TEXTE EXACT dit (mot pour mot) ; dans motion_prompt "
+        "décris QUI parle, son expression et ses gestes pendant qu'il parle. "
+        "RÈGLE LANGUE : français -> le système utilise Veo3 ; anglais/espagnol "
+        "-> Kling 3.0 (indique juste talking=true et la langue).\n"
         "   - 'voiceover' : histoire / faceless, on ne voit personne parler -> "
         "voix off ElevenLabs + SFX + musique. talking=false partout, et le "
         "système prend le générateur le moins cher.\n"
@@ -4972,8 +4974,10 @@ def gen_images(plan, workdir):
         if sc.get("has_character") and char_desc and char_desc[:40] not in prompt:
             prompt = char_desc + ". " + prompt
         prompt = ("Image ultra nette et haute qualité, cadrage vertical 9:16, "
-                  "arrière-plan détaillé JAMAIS flou, rendu photographique réaliste "
-                  "quand la scène l'exige, aucun artefact « IA ». " + prompt)
+                  "ÉCLAIRAGE CINÉMATOGRAPHIQUE soigné, ombres réalistes et "
+                  "naturelles (jamais plat ni cramé), arrière-plan détaillé JAMAIS "
+                  "flou, rendu photographique réaliste quand la scène l'exige, "
+                  "aucun artefact « IA ». " + prompt)
         refs = [char_ref] if (sc.get("has_character") and char_ref) else None
         out = os.path.join(workdir, "img_%03d.png" % idx)
         got = or_generate_image(prompt, ref_paths=refs, out_path=out)
@@ -5017,6 +5021,12 @@ def or_generate_video(model_key, prompt, seconds, image_url=None, ref_urls=None,
                                       round(seconds or 4))))
     body = {"model": model, "prompt": prompt, "duration": dur,
             "aspect_ratio": aspect_ratio, "generate_audio": bool(generate_audio)}
+    if model.startswith("google/veo"):
+        # Veo/Vertex BLOQUE les personnes par défaut -> on autorise (sinon tout
+        # plan avec un visage échoue). 720p = coût ~2x moindre, suffisant en 9:16.
+        body["resolution"] = "720p"
+        body["provider"] = {"options": {"google-vertex":
+                            {"parameters": {"personGeneration": "allow"}}}}
     if image_url:
         body["frame_images"] = [{"type": "image_url",
                                  "image_url": {"url": image_url},

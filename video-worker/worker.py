@@ -5150,6 +5150,232 @@ def animate_batches(plan, images, workdir, uid="anon", job_id="gen"):
     return clips
 
 
+ELEVEN_VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")
+_MOOD_MAP = {"douce": "calm", "epique": "epic", "épique": "epic",
+             "tendue": "tension", "joyeuse": "happy", "energique": "hype",
+             "énergique": "hype", "triste": "sad", "mysterieuse": "mystery"}
+
+
+def eleven_tts(text, out_path, voice_id=None, model_id="eleven_multilingual_v2"):
+    """VOIX OFF (ElevenLabs Text-to-Speech, multilingue FR/EN/ES). Écrit un MP3
+    dans out_path. None si pas de clé / texte vide / échec."""
+    if not (ELEVEN_KEY and text and text.strip()):
+        return None
+    vid = voice_id or ELEVEN_VOICE_ID
+    body = {"text": text.strip(), "model_id": model_id,
+            "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}
+    try:
+        st, raw = http("POST", "https://api.elevenlabs.io/v1/text-to-speech/%s" % vid,
+                       {"xi-api-key": ELEVEN_KEY, "Content-Type": "application/json",
+                        "Accept": "audio/mpeg"}, body, timeout=300)
+        if not raw or len(raw) < 1500:
+            return None
+        with open(out_path, "wb") as f:
+            f.write(raw)
+        return out_path if os.path.getsize(out_path) > 1500 else None
+    except urllib.error.HTTPError as e:
+        try:
+            print("eleven_tts HTTP", e.code, ":", e.read().decode()[:200], file=sys.stderr)
+        except Exception:
+            print("eleven_tts HTTP", e.code, file=sys.stderr)
+        return None
+    except Exception as e:
+        print("eleven_tts:", e, file=sys.stderr)
+        return None
+
+
+def _sec_to_ass(t):
+    h = int(t // 3600)
+    m = int((t % 3600) // 60)
+    s = t % 60
+    return "%d:%02d:%05.2f" % (h, m, s)
+
+
+def _build_gen_ass(spans, out_ass, w=1080, h=1920):
+    """Sous-titres propres pour la vidéo générée : centrés bas, Anton blanc,
+    contour noir. `spans` = liste de (start, end, texte)."""
+    head = ("[Script Info]\nScriptType: v4.00+\nPlayResX: %d\nPlayResY: %d\n"
+            "WrapStyle: 2\n\n[V4+ Styles]\nFormat: Name, Fontname, Fontsize, "
+            "PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, "
+            "Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
+            "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, "
+            "MarginV, Encoding\nStyle: Cap,Anton,90,&H00FFFFFF,&H00FFFFFF,"
+            "&H00000000,&HB4000000,-1,0,0,0,100,100,1,0,1,6,3,2,80,80,260,1\n\n"
+            "[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, "
+            "MarginR, MarginV, Effect, Text\n" % (w, h))
+    lines = [head]
+    for (a, b, txt) in spans:
+        if b <= a or not str(txt).strip():
+            continue
+        t = str(txt).replace("\n", " ").replace("{", "(").replace("}", ")").strip().upper()
+        lines.append("Dialogue: 0,%s,%s,Cap,,0,0,0,,%s" % (_sec_to_ass(a), _sec_to_ass(b), t))
+    with open(out_ass, "w") as f:
+        f.write("\n".join(lines))
+    return out_ass
+
+
+def _concat_video(paths, out, w=1080, h=1920, fps=30):
+    """Concatène les clips en une vidéo MUETTE 9:16 normalisée."""
+    paths = [p for p in paths if p and os.path.exists(p)]
+    if not paths:
+        return None
+    ins = []
+    for p in paths:
+        ins += ["-i", p]
+    parts = ["[%d:v]scale=%d:%d:force_original_aspect_ratio=increase,"
+             "crop=%d:%d,setsar=1,fps=%d[v%d]" % (i, w, h, w, h, fps, i)
+             for i in range(len(paths))]
+    fc = ";".join(parts) + ";" + "".join("[v%d]" % i for i in range(len(paths))) + \
+        "concat=n=%d:v=1:a=0[v]" % len(paths)
+    cmd = ["ffmpeg", "-y"] + ins + ["-filter_complex", fc, "-map", "[v]",
+           "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+           "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]
+    try:
+        run(cmd, timeout=1800)
+    except Exception as e:
+        print("_concat_video:", e, file=sys.stderr)
+    return out if (os.path.exists(out) and os.path.getsize(out) > 3000) else None
+
+
+def _concat_clip_audio(paths, out):
+    """Concatène l'audio NATIF des clips (voix + lip-sync du modèle), avec du
+    silence pour les clips sans piste audio -> une seule piste alignée."""
+    segs = []
+    workdir = os.path.dirname(out) or "."
+    for i, p in enumerate(paths):
+        try:
+            f = ffprobe_facts(p)
+            d, ha = f["duration"] or 0, f["has_audio"]
+        except Exception:
+            d, ha = 0, False
+        seg = os.path.join(workdir, "na_%03d.wav" % i)
+        if ha and d > 0:
+            try:
+                run(["ffmpeg", "-y", "-i", p, "-vn", "-ac", "2", "-ar", "48000", seg], timeout=180)
+            except Exception:
+                ha = False
+        if not (os.path.exists(seg) and os.path.getsize(seg) > 200):
+            dd = d if d > 0 else 3.0
+            try:
+                run(["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+                     "-t", "%.3f" % dd, seg], timeout=60)
+            except Exception:
+                continue
+        segs.append(seg)
+    if not segs:
+        return None
+    ins = []
+    for s in segs:
+        ins += ["-i", s]
+    fc = "".join("[%d:a]" % i for i in range(len(segs))) + \
+        "concat=n=%d:v=0:a=1[a]" % len(segs)
+    try:
+        run(["ffmpeg", "-y"] + ins + ["-filter_complex", fc, "-map", "[a]", out], timeout=600)
+    except Exception as e:
+        print("_concat_clip_audio:", e, file=sys.stderr)
+        return None
+    return out if os.path.exists(out) else None
+
+
+def _mux_audio(video, main_audio, music, out, total):
+    """Mixe la piste principale (voix off ou audio natif) + un tapis musical
+    discret sous la vidéo. Renvoie out, ou None si rien à mixer."""
+    if not main_audio and not music:
+        return None
+    cmd = ["ffmpeg", "-y", "-i", video]
+    idx = 1
+    pre, labels = [], []
+    if main_audio:
+        cmd += ["-i", main_audio]
+        pre.append("[%d:a]aresample=48000,apad,atrim=0:%.3f[main]" % (idx, total))
+        labels.append("[main]")
+        idx += 1
+    if music:
+        cmd += ["-stream_loop", "-1", "-i", music]
+        pre.append("[%d:a]aresample=48000,atrim=0:%.3f,volume=0.14[mus]" % (idx, total))
+        labels.append("[mus]")
+        idx += 1
+    if len(labels) == 1:
+        fc = ";".join(pre) + ";" + labels[0] + "anull[aout]"
+    else:
+        fc = ";".join(pre) + ";" + "".join(labels) + \
+            "amix=inputs=%d:duration=first:dropout_transition=0[aout]" % len(labels)
+    cmd += ["-filter_complex", fc, "-map", "0:v", "-map", "[aout]",
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "160k",
+            "-t", "%.3f" % total, "-movflags", "+faststart", out]
+    try:
+        run(cmd, timeout=900)
+    except Exception as e:
+        print("_mux_audio:", e, file=sys.stderr)
+        return None
+    return out if (os.path.exists(out) and os.path.getsize(out) > 3000) else None
+
+
+def assemble_generated(plan, clips, job, workdir):
+    """ÉTAPE 4 — MONTAGE FINAL : ordonne les clips, ajoute la voix off
+    (ElevenLabs) ou garde l'audio natif des avatars, pose un tapis musical,
+    incruste les sous-titres, et upload le résultat. Renvoie l'URL, ou None."""
+    scenes = [s for s in (plan.get("scenes") or []) if s["index"] in clips]
+    if not scenes:
+        return None
+    scenes.sort(key=lambda s: s["index"])
+    ordered = [clips[s["index"]] for s in scenes]
+    try:
+        os.makedirs(workdir, exist_ok=True)
+    except Exception:
+        pass
+    # 1) durées réelles -> spans de sous-titres
+    spans, t = [], 0.0
+    for s in scenes:
+        try:
+            d = ffprobe_facts(clips[s["index"]])["duration"] or s["duration_s"]
+        except Exception:
+            d = s["duration_s"]
+        caps = s.get("captions") or []
+        if caps and d > 0:
+            step = d / len(caps)
+            for i, c in enumerate(caps):
+                spans.append((t + i * step, t + (i + 1) * step - 0.05, c))
+        t += d
+    total = max(1.0, t)
+    # 2) vidéo muette
+    silent = os.path.join(workdir, "base_silent.mp4")
+    if not _concat_video(ordered, silent):
+        return None
+    # 3) audio principal
+    mode = plan.get("audio_mode", "voiceover")
+    main_audio = None
+    if mode == "voiceover" and plan.get("voiceover_script"):
+        main_audio = eleven_tts(plan["voiceover_script"], os.path.join(workdir, "voice.mp3"))
+    if main_audio is None and mode != "voiceover":
+        main_audio = _concat_clip_audio(ordered, os.path.join(workdir, "native.wav"))
+    # 4) musique
+    music = None
+    mood = str(plan.get("music_mood") or "").lower().strip()
+    if mood and mood not in ("aucune", "none", ""):
+        music = pick_music(mood) or pick_music(_MOOD_MAP.get(mood, ""))
+    # 5) mux
+    with_audio = os.path.join(workdir, "base_audio.mp4")
+    if not _mux_audio(silent, main_audio, music, with_audio, total):
+        with_audio = silent
+    # 6) sous-titres
+    final = os.path.join(workdir, "final.mp4")
+    try:
+        ass = _build_gen_ass(spans, os.path.join(workdir, "gen.ass"))
+        burn_subs(with_audio, final, ass)
+        if not (os.path.exists(final) and os.path.getsize(final) > 3000):
+            final = with_audio
+    except Exception as e:
+        print("assemble_generated burn:", e, file=sys.stderr)
+        final = with_audio
+    # 7) upload
+    try:
+        return upload_result(job, final)
+    except Exception as e:
+        print("assemble_generated upload:", e, file=sys.stderr)
+        return None
+
+
 def main():
     print("Skillora video-worker démarré.",
           "Groq:", "oui" if GROQ_KEY else "NON (plan IA désactivé)",

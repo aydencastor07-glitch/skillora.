@@ -49,7 +49,10 @@ serve(async (req) => {
         error: "Tu as déjà " + MAX_PARALLEL + " vidéos en cours. Attends qu'une se termine." }, 409);
     }
 
-    const context = { mode: "generate", idea, source_url: sourceUrl };
+    // Deux modes : "blueprint" (analyse/plan, quasi gratuit) ou "generate"
+    // (génération complète, coûteux). Par défaut : blueprint.
+    const mode = body.blueprint === false ? "generate" : "blueprint";
+    const context = { mode, idea, source_url: sourceUrl };
     const { data: job, error } = await admin.from("video_jobs").insert({
       user_id: userId,
       source_url: sourceUrl || "generate://idea",

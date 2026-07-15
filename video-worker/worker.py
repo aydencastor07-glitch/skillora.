@@ -3234,6 +3234,9 @@ def process(job):
         if context.get("mode") == "generate":
             generate_video_job(job, work, steps)
             return
+        if context.get("mode") == "blueprint":
+            generate_blueprint_job(job, steps)
+            return
 
         steps.start("dl", "Téléchargement de ta vidéo…")
         src = os.path.join(work, "src.mp4")
@@ -5399,6 +5402,111 @@ def generate_video_job(job, work, steps):
                      "finished_at": "now()", "steps": steps.items})
     print("Génération", jid, "terminée:", url)
     return url
+
+
+def gen_blueprint(idea, source_url=None):
+    """« REPRODUIRE UNE VIDÉO » — version PLAN (pas de génération, ~0,01 $).
+    Regarde la vidéo de référence (ou part d'une idée) et rend un GUIDE
+    COMPLET, prêt à suivre par le créateur : analyse, script, plans (avec
+    images à générer + comment animer), montage, conseils d'adaptation.
+    Renvoie un dict lisible, ou None."""
+    if not OPENROUTER_KEY:
+        return None
+    idea = (idea or "").strip()
+    charter = (
+        "Tu es un COACH VIDÉO expert (montage viral). On te donne une vidéo "
+        "(ou une idée) et tu dois livrer un PLAN DE REPRODUCTION complet, clair "
+        "et actionnable, pour qu'un créateur refasse SA version de cette vidéo. "
+        "Tu ne génères rien : tu EXPLIQUES tout, étape par étape.\n\n"
+        "Si une vidéo est fournie, REGARDE-la plan par plan : le hook, le "
+        "format, le rythme, qui parle et quoi, les mouvements, la caméra, le "
+        "décor, la lumière, les sous-titres, la musique. Explique pourquoi ça "
+        "marche, puis donne le plan exact pour la refaire.\n\n"
+        "Écris en français, simple et direct. Le script doit être PRÊT À LIRE. "
+        "Les prompts d'images doivent être assez précis pour être collés tels "
+        "quels dans un générateur d'images.\n\n"
+        "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
+        "{\n"
+        "  \"titre\": \"titre court de la vidéo à reproduire\",\n"
+        "  \"format\": \"ex : histoire faceless, tête parlante, conversation…\",\n"
+        "  \"duree_conseillee_s\": 30,\n"
+        "  \"pourquoi_ca_marche\": \"2-3 phrases : le hook, le rythme, l'émotion\",\n"
+        "  \"accroche\": \"la 1re phrase/plan qui retient dans les 2 premières secondes\",\n"
+        "  \"script\": \"le script COMPLET prêt à lire (voix off ou dialogues)\",\n"
+        "  \"plans\": [\n"
+        "    {\"n\": 1, \"duree_s\": 4, \"scene\": \"le décor\",\n"
+        "     \"action\": \"ce qui se passe à l'écran\",\n"
+        "     \"camera\": \"cadrage / mouvement de caméra\",\n"
+        "     \"dialogue\": \"ce qui est dit sur ce plan (ou vide)\",\n"
+        "     \"image_a_generer\": \"prompt d'image précis à coller dans un générateur\",\n"
+        "     \"comment_animer\": \"comment donner vie à l'image (mouvement, zoom…)\"}\n"
+        "  ],\n"
+        "  \"montage\": {\n"
+        "    \"sous_titres\": \"style + règles (gros mots clés, couleur…)\",\n"
+        "    \"musique\": \"type d'ambiance + où la baisser\",\n"
+        "    \"transitions\": \"les coupes/effets entre plans\",\n"
+        "    \"effets\": \"zooms, secousses, flashs éventuels\",\n"
+        "    \"rythme\": \"tempo des coupes\"\n"
+        "  },\n"
+        "  \"conseils_adaptation\": [\"comment l'adapter à TA niche / ton compte\"],\n"
+        "  \"materiel\": {\"nb_images\": 5,\n"
+        "     \"outils_conseilles\": [\"générateur d'images\", \"voix IA\", \"CapCut\"]}\n"
+        "}\n"
+    )
+    if source_url:
+        prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à analyser (regarde-la) — "
+                  "consigne du client : " + (idea or "explique comment la reproduire."))
+        g = or_generate(prompt, video_url=source_url, json_out=True)
+    else:
+        prompt = charter + "\nIDÉE DU CLIENT : " + (idea or "propose une vidéo virale.")
+        g = or_generate(prompt, json_out=True)
+    if not isinstance(g, dict):
+        return None
+    # Nettoyage défensif des plans
+    plans = g.get("plans")
+    clean = []
+    if isinstance(plans, list):
+        for i, p in enumerate(plans):
+            if not isinstance(p, dict):
+                continue
+            p["n"] = i + 1
+            for k in ("scene", "action", "camera", "dialogue", "image_a_generer", "comment_animer"):
+                p[k] = str(p.get(k) or "").strip()
+            try:
+                p["duree_s"] = max(1, min(60, int(float(p.get("duree_s") or 4))))
+            except Exception:
+                p["duree_s"] = 4
+            if p["image_a_generer"] or p["action"]:
+                clean.append(p)
+    g["plans"] = clean
+    if not (g.get("script") or clean):
+        return None
+    return g
+
+
+def generate_blueprint_job(job, steps):
+    """« Reproduire une vidéo » — traite un job mode='blueprint' : analyse la
+    vidéo/idée et stocke le GUIDE dans job.plan.blueprint (aucune génération,
+    donc quasi gratuit). Le front l'affiche joliment."""
+    context = job.get("context") or {}
+    idea = str(context.get("idea") or "").strip()
+    source_url = (str(context.get("source_url") or "").strip()
+                  or str(job.get("source_url") or "").strip() or None)
+    jid = str(job.get("id") or "bp")
+    steps.items = [{"key": "wait", "label": "En file d'attente…", "state": "done"}]
+    if not OPENROUTER_KEY:
+        raise RuntimeError("L'analyse n'est pas encore activée (crédits manquants).")
+    if not (idea or source_url):
+        raise RuntimeError("Donne une idée ou colle le lien d'une vidéo.")
+    steps.start("bp", "Analyse de la vidéo & rédaction du plan…")
+    guide = gen_blueprint(idea, source_url=source_url)
+    if not guide:
+        raise RuntimeError("Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
+    steps.done("bp", "%d plans" % len(guide.get("plans") or []))
+    update_job(jid, {"status": "done", "plan": {"blueprint": guide},
+                     "finished_at": "now()", "steps": steps.items})
+    print("Blueprint", jid, "terminé.")
+    return guide
 
 
 def main():

@@ -4630,14 +4630,14 @@ OR_IMAGE_MODEL = "google/gemini-3.1-flash-image"  # « Nano Banana 2 »
 # durée MAX par génération : on peut donc mettre plusieurs plans dans une
 # seule génération (batch) puis découper -> plus rapide et moins cher.
 OR_VIDEO_MODELS = {
-    "veo_lite": "google/veo-3.1-lite",          # le moins cher (voix off / faceless)
-    "veo3":     "google/veo-3.1",               # perso qui parle FR (voix + lip-sync)
-    "kling3":   "kwaivgi/kling-v3.0-standard",  # perso qui parle EN/ES (top lip-sync)
-    "wan":      "alibaba/wan-2.6",              # histoires / plans larges
-    "hailuo":   "minimax/hailuo-2.3",           # plan très dynamique
+    "veo_lite": "google/veo-3.1-fast",   # le moins cher (voix off / faceless)
+    "veo3":     "google/veo-3.1",        # perso qui parle FR (voix + lip-sync)
+    "kling3":   "kling/kling-v3.0",      # perso qui parle EN/ES (top lip-sync)
+    "wan":      "alibaba/wan",           # histoires / plans larges
 }
-# Durée max générable d'un coup, par modèle (secondes)
-OR_VIDEO_MAXLEN = {"veo_lite": 8, "veo3": 8, "kling3": 10, "wan": 6, "hailuo": 6}
+# Durée max générable d'un coup, par modèle (secondes) — endpoint async
+# POST /api/v1/videos, on soumet puis on interroge (poll) jusqu'à completed.
+OR_VIDEO_MAXLEN = {"veo_lite": 8, "veo3": 8, "kling3": 10, "wan": 6}
 
 # Bornes de sécurité du plan
 GEN_MIN_CLIP_S = 2
@@ -4977,6 +4977,177 @@ def gen_images(plan, workdir):
         else:
             print("gen_images: échec plan", idx, file=sys.stderr)
     return imgs
+
+
+def sb_upload_public(path, key, content_type="image/png"):
+    """Envoie un fichier dans le bucket public post-media et renvoie son URL
+    publique — nécessaire pour donner une image de départ aux générateurs
+    vidéo (ils veulent une URL, pas un fichier local)."""
+    try:
+        with open(path, "rb") as f:
+            blob = f.read()
+        http("POST", "%s/storage/v1/object/post-media/%s" % (SB_URL, key),
+             sb_headers({"Content-Type": content_type, "x-upsert": "true"}),
+             blob, timeout=300)
+        return "%s/storage/v1/object/public/post-media/%s" % (SB_URL, key)
+    except Exception as e:
+        print("sb_upload_public:", e, file=sys.stderr)
+        return None
+
+
+def or_generate_video(model_key, prompt, seconds, image_url=None, ref_urls=None,
+                      generate_audio=False, aspect_ratio="9:16", out_path=None,
+                      poll_timeout=1200):
+    """ÉTAPE 3 (coeur) — génération vidéo via l'API asynchrone d'OpenRouter :
+    POST /api/v1/videos (soumission), puis poll GET jusqu'à 'completed', puis
+    téléchargement du MP4. `image_url` = première image (image->vidéo).
+    Renvoie le chemin du MP4, sinon None."""
+    if not OPENROUTER_KEY:
+        return None
+    model = OR_VIDEO_MODELS.get(model_key) or OR_VIDEO_MODELS["veo_lite"]
+    dur = int(max(GEN_MIN_CLIP_S, min(OR_VIDEO_MAXLEN.get(model_key, 8),
+                                      round(seconds or 4))))
+    body = {"model": model, "prompt": prompt, "duration": dur,
+            "aspect_ratio": aspect_ratio, "generate_audio": bool(generate_audio)}
+    if image_url:
+        body["frame_images"] = [{"type": "image_url",
+                                 "image_url": {"url": image_url},
+                                 "frame_type": "first_frame"}]
+    if ref_urls:
+        body["input_references"] = [{"type": "image_url", "image_url": {"url": u}}
+                                    for u in ref_urls if u]
+    hdr = {"Authorization": "Bearer " + OPENROUTER_KEY,
+           "Content-Type": "application/json", "X-Title": "Skillora"}
+    # Soumission
+    try:
+        st, raw = http("POST", "https://openrouter.ai/api/v1/videos", hdr, body, timeout=120)
+        job = json.loads(raw)
+    except urllib.error.HTTPError as e:
+        try:
+            print("or_generate_video submit HTTP", e.code, ":", e.read().decode()[:250], file=sys.stderr)
+        except Exception:
+            print("or_generate_video submit HTTP", e.code, file=sys.stderr)
+        return None
+    except Exception as e:
+        print("or_generate_video submit:", e, file=sys.stderr)
+        return None
+    jid = job.get("id")
+    poll = job.get("polling_url") or (("https://openrouter.ai/api/v1/videos/" + str(jid)) if jid else None)
+    if not poll:
+        print("or_generate_video: pas de polling_url:", str(job)[:200], file=sys.stderr)
+        return None
+    # Poll jusqu'à état terminal
+    deadline = time.time() + poll_timeout
+    status, info = "pending", {}
+    while time.time() < deadline:
+        time.sleep(15)
+        try:
+            st, raw = http("GET", poll, hdr, timeout=60)
+            info = json.loads(raw)
+            status = str(info.get("status") or "").lower()
+        except Exception as e:
+            print("or_generate_video poll:", e, file=sys.stderr)
+            continue
+        if status == "completed":
+            break
+        if status in ("failed", "cancelled", "expired"):
+            print("or_generate_video:", status, "-", str(info.get("error"))[:200], file=sys.stderr)
+            return None
+    if status != "completed":
+        print("or_generate_video: timeout après %ds" % poll_timeout, file=sys.stderr)
+        return None
+    # Téléchargement
+    if not out_path:
+        out_path = tempfile.mktemp(suffix=".mp4")
+    url = None
+    uns = info.get("unsigned_urls")
+    if isinstance(uns, list) and uns:
+        url = uns[0]
+    try:
+        if url:
+            st, raw = http("GET", url, hdr, timeout=600)
+        else:
+            st, raw = http("GET", "https://openrouter.ai/api/v1/videos/%s/content?index=0" % jid,
+                           hdr, timeout=600)
+        with open(out_path, "wb") as f:
+            f.write(raw)
+        return out_path if os.path.getsize(out_path) > 2000 else None
+    except Exception as e:
+        print("or_generate_video download:", e, file=sys.stderr)
+        return None
+
+
+def _ff_trim(src, start, end, dst, mirror=False):
+    """Découpe [start, end] de src -> dst (ré-encodage, précis). Miroir option."""
+    dur = max(0.1, float(end) - float(start))
+    cmd = ["ffmpeg", "-y", "-ss", "%.3f" % float(start), "-i", src, "-t", "%.3f" % dur]
+    if mirror:
+        cmd += ["-vf", "hflip"]
+    cmd += ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+            "-c:a", "aac", "-movflags", "+faststart", dst]
+    try:
+        run(cmd, timeout=300)
+    except Exception as e:
+        print("_ff_trim:", e, file=sys.stderr)
+    return dst if (os.path.exists(dst) and os.path.getsize(dst) > 1000) else None
+
+
+def animate_batches(plan, images, workdir, uid="anon", job_id="gen"):
+    """ÉTAPE 3 — anime les images en clips vidéo, par LOTS (économie), puis
+    découpe chaque lot aux points prévus par le Directeur -> un clip par plan.
+    Gère la RÉUTILISATION (recopie d'un plan antérieur, miroir option).
+    Renvoie {index_du_plan: chemin_clip}."""
+    clips = {}
+    batches = (plan or {}).get("gen_batches") or []
+    scenes = {s["index"]: s for s in ((plan or {}).get("scenes") or [])}
+    try:
+        os.makedirs(workdir, exist_ok=True)
+    except Exception:
+        pass
+    for bi, b in enumerate(batches):
+        cuts = b.get("cuts") or []
+        # --- Cas RÉUTILISATION : un seul plan qui recopie un plan déjà généré
+        if b.get("reuse_scene") is not None and len(cuts) == 1:
+            sc_idx = cuts[0]["scene"]
+            src = clips.get(b["reuse_scene"])
+            if not src:
+                print("animate_batches: source réutilisée absente", b["reuse_scene"], file=sys.stderr)
+                continue
+            dst = os.path.join(workdir, "clip_%03d.mp4" % sc_idx)
+            dur = scenes.get(sc_idx, {}).get("duration_s",
+                                             cuts[0]["end_s"] - cuts[0]["start_s"])
+            got = _ff_trim(src, 0.0, float(dur), dst,
+                           mirror=(b.get("reuse_transform") == "mirror"))
+            if got:
+                clips[sc_idx] = got
+            continue
+        # --- Cas GÉNÉRATION
+        seed = b.get("seed_scene")
+        img = images.get(seed)
+        img_url = None
+        if img:
+            img_url = sb_upload_public(img, "gen/%s/%s/img_%03d.png" % (uid, job_id, seed))
+        talking = bool(scenes.get(seed, {}).get("talking"))
+        prompt = b.get("combined_motion_prompt") or scenes.get(seed, {}).get("motion_prompt", "")
+        if talking:
+            spk = scenes.get(seed, {}).get("spoken_text", "")
+            if spk:
+                prompt = (prompt + " Le personnage parle et dit exactement : « %s »." % spk).strip()
+        raw_vid = os.path.join(workdir, "batch_%03d.mp4" % bi)
+        got = or_generate_video(b.get("video_model", "veo_lite"), prompt,
+                                b.get("seconds", 4), image_url=img_url,
+                                generate_audio=talking, out_path=raw_vid)
+        if not got:
+            print("animate_batches: génération échouée lot", bi, file=sys.stderr)
+            continue
+        # Découpe en clips par plan
+        for c in cuts:
+            sc_idx = c["scene"]
+            dst = os.path.join(workdir, "clip_%03d.mp4" % sc_idx)
+            cc = _ff_trim(got, float(c["start_s"]), float(c["end_s"]), dst)
+            if cc:
+                clips[sc_idx] = cc
+    return clips
 
 
 def main():

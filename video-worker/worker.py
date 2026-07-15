@@ -4618,29 +4618,48 @@ def recover_orphans():
 #  reproduit TA version dans ce format viral ». Pipeline en 4 temps :
 #    1. LE DIRECTEUR (ci-dessous)   : idée/lien -> plan de génération JSON
 #    2. LES IMAGES (Nano Banana 2)  : chaque scène -> image nette + cohérence
-#    3. L'ANIMATION (image -> vidéo): Veo Lite / Kling 3.0 / Wan par scène
+#    3. L'ANIMATION (image -> vidéo): Veo3 / Kling 3.0 / Veo Lite par scène
 #    4. LE MONTAGE FINAL            : clips + voix ElevenLabs + SFX + subs
 # ==========================================================================
 
-# Modèle image (génère d'abord les images, puis on les anime)
+# Modèle image (on génère d'abord les images, puis on les anime)
 OR_IMAGE_MODEL = "google/gemini-3.1-flash-image"  # « Nano Banana 2 »
 
-# Générateurs vidéo (image -> vidéo) accessibles via OpenRouter. Le directeur
-# choisit la clé selon le besoin ; on ne garde QUE des clés valides.
+# Générateurs vidéo (image -> vidéo) via OpenRouter. Le directeur choisit la
+# clé selon le besoin ; on ne garde QUE des clés valides. Chaque modèle a une
+# durée MAX par génération : on peut donc mettre plusieurs plans dans une
+# seule génération (batch) puis découper -> plus rapide et moins cher.
 OR_VIDEO_MODELS = {
-    "veo_lite": "google/veo-3.1-lite",          # le moins cher (non réaliste)
-    "kling3":   "kwaivgi/kling-v3.0-standard",  # avatars parlants, lip-sync
-    "wan":      "alibaba/wan-2.6",              # histoires / plans généraux
-    "hailuo":   "minimax/hailuo-2.3",           # mouvements dynamiques
+    "veo_lite": "google/veo-3.1-lite",          # le moins cher (voix off / faceless)
+    "veo3":     "google/veo-3.1",               # perso qui parle FR (voix + lip-sync)
+    "kling3":   "kwaivgi/kling-v3.0-standard",  # perso qui parle EN/ES (top lip-sync)
+    "wan":      "alibaba/wan-2.6",              # histoires / plans larges
+    "hailuo":   "minimax/hailuo-2.3",           # plan très dynamique
 }
+# Durée max générable d'un coup, par modèle (secondes)
+OR_VIDEO_MAXLEN = {"veo_lite": 8, "veo3": 8, "kling3": 10, "wan": 6, "hailuo": 6}
 
 # Bornes de sécurité du plan
-GEN_MIN_CLIP_S = 3
+GEN_MIN_CLIP_S = 2
 GEN_MAX_CLIP_S = 8
 GEN_MAX_TOTAL_S = 120
 
 
-def _gen_clamp_scene(sc):
+def _gen_model_for(talking, language, proposed):
+    """Règle langue -> modèle pour un plan où un personnage PARLE :
+    français -> Veo3 ; anglais/espagnol -> Kling 3.0. Sinon on respecte le
+    choix du directeur (sinon le moins cher)."""
+    if talking:
+        lang = (language or "").lower()[:2]
+        if lang == "fr":
+            return "veo3"
+        if lang in ("en", "es"):
+            return "kling3"
+    p = str(proposed or "").strip()
+    return p if p in OR_VIDEO_MODELS else "veo_lite"
+
+
+def _gen_clamp_scene(sc, language=None):
     """Nettoie/borne une scène du plan pour qu'elle soit toujours exécutable."""
     if not isinstance(sc, dict):
         return None
@@ -4649,10 +4668,8 @@ def _gen_clamp_scene(sc):
     except Exception:
         dur = 4.0
     sc["duration_s"] = max(GEN_MIN_CLIP_S, min(GEN_MAX_CLIP_S, dur))
-    vm = str(sc.get("video_model") or "").strip()
-    if vm not in OR_VIDEO_MODELS:
-        vm = "veo_lite"
-    sc["video_model"] = vm
+    sc["talking"] = bool(sc.get("talking"))
+    sc["video_model"] = _gen_model_for(sc["talking"], language, sc.get("video_model"))
     sc["image_prompt"] = str(sc.get("image_prompt") or "").strip()
     sc["motion_prompt"] = str(sc.get("motion_prompt") or "").strip()
     sc["spoken_text"] = str(sc.get("spoken_text") or "").strip()
@@ -4660,64 +4677,129 @@ def _gen_clamp_scene(sc):
     sc["sfx"] = [str(x) for x in sfx] if isinstance(sfx, list) else []
     caps = sc.get("captions")
     sc["captions"] = [str(x) for x in caps] if isinstance(caps, list) else []
+    # Réutilisation d'un plan déjà généré (économie de crédits) — jamais pour
+    # un perso qui parle (le lip-sync casserait).
+    rf = sc.get("reuse_scene")
+    sc["reuse_scene"] = int(rf) if (isinstance(rf, (int, float)) and not sc["talking"]) else None
+    rt = str(sc.get("reuse_transform") or "none").strip().lower()
+    sc["reuse_transform"] = rt if rt in ("none", "mirror") else "none"
     return sc
+
+
+def _gen_batches(scenes):
+    """Regroupe des plans CONSÉCUTIFS qui partagent le même générateur, ne
+    parlent pas, et ne réutilisent rien, tant que la somme des durées tient
+    dans la longueur max du modèle. Chaque groupe = UNE génération vidéo qu'on
+    découpera ensuite -> on économise appels + crédits. Un plan qui parle ou
+    qui réutilise reste seul (isolé)."""
+    batches, cur = [], []
+
+    def flush():
+        if cur:
+            batches.append(list(cur))
+            cur.clear()
+
+    for sc in scenes:
+        solo = sc["talking"] or sc["reuse_scene"] is not None
+        if solo:
+            flush()
+            batches.append([sc])
+            continue
+        if not cur:
+            cur.append(sc)
+            continue
+        same = cur[0]["video_model"] == sc["video_model"]
+        room = sum(x["duration_s"] for x in cur) + sc["duration_s"] <= \
+            OR_VIDEO_MAXLEN.get(sc["video_model"], 8)
+        if same and room:
+            cur.append(sc)
+        else:
+            flush()
+            cur.append(sc)
+    flush()
+    # Formate en plan de génération : indices + points de coupe.
+    out = []
+    for grp in batches:
+        t, cuts = 0.0, []
+        for sc in grp:
+            cuts.append({"scene": sc["index"], "start_s": round(t, 2),
+                         "end_s": round(t + sc["duration_s"], 2)})
+            t += sc["duration_s"]
+        out.append({
+            "video_model": grp[0]["video_model"],
+            "seconds": round(t, 2),
+            "seed_scene": grp[0]["index"],  # l'image qui amorce la génération
+            "reuse_scene": grp[0]["reuse_scene"] if len(grp) == 1 else None,
+            "reuse_transform": grp[0]["reuse_transform"] if len(grp) == 1 else "none",
+            "combined_motion_prompt": " || ".join(
+                "Plan %d (%s): %s" % (i + 1, "%.0f-%.0fs" % (c["start_s"], c["end_s"]),
+                                      s["motion_prompt"] or s["image_prompt"])
+                for i, (s, c) in enumerate(zip(grp, cuts))),
+            "cuts": cuts,
+        })
+    return out
 
 
 def gen_director_plan(idea, source_url=None):
     """LE CERVEAU / DIRECTEUR. Regarde la vidéo de référence (source_url) OU
-    part d'une idée texte, puis renvoie un PLAN DE GÉNÉRATION structuré : le
-    type de vidéo, le mode audio (voix native de l'avatar OU voix off
-    ElevenLabs), la langue, le personnage (pour la cohérence entre les clips),
-    et la liste des SCÈNES (image + animation + secondes + générateur + texte
-    parlé + SFX + sous-titres). Renvoie None si pas de clé / échec."""
+    part d'une idée texte, puis renvoie un PLAN DE GÉNÉRATION structuré : type
+    de vidéo, mode audio (voix native de l'avatar OU voix off ElevenLabs),
+    langue, personnage (cohérence entre les clips), liste des SCÈNES, et un
+    plan de génération par LOTS (batches) qui économise appels + crédits.
+    Renvoie None si pas de clé / échec."""
     if not OPENROUTER_KEY:
         return None
     idea = (idea or "").strip()
     charter = (
-        "Tu es un DIRECTEUR VIDÉO IA de niveau studio. Ta mission : "
-        "reproduire une vidéo virale sous forme d'une NOUVELLE version "
-        "générée par IA (images puis animation). Tu décides de TOUT.\n\n"
+        "Tu es un DIRECTEUR VIDÉO IA de niveau studio. Ta mission : reproduire "
+        "une vidéo virale sous forme d'une NOUVELLE version générée par IA "
+        "(on génère des IMAGES nettes, puis on les ANIME). Tu décides de TOUT.\n\n"
         "SI une vidéo de référence est fournie : regarde-la en entier "
-        "(image + son), comprends le format viral, le rythme, le ton, "
-        "puis recrée-la scène par scène avec nos outils.\n"
+        "(image + son), comprends le format, le rythme, le ton, la LANGUE "
+        "parlée, puis recrée-la plan par plan avec nos outils.\n"
         "SI seulement une idée texte est fournie : conçois la vidéo depuis zéro.\n\n"
-        "RÈGLES DE PRODUCTION (chacune est un OUTIL que tu doses) :\n"
-        "1. On génère d'abord une IMAGE nette par scène (jamais floue, jamais "
-        "un « rendu IA » cheap, arrière-plans détaillés et réalistes quand la "
-        "vidéo est réaliste), puis on l'ANIME (image -> vidéo).\n"
-        "2. Un plan dure de 3 à 8 secondes. Découpe la vidéo en plans courts et "
-        "cohérents qu'on assemblera — c'est plus rythmé ET moins cher.\n"
-        "3. AUDIO — deux branches, choisis-en UNE par vidéo :\n"
-        "   - 'native' : un personnage parle face caméra -> le générateur "
-        "vidéo produit lui-même la voix et le lip-sync (avatar Kling).\n"
-        "   - 'voiceover' : histoire / faceless -> voix off ElevenLabs + SFX + "
-        "musique, l'image n'a pas besoin de lip-sync.\n"
-        "4. GÉNÉRATEUR par scène : 'kling3' pour un avatar humain qui parle "
-        "(lip-sync réaliste) ; 'veo_lite' pour du non-réaliste pas cher ; "
-        "'wan' pour les histoires / plans larges ; 'hailuo' pour un plan très "
-        "dynamique. Par défaut 'veo_lite'.\n"
-        "5. COHÉRENCE PERSONNAGE (crucial pour les histoires) : si un même "
-        "personnage revient, décris-le une fois dans 'character.description' "
-        "TRÈS précisément (visage, âge, cheveux, tenue, couleurs) et RÉPÈTE "
-        "cette description au début de chaque image_prompt le concernant, pour "
-        "qu'il reste IDENTIQUE d'un clip à l'autre.\n"
-        "6. Sous-titres 'captions' : découpe par pensées courtes (pas au mot), "
-        "dans la langue parlée, jamais de mot esseulé.\n\n"
+        "RÈGLES (chacune est un OUTIL que tu doses) :\n"
+        "1. IMAGE d'abord, nette et détaillée (jamais floue, jamais un « rendu "
+        "IA » cheap ; arrière-plans réalistes quand la vidéo est réaliste), "
+        "puis on l'anime.\n"
+        "2. Chaque plan dure 2 à 8 s. Découpe en plans courts qu'on assemble : "
+        "plus rythmé ET moins cher.\n"
+        "3. AUDIO — une seule branche par vidéo :\n"
+        "   - 'native' : un personnage PARLE face caméra -> le générateur "
+        "vidéo fait lui-même la voix + le lip-sync. Mets talking=true sur ces "
+        "plans. RÈGLE LANGUE : français -> le système utilisera Veo3 ; "
+        "anglais/espagnol -> Kling 3.0 (ne t'en occupe pas, indique juste "
+        "talking=true et la langue).\n"
+        "   - 'voiceover' : histoire / faceless, on ne voit personne parler -> "
+        "voix off ElevenLabs + SFX + musique. talking=false partout, et le "
+        "système prend le générateur le moins cher.\n"
+        "4. COHÉRENCE PERSONNAGE (crucial pour les histoires) : décris le "
+        "personnage UNE fois, très précisément, dans 'character.description' "
+        "(visage, âge, cheveux, tenue, couleurs) et RÉPÈTE cette description au "
+        "début de chaque image_prompt le concernant -> il reste IDENTIQUE d'un "
+        "clip à l'autre.\n"
+        "5. ÉCONOMIE — réutilisation : si un plan n'a PAS besoin d'une nouvelle "
+        "image (décor déjà vu), mets 'reuse_scene' = l'index du plan à "
+        "réutiliser, et 'reuse_transform' = 'mirror' pour varier un peu. "
+        "JAMAIS de réutilisation sur un plan qui parle (talking=true).\n"
+        "6. Sous-titres 'captions' : par pensées courtes (pas au mot), dans la "
+        "langue parlée, jamais de mot esseulé.\n\n"
         "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
         "{\n"
         "  \"video_type\": \"talking_head|story|faceless|product|other\",\n"
         "  \"audio_mode\": \"native|voiceover\",\n"
-        "  \"language\": \"fr|en|...\",\n"
+        "  \"language\": \"fr|en|es|...\",\n"
         "  \"title\": \"...\",\n"
         "  \"hook\": \"la 1re phrase qui accroche\",\n"
-        "  \"voiceover_script\": \"texte complet si audio_mode=voiceover, sinon vide\",\n"
+        "  \"voiceover_script\": \"texte complet si voiceover, sinon vide\",\n"
         "  \"character\": {\"present\": true, \"description\": \"desc precise reutilisable\"},\n"
         "  \"music_mood\": \"aucune|douce|epique|tendue|joyeuse|...\",\n"
         "  \"scenes\": [\n"
-        "    {\"index\":0,\"duration_s\":4,\"video_model\":\"veo_lite\",\n"
+        "    {\"index\":0,\"duration_s\":4,\"talking\":false,\n"
         "     \"image_prompt\":\"image nette et detaillee de la scene\",\n"
-        "     \"motion_prompt\":\"comment l image bouge / le mouvement camera\",\n"
-        "     \"spoken_text\":\"ce que le perso dit si native, sinon vide\",\n"
+        "     \"motion_prompt\":\"comment l image bouge / mouvement camera\",\n"
+        "     \"spoken_text\":\"ce que le perso dit si talking, sinon vide\",\n"
+        "     \"reuse_scene\":null, \"reuse_transform\":\"none\",\n"
         "     \"sfx\":[\"whoosh\"], \"captions\":[\"bout de sous-titre\"]}\n"
         "  ],\n"
         "  \"total_duration_s\": 30\n"
@@ -4732,14 +4814,19 @@ def gen_director_plan(idea, source_url=None):
         plan = or_generate(prompt, json_out=True)
     if not isinstance(plan, dict):
         return None
-    # Bornage / nettoyage défensif
+    language = str(plan.get("language") or "").strip() or "fr"
+    plan["language"] = language
+    # Bornage / nettoyage défensif de chaque plan
     scenes = plan.get("scenes")
     clean = []
     if isinstance(scenes, list):
         for i, sc in enumerate(scenes):
-            c = _gen_clamp_scene(sc)
+            c = _gen_clamp_scene(sc, language)
             if c and c["image_prompt"]:
                 c["index"] = i
+                # une réutilisation ne peut pointer que vers un plan ANTÉRIEUR
+                if c["reuse_scene"] is not None and not (0 <= c["reuse_scene"] < i):
+                    c["reuse_scene"] = None
                 clean.append(c)
     plan["scenes"] = clean
     am = str(plan.get("audio_mode") or "").strip()
@@ -4751,6 +4838,8 @@ def gen_director_plan(idea, source_url=None):
     plan["total_duration_s"] = min(GEN_MAX_TOTAL_S, round(total)) if total else 0
     if not clean:
         return None
+    # Plan de génération par LOTS (économie) — calculé de façon déterministe
+    plan["gen_batches"] = _gen_batches(clean)
     return plan
 
 

@@ -4669,6 +4669,7 @@ def _gen_clamp_scene(sc, language=None):
         dur = 4.0
     sc["duration_s"] = max(GEN_MIN_CLIP_S, min(GEN_MAX_CLIP_S, dur))
     sc["talking"] = bool(sc.get("talking"))
+    sc["has_character"] = bool(sc.get("has_character"))
     sc["video_model"] = _gen_model_for(sc["talking"], language, sc.get("video_model"))
     sc["image_prompt"] = str(sc.get("image_prompt") or "").strip()
     sc["motion_prompt"] = str(sc.get("motion_prompt") or "").strip()
@@ -4777,7 +4778,8 @@ def gen_director_plan(idea, source_url=None):
         "personnage UNE fois, très précisément, dans 'character.description' "
         "(visage, âge, cheveux, tenue, couleurs) et RÉPÈTE cette description au "
         "début de chaque image_prompt le concernant -> il reste IDENTIQUE d'un "
-        "clip à l'autre.\n"
+        "clip à l'autre. Mets has_character=true sur CHAQUE plan où "
+        "il apparaît (on forcera le meme visage via une image de reference).\n"
         "5. ÉCONOMIE — réutilisation : si un plan n'a PAS besoin d'une nouvelle "
         "image (décor déjà vu), mets 'reuse_scene' = l'index du plan à "
         "réutiliser, et 'reuse_transform' = 'mirror' pour varier un peu. "
@@ -4795,7 +4797,7 @@ def gen_director_plan(idea, source_url=None):
         "  \"character\": {\"present\": true, \"description\": \"desc precise reutilisable\"},\n"
         "  \"music_mood\": \"aucune|douce|epique|tendue|joyeuse|...\",\n"
         "  \"scenes\": [\n"
-        "    {\"index\":0,\"duration_s\":4,\"talking\":false,\n"
+        "    {\"index\":0,\"duration_s\":4,\"talking\":false,\"has_character\":true,\n"
         "     \"image_prompt\":\"image nette et detaillee de la scene\",\n"
         "     \"motion_prompt\":\"comment l image bouge / mouvement camera\",\n"
         "     \"spoken_text\":\"ce que le perso dit si talking, sinon vide\",\n"
@@ -4841,6 +4843,140 @@ def gen_director_plan(idea, source_url=None):
     # Plan de génération par LOTS (économie) — calculé de façon déterministe
     plan["gen_batches"] = _gen_batches(clean)
     return plan
+
+
+def _decode_data_url(u):
+    """data:image/...;base64,xxx -> octets ; ou vraie URL http -> télécharge."""
+    try:
+        if u.startswith("data:"):
+            return base64.b64decode(u.split(",", 1)[1])
+        if u.startswith("http"):
+            _st, raw = http("GET", u, timeout=120)
+            return raw
+    except Exception as e:
+        print("_decode_data_url:", e, file=sys.stderr)
+    return None
+
+
+def _extract_image_url(out):
+    """Trouve l'URL de l'image générée dans une réponse OpenRouter, quelle que
+    soit la forme (message.images[], ou content sous forme de parts)."""
+    try:
+        choices = out.get("choices") or []
+        if not choices:
+            return None
+        msg = choices[0].get("message") or {}
+        imgs = msg.get("images")
+        if isinstance(imgs, list) and imgs:
+            it = imgs[0]
+            if isinstance(it, dict):
+                iu = it.get("image_url") or {}
+                if isinstance(iu, dict) and iu.get("url"):
+                    return iu["url"]
+                if it.get("url"):
+                    return it["url"]
+            if isinstance(it, str):
+                return it
+        cont = msg.get("content")
+        if isinstance(cont, list):
+            for p in cont:
+                if isinstance(p, dict) and p.get("type") in (
+                        "image_url", "output_image", "image"):
+                    iu = p.get("image_url") or {}
+                    if isinstance(iu, dict) and iu.get("url"):
+                        return iu["url"]
+                    if p.get("url"):
+                        return p["url"]
+    except Exception as e:
+        print("_extract_image_url:", e, file=sys.stderr)
+    return None
+
+
+def or_generate_image(prompt, ref_paths=None, out_path=None, timeout=240):
+    """NANO BANANA 2 (google/gemini-3.1-flash-image via OpenRouter). Génère UNE
+    image nette depuis un prompt. `ref_paths` = images de référence (ex. le
+    visage du personnage) pour la COHÉRENCE inter-plans. Écrit dans out_path.
+    Renvoie le chemin, sinon None."""
+    if not OPENROUTER_KEY:
+        return None
+    content = [{"type": "text", "text": prompt}]
+    for rp in (ref_paths or []):
+        if not rp:
+            continue
+        try:
+            with open(rp, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode()
+            ext = "png" if rp.lower().endswith(".png") else "jpeg"
+            content.append({"type": "image_url",
+                            "image_url": {"url": "data:image/%s;base64,%s" % (ext, b64)}})
+        except Exception:
+            pass
+    body = {"model": OR_IMAGE_MODEL,
+            "messages": [{"role": "user", "content": content}],
+            "modalities": ["image", "text"]}
+    try:
+        st, raw = http("POST", "https://openrouter.ai/api/v1/chat/completions",
+                       {"Authorization": "Bearer " + OPENROUTER_KEY, "X-Title": "Skillora"},
+                       body, timeout=timeout)
+        out = json.loads(raw)
+        url = _extract_image_url(out)
+        if not url:
+            print("or_generate_image: aucune image:", str(out)[:300], file=sys.stderr)
+            return None
+        data = _decode_data_url(url)
+        if not data:
+            return None
+        if not out_path:
+            out_path = tempfile.mktemp(suffix=".png")
+        with open(out_path, "wb") as f:
+            f.write(data)
+        return out_path if os.path.getsize(out_path) > 500 else None
+    except urllib.error.HTTPError as e:
+        try:
+            print("or_generate_image HTTP", e.code, ":", e.read().decode()[:250], file=sys.stderr)
+        except Exception:
+            print("or_generate_image HTTP", e.code, file=sys.stderr)
+        return None
+    except Exception as e:
+        print("or_generate_image:", e, file=sys.stderr)
+        return None
+
+
+def gen_images(plan, workdir):
+    """ÉTAPE 2 — génère l'image de chaque plan (sauf ceux qui RÉUTILISENT un
+    autre plan). COHÉRENCE PERSONNAGE : la 1re image où le personnage apparaît
+    devient la RÉFÉRENCE de visage passée à tous les plans suivants -> même
+    tête d'un clip à l'autre. Renvoie {index_du_plan: chemin_image}."""
+    imgs = {}
+    if not plan or not plan.get("scenes"):
+        return imgs
+    try:
+        os.makedirs(workdir, exist_ok=True)
+    except Exception:
+        pass
+    char = plan.get("character") or {}
+    char_desc = str(char.get("description") or "").strip()
+    char_ref = None  # 1re image du personnage = ancre du visage
+    for sc in plan["scenes"]:
+        idx = sc["index"]
+        if sc.get("reuse_scene") is not None:
+            continue  # l'image viendra d'un autre plan au montage
+        prompt = sc["image_prompt"]
+        if sc.get("has_character") and char_desc and char_desc[:40] not in prompt:
+            prompt = char_desc + ". " + prompt
+        prompt = ("Image ultra nette et haute qualité, cadrage vertical 9:16, "
+                  "arrière-plan détaillé JAMAIS flou, rendu photographique réaliste "
+                  "quand la scène l'exige, aucun artefact « IA ». " + prompt)
+        refs = [char_ref] if (sc.get("has_character") and char_ref) else None
+        out = os.path.join(workdir, "img_%03d.png" % idx)
+        got = or_generate_image(prompt, ref_paths=refs, out_path=out)
+        if got:
+            imgs[idx] = got
+            if sc.get("has_character") and char_ref is None:
+                char_ref = got
+        else:
+            print("gen_images: échec plan", idx, file=sys.stderr)
+    return imgs
 
 
 def main():

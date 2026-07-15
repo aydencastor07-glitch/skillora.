@@ -4638,12 +4638,13 @@ OR_IMAGE_MODEL = "google/gemini-3.1-flash-image"  # « Nano Banana 2 »
 OR_VIDEO_MODELS = {
     "veo_lite": "google/veo-3.1-fast",   # le moins cher (voix off / faceless)
     "veo3":     "google/veo-3.1",        # perso qui parle FR (voix + lip-sync)
-    "kling3":   "kling/kling-v3.0",      # perso qui parle EN/ES (top lip-sync)
-    "wan":      "alibaba/wan",           # histoires / plans larges
+    "kling3":   "kwaivgi/kling-v3.0-std", # perso qui parle EN/ES (top lip-sync)
+    "wan":      "alibaba/wan-2.7",        # histoires / plans larges
 }
 # Durée max générable d'un coup, par modèle (secondes) — endpoint async
 # POST /api/v1/videos, on soumet puis on interroge (poll) jusqu'à completed.
 OR_VIDEO_MAXLEN = {"veo_lite": 8, "veo3": 8, "kling3": 10, "wan": 6}
+_LAST_VIDEO_ERR = ""  # dernière erreur de l'API vidéo (remontée jusqu'au job)
 
 # Bornes de sécurité du plan
 GEN_MIN_CLIP_S = 2
@@ -5008,6 +5009,7 @@ def or_generate_video(model_key, prompt, seconds, image_url=None, ref_urls=None,
     POST /api/v1/videos (soumission), puis poll GET jusqu'à 'completed', puis
     téléchargement du MP4. `image_url` = première image (image->vidéo).
     Renvoie le chemin du MP4, sinon None."""
+    global _LAST_VIDEO_ERR
     if not OPENROUTER_KEY:
         return None
     model = OR_VIDEO_MODELS.get(model_key) or OR_VIDEO_MODELS["veo_lite"]
@@ -5030,16 +5032,20 @@ def or_generate_video(model_key, prompt, seconds, image_url=None, ref_urls=None,
         job = json.loads(raw)
     except urllib.error.HTTPError as e:
         try:
-            print("or_generate_video submit HTTP", e.code, ":", e.read().decode()[:250], file=sys.stderr)
+            b = e.read().decode()[:300]
         except Exception:
-            print("or_generate_video submit HTTP", e.code, file=sys.stderr)
+            b = ""
+        _LAST_VIDEO_ERR = "%s HTTP %s: %s" % (model, getattr(e, "code", "?"), b)
+        print("or_generate_video submit", _LAST_VIDEO_ERR, file=sys.stderr)
         return None
     except Exception as e:
+        _LAST_VIDEO_ERR = "soumission %s: %s" % (model, str(e)[:200])
         print("or_generate_video submit:", e, file=sys.stderr)
         return None
     jid = job.get("id")
     poll = job.get("polling_url") or (("https://openrouter.ai/api/v1/videos/" + str(jid)) if jid else None)
     if not poll:
+        _LAST_VIDEO_ERR = "réponse inattendue (%s): %s" % (model, str(job)[:200])
         print("or_generate_video: pas de polling_url:", str(job)[:200], file=sys.stderr)
         return None
     # Poll jusqu'à état terminal
@@ -5057,9 +5063,11 @@ def or_generate_video(model_key, prompt, seconds, image_url=None, ref_urls=None,
         if status == "completed":
             break
         if status in ("failed", "cancelled", "expired"):
+            _LAST_VIDEO_ERR = "%s %s: %s" % (model, status, str(info.get("error"))[:200])
             print("or_generate_video:", status, "-", str(info.get("error"))[:200], file=sys.stderr)
             return None
     if status != "completed":
+        _LAST_VIDEO_ERR = "%s: timeout après %ds" % (model, poll_timeout)
         print("or_generate_video: timeout après %ds" % poll_timeout, file=sys.stderr)
         return None
     # Téléchargement
@@ -5079,6 +5087,7 @@ def or_generate_video(model_key, prompt, seconds, image_url=None, ref_urls=None,
             f.write(raw)
         return out_path if os.path.getsize(out_path) > 2000 else None
     except Exception as e:
+        _LAST_VIDEO_ERR = "téléchargement %s: %s" % (model, str(e)[:150])
         print("or_generate_video download:", e, file=sys.stderr)
         return None
 
@@ -5415,7 +5424,7 @@ def generate_video_job(job, work, steps):
     steps.start("anim", "Animation des clips…")
     clips = animate_batches(plan, imgs, os.path.join(work, "clips"), uid, jid)
     if not clips:
-        raise RuntimeError("L'animation des clips a échoué.")
+        raise RuntimeError("L'animation des clips a échoué. " + (_LAST_VIDEO_ERR or "(raison inconnue)"))
     steps.done("anim", "%d clips" % len(clips))
 
     steps.start("mux", "Montage final (voix, musique, sous-titres)…")

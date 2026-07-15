@@ -4666,159 +4666,119 @@ def _gen_model_for(talking, language, proposed):
     return p if p in OR_VIDEO_MODELS else "veo_lite"
 
 
-def _gen_clamp_scene(sc, language=None):
-    """Nettoie/borne une scène du plan pour qu'elle soit toujours exécutable."""
+def _gen_clamp_scene(sc):
+    """Une SCÈNE = un DÉCOR = UNE image. On garde le prompt d'image et la liste
+    des personnages présents (pour la cohérence)."""
     if not isinstance(sc, dict):
         return None
-    try:
-        dur = float(sc.get("duration_s") or 4)
-    except Exception:
-        dur = 4.0
-    sc["duration_s"] = max(GEN_MIN_CLIP_S, min(GEN_MAX_CLIP_S, dur))
-    sc["talking"] = bool(sc.get("talking"))
-    sc["has_character"] = bool(sc.get("has_character"))
-    sc["video_model"] = _gen_model_for(sc["talking"], language, sc.get("video_model"))
     sc["image_prompt"] = str(sc.get("image_prompt") or "").strip()
-    sc["motion_prompt"] = str(sc.get("motion_prompt") or "").strip()
-    sc["spoken_text"] = str(sc.get("spoken_text") or "").strip()
-    sfx = sc.get("sfx")
-    sc["sfx"] = [str(x) for x in sfx] if isinstance(sfx, list) else []
-    caps = sc.get("captions")
-    sc["captions"] = [str(x) for x in caps] if isinstance(caps, list) else []
-    # Réutilisation d'un plan déjà généré (économie de crédits) — jamais pour
-    # un perso qui parle (le lip-sync casserait).
-    rf = sc.get("reuse_scene")
-    sc["reuse_scene"] = int(rf) if (isinstance(rf, (int, float)) and not sc["talking"]) else None
-    rt = str(sc.get("reuse_transform") or "none").strip().lower()
-    sc["reuse_transform"] = rt if rt in ("none", "mirror") else "none"
-    return sc
+    chars = sc.get("characters")
+    sc["characters"] = [str(x) for x in chars] if isinstance(chars, list) else []
+    return sc if sc["image_prompt"] else None
 
 
-def _gen_batches(scenes):
-    """Regroupe des plans CONSÉCUTIFS qui partagent le même générateur, ne
-    parlent pas, et ne réutilisent rien, tant que la somme des durées tient
-    dans la longueur max du modèle. Chaque groupe = UNE génération vidéo qu'on
-    découpera ensuite -> on économise appels + crédits. Un plan qui parle ou
-    qui réutilise reste seul (isolé)."""
-    batches, cur = [], []
-
-    def flush():
-        if cur:
-            batches.append(list(cur))
-            cur.clear()
-
-    for sc in scenes:
-        solo = sc["talking"] or sc["reuse_scene"] is not None
-        if solo:
-            flush()
-            batches.append([sc])
-            continue
-        if not cur:
-            cur.append(sc)
-            continue
-        same = cur[0]["video_model"] == sc["video_model"]
-        room = sum(x["duration_s"] for x in cur) + sc["duration_s"] <= \
-            OR_VIDEO_MAXLEN.get(sc["video_model"], 8)
-        if same and room:
-            cur.append(sc)
-        else:
-            flush()
-            cur.append(sc)
-    flush()
-    # Formate en plan de génération : indices + points de coupe.
-    out = []
-    for grp in batches:
-        t, cuts = 0.0, []
-        for sc in grp:
-            cuts.append({"scene": sc["index"], "start_s": round(t, 2),
-                         "end_s": round(t + sc["duration_s"], 2)})
-            t += sc["duration_s"]
-        out.append({
-            "video_model": grp[0]["video_model"],
-            "seconds": round(t, 2),
-            "seed_scene": grp[0]["index"],  # l'image qui amorce la génération
-            "reuse_scene": grp[0]["reuse_scene"] if len(grp) == 1 else None,
-            "reuse_transform": grp[0]["reuse_transform"] if len(grp) == 1 else "none",
-            "combined_motion_prompt": " || ".join(
-                "Plan %d (%s): %s" % (i + 1, "%.0f-%.0fs" % (c["start_s"], c["end_s"]),
-                                      s["motion_prompt"] or s["image_prompt"])
-                for i, (s, c) in enumerate(zip(grp, cuts))),
-            "cuts": cuts,
-        })
-    return out
+def _gen_clamp_shot(sh, language, n_scenes):
+    """Un PLAN (shot) = un CLIP animé qui réutilise l'image d'une scène."""
+    if not isinstance(sh, dict):
+        return None
+    try:
+        dur = float(sh.get("duration_s") or 5)
+    except Exception:
+        dur = 5.0
+    sh["duration_s"] = max(GEN_MIN_CLIP_S, min(GEN_MAX_CLIP_S, dur))
+    try:
+        sc = int(sh.get("scene"))
+    except Exception:
+        sc = 0
+    sh["scene"] = sc if 0 <= sc < n_scenes else 0
+    sh["talking"] = bool(sh.get("talking"))
+    sh["video_model"] = _gen_model_for(sh["talking"], language, sh.get("video_model"))
+    sh["camera"] = str(sh.get("camera") or "").strip()
+    sh["motion_prompt"] = str(sh.get("motion_prompt") or "").strip()
+    sh["speaker"] = str(sh.get("speaker") or "").strip()
+    sh["spoken_text"] = str(sh.get("spoken_text") or "").strip()
+    sfx = sh.get("sfx")
+    sh["sfx"] = [str(x) for x in sfx] if isinstance(sfx, list) else []
+    caps = sh.get("captions")
+    sh["captions"] = [str(x) for x in caps] if isinstance(caps, list) else []
+    return sh
 
 
 def gen_director_plan(idea, source_url=None):
-    """LE CERVEAU / DIRECTEUR. Regarde la vidéo de référence (source_url) OU
-    part d'une idée texte, puis renvoie un PLAN DE GÉNÉRATION structuré : type
-    de vidéo, mode audio (voix native de l'avatar OU voix off ElevenLabs),
-    langue, personnage (cohérence entre les clips), liste des SCÈNES, et un
-    plan de génération par LOTS (batches) qui économise appels + crédits.
+    """LE CERVEAU / DIRECTEUR. Regarde la vidéo de référence PLAN PAR PLAN (ou
+    part d'une idée) et renvoie un PLAN structuré à DEUX niveaux :
+      - characters : les personnages (id + description réutilisable) ;
+      - scenes     : les DÉCORS -> UNE image générée par scène ;
+      - shots      : les PLANS animés ; chaque plan RÉUTILISE l'image d'une
+                     scène (champ 'scene') -> une seule image peut servir à
+                     plusieurs plans (gros plan, contrechamp, plan large…).
     Renvoie None si pas de clé / échec."""
     if not OPENROUTER_KEY:
         return None
     idea = (idea or "").strip()
     charter = (
-        "Tu es un DIRECTEUR VIDÉO IA de niveau studio. Ta mission : reproduire "
-        "une vidéo virale sous forme d'une NOUVELLE version générée par IA "
-        "(on génère des IMAGES nettes, puis on les ANIME). Tu décides de TOUT.\n\n"
-        "SI une vidéo de référence est fournie : regarde-la en entier "
-        "(image + son), comprends le format, le rythme, le ton, la LANGUE "
-        "parlée, puis recrée-la plan par plan avec nos outils.\n"
-        "SI seulement une idée texte est fournie : conçois la vidéo depuis zéro.\n\n"
-        "RÈGLES (chacune est un OUTIL que tu doses) :\n"
-        "1. IMAGE d'abord, nette et détaillée (jamais floue, jamais un « rendu "
-        "IA » cheap ; arrière-plans réalistes quand la vidéo est réaliste), "
-        "puis on l'anime.\n"
-        "2. Découpe en 4 à 6 plans MAXIMUM (courte vidéo), chacun de 4 à 8 s. "
-        "Des plans PLUS LONGS et MOINS nombreux = plus cohérent, meilleur "
-        "lip-sync ET bien moins cher. Bannis les micro-plans de 2-3 s.\n"
-        "3. AUDIO — une seule branche par vidéo :\n"
-        "   - 'native' : un personnage PARLE face caméra -> le générateur "
-        "vidéo fait lui-même la voix + le lip-sync. Mets talking=true, et dans "
-        "spoken_text mets le TEXTE EXACT dit (mot pour mot) ; dans motion_prompt "
-        "décris QUI parle, son expression et ses gestes pendant qu'il parle. "
-        "RÈGLE LANGUE : français -> le système utilise Veo3 ; anglais/espagnol "
-        "-> Kling 3.0 (indique juste talking=true et la langue).\n"
-        "   - 'voiceover' : histoire / faceless, on ne voit personne parler -> "
-        "voix off ElevenLabs + SFX + musique. talking=false partout, et le "
-        "système prend le générateur le moins cher.\n"
-        "4. COHÉRENCE PERSONNAGE (crucial pour les histoires) : décris le "
-        "personnage UNE fois, très précisément, dans 'character.description' "
-        "(visage, âge, cheveux, tenue, couleurs) et RÉPÈTE cette description au "
-        "début de chaque image_prompt le concernant -> il reste IDENTIQUE d'un "
-        "clip à l'autre. Mets has_character=true sur CHAQUE plan où "
-        "il apparaît (on forcera le meme visage via une image de reference).\n"
-        "5. ÉCONOMIE — réutilisation : si un plan n'a PAS besoin d'une nouvelle "
-        "image (décor déjà vu), mets 'reuse_scene' = l'index du plan à "
-        "réutiliser, et 'reuse_transform' = 'mirror' pour varier un peu. "
-        "JAMAIS de réutilisation sur un plan qui parle (talking=true).\n"
-        "6. Sous-titres 'captions' : par pensées courtes (pas au mot), dans la "
-        "langue parlée, jamais de mot esseulé.\n\n"
+        "Tu es un DIRECTEUR VIDÉO IA de niveau studio. On te donne une vidéo "
+        "(ou une idée) et tu dois la REPRODUIRE FIDÈLEMENT sous forme d'une "
+        "nouvelle version générée par IA (images puis animation).\n\n"
+        "REGARDE la vidéo de référence PLAN PAR PLAN : qui est présent, QUI "
+        "parle et QUAND, ce que chacun dit MOT POUR MOT, les mouvements et "
+        "gestes exacts, les angles de caméra, l'enchaînement des plans, le "
+        "décor, la lumière. Reproduis CES actions et CET enchaînement le plus "
+        "fidèlement possible — c'est une COPIE, sois précis.\n\n"
+        "DEUX NIVEAUX (essentiel pour la qualité ET le coût) :\n"
+        "• SCÈNES = des DÉCORS. On génère UNE image par scène. Une même scène "
+        "(donc UNE seule image) peut servir à PLUSIEURS plans : gros plan sur "
+        "un perso, puis CONTRECHAMP sur l'autre, plan large, etc. Ne crée une "
+        "NOUVELLE scène (nouvelle image) QUE si le décor OU les personnages "
+        "changent vraiment. Regroupe un MAXIMUM de plans sur PEU de scènes.\n"
+        "• PLANS (shots) = les CLIPS animés. Chaque plan réutilise l'image "
+        "d'une scène (champ 'scene' = l'index de la scène) et l'anime avec son "
+        "angle de caméra + son mouvement + ce qui est dit. PLUSIEURS plans "
+        "pointent souvent vers la MÊME scène.\n\n"
+        "COHÉRENCE : liste les PERSONNAGES dans 'characters' (un id court + une "
+        "description TRÈS précise et réutilisable : visage, âge, cheveux, "
+        "tenue, couleurs). Réutilise ces MÊMES personnages d'une scène à "
+        "l'autre pour qu'ils restent IDENTIQUES. Dans chaque scène, indique "
+        "quels personnages apparaissent (leurs id).\n\n"
+        "AUDIO — une seule branche :\n"
+        "• 'native' : un personnage parle À L'IMAGE -> pour CHAQUE plan parlé "
+        "mets talking=true, speaker=l'id du perso qui parle, spoken_text=le "
+        "TEXTE EXACT qu'il dit (mot pour mot), motion_prompt=ses gestes et son "
+        "expression. RÈGLE LANGUE : français -> Veo3 ; anglais/espagnol -> "
+        "Kling (indique juste talking=true et la langue).\n"
+        "• 'voiceover' : narration off, on ne voit personne parler -> "
+        "talking=false partout, voix off ElevenLabs (voiceover_script complet) "
+        "+ musique + effets.\n\n"
+        "Chaque plan dure 4 à 8 s. Vise 4 à 8 PLANS répartis sur 3 à 5 SCÈNES "
+        "(donc seulement 3 à 5 images).\n\n"
         "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
         "{\n"
-        "  \"video_type\": \"talking_head|story|faceless|product|other\",\n"
+        "  \"video_type\": \"talking_head|conversation|story|faceless|product|other\",\n"
         "  \"audio_mode\": \"native|voiceover\",\n"
         "  \"language\": \"fr|en|es|...\",\n"
         "  \"title\": \"...\",\n"
         "  \"hook\": \"la 1re phrase qui accroche\",\n"
         "  \"voiceover_script\": \"texte complet si voiceover, sinon vide\",\n"
-        "  \"character\": {\"present\": true, \"description\": \"desc precise reutilisable\"},\n"
         "  \"music_mood\": \"aucune|douce|epique|tendue|joyeuse|...\",\n"
+        "  \"characters\": [{\"id\": \"c1\", \"description\": \"desc precise reutilisable\"}],\n"
         "  \"scenes\": [\n"
-        "    {\"index\":0,\"duration_s\":4,\"talking\":false,\"has_character\":true,\n"
-        "     \"image_prompt\":\"image nette et detaillee de la scene\",\n"
-        "     \"motion_prompt\":\"comment l image bouge / mouvement camera\",\n"
-        "     \"spoken_text\":\"ce que le perso dit si talking, sinon vide\",\n"
-        "     \"reuse_scene\":null, \"reuse_transform\":\"none\",\n"
-        "     \"sfx\":[\"whoosh\"], \"captions\":[\"bout de sous-titre\"]}\n"
+        "    {\"index\": 0, \"image_prompt\": \"decor + personnages, nette et detaillee\",\n"
+        "     \"characters\": [\"c1\", \"c2\"]}\n"
+        "  ],\n"
+        "  \"shots\": [\n"
+        "    {\"index\": 0, \"scene\": 0, \"duration_s\": 5,\n"
+        "     \"camera\": \"gros plan sur c1\",\n"
+        "     \"motion_prompt\": \"mouvement/gestes/camera precis, fideles a la video\",\n"
+        "     \"talking\": true, \"speaker\": \"c1\", \"spoken_text\": \"ce que c1 dit, mot pour mot\",\n"
+        "     \"video_model\": \"veo3\", \"sfx\": [], \"captions\": [\"bout de sous-titre\"]}\n"
         "  ],\n"
         "  \"total_duration_s\": 30\n"
         "}\n"
     )
     if source_url:
-        prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à reproduire (regarde-la) — "
-                  "consigne du client : " + (idea or "reproduis ce format à l'identique."))
+        prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à reproduire fidèlement "
+                  "(regarde-la plan par plan) — consigne du client : "
+                  + (idea or "reproduis ce format à l'identique."))
         plan = or_generate(prompt, video_url=source_url, json_out=True)
     else:
         prompt = charter + "\nIDÉE DU CLIENT : " + (idea or "surprends-moi.")
@@ -4827,30 +4787,42 @@ def gen_director_plan(idea, source_url=None):
         return None
     language = str(plan.get("language") or "").strip() or "fr"
     plan["language"] = language
-    # Bornage / nettoyage défensif de chaque plan
-    scenes = plan.get("scenes")
-    clean = []
-    if isinstance(scenes, list):
-        for i, sc in enumerate(scenes):
-            c = _gen_clamp_scene(sc, language)
-            if c and c["image_prompt"]:
-                c["index"] = i
-                # une réutilisation ne peut pointer que vers un plan ANTÉRIEUR
-                if c["reuse_scene"] is not None and not (0 <= c["reuse_scene"] < i):
-                    c["reuse_scene"] = None
-                clean.append(c)
-    plan["scenes"] = clean
+    # Personnages
+    chars = plan.get("characters")
+    plan["characters"] = [c for c in chars if isinstance(c, dict) and c.get("id")] \
+        if isinstance(chars, list) else []
+    # Scènes (images) — réindexées
+    raw_scenes = plan.get("scenes") if isinstance(plan.get("scenes"), list) else []
+    scenes = []
+    for sc in raw_scenes:
+        c = _gen_clamp_scene(sc)
+        if c:
+            c["index"] = len(scenes)
+            scenes.append(c)
+    plan["scenes"] = scenes
+    if not scenes:
+        return None
+    # Plans (shots) — réindexés, référence de scène bornée
+    raw_shots = plan.get("shots") if isinstance(plan.get("shots"), list) else []
+    shots = []
+    for sh in raw_shots:
+        c = _gen_clamp_shot(sh, language, len(scenes))
+        if c and (c["motion_prompt"] or c["camera"] or c["spoken_text"]):
+            c["index"] = len(shots)
+            shots.append(c)
+    # Repli : si le directeur n'a pas listé de plans, un plan par scène.
+    if not shots:
+        for sc in scenes:
+            shots.append(_gen_clamp_shot(
+                {"scene": sc["index"], "duration_s": 5,
+                 "motion_prompt": sc["image_prompt"][:120]}, language, len(scenes)))
+        for i, sh in enumerate(shots):
+            sh["index"] = i
+    plan["shots"] = shots
     am = str(plan.get("audio_mode") or "").strip()
     plan["audio_mode"] = am if am in ("native", "voiceover") else "voiceover"
-    ch = plan.get("character")
-    if not isinstance(ch, dict):
-        plan["character"] = {"present": False, "description": ""}
-    total = sum(s["duration_s"] for s in clean)
+    total = sum(s["duration_s"] for s in shots)
     plan["total_duration_s"] = min(GEN_MAX_TOTAL_S, round(total)) if total else 0
-    if not clean:
-        return None
-    # Plan de génération par LOTS (économie) — calculé de façon déterministe
-    plan["gen_batches"] = _gen_batches(clean)
     return plan
 
 
@@ -4952,41 +4924,42 @@ def or_generate_image(prompt, ref_paths=None, out_path=None, timeout=240):
 
 
 def gen_images(plan, workdir):
-    """ÉTAPE 2 — génère l'image de chaque plan (sauf ceux qui RÉUTILISENT un
-    autre plan). COHÉRENCE PERSONNAGE : la 1re image où le personnage apparaît
-    devient la RÉFÉRENCE de visage passée à tous les plans suivants -> même
-    tête d'un clip à l'autre. Renvoie {index_du_plan: chemin_image}."""
+    """ÉTAPE 2 — génère UNE image par SCÈNE (décor). COHÉRENCE : la 1re image
+    où un personnage apparaît devient sa RÉFÉRENCE de visage, passée aux scènes
+    suivantes où il revient -> même tête d'une scène à l'autre. Renvoie
+    {index_de_scène: chemin_image}."""
     imgs = {}
-    if not plan or not plan.get("scenes"):
+    scenes = plan.get("scenes") or []
+    if not scenes:
         return imgs
     try:
         os.makedirs(workdir, exist_ok=True)
     except Exception:
         pass
-    char = plan.get("character") or {}
-    char_desc = str(char.get("description") or "").strip()
-    char_ref = None  # 1re image du personnage = ancre du visage
-    for sc in plan["scenes"]:
+    chars = {str(c.get("id")): str(c.get("description") or "")
+             for c in (plan.get("characters") or []) if isinstance(c, dict)}
+    char_ref = {}  # id perso -> 1re image où il apparaît (ancre du visage)
+    for sc in scenes:
         idx = sc["index"]
-        if sc.get("reuse_scene") is not None:
-            continue  # l'image viendra d'un autre plan au montage
+        present = [c for c in (sc.get("characters") or []) if c in chars]
+        desc = " ".join(chars[c] for c in present if chars.get(c)).strip()
         prompt = sc["image_prompt"]
-        if sc.get("has_character") and char_desc and char_desc[:40] not in prompt:
-            prompt = char_desc + ". " + prompt
+        if desc and desc[:30] not in prompt:
+            prompt = desc + ". " + prompt
         prompt = ("Image ultra nette et haute qualité, cadrage vertical 9:16, "
                   "ÉCLAIRAGE CINÉMATOGRAPHIQUE soigné, ombres réalistes et "
-                  "naturelles (jamais plat ni cramé), arrière-plan détaillé JAMAIS "
-                  "flou, rendu photographique réaliste quand la scène l'exige, "
-                  "aucun artefact « IA ». " + prompt)
-        refs = [char_ref] if (sc.get("has_character") and char_ref) else None
+                  "naturelles (jamais plat ni cramé), arrière-plan détaillé "
+                  "JAMAIS flou, rendu photographique réaliste quand la scène "
+                  "l'exige, aucun artefact « IA ». " + prompt)
+        refs = [char_ref[c] for c in present if c in char_ref]
         out = os.path.join(workdir, "img_%03d.png" % idx)
-        got = or_generate_image(prompt, ref_paths=refs, out_path=out)
+        got = or_generate_image(prompt, ref_paths=refs or None, out_path=out)
         if got:
             imgs[idx] = got
-            if sc.get("has_character") and char_ref is None:
-                char_ref = got
+            for c in present:
+                char_ref.setdefault(c, got)
         else:
-            print("gen_images: échec plan", idx, file=sys.stderr)
+            print("gen_images: échec scène", idx, file=sys.stderr)
     return imgs
 
 
@@ -5117,61 +5090,40 @@ def _ff_trim(src, start, end, dst, mirror=False):
     return dst if (os.path.exists(dst) and os.path.getsize(dst) > 1000) else None
 
 
-def animate_batches(plan, images, workdir, uid="anon", job_id="gen"):
-    """ÉTAPE 3 — anime les images en clips vidéo, par LOTS (économie), puis
-    découpe chaque lot aux points prévus par le Directeur -> un clip par plan.
-    Gère la RÉUTILISATION (recopie d'un plan antérieur, miroir option).
-    Renvoie {index_du_plan: chemin_clip}."""
-    clips = {}
-    batches = (plan or {}).get("gen_batches") or []
-    scenes = {s["index"]: s for s in ((plan or {}).get("scenes") or [])}
+def animate_shots(plan, images, workdir, uid="anon", job_id="gen"):
+    """ÉTAPE 3 — anime chaque PLAN (shot) à partir de l'image de SA scène.
+    Plusieurs plans peuvent réutiliser la MÊME image (gros plan, contrechamp,
+    plan large…) : l'image n'est uploadée qu'UNE fois par scène. Renvoie une
+    liste ORDONNÉE de (index_du_plan, chemin_clip)."""
+    clips = []
+    shots = plan.get("shots") or []
     try:
         os.makedirs(workdir, exist_ok=True)
     except Exception:
         pass
-    for bi, b in enumerate(batches):
-        cuts = b.get("cuts") or []
-        # --- Cas RÉUTILISATION : un seul plan qui recopie un plan déjà généré
-        if b.get("reuse_scene") is not None and len(cuts) == 1:
-            sc_idx = cuts[0]["scene"]
-            src = clips.get(b["reuse_scene"])
-            if not src:
-                print("animate_batches: source réutilisée absente", b["reuse_scene"], file=sys.stderr)
-                continue
-            dst = os.path.join(workdir, "clip_%03d.mp4" % sc_idx)
-            dur = scenes.get(sc_idx, {}).get("duration_s",
-                                             cuts[0]["end_s"] - cuts[0]["start_s"])
-            got = _ff_trim(src, 0.0, float(dur), dst,
-                           mirror=(b.get("reuse_transform") == "mirror"))
-            if got:
-                clips[sc_idx] = got
-            continue
-        # --- Cas GÉNÉRATION
-        seed = b.get("seed_scene")
-        img = images.get(seed)
-        img_url = None
-        if img:
-            img_url = sb_upload_public(img, "gen/%s/%s/img_%03d.png" % (uid, job_id, seed))
-        talking = bool(scenes.get(seed, {}).get("talking"))
-        prompt = b.get("combined_motion_prompt") or scenes.get(seed, {}).get("motion_prompt", "")
-        if talking:
-            spk = scenes.get(seed, {}).get("spoken_text", "")
-            if spk:
-                prompt = (prompt + " Le personnage parle et dit exactement : « %s »." % spk).strip()
-        raw_vid = os.path.join(workdir, "batch_%03d.mp4" % bi)
-        got = or_generate_video(b.get("video_model", "veo_lite"), prompt,
-                                b.get("seconds", 4), image_url=img_url,
-                                generate_audio=talking, out_path=raw_vid)
-        if not got:
-            print("animate_batches: génération échouée lot", bi, file=sys.stderr)
-            continue
-        # Découpe en clips par plan
-        for c in cuts:
-            sc_idx = c["scene"]
-            dst = os.path.join(workdir, "clip_%03d.mp4" % sc_idx)
-            cc = _ff_trim(got, float(c["start_s"]), float(c["end_s"]), dst)
-            if cc:
-                clips[sc_idx] = cc
+    uploaded = {}  # index_de_scène -> URL publique (upload une seule fois)
+    for sh in shots:
+        sidx = sh.get("scene", 0)
+        img = images.get(sidx)
+        if img and sidx not in uploaded:
+            uploaded[sidx] = sb_upload_public(
+                img, "gen/%s/%s/img_%03d.png" % (uid, job_id, sidx))
+        img_url = uploaded.get(sidx)
+        talking = bool(sh.get("talking"))
+        prompt = " ".join(x for x in [sh.get("camera"), sh.get("motion_prompt")]
+                          if x).strip() or "Plan cinématographique fidèle à la scène."
+        if talking and sh.get("spoken_text"):
+            who = (" (%s)" % sh["speaker"]) if sh.get("speaker") else ""
+            prompt = prompt + " Le personnage%s parle et dit exactement : « %s »." % (
+                who, sh["spoken_text"])
+        out = os.path.join(workdir, "shot_%03d.mp4" % sh["index"])
+        got = or_generate_video(sh.get("video_model", "veo_lite"), prompt,
+                                sh.get("duration_s", 5), image_url=img_url,
+                                generate_audio=talking, out_path=out)
+        if got:
+            clips.append((sh["index"], got))
+        else:
+            print("animate_shots: échec plan", sh["index"], file=sys.stderr)
     return clips
 
 
@@ -5337,53 +5289,54 @@ def _mux_audio(video, main_audio, music, out, total):
 
 
 def assemble_generated(plan, clips, job, workdir):
-    """ÉTAPE 4 — MONTAGE FINAL : ordonne les clips, ajoute la voix off
-    (ElevenLabs) ou garde l'audio natif des avatars, pose un tapis musical,
-    incruste les sous-titres, et upload le résultat. Renvoie l'URL, ou None."""
-    scenes = [s for s in (plan.get("scenes") or []) if s["index"] in clips]
-    if not scenes:
+    """ÉTAPE 4 — MONTAGE FINAL : concatène les clips des PLANS (dans l'ordre),
+    ajoute la voix off (ElevenLabs) ou garde l'audio natif des avatars, pose un
+    tapis musical, incruste les sous-titres, upload. `clips` = liste ordonnée
+    de (index_du_plan, chemin). Renvoie l'URL, ou None."""
+    if not clips:
         return None
-    scenes.sort(key=lambda s: s["index"])
-    ordered = [clips[s["index"]] for s in scenes]
+    shots = {s["index"]: s for s in (plan.get("shots") or [])}
     try:
         os.makedirs(workdir, exist_ok=True)
     except Exception:
         pass
-    # 1) durées réelles -> spans de sous-titres
+    ordered = [p for (_i, p) in clips]
+    # durées réelles -> spans de sous-titres
     spans, t = [], 0.0
-    for s in scenes:
+    for (idx, p) in clips:
+        sh = shots.get(idx, {})
         try:
-            d = ffprobe_facts(clips[s["index"]])["duration"] or s["duration_s"]
+            d = ffprobe_facts(p)["duration"] or sh.get("duration_s", 4)
         except Exception:
-            d = s["duration_s"]
-        caps = s.get("captions") or []
+            d = sh.get("duration_s", 4)
+        caps = sh.get("captions") or []
         if caps and d > 0:
             step = d / len(caps)
             for i, c in enumerate(caps):
                 spans.append((t + i * step, t + (i + 1) * step - 0.05, c))
         t += d
     total = max(1.0, t)
-    # 2) vidéo muette
+    # vidéo muette concaténée
     silent = os.path.join(workdir, "base_silent.mp4")
     if not _concat_video(ordered, silent):
         return None
-    # 3) audio principal
+    # audio principal
     mode = plan.get("audio_mode", "voiceover")
     main_audio = None
     if mode == "voiceover" and plan.get("voiceover_script"):
         main_audio = eleven_tts(plan["voiceover_script"], os.path.join(workdir, "voice.mp3"))
     if main_audio is None and mode != "voiceover":
         main_audio = _concat_clip_audio(ordered, os.path.join(workdir, "native.wav"))
-    # 4) musique
+    # musique
     music = None
     mood = str(plan.get("music_mood") or "").lower().strip()
     if mood and mood not in ("aucune", "none", ""):
         music = pick_music(mood) or pick_music(_MOOD_MAP.get(mood, ""))
-    # 5) mux
+    # mux
     with_audio = os.path.join(workdir, "base_audio.mp4")
     if not _mux_audio(silent, main_audio, music, with_audio, total):
         with_audio = silent
-    # 6) sous-titres
+    # sous-titres
     final = os.path.join(workdir, "final.mp4")
     try:
         ass = _build_gen_ass(spans, os.path.join(workdir, "gen.ass"))
@@ -5393,7 +5346,6 @@ def assemble_generated(plan, clips, job, workdir):
     except Exception as e:
         print("assemble_generated burn:", e, file=sys.stderr)
         final = with_audio
-    # 7) upload
     try:
         return upload_result(job, final)
     except Exception as e:
@@ -5402,10 +5354,9 @@ def assemble_generated(plan, clips, job, workdir):
 
 
 def generate_video_job(job, work, steps):
-    """ORCHESTRATEUR du GÉNÉRATEUR IA (« Copier une vidéo » du Studio).
-    Enchaîne : Directeur (plan) -> Images (Nano Banana) -> Animation (clips) ->
-    Montage final -> upload. Met à jour l'avancement pour le client. Lève une
-    exception en cas d'échec (attrapée par process, qui marque le job 'error')."""
+    """ORCHESTRATEUR du GÉNÉRATEUR IA (« Copier une vidéo »).
+    Directeur (personnages + scènes + plans) -> Images (1/scène) ->
+    Animation (1/plan, plusieurs plans par image) -> Montage -> upload."""
     context = job.get("context") or {}
     idea = str(context.get("idea") or "").strip()
     source_url = (str(context.get("source_url") or "").strip()
@@ -5419,11 +5370,12 @@ def generate_video_job(job, work, steps):
 
     steps.start("plan", "Le directeur regarde et écrit le plan…")
     plan = gen_director_plan(idea, source_url=source_url)
-    if not plan or not plan.get("scenes"):
+    if not plan or not plan.get("scenes") or not plan.get("shots"):
         raise RuntimeError("Le directeur n'a pas pu établir de plan à partir de ça.")
     update_job(jid, {"plan": {"gen": plan}})
-    steps.done("plan", "%d plans · %s" % (len(plan["scenes"]),
-               "voix off" if plan.get("audio_mode") == "voiceover" else "voix native"))
+    steps.done("plan", "%d images · %d plans · %s" % (
+        len(plan["scenes"]), len(plan["shots"]),
+        "voix off" if plan.get("audio_mode") == "voiceover" else "voix native"))
 
     steps.start("img", "Génération des images (Nano Banana)…")
     imgs = gen_images(plan, os.path.join(work, "img"))
@@ -5431,11 +5383,11 @@ def generate_video_job(job, work, steps):
         raise RuntimeError("La génération des images a échoué.")
     steps.done("img", "%d images" % len(imgs))
 
-    steps.start("anim", "Animation des clips…")
-    clips = animate_batches(plan, imgs, os.path.join(work, "clips"), uid, jid)
+    steps.start("anim", "Animation des plans…")
+    clips = animate_shots(plan, imgs, os.path.join(work, "clips"), uid, jid)
     if not clips:
-        raise RuntimeError("L'animation des clips a échoué. " + (_LAST_VIDEO_ERR or "(raison inconnue)"))
-    steps.done("anim", "%d clips" % len(clips))
+        raise RuntimeError("L'animation des plans a échoué. " + (_LAST_VIDEO_ERR or "(raison inconnue)"))
+    steps.done("anim", "%d plans animés" % len(clips))
 
     steps.start("mux", "Montage final (voix, musique, sous-titres)…")
     url = assemble_generated(plan, clips, job, os.path.join(work, "final"))

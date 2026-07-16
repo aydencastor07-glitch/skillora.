@@ -2109,24 +2109,24 @@
     <div class="pub-card reveal" id="genCard" style="animation-delay:.22s;margin-bottom:18px;">
       <div id="genIntro">
         <div class="gen-head">
-          <div class="gen-ic">🎬</div>
+          <div class="gen-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg></div>
           <div class="gen-htxt">
-            <div class="gen-title">Copier une vidéo <span class="badge-beta">BÊTA</span></div>
-            <div class="gen-sub">Colle un lien viral (ou décris une idée) — l'IA l'analyse et te donne le <b>plan complet</b> pour faire TA version : script, images à générer, montage. À toi de jouer ensuite.</div>
+            <div class="gen-title">Copie <span class="badge-beta">BÊTA</span></div>
+            <div class="gen-sub">Colle un lien viral. On te sort le <b>plan exact</b> pour faire ta version.</div>
           </div>
         </div>
 
         <div class="gen-seg" id="genSeg">
-          <button type="button" class="active" data-mode="upload" onclick="genSetMode('upload')"><span class="gs-ic">⬆️</span>Ma vidéo</button>
-          <button type="button" data-mode="link" onclick="genSetMode('link')"><span class="gs-ic">🔗</span>Un lien</button>
-          <button type="button" data-mode="idea" onclick="genSetMode('idea')"><span class="gs-ic">✍️</span>Une idée</button>
+          <button type="button" class="active" data-mode="upload" onclick="genSetMode('upload')"><span class="gs-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m7 9 5-5 5 5"/><path d="M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></svg></span>Ma vidéo</button>
+          <button type="button" data-mode="link" onclick="genSetMode('link')"><span class="gs-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a4 4 0 0 0 5.5.5l3-3a4 4 0 0 0-5.5-5.5l-1.4 1.3"/><path d="M14 11a4 4 0 0 0-5.5-.5l-3 3A4 4 0 0 0 11 19l1.3-1.3"/></svg></span>Un lien</button>
+          <button type="button" data-mode="idea" onclick="genSetMode('idea')"><span class="gs-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg></span>Une idée</button>
         </div>
 
         <!-- Mode : uploader sa vidéo -->
         <div class="gen-pan on" id="genPanUpload">
           <input type="file" id="genFileInput" accept="video/*" style="display:none" onchange="genPickFile(this)" />
           <div class="gen-drop" id="genDrop" onclick="document.getElementById('genFileInput').click()">
-            <div class="gd-ic">📤</div>
+            <div class="gd-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#7aa2ff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 9.5a3.5 3.5 0 0 1 .5 8"/><path d="M12 11v7"/><path d="m9 14 3-3 3 3"/></svg></div>
             <div class="gd-t">Choisir une vidéo à reproduire</div>
             <div class="gd-s">MP4 · jusqu'à 100 Mo</div>
           </div>
@@ -2148,8 +2148,6 @@
         <div class="gen-pan" id="genPanIdea">
           <textarea id="genIdea" class="gen-inp" rows="4" placeholder="Décris ton idée OU colle ton script complet.&#10;Ex : Une histoire courte et effrayante dans un vieux manoir, voix off grave, ambiance tendue."></textarea>
         </div>
-
-        <div class="gen-hint"><span class="gh-ic">✨</span><span>Tu reçois un plan clair et prêt à suivre : le script, chaque plan à filmer/générer, et le montage exact. Zéro coût de génération.</span></div>
 
         <button class="imp-btn" id="genGo" onclick="genStart()">🔍 Obtenir le plan</button>
         <p class="imp-note" id="genNote" style="display:none;"></p>

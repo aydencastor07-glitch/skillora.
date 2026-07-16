@@ -5448,37 +5448,44 @@ def generate_video_job(job, work, steps):
 
 def gen_blueprint(idea, source_url=None):
     """« COPIE » — analyse une vidéo (ou une idée) et rend un PLAN étape par
-    étape : des NOTES (accroche/rétention/format/global + potentiel viral),
-    puis, pour CHAQUE plan, DEUX prompts — l'image à générer PUIS l'animation
-    (actions, qui parle, mouvements) dans la langue de la vidéo. Économe en
-    images : on n'en génère une nouvelle QUE quand la scène change vraiment,
-    sinon on réutilise et on joue TOUT sur l'animation."""
+    étape : NOTES, PERSONNAGES verrouillés, OUTILS par tâche (avec les bons
+    modèles), et pour CHAQUE plan deux prompts (image puis animation) dans la
+    langue de la vidéo. Économe en images. None si échec."""
     if not OPENROUTER_KEY:
         return None
     idea = (idea or "").strip()
     charter = (
-        "Tu es un COACH VIDÉO expert (montage viral). On te donne une vidéo "
-        "(ou une idée). Tu la NOTES honnêtement, puis tu livres un plan CLAIR "
-        "pour la refaire — pas un pavé, des étapes courtes.\n\n"
-        "Si une vidéo est fournie, REGARDE-la plan par plan : le hook, le "
-        "rythme, qui parle et quoi, les actions, la caméra, la langue.\n\n"
-        "RÈGLES IMPORTANTES :\n"
-        "1. ÉCONOMIE D'IMAGES — c'est capital. On génère UNE image, puis on "
-        "l'ANIME, et une seule animation peut enchaîner PLUSIEURS actions "
-        "(ex : le perso est en colère -> prend son téléphone -> appelle la "
-        "police = UNE seule image animée). Ne demande une NOUVELLE image QUE "
-        "si le décor OU les personnages présents changent vraiment (ex : la "
-        "police arrive = nouvelle image). Sinon, mets 'nouvelle_image': false "
-        "et 'reutilise': le numéro du plan dont on reprend l'image. Joue le "
-        "MAXIMUM sur l'animation.\n"
-        "2. DEUX PROMPTS par plan, dans l'ORDRE : d'abord 'image_prompt' "
-        "(seulement si nouvelle_image=true) pour générer l'image ; puis "
-        "'animation_prompt' pour l'animer — les actions, QUI parle et ce qu'il "
-        "dit, les mouvements de caméra. L'animation_prompt et les dialogues "
-        "sont dans la LANGUE de la vidéo.\n"
-        "3. Zéro texte inutile. Court, précis, actionnable.\n\n"
-        "Notes sur 10 : accroche, retention, format, global, + une phrase "
-        "'potentiel_viral' (est-ce que ça peut marcher, et pourquoi).\n\n"
+        "Tu es un COACH VIDÉO expert. On te donne une vidéo (ou une idée). "
+        "REGARDE-la vraiment, avec PRÉCISION, puis livre un plan CLAIR pour la "
+        "refaire — pas un pavé, des étapes courtes.\n\n"
+        "OBSERVE EXACTEMENT : le SEXE et l'apparence de chaque personne, QUI "
+        "parle et QUAND, ce qui se passe. Ne te trompe pas (ne dis pas « un "
+        "homme » si c'est une fille). Sois fidèle à la réalité de la vidéo.\n\n"
+        "PERSONNAGES : liste-les dans 'personnages' (un id + une description "
+        "PHYSIQUE exacte : sexe, âge, cheveux, tenue, couleurs). Dans "
+        "image_prompt ET animation_prompt, décris le personnage par son "
+        "APPARENCE exacte (pas seulement « un homme »/« une femme »), et ajoute "
+        "« garde EXACTEMENT ce personnage, ne le change pas » — sinon l'outil "
+        "IA régénère un personnage différent.\n\n"
+        "ÉCONOMIE D'IMAGES : une image + animation peut enchaîner plusieurs "
+        "actions (colère -> prend le tel -> appelle). Nouvelle image UNIQUEMENT "
+        "si le décor/les personnages changent ; sinon nouvelle_image=false et "
+        "reutilise = le n° du plan.\n\n"
+        "DEUX PROMPTS par plan, dans l'ordre : image_prompt (si nouvelle image) "
+        "puis animation_prompt (actions + QUI parle + ce qu'il dit + mouvements). "
+        "animation_prompt et dialogues dans la LANGUE de la vidéo.\n\n"
+        "OUTILS (remplis 'outils' selon ce que tu vois) :\n"
+        "- images : toujours Nano Banana 2.\n"
+        "- animation : « Veo 3.1 » par défaut ; « Kling 2.1 » si ce sont de "
+        "VRAIES personnes réalistes qui parlent. Choisis selon le style.\n"
+        "- voix : si ce sont les personnages À L'ÉCRAN qui parlent, voix_off="
+        "false (le modèle d'animation fait la voix). Si c'est une NARRATION off "
+        "(on ne voit pas parler), voix_off=true + propose une voix_conseillee "
+        "(ex : « voix féminine chaleureuse », « voix masculine grave »).\n"
+        "- montage : CapCut ; dis dans montage_note quoi ajouter (sons, "
+        "sous-titres, transitions) selon ce que tu as vu.\n\n"
+        "Notes sur 10 : accroche, retention, format, global + phrase "
+        "'potentiel_viral'. Zéro texte inutile.\n\n"
         "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
         "{\n"
         "  \"titre\": \"titre court\",\n"
@@ -5487,24 +5494,28 @@ def gen_blueprint(idea, source_url=None):
         "  \"duree_conseillee_s\": 45,\n"
         "  \"score\": {\"accroche\": 8, \"retention\": 7, \"format\": 9,\n"
         "     \"global\": 8, \"potentiel_viral\": \"phrase courte et honnête\"},\n"
+        "  \"personnages\": [{\"id\": \"p1\", \"description\": \"apparence physique exacte\"}],\n"
+        "  \"outils\": {\"animation\": \"Veo 3.1\", \"voix_off\": false,\n"
+        "     \"voix_conseillee\": \"\", \"montage_note\": \"quoi ajouter au montage\"},\n"
         "  \"pourquoi_ca_marche\": \"2 phrases max\",\n"
         "  \"accroche\": \"la 1re phrase / le 1er plan qui accroche\",\n"
-        "  \"script\": \"le script complet prêt à lire (voix off ou dialogues)\",\n"
+        "  \"script\": \"le script complet prêt à lire\",\n"
         "  \"plans\": [\n"
-        "    {\"n\": 1, \"scene\": \"le décor en 3-5 mots\", \"duree_s\": 6,\n"
+        "    {\"n\": 1, \"scene\": \"décor en 3-5 mots\", \"duree_s\": 6,\n"
         "     \"nouvelle_image\": true, \"reutilise\": null,\n"
-        "     \"image_prompt\": \"prompt d'image précis (si nouvelle_image)\",\n"
+        "     \"image_prompt\": \"prompt image précis avec l'apparence exacte du perso (si nouvelle image)\",\n"
         "     \"animation_prompt\": \"actions + qui parle + ce qu'il dit + mouvements, dans la langue de la video\"}\n"
         "  ],\n"
         "  \"montage\": {\"sous_titres\": \"...\", \"musique\": \"...\",\n"
         "     \"transitions\": \"...\", \"effets\": \"...\", \"rythme\": \"...\"},\n"
         "  \"conseils_adaptation\": [\"1 ou 2 conseils pour TA niche\"],\n"
-        "  \"materiel\": {\"nb_images\": 4, \"outils_conseilles\": [\"...\"]}\n"
+        "  \"materiel\": {\"nb_images\": 4}\n"
         "}\n"
     )
     if source_url:
-        prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à analyser (regarde-la) — "
-                  "consigne du client : " + (idea or "explique comment la reproduire."))
+        prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à analyser (regarde-la avec "
+                  "précision) — consigne du client : "
+                  + (idea or "explique comment la reproduire."))
         g = _analyze_source(prompt, source_url)
     else:
         prompt = charter + "\nIDÉE DU CLIENT : " + (idea or "propose une vidéo virale.")
@@ -5521,7 +5532,25 @@ def gen_blueprint(idea, source_url=None):
             out_sc[k] = None
     out_sc["potentiel_viral"] = str(sc.get("potentiel_viral") or "").strip()
     g["score"] = out_sc
-    # Plans : deux prompts, image seulement si nouvelle image
+    # Personnages
+    ps = g.get("personnages") if isinstance(g.get("personnages"), list) else []
+    g["personnages"] = [{"id": str(p.get("id") or ("p%d" % (i + 1))),
+                         "description": str(p.get("description") or "").strip()}
+                        for i, p in enumerate(ps)
+                        if isinstance(p, dict) and str(p.get("description") or "").strip()][:6]
+    # Outils (fixes + choix validé)
+    ot = g.get("outils") if isinstance(g.get("outils"), dict) else {}
+    anim = str(ot.get("animation") or "").strip()
+    anim = anim if anim in ("Veo 3.1", "Kling 2.1") else "Veo 3.1"
+    g["outils"] = {
+        "image": "Nano Banana 2",
+        "animation": anim,
+        "voix_off": bool(ot.get("voix_off")),
+        "voix_conseillee": str(ot.get("voix_conseillee") or "").strip(),
+        "montage": "CapCut",
+        "montage_note": str(ot.get("montage_note") or "").strip(),
+    }
+    # Plans
     plans = g.get("plans")
     clean = []
     if isinstance(plans, list):
@@ -5544,7 +5573,6 @@ def gen_blueprint(idea, source_url=None):
             if reuse is not None and not (1 <= reuse <= i):
                 reuse = None
             p["image_prompt"] = str(p.get("image_prompt") or "").strip()
-            # cohérence : pas d'image + pas de réutilisation -> on force une image
             if not newimg and reuse is None:
                 newimg = bool(p["image_prompt"])
             if newimg and not p["image_prompt"]:

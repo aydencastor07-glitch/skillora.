@@ -5447,52 +5447,59 @@ def generate_video_job(job, work, steps):
 
 
 def gen_blueprint(idea, source_url=None):
-    """« REPRODUIRE UNE VIDÉO » — version PLAN (pas de génération, ~0,01 $).
-    Regarde la vidéo de référence (ou part d'une idée) et rend un GUIDE
-    COMPLET, prêt à suivre par le créateur : analyse, script, plans (avec
-    images à générer + comment animer), montage, conseils d'adaptation.
-    Renvoie un dict lisible, ou None."""
+    """« COPIE » — analyse une vidéo (ou une idée) et rend un PLAN étape par
+    étape : des NOTES (accroche/rétention/format/global + potentiel viral),
+    puis, pour CHAQUE plan, DEUX prompts — l'image à générer PUIS l'animation
+    (actions, qui parle, mouvements) dans la langue de la vidéo. Économe en
+    images : on n'en génère une nouvelle QUE quand la scène change vraiment,
+    sinon on réutilise et on joue TOUT sur l'animation."""
     if not OPENROUTER_KEY:
         return None
     idea = (idea or "").strip()
     charter = (
         "Tu es un COACH VIDÉO expert (montage viral). On te donne une vidéo "
-        "(ou une idée) et tu dois livrer un PLAN DE REPRODUCTION complet, clair "
-        "et actionnable, pour qu'un créateur refasse SA version de cette vidéo. "
-        "Tu ne génères rien : tu EXPLIQUES tout, étape par étape.\n\n"
+        "(ou une idée). Tu la NOTES honnêtement, puis tu livres un plan CLAIR "
+        "pour la refaire — pas un pavé, des étapes courtes.\n\n"
         "Si une vidéo est fournie, REGARDE-la plan par plan : le hook, le "
-        "format, le rythme, qui parle et quoi, les mouvements, la caméra, le "
-        "décor, la lumière, les sous-titres, la musique. Explique pourquoi ça "
-        "marche, puis donne le plan exact pour la refaire.\n\n"
-        "Écris en français, simple et direct. Le script doit être PRÊT À LIRE. "
-        "Les prompts d'images doivent être assez précis pour être collés tels "
-        "quels dans un générateur d'images.\n\n"
+        "rythme, qui parle et quoi, les actions, la caméra, la langue.\n\n"
+        "RÈGLES IMPORTANTES :\n"
+        "1. ÉCONOMIE D'IMAGES — c'est capital. On génère UNE image, puis on "
+        "l'ANIME, et une seule animation peut enchaîner PLUSIEURS actions "
+        "(ex : le perso est en colère -> prend son téléphone -> appelle la "
+        "police = UNE seule image animée). Ne demande une NOUVELLE image QUE "
+        "si le décor OU les personnages présents changent vraiment (ex : la "
+        "police arrive = nouvelle image). Sinon, mets 'nouvelle_image': false "
+        "et 'reutilise': le numéro du plan dont on reprend l'image. Joue le "
+        "MAXIMUM sur l'animation.\n"
+        "2. DEUX PROMPTS par plan, dans l'ORDRE : d'abord 'image_prompt' "
+        "(seulement si nouvelle_image=true) pour générer l'image ; puis "
+        "'animation_prompt' pour l'animer — les actions, QUI parle et ce qu'il "
+        "dit, les mouvements de caméra. L'animation_prompt et les dialogues "
+        "sont dans la LANGUE de la vidéo.\n"
+        "3. Zéro texte inutile. Court, précis, actionnable.\n\n"
+        "Notes sur 10 : accroche, retention, format, global, + une phrase "
+        "'potentiel_viral' (est-ce que ça peut marcher, et pourquoi).\n\n"
         "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
         "{\n"
-        "  \"titre\": \"titre court de la vidéo à reproduire\",\n"
-        "  \"format\": \"ex : histoire faceless, tête parlante, conversation…\",\n"
-        "  \"duree_conseillee_s\": 30,\n"
-        "  \"pourquoi_ca_marche\": \"2-3 phrases : le hook, le rythme, l'émotion\",\n"
-        "  \"accroche\": \"la 1re phrase/plan qui retient dans les 2 premières secondes\",\n"
-        "  \"script\": \"le script COMPLET prêt à lire (voix off ou dialogues)\",\n"
+        "  \"titre\": \"titre court\",\n"
+        "  \"format\": \"ex : histoire faceless, tête parlante…\",\n"
+        "  \"langue\": \"fr|en|es|...\",\n"
+        "  \"duree_conseillee_s\": 45,\n"
+        "  \"score\": {\"accroche\": 8, \"retention\": 7, \"format\": 9,\n"
+        "     \"global\": 8, \"potentiel_viral\": \"phrase courte et honnête\"},\n"
+        "  \"pourquoi_ca_marche\": \"2 phrases max\",\n"
+        "  \"accroche\": \"la 1re phrase / le 1er plan qui accroche\",\n"
+        "  \"script\": \"le script complet prêt à lire (voix off ou dialogues)\",\n"
         "  \"plans\": [\n"
-        "    {\"n\": 1, \"duree_s\": 4, \"scene\": \"le décor\",\n"
-        "     \"action\": \"ce qui se passe à l'écran\",\n"
-        "     \"camera\": \"cadrage / mouvement de caméra\",\n"
-        "     \"dialogue\": \"ce qui est dit sur ce plan (ou vide)\",\n"
-        "     \"image_a_generer\": \"prompt d'image précis à coller dans un générateur\",\n"
-        "     \"comment_animer\": \"comment donner vie à l'image (mouvement, zoom…)\"}\n"
+        "    {\"n\": 1, \"scene\": \"le décor en 3-5 mots\", \"duree_s\": 6,\n"
+        "     \"nouvelle_image\": true, \"reutilise\": null,\n"
+        "     \"image_prompt\": \"prompt d'image précis (si nouvelle_image)\",\n"
+        "     \"animation_prompt\": \"actions + qui parle + ce qu'il dit + mouvements, dans la langue de la video\"}\n"
         "  ],\n"
-        "  \"montage\": {\n"
-        "    \"sous_titres\": \"style + règles (gros mots clés, couleur…)\",\n"
-        "    \"musique\": \"type d'ambiance + où la baisser\",\n"
-        "    \"transitions\": \"les coupes/effets entre plans\",\n"
-        "    \"effets\": \"zooms, secousses, flashs éventuels\",\n"
-        "    \"rythme\": \"tempo des coupes\"\n"
-        "  },\n"
-        "  \"conseils_adaptation\": [\"comment l'adapter à TA niche / ton compte\"],\n"
-        "  \"materiel\": {\"nb_images\": 5,\n"
-        "     \"outils_conseilles\": [\"générateur d'images\", \"voix IA\", \"CapCut\"]}\n"
+        "  \"montage\": {\"sous_titres\": \"...\", \"musique\": \"...\",\n"
+        "     \"transitions\": \"...\", \"effets\": \"...\", \"rythme\": \"...\"},\n"
+        "  \"conseils_adaptation\": [\"1 ou 2 conseils pour TA niche\"],\n"
+        "  \"materiel\": {\"nb_images\": 4, \"outils_conseilles\": [\"...\"]}\n"
         "}\n"
     )
     if source_url:
@@ -5504,7 +5511,17 @@ def gen_blueprint(idea, source_url=None):
         g = or_generate(prompt, json_out=True)
     if not isinstance(g, dict):
         return None
-    # Nettoyage défensif des plans
+    # Notes bornées 0-10
+    sc = g.get("score") if isinstance(g.get("score"), dict) else {}
+    out_sc = {}
+    for k in ("accroche", "retention", "format", "global"):
+        try:
+            out_sc[k] = max(0, min(10, round(float(sc.get(k)))))
+        except Exception:
+            out_sc[k] = None
+    out_sc["potentiel_viral"] = str(sc.get("potentiel_viral") or "").strip()
+    g["score"] = out_sc
+    # Plans : deux prompts, image seulement si nouvelle image
     plans = g.get("plans")
     clean = []
     if isinstance(plans, list):
@@ -5512,13 +5529,31 @@ def gen_blueprint(idea, source_url=None):
             if not isinstance(p, dict):
                 continue
             p["n"] = i + 1
-            for k in ("scene", "action", "camera", "dialogue", "image_a_generer", "comment_animer"):
-                p[k] = str(p.get(k) or "").strip()
+            p["scene"] = str(p.get("scene") or "").strip()
+            p["animation_prompt"] = str(p.get("animation_prompt") or "").strip()
             try:
-                p["duree_s"] = max(1, min(60, int(float(p.get("duree_s") or 4))))
+                p["duree_s"] = max(1, min(60, int(float(p.get("duree_s") or 5))))
             except Exception:
-                p["duree_s"] = 4
-            if p["image_a_generer"] or p["action"]:
+                p["duree_s"] = 5
+            newimg = bool(p.get("nouvelle_image"))
+            reuse = p.get("reutilise")
+            try:
+                reuse = int(reuse)
+            except Exception:
+                reuse = None
+            if reuse is not None and not (1 <= reuse <= i):
+                reuse = None
+            p["image_prompt"] = str(p.get("image_prompt") or "").strip()
+            # cohérence : pas d'image + pas de réutilisation -> on force une image
+            if not newimg and reuse is None:
+                newimg = bool(p["image_prompt"])
+            if newimg and not p["image_prompt"]:
+                newimg = False
+            p["nouvelle_image"] = newimg
+            p["reutilise"] = None if newimg else reuse
+            if not newimg:
+                p["image_prompt"] = ""
+            if p["animation_prompt"] or p["image_prompt"]:
                 clean.append(p)
     g["plans"] = clean
     if not (g.get("script") or clean):

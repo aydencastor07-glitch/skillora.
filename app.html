@@ -8857,7 +8857,7 @@
   function genEsc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
   function genCopy(id,btn){var t=(window._bpClip||{})[id]||'';try{navigator.clipboard.writeText(t);}catch(e){}if(btn){var o=btn.textContent;btn.textContent='✅ Copié';setTimeout(function(){btn.textContent=o;},1400);}}
   function genCopyBtn(text,label){window._bpClip=window._bpClip||{};var id='bpc'+Math.random().toString(36).slice(2,9);window._bpClip[id]=text;return '<button class="bpg-copy" onclick="genCopy(\''+id+'\',this)">📋 '+(label||'Copier')+'</button>';}
-  function genTool(name){var m={'Nano Banana 2':{e:'🍌',c:'#f5c518'},'Veo 3.1':{e:'▶',c:'#5e9bff'},'Kling 2.1':{e:'✦',c:'#a06bff'},'ElevenLabs':{e:'׀׀',c:'#e8e8ef'},'CapCut':{e:'✂',c:'#22e6c8'}};var t=m[name]||{e:'•',c:'#8a97b4'};return '<span class="bptool"><span class="tdot" style="background:'+t.c+'22;color:'+t.c+'">'+t.e+'</span>'+genEsc(name)+'</span>';}
+  function genTool(name){var m={'Nano Banana 2':{e:'🍌',c:'#f5c518'},'Veo 3.1':{e:'▶',c:'#5e9bff'},'Kling 3.0':{e:'✦',c:'#a06bff'},'ElevenLabs':{e:'׀׀',c:'#e8e8ef'},'CapCut':{e:'✂',c:'#22e6c8'}};var t=m[name]||{e:'•',c:'#8a97b4'};return '<span class="bptool"><span class="tdot" style="background:'+t.c+'22;color:'+t.c+'">'+t.e+'</span>'+genEsc(name)+'</span>';}
 
   function genRenderGuide(bp){
     if(!bp) return '<div class="bpg-txt">Plan indisponible. Réessaie.</div><button class="imp-ghost" onclick="genReset()">Recommencer</button>';

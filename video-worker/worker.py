@@ -5496,16 +5496,30 @@ def gen_blueprint(idea, source_url=None):
         "plan ACTION PAR ACTION (beat by beat) : chaque geste, chaque "
         "déplacement, chaque réplique EXACTE entre guillemets, les mouvements de "
         "caméra, les transitions. Riche et complet, pas une phrase vague.\n\n"
+        "TIMING (crucial) : chaque générateur a une durée MAX. Dans "
+        "animation_prompt, DONNE LE MINUTAGE de chaque action et réplique, ex : "
+        "(0-2s) the kid shines the shoe; (2-5s) the man says «...»; (5-8s) he "
+        "hands money. Ça FORCE l'IA à tout montrer/dire au bon moment (fini les "
+        "répliques non dites et les actions manquantes). Si la vidéo dépasse la "
+        "durée max de l'outil (Veo ~8s, Kling ~10-15s), DÉCOUPE en plusieurs "
+        "plans de la MÊME image, chacun avec une action différente.\n\n"
         "OUTILS (remplis 'outils' selon ce que tu vois) :\n"
         "- images : toujours Nano Banana 2.\n"
-        "- animation : « Veo 3.1 » par défaut ; « Kling 2.1 » si ce sont de "
-        "VRAIES personnes réalistes qui parlent. Choisis selon le style.\n"
+        "- animation : « Veo 3.1 » pour le NON-réaliste (dessin/3D type "
+        "homme-banane) et pour la VOIX OFF. « Kling 3.0 » pour de VRAIES "
+        "personnes réalistes qui parlent face caméra ou pour un PRODUIT.\n"
         "- voix : si ce sont les personnages À L'ÉCRAN qui parlent, voix_off="
         "false (le modèle d'animation fait la voix). Si c'est une NARRATION off "
         "(on ne voit pas parler), voix_off=true + propose une voix_conseillee "
         "(ex : « voix féminine chaleureuse », « voix masculine grave »).\n"
         "- montage : CapCut ; dis dans montage_note quoi ajouter (sons, "
         "sous-titres, transitions) selon ce que tu as vu.\n\n"
+        "RÉALISME (vraies personnes / produits) : arrière-plan NET et détaillé, "
+        "JAMAIS flou/bokeh (le flou = « look IA »). Retire le flou même si la "
+        "source en a. Qualité d'image maximale.\n"
+        "PRODUIT : précise dans conseils_adaptation que le créateur doit fournir "
+        "SON avatar + une image de son VRAI produit en référence (sinon l'IA "
+        "invente un autre produit).\n\n"
         "NOMBRE DE PLANS : vise PEU de plans (idéalement 4 à 8), chacun RICHE "
         "(4 à 8 s, plusieurs actions). JAMAIS 20+ micro-plans de 2 s.\n\n"
         "Notes sur 10 : accroche, retention, format, global + phrase "
@@ -5565,7 +5579,7 @@ def gen_blueprint(idea, source_url=None):
     # Outils (fixes + choix validé)
     ot = g.get("outils") if isinstance(g.get("outils"), dict) else {}
     anim = str(ot.get("animation") or "").strip()
-    anim = anim if anim in ("Veo 3.1", "Kling 2.1") else "Veo 3.1"
+    anim = anim if anim in ("Veo 3.1", "Kling 3.0") else "Veo 3.1"
     g["outils"] = {
         "image": "Nano Banana 2",
         "animation": anim,

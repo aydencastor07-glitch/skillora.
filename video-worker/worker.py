@@ -4714,8 +4714,9 @@ def _dl_video(url):
     if not url:
         return None
     d = tempfile.mkdtemp(prefix="dl-")
+    ytdlp = shutil.which("yt-dlp") or "/usr/local/bin/yt-dlp"
     try:
-        run(["yt-dlp", "--no-playlist", "--merge-output-format", "mp4",
+        run([ytdlp, "--no-playlist", "--merge-output-format", "mp4",
              "-f", "mp4/bv*+ba/best", "-o", os.path.join(d, "v.%(ext)s"), url],
             timeout=240)
         cand = [os.path.join(d, f) for f in os.listdir(d)]

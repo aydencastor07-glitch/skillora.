@@ -2091,6 +2091,19 @@
       .gen-file .gf-x{flex:none;background:none;border:none;color:var(--muted);font-size:1.15rem;cursor:pointer;padding:2px 6px;}
       .gen-hint{display:flex;gap:8px;align-items:flex-start;font-size:.76rem;color:var(--muted);line-height:1.45;margin-top:11px;}
       .gen-hint .gh-ic{flex:none;opacity:.8;}
+      .bpg{display:flex;flex-direction:column;gap:13px;}
+      .bpg-h{font-family:'Fraunces',serif;font-weight:700;font-size:1.08rem;color:var(--white);margin:0;}
+      .bpg-sec{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:12px 13px;}
+      .bpg-lab{font-family:'Sora',sans-serif;font-weight:700;font-size:.64rem;letter-spacing:.11em;text-transform:uppercase;color:var(--blue-light);margin-bottom:7px;}
+      .bpg-txt{font-size:.88rem;color:#dfe6f5;line-height:1.55;white-space:pre-wrap;}
+      .bpg-copy{margin-top:9px;background:rgba(47,123,255,.12);border:1px solid var(--border2);color:var(--blue-light);border-radius:9px;padding:7px 12px;font-family:inherit;font-weight:600;font-size:.75rem;cursor:pointer;}
+      .bpg-shot{border:1px solid var(--border);border-radius:12px;padding:11px 12px;margin-top:9px;}
+      .bpg-shot .sh-h{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--white);font-size:.9rem;margin-bottom:6px;}
+      .bpg-shot .sh-n{flex:none;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;background:linear-gradient(140deg,#7c3aed,#2f7bff);font-size:.76rem;}
+      .bpg-shot .sh-row{font-size:.83rem;color:#cfd8ec;line-height:1.5;margin:3px 0;}
+      .bpg-shot .sh-row b{color:#9db4e8;font-weight:600;}
+      .bpg-img{background:rgba(124,58,237,.08);border:1px dashed rgba(124,58,237,.4);border-radius:9px;padding:8px 10px;margin-top:7px;font-size:.8rem;color:#d9ccff;line-height:1.45;}
+      #impCard{display:none!important;}
       #genVid{width:150px;border-radius:14px;background:#000;}
     </style>
     <div class="pub-card reveal" id="genCard" style="animation-delay:.22s;margin-bottom:18px;">
@@ -2099,7 +2112,7 @@
           <div class="gen-ic">🎬</div>
           <div class="gen-htxt">
             <div class="gen-title">Copier une vidéo <span class="badge-beta">BÊTA</span></div>
-            <div class="gen-sub">Donne-nous une vidéo, un lien ou une idée — l'IA écrit le plan, génère les images, les anime et monte <b>ta</b> version dans ce format viral.</div>
+            <div class="gen-sub">Colle un lien viral (ou décris une idée) — l'IA l'analyse et te donne le <b>plan complet</b> pour faire TA version : script, images à générer, montage. À toi de jouer ensuite.</div>
           </div>
         </div>
 
@@ -2136,24 +2149,15 @@
           <textarea id="genIdea" class="gen-inp" rows="4" placeholder="Décris ton idée OU colle ton script complet.&#10;Ex : Une histoire courte et effrayante dans un vieux manoir, voix off grave, ambiance tendue."></textarea>
         </div>
 
-        <div class="gen-hint"><span class="gh-ic">✨</span><span>L'IA choisit seule le meilleur générateur (avatar parlant, voix off, faceless…) et garde ton personnage cohérent d'un plan à l'autre.</span></div>
+        <div class="gen-hint"><span class="gh-ic">✨</span><span>Tu reçois un plan clair et prêt à suivre : le script, chaque plan à filmer/générer, et le montage exact. Zéro coût de génération.</span></div>
 
-        <button class="imp-btn" id="genGo" onclick="genStart()">🎬 Générer ma vidéo</button>
+        <button class="imp-btn" id="genGo" onclick="genStart()">🔍 Obtenir le plan</button>
         <p class="imp-note" id="genNote" style="display:none;"></p>
       </div>
       <div id="genProgress" style="display:none;">
         <div class="imp-steps" id="genSteps"></div>
       </div>
-      <div id="genResult" style="display:none;">
-        <div class="imp-vrow">
-          <video id="genVid" playsinline controls loop></video>
-          <div class="imp-meta">
-            <div class="imp-ok">✅ Ta vidéo générée est prête</div>
-            <a class="imp-btn" id="genDl" download="skillora-video.mp4" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;">⬇️ Télécharger</a>
-            <button class="imp-ghost" onclick="genReset()">Recommencer</button>
-          </div>
-        </div>
-      </div>
+      <div id="genResult" style="display:none;"></div>
     </div>
 
 
@@ -8812,6 +8816,40 @@
     } catch (e) {}
   }
 
+
+  function genEsc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function genCopy(id,btn){var t=(window._bpClip||{})[id]||'';try{navigator.clipboard.writeText(t);}catch(e){}if(btn){var o=btn.textContent;btn.textContent='✅ Copié';setTimeout(function(){btn.textContent=o;},1400);}}
+  function genCopyBtn(text,label){window._bpClip=window._bpClip||{};var id='bpc'+Math.random().toString(36).slice(2,9);window._bpClip[id]=text;return '<button class="bpg-copy" onclick="genCopy(\''+id+'\',this)">📋 '+(label||'Copier')+'</button>';}
+  function genRenderGuide(bp){
+    if(!bp) return '<div class="bpg-txt">Plan indisponible. Réessaie.</div><button class="imp-ghost" onclick="genReset()">Recommencer</button>';
+    var h='<div class="bpg">';
+    h+='<div class="imp-ok">✅ Ton plan de reproduction est prêt</div>';
+    if(bp.titre) h+='<h4 class="bpg-h">'+genEsc(bp.titre)+'</h4>';
+    var meta=[];if(bp.format)meta.push(genEsc(bp.format));if(bp.duree_conseillee_s)meta.push('~'+bp.duree_conseillee_s+'s');
+    if(meta.length) h+='<div class="gen-sub">'+meta.join(' · ')+'</div>';
+    if(bp.pourquoi_ca_marche) h+='<div class="bpg-sec"><div class="bpg-lab">Pourquoi ça marche</div><div class="bpg-txt">'+genEsc(bp.pourquoi_ca_marche)+'</div></div>';
+    if(bp.accroche) h+='<div class="bpg-sec"><div class="bpg-lab">Accroche · 2 premières secondes</div><div class="bpg-txt">'+genEsc(bp.accroche)+'</div></div>';
+    if(bp.script) h+='<div class="bpg-sec"><div class="bpg-lab">Script à lire</div><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div>';
+    if(bp.plans&&bp.plans.length){
+      h+='<div class="bpg-sec"><div class="bpg-lab">Plans · '+bp.plans.length+'</div>';
+      bp.plans.forEach(function(p){
+        h+='<div class="bpg-shot"><div class="sh-h"><span class="sh-n">'+(p.n||'')+'</span><span>'+genEsc(p.scene||'Plan')+' · '+(p.duree_s||'')+'s</span></div>';
+        if(p.action) h+='<div class="sh-row"><b>Action :</b> '+genEsc(p.action)+'</div>';
+        if(p.camera) h+='<div class="sh-row"><b>Caméra :</b> '+genEsc(p.camera)+'</div>';
+        if(p.dialogue) h+='<div class="sh-row"><b>Dialogue :</b> '+genEsc(p.dialogue)+'</div>';
+        if(p.comment_animer) h+='<div class="sh-row"><b>Animer :</b> '+genEsc(p.comment_animer)+'</div>';
+        if(p.image_a_generer) h+='<div class="bpg-img">🖼️ '+genEsc(p.image_a_generer)+'</div>'+genCopyBtn(p.image_a_generer,'Copier le prompt image');
+        h+='</div>';
+      });
+      h+='</div>';
+    }
+    if(bp.montage){var m=bp.montage,mr='';[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']].forEach(function(k){if(m[k[0]])mr+='<div class="sh-row"><b>'+k[1]+' :</b> '+genEsc(m[k[0]])+'</div>';});if(mr)h+='<div class="bpg-sec"><div class="bpg-lab">Montage</div>'+mr+'</div>';}
+    if(bp.conseils_adaptation&&bp.conseils_adaptation.length){h+='<div class="bpg-sec"><div class="bpg-lab">Adapter à ta niche</div>';bp.conseils_adaptation.forEach(function(c){h+='<div class="sh-row">• '+genEsc(c)+'</div>';});h+='</div>';}
+    if(bp.materiel){var mt=bp.materiel,mm='';if(mt.nb_images)mm+='<div class="sh-row"><b>Images à générer :</b> '+genEsc(mt.nb_images)+'</div>';if(mt.outils_conseilles&&mt.outils_conseilles.length)mm+='<div class="sh-row"><b>Outils :</b> '+genEsc(mt.outils_conseilles.join(', '))+'</div>';if(mm)h+='<div class="bpg-sec"><div class="bpg-lab">Matériel</div>'+mm+'</div>';}
+    h+='<button class="imp-ghost" onclick="genReset()">↻ Analyser une autre vidéo</button></div>';
+    return h;
+  }
+
   async function pubUseImproved() {
     if (!impUrl) return;
     try {
@@ -8880,7 +8918,7 @@
     var p = document.getElementById('genProgress'); if (p) p.style.display = 'none';
     var r = document.getElementById('genResult'); if (r) r.style.display = 'none';
     var i = document.getElementById('genIntro'); if (i) i.style.display = 'block';
-    var b = document.getElementById('genGo'); if (b) { b.disabled = false; b.textContent = '🎬 Générer ma vidéo'; }
+    var b = document.getElementById('genGo'); if (b) { b.disabled = false; b.textContent = '🔍 Obtenir le plan'; }
     var v = document.getElementById('genVid'); if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {} }
   }
 
@@ -8909,7 +8947,7 @@
       } else {
         payload.idea = idea;
       }
-      btn.textContent = 'Lancement…';
+      btn.textContent = 'Analyse en cours…';
       var res = await fetch(SB_URL + '/functions/v1/video-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY },
@@ -8923,7 +8961,7 @@
       genPoll();
       genTimer = setInterval(genPoll, 3000);
     } catch (e) {
-      btn.disabled = false; btn.textContent = '🎬 Générer ma vidéo';
+      btn.disabled = false; btn.textContent = '🔍 Obtenir le plan';
       skModal({ icon: '⚠️', title: 'Génération impossible', message: String(e.message || e), cancelText: 'OK' });
     }
   }
@@ -8931,7 +8969,7 @@
   async function genPoll() {
     if (!genJobId) return;
     try {
-      var r = await sb.from('video_jobs').select('status,steps,result_url,error').eq('id', genJobId).single();
+      var r = await sb.from('video_jobs').select('status,steps,plan,error').eq('id', genJobId).single();
       if (r.error) return;
       var j = r.data;
       var box = document.getElementById('genSteps');
@@ -8939,16 +8977,17 @@
         return '<div class="imp-step ' + (s.state || '') + '"><span>' + impStepIcon(s.state) + '</span><div><b>' + s.label + '</b>' + (s.detail ? '<i>' + s.detail + '</i>' : '') + '</div></div>';
       }).join('');
       if (j.status === 'done') {
-        clearInterval(genTimer); genTimer = null; genUrl = j.result_url;
+        clearInterval(genTimer); genTimer = null;
+        var bp = (j.plan && j.plan.blueprint) ? j.plan.blueprint : null;
         document.getElementById('genProgress').style.display = 'none';
-        document.getElementById('genResult').style.display = 'block';
-        var v = document.getElementById('genVid'); v.src = genUrl; v.load(); try { v.play(); } catch (e) {}
-        var dl = document.getElementById('genDl'); if (dl) dl.href = genUrl;
+        var gr = document.getElementById('genResult'); gr.style.display = 'block';
+        gr.innerHTML = genRenderGuide(bp);
+        try { gr.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
       } else if (j.status === 'error') {
         clearInterval(genTimer); genTimer = null;
         document.getElementById('genProgress').style.display = 'none';
         document.getElementById('genIntro').style.display = 'block';
-        var btn = document.getElementById('genGo'); btn.disabled = false; btn.textContent = '🎬 Générer ma vidéo';
+        var btn = document.getElementById('genGo'); btn.disabled = false; btn.textContent = '🔍 Obtenir le plan';
         skModal({ icon: '⚠️', title: 'Génération échouée', message: j.error || 'Erreur inconnue. Réessaie.', cancelText: 'OK' });
       }
     } catch (e) {}

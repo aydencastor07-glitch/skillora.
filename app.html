@@ -2063,6 +2063,11 @@
       .gen-htxt{flex:1;min-width:0;}
       .gen-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.12rem;color:var(--white);display:flex;align-items:center;gap:8px;line-height:1.1;}
       .gen-sub{font-size:.82rem;color:var(--muted);line-height:1.45;margin-top:5px;}
+      .sktabs{display:flex;gap:8px;margin:2px 0 16px;}
+      .sktab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:14px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.92rem;cursor:pointer;transition:all .15s;}
+      .sktab svg{width:18px;height:18px;flex:none;}
+      .sktab.active{background:linear-gradient(150deg,rgba(47,123,255,.22),rgba(124,58,237,.18));border-color:#4d8fff;color:#fff;box-shadow:0 8px 20px -12px rgba(47,123,255,.9);}
+      .sktab:active{transform:scale(.97);}
       .badge-beta{font-size:.6rem;font-family:'Sora',sans-serif;font-weight:700;letter-spacing:.06em;background:rgba(124,58,237,.18);color:#c9b6ff;border:1px solid rgba(124,58,237,.45);padding:2px 8px;border-radius:999px;}
       .gen-seg{display:flex;gap:7px;margin:15px 0 13px;}
       .gen-seg button{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 6px;border-radius:13px;
@@ -9750,5 +9755,33 @@
     <div class="ed-sheet" id="edSheet" style="display:none;"></div>
   </div>
 
+  <script>
+  function studioTab(t){
+    window._skTab=t;
+    document.querySelectorAll('.sktab').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-t')===t);});
+    var c=document.getElementById('genCard'); var sc=document.getElementById('skTool-script');
+    if(c) c.style.display=(t==='copie'?'':'none');
+    if(sc) sc.style.display=(t==='script'?'':'none');
+    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
+  }
+  (function(){
+    function init(){
+      var view=document.getElementById('view-ia');
+      var card=document.getElementById('genCard');
+      if(!view||!card||document.getElementById('skTool-script')) return;
+      var wrap=document.createElement('div'); wrap.id='skTool-script';
+      var nodes=[],n=card.nextSibling; while(n){nodes.push(n);n=n.nextSibling;}
+      view.appendChild(wrap);
+      nodes.forEach(function(x){wrap.appendChild(x);});
+      var acct=document.getElementById('studioAcctPicker');
+      if(acct) wrap.insertBefore(acct, wrap.firstChild);
+      var tabs=document.createElement('div'); tabs.className='sktabs';
+      tabs.innerHTML='<button class="sktab active" data-t="copie" onclick="studioTab(\'copie\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>Copie</button><button class="sktab" data-t="script" onclick="studioTab(\'script\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg>Script</button>';
+      view.insertBefore(tabs, card);
+      studioTab('copie');
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+  })();
+  </script>
 </body>
 </html>

@@ -2133,6 +2133,12 @@
       .bpfold>summary::-webkit-details-marker{display:none;}
       .bpfold[open]>summary{border-radius:12px 12px 0 0;}
       .bpfold-body{border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;padding:12px 13px;}
+      .bpg-how{font-size:.8rem;color:#aeb9d4;line-height:1.5;background:rgba(47,123,255,.07);border:1px solid var(--border);border-radius:11px;padding:9px 11px;}
+      .bpg-how b{color:#cfe0ff;}
+      .bptools{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
+      .bptool{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:999px;padding:5px 11px 5px 6px;font-size:.76rem;font-weight:600;color:#e7ecf7;text-transform:none;letter-spacing:0;}
+      .bptool .tdot{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:.72rem;font-weight:800;}
+      .pl-row{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:5px;}
       #impCard{display:none!important;}
       #genVid{width:150px;border-radius:14px;background:#000;}
     </style>
@@ -8848,58 +8854,64 @@
   function genEsc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
   function genCopy(id,btn){var t=(window._bpClip||{})[id]||'';try{navigator.clipboard.writeText(t);}catch(e){}if(btn){var o=btn.textContent;btn.textContent='✅ Copié';setTimeout(function(){btn.textContent=o;},1400);}}
   function genCopyBtn(text,label){window._bpClip=window._bpClip||{};var id='bpc'+Math.random().toString(36).slice(2,9);window._bpClip[id]=text;return '<button class="bpg-copy" onclick="genCopy(\''+id+'\',this)">📋 '+(label||'Copier')+'</button>';}
+  function genTool(name){var m={'Nano Banana 2':{e:'🍌',c:'#f5c518'},'Veo 3.1':{e:'▶',c:'#5e9bff'},'Kling 2.1':{e:'✦',c:'#a06bff'},'ElevenLabs':{e:'׀׀',c:'#e8e8ef'},'CapCut':{e:'✂',c:'#22e6c8'}};var t=m[name]||{e:'•',c:'#8a97b4'};return '<span class="bptool"><span class="tdot" style="background:'+t.c+'22;color:'+t.c+'">'+t.e+'</span>'+genEsc(name)+'</span>';}
 
   function genRenderGuide(bp){
     if(!bp) return '<div class="bpg-txt">Plan indisponible. Réessaie.</div><button class="imp-ghost" onclick="genReset()">Recommencer</button>';
     window._bp=bp; window._bpStep=0; window._bpClip={};
-    var s=bp.score||{};
+    var s=bp.score||{}, o=bp.outils||{};
     var h='<div class="bpg">';
     h+='<div class="imp-ok">✅ Ton plan est prêt</div>';
     if(bp.titre) h+='<h4 class="bpg-h">'+genEsc(bp.titre)+'</h4>';
     var meta=[];if(bp.format)meta.push(genEsc(bp.format));if(bp.duree_conseillee_s)meta.push('~'+bp.duree_conseillee_s+'s');
     if(meta.length) h+='<div class="gen-sub">'+meta.join(' · ')+'</div>';
+    h+='<div class="bpg-how">Suis les étapes : <b>① génère l\'image</b>, <b>② anime-la</b>. Copie chaque prompt et colle-le dans l\'outil indiqué.</div>';
     // NOTES animées
     var g=(s.global!=null?s.global:null);
     h+='<div class="bpsc"><div class="bpsc-hd">';
     h+='<div class="bpsc-num"><b id="bpscNum">0</b><span>/10</span></div>';
     h+='<div class="bpsc-viral">'+(s.potentiel_viral?('<b>Potentiel viral —</b> '+genEsc(s.potentiel_viral)):'Note globale de la vidéo')+'</div>';
     h+='</div><div class="bpsc-bars">';
-    [['accroche','Accroche'],['retention','Rétention'],['format','Format']].forEach(function(k){
-      var v=s[k[0]]; if(v==null) return;
-      h+='<div class="bpsc-bar"><span class="bl">'+k[1]+'</span><span class="bpsc-track"><span class="bpsc-fill" data-v="'+v+'"></span></span><span class="bpsc-v">'+v+'/10</span></div>';
-    });
+    [['accroche','Accroche'],['retention','Rétention'],['format','Format']].forEach(function(k){var v=s[k[0]];if(v==null)return;h+='<div class="bpsc-bar"><span class="bl">'+k[1]+'</span><span class="bpsc-track"><span class="bpsc-fill" data-v="'+v+'"></span></span><span class="bpsc-v">'+v+'/10</span></div>';});
     h+='</div></div>';
+    // OUTILS (chips)
+    var chips=[genTool('Nano Banana 2'), genTool(o.animation||'Veo 3.1')];
+    if(o.voix_off) chips.push(genTool('ElevenLabs'));
+    chips.push(genTool('CapCut'));
+    h+='<div class="bptools"><div class="bpg-lab" style="margin-bottom:8px">Tes outils</div>'+chips.join('')+'</div>';
     if(bp.accroche) h+='<div class="bpg-sec"><div class="bpg-lab">Accroche</div><div class="bpg-txt">'+genEsc(bp.accroche)+'</div></div>';
+    if(bp.personnages&&bp.personnages.length){var pc='';bp.personnages.forEach(function(pp){pc+='<div class="sh-row"><b>'+genEsc(pp.id)+' :</b> '+genEsc(pp.description)+'</div>';});h+='<details class="bpfold"><summary>👤 Personnages (à garder identiques)</summary><div class="bpfold-body">'+pc+'</div></details>';}
     if(bp.pourquoi_ca_marche) h+='<details class="bpfold"><summary>💡 Pourquoi ça marche</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.pourquoi_ca_marche)+'</div></div></details>';
     if(bp.script) h+='<details class="bpfold"><summary>📄 Le script complet</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div></details>';
-    if(bp.plans&&bp.plans.length){
-      h+='<div class="bpg-sec"><div class="bpg-lab">Le plan, étape par étape</div><div class="bpstep-nav"><button id="bpPrev" onclick="genStep(-1)">◀</button><span class="bpstep-count" id="bpCount"></span><button id="bpNext" onclick="genStep(1)">Suivant ▶</button></div><div id="bpStepBody"></div></div>';
-    }
-    if(bp.montage){var m=bp.montage,mr='';[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']].forEach(function(k){if(m[k[0]])mr+='<div class="sh-row"><b>'+k[1]+' :</b> '+genEsc(m[k[0]])+'</div>';});if(mr)h+='<details class="bpfold"><summary>🎛️ Montage</summary><div class="bpfold-body">'+mr+'</div></details>';}
+    if(bp.plans&&bp.plans.length){h+='<div class="bpg-sec"><div class="bpg-lab">Le plan, étape par étape</div><div class="bpstep-nav"><button id="bpPrev" onclick="genStep(-1)">◀</button><span class="bpstep-count" id="bpCount"></span><button id="bpNext" onclick="genStep(1)">Suivant ▶</button></div><div id="bpStepBody"></div></div>';}
+    // VOIX OFF
+    if(o.voix_off){h+='<div class="bpg-sec"><div class="pl-row"><span class="bpg-lab" style="margin:0">🎙️ Voix off</span>'+genTool('ElevenLabs')+'</div>'+(o.voix_conseillee?'<div class="sh-row" style="margin-top:6px"><b>Voix conseillée :</b> '+genEsc(o.voix_conseillee)+'</div>':'')+'</div>';}
+    // MONTAGE
+    var mont='';if(bp.montage){var m=bp.montage;[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']].forEach(function(k){if(m[k[0]])mont+='<div class="sh-row"><b>'+k[1]+' :</b> '+genEsc(m[k[0]])+'</div>';});}
+    if(o.montage_note) mont+='<div class="sh-row"><b>À ajouter :</b> '+genEsc(o.montage_note)+'</div>';
+    if(mont) h+='<details class="bpfold"><summary>🎛️ Montage — CapCut</summary><div class="bpfold-body">'+mont+'</div></details>';
     if(bp.conseils_adaptation&&bp.conseils_adaptation.length){var cc='';bp.conseils_adaptation.forEach(function(c){cc+='<div class="sh-row">• '+genEsc(c)+'</div>';});h+='<details class="bpfold"><summary>🎯 Adapter à ta niche</summary><div class="bpfold-body">'+cc+'</div></details>';}
-    if(bp.materiel){var mt=bp.materiel,mm='';if(mt.nb_images)mm+='<div class="sh-row"><b>Images à générer :</b> '+genEsc(mt.nb_images)+'</div>';if(mt.outils_conseilles&&mt.outils_conseilles.length)mm+='<div class="sh-row"><b>Outils :</b> '+genEsc(mt.outils_conseilles.join(', '))+'</div>';if(mm)h+='<details class="bpfold"><summary>🧰 Matériel</summary><div class="bpfold-body">'+mm+'</div></details>';}
     h+='<button class="imp-ghost" onclick="genReset()">↻ Copier une autre vidéo</button></div>';
     setTimeout(genAfterRender,60);
     return h;
   }
-
   function genAfterRender(){
     var bp=window._bp||{}; var g=(bp.score&&bp.score.global!=null)?bp.score.global:null;
     document.querySelectorAll('.bpsc-fill').forEach(function(f){var v=parseFloat(f.getAttribute('data-v'))||0;requestAnimationFrame(function(){f.style.width=(v*10)+'%';});});
     var num=document.getElementById('bpscNum');
-    if(num){ if(g==null){num.textContent='–';} else { var cur=0; var t=setInterval(function(){cur++;if(cur>=g){cur=g;clearInterval(t);}num.textContent=cur;},90);} }
+    if(num){if(g==null){num.textContent='–';}else{var cur=0;var t=setInterval(function(){cur++;if(cur>=g){cur=g;clearInterval(t);}num.textContent=cur;},90);}}
     genStepRender();
   }
   function genStepHtml(i){
-    var bp=window._bp||{}; var pl=(bp.plans||[])[i]; if(!pl) return '';
+    var bp=window._bp||{}; var o=bp.outils||{}; var pl=(bp.plans||[])[i]; if(!pl) return '';
     var h='<div class="bpg-shot" style="margin-top:0"><div class="sh-h"><span class="sh-n">'+(pl.n||(i+1))+'</span><span>'+genEsc(pl.scene||'Plan')+' · '+(pl.duree_s||'')+'s</span></div>';
     if(pl.nouvelle_image && pl.image_prompt){
-      h+='<div class="bppp"><div class="pl">① Image à générer</div><div class="pv">'+genEsc(pl.image_prompt)+'</div></div>'+genCopyBtn(pl.image_prompt,'Copier le prompt image');
+      h+='<div class="bppp"><div class="pl-row"><span class="pl">① Image à générer</span>'+genTool('Nano Banana 2')+'</div><div class="pv">'+genEsc(pl.image_prompt)+'</div></div>'+genCopyBtn(pl.image_prompt,'Copier le prompt image');
     } else if(pl.reutilise){
       h+='<div class="bpreuse">♻️ Réutilise l\'image de l\'étape '+pl.reutilise+' — tout se joue à l\'animation.</div>';
     }
     if(pl.animation_prompt){
-      h+='<div class="bppp bpanim"><div class="pl">② Animation</div><div class="pv">'+genEsc(pl.animation_prompt)+'</div></div>'+genCopyBtn(pl.animation_prompt,'Copier le prompt animation');
+      h+='<div class="bppp bpanim"><div class="pl-row"><span class="pl">② Animation</span>'+genTool(o.animation||'Veo 3.1')+'</div><div class="pv">'+genEsc(pl.animation_prompt)+'</div></div>'+genCopyBtn(pl.animation_prompt,'Copier le prompt animation');
     }
     h+='</div>';
     return h;

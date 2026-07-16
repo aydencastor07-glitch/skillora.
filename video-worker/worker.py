@@ -4707,6 +4707,47 @@ def _gen_clamp_shot(sh, language, n_scenes):
     return sh
 
 
+def _dl_video(url):
+    """Télécharge une vidéo depuis un lien de PAGE (TikTok, Instagram, Reels…)
+    via yt-dlp — indispensable car Gemini ne peut pas « lire » une page web,
+    seulement une vraie vidéo. Renvoie un chemin mp4, ou None."""
+    if not url:
+        return None
+    d = tempfile.mkdtemp(prefix="dl-")
+    try:
+        run(["yt-dlp", "--no-playlist", "--merge-output-format", "mp4",
+             "-f", "mp4/bv*+ba/best", "-o", os.path.join(d, "v.%(ext)s"), url],
+            timeout=240)
+        cand = [os.path.join(d, f) for f in os.listdir(d)]
+        cand = [c for c in cand if os.path.getsize(c) > 10000]
+        if cand:
+            return max(cand, key=os.path.getsize)
+    except Exception as e:
+        print("_dl_video:", e, file=sys.stderr)
+    return None
+
+
+def _analyze_source(prompt, source_url):
+    """Fait REGARDER la vidéo à Gemini : télécharge d'abord les liens de page
+    (TikTok/Insta…), sinon passe l'URL directe / YouTube telle quelle."""
+    su = (source_url or "").lower()
+    direct = su.endswith((".mp4", ".mov", ".webm", ".m4v")) or "/storage/v1/object/public/" in su
+    youtube = "youtube.com" in su or "youtu.be" in su
+    local = None
+    if source_url and not direct and not youtube:
+        local = _dl_video(source_url)
+    try:
+        if local:
+            return or_generate(prompt, video_path=local, json_out=True)
+        return or_generate(prompt, video_url=source_url, json_out=True)
+    finally:
+        if local and os.path.exists(local):
+            try:
+                os.remove(local)
+            except Exception:
+                pass
+
+
 def gen_director_plan(idea, source_url=None):
     """LE CERVEAU / DIRECTEUR. Regarde la vidéo de référence PLAN PAR PLAN (ou
     part d'une idée) et renvoie un PLAN structuré à DEUX niveaux :
@@ -4782,7 +4823,7 @@ def gen_director_plan(idea, source_url=None):
         prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à reproduire fidèlement "
                   "(regarde-la plan par plan) — consigne du client : "
                   + (idea or "reproduis ce format à l'identique."))
-        plan = or_generate(prompt, video_url=source_url, json_out=True)
+        plan = _analyze_source(prompt, source_url)
     else:
         prompt = charter + "\nIDÉE DU CLIENT : " + (idea or "surprends-moi.")
         plan = or_generate(prompt, json_out=True)
@@ -5456,7 +5497,7 @@ def gen_blueprint(idea, source_url=None):
     if source_url:
         prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à analyser (regarde-la) — "
                   "consigne du client : " + (idea or "explique comment la reproduire."))
-        g = or_generate(prompt, video_url=source_url, json_out=True)
+        g = _analyze_source(prompt, source_url)
     else:
         prompt = charter + "\nIDÉE DU CLIENT : " + (idea or "propose une vidéo virale.")
         g = or_generate(prompt, json_out=True)

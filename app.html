@@ -2103,6 +2103,36 @@
       .bpg-shot .sh-row{font-size:.83rem;color:#cfd8ec;line-height:1.5;margin:3px 0;}
       .bpg-shot .sh-row b{color:#9db4e8;font-weight:600;}
       .bpg-img{background:rgba(124,58,237,.08);border:1px dashed rgba(124,58,237,.4);border-radius:9px;padding:8px 10px;margin-top:7px;font-size:.8rem;color:#d9ccff;line-height:1.45;}
+      .bpsc{background:linear-gradient(150deg,rgba(47,123,255,.14),rgba(124,58,237,.12));border:1px solid var(--border2);border-radius:16px;padding:16px;}
+      .bpsc-hd{display:flex;align-items:center;gap:14px;}
+      .bpsc-num{flex:none;width:70px;height:70px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(140deg,#7c3aed,#2f7bff);box-shadow:0 10px 22px -10px rgba(124,58,237,.8);}
+      .bpsc-num b{font-family:'Fraunces',serif;font-size:1.55rem;color:#fff;line-height:1;}
+      .bpsc-num span{font-size:.58rem;color:rgba(255,255,255,.85);letter-spacing:.1em;margin-top:2px;}
+      .bpsc-viral{flex:1;font-size:.83rem;color:#dfe6f5;line-height:1.5;}
+      .bpsc-viral b{color:#9db4e8;font-weight:700;}
+      .bpsc-bars{margin-top:14px;display:flex;flex-direction:column;gap:9px;}
+      .bpsc-bar{display:flex;align-items:center;gap:10px;}
+      .bpsc-bar .bl{flex:none;width:72px;font-size:.74rem;color:var(--muted);font-weight:600;}
+      .bpsc-track{flex:1;height:8px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;}
+      .bpsc-fill{display:block;height:100%;border-radius:99px;width:0;background:linear-gradient(90deg,#4d8fff,#7c3aed);transition:width 1.1s cubic-bezier(.3,0,.2,1);}
+      .bpsc-v{flex:none;width:40px;text-align:right;font-size:.76rem;color:#fff;font-weight:700;}
+      .bpstep-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 4px;}
+      .bpstep-nav button{background:rgba(47,123,255,.14);border:1px solid var(--border2);color:#cfe0ff;border-radius:10px;padding:9px 14px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;transition:transform .1s;}
+      .bpstep-nav button:active{transform:scale(.95);}
+      .bpstep-nav button:disabled{opacity:.35;cursor:default;}
+      .bpstep-count{font-size:.76rem;color:var(--white);font-weight:700;letter-spacing:.04em;}
+      .bppp{margin-top:9px;background:rgba(124,58,237,.09);border:1px solid rgba(124,58,237,.38);border-radius:11px;padding:10px 12px;}
+      .bppp .pl{font-size:.63rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#c9b6ff;margin-bottom:5px;}
+      .bppp .pv{font-size:.85rem;color:#ece5ff;line-height:1.55;}
+      .bpanim{background:rgba(61,220,132,.08);border-color:rgba(61,220,132,.34);}
+      .bpanim .pl{color:#7ee0b0;}
+      .bpanim .pv{color:#e0f7ea;}
+      .bpreuse{margin-top:9px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px;padding:10px 12px;font-size:.82rem;color:var(--muted);line-height:1.5;}
+      .bpfold{border-radius:12px;}
+      .bpfold>summary{cursor:pointer;list-style:none;padding:12px 13px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;font-weight:700;font-size:.86rem;color:#dfe6f5;}
+      .bpfold>summary::-webkit-details-marker{display:none;}
+      .bpfold[open]>summary{border-radius:12px 12px 0 0;}
+      .bpfold-body{border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;padding:12px 13px;}
       #impCard{display:none!important;}
       #genVid{width:150px;border-radius:14px;background:#000;}
     </style>
@@ -8818,35 +8848,70 @@
   function genEsc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
   function genCopy(id,btn){var t=(window._bpClip||{})[id]||'';try{navigator.clipboard.writeText(t);}catch(e){}if(btn){var o=btn.textContent;btn.textContent='✅ Copié';setTimeout(function(){btn.textContent=o;},1400);}}
   function genCopyBtn(text,label){window._bpClip=window._bpClip||{};var id='bpc'+Math.random().toString(36).slice(2,9);window._bpClip[id]=text;return '<button class="bpg-copy" onclick="genCopy(\''+id+'\',this)">📋 '+(label||'Copier')+'</button>';}
+
   function genRenderGuide(bp){
     if(!bp) return '<div class="bpg-txt">Plan indisponible. Réessaie.</div><button class="imp-ghost" onclick="genReset()">Recommencer</button>';
+    window._bp=bp; window._bpStep=0; window._bpClip={};
+    var s=bp.score||{};
     var h='<div class="bpg">';
-    h+='<div class="imp-ok">✅ Ton plan de reproduction est prêt</div>';
+    h+='<div class="imp-ok">✅ Ton plan est prêt</div>';
     if(bp.titre) h+='<h4 class="bpg-h">'+genEsc(bp.titre)+'</h4>';
     var meta=[];if(bp.format)meta.push(genEsc(bp.format));if(bp.duree_conseillee_s)meta.push('~'+bp.duree_conseillee_s+'s');
     if(meta.length) h+='<div class="gen-sub">'+meta.join(' · ')+'</div>';
-    if(bp.pourquoi_ca_marche) h+='<div class="bpg-sec"><div class="bpg-lab">Pourquoi ça marche</div><div class="bpg-txt">'+genEsc(bp.pourquoi_ca_marche)+'</div></div>';
-    if(bp.accroche) h+='<div class="bpg-sec"><div class="bpg-lab">Accroche · 2 premières secondes</div><div class="bpg-txt">'+genEsc(bp.accroche)+'</div></div>';
-    if(bp.script) h+='<div class="bpg-sec"><div class="bpg-lab">Script à lire</div><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div>';
+    // NOTES animées
+    var g=(s.global!=null?s.global:null);
+    h+='<div class="bpsc"><div class="bpsc-hd">';
+    h+='<div class="bpsc-num"><b id="bpscNum">0</b><span>/10</span></div>';
+    h+='<div class="bpsc-viral">'+(s.potentiel_viral?('<b>Potentiel viral —</b> '+genEsc(s.potentiel_viral)):'Note globale de la vidéo')+'</div>';
+    h+='</div><div class="bpsc-bars">';
+    [['accroche','Accroche'],['retention','Rétention'],['format','Format']].forEach(function(k){
+      var v=s[k[0]]; if(v==null) return;
+      h+='<div class="bpsc-bar"><span class="bl">'+k[1]+'</span><span class="bpsc-track"><span class="bpsc-fill" data-v="'+v+'"></span></span><span class="bpsc-v">'+v+'/10</span></div>';
+    });
+    h+='</div></div>';
+    if(bp.accroche) h+='<div class="bpg-sec"><div class="bpg-lab">Accroche</div><div class="bpg-txt">'+genEsc(bp.accroche)+'</div></div>';
+    if(bp.pourquoi_ca_marche) h+='<details class="bpfold"><summary>💡 Pourquoi ça marche</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.pourquoi_ca_marche)+'</div></div></details>';
+    if(bp.script) h+='<details class="bpfold"><summary>📄 Le script complet</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div></details>';
     if(bp.plans&&bp.plans.length){
-      h+='<div class="bpg-sec"><div class="bpg-lab">Plans · '+bp.plans.length+'</div>';
-      bp.plans.forEach(function(p){
-        h+='<div class="bpg-shot"><div class="sh-h"><span class="sh-n">'+(p.n||'')+'</span><span>'+genEsc(p.scene||'Plan')+' · '+(p.duree_s||'')+'s</span></div>';
-        if(p.action) h+='<div class="sh-row"><b>Action :</b> '+genEsc(p.action)+'</div>';
-        if(p.camera) h+='<div class="sh-row"><b>Caméra :</b> '+genEsc(p.camera)+'</div>';
-        if(p.dialogue) h+='<div class="sh-row"><b>Dialogue :</b> '+genEsc(p.dialogue)+'</div>';
-        if(p.comment_animer) h+='<div class="sh-row"><b>Animer :</b> '+genEsc(p.comment_animer)+'</div>';
-        if(p.image_a_generer) h+='<div class="bpg-img">🖼️ '+genEsc(p.image_a_generer)+'</div>'+genCopyBtn(p.image_a_generer,'Copier le prompt image');
-        h+='</div>';
-      });
-      h+='</div>';
+      h+='<div class="bpg-sec"><div class="bpg-lab">Le plan, étape par étape</div><div class="bpstep-nav"><button id="bpPrev" onclick="genStep(-1)">◀</button><span class="bpstep-count" id="bpCount"></span><button id="bpNext" onclick="genStep(1)">Suivant ▶</button></div><div id="bpStepBody"></div></div>';
     }
-    if(bp.montage){var m=bp.montage,mr='';[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']].forEach(function(k){if(m[k[0]])mr+='<div class="sh-row"><b>'+k[1]+' :</b> '+genEsc(m[k[0]])+'</div>';});if(mr)h+='<div class="bpg-sec"><div class="bpg-lab">Montage</div>'+mr+'</div>';}
-    if(bp.conseils_adaptation&&bp.conseils_adaptation.length){h+='<div class="bpg-sec"><div class="bpg-lab">Adapter à ta niche</div>';bp.conseils_adaptation.forEach(function(c){h+='<div class="sh-row">• '+genEsc(c)+'</div>';});h+='</div>';}
-    if(bp.materiel){var mt=bp.materiel,mm='';if(mt.nb_images)mm+='<div class="sh-row"><b>Images à générer :</b> '+genEsc(mt.nb_images)+'</div>';if(mt.outils_conseilles&&mt.outils_conseilles.length)mm+='<div class="sh-row"><b>Outils :</b> '+genEsc(mt.outils_conseilles.join(', '))+'</div>';if(mm)h+='<div class="bpg-sec"><div class="bpg-lab">Matériel</div>'+mm+'</div>';}
-    h+='<button class="imp-ghost" onclick="genReset()">↻ Analyser une autre vidéo</button></div>';
+    if(bp.montage){var m=bp.montage,mr='';[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']].forEach(function(k){if(m[k[0]])mr+='<div class="sh-row"><b>'+k[1]+' :</b> '+genEsc(m[k[0]])+'</div>';});if(mr)h+='<details class="bpfold"><summary>🎛️ Montage</summary><div class="bpfold-body">'+mr+'</div></details>';}
+    if(bp.conseils_adaptation&&bp.conseils_adaptation.length){var cc='';bp.conseils_adaptation.forEach(function(c){cc+='<div class="sh-row">• '+genEsc(c)+'</div>';});h+='<details class="bpfold"><summary>🎯 Adapter à ta niche</summary><div class="bpfold-body">'+cc+'</div></details>';}
+    if(bp.materiel){var mt=bp.materiel,mm='';if(mt.nb_images)mm+='<div class="sh-row"><b>Images à générer :</b> '+genEsc(mt.nb_images)+'</div>';if(mt.outils_conseilles&&mt.outils_conseilles.length)mm+='<div class="sh-row"><b>Outils :</b> '+genEsc(mt.outils_conseilles.join(', '))+'</div>';if(mm)h+='<details class="bpfold"><summary>🧰 Matériel</summary><div class="bpfold-body">'+mm+'</div></details>';}
+    h+='<button class="imp-ghost" onclick="genReset()">↻ Copier une autre vidéo</button></div>';
+    setTimeout(genAfterRender,60);
     return h;
   }
+
+  function genAfterRender(){
+    var bp=window._bp||{}; var g=(bp.score&&bp.score.global!=null)?bp.score.global:null;
+    document.querySelectorAll('.bpsc-fill').forEach(function(f){var v=parseFloat(f.getAttribute('data-v'))||0;requestAnimationFrame(function(){f.style.width=(v*10)+'%';});});
+    var num=document.getElementById('bpscNum');
+    if(num){ if(g==null){num.textContent='–';} else { var cur=0; var t=setInterval(function(){cur++;if(cur>=g){cur=g;clearInterval(t);}num.textContent=cur;},90);} }
+    genStepRender();
+  }
+  function genStepHtml(i){
+    var bp=window._bp||{}; var pl=(bp.plans||[])[i]; if(!pl) return '';
+    var h='<div class="bpg-shot" style="margin-top:0"><div class="sh-h"><span class="sh-n">'+(pl.n||(i+1))+'</span><span>'+genEsc(pl.scene||'Plan')+' · '+(pl.duree_s||'')+'s</span></div>';
+    if(pl.nouvelle_image && pl.image_prompt){
+      h+='<div class="bppp"><div class="pl">① Image à générer</div><div class="pv">'+genEsc(pl.image_prompt)+'</div></div>'+genCopyBtn(pl.image_prompt,'Copier le prompt image');
+    } else if(pl.reutilise){
+      h+='<div class="bpreuse">♻️ Réutilise l\'image de l\'étape '+pl.reutilise+' — tout se joue à l\'animation.</div>';
+    }
+    if(pl.animation_prompt){
+      h+='<div class="bppp bpanim"><div class="pl">② Animation</div><div class="pv">'+genEsc(pl.animation_prompt)+'</div></div>'+genCopyBtn(pl.animation_prompt,'Copier le prompt animation');
+    }
+    h+='</div>';
+    return h;
+  }
+  function genStepRender(){
+    var bp=window._bp||{}; var n=(bp.plans||[]).length; var i=window._bpStep||0;
+    var body=document.getElementById('bpStepBody'); if(body) body.innerHTML=genStepHtml(i);
+    var c=document.getElementById('bpCount'); if(c) c.textContent='Étape '+(i+1)+' / '+n;
+    var pv=document.getElementById('bpPrev'); if(pv) pv.disabled=(i<=0);
+    var nx=document.getElementById('bpNext'); if(nx){nx.disabled=(i>=n-1);nx.textContent=(i>=n-1?'✓ Fin':'Suivant ▶');}
+  }
+  function genStep(d){var bp=window._bp||{};var n=(bp.plans||[]).length;var i=(window._bpStep||0)+d;if(i<0)i=0;if(i>n-1)i=n-1;window._bpStep=i;genStepRender();}
 
   async function pubUseImproved() {
     if (!impUrl) return;

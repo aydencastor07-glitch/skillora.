@@ -5446,7 +5446,7 @@ def generate_video_job(job, work, steps):
     return url
 
 
-def gen_blueprint(idea, source_url=None):
+def gen_blueprint(idea, source_url=None, source_path=None, variation=False):
     """« COPIE » — analyse une vidéo (ou une idée) et rend un PLAN étape par
     étape : NOTES, PERSONNAGES verrouillés, OUTILS par tâche (avec les bons
     modèles), et pour CHAQUE plan deux prompts (image puis animation) dans la
@@ -5604,7 +5604,16 @@ def gen_blueprint(idea, source_url=None):
         "(4 à 8 s, plusieurs actions). JAMAIS 20+ micro-plans de 2 s.\n\n"
         "Notes sur 10 : accroche, retention, format, global + phrase "
         "'potentiel_viral'. Zéro texte inutile.\n\n"
-        "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
+        "REPÈRE SOURCE : pour chaque plan, donne source_time_s = l'instant "
+        "(en secondes) de la vidéo SOURCE où cette scène est le mieux visible "
+        "(personnages bien cadrés). On en extraira une CAPTURE qui servira "
+        "d'image de référence au créateur.\n\n"
+        + ("MODE VARIATION : le client veut S'INSPIRER, pas copier à "
+           "l'identique. Garde les personnages, l'histoire et le style, mais "
+           "CHANGE des détails visibles (arrière-plan/décor, couleurs ou "
+           "vêtements, petits objets) et DIS ces changements dans les "
+           "prompts.\n\n" if variation else "")
+        +         "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
         "{\n"
         "  \"titre\": \"titre court\",\n"
         "  \"format\": \"ex : histoire faceless, tête parlante…\",\n"
@@ -5620,6 +5629,7 @@ def gen_blueprint(idea, source_url=None):
         "  \"script\": \"le script complet prêt à lire\",\n"
         "  \"plans\": [\n"
         "    {\"n\": 1, \"scene\": \"décor en 3-5 mots\", \"duree_s\": 6,\n"
+        "     \"source_time_s\": 12,\n"
         "     \"nouvelle_image\": true, \"reutilise\": null,\n"
         "     \"image_prompt\": \"IN ENGLISH, precise, exact character look (if new image)\",\n"
         "     \"animation_prompt\": \"IN ENGLISH, full beat-by-beat sequence: every action, movement, camera, and each exact spoken line in quotes in the video language\"}\n"
@@ -5634,7 +5644,10 @@ def gen_blueprint(idea, source_url=None):
         prompt = (charter + "\nVIDÉO DE RÉFÉRENCE à analyser (regarde-la avec "
                   "précision) — consigne du client : "
                   + (idea or "explique comment la reproduire."))
-        g = _analyze_source(prompt, source_url)
+        if source_path:
+            g = or_generate(prompt, video_path=source_path, json_out=True)
+        else:
+            g = _analyze_source(prompt, source_url)
     else:
         prompt = charter + "\nIDÉE DU CLIENT : " + (idea or "propose une vidéo virale.")
         g = or_generate(prompt, json_out=True)
@@ -5690,6 +5703,10 @@ def gen_blueprint(idea, source_url=None):
                 reuse = None
             if reuse is not None and not (1 <= reuse <= i):
                 reuse = None
+            try:
+                p["source_time_s"] = max(0.0, float(p.get("source_time_s")))
+            except Exception:
+                p["source_time_s"] = None
             p["image_prompt"] = str(p.get("image_prompt") or "").strip()
             if not newimg and reuse is None:
                 newimg = bool(p["image_prompt"])
@@ -5707,29 +5724,104 @@ def gen_blueprint(idea, source_url=None):
     return g
 
 
+def _fetch_source(source_url):
+    """Récupère la vidéo source en LOCAL (pour l'analyse ET l'extraction des
+    captures de référence). URL directe/storage -> téléchargement simple ;
+    page TikTok/Insta/YouTube -> yt-dlp. Renvoie un chemin, ou None."""
+    if not source_url:
+        return None
+    su = source_url.lower()
+    direct = su.endswith((".mp4", ".mov", ".webm", ".m4v")) or "/storage/v1/object/public/" in su
+    try:
+        if direct:
+            out = tempfile.mktemp(suffix=".mp4")
+            urllib.request.urlretrieve(source_url, out)
+            return out if os.path.getsize(out) > 10000 else None
+        return _dl_video(source_url)
+    except Exception as e:
+        print("_fetch_source:", e, file=sys.stderr)
+        return None
+
+
 def generate_blueprint_job(job, steps):
-    """« Reproduire une vidéo » — traite un job mode='blueprint' : analyse la
-    vidéo/idée et stocke le GUIDE dans job.plan.blueprint (aucune génération,
-    donc quasi gratuit). Le front l'affiche joliment."""
+    """« Copie » — job mode='blueprint' : analyse la vidéo/idée, rédige le
+    GUIDE, puis EXTRAIT de la vidéo source une CAPTURE par plan (au bon
+    instant) qui servira d'image de référence au créateur (persos identiques).
+    Stocke tout dans job.plan.blueprint."""
     context = job.get("context") or {}
     idea = str(context.get("idea") or "").strip()
+    variation = bool(context.get("variation"))
     source_url = (str(context.get("source_url") or "").strip()
                   or str(job.get("source_url") or "").strip() or None)
+    if source_url and source_url.startswith("generate://"):
+        source_url = None
+    uid = str(job.get("user_id") or "anon")
     jid = str(job.get("id") or "bp")
     steps.items = [{"key": "wait", "label": "En file d'attente…", "state": "done"}]
     if not OPENROUTER_KEY:
         raise RuntimeError("L'analyse n'est pas encore activée (crédits manquants).")
     if not (idea or source_url):
         raise RuntimeError("Donne une idée ou colle le lien d'une vidéo.")
-    steps.start("bp", "Analyse de la vidéo & rédaction du plan…")
-    guide = gen_blueprint(idea, source_url=source_url)
-    if not guide:
-        raise RuntimeError("Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
-    steps.done("bp", "%d plans" % len(guide.get("plans") or []))
-    update_job(jid, {"status": "done", "plan": {"blueprint": guide},
-                     "finished_at": "now()", "steps": steps.items})
-    print("Blueprint", jid, "terminé.")
-    return guide
+    local = None
+    try:
+        if source_url:
+            steps.start("dl", "Récupération de la vidéo…")
+            local = _fetch_source(source_url)
+            if local:
+                steps.done("dl")
+            else:
+                steps.done("dl", "lien direct")
+        steps.start("bp", "Analyse de la vidéo & rédaction du plan…")
+        guide = gen_blueprint(idea, source_url=source_url, source_path=local,
+                              variation=variation)
+        if not guide:
+            raise RuntimeError("Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
+        steps.done("bp", "%d plans" % len(guide.get("plans") or []))
+        # CAPTURES DE RÉFÉRENCE : une image extraite de la source par plan
+        if local:
+            steps.start("ref", "Extraction des images de référence…")
+            try:
+                dur = ffprobe_facts(local)["duration"] or 0
+            except Exception:
+                dur = 0
+            n_ok = 0
+            for p in (guide.get("plans") or [])[:16]:
+                t = p.get("source_time_s")
+                if t is None and dur:
+                    t = min(dur * 0.5, 2.0)
+                if t is None:
+                    continue
+                if dur:
+                    t = max(0.0, min(float(t), max(0.0, dur - 0.5)))
+                frame = tempfile.mktemp(suffix=".jpg")
+                try:
+                    run(["ffmpeg", "-y", "-ss", "%.2f" % float(t), "-i", local,
+                         "-frames:v", "1", "-q:v", "3", frame], timeout=120)
+                    if os.path.exists(frame) and os.path.getsize(frame) > 5000:
+                        url = sb_upload_public(
+                            frame, "bp/%s/%s/ref_%02d.jpg" % (uid, jid, p["n"]),
+                            content_type="image/jpeg")
+                        if url:
+                            p["frame_url"] = url
+                            n_ok += 1
+                except Exception as e:
+                    print("blueprint frame:", e, file=sys.stderr)
+                finally:
+                    try:
+                        os.remove(frame)
+                    except Exception:
+                        pass
+            steps.done("ref", "%d captures" % n_ok)
+        update_job(jid, {"status": "done", "plan": {"blueprint": guide},
+                         "finished_at": "now()", "steps": steps.items})
+        print("Blueprint", jid, "terminé.")
+        return guide
+    finally:
+        if local and os.path.exists(local):
+            try:
+                os.remove(local)
+            except Exception:
+                pass
 
 
 def main():

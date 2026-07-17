@@ -2142,6 +2142,12 @@
       .bptool{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:999px;padding:5px 11px 5px 6px;font-size:.76rem;font-weight:600;color:#e7ecf7;text-transform:none;letter-spacing:0;}
       .bptool .tdot{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:.72rem;font-weight:800;}
       .pl-row{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:5px;}
+      .gen-var{display:flex;gap:7px;margin-top:11px;}
+      .gen-var button{flex:1;padding:10px 8px;border-radius:11px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--muted);font-family:'Sora',sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;transition:all .15s;}
+      .gen-var button.active{background:rgba(47,123,255,.16);border-color:#4d8fff;color:#fff;}
+      .bpframe{margin-top:9px;border:1px solid var(--border2);border-radius:11px;overflow:hidden;}
+      .bpframe img{display:block;width:100%;max-height:210px;object-fit:cover;}
+      .bpframe .bf-cap{padding:8px 10px;font-size:.75rem;color:#cfe0ff;background:rgba(47,123,255,.08);line-height:1.4;}
       #impCard{display:none!important;}
       #genVid{width:150px;border-radius:14px;background:#000;}
     </style>
@@ -2188,6 +2194,10 @@
           <textarea id="genIdea" class="gen-inp" rows="4" placeholder="Décris ton idée OU colle ton script complet.&#10;Ex : Une histoire courte et effrayante dans un vieux manoir, voix off grave, ambiance tendue."></textarea>
         </div>
 
+        <div class="gen-var" id="genVar">
+          <button type="button" class="active" data-v="0" onclick="genSetVar(0)">🎯 Copie exacte</button>
+          <button type="button" data-v="1" onclick="genSetVar(1)">✨ Avec variations</button>
+        </div>
         <button class="imp-btn" id="genGo" onclick="genStart()">🔍 Obtenir le plan</button>
         <p class="imp-note" id="genNote" style="display:none;"></p>
       </div>
@@ -8908,6 +8918,7 @@
   function genStepHtml(i){
     var bp=window._bp||{}; var o=bp.outils||{}; var pl=(bp.plans||[])[i]; if(!pl) return '';
     var h='<div class="bpg-shot" style="margin-top:0"><div class="sh-h"><span class="sh-n">'+(pl.n||(i+1))+'</span><span>'+genEsc(pl.scene||'Plan')+' · '+(pl.duree_s||'')+'s</span></div>';
+    if(pl.frame_url){h+='<div class="bpframe"><img src="'+genEsc(pl.frame_url)+'" loading="lazy" alt=""/><div class="bf-cap">🖼️ Image de référence (extraite de la vidéo) — ajoute-la à Nano Banana avec le prompt pour garder les personnages identiques.</div></div>';}
     if(pl.nouvelle_image && pl.image_prompt){
       h+='<div class="bppp"><div class="pl-row"><span class="pl">① Image à générer</span>'+genTool('Nano Banana 2')+'</div><div class="pv">'+genEsc(pl.image_prompt)+'</div></div>'+genCopyBtn(pl.image_prompt,'Copier le prompt image');
     } else if(pl.reutilise){
@@ -8956,6 +8967,8 @@
 
   /* ── GÉNÉRATEUR IA (« Copier une vidéo ») — job créé via video-generate, traité par le video-worker ── */
   var genJobId = null, genTimer = null, genUrl = null, genMode = 'upload', genFile = null, genPrevUrl = null;
+  var genVarMode = 0;
+  function genSetVar(v){genVarMode=v;var el=document.getElementById('genVar');if(el)Array.prototype.forEach.call(el.querySelectorAll('button'),function(b){b.classList.toggle('active',parseInt(b.getAttribute('data-v'),10)===v);});}
 
   function genSetMode(m) {
     genMode = m;
@@ -9029,7 +9042,7 @@
       var res = await fetch(SB_URL + '/functions/v1/video-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(Object.assign({variation: genVarMode===1}, payload))
       });
       var data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || ('Erreur ' + res.status));

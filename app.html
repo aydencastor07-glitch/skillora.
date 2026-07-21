@@ -3143,6 +3143,7 @@
     var refIn = document.getElementById('refLink');
     if (refIn) refIn.value = (location.origin || 'https://skillora.me') + '/signup.html?ref=' + user.id;
     recordReferral(user);
+    paypalReturnCheck();
     loadReferralStats();
     checkOnboarding(user);
     loadHomeDashboard();
@@ -3314,7 +3315,7 @@
   // Paiements : OFF pour l'instant (ni Stripe ni Whop). Mettre true pour activer.
   var PAYMENTS_ON = false;
   // Fournisseur quand PAYMENTS_ON = true : 'create-checkout' = Stripe, 'whop-checkout' = Whop.
-  var CHECKOUT_FN = 'create-checkout';
+  var CHECKOUT_FN = 'paypal-checkout';  // PayPal (carte + compte) par redirection
 
   async function verifyWhopReturn() {
     // Stripe : le webhook met la base à jour -> on recharge simplement le plan.
@@ -6274,6 +6275,33 @@
   }
 
   // Choix d'un plan : lance le paiement via CHECKOUT_FN (Stripe, ou Whop une fois réactivé).
+  // Retour de PayPal : ?paypalcap=1&token=ORDERID -> on capture et on active
+  async function paypalReturnCheck() {
+    try {
+      var q = new URLSearchParams(location.search);
+      if (q.get('paypalcancel')) { history.replaceState({}, '', 'app.html'); pubToast && pubToast('Paiement annulé.'); return; }
+      if (!q.get('paypalcap')) return;
+      var orderId = q.get('token');
+      history.replaceState({}, '', 'app.html');
+      if (!orderId) return;
+      skModal({ icon:'⏳', title:'Validation du paiement…', message:'Un instant, on confirme ton abonnement.', cancelText:null });
+      var sess = await sb.auth.getSession();
+      if (!sess.data.session) return;
+      var res = await fetch(SB_URL + '/functions/v1/paypal-capture', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+sess.data.session.access_token, 'apikey':SB_KEY },
+        body: JSON.stringify({ order_id: orderId })
+      });
+      var d = await res.json();
+      if (d.success) {
+        try { await loadUserPlan(); } catch(e){}
+        skModal({ icon:'🎉', title:'Bienvenue en '+(d.plan?d.plan.charAt(0).toUpperCase()+d.plan.slice(1):'Premium')+' !', message:'Ton abonnement est actif. Merci 🙏', cancelText:'Super !' });
+      } else {
+        skModal({ icon:'⚠️', title:'Paiement non confirmé', message:(d.error||'Réessaie, ou contacte le support si tu as été débité.'), cancelText:'OK' });
+      }
+    } catch(e){}
+  }
+
   async function choosePlan(plan) {
     if (!PAYMENTS_ON) {
       skModal({ icon:'🚀', iconBg:'#16263f', title:'Abonnements bientôt disponibles', message:'Les paiements arrivent très bientôt. Tu pourras passer Premium dans quelques jours — profite des fonctionnalités en attendant !', cancelText:'OK' });

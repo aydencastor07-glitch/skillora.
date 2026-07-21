@@ -5734,6 +5734,36 @@ def gen_blueprint(idea, source_url=None, source_path=None, variation=False):
     return g
 
 
+def _source_meta(url):
+    """Métadonnées publiques de la vidéo source (plateforme, vues, likes,
+    commentaires, partages, auteur) via yt-dlp — pour l'en-tête pro du plan."""
+    try:
+        r = subprocess.run(["yt-dlp", "-J", "--skip-download", "--no-warnings", url],
+                           capture_output=True, text=True, timeout=90)
+        d = json.loads(r.stdout or "{}")
+        if isinstance(d.get("entries"), list) and d["entries"]:
+            d = d["entries"][0]
+        ex = str(d.get("extractor_key") or d.get("extractor") or "").lower()
+        plat = ("tiktok" if "tiktok" in ex else
+                "youtube" if "youtube" in ex else
+                "instagram" if "instagram" in ex else
+                "facebook" if "facebook" in ex else
+                "x" if ex in ("twitter", "x") else (ex or "web"))
+        def _n(v):
+            try:
+                return int(v)
+            except Exception:
+                return None
+        return {"platform": plat,
+                "title": str(d.get("title") or "")[:140],
+                "author": str(d.get("uploader") or d.get("channel") or "")[:60],
+                "views": _n(d.get("view_count")), "likes": _n(d.get("like_count")),
+                "comments": _n(d.get("comment_count")), "shares": _n(d.get("repost_count"))}
+    except Exception as e:
+        print("_source_meta:", e, file=sys.stderr)
+        return None
+
+
 def _fetch_source(source_url):
     """Récupère la vidéo source en LOCAL (pour l'analyse ET l'extraction des
     captures de référence). URL directe/storage -> téléchargement simple ;
@@ -5787,6 +5817,12 @@ def generate_blueprint_job(job, steps):
         if not guide:
             raise RuntimeError("Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
         steps.done("bp", "%d plans" % len(guide.get("plans") or []))
+        # Stats publiques de la vidéo (plateforme, vues, likes…) pour l'en-tête
+        if source_url and "/storage/v1/object/public/" not in source_url \
+                and not source_url.lower().endswith((".mp4", ".mov", ".webm", ".m4v")):
+            meta = _source_meta(source_url)
+            if meta:
+                guide["source_meta"] = meta
         # CAPTURES DE RÉFÉRENCE : une image extraite de la source par plan
         if local:
             steps.start("ref", "Extraction des images de référence…")

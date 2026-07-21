@@ -498,6 +498,12 @@
 
   // Parrainage : mémorise le code du parrain (?ref=) pour l'enregistrer une fois le compte confirmé (dans app.html)
   try { var _rp = new URLSearchParams(location.search).get('ref'); if (_rp) localStorage.setItem('skillora_ref', _rp); } catch(e){}
+  // Suivi marketing (?src=) : arrivée directe par pub/lien
+  try { var _sp=(new URLSearchParams(location.search).get('src')||'').trim().toLowerCase().slice(0,64);
+    if(_sp){ if(!localStorage.getItem('sk_src'))localStorage.setItem('sk_src',_sp);
+      if(!sessionStorage.getItem('sk_src_logged')){sessionStorage.setItem('sk_src_logged','1');
+        fetch(SUPABASE_URL+'/rest/v1/marketing_clicks',{method:'POST',headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({ref:_sp,path:location.pathname})}).catch(function(){});}}
+  } catch(e){}
 
   // Adresse de retour après connexion : TOUJOURS le domaine officiel en production.
   // (Si le site est ouvert via une autre adresse — www., préversion Vercel… — Google

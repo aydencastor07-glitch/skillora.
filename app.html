@@ -2142,6 +2142,43 @@
       .bptool{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:999px;padding:5px 11px 5px 6px;font-size:.76rem;font-weight:600;color:#e7ecf7;text-transform:none;letter-spacing:0;}
       .bptool .tdot{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:.72rem;font-weight:800;}
       .pl-row{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:5px;}
+      /* ── Mode dev (propriétaire) ─────────────────────────────── */
+      .dev-card{border:1.5px solid rgba(255,193,7,.35);background:linear-gradient(135deg,rgba(255,193,7,.07),rgba(255,255,255,.02));}
+      #devPanel{position:fixed;inset:0;z-index:1200;background:#0a0f1c;overflow-y:auto;display:none;}
+      #devPanel.open{display:block;animation:devIn .25s ease;}
+      @keyframes devIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+      .dev-wrap{max-width:1080px;margin:0 auto;padding:26px 18px 60px;}
+      .dev-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+      .dev-head h2{font-family:'Fraunces',serif;font-size:1.5rem;}
+      .dev-head .dh-b{display:flex;gap:8px;}
+      .dev-head button{padding:9px 16px;border-radius:10px;border:1.5px solid var(--border);background:rgba(255,255,255,.05);color:#dfe7f5;font-weight:600;cursor:pointer;font-size:.85rem;}
+      .dev-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-bottom:16px;}
+      .dev-kpi{background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:15px;padding:15px 15px 13px;animation:devUp .5s ease both;}
+      .dev-kpi:nth-child(2){animation-delay:.05s}.dev-kpi:nth-child(3){animation-delay:.1s}.dev-kpi:nth-child(4){animation-delay:.15s}.dev-kpi:nth-child(5){animation-delay:.2s}.dev-kpi:nth-child(6){animation-delay:.25s}
+      @keyframes devUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+      .dev-kpi .k-l{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+      .dev-kpi .k-v{font-family:'Fraunces',serif;font-size:1.65rem;font-weight:800;}
+      .dev-kpi .k-s{font-size:.72rem;color:#7ee2a0;margin-top:3px;}
+      .dev-sec{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:15px;animation:devUp .5s .2s ease both;}
+      .dev-sec h3{font-size:.95rem;margin-bottom:12px;}
+      .dev-chart{width:100%;height:150px;}
+      .dev-chart polyline.line{fill:none;stroke:#4d8fff;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:2000;stroke-dashoffset:2000;animation:devDraw 1.4s .3s ease forwards;}
+      @keyframes devDraw{to{stroke-dashoffset:0}}
+      .dev-chart polygon.fill{fill:url(#devGrad);opacity:0;animation:devFade .8s 1s ease forwards;}
+      @keyframes devFade{to{opacity:1}}
+      .dev-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);flex-wrap:wrap;}
+      .dev-row:last-child{border-bottom:none;}
+      .dev-row .r-name{font-weight:700;font-size:.85rem;min-width:130px;}
+      .dev-row .r-bar{flex:1;min-width:120px;height:9px;border-radius:5px;background:rgba(255,255,255,.06);overflow:hidden;}
+      .dev-row .r-bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#2f7bff,#7ee2a0);width:0;transition:width .9s cubic-bezier(.2,.8,.2,1);}
+      .dev-row .r-nums{font-size:.76rem;color:var(--muted);white-space:nowrap;}
+      .dev-row .r-copy{padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:rgba(47,123,255,.12);color:#9ec2ff;font-size:.74rem;font-weight:600;cursor:pointer;}
+      .dev-new{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+      .dev-new input{flex:1;min-width:160px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-size:.85rem;}
+      .dev-new button{padding:10px 16px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-weight:700;cursor:pointer;font-size:.85rem;}
+      .dev-mem{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;flex-wrap:wrap;}
+      .dev-mem:last-child{border-bottom:none;}
+      .dev-mem .m-src{color:#7ee2a0;font-size:.72rem;}
       .gen-var{display:flex;gap:7px;margin-top:11px;}
       .gen-var button{flex:1;padding:10px 8px;border-radius:11px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--muted);font-family:'Sora',sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;transition:all .15s;}
       .gen-var button.active{background:rgba(47,123,255,.16);border-color:#4d8fff;color:#fff;}
@@ -2335,6 +2372,13 @@
         <div style="min-width:0;"><h3 style="font-size:1.2rem;" id="profileName">Créateur</h3><p style="color:var(--muted);font-size:.85rem;overflow:hidden;text-overflow:ellipsis;" id="profileEmail">—</p></div>
       </div>
       <div class="prof-provider" id="profProvider"></div>
+    </div>
+
+    <!-- Mode dev (visible uniquement pour le propriétaire) -->
+    <div class="card dev-card" id="devCard" style="display:none;">
+      <h3 style="font-size:1rem;">🛠️ Espace propriétaire</h3>
+      <p style="color:var(--muted);font-size:.83rem;margin:6px 0 12px;">Dashboard business : membres, revenus, canaux marketing. Visible seulement sur ton compte.</p>
+      <button class="imp-btn" style="max-width:260px;" onclick="devOpen()">Passer en mode dev</button>
     </div>
 
     <!-- Abonnement -->
@@ -2937,6 +2981,97 @@
   }
 
   // Charge le plan de l'utilisateur depuis la table subscriptions (source de vérité = Stripe via webhook)
+  // ── Mode dev (dashboard business, propriétaire uniquement) ──────────────
+  var DEV_EMAILS = ['aydencastor07@gmail.com', 'aydencastor1020@gmail.com'];
+  var DEV_STD_CHANNELS = ['fb-ads','fb-organic','tiktok-ads','tiktok-organic','ig-ads','ig-organic'];
+  function devShowCardIfOwner(){
+    var c = document.getElementById('devCard');
+    if (c) c.style.display = DEV_EMAILS.indexOf(window._userEmail||'') >= 0 ? '' : 'none';
+  }
+  function devLink(name){ return 'https://skillora.me/?src=' + encodeURIComponent(name); }
+  function devCopy(name, btn){
+    try { navigator.clipboard.writeText(devLink(name)); } catch(e){}
+    if (btn){ var o=btn.textContent; btn.textContent='Copié ✓'; setTimeout(function(){btn.textContent=o;},1400); }
+  }
+  function devMakeLink(){
+    var inp=document.getElementById('devNewRef'); var v=(inp.value||'').trim().toLowerCase().replace(/[^a-z0-9_-]+/g,'-').replace(/^-+|-+$/g,'');
+    var out=document.getElementById('devNewOut');
+    if(!v){ out.textContent='Donne un nom (ex : influenceur-lea).'; return; }
+    out.innerHTML='🔗 <b>'+devLink(v)+'</b> — partage ce lien : chaque clic, inscription et abonnement sera compté pour « '+v+' ».';
+    try { navigator.clipboard.writeText(devLink(v)); out.innerHTML += ' <span style="color:#7ee2a0">(copié ✓)</span>'; } catch(e){}
+  }
+  function devCount(el, target, prefix, suffix){
+    var t0=null, dur=900, from=0;
+    function step(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/dur); p=1-Math.pow(1-p,3);
+      var v=from+(target-from)*p;
+      el.textContent=(prefix||'')+(target%1?v.toFixed(2):Math.round(v).toLocaleString('fr-FR'))+(suffix||'');
+      if(p<1)requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  async function devOpen(){
+    document.getElementById('devPanel').classList.add('open');
+    devLoad();
+  }
+  async function devLoad(){
+    var kp=document.getElementById('devKpis');
+    kp.innerHTML='<div class="dev-kpi"><div class="k-l">Chargement…</div><div class="k-v">⏳</div></div>';
+    try {
+      var { data:{ session } } = await sb.auth.getSession();
+      var res = await fetch(SB_URL + '/functions/v1/admin-stats', { method:'POST',
+        headers:{ 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY, 'Content-Type':'application/json' }, body:'{}' });
+      var d = await res.json();
+      if(!d.success) throw new Error(d.error||'Erreur');
+      // KPIs animés
+      var R=d.revenue, U=d.users;
+      kp.innerHTML='';
+      var tiles=[['Membres',U.total,'',''],['Inscrits 24 h',U.last24h,'',''],['Inscrits 7 j',U.last7d,'',''],
+                 ['Abonnés actifs',R.active_subs,'',''],['MRR',R.mrr,'$',''],['ARR',R.arr,'$','']];
+      tiles.forEach(function(t){
+        var el=document.createElement('div'); el.className='dev-kpi';
+        el.innerHTML='<div class="k-l">'+t[0]+'</div><div class="k-v">0</div>'+
+          (t[0]==='Abonnés actifs'&&R.new_subs_7d?'<div class="k-s">+'+R.new_subs_7d+' cette semaine</div>':'')+
+          (t[0]==='Inscrits 24 h'&&U.last24h?'<div class="k-s">🔥 ça bouge</div>':'');
+        kp.appendChild(el);
+        devCount(el.querySelector('.k-v'), t[1]||0, t[2], t[3]);
+      });
+      // Graphique inscriptions 30 j (SVG animé)
+      var days=Object.keys(U.by_day), vals=days.map(function(k){return U.by_day[k];});
+      var mx=Math.max.apply(null,vals.concat([1])), W=1000, H=150, n=vals.length;
+      var pts=vals.map(function(v,i){ return (i*(W/(n-1))).toFixed(1)+','+(H-8-(v/mx)*(H-24)).toFixed(1); });
+      document.getElementById('devChartBox').innerHTML=
+        '<svg class="dev-chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
+        '<defs><linearGradient id="devGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f7bff" stop-opacity=".35"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/></linearGradient></defs>'+
+        '<polygon class="fill" points="0,'+H+' '+pts.join(' ')+' '+W+','+H+'"/>'+
+        '<polyline class="line" points="'+pts.join(' ')+'"/></svg>'+
+        '<div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-top:4px;"><span>'+days[0].slice(5)+'</span><span>max '+mx+'/j</span><span>'+days[n-1].slice(5)+'</span></div>';
+      // Canaux
+      var chBox=document.getElementById('devChannels'); chBox.innerHTML='';
+      var names=DEV_STD_CHANNELS.slice();
+      Object.keys(d.channels||{}).forEach(function(k){ if(names.indexOf(k)<0) names.push(k); });
+      var mxC=1; names.forEach(function(k){ var c=d.channels[k]; if(c) mxC=Math.max(mxC,c.clicks,c.signups*3,c.paying*10); });
+      names.forEach(function(k){
+        var c=d.channels[k]||{clicks:0,clicks7d:0,signups:0,paying:0};
+        var row=document.createElement('div'); row.className='dev-row';
+        row.innerHTML='<span class="r-name">'+k+'</span><div class="r-bar"><i></i></div>'+
+          '<span class="r-nums">'+c.clicks+' clics · <b style="color:#dfe7f5">'+c.signups+'</b> inscrits · <b style="color:#7ee2a0">'+c.paying+'</b> payants</span>'+
+          '<button class="r-copy">Copier le lien</button>';
+        row.querySelector('.r-copy').onclick=function(){ devCopy(k,this); };
+        chBox.appendChild(row);
+        setTimeout(function(){ row.querySelector('.r-bar i').style.width=Math.min(100,(c.clicks/mxC)*100)+'%'; },80);
+      });
+      // Derniers inscrits
+      var rec=document.getElementById('devRecent');
+      rec.innerHTML=(d.recent||[]).map(function(m){
+        var dt=new Date(m.created_at);
+        return '<div class="dev-mem"><span>'+(m.email||'—')+(m.country?' · '+m.country:'')+'</span>'+
+               '<span><span class="m-src">'+(m.ref_source?'via '+m.ref_source:'direct')+'</span> · '+dt.toLocaleDateString('fr-FR')+' '+dt.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</span></div>';
+      }).join('')||'<p style="color:var(--muted);font-size:.8rem;">Personne encore.</p>';
+      document.getElementById('devStamp').textContent='Actualisé : '+new Date(d.generated_at).toLocaleString('fr-FR');
+    } catch(e){
+      kp.innerHTML='<div class="dev-kpi"><div class="k-l">Erreur</div><div class="k-v" style="font-size:.9rem;">'+(e.message||e)+'</div></div>';
+    }
+  }
+
   // Comptes propriétaires : accès ILLIMITÉ à tout (aucune limite de plan). Les autres gardent leurs limites.
   var UNLIMITED_EMAILS = ['aydencastor1020@gmail.com', 'aydencastor07@gmail.com'];
   function isUnlimited(){ return window._unlimited === true; }
@@ -2946,6 +3081,7 @@
       if (!session) return;
       window._userEmail = String(session.user.email || '').toLowerCase();
       window._unlimited = UNLIMITED_EMAILS.indexOf(window._userEmail) >= 0;
+      try { devShowCardIfOwner(); } catch(_e){}
       const { data, error } = await sb
         .from('subscriptions')
         .select('plan, status, billing, created_at')
@@ -3364,6 +3500,11 @@
   // Enregistre le filleul une fois le compte confirmé (RLS empêche l'auto-parrainage)
   async function recordReferral(user) {
     try {
+      // Source marketing (?src=) -> profiles.ref_source (une seule fois)
+      try { var _src = localStorage.getItem('sk_src');
+        if (_src) { var { data: _pf } = await sb.from('profiles').select('ref_source').eq('id', user.id).single();
+          if (_pf && !_pf.ref_source) await sb.from('profiles').update({ ref_source: _src }).eq('id', user.id);
+          localStorage.removeItem('sk_src'); } } catch(_e){}
       var ref = localStorage.getItem('skillora_ref');
       if (!ref) return;
       if (!/^[0-9a-fA-F-]{30,40}$/.test(ref) || ref === user.id) { localStorage.removeItem('skillora_ref'); return; }
@@ -9794,5 +9935,22 @@
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
   })();
   </script>
+<div id="devPanel">
+  <div class="dev-wrap">
+    <div class="dev-head">
+      <h2>🛠️ Mode dev — Skillora Business</h2>
+      <div class="dh-b"><button onclick="devLoad()">↻ Actualiser</button><button onclick="document.getElementById('devPanel').classList.remove('open')">✕ Fermer</button></div>
+    </div>
+    <div class="dev-kpis" id="devKpis"></div>
+    <div class="dev-sec"><h3>📈 Inscriptions — 30 derniers jours</h3><div id="devChartBox"></div></div>
+    <div class="dev-sec"><h3>🔗 Canaux marketing <span style="color:var(--muted);font-weight:400;font-size:.78rem;">(clics 30j · inscrits · payants)</span></h3>
+      <div id="devChannels"></div>
+      <div class="dev-new"><input id="devNewRef" placeholder="Nouveau lien : nom (ex : influenceur-lea)" maxlength="64"/><button onclick="devMakeLink()">Créer le lien</button></div>
+      <p id="devNewOut" style="font-size:.78rem;color:#9ec2ff;margin-top:8px;word-break:break-all;"></p>
+    </div>
+    <div class="dev-sec"><h3>👤 Derniers inscrits</h3><div id="devRecent"></div></div>
+    <p style="color:var(--muted);font-size:.72rem;" id="devStamp"></p>
+  </div>
+</div>
 </body>
 </html>

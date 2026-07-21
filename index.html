@@ -1273,5 +1273,19 @@
     document.querySelectorAll('.dyn').forEach(function(el){ el.textContent = el.getAttribute('data-' + period); });
   }
 </script>
+<script>
+/* Suivi marketing : ?src=fb-ads|tiktok-organic|nom-influenceur… */
+(function(){try{
+  var q=new URLSearchParams(location.search);var src=(q.get('src')||'').trim().toLowerCase().slice(0,64);
+  if(!src)return;
+  if(!localStorage.getItem('sk_src'))localStorage.setItem('sk_src',src); /* 1er contact gagne */
+  if(!sessionStorage.getItem('sk_src_logged')){
+    sessionStorage.setItem('sk_src_logged','1');
+    fetch('https://fkjqlmtugzdluzshxqsk.supabase.co/rest/v1/marketing_clicks',{method:'POST',
+      headers:{apikey:'sb_publishable_u8BiBh7ciFGr13GPQHLnGQ_f17a_5aA','Content-Type':'application/json',Prefer:'return=minimal'},
+      body:JSON.stringify({ref:src,path:location.pathname})}).catch(function(){});
+  }
+}catch(e){}})();
+</script>
 </body>
 </html>

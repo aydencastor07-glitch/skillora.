@@ -2245,7 +2245,8 @@
       .mtn-ic{width:29px;height:29px;border-radius:50%;background:rgba(47,123,255,.13);color:#9ec2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1;}
       .mtn-ic svg{width:15px;height:15px;}
       .mtn-m{min-width:0;padding-top:2px;}
-      .mtn-m b{display:block;font-size:.8rem;font-weight:700;}
+      .mtn-m b{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:700;}
+      .mtn-k{width:18px;height:18px;flex-shrink:0;border-radius:50%;background:rgba(47,123,255,.2);color:#9ec2ff;font-size:.66rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;}
       .mtn-m span{display:block;font-size:.74rem;color:#9daccb;line-height:1.45;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
       /* ── Plan v3 : plat, languettes, SVG ─────────────────────── */
       .gen-bare{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 0!important;}
@@ -9255,23 +9256,36 @@
     setTimeout(genFoldsBind,60);
     return h;
   }
+  // Vrai plan d'assemblage pas-à-pas dans CapCut (pour débutant) — pas une
+  // liste de features. On tisse dedans les consignes de Gemini (m.*).
   function genMontageMap(m, note){
+    var bp=window._bp||{}; var np=(bp.plans||[]).length; m=m||{};
     var IC={
-      sous_titres:'<path d="M4 5h16v10H9l-4 4V5z"/><path d="M8 9h8M8 12h5"/>',
-      musique:'<circle cx="7" cy="17" r="2.6"/><circle cx="17" cy="15" r="2.6"/><path d="M9.6 17V6.5L19.6 4.5V15"/>',
-      transitions:'<path d="M4 7h11M11 3l4 4-4 4"/><path d="M20 17H9M13 13l-4 4 4 4"/>',
-      effets:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
-      rythme:'<path d="M3 12h3l2.5-6 4 12 2.5-6h6"/>',
-      ajouter:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/>'
+      open:'<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M12 8v8M8 12h8"/>',
+      imp:'<path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M4 20h16"/>',
+      eye:'<path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.4"/>',
+      cut:'<circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><path d="M8 7.5 20 16M8 16.5 20 8"/>',
+      speed:'<path d="M13 2 4.5 13H11l-1 9 8.5-11H12z"/>',
+      trans:'<path d="M4 7h11M11 3l4 4-4 4"/><path d="M20 17H9M13 13l-4 4 4 4"/>',
+      subs:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M7 15h6M15.5 15H17M7 11h1.5M11 11h6"/>',
+      music:'<circle cx="7" cy="17" r="2.4"/><circle cx="17" cy="15" r="2.4"/><path d="M9.4 17V6.5L19.4 4.5V15"/>',
+      exp:'<path d="M4 15v4a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-4"/><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/>'
     };
-    var rows=[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']]
-      .filter(function(k){return m[k[0]];})
-      .map(function(k){return {ic:IC[k[0]],t:k[1],v:m[k[0]]};});
-    if(note) rows.push({ic:IC.ajouter,t:'À ajouter',v:note});
-    if(!rows.length) return '';
+    var steps=[
+      {ic:IC.open, t:'Ouvre CapCut → Nouveau projet', d:'Sur ton téléphone ou ton PC, crée un projet vide.'},
+      {ic:IC.imp, t:'Importe tes clips dans l\'ordre', d:'Ajoute les '+(np?np+' ':'')+'clips générés à la suite, du plan 1 au dernier.'},
+      {ic:IC.eye, t:'Vérifie chaque clip', d:'Regarde-les un par un : l\'IA se trompe parfois sur une parole ou un geste. Si un clip est raté, régénère-le avec son prompt.'},
+      {ic:IC.cut, t:'Coupe les temps morts', d:'Supprime les silences et les moments vides pour un rythme serré.'}
+    ];
+    steps.push({ic:IC.speed, t:'Accélère les passages lents', d:m.rythme || 'Un léger speed (x1.2–1.5) sur les moments mous garde l\'attention.'});
+    steps.push({ic:IC.trans, t:'Ajoute les transitions', d:m.transitions || 'Des coupes nettes entre les clips (cut sec, ou zoom rapide).'});
+    steps.push({ic:IC.subs, t:'Ajoute les sous-titres', d:m.sous_titres || 'Sous-titres auto, mot par mot, gros et bien lisibles.'});
+    var son=[]; if(m.musique) son.push(m.musique); if(m.effets) son.push(m.effets); if(note) son.push(note);
+    if(son.length) steps.push({ic:IC.music, t:'Sons & musique', d:son.join(' · ')});
+    steps.push({ic:IC.exp, t:'Exporte'+(bp.format?' en '+genEsc(bp.format):' en qualité max'), d:'Prêt à publier — tu peux le poster depuis Skillora.'});
     var h='<div class="mtmap">';
-    rows.forEach(function(r){
-      h+='<div class="mtn"><span class="mtn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+r.ic+'</svg></span><div class="mtn-m"><b>'+r.t+'</b><span>'+genEsc(r.v)+'</span></div></div>';
+    steps.forEach(function(st,k){
+      h+='<div class="mtn"><span class="mtn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+st.ic+'</svg></span><div class="mtn-m"><b><span class="mtn-k">'+(k+1)+'</span>'+st.t+'</b><span>'+genEsc(st.d)+'</span></div></div>';
     });
     return h+'</div>';
   }

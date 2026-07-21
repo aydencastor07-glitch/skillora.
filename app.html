@@ -2179,6 +2179,54 @@
       .dev-mem{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;flex-wrap:wrap;}
       .dev-mem:last-child{border-bottom:none;}
       .dev-mem .m-src{color:#7ee2a0;font-size:.72rem;}
+      /* ── Plan v3 : plat, languettes, SVG ─────────────────────── */
+      .gen-bare{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 0!important;}
+      .bpg2{max-width:560px;margin:0 auto;}
+      .bp2-head{display:flex;align-items:center;gap:11px;margin-bottom:12px;}
+      .bp2-ok{width:34px;height:34px;flex-shrink:0;}
+      .bp2-t{font-family:'Fraunces',serif;font-weight:800;font-size:1.25rem;}
+      .bp2-s{font-size:.8rem;color:var(--muted);margin-top:2px;}
+      .src2{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;font-size:.8rem;}
+      .src2 b{font-weight:700;}
+      .src2-st{display:inline-flex;align-items:center;gap:4px;color:#aebcd8;font-weight:600;font-size:.76rem;}
+      .src2-st svg{width:14px;height:14px;opacity:.8;}
+      .sc2{display:flex;align-items:center;gap:16px;padding:6px 0 2px;}
+      .sc2-n{font-family:'Fraunces',serif;font-weight:800;font-size:2rem;line-height:1;}
+      .sc2-n i{font-style:normal;font-size:.85rem;opacity:.55;font-family:'Sora',sans-serif;font-weight:600;}
+      .sc2-bars{flex:1;display:flex;flex-direction:column;gap:6px;}
+      .sc2-b{display:flex;align-items:center;gap:9px;font-size:.7rem;color:var(--muted);}
+      .sc2-b>span:first-child{width:64px;flex-shrink:0;}
+      .sc2-tr{flex:1;height:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;}
+      .sc2-tr i{display:block;height:100%;border-radius:99px;}
+      .sc2-tr i.sc-good{background:#39d98a;} .sc2-tr i.sc-mid{background:#f5b544;} .sc2-tr i.sc-bad{background:#ff6b6b;}
+      .sc2-viral{font-size:.78rem;color:#aebcd8;line-height:1.45;padding:8px 0 2px;}
+      .bp2-hr{height:1px;background:rgba(255,255,255,.07);margin:16px 0;}
+      .st2{margin-bottom:20px;}
+      .st2-h{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+      .st2-n{width:24px;height:24px;border-radius:8px;background:rgba(47,123,255,.16);color:#9ec2ff;font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+      .st2-t{font-weight:700;font-size:.88rem;flex:1;min-width:0;}
+      .st2-d{font-size:.72rem;color:var(--muted);font-weight:600;}
+      .st2-ref{position:relative;width:96px;border-radius:11px;overflow:hidden;margin:0 0 8px 33px;}
+      .st2-ref.hz{width:210px;}
+      .st2-ref img{display:block;width:100%;}
+      .st2-dl{position:absolute;right:5px;bottom:5px;width:28px;height:28px;border-radius:8px;background:rgba(8,12,24,.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+      .st2-dl svg{width:14px;height:14px;}
+      .st2-reuse{font-size:.75rem;color:var(--muted);margin:0 0 6px 33px;}
+      .pr2{margin:0 0 7px 33px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.03);overflow:hidden;}
+      .pr2-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:transparent;border:none;cursor:pointer;color:inherit;text-align:left;font-family:inherit;}
+      .pr2-ic{width:30px;height:30px;border-radius:9px;background:rgba(47,123,255,.13);color:#9ec2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+      .pr2-ic svg{width:16px;height:16px;}
+      .pr2 .pr2-ic~.pr2-m b{display:block;}
+      .pr2-m{flex:1;min-width:0;}
+      .pr2-m b{font-size:.8rem;font-weight:700;}
+      .pr2-m i{font-style:normal;font-size:.68rem;color:var(--muted);}
+      .pr2-cp{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:9px;background:var(--blue);color:#fff;font-size:.73rem;font-weight:700;flex-shrink:0;}
+      .pr2-cp svg{width:13px;height:13px;}
+      .pr2-ch{width:16px;height:16px;color:var(--muted);transition:transform .25s;flex-shrink:0;}
+      .pr2.open .pr2-ch{transform:rotate(180deg);}
+      .pr2-b{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+      .pr2.open .pr2-b{max-height:340px;overflow-y:auto;}
+      .pv2{padding:2px 13px 12px;font-size:.76rem;color:#b8c4dc;line-height:1.55;white-space:pre-wrap;word-break:break-word;}
       /* ── Copie : focus + design v2 ───────────────────────────── */
       .gen-focus .page-title,.gen-focus .page-sub,.gen-focus .sktabs,.gen-focus #studioAcctPicker{display:none!important;}
       .gen-focus #genCard{background:transparent!important;border:none!important;box-shadow:none!important;padding:6px 0!important;}
@@ -9060,83 +9108,70 @@
   function genScCls(v){ return v>=7?'sc-good':(v>=4?'sc-mid':'sc-bad'); }
   function genRenderGuide(bp){
     if(!bp) return '<div class="bpg-txt">Plan indisponible. Réessaie.</div><button class="imp-ghost" onclick="genReset()">Recommencer</button>';
-    window._bp=bp; window._bpStep=0; window._bpClip={};
+    window._bp=bp; window._bpClip={};
     var s=bp.score||{}, o=bp.outils||{};
-    var h='<div class="bpg">';
-    h+='<div class="imp-ok">✅ Ton plan est prêt</div>';
+    var h='<div class="bpg2">';
+    h+='<div class="bp2-head"><svg viewBox="0 0 24 24" class="bp2-ok"><circle cx="12" cy="12" r="10" fill="rgba(57,217,138,.14)"/><path d="m8 12.5 2.6 2.6L16.5 9" stroke="#39d98a" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><div><div class="bp2-t">Ton plan est prêt</div>'+(bp.titre?'<div class="bp2-s">'+genEsc(bp.titre)+'</div>':'')+'</div></div>';
     var sm=bp.source_meta;
     if(sm){
-      var fr0=null;(bp.plans||[]).some(function(p){if(p.frame_url){fr0=p.frame_url;return true;}return false;});
-      h+='<div class="src-card">'+(fr0?'<img class="src-th" src="'+genEsc(fr0)+'" alt=""/>':'')+
-        '<div class="src-m">'+genPlatSvg(sm.platform)+(sm.author?'<div class="src-a">@'+genEsc(sm.author)+'</div>':'')+
-        (sm.title?'<div class="src-t">'+genEsc(sm.title)+'</div>':'')+
-        '<div class="src-stats">'+
-        '<span>👁 '+genFmtN(sm.views)+'</span><span>❤️ '+genFmtN(sm.likes)+'</span>'+
-        '<span>💬 '+genFmtN(sm.comments)+'</span><span>↗️ '+genFmtN(sm.shares)+'</span>'+
-        '</div></div></div>';
+      h+='<div class="src2">'+genPlatSvg(sm.platform)+(sm.author?'<b>@'+genEsc(sm.author)+'</b>':'')+
+        '<span class="src2-st">'+genStatSvg('eye')+genFmtN(sm.views)+'</span><span class="src2-st">'+genStatSvg('heart')+genFmtN(sm.likes)+'</span><span class="src2-st">'+genStatSvg('chat')+genFmtN(sm.comments)+'</span><span class="src2-st">'+genStatSvg('share')+genFmtN(sm.shares)+'</span></div>';
     }
-    if(bp.titre) h+='<h4 class="bpg-h">'+genEsc(bp.titre)+'</h4>';
-    var meta=[];if(bp.format)meta.push(genEsc(bp.format));if(bp.duree_conseillee_s)meta.push('~'+bp.duree_conseillee_s+'s');
-    if(meta.length) h+='<div class="gen-sub">'+meta.join(' · ')+'</div>';
-    h+='<div class="bpflow"><span class="bpf-c">🖼️ ① Image</span><span class="bpf-a">→</span><span class="bpf-c">🎬 ② Animation</span><span class="bpf-a">→</span><span class="bpf-c">✂️ ③ Montage</span></div>';
-    // NOTES animées
     var g=(s.global!=null?s.global:null);
-    h+='<div class="bpsc"><div class="bpsc-hd">';
-    h+='<div class="bpsc-num '+(g!=null?genScCls(g):'')+'"><b id="bpscNum">0</b><span>/10</span></div>';
-    h+='<div class="bpsc-viral">'+(s.potentiel_viral?('<b>Potentiel viral —</b> '+genEsc(s.potentiel_viral)):'Note globale de la vidéo')+'</div>';
-    h+='</div><div class="bpsc-bars">';
-    [['accroche','Accroche'],['retention','Rétention'],['format','Format']].forEach(function(k){var v=s[k[0]];if(v==null)return;var cl=genScCls(v);h+='<div class="bpsc-bar"><span class="bl">'+k[1]+'</span><span class="bpsc-track"><span class="bpsc-fill '+cl+'" data-v="'+v+'"></span></span><span class="bpsc-v '+cl+'">'+v+'/10</span></div>';});
-    h+='</div></div>';
-    // OUTILS (chips)
-    var chips=[genTool('Nano Banana 2'), genTool(o.animation||'Veo 3.1')];
-    if(o.voix_off) chips.push(genTool('ElevenLabs'));
-    chips.push(genTool('CapCut'));
-    h+='<div class="bptools"><div class="bpg-lab" style="margin-bottom:8px">Tes outils</div>'+chips.join('')+'</div>';
-    if(bp.accroche) h+='<div class="bpg-sec"><div class="bpg-lab">Accroche</div><div class="bpg-txt">'+genEsc(bp.accroche)+'</div></div>';
-    if(bp.pourquoi_ca_marche) h+='<details class="bpfold"><summary>💡 Pourquoi ça marche</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.pourquoi_ca_marche)+'</div></div></details>';
-    if(bp.script) h+='<details class="bpfold"><summary>📄 Le script complet</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div></details>';
-    if(bp.plans&&bp.plans.length){h+='<div class="bpg-sec"><div class="bpg-lab">Le plan, étape par étape</div><div class="bpstep-nav"><button id="bpPrev" onclick="genStep(-1)">◀</button><span class="bpstep-count" id="bpCount"></span><button id="bpNext" onclick="genStep(1)">Suivant ▶</button></div><div id="bpStepBody"></div></div>';}
-    // VOIX OFF
-    if(o.voix_off){h+='<div class="bpg-sec"><div class="pl-row"><span class="bpg-lab" style="margin:0">🎙️ Voix off</span>'+genTool('ElevenLabs')+'</div>'+(o.voix_conseillee?'<div class="sh-row" style="margin-top:6px"><b>Voix conseillée :</b> '+genEsc(o.voix_conseillee)+'</div>':'')+'</div>';}
-    // MONTAGE
+    if(g!=null){
+      h+='<div class="sc2"><span class="sc2-n '+genScCls(g)+'">'+g+'<i>/10</i></span><div class="sc2-bars">';
+      [['accroche','Accroche'],['retention','Rétention'],['format','Format']].forEach(function(k){var v=s[k[0]];if(v==null)return;var cl=genScCls(v);h+='<div class="sc2-b"><span>'+k[1]+'</span><span class="sc2-tr"><i class="'+cl+'" style="width:'+(v*10)+'%"></i></span></div>';});
+      h+='</div></div>';
+      if(s.potentiel_viral) h+='<div class="sc2-viral">'+genEsc(s.potentiel_viral)+'</div>';
+    }
+    h+='<div class="bp2-hr"></div>';
+    (bp.plans||[]).forEach(function(pl,i){ h+=genStepHtml(i); });
+    h+='<div class="bp2-hr"></div>';
+    if(bp.script) h+='<details class="bpfold"><summary>Le script complet</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div></details>';
     var mont='';if(bp.montage){var m=bp.montage;[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']].forEach(function(k){if(m[k[0]])mont+='<div class="sh-row"><b>'+k[1]+' :</b> '+genEsc(m[k[0]])+'</div>';});}
     if(o.montage_note) mont+='<div class="sh-row"><b>À ajouter :</b> '+genEsc(o.montage_note)+'</div>';
-    if(mont) h+='<details class="bpfold"><summary>🎛️ Montage — CapCut</summary><div class="bpfold-body">'+mont+'</div></details>';
-    if(bp.conseils_adaptation&&bp.conseils_adaptation.length){var cc='';bp.conseils_adaptation.forEach(function(c){cc+='<div class="sh-row">• '+genEsc(c)+'</div>';});h+='<details class="bpfold"><summary>🎯 Adapter à ta niche</summary><div class="bpfold-body">'+cc+'</div></details>';}
-    h+='<button class="imp-ghost" onclick="genReset()">↻ Copier une autre vidéo</button></div>';
-    setTimeout(genAfterRender,60);
+    if(mont) h+='<details class="bpfold"><summary>Montage — CapCut</summary><div class="bpfold-body">'+mont+'</div></details>';
+    if(o.voix_off&&o.voix_conseillee) h+='<details class="bpfold"><summary>Voix off — ElevenLabs</summary><div class="bpfold-body"><div class="sh-row">'+genEsc(o.voix_conseillee)+'</div></div></details>';
+    h+='<button class="imp-ghost" onclick="genReset()">Copier une autre vidéo</button></div>';
     return h;
   }
-  function genAfterRender(){
-    var bp=window._bp||{}; var g=(bp.score&&bp.score.global!=null)?bp.score.global:null;
-    document.querySelectorAll('.bpsc-fill').forEach(function(f){var v=parseFloat(f.getAttribute('data-v'))||0;requestAnimationFrame(function(){f.style.width=(v*10)+'%';});});
-    var num=document.getElementById('bpscNum');
-    if(num){if(g==null){num.textContent='–';}else{var cur=0;var t=setInterval(function(){cur++;if(cur>=g){cur=g;clearInterval(t);}num.textContent=cur;},90);}}
-    genStepRender();
+  function genStatSvg(k){
+    var p={eye:'M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+           heart:'M12 20.8 4.9 13.7a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8z',
+           chat:'M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.5 0-3-.4-4.2-1.1L3 21l1.6-5.3A8.5 8.5 0 1 1 21 12z',
+           share:'M13 5.5 21 12l-8 6.5v-4C7 14.5 4.5 16.5 3 19c.5-5 3-9 10-9.5z'};
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="'+(p[k]||'')+'"/></svg>';
+  }
+  function genPromptRow(kind, tool, text){
+    window._bpClip=window._bpClip||{};var id='bpc'+Math.random().toString(36).slice(2,9);window._bpClip[id]=text;
+    var ic = kind==='img'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.7"/><path d="m4 18 5-5 3 3 3.5-3.5L21 18"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18M8 5 6.5 9M13 5l-1.5 4M18 5l-1.5 4"/></svg>';
+    var lbl = kind==='img' ? 'Prompt image' : 'Prompt animation';
+    return '<div class="pr2"><button type="button" class="pr2-h" onclick="genPrOpen(this)"><span class="pr2-ic">'+ic+'</span><span class="pr2-m"><b>'+lbl+'</b><i>'+genEsc(tool)+'</i></span>'+
+      '<span class="pr2-cp" onclick="event.stopPropagation();genCopy(\''+id+'\',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>Copier</span>'+
+      '<svg class="pr2-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>'+
+      '<div class="pr2-b"><div class="pv2">'+genEsc(text)+'</div></div></div>';
+  }
+  function genPrOpen(btn){
+    var row=btn.parentNode, was=row.classList.contains('open');
+    document.querySelectorAll('.pr2.open').forEach(function(x){x.classList.remove('open');});
+    if(!was) row.classList.add('open');
   }
   function genStepHtml(i){
     var bp=window._bp||{}; var o=bp.outils||{}; var pl=(bp.plans||[])[i]; if(!pl) return '';
-    var h='<div class="bpg-shot" style="margin-top:0"><div class="sh-h"><span class="sh-n">'+(pl.n||(i+1))+'</span><span>'+genEsc(pl.scene||'Plan')+' · '+(pl.duree_s||'')+'s</span></div>';
-    if(pl.frame_url){var fu=genEsc(pl.frame_url);h+='<div class="bpframe"><img src="'+fu+'" loading="lazy" alt=""/><div class="bf-row"><a class="bf-dl" href="'+fu+(pl.frame_url.indexOf('?')<0?'?':'&')+'download=reference-plan-'+(pl.n||(i+1))+'.jpg">⬇️ Télécharger</a><span class="bf-note">Donne-la à Nano Banana avec le prompt ①</span></div></div>';}
-    if(pl.nouvelle_image && pl.image_prompt){
-      h+='<div class="bppp"><div class="pl-row"><span class="pl">① Image à générer</span>'+genTool('Nano Banana 2')+'</div><div class="pv">'+genEsc(pl.image_prompt)+'</div></div>'+genCopyBtn(pl.image_prompt,'Copier le prompt image');
-    } else if(pl.reutilise){
-      h+='<div class="bpreuse">♻️ Réutilise l\'image de l\'étape '+pl.reutilise+' — tout se joue à l\'animation.</div>';
+    var horiz=/16:9|horizontal|paysage/i.test(String(bp.format||''));
+    var h='<div class="st2"><div class="st2-h"><span class="st2-n">'+(pl.n||(i+1))+'</span><span class="st2-t">'+genEsc(pl.scene||'Plan')+'</span><span class="st2-d">'+(pl.duree_s||'')+'s</span></div>';
+    if(pl.frame_url){var fu=genEsc(pl.frame_url);
+      h+='<div class="st2-ref'+(horiz?' hz':'')+'"><img src="'+fu+'" loading="lazy" alt=""/>'+
+        '<a class="st2-dl" href="'+fu+(pl.frame_url.indexOf('?')<0?'?':'&')+'download=reference-'+(pl.n||(i+1))+'.jpg" title="Télécharger"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg></a></div>';
     }
-    if(pl.animation_prompt){
-      h+='<div class="bppp bpanim"><div class="pl-row"><span class="pl">② Animation</span>'+genTool(o.animation||'Veo 3.1')+'</div><div class="pv">'+genEsc(pl.animation_prompt)+'</div></div>'+genCopyBtn(pl.animation_prompt,'Copier le prompt animation');
-    }
+    if(pl.nouvelle_image && pl.image_prompt) h+=genPromptRow('img', 'Nano Banana 2', pl.image_prompt);
+    else if(pl.reutilise) h+='<div class="st2-reuse">Réutilise l\'image de l\'étape '+pl.reutilise+'</div>';
+    if(pl.animation_prompt) h+=genPromptRow('anim', o.animation||'Veo 3.1', pl.animation_prompt);
     h+='</div>';
     return h;
   }
-  function genStepRender(){
-    var bp=window._bp||{}; var n=(bp.plans||[]).length; var i=window._bpStep||0;
-    var body=document.getElementById('bpStepBody'); if(body) body.innerHTML=genStepHtml(i);
-    var c=document.getElementById('bpCount'); if(c) c.textContent='Étape '+(i+1)+' / '+n;
-    var pv=document.getElementById('bpPrev'); if(pv) pv.disabled=(i<=0);
-    var nx=document.getElementById('bpNext'); if(nx){nx.disabled=(i>=n-1);nx.textContent=(i>=n-1?'✓ Fin':'Suivant ▶');}
-  }
-  function genStep(d){var bp=window._bp||{};var n=(bp.plans||[]).length;var i=(window._bpStep||0)+d;if(i<0)i=0;if(i>n-1)i=n-1;window._bpStep=i;genStepRender();}
 
   async function pubUseImproved() {
     if (!impUrl) return;
@@ -9257,6 +9292,7 @@
     var p = document.getElementById('genProgress'); if (p) p.style.display = 'none';
     var r = document.getElementById('genResult'); if (r) r.style.display = 'none';
     var i = document.getElementById('genIntro'); if (i) i.style.display = 'block';
+    try { document.getElementById('genCard').classList.remove('gen-bare'); } catch(e){}
     var b = document.getElementById('genGo'); if (b) { b.disabled = false; b.textContent = 'Obtenir le plan exact'; }
     var v = document.getElementById('genVid'); if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {} }
   }
@@ -9316,6 +9352,7 @@
         document.getElementById('genProgress').style.display = 'none';
         var gr = document.getElementById('genResult'); gr.style.display = 'block';
         gr.innerHTML = genRenderGuide(bp);
+        try { document.getElementById('genCard').classList.add('gen-bare'); } catch(e){}
         try { gr.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
       } else if (j.status === 'error') {
         clearInterval(genTimer); genTimer = null; gwStopTips(); genFocus(false);

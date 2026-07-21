@@ -5615,9 +5615,10 @@ def gen_blueprint(idea, source_url=None, source_path=None, variation=False):
         "Notes sur 10 : accroche, retention, format, global + phrase "
         "'potentiel_viral'. Zéro texte inutile.\n\n"
         "REPÈRE SOURCE : pour chaque plan, donne source_time_s = l'instant "
-        "(en secondes) de la vidéo SOURCE où cette scène est le mieux visible "
-        "(personnages bien cadrés). On en extraira une CAPTURE qui servira "
-        "d'image de référence au créateur.\n\n"
+        "(en secondes) de la vidéo SOURCE où cette scène est le mieux visible : "
+        "personnages bien cadrés, image NETTE et STABLE — jamais pendant une "
+        "transition, un mouvement rapide ou un flou. On en extraira une CAPTURE "
+        "qui servira d'image de référence au créateur.\n\n"
         + ("MODE VARIATION : le client veut S'INSPIRER, pas copier à "
            "l'identique. Garde les personnages, l'histoire et le style, mais "
            "CHANGE des détails visibles (arrière-plan/décor, couleurs ou "
@@ -5839,13 +5840,29 @@ def generate_blueprint_job(job, steps):
                     continue
                 if dur:
                     t = max(0.0, min(float(t), max(0.0, dur - 0.5)))
-                frame = tempfile.mktemp(suffix=".jpg")
+                # Anti-flou : 5 captures autour de t, on garde la plus NETTE.
+                # (à qualité/résolution égales, une image nette pèse plus lourd
+                # en JPEG qu'une image floue — c'est un bon score de netteté)
+                best, best_sz = None, 0
+                cands = []
+                for dt in (-0.4, -0.15, 0.0, 0.3, 0.6):
+                    tc = float(t) + dt
+                    if tc < 0 or (dur and tc > dur - 0.3):
+                        continue
+                    fr = tempfile.mktemp(suffix=".jpg")
+                    cands.append(fr)
+                    try:
+                        run(["ffmpeg", "-y", "-ss", "%.2f" % tc, "-i", local,
+                             "-frames:v", "1", "-q:v", "3", fr], timeout=60)
+                        sz = os.path.getsize(fr) if os.path.exists(fr) else 0
+                        if sz > best_sz:
+                            best, best_sz = fr, sz
+                    except Exception:
+                        pass
                 try:
-                    run(["ffmpeg", "-y", "-ss", "%.2f" % float(t), "-i", local,
-                         "-frames:v", "1", "-q:v", "3", frame], timeout=120)
-                    if os.path.exists(frame) and os.path.getsize(frame) > 5000:
+                    if best and best_sz > 5000:
                         url = sb_upload_public(
-                            frame, "bp/%s/%s/ref_%02d.jpg" % (uid, jid, p["n"]),
+                            best, "bp/%s/%s/ref_%02d.jpg" % (uid, jid, p["n"]),
                             content_type="image/jpeg")
                         if url:
                             p["frame_url"] = url
@@ -5853,10 +5870,11 @@ def generate_blueprint_job(job, steps):
                 except Exception as e:
                     print("blueprint frame:", e, file=sys.stderr)
                 finally:
-                    try:
-                        os.remove(frame)
-                    except Exception:
-                        pass
+                    for fr in cands:
+                        try:
+                            os.remove(fr)
+                        except Exception:
+                            pass
             steps.done("ref", "%d captures" % n_ok)
         update_job(jid, {"status": "done", "plan": {"blueprint": guide},
                          "finished_at": "now()", "steps": steps.items})

@@ -2186,10 +2186,13 @@
       .bp2-ok{width:34px;height:34px;flex-shrink:0;}
       .bp2-t{font-family:'Fraunces',serif;font-weight:800;font-size:1.25rem;}
       .bp2-s{font-size:.8rem;color:var(--muted);margin-top:2px;}
-      .src2{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;font-size:.8rem;}
-      .src2 b{font-weight:700;}
-      .src2-st{display:inline-flex;align-items:center;gap:4px;color:#aebcd8;font-weight:600;font-size:.76rem;}
-      .src2-st svg{width:14px;height:14px;opacity:.8;}
+      .src2{display:flex;align-items:center;gap:13px;padding:10px 0;}
+      .src2-th{width:38px;aspect-ratio:9/16;object-fit:cover;border-radius:8px;flex-shrink:0;}
+      .src2 .src-plat{flex-shrink:0;}
+      .src2-sts{display:flex;flex:1;justify-content:space-between;max-width:290px;margin-left:auto;}
+      .src2-st{display:flex;flex-direction:column;align-items:center;gap:3px;color:#8fa1c0;min-width:52px;}
+      .src2-st svg{width:15px;height:15px;opacity:.85;}
+      .src2-st b{font-size:.78rem;font-weight:700;color:#dfe7f5;font-variant-numeric:tabular-nums;}
       .sc2{display:flex;align-items:center;gap:16px;padding:6px 0 2px;}
       .sc2-n{font-family:'Fraunces',serif;font-weight:800;font-size:2rem;line-height:1;}
       .sc2-n i{font-style:normal;font-size:.85rem;opacity:.55;font-family:'Sora',sans-serif;font-weight:600;}
@@ -9114,8 +9117,14 @@
     h+='<div class="bp2-head"><svg viewBox="0 0 24 24" class="bp2-ok"><circle cx="12" cy="12" r="10" fill="rgba(57,217,138,.14)"/><path d="m8 12.5 2.6 2.6L16.5 9" stroke="#39d98a" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><div><div class="bp2-t">Ton plan est prêt</div>'+(bp.titre?'<div class="bp2-s">'+genEsc(bp.titre)+'</div>':'')+'</div></div>';
     var sm=bp.source_meta;
     if(sm){
-      h+='<div class="src2">'+genPlatSvg(sm.platform)+(sm.author?'<b>@'+genEsc(sm.author)+'</b>':'')+
-        '<span class="src2-st">'+genStatSvg('eye')+genFmtN(sm.views)+'</span><span class="src2-st">'+genStatSvg('heart')+genFmtN(sm.likes)+'</span><span class="src2-st">'+genStatSvg('chat')+genFmtN(sm.comments)+'</span><span class="src2-st">'+genStatSvg('share')+genFmtN(sm.shares)+'</span></div>';
+      var th0=null;(bp.plans||[]).some(function(p){if(p.frame_url){th0=p.frame_url;return true;}return false;});
+      h+='<div class="src2">'+(th0?'<img class="src2-th" src="'+genEsc(th0)+'" alt=""/>':'')+genPlatSvg(sm.platform)+
+        '<div class="src2-sts">'+
+        '<span class="src2-st">'+genStatSvg('eye')+'<b>'+genFmtN(sm.views)+'</b></span>'+
+        '<span class="src2-st">'+genStatSvg('heart')+'<b>'+genFmtN(sm.likes)+'</b></span>'+
+        '<span class="src2-st">'+genStatSvg('chat')+'<b>'+genFmtN(sm.comments)+'</b></span>'+
+        '<span class="src2-st">'+genStatSvg('share')+'<b>'+genFmtN(sm.shares)+'</b></span>'+
+        '</div></div>';
     }
     var g=(s.global!=null?s.global:null);
     if(g!=null){

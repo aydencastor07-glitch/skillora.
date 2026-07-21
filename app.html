@@ -767,6 +767,7 @@
 
   .sk-card { position:relative; text-align:left; background:linear-gradient(170deg,rgba(15,24,48,0.9),rgba(8,13,26,0.95)); border:1px solid var(--border); border-radius:20px; padding:22px 20px; margin-bottom:26px; display:flex; flex-direction:column; }
   .sk-card.popular { border-color:rgba(26,111,255,0.6); background:linear-gradient(170deg,rgba(26,111,255,0.14),rgba(10,18,40,0.95)); box-shadow:0 20px 55px rgba(26,111,255,0.22); }
+  .sk-pay-note{ text-align:center; font-size:.76rem; color:var(--muted); margin-top:10px; }
   .sk-card.elite { border-color:rgba(245,166,35,0.35); background:linear-gradient(170deg,rgba(40,30,8,0.5),rgba(10,14,26,0.95)); }
   .sk-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); color:#fff; font-size:.66rem; font-weight:700; padding:.32rem .9rem; border-radius:100px; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap; box-shadow:0 6px 18px rgba(0,0,0,0.3); }
   .sk-badge.pop { background:linear-gradient(135deg,#4d8fff,#1a6fff); }
@@ -2562,13 +2563,13 @@
       <p style="color:var(--muted);font-size:.83rem;margin:6px 0 12px;">Dashboard business : membres, revenus, canaux marketing. Visible seulement sur ton compte.</p>
       <button class="imp-btn" style="max-width:260px;" onclick="devOpen()">Passer en mode dev</button>
       <div class="dev-pptest">
-        <span>🧪 Tester un vrai paiement PayPal</span>
+        <span>🧪 Tester un vrai paiement (Cryptomus)</span>
         <div class="dev-pptest-row">
-          <input id="ppTestAmt" type="number" min="0.10" max="5" step="0.10" value="0.10" />
+          <input id="ppTestAmt" type="number" min="1" max="50" step="1" value="1" />
           <span class="ppt-cur">$</span>
           <button onclick="paypalTest()">Payer (test)</button>
         </div>
-        <small>Petit montant réel pour vérifier que l'argent arrive. Tu pourras te rembourser depuis PayPal.</small>
+        <small>Petit montant réel (payable en crypto) pour vérifier que l'argent arrive sur ton wallet.</small>
       </div>
     </div>
 
@@ -2904,71 +2905,25 @@
       <h3 style="font-size:1.5rem;margin-bottom:6px;text-align:center;">Choisis ton plan</h3>
       <p style="color:var(--muted);font-size:.9rem;margin-bottom:6px;line-height:1.5;text-align:center;">Plus de comptes, d'idées, de scripts et d'outils pour faire décoller tes vidéos.</p>
 
-      <div style="text-align:center;">
-        <div class="sk-billing">
-          <button class="sk-bt active" data-period="monthly" onclick="setBilling('monthly')">Mensuel</button>
-          <button class="sk-bt" data-period="annual" onclick="setBilling('annual')">Annuel <span class="sk-save">2 mois offerts</span></button>
-        </div>
-      </div>
-
-      <div class="sk-card popular" data-plan="growth">
-        <div class="sk-badge pop">⚡ Le plus choisi</div>
-        <div class="sk-name">Growth</div>
-        <div class="sk-tagline">Pour grandir vite</div>
-        <div class="sk-price" data-monthly="49" data-annual="490"><sup>$</sup><span class="sk-val">49</span></div>
+      <div class="sk-card popular" data-plan="pro" style="margin-top:6px;">
+        <div class="sk-badge pop">✨ Accès complet</div>
+        <div class="sk-name">Pro</div>
+        <div class="sk-tagline">Tout Skillora, sans limite de plan</div>
+        <div class="sk-price"><sup>$</sup><span class="sk-val">30</span></div>
         <div class="sk-period"><span class="sk-period-text">par mois</span></div>
         <ul class="sk-feats">
-          <li><span class="ck">✓</span><span class="ft">Profils de niche<b class="sk-dyn" data-monthly="5" data-annual="10">5</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Comptes connectés<b class="sk-dyn" data-monthly="3" data-annual="6">3</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Scripts (Studio)<b class="sk-dyn" data-monthly="15 / jour" data-annual="400 / mois">15 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Idées de vidéos<b class="sk-dyn" data-monthly="8 / jour" data-annual="16 / jour">8 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Publications<b class="sk-dyn" data-monthly="4 / jour" data-annual="8 / jour">4 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Publication multi-plateformes<b>✓</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Copie de vidéos virales (plans + prompts)<b>✓</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Scripts viraux (Studio)<b>20 / jour</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Idées de vidéos<b>10 / jour</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Comptes connectés<b>3</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Profils de niche<b>10</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Publication multi-plateformes<b>6 / jour</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Analyse de tes concurrents<b>5 / mois</b></span></li>
           <li><span class="ck">✓</span><span class="ft">Suivi de croissance<b>✓</b></span></li>
           <li><span class="ck">✓</span><span class="ft">Support prioritaire<b>✓</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Analyse de concurrents<b class="sk-dyn" data-monthly="—" data-annual="3 / mois">—</b></span></li>
-          <li class="off"><span class="cx">✗</span><span class="ft">Coach perso<b>—</b></span></li>
         </ul>
-        <button class="sk-btn sk-btn-filled" onclick="choosePlan('growth')">Choisir Growth</button>
-      </div>
-
-      <div class="sk-card" data-plan="starter">
-        <div class="sk-name">Starter</div>
-        <div class="sk-tagline">Pour démarrer</div>
-        <div class="sk-price" data-monthly="25" data-annual="250"><sup>$</sup><span class="sk-val">25</span></div>
-        <div class="sk-period"><span class="sk-period-text">par mois</span></div>
-        <ul class="sk-feats">
-          <li><span class="ck">✓</span><span class="ft">Profils de niche<b class="sk-dyn" data-monthly="2" data-annual="6">2</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Comptes connectés<b class="sk-dyn" data-monthly="1" data-annual="2">1</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Scripts (Studio)<b class="sk-dyn" data-monthly="8 / jour" data-annual="200 / mois">8 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Idées de vidéos<b class="sk-dyn" data-monthly="4 / jour" data-annual="8 / jour">4 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Publications<b class="sk-dyn" data-monthly="1 / jour" data-annual="2 / jour">1 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Blueprint de production<b>✓</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Email d'idées quotidien<b>✓</b></span></li>
-          <li class="off"><span class="cx">✗</span><span class="ft">Analyse de concurrents<b>—</b></span></li>
-          <li class="off"><span class="cx">✗</span><span class="ft">Coach perso<b>—</b></span></li>
-        </ul>
-        <button class="sk-btn sk-btn-outline" onclick="choosePlan('starter')">Choisir Starter</button>
-      </div>
-
-      <div class="sk-card elite" data-plan="elite">
-        <div class="sk-badge elt">👑 Maximum</div>
-        <div class="sk-name">Elite</div>
-        <div class="sk-tagline">Pros, agences & clippers</div>
-        <div class="sk-price" data-monthly="89" data-annual="890"><sup>$</sup><span class="sk-val">89</span></div>
-        <div class="sk-period"><span class="sk-period-text">par mois</span></div>
-        <ul class="sk-feats">
-          <li><span class="ck">✓</span><span class="ft">Profils de niche<b class="sk-dyn" data-monthly="20" data-annual="Illimités">20</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Comptes connectés<b class="sk-dyn" data-monthly="8" data-annual="12">8</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Scripts (Studio)<b class="sk-dyn" data-monthly="28 / jour" data-annual="700 / mois">28 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Idées de vidéos<b class="sk-dyn" data-monthly="15 / jour" data-annual="20 / jour">15 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Publications<b class="sk-dyn" data-monthly="12 / jour" data-annual="15 / jour">12 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Analyse de tes concurrents<b class="sk-dyn" data-monthly="15 / mois" data-annual="30 / mois">15 / mois</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Coach perso (message privé)<b class="sk-dyn" data-monthly="5 / mois" data-annual="10 / mois">5 / mois</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Communauté VIP<b>✓</b></span></li>
-          <li class="hl"><span class="ck">🎁</span><span class="ft">1er mois 100% illimité<b class="sk-dyn" data-monthly="Avec l'annuel" data-annual="✓ Offert">Avec l'annuel</b></span></li>
-        </ul>
-        <button class="sk-btn sk-btn-outline" onclick="choosePlan('elite')">Choisir Elite</button>
+        <button class="sk-btn sk-btn-filled" onclick="choosePlan('pro')">Payer 30 $ / mois</button>
+        <div class="sk-pay-note">💳 Carte bancaire ou crypto · via Cryptomus</div>
       </div>
 
       <button class="btn-later" onclick="closeUpgrade()">Plus tard</button>
@@ -3160,6 +3115,7 @@
     if (refIn) refIn.value = (location.origin || 'https://skillora.me') + '/signup.html?ref=' + user.id;
     recordReferral(user);
     paypalReturnCheck();
+    cryptomusReturnCheck();
     loadReferralStats();
     checkOnboarding(user);
     loadHomeDashboard();
@@ -3331,7 +3287,7 @@
   // Paiements : OFF pour l'instant (ni Stripe ni Whop). Mettre true pour activer.
   var PAYMENTS_ON = false;
   // Fournisseur quand PAYMENTS_ON = true : 'create-checkout' = Stripe, 'whop-checkout' = Whop.
-  var CHECKOUT_FN = 'paypal-checkout';  // PayPal (carte + compte) par redirection
+  var CHECKOUT_FN = 'cryptomus-checkout';  // Cryptomus (carte + crypto) par redirection
 
   async function verifyWhopReturn() {
     // Stripe : le webhook met la base à jour -> on recharge simplement le plan.
@@ -5847,7 +5803,7 @@
   let userPlan = 'starter';
   let userCycle = 'monthly';        // 'monthly' | 'annual' (depuis subscriptions.billing)
   let userSubStart = null;          // Date de debut d'abonnement (subscriptions.created_at)
-  const PLAN_NAMES = { starter: 'Starter', growth: 'Growth', elite: 'Elite' };
+  const PLAN_NAMES = { starter: 'Starter', growth: 'Growth', elite: 'Elite', pro: 'Pro' };
 
   /* ===== Grille de limites par plan ET par cycle =====
      scriptsDay  : quota de scripts / jour   (plans mensuels)
@@ -5855,6 +5811,10 @@
      Tout est calibre pour garder >=90% de marge sur les scripts (cout ~1c/script).
      Elite Annuel : le 1er mois TOUT est illimite (voir curLimits()). */
   const PLAN_GRID = {
+    pro: {
+      monthly: { profiles:10, accounts:3, scriptsDay:20, scriptsMonth:null, ideasDay:10, pubDay:6, pubMonth:200, competitorsMonth:5, coachMonth:0 },
+      annual:  { profiles:10, accounts:3, scriptsDay:20, scriptsMonth:null, ideasDay:10, pubDay:6, pubMonth:200, competitorsMonth:5, coachMonth:0 }
+    },
     starter: {
       monthly: { profiles:2,  accounts:1,  scriptsDay:8,   scriptsMonth:null, ideasDay:4,  pubDay:1,  pubMonth:60,  competitorsMonth:0,  coachMonth:0 },
       annual:  { profiles:6,  accounts:1,  scriptsDay:null, scriptsMonth:200, ideasDay:8,  pubDay:2,  pubMonth:60,  competitorsMonth:0,  coachMonth:0 }
@@ -6291,20 +6251,42 @@
   }
 
   // Choix d'un plan : lance le paiement via CHECKOUT_FN (Stripe, ou Whop une fois réactivé).
+  // Retour de Cryptomus : le webhook active l'abonnement côté serveur ;
+  // ici on rafraîchit et on informe (poll quelques secondes).
+  function cryptomusReturnCheck() {
+    try {
+      var q = new URLSearchParams(location.search);
+      if (!q.get('cmreturn')) return;
+      history.replaceState({}, '', 'app.html');
+      skModal({ icon:'⏳', title:'Paiement en validation…', message:'On confirme ton paiement, ça prend quelques secondes.', cancelText:'OK' });
+      var tries = 0, before = userPlan;
+      var iv = setInterval(async function(){
+        tries++;
+        try { await loadUserPlan(); } catch(e){}
+        if (userPlan && userPlan !== 'starter' && userPlan !== before) {
+          clearInterval(iv);
+          skModal({ icon:'🎉', title:'Bienvenue en Pro !', message:'Ton abonnement est actif. Merci 🙏', cancelText:'Super !' });
+        } else if (tries >= 12) {
+          clearInterval(iv);
+        }
+      }, 4000);
+    } catch(e){}
+  }
+
   // Retour de PayPal : ?paypalcap=1&token=ORDERID -> on capture et on active
   async function paypalTest(){
-    var amt = parseFloat((document.getElementById('ppTestAmt')||{}).value) || 0.10;
+    var amt = parseFloat((document.getElementById('ppTestAmt')||{}).value) || 1;
     try {
       var sess = await sb.auth.getSession();
       if (!sess.data.session) { window.location.href='signup.html'; return; }
-      var res = await fetch(SB_URL + '/functions/v1/paypal-checkout', {
+      var res = await fetch(SB_URL + '/functions/v1/cryptomus-checkout', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+sess.data.session.access_token, 'apikey':SB_KEY },
         body: JSON.stringify({ test:true, amount: amt })
       });
       var d = await res.json();
       if (d.success && d.url) { window.location.href = d.url; }
-      else { skModal({ icon:'⚠️', title:'Test impossible', message:(d.error||'PayPal pas encore configuré (clés manquantes).'), cancelText:'OK' }); }
+      else { skModal({ icon:'⚠️', title:'Test impossible', message:(d.error||'Cryptomus pas encore configuré (clés manquantes).'), cancelText:'OK' }); }
     } catch(e){ skModal({ icon:'⚠️', title:'Erreur', message:String(e.message||e), cancelText:'OK' }); }
   }
   async function paypalReturnCheck() {

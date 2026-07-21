@@ -52,7 +52,11 @@ serve(async (req) => {
     // Deux modes : "blueprint" (analyse/plan, quasi gratuit) ou "generate"
     // (génération complète, coûteux). Par défaut : blueprint.
     const mode = body.blueprint === false ? "generate" : "blueprint";
-    const context = { mode, idea, source_url: sourceUrl, variation: !!body.variation };
+    const vo = body.variation_opts && typeof body.variation_opts === "object" ? {
+      lang: typeof body.variation_opts.lang === "string" ? body.variation_opts.lang.slice(0, 20) : null,
+      changes: Array.isArray(body.variation_opts.changes) ? body.variation_opts.changes.filter((x) => typeof x === "string").slice(0, 6) : [],
+    } : null;
+    const context = { mode, idea, source_url: sourceUrl, variation: !!body.variation, variation_opts: vo };
     const { data: job, error } = await admin.from("video_jobs").insert({
       user_id: userId,
       source_url: sourceUrl || "generate://idea",

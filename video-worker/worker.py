@@ -5446,7 +5446,36 @@ def generate_video_job(job, work, steps):
     return url
 
 
-def gen_blueprint(idea, source_url=None, source_path=None, variation=False):
+def _variation_charter(opts):
+    """Consignes de variation choisies par le client (questions posées dans l'app)."""
+    opts = opts if isinstance(opts, dict) else {}
+    changes = opts.get("changes") or []
+    lines = ["MODE VARIATION : le client veut S'INSPIRER, pas copier à "
+             "l'identique. Garde l'histoire et l'identité des personnages. "
+             "Ses choix précis :"]
+    if "lang" in changes and opts.get("lang"):
+        lines.append("- LANGUE : toute la vidéo (script, dialogues, textes à "
+                     "l'écran) doit être en %s. Les répliques entre guillemets "
+                     "dans les prompts sont dans cette langue." % opts["lang"])
+    if "decor" in changes:
+        lines.append("- DÉCOR : change le lieu/arrière-plan (autre ambiance, "
+                     "autre environnement) en gardant la même histoire — décris "
+                     "le nouveau décor dans chaque image_prompt.")
+    if "style" in changes:
+        lines.append("- STYLE DES PERSONNAGES : change vêtements/couleurs/"
+                     "accessoires (mais garde leur espèce, leur rôle et leurs "
+                     "émotions) — décris le nouveau look partout, MOT POUR MOT "
+                     "identique d'un plan à l'autre.")
+    if "hook" in changes:
+        lines.append("- ACCROCHE : propose un DÉBUT différent et plus fort que "
+                     "l'original (autre première scène), le reste suit.")
+    if len(lines) == 1:
+        lines.append("- change des détails visibles (décor, couleurs, petits "
+                     "objets) et DIS ces changements dans les prompts.")
+    return "\n".join(lines) + "\n\n"
+
+
+def gen_blueprint(idea, source_url=None, source_path=None, variation=False, variation_opts=None):
     """« COPIE » — analyse une vidéo (ou une idée) et rend un PLAN étape par
     étape : NOTES, PERSONNAGES verrouillés, OUTILS par tâche (avec les bons
     modèles), et pour CHAQUE plan deux prompts (image puis animation) dans la
@@ -5619,11 +5648,7 @@ def gen_blueprint(idea, source_url=None, source_path=None, variation=False):
         "personnages bien cadrés, image NETTE et STABLE — jamais pendant une "
         "transition, un mouvement rapide ou un flou. On en extraira une CAPTURE "
         "qui servira d'image de référence au créateur.\n\n"
-        + ("MODE VARIATION : le client veut S'INSPIRER, pas copier à "
-           "l'identique. Garde les personnages, l'histoire et le style, mais "
-           "CHANGE des détails visibles (arrière-plan/décor, couleurs ou "
-           "vêtements, petits objets) et DIS ces changements dans les "
-           "prompts.\n\n" if variation else "")
+        + (_variation_charter(variation_opts) if variation else "")
         +         "RENDS UNIQUEMENT ce JSON (aucun texte autour) :\n"
         "{\n"
         "  \"titre\": \"titre court\",\n"
@@ -5792,6 +5817,7 @@ def generate_blueprint_job(job, steps):
     context = job.get("context") or {}
     idea = str(context.get("idea") or "").strip()
     variation = bool(context.get("variation"))
+    variation_opts = context.get("variation_opts") if isinstance(context.get("variation_opts"), dict) else None
     source_url = (str(context.get("source_url") or "").strip()
                   or str(job.get("source_url") or "").strip() or None)
     if source_url and source_url.startswith("generate://"):
@@ -5814,7 +5840,7 @@ def generate_blueprint_job(job, steps):
                 steps.done("dl", "lien direct")
         steps.start("bp", "Analyse de la vidéo & rédaction du plan…")
         guide = gen_blueprint(idea, source_url=source_url, source_path=local,
-                              variation=variation)
+                              variation=variation, variation_opts=variation_opts)
         if not guide:
             raise RuntimeError("Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
         steps.done("bp", "%d plans" % len(guide.get("plans") or []))

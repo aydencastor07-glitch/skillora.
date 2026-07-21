@@ -2179,6 +2179,23 @@
       .dev-mem{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;flex-wrap:wrap;}
       .dev-mem:last-child{border-bottom:none;}
       .dev-mem .m-src{color:#7ee2a0;font-size:.72rem;}
+      /* ── Variations : questions ──────────────────────────────── */
+      #genVarOpts{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+      #genVarOpts.open{max-height:320px;}
+      .gvo-q{font-size:.78rem;font-weight:700;color:#cfe0ff;margin:13px 0 8px;}
+      .gvo-chips{display:flex;gap:7px;flex-wrap:wrap;}
+      .gvo-chips button{padding:9px 14px;border-radius:999px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Sora',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;}
+      .gvo-chips button.on{background:rgba(47,123,255,.18);border-color:#4d8fff;color:#fff;}
+      #gvoLang{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+      #gvoLang.open{max-height:130px;}
+      /* ── Attente : % + HUD + flottement ──────────────────────── */
+      .gw-top{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-bottom:10px;}
+      .gw-top b{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:800;color:#7eb0ff;font-variant-numeric:tabular-nums;}
+      .gw-status{margin-bottom:0!important;}
+      .bp-scan{animation:scFloat 3.4s ease-in-out infinite;}
+      @keyframes scFloat{0%,100%{transform:translateY(0);box-shadow:0 12px 40px rgba(47,123,255,.18)}50%{transform:translateY(-7px);box-shadow:0 24px 54px rgba(47,123,255,.30)}}
+      .scan-hud{position:absolute;z-index:2;padding:5px 9px;border-radius:8px;background:rgba(8,12,24,.82);border:1px solid rgba(110,168,255,.45);color:#cfe0ff;font-size:.62rem;font-weight:700;white-space:nowrap;animation:hudPop 2.6s ease forwards;backdrop-filter:blur(3px);}
+      @keyframes hudPop{0%{opacity:0;transform:scale(.7)}12%{opacity:1;transform:scale(1.04)}18%{transform:scale(1)}82%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
       /* ── Montage : schéma connecté ───────────────────────────── */
       .mtmap{padding:2px 0;}
       .mtn{position:relative;display:flex;gap:12px;padding:8px 0;}
@@ -2327,14 +2344,32 @@
           <button type="button" class="active" data-v="0" onclick="genSetVar(0)">Copie exacte</button>
           <button type="button" data-v="1" onclick="genSetVar(1)">Avec variations</button>
         </div>
+        <div id="genVarOpts">
+          <div class="gvo-q">Qu'est-ce qu'on change ?</div>
+          <div class="gvo-chips">
+            <button type="button" data-k="lang" onclick="gvoToggle(this)">La langue</button>
+            <button type="button" data-k="decor" onclick="gvoToggle(this)">Le décor</button>
+            <button type="button" data-k="style" onclick="gvoToggle(this)">Le style des personnages</button>
+            <button type="button" data-k="hook" onclick="gvoToggle(this)">L'accroche</button>
+          </div>
+          <div id="gvoLang">
+            <div class="gvo-q">Vers quelle langue ?</div>
+            <div class="gvo-chips">
+              <button type="button" data-l="français" onclick="gvoLang(this)">Français</button>
+              <button type="button" data-l="anglais" onclick="gvoLang(this)">English</button>
+              <button type="button" data-l="espagnol" onclick="gvoLang(this)">Español</button>
+              <button type="button" data-l="portugais" onclick="gvoLang(this)">Português</button>
+            </div>
+          </div>
+        </div>
         <button class="imp-btn" id="genGo" onclick="genStart()">Obtenir le plan exact</button>
         <p class="imp-note" id="genNote" style="display:none;"></p>
       </div>
       <div id="genProgress" style="display:none;">
         <div id="genScan"></div>
         <div class="gen-wait">
+          <div class="gw-top"><b id="gwPct">0%</b><span class="gw-status" id="gwStatus">Je démarre…</span></div>
           <div class="gw-bar"><i id="gwFill"></i></div>
-          <div class="gw-status" id="gwStatus">Je démarre…</div>
           <div class="gw-tip" id="gwTip"></div>
         </div>
       </div>
@@ -9259,7 +9294,18 @@
   /* ── GÉNÉRATEUR IA (« Copier une vidéo ») — job créé via video-generate, traité par le video-worker ── */
   var genJobId = null, genTimer = null, genUrl = null, genMode = 'upload', genFile = null, genPrevUrl = null;
   var genVarMode = 0;
-  function genSetVar(v){genVarMode=v;var el=document.getElementById('genVar');if(el)Array.prototype.forEach.call(el.querySelectorAll('button'),function(b){b.classList.toggle('active',parseInt(b.getAttribute('data-v'),10)===v);});var sl=document.getElementById('gvSlider');if(sl)sl.style.transform='translateX('+(v?'100%':'0')+')';}
+  function genSetVar(v){genVarMode=v;var el=document.getElementById('genVar');if(el)Array.prototype.forEach.call(el.querySelectorAll('button'),function(b){b.classList.toggle('active',parseInt(b.getAttribute('data-v'),10)===v);});var sl=document.getElementById('gvSlider');if(sl)sl.style.transform='translateX('+(v?'100%':'0')+')';var op=document.getElementById('genVarOpts');if(op)op.classList.toggle('open',v===1);}
+  var gvoSel={changes:[],lang:null};
+  function gvoToggle(b){
+    var k=b.getAttribute('data-k'); var i=gvoSel.changes.indexOf(k);
+    if(i<0){gvoSel.changes.push(k);b.classList.add('on');}else{gvoSel.changes.splice(i,1);b.classList.remove('on');}
+    var lr=document.getElementById('gvoLang'); if(lr) lr.classList.toggle('open', gvoSel.changes.indexOf('lang')>=0);
+    if(gvoSel.changes.indexOf('lang')<0){gvoSel.lang=null;document.querySelectorAll('#gvoLang button').forEach(function(x){x.classList.remove('on');});}
+  }
+  function gvoLang(b){
+    gvoSel.lang=b.getAttribute('data-l');
+    document.querySelectorAll('#gvoLang button').forEach(function(x){x.classList.toggle('on',x===b);});
+  }
 
   // Miniature + animation « scan » pendant l'analyse
   function genShowScan(link){
@@ -9305,14 +9351,36 @@
     '🎯 Copie l\'esprit, pas le pixel : change un détail pour te démarquer.',
     '📈 Publie à l\'heure où TON audience est réveillée, pas la tienne.'
   ];
-  var gwTipTimer=null, gwTipIdx=0;
+  var gwTipTimer=null, gwTipIdx=0, scanHudTimer=null;
+  var SCAN_HUD=['Personnages repérés','Découpage des scènes','Lecture du script','Analyse du rythme','Repérage des sons','Angles caméra notés','Émotions détectées'];
+  function scanHudStart(){
+    var card=document.querySelector('.bp-scan'); if(!card) return;
+    var i=0;
+    if(scanHudTimer) clearInterval(scanHudTimer);
+    scanHudTimer=setInterval(function(){
+      var c=document.querySelector('.bp-scan'); if(!c) return;
+      var b=document.createElement('span'); b.className='scan-hud';
+      b.textContent=SCAN_HUD[i%SCAN_HUD.length]; i++;
+      b.style.top=(12+Math.random()*62)+'%';
+      b.style.left=(Math.random()<.5?'8px':'auto'); if(b.style.left==='auto')b.style.right='8px';
+      c.appendChild(b);
+      setTimeout(function(){ try{c.removeChild(b);}catch(e){} },2600);
+    },2200);
+  }
+  function scanHudStop(){ if(scanHudTimer){clearInterval(scanHudTimer);scanHudTimer=null;} }
   function gwStartTips(){
     var el=document.getElementById('gwTip'); if(!el) return;
     gwTipIdx=Math.floor(Math.random()*GEN_TIPS.length);
     function show(){ el.classList.remove('vis'); setTimeout(function(){ el.innerHTML=GEN_TIPS[gwTipIdx%GEN_TIPS.length]; gwTipIdx++; el.classList.add('vis'); },350); }
     show(); if(gwTipTimer) clearInterval(gwTipTimer); gwTipTimer=setInterval(show,5200);
   }
-  function gwStopTips(){ if(gwTipTimer){clearInterval(gwTipTimer);gwTipTimer=null;} }
+  function gwStopTips(){ if(gwTipTimer){clearInterval(gwTipTimer);gwTipTimer=null;} scanHudStop(); if(gwRaf){cancelAnimationFrame(gwRaf);gwRaf=null;} gwShown=0; window._gwTarget=0; }
+  var gwShown=0, gwRaf=null;
+  function gwTick(){
+    var t=window._gwTarget||0;
+    if(gwShown<t){ gwShown=Math.min(t,gwShown+Math.max(.2,(t-gwShown)*.06)); var p=document.getElementById('gwPct'); if(p)p.textContent=Math.round(gwShown)+'%'; }
+    gwRaf=requestAnimationFrame(gwTick);
+  }
   function gwUpdate(steps){
     var fill=document.getElementById('gwFill'), st=document.getElementById('gwStatus');
     if(!fill||!st) return;
@@ -9320,6 +9388,8 @@
     var label='⚡ C\'est parti…', pct=10;
     (steps||[]).forEach(function(x){ var mp=MAP[x.key]; if(!mp) return; if(x.state==='running'){label=mp[0];pct=mp[1];} else if(x.state==='done'){ if(mp[1]+8>pct){pct=mp[1]+8;} } });
     fill.style.width=Math.min(96,pct)+'%'; st.textContent=label;
+    window._gwTarget=Math.min(96,pct);
+    if(!gwRaf) gwTick();
   }
 
   function genPickFile(input) {
@@ -9359,6 +9429,8 @@
     genMode = genFile ? 'upload' : 'link';
     if (!genFile && !link) { skModal({ icon: '🔗', title: 'Il me faut la vidéo', message: 'Colle le lien d\'une vidéo virale, ou importe ton fichier.', cancelText: 'OK' }); return; }
     if (!genFile && !/^https?:\/\//i.test(link)) { skModal({ icon: '🔗', title: 'Lien invalide', message: 'Le lien doit commencer par http(s)://', cancelText: 'OK' }); return; }
+    if (genVarMode===1 && !gvoSel.changes.length) { skModal({ icon: '✨', title: 'Choisis tes variations', message: 'Dis-moi ce qu\'on change : la langue, le décor, le style ou l\'accroche.', cancelText: 'OK' }); return; }
+    if (genVarMode===1 && gvoSel.changes.indexOf('lang')>=0 && !gvoSel.lang) { skModal({ icon: '🌍', title: 'Quelle langue ?', message: 'Choisis la langue de ta version.', cancelText: 'OK' }); return; }
     var btn = document.getElementById('genGo'); btn.disabled = true; btn.textContent = 'Envoi…';
     try {
       var sess = await sb.auth.getSession();
@@ -9378,7 +9450,7 @@
       var res = await fetch(SB_URL + '/functions/v1/video-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SB_KEY },
-        body: JSON.stringify(Object.assign({variation: genVarMode===1}, payload))
+        body: JSON.stringify(Object.assign({variation: genVarMode===1, variation_opts: (genVarMode===1?gvoSel:null)}, payload))
       });
       var data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || ('Erreur ' + res.status));
@@ -9387,7 +9459,7 @@
       document.getElementById('genProgress').style.display = 'block';
       genFocus(true);
       genShowScan(genMode === 'link' ? link : null);
-      gwStartTips();
+      gwStartTips(); scanHudStart();
       genPoll();
       genTimer = setInterval(genPoll, 3000);
     } catch (e) {

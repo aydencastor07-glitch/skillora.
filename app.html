@@ -2179,6 +2179,17 @@
       .dev-mem{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;flex-wrap:wrap;}
       .dev-mem:last-child{border-bottom:none;}
       .dev-mem .m-src{color:#7ee2a0;font-size:.72rem;}
+      /* ── Script : édition / versions IA ──────────────────────── */
+      .scr-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+      .scr-b{padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:#dfe7f5;font-family:'Sora',sans-serif;font-size:.76rem;font-weight:700;cursor:pointer;}
+      .scr-b.scr-ia{background:var(--blue);border-color:transparent;color:#fff;}
+      .scr-ta{width:100%;min-height:170px;padding:12px;border-radius:12px;border:1.5px solid var(--border2);background:rgba(12,18,36,.8);color:#e7edf9;font-family:inherit;font-size:.82rem;line-height:1.55;resize:vertical;}
+      .scr-in{width:100%;margin-top:10px;padding:11px 13px;border-radius:11px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-size:.82rem;font-family:inherit;}
+      .scv{border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(255,255,255,.03);margin-top:10px;overflow:hidden;}
+      .scv-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);}
+      .scv-h b{font-size:.8rem;}
+      .scv-use{padding:6px 13px;border-radius:9px;background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;cursor:pointer;flex-shrink:0;}
+      .scv-t{padding:10px 12px;font-size:.75rem;color:#b8c4dc;line-height:1.5;max-height:130px;overflow-y:auto;white-space:pre-wrap;}
       /* ── Variations : questions ──────────────────────────────── */
       #genVarOpts{max-height:0;overflow:hidden;transition:max-height .35s ease;}
       #genVarOpts.open{max-height:320px;}
@@ -9180,7 +9191,7 @@
     h+='<div class="bp2-hr"></div>';
     (bp.plans||[]).forEach(function(pl,i){ h+=genStepHtml(i); });
     h+='<div class="bp2-hr"></div>';
-    if(bp.script) h+='<details class="bpfold bpf2" id="bpfScript"><summary>Le script complet</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div></details>';
+    if(bp.script) h+='<details class="bpfold bpf2" id="bpfScript"><summary>Le script complet</summary><div class="bpfold-body"><div id="scrBody"><div class="bpg-txt" id="scrTxt">'+genEsc(bp.script)+'</div><div class="scr-actions">'+genCopyBtn(bp.script,'Copier le script')+'<button class="scr-b" onclick="scrEditSelf()">Modifier moi-même</button><button class="scr-b scr-ia" onclick="scrAiOpen()">Améliorer avec l\'IA</button></div></div><div id="scrPanel"></div></div></details>';
     var mont=genMontageMap(bp.montage||{}, o.montage_note);
     if(mont) h+='<details class="bpfold bpf2" id="bpfMont"><summary>Montage — CapCut</summary><div class="bpfold-body">'+mont+'</div></details>';
     if(o.voix_off&&o.voix_conseillee) h+='<details class="bpfold bpf2" id="bpfVoix"><summary>Voix off — ElevenLabs</summary><div class="bpfold-body"><div class="sh-row">'+genEsc(o.voix_conseillee)+'</div></div></details>';
@@ -9227,6 +9238,56 @@
       });
     });
   }
+  // ── Script : modifier soi-même ou avec l'IA (3 versions) ──
+  var scrGoal=null;
+  function scrEditSelf(){
+    var bp=window._bp||{}; var p=document.getElementById('scrPanel'); if(!p) return;
+    document.getElementById('scrBody').style.display='none';
+    p.innerHTML='<textarea class="scr-ta" id="scrTa">'+genEsc(bp.script||'')+'</textarea>'+
+      '<div class="scr-actions"><button class="scr-b scr-ia" onclick="scrSaveSelf()">Enregistrer</button><button class="scr-b" onclick="scrCancel()">Annuler</button></div>';
+  }
+  function scrCancel(){ var p=document.getElementById('scrPanel'); if(p)p.innerHTML=''; var b=document.getElementById('scrBody'); if(b)b.style.display=''; }
+  function scrApply(txt){
+    var bp=window._bp||{}; bp.script=txt;
+    try{ if(genJobId) sb.from('video_jobs').update({plan:{blueprint:bp}}).eq('id',genJobId).then(function(){}); }catch(e){}
+    var gr=document.getElementById('genResult'); if(gr){ gr.innerHTML=genRenderGuide(bp); var d=document.getElementById('bpfScript'); if(d)d.open=true; }
+  }
+  function scrSaveSelf(){ var ta=document.getElementById('scrTa'); if(ta) scrApply(ta.value.trim()); }
+  function scrAiOpen(){
+    var p=document.getElementById('scrPanel'); if(!p) return; scrGoal=null;
+    document.getElementById('scrBody').style.display='none';
+    p.innerHTML='<div class="gvo-q">Qu\'est-ce qu\'on change dans le script ?</div>'+
+      '<div class="gvo-chips" id="scrChips">'+
+      ['Plus percutant','Plus drôle','Plus court','Adapter à ma niche'].map(function(g){return '<button type="button" onclick="scrPick(this)">'+g+'</button>';}).join('')+'</div>'+
+      '<input class="scr-in" id="scrDetails" maxlength="300" placeholder="Précise si tu veux (ex : parle de ma boutique de sneakers)"/>'+
+      '<div class="scr-actions"><button class="scr-b scr-ia" id="scrGoBtn" onclick="scrAiGo()">Générer 3 versions</button><button class="scr-b" onclick="scrCancel()">Annuler</button></div>'+
+      '<div id="scrOut"></div>';
+  }
+  function scrPick(b){
+    scrGoal=b.textContent;
+    document.querySelectorAll('#scrChips button').forEach(function(x){x.classList.toggle('on',x===b);});
+  }
+  async function scrAiGo(){
+    var bp=window._bp||{}; var det=(document.getElementById('scrDetails')||{}).value||'';
+    if(!scrGoal && !det.trim()){ skModal({icon:'✍️',title:'Dis-m\'en plus',message:'Choisis un objectif ou précise ce que tu veux changer.',cancelText:'OK'}); return; }
+    var btn=document.getElementById('scrGoBtn'); btn.disabled=true; btn.textContent='L\'IA écrit…';
+    try{
+      var sess=await sb.auth.getSession();
+      var r=await fetch(SB_URL+'/functions/v1/script-variants',{method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.data.session.access_token,'apikey':SB_KEY},
+        body:JSON.stringify({script:bp.script||'',goal:scrGoal||'',details:det.trim()})});
+      var d=await r.json();
+      if(!d.success) throw new Error(d.error||'Erreur');
+      var out=document.getElementById('scrOut');
+      out.innerHTML=d.versions.map(function(v,i){
+        window._bpClip=window._bpClip||{}; var id='scv'+i; window._bpClip[id]=v.script;
+        return '<div class="scv"><div class="scv-h"><b>'+genEsc(v.titre)+'</b><span class="scv-use" onclick="scrUse('+i+')">Utiliser</span></div><div class="scv-t">'+genEsc(v.script)+'</div></div>';
+      }).join('');
+      window._scrVersions=d.versions;
+    }catch(e){ skModal({icon:'⚠️',title:'Impossible',message:String(e.message||e),cancelText:'OK'}); }
+    btn.disabled=false; btn.textContent='Générer 3 versions';
+  }
+  function scrUse(i){ var v=(window._scrVersions||[])[i]; if(v) scrApply(v.script); }
   function genStatSvg(k){
     var p={eye:'M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
            heart:'M12 20.8 4.9 13.7a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8z',

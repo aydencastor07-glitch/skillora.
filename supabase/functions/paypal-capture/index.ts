@@ -63,6 +63,10 @@ serve(async (req) => {
     const custom = pu.custom_id || (pu.payments?.captures?.[0]?.custom_id) || "";
     const [cuid, plan, billing] = String(custom).split("|");
     if (cuid !== uid || !plan) return json({ success: false, error: "Paiement non reconnu." }, 400);
+    const paid = pu.amount?.value || pu.payments?.captures?.[0]?.amount?.value || "";
+    if (plan === "test") {
+      return json({ success: true, test: true, amount: paid });
+    }
 
     // Fin de période : +1 mois ou +1 an
     const now = new Date();

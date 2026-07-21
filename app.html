@@ -2142,6 +2142,13 @@
       .bptool{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:999px;padding:5px 11px 5px 6px;font-size:.76rem;font-weight:600;color:#e7ecf7;text-transform:none;letter-spacing:0;}
       .bptool .tdot{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:.72rem;font-weight:800;}
       .pl-row{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:5px;}
+      .dev-pptest{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+      .dev-pptest>span{font-size:.82rem;font-weight:700;color:#dfe7f5;}
+      .dev-pptest-row{display:flex;align-items:center;gap:8px;margin:9px 0 6px;}
+      .dev-pptest-row input{width:90px;padding:9px 11px;border-radius:10px;border:1.5px solid var(--border);background:rgba(255,255,255,.05);color:#fff;font-size:.9rem;}
+      .dev-pptest-row .ppt-cur{color:var(--muted);font-weight:700;}
+      .dev-pptest-row button{padding:9px 16px;border-radius:10px;border:none;background:#ffc439;color:#111;font-weight:800;font-size:.82rem;cursor:pointer;}
+      .dev-pptest small{color:var(--muted);font-size:.72rem;line-height:1.4;display:block;}
       /* ── Mode dev (propriétaire) ─────────────────────────────── */
       .dev-card{border:1.5px solid rgba(255,193,7,.35);background:linear-gradient(135deg,rgba(255,193,7,.07),rgba(255,255,255,.02));}
       #devPanel{position:fixed;inset:0;z-index:1200;background:#0a0f1c;overflow-y:auto;display:none;}
@@ -2554,6 +2561,15 @@
       <h3 style="font-size:1rem;">🛠️ Espace propriétaire</h3>
       <p style="color:var(--muted);font-size:.83rem;margin:6px 0 12px;">Dashboard business : membres, revenus, canaux marketing. Visible seulement sur ton compte.</p>
       <button class="imp-btn" style="max-width:260px;" onclick="devOpen()">Passer en mode dev</button>
+      <div class="dev-pptest">
+        <span>🧪 Tester un vrai paiement PayPal</span>
+        <div class="dev-pptest-row">
+          <input id="ppTestAmt" type="number" min="0.10" max="5" step="0.10" value="0.10" />
+          <span class="ppt-cur">$</span>
+          <button onclick="paypalTest()">Payer (test)</button>
+        </div>
+        <small>Petit montant réel pour vérifier que l'argent arrive. Tu pourras te rembourser depuis PayPal.</small>
+      </div>
     </div>
 
     <!-- Abonnement -->
@@ -6276,6 +6292,21 @@
 
   // Choix d'un plan : lance le paiement via CHECKOUT_FN (Stripe, ou Whop une fois réactivé).
   // Retour de PayPal : ?paypalcap=1&token=ORDERID -> on capture et on active
+  async function paypalTest(){
+    var amt = parseFloat((document.getElementById('ppTestAmt')||{}).value) || 0.10;
+    try {
+      var sess = await sb.auth.getSession();
+      if (!sess.data.session) { window.location.href='signup.html'; return; }
+      var res = await fetch(SB_URL + '/functions/v1/paypal-checkout', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+sess.data.session.access_token, 'apikey':SB_KEY },
+        body: JSON.stringify({ test:true, amount: amt })
+      });
+      var d = await res.json();
+      if (d.success && d.url) { window.location.href = d.url; }
+      else { skModal({ icon:'⚠️', title:'Test impossible', message:(d.error||'PayPal pas encore configuré (clés manquantes).'), cancelText:'OK' }); }
+    } catch(e){ skModal({ icon:'⚠️', title:'Erreur', message:String(e.message||e), cancelText:'OK' }); }
+  }
   async function paypalReturnCheck() {
     try {
       var q = new URLSearchParams(location.search);
@@ -6293,7 +6324,9 @@
         body: JSON.stringify({ order_id: orderId })
       });
       var d = await res.json();
-      if (d.success) {
+      if (d.success && d.test) {
+        skModal({ icon:'✅', title:'Test réussi !', message:'Paiement de '+(d.amount||'')+' $ bien reçu sur ton PayPal. Le système fonctionne — tu peux te rembourser depuis PayPal.', cancelText:'Parfait' });
+      } else if (d.success) {
         try { await loadUserPlan(); } catch(e){}
         skModal({ icon:'🎉', title:'Bienvenue en '+(d.plan?d.plan.charAt(0).toUpperCase()+d.plan.slice(1):'Premium')+' !', message:'Ton abonnement est actif. Merci 🙏', cancelText:'Super !' });
       } else {

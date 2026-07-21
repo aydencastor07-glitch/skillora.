@@ -44,12 +44,23 @@ serve(async (req) => {
     const { data: u } = await admin.auth.getUser(jwt);
     if (!u?.user) return json({ success: false, error: "Non authentifié." }, 401);
 
+    const OWNERS = ["aydencastor07@gmail.com", "aydencastor1020@gmail.com"];
+    const email = (u.user.email || "").toLowerCase();
     const body = await req.json().catch(() => ({}));
-    const plan = String(body.plan || "").toLowerCase().trim();
-    let billing = String(body.billing || "monthly").toLowerCase().trim();
-    if (billing === "annual") billing = "yearly";
-    const amount = PRICE[billing]?.[plan];
-    if (!amount) return json({ success: false, error: "Plan ou période invalide." }, 400);
+
+    let plan: string, billing: string, amount: number;
+    if (body.test === true) {
+      if (!OWNERS.includes(email)) return json({ success: false, error: "Test réservé au propriétaire." }, 403);
+      plan = "test"; billing = "monthly";
+      amount = Math.min(5, Math.max(0.10, Number(body.amount) || 0.10));
+    } else {
+      plan = String(body.plan || "").toLowerCase().trim();
+      billing = String(body.billing || "monthly").toLowerCase().trim();
+      if (billing === "annual") billing = "yearly";
+      const a = PRICE[billing]?.[plan];
+      if (!a) return json({ success: false, error: "Plan ou période invalide." }, 400);
+      amount = a;
+    }
 
     const at = await token();
     const order = await fetch(apiBase() + "/v2/checkout/orders", {
@@ -60,7 +71,7 @@ serve(async (req) => {
         purchase_units: [{
           amount: { currency_code: "USD", value: amount.toFixed(2) },
           custom_id: u.user.id + "|" + plan + "|" + billing,
-          description: "Skillora " + plan + " (" + (billing === "yearly" ? "annuel" : "mensuel") + ")",
+          description: plan === "test" ? "Skillora — test de paiement" : ("Skillora " + plan + " (" + (billing === "yearly" ? "annuel" : "mensuel") + ")"),
         }],
         application_context: {
           brand_name: "Skillora",

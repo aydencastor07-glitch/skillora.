@@ -2222,24 +2222,22 @@
       .pr2-sites a svg{opacity:.8;}
       .bp2-help{width:30px;height:30px;flex-shrink:0;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.05);color:#9ec2ff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
       .bp2-help svg{width:16px;height:16px;}
-      /* ── Guide première fois ─────────────────────────────────── */
-      #genGuide{position:fixed;inset:0;z-index:1400;background:rgba(6,10,20,.72);backdrop-filter:blur(5px);display:none;align-items:flex-end;justify-content:center;padding:16px;}
-      #genGuide.open{display:flex;animation:ggFade .25s ease;}
-      @keyframes ggFade{from{opacity:0}to{opacity:1}}
-      .gg-card{position:relative;width:100%;max-width:420px;background:linear-gradient(180deg,#141c30,#0d1322);border:1px solid var(--border2);border-radius:22px;padding:26px 22px 20px;box-shadow:0 -10px 50px rgba(0,0,0,.5);animation:ggUp .3s cubic-bezier(.2,.8,.2,1);}
-      @keyframes ggUp{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
-      .gg-x{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.07);color:#aebcd8;font-size:.9rem;cursor:pointer;}
-      .gg-ic{font-size:2.6rem;text-align:center;margin-bottom:12px;animation:ggPop .4s ease;}
-      @keyframes ggPop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
-      .gg-t{font-family:'Fraunces',serif;font-weight:800;font-size:1.3rem;text-align:center;margin-bottom:9px;}
-      .gg-desc{font-size:.87rem;line-height:1.55;text-align:center;color:#c0cbe0;}
-      .gg-desc b{color:#eaf1ff;}
-      .gg-dots{display:flex;justify-content:center;gap:7px;margin:18px 0 16px;}
-      .gg-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .25s;}
-      .gg-dots i.on{background:#4d8fff;width:20px;border-radius:4px;}
-      .gg-nav{display:flex;gap:10px;}
-      .gg-b{flex:1;padding:13px;border-radius:13px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:#dfe7f5;font-family:'Sora',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;}
-      .gg-b.gg-p{background:linear-gradient(135deg,#3b82f6,#6d5ef0);border:none;color:#fff;}
+      /* ── Tour guidé : projecteur + bulle + doigt ─────────────── */
+      #tour{position:fixed;inset:0;z-index:1400;display:none;pointer-events:none;}
+      #tour.open{display:block;}
+      #tour.open::before{content:'';position:fixed;inset:0;pointer-events:auto;}
+      #tourRing{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(6,10,20,.80),0 0 0 2px #5a9bff,0 0 22px 3px rgba(90,155,255,.55);transition:top .35s cubic-bezier(.2,.8,.2,1),left .35s cubic-bezier(.2,.8,.2,1),width .35s,height .35s;pointer-events:none;}
+      #tourFinger{position:fixed;font-size:1.7rem;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.6));animation:tFinger 1s ease-in-out infinite;transition:top .35s,left .35s;z-index:2;}
+      @keyframes tFinger{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+      #tourBubble{position:fixed;pointer-events:auto;background:linear-gradient(180deg,#1b2540,#0f1626);border:1px solid rgba(120,160,255,.35);border-radius:16px;padding:15px 16px 13px;box-shadow:0 16px 44px rgba(0,0,0,.55);transition:top .35s,left .35s;z-index:3;}
+      #tourText{font-size:.9rem;line-height:1.5;color:#eaf1ff;font-weight:600;}
+      #tourText b{color:#9ec2ff;}
+      #tourDots{display:flex;gap:6px;justify-content:center;margin:13px 0 11px;}
+      #tourDots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);transition:all .2s;}
+      #tourDots i.on{background:#5a9bff;width:18px;border-radius:3px;}
+      .tour-nav{display:flex;gap:9px;}
+      .tour-nav button{flex:1;padding:11px;border-radius:11px;font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;border:1px solid var(--border);background:rgba(255,255,255,.05);color:#cfd8e8;}
+      .tour-nav .tour-next{flex:2;border:none;background:linear-gradient(135deg,#3b82f6,#6d5ef0);color:#fff;}
             /* ── Montage : schéma connecté ───────────────────────────── */
       .mtmap{padding:2px 0;}
       .mtn{position:relative;display:flex;gap:12px;padding:8px 0;}
@@ -9358,28 +9356,69 @@
     var ext='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 14v5a1.6 1.6 0 0 1-1.6 1.6H5A1.6 1.6 0 0 1 3.4 19V7.6A1.6 1.6 0 0 1 5 6h5"/></svg>';
     return '<div class="pr2-sites"><span>Où l\'utiliser :</span>'+sites.map(function(x){return '<a href="'+x.u+'" target="_blank" rel="noopener">'+genEsc(x.n)+ext+'</a>';}).join('')+'</div>';
   }
-  function genGuideSteps(){
+  // ── Tour guidé : projecteur sur l'élément réel + bulle + doigt ──
+  function tourSteps(){
     var bp=window._bp||{}; var o=bp.outils||{}; var anim=o.animation||'Veo 3.1';
+    var animSite = anim==='Kling 3.0'?'Kling AI':'Google Flow';
     return [
-      {ic:'📋',t:'Voici ton plan',x:'Chaque plan est découpé pour toi : une image à générer, puis son animation. Suis-les dans l\'ordre.'},
-      {ic:'⬇️',t:'1 · Télécharge l\'image de référence',x:'C\'est la vraie image de la vidéo virale. Elle sert à garder tes personnages IDENTIQUES. Télécharge-la sous chaque plan.'},
-      {ic:'🖼️',t:'2 · Génère ton image',x:'Copie le « Prompt image », ouvre <b>Google AI Studio</b> ou <b>Gemini</b> (bouton « Où l\'utiliser »), colle le prompt, AJOUTE l\'image de référence, génère avec Nano Banana 2.'},
-      {ic:'🎬',t:'3 · Anime ton image',x:'Copie le « Prompt animation », ouvre <b>'+genEsc(anim==='Kling 3.0'?'Kling AI':'Google Flow')+'</b>, mets ton image générée, colle le prompt → tu obtiens ton clip.'},
-      {ic:'✂️',t:'4 · Assemble',x:'Répète pour chaque plan, puis assemble les clips dans <b>CapCut</b> (sons, sous-titres, musique). Et voilà ta vidéo !'}
+      {sel:function(){return document.querySelector('.src2');}, t:'La vidéo virale que tu vas copier — avec ses vraies stats.'},
+      {sel:function(){return document.querySelector('.st2-ref');}, t:'Voici l\'image de référence du 1er plan. C\'est elle qui garde tes personnages IDENTIQUES.'},
+      {sel:function(){return document.querySelector('.st2-dl');}, t:'Appuie ici pour la télécharger sur ton téléphone.'},
+      {sel:function(){return document.querySelector('.pr2');}, pre:function(){var p=document.querySelector('.pr2'); if(p) p.classList.add('open');}, t:'Ça, c\'est le prompt pour créer l\'image. On l\'ouvre…'},
+      {sel:function(){return document.querySelector('.pr2 .pr2-cp');}, t:'…et tu le copies d\'un seul tap.'},
+      {sel:function(){return document.querySelector('.pr2-sites');}, t:'Ouvre Nano Banana ici, colle le prompt + AJOUTE l\'image de référence → ton image est générée.'},
+      {sel:function(){var p=document.querySelectorAll('.pr2')[1]; return p;}, pre:function(){var p=document.querySelectorAll('.pr2')[1]; if(p) p.classList.add('open');}, t:'Ensuite : copie le prompt d\'animation, ouvre '+animSite+', mets ton image → tu obtiens le clip.'},
+      {sel:function(){return document.getElementById('bpfScript');}, t:'Tu veux changer le script ? Modifie-le ici, toi-même ou avec l\'IA.'}
     ];
   }
-  function genGuideMaybe(){ try{ if(localStorage.getItem('skillora_copie_guide')==='1') return; }catch(e){} setTimeout(genGuideOpen, 550); }
-  function genGuideOpen(){ window._gStep=0; var ov=document.getElementById('genGuide'); if(!ov) return; ov.classList.add('open'); genGuideRender(); }
-  function genGuideClose(){ var ov=document.getElementById('genGuide'); if(ov) ov.classList.remove('open'); try{ localStorage.setItem('skillora_copie_guide','1'); }catch(e){} }
-  function genGuideNav(d){ var steps=genGuideSteps(); var i=(window._gStep||0)+d; if(i<0)i=0; if(i>=steps.length){ genGuideClose(); return; } window._gStep=i; genGuideRender(); }
-  function genGuideRender(){
-    var steps=genGuideSteps(); var i=window._gStep||0; var st=steps[i];
-    var body=document.getElementById('genGuideBody'); if(!body) return;
-    var dots=steps.map(function(_,k){return '<i class="'+(k===i?'on':'')+'"></i>';}).join('');
-    body.innerHTML='<div class="gg-ic">'+st.ic+'</div><div class="gg-t">'+st.t+'</div><div class="gg-desc">'+st.x+'</div>'+
-      '<div class="gg-dots">'+dots+'</div>'+
-      '<div class="gg-nav">'+(i>0?'<button class="gg-b" onclick="genGuideNav(-1)">Précédent</button>':'<button class="gg-b" onclick="genGuideClose()">Passer</button>')+
-      '<button class="gg-b gg-p" onclick="genGuideNav(1)">'+(i>=steps.length-1?'C\'est parti !':'Suivant')+'</button></div>';
+  var tourTimer=null;
+  function genGuideMaybe(){ try{ if(localStorage.getItem('skillora_copie_guide')==='1') return; }catch(e){} setTimeout(function(){ genGuideOpen(); }, 650); }
+  function genGuideOpen(){ window._tStep=0; var t=document.getElementById('tour'); if(!t) return; t.classList.add('open'); tourGo(0); }
+  function genGuideClose(){
+    if(tourTimer){ clearTimeout(tourTimer); tourTimer=null; }
+    var t=document.getElementById('tour'); if(t) t.classList.remove('open');
+    try{ localStorage.setItem('skillora_copie_guide','1'); }catch(e){}
+  }
+  function tourNext(){
+    var steps=tourSteps(); var i=(window._tStep||0)+1;
+    if(i>=steps.length){ genGuideClose(); return; }
+    window._tStep=i; tourGo(i);
+  }
+  function tourGo(i){
+    if(tourTimer){ clearTimeout(tourTimer); tourTimer=null; }
+    var steps=tourSteps(); var st=steps[i]; if(!st){ genGuideClose(); return; }
+    if(st.pre){ try{ st.pre(); }catch(e){} }
+    var el=null; try{ el=st.sel(); }catch(e){}
+    if(!el){ window._tStep=i+1; if(i+1>=steps.length){ genGuideClose(); } else { tourGo(i+1); } return; }
+    try{ el.scrollIntoView({block:'center',behavior:'smooth'}); }catch(e){}
+    setTimeout(function(){ tourPlace(el, st, i, steps.length); }, 380);
+    tourTimer=setTimeout(tourNext, 5200); // avance auto
+  }
+  function tourPlace(el, st, i, n){
+    var r=el.getBoundingClientRect(), pad=8;
+    var ring=document.getElementById('tourRing');
+    ring.style.top=(r.top-pad)+'px'; ring.style.left=(r.left-pad)+'px';
+    ring.style.width=(r.width+pad*2)+'px'; ring.style.height=(r.height+pad*2)+'px';
+    // Doigt : juste au-dessus, pointe vers le bas sur l'élément
+    var fg=document.getElementById('tourFinger');
+    var below = r.top < 220; // si l'élément est haut, bulle en dessous
+    fg.style.left=(r.left + r.width/2 - 14)+'px';
+    fg.style.top=(below ? (r.bottom+6) : (r.top-40))+'px';
+    fg.style.transform=below?'rotate(180deg)':'none';
+    // Bulle : sous l'élément si en haut, sinon au-dessus
+    var b=document.getElementById('tourBubble');
+    document.getElementById('tourText').innerHTML=st.t;
+    document.getElementById('tourDots').innerHTML=Array.apply(null,{length:n}).map(function(_,k){return '<i class="'+(k===i?'on':'')+'"></i>';}).join('');
+    document.querySelector('#tourBubble .tour-next').textContent=(i>=n-1?'Terminer':'Suivant');
+    b.classList.toggle('below', below);
+    // mesure après contenu
+    var bw=Math.min(340, window.innerWidth-24);
+    b.style.width=bw+'px';
+    var bx=r.left + r.width/2 - bw/2;
+    bx=Math.max(12, Math.min(bx, window.innerWidth-bw-12));
+    b.style.left=bx+'px';
+    var bh=b.offsetHeight||150;
+    b.style.top=(below ? (r.bottom+52) : (r.top-bh-52))+'px';
   }
   function genStatSvg(k){
     var p={eye:'M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
@@ -10362,8 +10401,14 @@
     <p style="color:var(--muted);font-size:.72rem;" id="devStamp"></p>
   </div>
 </div>
-<div id="genGuide">
-  <div class="gg-card"><button class="gg-x" onclick="genGuideClose()" aria-label="Fermer">✕</button><div id="genGuideBody"></div></div>
+<div id="tour" aria-hidden="true">
+  <div id="tourRing"></div>
+  <div id="tourFinger">👆</div>
+  <div id="tourBubble">
+    <div id="tourText"></div>
+    <div id="tourDots"></div>
+    <div class="tour-nav"><button class="tour-skip" onclick="genGuideClose()">Passer</button><button class="tour-next" onclick="tourNext()">Suivant</button></div>
+  </div>
 </div>
 </body>
 </html>

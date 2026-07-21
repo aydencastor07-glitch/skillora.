@@ -2213,7 +2213,34 @@
       @keyframes scFloat{0%,100%{transform:translateY(0);box-shadow:0 12px 40px rgba(47,123,255,.18)}50%{transform:translateY(-7px);box-shadow:0 24px 54px rgba(47,123,255,.30)}}
       .scan-hud{position:absolute;left:50%;bottom:14px;transform:translateX(-50%) translateY(6px);z-index:2;padding:6px 13px;border-radius:999px;background:rgba(8,12,24,.85);border:1px solid rgba(110,168,255,.42);color:#cfe0ff;font-size:.66rem;font-weight:700;white-space:nowrap;backdrop-filter:blur(4px);opacity:0;transition:opacity .3s ease, transform .3s ease;}
       .scan-hud.in{opacity:1;transform:translateX(-50%) translateY(0);}
-      /* ── Montage : schéma connecté ───────────────────────────── */
+      /* ── Source dans un bloc encadré ─────────────────────────── */
+      .src2{border:1px solid var(--border2);background:rgba(255,255,255,.03);border-radius:14px;padding:11px 13px;}
+      /* ── Où utiliser l'outil ─────────────────────────────────── */
+      .pr2-sites{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 13px 12px;}
+      .pr2-sites>span{font-size:.7rem;color:var(--muted);}
+      .pr2-sites a{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;border:1px solid rgba(110,168,255,.3);background:rgba(47,123,255,.1);color:#9ec2ff;font-size:.72rem;font-weight:700;text-decoration:none;}
+      .pr2-sites a svg{opacity:.8;}
+      .bp2-help{width:30px;height:30px;flex-shrink:0;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.05);color:#9ec2ff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+      .bp2-help svg{width:16px;height:16px;}
+      /* ── Guide première fois ─────────────────────────────────── */
+      #genGuide{position:fixed;inset:0;z-index:1400;background:rgba(6,10,20,.72);backdrop-filter:blur(5px);display:none;align-items:flex-end;justify-content:center;padding:16px;}
+      #genGuide.open{display:flex;animation:ggFade .25s ease;}
+      @keyframes ggFade{from{opacity:0}to{opacity:1}}
+      .gg-card{position:relative;width:100%;max-width:420px;background:linear-gradient(180deg,#141c30,#0d1322);border:1px solid var(--border2);border-radius:22px;padding:26px 22px 20px;box-shadow:0 -10px 50px rgba(0,0,0,.5);animation:ggUp .3s cubic-bezier(.2,.8,.2,1);}
+      @keyframes ggUp{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+      .gg-x{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.07);color:#aebcd8;font-size:.9rem;cursor:pointer;}
+      .gg-ic{font-size:2.6rem;text-align:center;margin-bottom:12px;animation:ggPop .4s ease;}
+      @keyframes ggPop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+      .gg-t{font-family:'Fraunces',serif;font-weight:800;font-size:1.3rem;text-align:center;margin-bottom:9px;}
+      .gg-desc{font-size:.87rem;line-height:1.55;text-align:center;color:#c0cbe0;}
+      .gg-desc b{color:#eaf1ff;}
+      .gg-dots{display:flex;justify-content:center;gap:7px;margin:18px 0 16px;}
+      .gg-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .25s;}
+      .gg-dots i.on{background:#4d8fff;width:20px;border-radius:4px;}
+      .gg-nav{display:flex;gap:10px;}
+      .gg-b{flex:1;padding:13px;border-radius:13px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:#dfe7f5;font-family:'Sora',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;}
+      .gg-b.gg-p{background:linear-gradient(135deg,#3b82f6,#6d5ef0);border:none;color:#fff;}
+            /* ── Montage : schéma connecté ───────────────────────────── */
       .mtmap{padding:2px 0;}
       .mtn{position:relative;display:flex;gap:12px;padding:8px 0;}
       .mtn:not(:last-child)::after{content:'';position:absolute;left:14px;top:38px;bottom:-8px;width:2px;background:rgba(255,255,255,.08);}
@@ -9161,6 +9188,29 @@
   function genCopyBtn(text,label){window._bpClip=window._bpClip||{};var id='bpc'+Math.random().toString(36).slice(2,9);window._bpClip[id]=text;return '<button class="bpg-copy" onclick="genCopy(\''+id+'\',this)">📋 '+(label||'Copier')+'</button>';}
   function genTool(name){var m={'Nano Banana 2':{e:'🍌',c:'#f5c518'},'Veo 3.1':{e:'▶',c:'#5e9bff'},'Kling 3.0':{e:'✦',c:'#a06bff'},'ElevenLabs':{e:'׀׀',c:'#e8e8ef'},'CapCut':{e:'✂',c:'#22e6c8'}};var t=m[name]||{e:'•',c:'#8a97b4'};return '<span class="bptool"><span class="tdot" style="background:'+t.c+'22;color:'+t.c+'">'+t.e+'</span>'+genEsc(name)+'</span>';}
 
+  // On ne révèle le plan QUE lorsque toutes les images sont chargées (zéro
+  // image qui apparaît après). Le scan continue de tourner pendant ce temps.
+  function genRevealPlan(bp){
+    var urls=[]; (bp&&bp.plans?bp.plans:[]).forEach(function(p){ if(p.frame_url) urls.push(p.frame_url); });
+    var total=urls.length, done=0, finished=false;
+    function reveal(){
+      if(finished) return; finished=true;
+      gwStopTips(); genFocus(false);
+      document.getElementById('genProgress').style.display='none';
+      var gr=document.getElementById('genResult'); gr.style.display='block';
+      gr.innerHTML=genRenderGuide(bp);
+      try{ document.getElementById('genCard').classList.add('gen-bare'); }catch(e){}
+      try{ gr.scrollIntoView({behavior:'smooth',block:'nearest'}); }catch(e){}
+      genGuideMaybe();
+    }
+    if(!total){ reveal(); return; }
+    var to=setTimeout(reveal, 8000); // garde-fou : jamais bloqué
+    urls.forEach(function(u){
+      var im=new Image();
+      im.onload=im.onerror=function(){ done++; if(done>=total){ clearTimeout(to); reveal(); } };
+      im.src=u;
+    });
+  }
   function genFmtN(v){ if(v==null) return '—'; v=Number(v); if(v>=1e6) return (v/1e6).toFixed(1).replace('.0','')+' M'; if(v>=1e3) return (v/1e3).toFixed(1).replace('.0','')+' k'; return String(v); }
   function genPlatSvg(p){
     var c={tiktok:['#25F4EE','TikTok','M16.6 5.82A4.28 4.28 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.04.78.12V9.7a5.9 5.9 0 0 0-.78-.05 5.75 5.75 0 1 0 5.75 5.75V9.86a7.3 7.3 0 0 0 4.25 1.36V8.1a4.3 4.3 0 0 1-3.2-2.28z'],
@@ -9177,7 +9227,7 @@
     window._bp=bp; window._bpClip={};
     var s=bp.score||{}, o=bp.outils||{};
     var h='<div class="bpg2">';
-    h+='<div class="bp2-head"><svg viewBox="0 0 24 24" class="bp2-ok"><circle cx="12" cy="12" r="10" fill="rgba(57,217,138,.14)"/><path d="m8 12.5 2.6 2.6L16.5 9" stroke="#39d98a" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><div><div class="bp2-t">Ton plan est prêt</div>'+(bp.titre?'<div class="bp2-s">'+genEsc(bp.titre)+'</div>':'')+'</div></div>';
+    h+='<div class="bp2-head"><svg viewBox="0 0 24 24" class="bp2-ok"><circle cx="12" cy="12" r="10" fill="rgba(57,217,138,.14)"/><path d="m8 12.5 2.6 2.6L16.5 9" stroke="#39d98a" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><div style="flex:1;min-width:0"><div class="bp2-t">Ton plan est prêt</div>'+(bp.titre?'<div class="bp2-s">'+genEsc(bp.titre)+'</div>':'')+'</div><button class="bp2-help" onclick="genGuideOpen()" title="Comment faire ?"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.4 9.2a2.6 2.6 0 1 1 3.6 2.4c-.8.4-1 .8-1 1.6"/><path d="M12 17h.01"/></svg></button></div>';
     var sm=bp.source_meta;
     if(sm){
       var th0=null;(bp.plans||[]).some(function(p){if(p.frame_url){th0=p.frame_url;return true;}return false;});
@@ -9296,6 +9346,41 @@
     btn.disabled=false; btn.textContent='Générer 3 versions';
   }
   function scrUse(i){ var v=(window._scrVersions||[])[i]; if(v) scrApply(v.script); }
+  var TOOL_SITES={
+    'Nano Banana 2':[{n:'Google AI Studio',u:'https://aistudio.google.com/'},{n:'Gemini',u:'https://gemini.google.com/'}],
+    'Veo 3.1':[{n:'Google Flow',u:'https://labs.google/fx/tools/flow'}],
+    'Kling 3.0':[{n:'Kling AI',u:'https://klingai.com/'}],
+    'ElevenLabs':[{n:'ElevenLabs',u:'https://elevenlabs.io/'}],
+    'CapCut':[{n:'CapCut',u:'https://www.capcut.com/'}]
+  };
+  function genToolSites(tool){
+    var sites=TOOL_SITES[tool]; if(!sites) return '';
+    var ext='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 14v5a1.6 1.6 0 0 1-1.6 1.6H5A1.6 1.6 0 0 1 3.4 19V7.6A1.6 1.6 0 0 1 5 6h5"/></svg>';
+    return '<div class="pr2-sites"><span>Où l\'utiliser :</span>'+sites.map(function(x){return '<a href="'+x.u+'" target="_blank" rel="noopener">'+genEsc(x.n)+ext+'</a>';}).join('')+'</div>';
+  }
+  function genGuideSteps(){
+    var bp=window._bp||{}; var o=bp.outils||{}; var anim=o.animation||'Veo 3.1';
+    return [
+      {ic:'📋',t:'Voici ton plan',x:'Chaque plan est découpé pour toi : une image à générer, puis son animation. Suis-les dans l\'ordre.'},
+      {ic:'⬇️',t:'1 · Télécharge l\'image de référence',x:'C\'est la vraie image de la vidéo virale. Elle sert à garder tes personnages IDENTIQUES. Télécharge-la sous chaque plan.'},
+      {ic:'🖼️',t:'2 · Génère ton image',x:'Copie le « Prompt image », ouvre <b>Google AI Studio</b> ou <b>Gemini</b> (bouton « Où l\'utiliser »), colle le prompt, AJOUTE l\'image de référence, génère avec Nano Banana 2.'},
+      {ic:'🎬',t:'3 · Anime ton image',x:'Copie le « Prompt animation », ouvre <b>'+genEsc(anim==='Kling 3.0'?'Kling AI':'Google Flow')+'</b>, mets ton image générée, colle le prompt → tu obtiens ton clip.'},
+      {ic:'✂️',t:'4 · Assemble',x:'Répète pour chaque plan, puis assemble les clips dans <b>CapCut</b> (sons, sous-titres, musique). Et voilà ta vidéo !'}
+    ];
+  }
+  function genGuideMaybe(){ try{ if(localStorage.getItem('skillora_copie_guide')==='1') return; }catch(e){} setTimeout(genGuideOpen, 550); }
+  function genGuideOpen(){ window._gStep=0; var ov=document.getElementById('genGuide'); if(!ov) return; ov.classList.add('open'); genGuideRender(); }
+  function genGuideClose(){ var ov=document.getElementById('genGuide'); if(ov) ov.classList.remove('open'); try{ localStorage.setItem('skillora_copie_guide','1'); }catch(e){} }
+  function genGuideNav(d){ var steps=genGuideSteps(); var i=(window._gStep||0)+d; if(i<0)i=0; if(i>=steps.length){ genGuideClose(); return; } window._gStep=i; genGuideRender(); }
+  function genGuideRender(){
+    var steps=genGuideSteps(); var i=window._gStep||0; var st=steps[i];
+    var body=document.getElementById('genGuideBody'); if(!body) return;
+    var dots=steps.map(function(_,k){return '<i class="'+(k===i?'on':'')+'"></i>';}).join('');
+    body.innerHTML='<div class="gg-ic">'+st.ic+'</div><div class="gg-t">'+st.t+'</div><div class="gg-desc">'+st.x+'</div>'+
+      '<div class="gg-dots">'+dots+'</div>'+
+      '<div class="gg-nav">'+(i>0?'<button class="gg-b" onclick="genGuideNav(-1)">Précédent</button>':'<button class="gg-b" onclick="genGuideClose()">Passer</button>')+
+      '<button class="gg-b gg-p" onclick="genGuideNav(1)">'+(i>=steps.length-1?'C\'est parti !':'Suivant')+'</button></div>';
+  }
   function genStatSvg(k){
     var p={eye:'M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
            heart:'M12 20.8 4.9 13.7a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8z',
@@ -9312,7 +9397,7 @@
     return '<div class="pr2"><button type="button" class="pr2-h" onclick="genPrOpen(this)"><span class="pr2-ic">'+ic+'</span><span class="pr2-m"><b>'+lbl+'</b><i>'+genEsc(tool)+'</i></span>'+
       '<span class="pr2-cp" onclick="event.stopPropagation();genCopy(\''+id+'\',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>Copier</span>'+
       '<svg class="pr2-ch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>'+
-      '<div class="pr2-b"><div class="pv2">'+genEsc(text)+'</div></div></div>';
+      '<div class="pr2-b"><div class="pv2">'+genEsc(text)+'</div>'+genToolSites(tool)+'</div></div>';
   }
   function genPrOpen(btn){
     var row=btn.parentNode, was=row.classList.contains('open');
@@ -9535,13 +9620,10 @@
       var j = r.data;
       gwUpdate(j.steps);
       if (j.status === 'done') {
-        clearInterval(genTimer); genTimer = null; gwStopTips(); genFocus(false);
+        clearInterval(genTimer); genTimer = null;
         var bp = (j.plan && j.plan.blueprint) ? j.plan.blueprint : null;
-        document.getElementById('genProgress').style.display = 'none';
-        var gr = document.getElementById('genResult'); gr.style.display = 'block';
-        gr.innerHTML = genRenderGuide(bp);
-        try { document.getElementById('genCard').classList.add('gen-bare'); } catch(e){}
-        try { gr.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+        var st=document.getElementById('gwStatus'); if(st) st.textContent='Préparation de ton plan';
+        genRevealPlan(bp);
       } else if (j.status === 'error') {
         clearInterval(genTimer); genTimer = null; gwStopTips(); genFocus(false);
         document.getElementById('genProgress').style.display = 'none';
@@ -10279,6 +10361,9 @@
     <div class="dev-sec"><h3>👤 Derniers inscrits</h3><div id="devRecent"></div></div>
     <p style="color:var(--muted);font-size:.72rem;" id="devStamp"></p>
   </div>
+</div>
+<div id="genGuide">
+  <div class="gg-card"><button class="gg-x" onclick="genGuideClose()" aria-label="Fermer">✕</button><div id="genGuideBody"></div></div>
 </div>
 </body>
 </html>

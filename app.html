@@ -2179,6 +2179,25 @@
       .dev-mem{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;flex-wrap:wrap;}
       .dev-mem:last-child{border-bottom:none;}
       .dev-mem .m-src{color:#7ee2a0;font-size:.72rem;}
+      /* ── Copie : scan + références pro ───────────────────────── */
+      .bp-scan{position:relative;width:190px;aspect-ratio:9/16;margin:4px auto 18px;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#131b30,#0c1122);border:1px solid var(--border2);box-shadow:0 12px 40px rgba(47,123,255,.18);}
+      .scan-media,.scan-media img,.scan-media video{width:100%;height:100%;object-fit:cover;display:block;}
+      .scan-ph{display:flex;align-items:center;justify-content:center;height:100%;font-size:2.4rem;animation:scPulse 1.6s ease infinite;}
+      @keyframes scPulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+      .scan-beam{position:absolute;left:0;right:0;top:-30%;height:34%;pointer-events:none;background:linear-gradient(180deg,rgba(47,123,255,0),rgba(90,160,255,.34) 50%,rgba(47,123,255,0));border-top:1.5px solid rgba(140,190,255,.75);border-bottom:1.5px solid rgba(140,190,255,.75);animation:scSweep 2.2s cubic-bezier(.45,0,.55,1) infinite;}
+      @keyframes scSweep{0%{top:-34%}55%{top:100%}100%{top:100%}}
+      .sc-c{position:absolute;width:22px;height:22px;border:2.5px solid #6ea8ff;pointer-events:none;}
+      .sc-c.c1{top:8px;left:8px;border-right:none;border-bottom:none;border-radius:6px 0 0 0;}
+      .sc-c.c2{top:8px;right:8px;border-left:none;border-bottom:none;border-radius:0 6px 0 0;}
+      .sc-c.c3{bottom:8px;left:8px;border-right:none;border-top:none;border-radius:0 0 0 6px;}
+      .sc-c.c4{bottom:8px;right:8px;border-left:none;border-top:none;border-radius:0 0 6px 0;}
+      .scan-tag{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);white-space:nowrap;background:rgba(8,12,24,.78);border:1px solid rgba(110,168,255,.4);color:#cfe0ff;font-size:.68rem;font-weight:600;padding:5px 10px;border-radius:999px;backdrop-filter:blur(4px);}
+      .bpflow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0 4px;}
+      .bpf-c{padding:7px 13px;border-radius:999px;background:rgba(47,123,255,.12);border:1px solid rgba(77,143,255,.35);color:#cfe0ff;font-size:.78rem;font-weight:700;}
+      .bpf-a{color:var(--muted);font-weight:700;}
+      .bf-row{display:flex;align-items:center;gap:10px;padding:9px 10px;background:rgba(47,123,255,.08);flex-wrap:wrap;}
+      .bf-dl{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:9px;background:var(--blue);color:#fff;font-size:.78rem;font-weight:700;text-decoration:none;flex-shrink:0;}
+      .bf-note{font-size:.73rem;color:#cfe0ff;line-height:1.35;flex:1;min-width:120px;}
       .gen-var{display:flex;gap:7px;margin-top:11px;}
       .gen-var button{flex:1;padding:10px 8px;border-radius:11px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--muted);font-family:'Sora',sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;transition:all .15s;}
       .gen-var button.active{background:rgba(47,123,255,.16);border-color:#4d8fff;color:#fff;}
@@ -2201,7 +2220,6 @@
         <div class="gen-seg" id="genSeg">
           <button type="button" class="active" data-mode="upload" onclick="genSetMode('upload')"><span class="gs-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m7 9 5-5 5 5"/><path d="M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></svg></span>Ma vidéo</button>
           <button type="button" data-mode="link" onclick="genSetMode('link')"><span class="gs-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a4 4 0 0 0 5.5.5l3-3a4 4 0 0 0-5.5-5.5l-1.4 1.3"/><path d="M14 11a4 4 0 0 0-5.5-.5l-3 3A4 4 0 0 0 11 19l1.3-1.3"/></svg></span>Un lien</button>
-          <button type="button" data-mode="idea" onclick="genSetMode('idea')"><span class="gs-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg></span>Une idée</button>
         </div>
 
         <!-- Mode : uploader sa vidéo -->
@@ -2226,11 +2244,6 @@
           </div>
         </div>
 
-        <!-- Mode : écrire une idée / un script -->
-        <div class="gen-pan" id="genPanIdea">
-          <textarea id="genIdea" class="gen-inp" rows="4" placeholder="Décris ton idée OU colle ton script complet.&#10;Ex : Une histoire courte et effrayante dans un vieux manoir, voix off grave, ambiance tendue."></textarea>
-        </div>
-
         <div class="gen-var" id="genVar">
           <button type="button" class="active" data-v="0" onclick="genSetVar(0)">🎯 Copie exacte</button>
           <button type="button" data-v="1" onclick="genSetVar(1)">✨ Avec variations</button>
@@ -2239,6 +2252,7 @@
         <p class="imp-note" id="genNote" style="display:none;"></p>
       </div>
       <div id="genProgress" style="display:none;">
+        <div id="genScan"></div>
         <div class="imp-steps" id="genSteps"></div>
       </div>
       <div id="genResult" style="display:none;"></div>
@@ -9019,7 +9033,7 @@
     if(bp.titre) h+='<h4 class="bpg-h">'+genEsc(bp.titre)+'</h4>';
     var meta=[];if(bp.format)meta.push(genEsc(bp.format));if(bp.duree_conseillee_s)meta.push('~'+bp.duree_conseillee_s+'s');
     if(meta.length) h+='<div class="gen-sub">'+meta.join(' · ')+'</div>';
-    h+='<div class="bpg-how">Suis les étapes : <b>① génère l\'image</b>, <b>② anime-la</b>. Copie chaque prompt et colle-le dans l\'outil indiqué.</div>';
+    h+='<div class="bpflow"><span class="bpf-c">🖼️ ① Image</span><span class="bpf-a">→</span><span class="bpf-c">🎬 ② Animation</span><span class="bpf-a">→</span><span class="bpf-c">✂️ ③ Montage</span></div>';
     // NOTES animées
     var g=(s.global!=null?s.global:null);
     h+='<div class="bpsc"><div class="bpsc-hd">';
@@ -9059,7 +9073,7 @@
   function genStepHtml(i){
     var bp=window._bp||{}; var o=bp.outils||{}; var pl=(bp.plans||[])[i]; if(!pl) return '';
     var h='<div class="bpg-shot" style="margin-top:0"><div class="sh-h"><span class="sh-n">'+(pl.n||(i+1))+'</span><span>'+genEsc(pl.scene||'Plan')+' · '+(pl.duree_s||'')+'s</span></div>';
-    if(pl.frame_url){h+='<div class="bpframe"><img src="'+genEsc(pl.frame_url)+'" loading="lazy" alt=""/><div class="bf-cap">🖼️ Image de référence (extraite de la vidéo) — ajoute-la à Nano Banana avec le prompt pour garder les personnages identiques.</div></div>';}
+    if(pl.frame_url){var fu=genEsc(pl.frame_url);h+='<div class="bpframe"><img src="'+fu+'" loading="lazy" alt=""/><div class="bf-row"><a class="bf-dl" href="'+fu+(pl.frame_url.indexOf('?')<0?'?':'&')+'download=reference-plan-'+(pl.n||(i+1))+'.jpg">⬇️ Télécharger</a><span class="bf-note">Donne-la à Nano Banana avec le prompt ①</span></div></div>';}
     if(pl.nouvelle_image && pl.image_prompt){
       h+='<div class="bppp"><div class="pl-row"><span class="pl">① Image à générer</span>'+genTool('Nano Banana 2')+'</div><div class="pv">'+genEsc(pl.image_prompt)+'</div></div>'+genCopyBtn(pl.image_prompt,'Copier le prompt image');
     } else if(pl.reutilise){
@@ -9111,13 +9125,38 @@
   var genVarMode = 0;
   function genSetVar(v){genVarMode=v;var el=document.getElementById('genVar');if(el)Array.prototype.forEach.call(el.querySelectorAll('button'),function(b){b.classList.toggle('active',parseInt(b.getAttribute('data-v'),10)===v);});}
 
+  // Miniature + animation « scan » pendant l'analyse
+  function genShowScan(link){
+    var box=document.getElementById('genScan'); if(!box) return;
+    var inner='<div class="scan-ph">🎬</div>';
+    if(genMode==='upload' && genPrevUrl){
+      inner='<video src="'+genPrevUrl+'" muted playsinline></video>';
+    }
+    box.innerHTML='<div class="bp-scan"><div class="scan-media" id="scanMedia">'+inner+'</div>'+
+      '<div class="scan-beam"></div><i class="sc-c c1"></i><i class="sc-c c2"></i><i class="sc-c c3"></i><i class="sc-c c4"></i>'+
+      '<div class="scan-tag">🔍 Analyse de la vidéo…</div></div>';
+    if(link){
+      var m=link.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{6,20})/);
+      if(m){ genScanImg('https://img.youtube.com/vi/'+m[1]+'/hqdefault.jpg'); return; }
+      fetch('https://www.tiktok.com/oembed?url='+encodeURIComponent(link))
+        .then(function(r){return r.json();})
+        .then(function(d){ if(d && d.thumbnail_url) genScanImg(d.thumbnail_url); })
+        .catch(function(){});
+    }
+  }
+  function genScanImg(url){
+    var mB=document.getElementById('scanMedia'); if(!mB) return;
+    var img=new Image(); img.onload=function(){ mB.innerHTML=''; mB.appendChild(img); };
+    img.src=url; img.alt='';
+  }
+
   function genSetMode(m) {
     genMode = m;
     var seg = document.getElementById('genSeg');
     if (seg) Array.prototype.forEach.call(seg.querySelectorAll('button'), function (b) {
       b.classList.toggle('active', b.getAttribute('data-mode') === m);
     });
-    ['upload', 'link', 'idea'].forEach(function (k) {
+    ['upload', 'link'].forEach(function (k) {
       var p = document.getElementById('genPan' + k.charAt(0).toUpperCase() + k.slice(1));
       if (p) p.classList.toggle('on', k === m);
     });
@@ -9155,13 +9194,10 @@
   }
 
   async function genStart() {
-    var link = (document.getElementById('genLink') || {}).value || '';
-    var idea = (document.getElementById('genIdea') || {}).value || '';
-    link = link.trim(); idea = idea.trim();
+    var link = ((document.getElementById('genLink') || {}).value || '').trim();
     if (genMode === 'upload' && !genFile) { skModal({ icon: '🎬', title: 'Aucune vidéo', message: 'Choisis une vidéo à reproduire.', cancelText: 'OK' }); return; }
     if (genMode === 'link' && !link) { skModal({ icon: '🔗', title: 'Aucun lien', message: 'Colle le lien d\'une vidéo.', cancelText: 'OK' }); return; }
     if (genMode === 'link' && !/^https?:\/\//i.test(link)) { skModal({ icon: '🔗', title: 'Lien invalide', message: 'Le lien doit commencer par http(s)://', cancelText: 'OK' }); return; }
-    if (genMode === 'idea' && !idea) { skModal({ icon: '✍️', title: 'Décris ton idée', message: 'Écris ton idée ou colle ton script.', cancelText: 'OK' }); return; }
     var btn = document.getElementById('genGo'); btn.disabled = true; btn.textContent = 'Envoi…';
     try {
       var sess = await sb.auth.getSession();
@@ -9176,8 +9212,6 @@
         payload.source_url = sb.storage.from('post-media').getPublicUrl(path).data.publicUrl;
       } else if (genMode === 'link') {
         payload.source_url = link;
-      } else {
-        payload.idea = idea;
       }
       btn.textContent = 'Analyse en cours…';
       var res = await fetch(SB_URL + '/functions/v1/video-generate', {
@@ -9190,6 +9224,7 @@
       genJobId = data.job_id;
       document.getElementById('genIntro').style.display = 'none';
       document.getElementById('genProgress').style.display = 'block';
+      genShowScan(genMode === 'link' ? link : null);
       genPoll();
       genTimer = setInterval(genPoll, 3000);
     } catch (e) {

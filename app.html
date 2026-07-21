@@ -9373,9 +9373,15 @@
   }
   var tourTimer=null;
   function genGuideMaybe(){ try{ if(localStorage.getItem('skillora_copie_guide')==='1') return; }catch(e){} setTimeout(function(){ genGuideOpen(); }, 650); }
-  function genGuideOpen(){ window._tStep=0; var t=document.getElementById('tour'); if(!t) return; t.classList.add('open'); tourGo(0); }
+  function _tourSync(){ if(document.getElementById('tour') && document.getElementById('tour').classList.contains('open')) tourReposition(); }
+  function genGuideOpen(){
+    window._tStep=0; var t=document.getElementById('tour'); if(!t) return; t.classList.add('open');
+    window.addEventListener('scroll', _tourSync, true); window.addEventListener('resize', _tourSync);
+    tourGo(0);
+  }
   function genGuideClose(){
     if(tourTimer){ clearTimeout(tourTimer); tourTimer=null; }
+    window.removeEventListener('scroll', _tourSync, true); window.removeEventListener('resize', _tourSync);
     var t=document.getElementById('tour'); if(t) t.classList.remove('open');
     try{ localStorage.setItem('skillora_copie_guide','1'); }catch(e){}
   }
@@ -9390,35 +9396,41 @@
     if(st.pre){ try{ st.pre(); }catch(e){} }
     var el=null; try{ el=st.sel(); }catch(e){}
     if(!el){ window._tStep=i+1; if(i+1>=steps.length){ genGuideClose(); } else { tourGo(i+1); } return; }
-    try{ el.scrollIntoView({block:'center',behavior:'smooth'}); }catch(e){}
-    setTimeout(function(){ tourPlace(el, st, i, steps.length); }, 380);
-    tourTimer=setTimeout(tourNext, 5200); // avance auto
+    window._tourEl=el; window._tStepData={st:st,i:i,n:steps.length};
+    // Scroll INSTANTANÉ pour centrer, puis on place après stabilisation (2 frames)
+    try{ el.scrollIntoView({block:'center',inline:'nearest'}); }catch(e){}
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ tourReposition(); }); });
+    tourTimer=setTimeout(tourNext, 6000); // avance auto
   }
-  function tourPlace(el, st, i, n){
-    var r=el.getBoundingClientRect(), pad=8;
+  // Recalcule la position du projecteur/bulle/doigt à partir de l'élément courant
+  // (appelé aussi sur scroll/resize -> le projecteur SUIT toujours l'élément).
+  function tourReposition(){
+    var el=window._tourEl, d=window._tStepData; if(!el||!d) return;
+    var r=el.getBoundingClientRect(), pad=6, vh=window.innerHeight, vw=window.innerWidth;
     var ring=document.getElementById('tourRing');
     ring.style.top=(r.top-pad)+'px'; ring.style.left=(r.left-pad)+'px';
     ring.style.width=(r.width+pad*2)+'px'; ring.style.height=(r.height+pad*2)+'px';
-    // Doigt : juste au-dessus, pointe vers le bas sur l'élément
-    var fg=document.getElementById('tourFinger');
-    var below = r.top < 220; // si l'élément est haut, bulle en dessous
-    fg.style.left=(r.left + r.width/2 - 14)+'px';
-    fg.style.top=(below ? (r.bottom+6) : (r.top-40))+'px';
-    fg.style.transform=below?'rotate(180deg)':'none';
-    // Bulle : sous l'élément si en haut, sinon au-dessus
     var b=document.getElementById('tourBubble');
-    document.getElementById('tourText').innerHTML=st.t;
-    document.getElementById('tourDots').innerHTML=Array.apply(null,{length:n}).map(function(_,k){return '<i class="'+(k===i?'on':'')+'"></i>';}).join('');
-    document.querySelector('#tourBubble .tour-next').textContent=(i>=n-1?'Terminer':'Suivant');
-    b.classList.toggle('below', below);
-    // mesure après contenu
-    var bw=Math.min(340, window.innerWidth-24);
-    b.style.width=bw+'px';
-    var bx=r.left + r.width/2 - bw/2;
-    bx=Math.max(12, Math.min(bx, window.innerWidth-bw-12));
+    document.getElementById('tourText').innerHTML=d.st.t;
+    document.getElementById('tourDots').innerHTML=Array.apply(null,{length:d.n}).map(function(_,k){return '<i class="'+(k===d.i?'on':'')+'"></i>';}).join('');
+    document.querySelector('#tourBubble .tour-next').textContent=(d.i>=d.n-1?'Terminer':'Suivant');
+    var bw=Math.min(340, vw-24); b.style.width=bw+'px';
+    var bh=b.offsetHeight||150, gap=18, fingerH=34;
+    // Assez de place en dessous ? sinon au-dessus.
+    var roomBelow = vh - r.bottom;
+    var below = roomBelow > (bh + gap + fingerH + 8);
+    if(!below && r.top < (bh + gap + fingerH + 8)){ below = roomBelow >= (vh - r.bottom); /* dernier recours : garde below si vraiment coincé */ below = roomBelow > r.top; }
+    var bx=r.left + r.width/2 - bw/2; bx=Math.max(12, Math.min(bx, vw-bw-12));
     b.style.left=bx+'px';
-    var bh=b.offsetHeight||150;
-    b.style.top=(below ? (r.bottom+52) : (r.top-bh-52))+'px';
+    var fg=document.getElementById('tourFinger');
+    fg.style.left=(r.left + r.width/2 - 13)+'px';
+    if(below){
+      fg.style.top=(r.bottom+6)+'px'; fg.style.transform='rotate(180deg)';
+      b.style.top=(r.bottom + gap + fingerH)+'px';
+    } else {
+      fg.style.top=(r.top-38)+'px'; fg.style.transform='none';
+      b.style.top=Math.max(10,(r.top - bh - gap - fingerH))+'px';
+    }
   }
   function genStatSvg(k){
     var p={eye:'M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',

@@ -2179,6 +2179,15 @@
       .dev-mem{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;flex-wrap:wrap;}
       .dev-mem:last-child{border-bottom:none;}
       .dev-mem .m-src{color:#7ee2a0;font-size:.72rem;}
+      /* ── Montage : schéma connecté ───────────────────────────── */
+      .mtmap{padding:2px 0;}
+      .mtn{position:relative;display:flex;gap:12px;padding:8px 0;}
+      .mtn:not(:last-child)::after{content:'';position:absolute;left:14px;top:38px;bottom:-8px;width:2px;background:rgba(255,255,255,.08);}
+      .mtn-ic{width:29px;height:29px;border-radius:50%;background:rgba(47,123,255,.13);color:#9ec2ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1;}
+      .mtn-ic svg{width:15px;height:15px;}
+      .mtn-m{min-width:0;padding-top:2px;}
+      .mtn-m b{display:block;font-size:.8rem;font-weight:700;}
+      .mtn-m span{display:block;font-size:.74rem;color:#9daccb;line-height:1.45;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
       /* ── Plan v3 : plat, languettes, SVG ─────────────────────── */
       .gen-bare{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 0!important;}
       .bpg2{max-width:560px;margin:0 auto;}
@@ -9136,13 +9145,52 @@
     h+='<div class="bp2-hr"></div>';
     (bp.plans||[]).forEach(function(pl,i){ h+=genStepHtml(i); });
     h+='<div class="bp2-hr"></div>';
-    if(bp.script) h+='<details class="bpfold"><summary>Le script complet</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div></details>';
-    var mont='';if(bp.montage){var m=bp.montage;[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']].forEach(function(k){if(m[k[0]])mont+='<div class="sh-row"><b>'+k[1]+' :</b> '+genEsc(m[k[0]])+'</div>';});}
-    if(o.montage_note) mont+='<div class="sh-row"><b>À ajouter :</b> '+genEsc(o.montage_note)+'</div>';
-    if(mont) h+='<details class="bpfold"><summary>Montage — CapCut</summary><div class="bpfold-body">'+mont+'</div></details>';
-    if(o.voix_off&&o.voix_conseillee) h+='<details class="bpfold"><summary>Voix off — ElevenLabs</summary><div class="bpfold-body"><div class="sh-row">'+genEsc(o.voix_conseillee)+'</div></div></details>';
+    if(bp.script) h+='<details class="bpfold bpf2" id="bpfScript"><summary>Le script complet</summary><div class="bpfold-body"><div class="bpg-txt">'+genEsc(bp.script)+'</div>'+genCopyBtn(bp.script,'Copier le script')+'</div></details>';
+    var mont=genMontageMap(bp.montage||{}, o.montage_note);
+    if(mont) h+='<details class="bpfold bpf2" id="bpfMont"><summary>Montage — CapCut</summary><div class="bpfold-body">'+mont+'</div></details>';
+    if(o.voix_off&&o.voix_conseillee) h+='<details class="bpfold bpf2" id="bpfVoix"><summary>Voix off — ElevenLabs</summary><div class="bpfold-body"><div class="sh-row">'+genEsc(o.voix_conseillee)+'</div></div></details>';
     h+='<button class="imp-ghost" onclick="genReset()">Copier une autre vidéo</button></div>';
+    setTimeout(genFoldsBind,60);
     return h;
+  }
+  function genMontageMap(m, note){
+    var IC={
+      sous_titres:'<path d="M4 5h16v10H9l-4 4V5z"/><path d="M8 9h8M8 12h5"/>',
+      musique:'<circle cx="7" cy="17" r="2.6"/><circle cx="17" cy="15" r="2.6"/><path d="M9.6 17V6.5L19.6 4.5V15"/>',
+      transitions:'<path d="M4 7h11M11 3l4 4-4 4"/><path d="M20 17H9M13 13l-4 4 4 4"/>',
+      effets:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
+      rythme:'<path d="M3 12h3l2.5-6 4 12 2.5-6h6"/>',
+      ajouter:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/>'
+    };
+    var rows=[['sous_titres','Sous-titres'],['musique','Musique'],['transitions','Transitions'],['effets','Effets'],['rythme','Rythme']]
+      .filter(function(k){return m[k[0]];})
+      .map(function(k){return {ic:IC[k[0]],t:k[1],v:m[k[0]]};});
+    if(note) rows.push({ic:IC.ajouter,t:'À ajouter',v:note});
+    if(!rows.length) return '';
+    var h='<div class="mtmap">';
+    rows.forEach(function(r){
+      h+='<div class="mtn"><span class="mtn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+r.ic+'</svg></span><div class="mtn-m"><b>'+r.t+'</b><span>'+genEsc(r.v)+'</span></div></div>';
+    });
+    return h+'</div>';
+  }
+  // Accordéon à mémoire : en ouvrir un ferme l'autre ; fermer rouvre le précédent
+  function genFoldsBind(){
+    var folds=Array.prototype.slice.call(document.querySelectorAll('.bpf2'));
+    if(!folds.length) return;
+    window._bpFoldPrev=null; window._bpFoldLock=false;
+    folds.forEach(function(d){
+      d.addEventListener('toggle',function(){
+        if(window._bpFoldLock) return;
+        window._bpFoldLock=true;
+        if(d.open){
+          folds.forEach(function(x){ if(x!==d && x.open){ window._bpFoldPrev=x; x.open=false; } });
+        } else {
+          var prev=window._bpFoldPrev;
+          if(prev && prev!==d){ prev.open=true; window._bpFoldPrev=d; }
+        }
+        window._bpFoldLock=false;
+      });
+    });
   }
   function genStatSvg(k){
     var p={eye:'M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',

@@ -1907,11 +1907,12 @@
   <!-- ── Menu principal (⋮) ─────────────────────────────────────── -->
   <div id="skMenu" onclick="skMenuClose()">
     <div class="skm-panel" onclick="event.stopPropagation()">
+      <div class="skm-lab">Langue</div>
       <div class="skm-langs" id="skmLangs">
-        <button data-l="fr" onclick="skSetLang('fr')">FR</button>
-        <button data-l="en" onclick="skSetLang('en')">EN</button>
-        <button data-l="es" onclick="skSetLang('es')">ES</button>
-        <button data-l="pt" onclick="skSetLang('pt')">PT</button>
+        <button data-l="fr" onclick="skSetLang('fr')"><span class="fl">🇫🇷</span>FR</button>
+        <button data-l="en" onclick="skSetLang('en')"><span class="fl">🇺🇸</span>EN</button>
+        <button data-l="es" onclick="skSetLang('es')"><span class="fl">🇪🇸</span>ES</button>
+        <button data-l="pt" onclick="skSetLang('pt')"><span class="fl">🇧🇷</span>PT</button>
       </div>
       <div class="skm-div"></div>
       <button class="skm-it" onclick="skMenuClose();openIdeasPage&&openIdeasPage()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.3 1.5 1.5 2.4h5c.2-.9.7-1.7 1.5-2.4A6.5 6.5 0 0 0 12 3z"/></svg></span><span data-i18n="m_ideas">Idées de vidéos</span><span class="skm-badge" id="skmIdeaBadge"></span></button>
@@ -1921,6 +1922,7 @@
       <button class="skm-it" onclick="skMenuClose();openUpgrade&&openUpgrade()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 7 11l5-6 5 6 4-2.5-1.5 9.5h-15z"/><path d="M5.5 21h13"/></svg></span><span data-i18n="m_sub">Abonnement</span><span class="skm-tag" id="skmPlanTag"></span></button>
       <button class="skm-it" onclick="skMenuClose();switchView('profile',null)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg></span><span data-i18n="m_set">Paramètres</span></button>
       <button class="skm-it" onclick="skMenuClose();openContact&&openContact()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.5 0-3-.4-4.2-1.1L3 21l1.6-5.3A8.5 8.5 0 1 1 21 12z"/></svg></span><span data-i18n="m_help">Support</span></button>
+      <button class="skm-it" id="skmOwnerItem" style="display:none;" onclick="skMenuClose();switchView('owner',null)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-6 6L5 19.4l6-6a4 4 0 0 0 5.4-5.4l-2.3 2.3-2-2z"/></svg></span><span>Espace propriétaire</span><span class="skm-tag" style="background:rgba(57,217,138,.16);color:#39d98a;">Dev</span></button>
       <div class="skm-div"></div>
       <a class="skm-it skm-link" href="terms.html" target="_blank"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span><span data-i18n="m_terms">Termes &amp; conditions</span></a>
     </div>
@@ -1990,9 +1992,20 @@
     </div>
     <div class="hv2-chips reveal" id="hv2Chips" style="animation-delay:.18s"></div>
     <div class="hv2-feed" id="hv2Feed"><div class="hv2-empty">Chargement des tendances…</div></div>
+  </div>
 
+  <!-- ═══ ESPACE PROPRIÉTAIRE (dev) — comptes, stats, publication. Invisible au public. ═══ -->
+  <div class="view" id="view-owner">
+    <div class="owner-head">
+      <h1 class="page-title">🛠 Espace propriétaire</h1>
+      <p class="page-sub">Comptes connectés, stats et publication — visible uniquement par toi.</p>
+      <button class="owner-pub" onclick="goPublishOwner()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+        Publier une vidéo
+      </button>
+    </div>
     <!-- Tableau de bord comptes (autre SaaS) : réservé au propriétaire -->
-    <div id="homeDynamic" style="display:none;"></div>
+    <div id="homeDynamic"></div>
   </div>
 
   <div class="view" id="view-library">
@@ -2355,43 +2368,35 @@
       /* ── Copie : focus + design v2 ───────────────────────────── */
       .gen-focus .page-title,.gen-focus .page-sub,.gen-focus .sktabs,.gen-focus #studioAcctPicker{display:none!important;}
       .gen-focus #genCard{background:transparent!important;border:none!important;box-shadow:none!important;padding:6px 0!important;}
-      /* ── Thème DUO : blanc en haut -> noir en bas (Accueil) ────── */
-      body.theme-duo{background:linear-gradient(180deg,#ffffff 0px,#f5f7fa 430px,#565e74 660px,#12182a 820px,#070b16 1000px) no-repeat #070b16;}
-      body.theme-duo::before,body.theme-duo::after{display:none!important;}
-      .theme-duo .topbar{background:transparent;border-bottom:none;backdrop-filter:none;}
-      .theme-duo .logo-word{color:#0d1220;}
-      .theme-duo .icon-btn{background:rgba(10,15,30,.06);border-color:rgba(10,15,30,.1);color:#0d1220;}
-      .theme-duo .icon-btn svg *{stroke:#0d1220;}
-      .theme-duo .hv2-title{color:#0b0f1a;}
-      .theme-duo .hv2-title .grad{background:linear-gradient(135deg,#1c2333,#000);-webkit-background-clip:text;background-clip:text;color:transparent;}
-      .theme-duo .hv2-sub{color:#4a5468;}
-      .theme-duo .hv2-pill{background:#fff;border-color:#dfe4ee;box-shadow:0 14px 40px -18px rgba(15,23,42,.35);}
-      .theme-duo .hv2-pill input{color:#0b0f1a;}
-      .theme-duo .hv2-pill input::placeholder{color:#98a2b8;}
-      .theme-duo .hv2-pill button{background:linear-gradient(135deg,#1c2333,#05070d);box-shadow:0 10px 26px -10px rgba(10,15,30,.6);}
-      .theme-duo .hv2-ic svg{stroke:#5a6478;}
-      .theme-duo .hv2-upl{border-color:rgba(10,15,30,.22);color:#4a5468;}
-      .theme-duo .hv2-pl{color:#39445c;}
-      /* ── Feed v3 : une vidéo par rangée, stats à côté ──────────── */
-      .hv2-feed{display:flex;flex-direction:column;gap:20px;padding-bottom:30px;}
-      .hvr{display:flex;align-items:center;gap:16px;justify-content:center;}
-      .hvr-media{position:relative;flex:0 0 46%;max-width:230px;aspect-ratio:9/16;border-radius:18px;overflow:hidden;background:#0b101f;box-shadow:0 18px 44px -18px rgba(0,0,0,.7);}
-      .hvr-media video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
-      .hvr-play{position:absolute;inset:0;margin:auto;width:46px;height:46px;border-radius:50%;background:rgba(8,12,24,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .2s;}
-      .hvr-media.playing .hvr-play{opacity:0;}
-      .hvr-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:11px;}
-      .hvr-plat{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:800;color:#eaf1ff;}
-      .hvr-niche{align-self:flex-start;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:.68rem;font-weight:700;color:#aebcd8;}
-      .hvr-stats{display:flex;flex-direction:column;gap:7px;}
-      .hvr-st{display:flex;align-items:center;gap:8px;color:#8fa1c0;font-size:.8rem;}
-      .hvr-st svg{width:15px;height:15px;}
-      .hvr-st b{color:#eaf1ff;font-size:.86rem;font-variant-numeric:tabular-nums;}
-      .hvr-copy{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:12px 16px;border-radius:12px;border:none;background:linear-gradient(135deg,#3b82f6,#6d5ef0);color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer;box-shadow:0 10px 24px -10px rgba(59,130,246,.65);}
-      .hvr-copy:active{transform:scale(.97);}
-      /* ── Langues (menu) ─────────────────────────────────────────── */
-      .skm-langs{display:flex;gap:7px;padding:6px 8px 2px;}
-      .skm-langs button{flex:1;padding:9px 0;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Sora',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;}
-      .skm-langs button.on{background:rgba(47,123,255,.18);border-color:#4d8fff;color:#fff;}
+      /* ── Feed : une vidéo centrée + rail de stats à côté (style TikTok) ── */
+      .hv2-feed{display:flex;flex-direction:column;gap:30px;padding-bottom:36px;align-items:center;}
+      .hvr{width:100%;display:flex;justify-content:center;}
+      .hvr-video{position:relative;width:min(300px,76vw);aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 26px 64px -24px rgba(0,0,0,.9);}
+      .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
+      .hvr-play{position:absolute;inset:0;margin:auto;width:56px;height:56px;border-radius:50%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .2s;}
+      .hvr-video.playing .hvr-play{opacity:0;}
+      .hvr-tag{position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;max-width:68%;padding:6px 11px;border-radius:999px;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);font-size:.72rem;font-weight:800;color:#fff;}
+      .hvr-tag svg{width:14px;height:14px;flex-shrink:0;}
+      .hvr-tag span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .hvr-rail{position:absolute;right:9px;bottom:14px;display:flex;flex-direction:column;align-items:center;gap:13px;}
+      .hvr-r{display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;padding:0;}
+      .hvr-r .ic{width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.42);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#fff;}
+      .hvr-r .ic svg{width:22px;height:22px;}
+      .hvr-r b{font-size:.7rem;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);font-variant-numeric:tabular-nums;}
+      .hvr-copy{cursor:pointer;}
+      .hvr-copy .ic{background:#fff;box-shadow:0 6px 18px -6px rgba(255,255,255,.55);}
+      .hvr-copy b{color:#eaf1ff;}
+      .hvr-copy:active{transform:scale(.93);}
+      /* ── Espace propriétaire ─────────────────────────────────────── */
+      .owner-head{padding:6px 2px 4px;}
+      .owner-pub{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:11px 18px;border-radius:12px;border:none;background:linear-gradient(135deg,#3b82f6,#6d5ef0);color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:.84rem;cursor:pointer;box-shadow:0 12px 28px -12px rgba(59,130,246,.7);}
+      .owner-pub:active{transform:scale(.97);}
+      /* ── Langues (menu) : drapeaux + code ───────────────────────── */
+      .skm-lab{padding:4px 12px 0;font-size:.62rem;font-weight:800;letter-spacing:.12em;color:#6b7690;text-transform:uppercase;}
+      .skm-langs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:7px 8px 4px;}
+      .skm-langs button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0;border-radius:13px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#8b97ad;font-family:'Sora',sans-serif;font-weight:800;font-size:.66rem;cursor:pointer;transition:all .15s;}
+      .skm-langs button .fl{font-size:1.2rem;line-height:1;}
+      .skm-langs button.on{background:rgba(47,123,255,.16);border-color:#4d8fff;color:#fff;box-shadow:0 8px 18px -10px rgba(47,123,255,.7);}
       /* ── Héros : import + plateformes ─────────────────────────── */
       .hv2-upl{display:inline-flex;align-items:center;gap:7px;margin-top:13px;padding:9px 16px;border-radius:999px;border:1px dashed rgba(255,255,255,.2);background:transparent;color:var(--muted);font-family:'Sora',sans-serif;font-weight:600;font-size:.8rem;cursor:pointer;}
       .hv2-plats{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:18px;opacity:.85;}
@@ -2399,7 +2404,7 @@
       /* ── Menu ⋮ ─────────────────────────────────────────────────── */
       #skMenu{position:fixed;inset:0;z-index:1300;display:none;background:rgba(5,8,16,.45);}
       #skMenu.open{display:block;}
-      .skm-panel{position:absolute;top:64px;right:12px;width:min(78vw,300px);background:linear-gradient(180deg,#151d31,#0e1424);border:1px solid rgba(120,160,255,.22);border-radius:18px;padding:8px;box-shadow:0 26px 70px rgba(0,0,0,.6);animation:skmIn .22s cubic-bezier(.2,.8,.2,1);}
+      .skm-panel{position:absolute;top:64px;right:12px;width:min(80vw,304px);background:linear-gradient(180deg,#0e131d,#06080d);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:8px;box-shadow:0 30px 80px rgba(0,0,0,.72);animation:skmIn .22s cubic-bezier(.2,.8,.2,1);}
       @keyframes skmIn{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:none}}
       .skm-it{display:flex;align-items:center;gap:12px;width:100%;padding:12px 13px;border:none;background:transparent;color:#dfe7f5;font-family:'Sora',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;border-radius:11px;text-align:left;text-decoration:none;}
       .skm-it:active{background:rgba(255,255,255,.06);}
@@ -3340,6 +3345,7 @@
       window._userEmail = String(session.user.email || '').toLowerCase();
       window._unlimited = UNLIMITED_EMAILS.indexOf(window._userEmail) >= 0;
       try { devShowCardIfOwner(); } catch(_e){}
+      try { var _oi = document.getElementById('skmOwnerItem'); if (_oi) _oi.style.display = window._unlimited ? '' : 'none'; } catch(_e){}
       const { data, error } = await sb
         .from('subscriptions')
         .select('plan, status, billing, created_at, provider, current_period_end')
@@ -5874,6 +5880,8 @@
   function switchView(name, btn) {
     // Publier & comptes connectés = retirés du public, réservés au propriétaire (zone dev).
     if (name === 'publish' && !window._unlimited) { name = 'ia'; }
+    // Espace propriétaire (tableau de bord comptes) = uniquement pour moi.
+    if (name === 'owner' && !window._unlimited) { name = 'home'; }
     // Toute navigation ferme les pop-ups flottants (cloche, choix de lecture) -> ils ne bloquent jamais une autre page.
     if (typeof closeNotifPanel === 'function') closeNotifPanel();
     if (typeof closeWatchChooser === 'function') closeWatchChooser();
@@ -5889,8 +5897,9 @@
       });
     }
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
-    skThemeDuo(name === 'home');
+    skThemeDuo();
     if (name === 'home') { try { hv2Load(); } catch(e){} }
+    if (name === 'owner') { try { loadHomeDashboard(); } catch(e){} }
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { if (typeof initStudioTool === 'function') initStudioTool(); redrawWorkflowSoon(); if (typeof loadStudioAccounts === 'function') loadStudioAccounts(); }
     // La bulle 💡 des idées n'apparaît que sur le Studio (point d'entrée, activé ou non).
@@ -5931,7 +5940,7 @@
     try {
       if (!_hv2All) {
         var r = await sb.from('winning_videos')
-          .select('platform,niche,views,video_url,media_url')
+          .select('platform,niche,views,likes,comments,shares,video_url,media_url')
           .eq('status','done').not('media_url','is',null)
           .order('views',{ascending:false}).limit(60);
         if (r.error) throw r.error;
@@ -5965,39 +5974,39 @@
       instagram:{c:'#E4405F',n:'Instagram Reels',ic:'<svg viewBox="0 0 24 24" width="16" height="16" fill="#E4405F"><path d="M12 2.2c3.2 0 3.6 0 4.85.07 3.25.15 4.73 1.66 4.88 4.88.06 1.25.07 1.65.07 4.85s0 3.6-.07 4.85c-.15 3.22-1.63 4.73-4.88 4.88-1.25.06-1.65.07-4.85.07s-3.6 0-4.85-.07c-3.25-.15-4.73-1.66-4.88-4.88C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.85C2.42 3.93 3.9 2.42 7.15 2.27 8.4 2.2 8.8 2.2 12 2.2zm0 3.7a6.1 6.1 0 1 0 0 12.2 6.1 6.1 0 0 0 0-12.2zm0 2.2a3.9 3.9 0 1 1 0 7.8 3.9 3.9 0 0 1 0-7.8zm6.35-2.5a1.43 1.43 0 1 0 0 2.86 1.43 1.43 0 0 0 0-2.86z"/></svg>'},
       facebook:{c:'#1877F2',n:'Facebook',ic:'<svg viewBox="0 0 24 24" width="16" height="16" fill="#1877F2"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.87.24-1.46 1.5-1.46h1.4V5c-.28-.04-1.22-.12-2.32-.12-2.3 0-3.88 1.4-3.88 3.98V11H8v3h2.2v7z"/></svg>'}
     };
+    function rail(k,val){ return '<div class="hvr-r"><span class="ic">'+genStatSvg(k)+'</span><b>'+genFmtN(val)+'</b></div>'; }
     feed.innerHTML = list.map(function(v,i){
       var p = PL[(v.platform||'').toLowerCase()] || {c:'#9ec2ff',n:v.platform||'Viral',ic:''};
-      var likes = v.likes, comments = v.comments;
-      var stats = '<div class="hvr-st">'+genStatSvg('eye')+'<b>'+genFmtN(v.views)+'</b></div>';
-      if (likes != null) stats += '<div class="hvr-st">'+genStatSvg('heart')+'<b>'+genFmtN(likes)+'</b></div>';
-      if (comments != null) stats += '<div class="hvr-st">'+genStatSvg('chat')+'<b>'+genFmtN(comments)+'</b></div>';
-      return '<div class="hvr">'+
-        '<div class="hvr-media"><video src="'+genEsc(v.media_url)+'" muted playsinline preload="'+(i<3?'metadata':'none')+'" onclick="hv2Toggle(this)"></video>'+
-        '<span class="hvr-play"><svg viewBox="0 0 24 24" width="18" height="18" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></div>'+
-        '<div class="hvr-side">'+
-          '<div class="hvr-plat">'+p.ic+'<span>'+genEsc(p.n)+'</span></div>'+
-          (v.niche?'<div class="hvr-niche">'+genEsc(HV2_NICHE_LB[v.niche]||v.niche)+'</div>':'')+
-          '<div class="hvr-stats">'+stats+'</div>'+
-          '<button class="hvr-copy" onclick="goCopierWith(\''+genEsc(v.video_url)+'\')">'+
-          '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>'+
-          '<span>'+skT('copyVid')+'</span></button>'+
-        '</div></div>';
+      var niche = v.niche ? genEsc(HV2_NICHE_LB[v.niche]||v.niche) : '';
+      return '<div class="hvr"><div class="hvr-video">'+
+        '<video src="'+genEsc(v.media_url)+'" muted playsinline preload="'+(i<3?'metadata':'none')+'" onclick="hv2Toggle(this)"></video>'+
+        '<span class="hvr-play"><svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
+        '<div class="hvr-tag">'+p.ic+'<span>'+genEsc(p.n)+(niche?' · '+niche:'')+'</span></div>'+
+        '<div class="hvr-rail">'+
+          rail('eye',v.views)+rail('heart',v.likes)+rail('chat',v.comments)+rail('share',v.shares)+
+          '<button class="hvr-r hvr-copy" onclick="event.stopPropagation();goCopierWith(\''+genEsc(v.video_url)+'\')" aria-label="'+skT('copyVid')+'">'+
+            '<span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0b0f1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg></span>'+
+            '<b>'+skT('copyShort')+'</b></button>'+
+        '</div></div></div>';
     }).join('');
   }
   function hv2Toggle(v){
     try {
-      var card = v.closest('.hvr-media');
-      if (v.paused) { v.play(); if(card) card.classList.add('playing'); }
-      else { v.pause(); if(card) card.classList.remove('playing'); }
+      var card = v.closest('.hvr-video');
+      if (v.paused) {
+        // Une seule vidéo joue à la fois (comme un feed) — on coupe les autres.
+        document.querySelectorAll('.hvr-video.playing video').forEach(function(o){ if(o!==v){ o.pause(); o.muted=true; var c=o.closest('.hvr-video'); if(c) c.classList.remove('playing'); } });
+        v.muted = false; v.play(); if(card) card.classList.add('playing');
+      } else { v.pause(); if(card) card.classList.remove('playing'); }
     } catch(e){}
   }
 
   // ── Langue (menu ☰, visible direct) ────────────────────────────────────
   var SK_I18N = {
-    fr:{heroA:"Une vidéo cartonne ?",heroB:"Refais-la. En mieux.",heroSub:"Colle le lien d'une vidéo virale — l'IA te sort le plan complet pour la recréer : images, prompts, montage.",heroGo:"Copier",heroImp:"ou importe ta vidéo",orT:"Ou choisis une tendance",orS:"Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.",trend:"🔥 Tendance",copyVid:"Copier la vidéo",ph:"Colle un lien viral ici…",m_ideas:"Idées de vidéos",m_script:"Créer un script",m_niche:"Trouver ma niche",m_sub:"Abonnement",m_set:"Paramètres",m_help:"Support",m_terms:"Termes & conditions"},
-    en:{heroA:"A video is blowing up?",heroB:"Remake it. Better.",heroSub:"Paste a viral video link — the AI gives you the full plan to recreate it: images, prompts, editing.",heroGo:"Copy",heroImp:"or upload your video",orT:"Or pick a trend",orS:"Viral videos generated or reproducible with AI — copy them in 1 click.",trend:"🔥 Trending",copyVid:"Copy this video",ph:"Paste a viral link here…",m_ideas:"Video ideas",m_script:"Create a script",m_niche:"Find my niche",m_sub:"Subscription",m_set:"Settings",m_help:"Support",m_terms:"Terms & conditions"},
-    es:{heroA:"¿Un video está explotando?",heroB:"Recréalo. Mejor.",heroSub:"Pega el enlace de un video viral — la IA te da el plan completo para recrearlo: imágenes, prompts, edición.",heroGo:"Copiar",heroImp:"o sube tu video",orT:"O elige una tendencia",orS:"Videos virales generados o reproducibles con IA — cópialos en 1 clic.",trend:"🔥 Tendencia",copyVid:"Copiar este video",ph:"Pega un enlace viral aquí…",m_ideas:"Ideas de videos",m_script:"Crear un guion",m_niche:"Encontrar mi nicho",m_sub:"Suscripción",m_set:"Ajustes",m_help:"Soporte",m_terms:"Términos y condiciones"},
-    pt:{heroA:"Um vídeo está bombando?",heroB:"Refaça. Melhor.",heroSub:"Cole o link de um vídeo viral — a IA te dá o plano completo para recriá-lo: imagens, prompts, edição.",heroGo:"Copiar",heroImp:"ou envie seu vídeo",orT:"Ou escolha uma tendência",orS:"Vídeos virais gerados ou reproduzíveis com IA — copie em 1 clique.",trend:"🔥 Em alta",copyVid:"Copiar este vídeo",ph:"Cole um link viral aqui…",m_ideas:"Ideias de vídeos",m_script:"Criar um roteiro",m_niche:"Encontrar meu nicho",m_sub:"Assinatura",m_set:"Configurações",m_help:"Suporte",m_terms:"Termos e condições"}
+    fr:{heroA:"Une vidéo cartonne ?",heroB:"Refais-la. En mieux.",heroSub:"Colle le lien d'une vidéo virale — l'IA te sort le plan complet pour la recréer : images, prompts, montage.",heroGo:"Copier",heroImp:"ou importe ta vidéo",orT:"Ou choisis une tendance",orS:"Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.",trend:"🔥 Tendance",copyVid:"Copier la vidéo",copyShort:"Copier",ph:"Colle un lien viral ici…",m_ideas:"Idées de vidéos",m_script:"Créer un script",m_niche:"Trouver ma niche",m_sub:"Abonnement",m_set:"Paramètres",m_help:"Support",m_terms:"Termes & conditions"},
+    en:{heroA:"A video is blowing up?",heroB:"Remake it. Better.",heroSub:"Paste a viral video link — the AI gives you the full plan to recreate it: images, prompts, editing.",heroGo:"Copy",heroImp:"or upload your video",orT:"Or pick a trend",orS:"Viral videos generated or reproducible with AI — copy them in 1 click.",trend:"🔥 Trending",copyVid:"Copy this video",copyShort:"Copy",ph:"Paste a viral link here…",m_ideas:"Video ideas",m_script:"Create a script",m_niche:"Find my niche",m_sub:"Subscription",m_set:"Settings",m_help:"Support",m_terms:"Terms & conditions"},
+    es:{heroA:"¿Un video está explotando?",heroB:"Recréalo. Mejor.",heroSub:"Pega el enlace de un video viral — la IA te da el plan completo para recrearlo: imágenes, prompts, edición.",heroGo:"Copiar",heroImp:"o sube tu video",orT:"O elige una tendencia",orS:"Videos virales generados o reproducibles con IA — cópialos en 1 clic.",trend:"🔥 Tendencia",copyVid:"Copiar este video",copyShort:"Copiar",ph:"Pega un enlace viral aquí…",m_ideas:"Ideas de videos",m_script:"Crear un guion",m_niche:"Encontrar mi nicho",m_sub:"Suscripción",m_set:"Ajustes",m_help:"Soporte",m_terms:"Términos y condiciones"},
+    pt:{heroA:"Um vídeo está bombando?",heroB:"Refaça. Melhor.",heroSub:"Cole o link de um vídeo viral — a IA te dá o plano completo para recriá-lo: imagens, prompts, edição.",heroGo:"Copiar",heroImp:"ou envie seu vídeo",orT:"Ou escolha uma tendência",orS:"Vídeos virais gerados ou reproduzíveis com IA — copie em 1 clique.",trend:"🔥 Em alta",copyVid:"Copiar este vídeo",copyShort:"Copiar",ph:"Cole um link viral aqui…",m_ideas:"Ideias de vídeos",m_script:"Criar um roteiro",m_niche:"Encontrar meu nicho",m_sub:"Assinatura",m_set:"Configurações",m_help:"Suporte",m_terms:"Termos e condições"}
   };
   function skLang(){ try { return localStorage.getItem('skillora_lang') || 'fr'; } catch(e){ return 'fr'; } }
   function skT(k){ var d=SK_I18N[skLang()]||SK_I18N.fr; return d[k]||SK_I18N.fr[k]||''; }
@@ -6012,8 +6021,8 @@
     var inp=document.getElementById('hv2Link'); if(inp) inp.placeholder=skT('ph');
     try { hv2Chips(); hv2Render(); } catch(e){}
   }
-  // ── Thème duo (blanc -> noir) : uniquement sur l'Accueil ──
-  function skThemeDuo(on){ try { document.body.classList.toggle('theme-duo', !!on); } catch(e){} }
+  // Accueil en noir (le blanc masquait les détails) — plus de thème clair.
+  function skThemeDuo(){ try { document.body.classList.remove('theme-duo'); } catch(e){} }
 
   // ── Menu principal (⋮) ──────────────────────────────────────────────────
   function skMenuToggle(e){

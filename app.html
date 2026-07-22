@@ -3233,7 +3233,7 @@
       try { devShowCardIfOwner(); } catch(_e){}
       const { data, error } = await sb
         .from('subscriptions')
-        .select('plan, status, billing, created_at')
+        .select('plan, status, billing, created_at, provider, current_period_end')
         .eq('user_id', session.user.id)
         .maybeSingle();
       if (error) return;
@@ -3257,6 +3257,18 @@
       // Compte propriétaire -> tout débloqué (traité comme Elite, sans aucune limite numérique).
       if (window._unlimited) { userPlan = 'elite'; userIsSubscribed = true; userCycle = 'annual'; maxProfiles = curLimits().profiles; }
       try { localStorage.setItem('skillora_plan', userPlan); } catch(e){}
+      // Félicitations auto : compte payant (non-proprio) pas encore accueilli pour cette période
+      try {
+        if (userIsSubscribed && !window._unlimited && userPlan && userPlan !== 'starter'
+            && typeof data !== 'undefined' && data && data.provider === 'gumroad') {
+          var welKey = 'skillora_pro_welcomed';
+          var per = String(data.current_period_end || data.plan || '');
+          if (localStorage.getItem(welKey) !== per) {
+            localStorage.setItem(welKey, per);
+            if (typeof proWelcomeShow === 'function') setTimeout(function(){ proWelcomeShow('done'); }, 500);
+          }
+        }
+      } catch(e){}
       // rafraîchir l'affichage
       if (typeof applyBookLocks === 'function') applyBookLocks();
       if (typeof updateQuotaLabel === 'function') updateQuotaLabel();

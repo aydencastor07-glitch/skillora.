@@ -1897,10 +1897,25 @@
 
 <div class="phone">
   <div class="topbar">
-    <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'"><b class="logo-word">Skill<span>ora</span></b></div>
+    <div class="logo" onclick="switchView('home', null)" style="cursor:pointer;"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'"><b class="logo-word">Skill<span>ora</span></b></div>
     <div class="top-icons">
-      <div class="icon-btn" onclick="openContact()" role="button" aria-label="Support">🎧</div>
       <div class="icon-btn" onclick="openNotifPanel()" role="button" aria-label="Notifications">🔔<span class="notif-dot" id="notifDot"></span></div>
+      <div class="icon-btn" onclick="skMenuToggle(event)" role="button" aria-label="Menu" id="skMenuBtn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#dfe7f5" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="5" r="0.8" fill="#dfe7f5"/><circle cx="12" cy="12" r="0.8" fill="#dfe7f5"/><circle cx="12" cy="19" r="0.8" fill="#dfe7f5"/></svg></div>
+    </div>
+  </div>
+
+  <!-- ── Menu principal (⋮) ─────────────────────────────────────── -->
+  <div id="skMenu" onclick="skMenuClose()">
+    <div class="skm-panel" onclick="event.stopPropagation()">
+      <button class="skm-it" onclick="skMenuClose();openIdeasPage&&openIdeasPage()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.3 1.5 1.5 2.4h5c.2-.9.7-1.7 1.5-2.4A6.5 6.5 0 0 0 12 3z"/></svg></span>Idées de vidéos<span class="skm-badge" id="skmIdeaBadge"></span></button>
+      <button class="skm-it" onclick="skMenuClose();switchView('ia',null);studioTab&&studioTab('script')"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg></span>Créer un script</button>
+      <button class="skm-it" onclick="skMenuClose();switchView('ia',null);studioTab&&studioTab('script');setTimeout(function(){var a=document.getElementById('studioAcctPicker');if(a)a.scrollIntoView({behavior:'smooth'});},300)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>Trouver ma niche</button>
+      <div class="skm-div"></div>
+      <button class="skm-it" onclick="skMenuClose();openUpgrade&&openUpgrade()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 7 11l5-6 5 6 4-2.5-1.5 9.5h-15z"/><path d="M5.5 21h13"/></svg></span>Abonnement<span class="skm-tag" id="skmPlanTag"></span></button>
+      <button class="skm-it" onclick="skMenuClose();switchView('profile',null)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg></span>Paramètres</button>
+      <button class="skm-it" onclick="skMenuClose();openContact&&openContact()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-8.5 8.5c-1.5 0-3-.4-4.2-1.1L3 21l1.6-5.3A8.5 8.5 0 1 1 21 12z"/></svg></span>Support</button>
+      <div class="skm-div"></div>
+      <a class="skm-it skm-link" href="terms.html" target="_blank"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span>Termes &amp; conditions</a>
     </div>
   </div>
 
@@ -1940,12 +1955,24 @@
   <div class="view active" id="view-home">
     <!-- ── Accueil v2 : le héros = Copie ─────────────────────────── -->
     <div class="hv2-hero reveal" style="animation-delay:.05s">
-      <h1 class="hv2-title">Transforme les vidéos virales<br/>en <span>tes</span> vidéos</h1>
-      <p class="hv2-sub">Colle un lien — l'IA te donne le plan exact pour la refaire.</p>
+      <h1 class="hv2-title">Une vidéo cartonne ?<br/><span>Refais-la. En mieux.</span></h1>
+      <p class="hv2-sub">Colle le lien d'une vidéo virale — l'IA te sort le plan complet pour la recréer : images, prompts, montage.</p>
       <div class="hv2-pill">
         <span class="hv2-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#9ec2ff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a4 4 0 0 0 5.5.5l3-3a4 4 0 0 0-5.5-5.5l-1.4 1.3"/><path d="M14 11a4 4 0 0 0-5.5-.5l-3 3A4 4 0 0 0 11 19l1.3-1.3"/></svg></span>
-        <input id="hv2Link" type="url" inputmode="url" placeholder="Colle un lien TikTok, Shorts, Reels…"/>
+        <input id="hv2Link" type="url" inputmode="url" placeholder="Colle un lien viral ici…"/>
         <button type="button" onclick="hv2Go()">Copier<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 5l7 7-7 7M20 12H4"/></svg></button>
+      </div>
+      <input type="file" id="hv2File" accept="video/*" style="display:none" onchange="hv2Upload(this)"/>
+      <button type="button" class="hv2-upl" onclick="document.getElementById('hv2File').click()">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="m7 9 5-5 5 5"/><path d="M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>
+        ou importe ta vidéo
+      </button>
+      <div class="hv2-plats">
+        <span class="hv2-pl"><svg viewBox="0 0 24 24" width="14" height="14" fill="#25F4EE"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.04.78.12V9.7a5.9 5.9 0 0 0-.78-.05 5.75 5.75 0 1 0 5.75 5.75V9.86a7.3 7.3 0 0 0 4.25 1.36V8.1a4.3 4.3 0 0 1-3.2-2.28z"/></svg>TikTok</span>
+        <span class="hv2-pl"><svg viewBox="0 0 24 24" width="14" height="14" fill="#FF0033"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.25 5 12 5 12 5s-6.25 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.76 1.77C5.75 19 12 19 12 19s6.25 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z"/></svg>Shorts</span>
+        <span class="hv2-pl"><svg viewBox="0 0 24 24" width="14" height="14" fill="#E4405F"><path d="M12 2.2c3.2 0 3.6 0 4.85.07 3.25.15 4.73 1.66 4.88 4.88.06 1.25.07 1.65.07 4.85s0 3.6-.07 4.85c-.15 3.22-1.63 4.73-4.88 4.88-1.25.06-1.65.07-4.85.07s-3.6 0-4.85-.07c-3.25-.15-4.73-1.66-4.88-4.88C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.85C2.42 3.93 3.9 2.42 7.15 2.27 8.4 2.2 8.8 2.2 12 2.2zm0 3.7a6.1 6.1 0 1 0 0 12.2 6.1 6.1 0 0 0 0-12.2zm0 2.2a3.9 3.9 0 1 1 0 7.8 3.9 3.9 0 0 1 0-7.8zm6.35-2.5a1.43 1.43 0 1 0 0 2.86 1.43 1.43 0 0 0 0-2.86z"/></svg>Reels</span>
+        <span class="hv2-pl"><svg viewBox="0 0 24 24" width="14" height="14" fill="#1877F2"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.87.24-1.46 1.5-1.46h1.4V5c-.28-.04-1.22-.12-2.32-.12-2.3 0-3.88 1.4-3.88 3.98V11H8v3h2.2v7z"/></svg>Facebook</span>
+        <span class="hv2-pl"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#ffb02e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1.5 4.5a3.5 3.5 0 0 1-3.4 4.5H7.9a3.5 3.5 0 0 1-3.4-4.5z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>TikTok Shop</span>
       </div>
     </div>
 
@@ -2321,6 +2348,22 @@
       /* ── Copie : focus + design v2 ───────────────────────────── */
       .gen-focus .page-title,.gen-focus .page-sub,.gen-focus .sktabs,.gen-focus #studioAcctPicker{display:none!important;}
       .gen-focus #genCard{background:transparent!important;border:none!important;box-shadow:none!important;padding:6px 0!important;}
+      /* ── Héros : import + plateformes ─────────────────────────── */
+      .hv2-upl{display:inline-flex;align-items:center;gap:7px;margin-top:13px;padding:9px 16px;border-radius:999px;border:1px dashed rgba(255,255,255,.2);background:transparent;color:var(--muted);font-family:'Sora',sans-serif;font-weight:600;font-size:.8rem;cursor:pointer;}
+      .hv2-plats{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:18px;opacity:.85;}
+      .hv2-pl{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;color:#aebcd8;}
+      /* ── Menu ⋮ ─────────────────────────────────────────────────── */
+      #skMenu{position:fixed;inset:0;z-index:1300;display:none;background:rgba(5,8,16,.45);}
+      #skMenu.open{display:block;}
+      .skm-panel{position:absolute;top:64px;right:12px;width:min(78vw,300px);background:linear-gradient(180deg,#151d31,#0e1424);border:1px solid rgba(120,160,255,.22);border-radius:18px;padding:8px;box-shadow:0 26px 70px rgba(0,0,0,.6);animation:skmIn .22s cubic-bezier(.2,.8,.2,1);}
+      @keyframes skmIn{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:none}}
+      .skm-it{display:flex;align-items:center;gap:12px;width:100%;padding:12px 13px;border:none;background:transparent;color:#dfe7f5;font-family:'Sora',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;border-radius:11px;text-align:left;text-decoration:none;}
+      .skm-it:active{background:rgba(255,255,255,.06);}
+      .skm-ic{width:32px;height:32px;flex-shrink:0;border-radius:9px;background:rgba(47,123,255,.12);color:#9ec2ff;display:flex;align-items:center;justify-content:center;}
+      .skm-ic svg{width:16px;height:16px;}
+      .skm-div{height:1px;background:rgba(255,255,255,.07);margin:6px 10px;}
+      .skm-badge{margin-left:auto;background:linear-gradient(135deg,#ff5b78,#e0143f);color:#fff;font-size:.66rem;font-weight:800;padding:3px 8px;border-radius:99px;display:none;}
+      .skm-tag{margin-left:auto;font-size:.66rem;font-weight:800;color:#9ec2ff;background:rgba(47,123,255,.14);padding:3px 9px;border-radius:99px;}
       /* ── Accueil v2 : héros + feed viral (style plat, zéro bloc) ── */
       .hv2-hero{text-align:center;padding:26px 4px 8px;}
       .hv2-title{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(1.7rem,6.4vw,2.6rem);line-height:1.14;letter-spacing:-.01em;}
@@ -2338,14 +2381,14 @@
       .hv2-chips::-webkit-scrollbar{display:none;}
       .hv2-chip{flex-shrink:0;padding:9px 16px;border-radius:999px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .15s;}
       .hv2-chip.on{background:rgba(47,123,255,.16);border-color:#4d8fff;color:#fff;}
-      .hv2-feed{display:flex;flex-direction:column;gap:22px;padding-bottom:10px;}
+      .hv2-feed{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-bottom:26px;}
       .hv2-card{}
-      .hv2-media{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/9;background:#0b101f;}
+      .hv2-media{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:9/16;background:#0b101f;}
       .hv2-media video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
       .hv2-plat{position:absolute;top:10px;left:10px;padding:6px 12px;border-radius:999px;background:rgba(8,12,24,.78);border:1px solid var(--pc);color:var(--pc);font-size:.7rem;font-weight:800;backdrop-filter:blur(4px);}
       .hv2-views{position:absolute;bottom:10px;right:10px;display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;background:rgba(8,12,24,.78);color:#dfe7f5;font-size:.74rem;font-weight:700;backdrop-filter:blur(4px);}
       .hv2-views svg{width:13px;height:13px;}
-      .hv2-copy{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:13px;border-radius:13px;border:1px solid rgba(90,140,255,.35);background:rgba(47,123,255,.1);color:#cfe0ff;font-family:'Sora',sans-serif;font-weight:800;font-size:.86rem;cursor:pointer;transition:all .15s;}
+      .hv2-copy{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:8px;padding:11px 8px;border-radius:12px;border:1px solid rgba(90,140,255,.35);background:rgba(47,123,255,.1);color:#cfe0ff;font-family:'Sora',sans-serif;font-weight:800;font-size:.76rem;cursor:pointer;transition:all .15s;}
       .hv2-copy:active{transform:scale(.98);background:rgba(47,123,255,.2);}
       .hv2-empty{text-align:center;color:var(--muted);font-size:.86rem;padding:30px 0;}
       /* ── Abonnement premium (style épuré) ────────────────────── */
@@ -3041,29 +3084,7 @@
   </div>
 </div>
 
-<div class="bottomnav">
-  <div class="nav-seg sel-home has-sel" id="navSeg">
-    <button class="seg active" onclick="switchView('home', this)" aria-label="Accueil">
-      <span class="seg-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3.2l9 7.4"/><path d="M5.4 9.4V20h13.2V9.4"/></svg></span>
-      <span class="seg-lb">Accueil</span>
-    </button>
-    <button class="seg" onclick="switchView('ia', this)" aria-label="Studio">
-      <span class="seg-ic"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5l3 3L7 17l-3.5.5L4 14z"/><path d="M11.5 6.5l3 3"/><path d="M18.6 2.4l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#fff" stroke="none"/></svg></span>
-      <span class="seg-lb">Studio</span>
-      <span class="seg-badge" id="studioIdeaBadge"></span>
-    </button>
-    <span class="seg-div"></span>
-    <span class="seg-thumb"></span>
-  </div>
-  <button class="nav-btn center" onclick="goCopier()"><span class="ni"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M10 9.4v5.2l4.6-2.6z" fill="#fff" stroke="none"/></svg></span>Copier</button>
-  <button class="nav-btn profile-pill" onclick="switchView('profile', this)" aria-label="Profil">
-    <span class="pill-inner">
-      <span class="pill-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20c.7-3.8 3.8-6 7.5-6s6.8 2.2 7.5 6"/></svg></span>
-      <span class="pill-label">Profil</span>
-      <span class="pill-chev">›</span>
-    </span>
-  </button>
-</div>
+<!-- barre du bas retirée : tout vit dans le menu ⋮ (style app produit, pas réseau social) -->
 
 <script>
   // Restauration IMMEDIATE de la derniere vue (avant le 1er affichage) : on n'affiche
@@ -5847,6 +5868,15 @@
     genFile = null;
     setTimeout(function(){ try { genStart(); } catch(e){} }, 250);
   }
+  function hv2Upload(input){
+    var f = input && input.files && input.files[0];
+    if (!f) return;
+    switchView('ia', null);
+    try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){}
+    try { genReset(); } catch(e){}
+    try { genPickFile(input); } catch(e){}
+    setTimeout(function(){ try { genStart(); } catch(e){} }, 300);
+  }
   var _hv2All = null, _hv2Niche = '';
   var HV2_NICHE_LB = { edit:'✂️ Edits', horror:'👻 Horreur', food:'🍔 Food', football:'⚽ Foot', beauty:'💄 Beauté', motivation:'🔥 Motivation', luxury:'💎 Luxe', animals:'🐾 Animaux', gaming:'🎮 Gaming', tech:'🤖 Tech' };
   async function hv2Load(){
@@ -5895,6 +5925,18 @@
     }).join('');
   }
   function hv2Toggle(v){ try { if (v.paused) { v.play(); } else { v.pause(); } } catch(e){} }
+
+  // ── Menu principal (⋮) ──────────────────────────────────────────────────
+  function skMenuToggle(e){
+    if (e) e.stopPropagation();
+    var m = document.getElementById('skMenu'); if (!m) return;
+    var open = m.classList.toggle('open');
+    if (open) {
+      try { var t=document.getElementById('skmPlanTag'); if(t) t.textContent = (typeof userPlan!=='undefined' && userPlan && userPlan!=='starter') ? 'Pro' : 'Free'; } catch(_){}
+      try { var b=document.getElementById('skmIdeaBadge'); var n=window._ideaBadgeN||0; if(b){ b.textContent=n>0?('+'+n):''; b.style.display=n>0?'':'none'; } } catch(_){}
+    }
+  }
+  function skMenuClose(){ var m=document.getElementById('skMenu'); if (m) m.classList.remove('open'); }
 
   // Le bouton central lance directement la COPIE (le cœur de Skillora).
   function goCopier(){ switchView('ia', null); try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){} }

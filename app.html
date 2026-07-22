@@ -1938,16 +1938,27 @@
   <div id="connectOverlay" class="cx-overlay"></div>
 
   <div class="view active" id="view-home">
-    <div class="home-header reveal" style="animation-delay:.05s">
-      <div class="home-header-l">
-        <h1 class="page-title" style="margin:0;">Bonjour 👋</h1>
-        <p class="page-sub" style="margin:2px 0 0;" id="homeSub">Voici ton tableau de bord.</p>
+    <!-- ── Accueil v2 : le héros = Copie ─────────────────────────── -->
+    <div class="hv2-hero reveal" style="animation-delay:.05s">
+      <h1 class="hv2-title">Transforme les vidéos virales<br/>en <span>tes</span> vidéos</h1>
+      <p class="hv2-sub">Colle un lien — l'IA te donne le plan exact pour la refaire.</p>
+      <div class="hv2-pill">
+        <span class="hv2-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#9ec2ff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a4 4 0 0 0 5.5.5l3-3a4 4 0 0 0-5.5-5.5l-1.4 1.3"/><path d="M14 11a4 4 0 0 0-5.5-.5l-3 3A4 4 0 0 0 11 19l1.3-1.3"/></svg></span>
+        <input id="hv2Link" type="url" inputmode="url" placeholder="Colle un lien TikTok, Shorts, Reels…"/>
+        <button type="button" onclick="hv2Go()">Copier<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 5l7 7-7 7M20 12H4"/></svg></button>
       </div>
-      <div class="home-header-goal" id="homeHeaderGoal"></div>
     </div>
 
-    <!-- Contenu dynamique injecté ici (profil connecté OU squelette + connexion) -->
-    <div id="homeDynamic"></div>
+    <!-- ── Ou choisis une tendance ───────────────────────────────── -->
+    <div class="hv2-or reveal" style="animation-delay:.14s">
+      <h2>Ou choisis une tendance</h2>
+      <p>Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.</p>
+    </div>
+    <div class="hv2-chips reveal" id="hv2Chips" style="animation-delay:.18s"></div>
+    <div class="hv2-feed" id="hv2Feed"><div class="hv2-empty">Chargement des tendances…</div></div>
+
+    <!-- Tableau de bord comptes (autre SaaS) : réservé au propriétaire -->
+    <div id="homeDynamic" style="display:none;"></div>
   </div>
 
   <div class="view" id="view-library">
@@ -2310,6 +2321,35 @@
       /* ── Copie : focus + design v2 ───────────────────────────── */
       .gen-focus .page-title,.gen-focus .page-sub,.gen-focus .sktabs,.gen-focus #studioAcctPicker{display:none!important;}
       .gen-focus #genCard{background:transparent!important;border:none!important;box-shadow:none!important;padding:6px 0!important;}
+      /* ── Accueil v2 : héros + feed viral (style plat, zéro bloc) ── */
+      .hv2-hero{text-align:center;padding:26px 4px 8px;}
+      .hv2-title{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(1.7rem,6.4vw,2.6rem);line-height:1.14;letter-spacing:-.01em;}
+      .hv2-title span{background:linear-gradient(135deg,#5a9bff,#8b6cff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+      .hv2-sub{color:var(--muted);font-size:.95rem;margin:10px auto 20px;max-width:420px;line-height:1.5;}
+      .hv2-pill{display:flex;align-items:center;gap:6px;max-width:520px;margin:0 auto;padding:7px 7px 7px 15px;border-radius:999px;background:rgba(14,20,38,.85);border:1.5px solid rgba(90,140,255,.35);box-shadow:0 0 0 5px rgba(47,123,255,.06),0 18px 44px -18px rgba(47,123,255,.35);}
+      .hv2-pill input{flex:1;min-width:0;border:none;background:transparent;color:#fff;font-family:inherit;font-size:.92rem;padding:11px 4px;}
+      .hv2-pill input:focus{outline:none;}
+      .hv2-pill button{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;padding:12px 20px;border-radius:999px;border:none;background:linear-gradient(135deg,#3b82f6,#6d5ef0);color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;box-shadow:0 8px 22px -8px rgba(59,130,246,.7);}
+      .hv2-pill button:active{transform:scale(.97);}
+      .hv2-or{text-align:center;margin:34px 0 14px;}
+      .hv2-or h2{font-family:'Fraunces',serif;font-weight:800;font-size:1.45rem;}
+      .hv2-or p{color:var(--muted);font-size:.84rem;margin-top:5px;}
+      .hv2-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:none;}
+      .hv2-chips::-webkit-scrollbar{display:none;}
+      .hv2-chip{flex-shrink:0;padding:9px 16px;border-radius:999px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .15s;}
+      .hv2-chip.on{background:rgba(47,123,255,.16);border-color:#4d8fff;color:#fff;}
+      .hv2-feed{display:flex;flex-direction:column;gap:22px;padding-bottom:10px;}
+      .hv2-card{}
+      .hv2-media{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/9;background:#0b101f;}
+      .hv2-media video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
+      .hv2-plat{position:absolute;top:10px;left:10px;padding:6px 12px;border-radius:999px;background:rgba(8,12,24,.78);border:1px solid var(--pc);color:var(--pc);font-size:.7rem;font-weight:800;backdrop-filter:blur(4px);}
+      .hv2-views{position:absolute;bottom:10px;right:10px;display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;background:rgba(8,12,24,.78);color:#dfe7f5;font-size:.74rem;font-weight:700;backdrop-filter:blur(4px);}
+      .hv2-views svg{width:13px;height:13px;}
+      .hv2-copy{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:13px;border-radius:13px;border:1px solid rgba(90,140,255,.35);background:rgba(47,123,255,.1);color:#cfe0ff;font-family:'Sora',sans-serif;font-weight:800;font-size:.86rem;cursor:pointer;transition:all .15s;}
+      .hv2-copy:active{transform:scale(.98);background:rgba(47,123,255,.2);}
+      .hv2-empty{text-align:center;color:var(--muted);font-size:.86rem;padding:30px 0;}
+      /* ── Abonnement premium (style épuré) ────────────────────── */
+      .sk-card[data-plan="pro"]{border:1.5px solid rgba(120,160,255,.4);background:linear-gradient(180deg,rgba(59,130,246,.09),rgba(255,255,255,.02));border-radius:20px;box-shadow:0 24px 60px -24px rgba(59,130,246,.45);}
       .gen-var2{position:relative;display:flex;margin-top:12px;padding:4px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);}
       .gen-var2 i{position:absolute;top:4px;left:4px;width:calc(50% - 4px);bottom:4px;border-radius:9px;background:linear-gradient(135deg,#2f7bff,#1857c4);transition:transform .25s cubic-bezier(.2,.8,.2,1);}
       .gen-var2 button{flex:1;position:relative;z-index:1;padding:10px 6px;border:none;background:transparent;color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:color .2s;}
@@ -3115,6 +3155,7 @@
     var refIn = document.getElementById('refLink');
     if (refIn) refIn.value = (location.origin || 'https://skillora.me') + '/signup.html?ref=' + user.id;
     recordReferral(user);
+    try { hv2Load(); } catch(e){}
     paypalReturnCheck();
     cryptomusReturnCheck();
     gumroadReturnCheck();
@@ -3711,6 +3752,10 @@
   async function loadHomeDashboard() {
     const dyn = document.getElementById('homeDynamic');
     if (!dyn) return;
+    // L'ancien tableau de bord (comptes/stats) part dans l'autre SaaS : ici,
+    // seul le propriétaire le voit encore (outil interne).
+    if (!window._unlimited) { dyn.style.display = 'none'; return; }
+    dyn.style.display = '';
     // PEINTURE INSTANTANÉE : on réaffiche le DERNIER tableau de bord connu tout de suite (0 attente),
     // puis on recharge les données fraîches en arrière-plan. -> plus d'écran noir au rechargement.
     if (!window._homePainted) {
@@ -5777,6 +5822,7 @@
       });
     }
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
+    if (name === 'home') { try { hv2Load(); } catch(e){} }
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { if (typeof initStudioTool === 'function') initStudioTool(); redrawWorkflowSoon(); if (typeof loadStudioAccounts === 'function') loadStudioAccounts(); }
     // La bulle 💡 des idées n'apparaît que sur le Studio (point d'entrée, activé ou non).
@@ -5785,6 +5831,71 @@
     updateSegState(name);
     window.scrollTo(0, 0);
   }
+  // ── Accueil v2 : héros Copie + feed de vidéos virales ──────────────────
+  function hv2Go(){
+    var v = (document.getElementById('hv2Link')||{}).value || '';
+    v = v.trim();
+    if (!v) { try{ document.getElementById('hv2Link').focus(); }catch(e){} return; }
+    if (!/^https?:\/\//i.test(v)) { skModal({icon:'🔗',title:'Lien invalide',message:'Colle un lien complet (https://…).',cancelText:'OK'}); return; }
+    goCopierWith(v);
+  }
+  function goCopierWith(url){
+    switchView('ia', null);
+    try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){}
+    try { genReset(); } catch(e){}
+    var i = document.getElementById('genLink'); if (i) i.value = url;
+    genFile = null;
+    setTimeout(function(){ try { genStart(); } catch(e){} }, 250);
+  }
+  var _hv2All = null, _hv2Niche = '';
+  var HV2_NICHE_LB = { edit:'✂️ Edits', horror:'👻 Horreur', food:'🍔 Food', football:'⚽ Foot', beauty:'💄 Beauté', motivation:'🔥 Motivation', luxury:'💎 Luxe', animals:'🐾 Animaux', gaming:'🎮 Gaming', tech:'🤖 Tech' };
+  async function hv2Load(){
+    var feed = document.getElementById('hv2Feed'); if (!feed) return;
+    try {
+      if (!_hv2All) {
+        var r = await sb.from('winning_videos')
+          .select('platform,niche,views,video_url,media_url')
+          .eq('status','done').not('media_url','is',null)
+          .order('views',{ascending:false}).limit(60);
+        if (r.error) throw r.error;
+        _hv2All = r.data || [];
+        hv2Chips();
+      }
+      hv2Render();
+    } catch(e){
+      feed.innerHTML = '<div class="hv2-empty">Les tendances arrivent bientôt ✨</div>';
+    }
+  }
+  function hv2Chips(){
+    var box = document.getElementById('hv2Chips'); if (!box || !_hv2All) return;
+    var niches = []; _hv2All.forEach(function(v){ if (v.niche && niches.indexOf(v.niche)<0) niches.push(v.niche); });
+    var h = '<button class="hv2-chip on" data-n="" onclick="hv2Pick(this)">🔥 Tendance</button>';
+    niches.slice(0,10).forEach(function(n){ h += '<button class="hv2-chip" data-n="'+genEsc(n)+'" onclick="hv2Pick(this)">'+(HV2_NICHE_LB[n]||genEsc(n))+'</button>'; });
+    box.innerHTML = h;
+  }
+  function hv2Pick(b){
+    _hv2Niche = b.getAttribute('data-n') || '';
+    document.querySelectorAll('.hv2-chip').forEach(function(x){ x.classList.toggle('on', x===b); });
+    hv2Render();
+  }
+  function hv2Render(){
+    var feed = document.getElementById('hv2Feed'); if (!feed || !_hv2All) return;
+    var list = _hv2All.filter(function(v){ return !_hv2Niche || v.niche === _hv2Niche; }).slice(0,12);
+    if (!list.length) { feed.innerHTML = '<div class="hv2-empty">Rien dans cette niche pour l\'instant.</div>'; return; }
+    var PL = { tiktok:['#25F4EE','TikTok'], youtube:['#FF0033','Shorts'], instagram:['#E4405F','Reels'], facebook:['#1877F2','Facebook'] };
+    feed.innerHTML = list.map(function(v,i){
+      var p = PL[(v.platform||'').toLowerCase()] || ['#9ec2ff', v.platform||'Viral'];
+      return '<div class="hv2-card">'+
+        '<div class="hv2-media"><video src="'+genEsc(v.media_url)+'" muted playsinline preload="'+(i<4?'metadata':'none')+'" loading="lazy" onclick="hv2Toggle(this)"></video>'+
+        '<span class="hv2-plat" style="--pc:'+p[0]+'">'+p[1]+'</span>'+
+        '<span class="hv2-views">'+genStatSvg('eye')+genFmtN(v.views)+'</span></div>'+
+        '<button class="hv2-copy" onclick="goCopierWith(\''+genEsc(v.video_url)+'\')">'+
+        '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>'+
+        'Copier cette vidéo</button></div>';
+    }).join('');
+  }
+  function hv2Toggle(v){ try { if (v.paused) { v.play(); } else { v.pause(); } } catch(e){} }
+
   // Le bouton central lance directement la COPIE (le cœur de Skillora).
   function goCopier(){ switchView('ia', null); try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){} }
   // Publier n'est accessible qu'au propriétaire (depuis l'Espace propriétaire).

@@ -144,6 +144,28 @@ function parseViews(x: any): number {
   const mult = m[2] === "k" ? 1e3 : (m[2] === "m" ? 1e6 : (m[2] ? 1e9 : 1));
   return Math.round(n * mult);
 }
+// Engagement (likes / commentaires / partages) : présent DANS la même réponse SociaVault
+// que les vues -> 0 crédit en plus. On renvoie null quand c'est inconnu (une virale n'a jamais
+// vraiment 0 like) pour que le feed affiche "—" plutôt qu'un faux "0".
+const RE_LIKE = /^(likes?|like_count|digg_count|favorite_count|reaction_count)$/i;
+const RE_COMMENT = /^(comments?|comment_count)$/i;
+const RE_SHARE = /^(shares?|share_count|reshare_count|repost_count|forward_count)$/i;
+function deepFindNum(o: any, re: RegExp, depth = 0): number {
+  if (!o || typeof o !== "object" || depth > 6) return 0;
+  let best = 0;
+  for (const [k, v] of Object.entries(o)) {
+    if (re.test(k)) best = Math.max(best, parseViews(v));
+    else if (v && typeof v === "object") best = Math.max(best, deepFindNum(v, re, depth + 1));
+  }
+  return best;
+}
+function engage(v: any): { likes: number | null; comments: number | null; shares: number | null } {
+  const st = v?.statistics ?? v?.stats ?? {};
+  const likes = Number(st.digg_count ?? st.like_count ?? 0) || deepFindNum(v, RE_LIKE);
+  const comments = Number(st.comment_count ?? 0) || deepFindNum(v, RE_COMMENT);
+  const shares = Number(st.share_count ?? st.forward_count ?? 0) || deepFindNum(v, RE_SHARE);
+  return { likes: likes || null, comments: comments || null, shares: shares || null };
+}
 // Recherche YouTube (Shorts + vidéos). Gemini lit les liens YouTube DIRECTEMENT,
 // donc pas besoin de media_url : l'étude est gratuite en téléchargement.
 async function youtubeSearch(query: string, key: string, uploadDate = "this_month") {
@@ -152,7 +174,7 @@ async function youtubeSearch(query: string, key: string, uploadDate = "this_mont
   const d = data.data ?? data;
   let groups = [d.shorts, d.videos, d.results, d.items].filter(Array.isArray) as any[][];
   if (!groups.length) groups = [firstArray(d)];   // dernier recours : 1er tableau trouvé
-  const out: { views: number; create_time: number; url: string; media_url: string }[] = [];
+  const out: { views: number; create_time: number; url: string; media_url: string; likes: number | null; comments: number | null; shares: number | null }[] = [];
   for (const g of groups) {
     for (const it of g) {
       const v = it?.video ?? it?.short ?? it;      // résultat parfois emballé
@@ -164,7 +186,7 @@ async function youtubeSearch(query: string, key: string, uploadDate = "this_mont
       out.push({
         views, create_time: 0,
         url: isShort ? `https://youtube.com/shorts/${id}` : `https://youtube.com/watch?v=${id}`,
-        media_url: "",
+        media_url: "", ...engage(v),
       });
     }
   }
@@ -197,7 +219,7 @@ serve(async (req) => {
     const report: Record<string, number> = {};
     for (const [rawNiche, query] of Object.entries(niches)) {
       const niche = String(rawNiche).toLowerCase().replace(/[^a-z0-9_]/g, "") || "other";
-      const found: { views: number; create_time: number; url: string; media_url: string; platform: string }[] = [];
+      const found: { views: number; create_time: number; url: string; media_url: string; platform: string; likes?: number | null; comments?: number | null; shares?: number | null }[] = [];
 
       // --- TikTok (recherche par mot-clé, tri most-liked) ---
       // Repli progressif : fenêtre 3 mois -> 1 mois -> sans filtre de date, au cas où
@@ -226,7 +248,7 @@ serve(async (req) => {
           views: Number(v?.statistics?.play_count ?? 0) || deepFindViews(v),
           create_time: Number(v?.create_time ?? 0),
           url: `https://www.tiktok.com/@${handle}/video/${v.aweme_id}`,
-          media_url: tiktokPlayUrl(v) || deepFindMedia(v), platform: "tiktok",
+          media_url: tiktokPlayUrl(v) || deepFindMedia(v), platform: "tiktok", ...engage(v),
         });
       }
 
@@ -255,7 +277,7 @@ serve(async (req) => {
             views: deepFindViews(v),
             create_time: Number(v?.taken_at ?? v?.taken_at_timestamp ?? v?.timestamp ?? 0),
             url: `https://www.instagram.com/p/${code}/`,
-            media_url: media, platform: "instagram",
+            media_url: media, platform: "instagram", ...engage(v),
           });
         }
       } catch (e) { console.error("explore instagram", niche, String(e)); }
@@ -270,7 +292,7 @@ serve(async (req) => {
           if (!media || !urlFb) continue;
           found.push({
             views: deepFindViews(it), create_time: 0,
-            url: urlFb, media_url: media, platform: "facebook",
+            url: urlFb, media_url: media, platform: "facebook", ...engage(it),
           });
         }
       } catch (e) { console.error("explore facebook", niche, String(e)); }
@@ -281,7 +303,8 @@ serve(async (req) => {
         .slice(0, maxPerNiche * 3)   // top toutes plateformes confondues (TikTok/YouTube/IG/FB)
         .map((x) => ({
           user_id: null, platform: x.platform, video_url: x.url, media_url: x.media_url || null,
-          views: x.views, create_time: x.create_time, niche, scope: "global",
+          views: x.views, likes: x.likes ?? null, comments: x.comments ?? null, shares: x.shares ?? null,
+          create_time: x.create_time, niche, scope: "global",
         }));
 
       if (rows.length) {

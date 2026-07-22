@@ -40,6 +40,28 @@ function median(nums: number[]) {
   const m = Math.floor(a.length / 2);
   return a.length % 2 ? a[m] : Math.round((a[m - 1] + a[m]) / 2);
 }
+// Engagement (likes/commentaires/partages) : déjà dans la réponse SociaVault -> 0 crédit en plus.
+// null quand inconnu (le feed affiche "—" au lieu d'un faux "0").
+const RE_LIKE = /^(likes?|like_count|digg_count|favorite_count|reaction_count)$/i;
+const RE_COMMENT = /^(comments?|comment_count)$/i;
+const RE_SHARE = /^(shares?|share_count|reshare_count|repost_count|forward_count)$/i;
+function num(x: any): number { const n = Number(x); return Number.isFinite(n) ? n : 0; }
+function deepFindNum(o: any, re: RegExp, depth = 0): number {
+  if (!o || typeof o !== "object" || depth > 6) return 0;
+  let best = 0;
+  for (const [k, v] of Object.entries(o)) {
+    if (re.test(k)) best = Math.max(best, num(v));
+    else if (v && typeof v === "object") best = Math.max(best, deepFindNum(v, re, depth + 1));
+  }
+  return best;
+}
+function engage(v: any): { likes: number | null; comments: number | null; shares: number | null } {
+  const st = v?.statistics ?? v?.stats ?? {};
+  const likes = num(st.digg_count ?? st.like_count) || deepFindNum(v, RE_LIKE);
+  const comments = num(st.comment_count) || deepFindNum(v, RE_COMMENT);
+  const shares = num(st.share_count ?? st.forward_count) || deepFindNum(v, RE_SHARE);
+  return { likes: likes || null, comments: comments || null, shares: shares || null };
+}
 
 // ---- récupération des vidéos récentes { url, media_url, views, create_time } par plateforme ----
 // media_url = lien mp4 DIRECT (CDN) quand la plateforme le donne : c'est lui que Gemini pourra
@@ -62,7 +84,7 @@ async function tiktokVideos(handle: string, key: string) {
     views: Number(v?.statistics?.play_count ?? 0),
     create_time: Number(v?.create_time ?? 0),
     url: v?.aweme_id ? `https://www.tiktok.com/@${handle}/video/${v.aweme_id}` : "",
-    media_url: tiktokPlayUrl(v),
+    media_url: tiktokPlayUrl(v), ...engage(v),
   })).filter((x) => x.url);
 }
 async function instagramVideos(handle: string, key: string) {
@@ -78,6 +100,7 @@ async function instagramVideos(handle: string, key: string) {
       create_time: Number(v.taken_at ?? v.taken_at_timestamp ?? v.timestamp ?? 0),
       url: code ? `https://www.instagram.com/p/${code}/` : "",
       media_url: typeof media === "string" && media.startsWith("http") ? media : "",
+      ...engage(v),
     };
   }).filter((x) => x.url);
 }
@@ -99,6 +122,7 @@ async function youtubeVideos(handle: string, key: string) {
       create_time: Number.isFinite(ts) ? ts : 0,
       url: v.url ?? (id ? `https://youtube.com/watch?v=${id}` : ""),
       media_url: "",  // YouTube : Gemini lit le lien directement, pas besoin de mp4
+      ...engage(v),
     };
   }).filter((x) => x.url);
 }
@@ -144,7 +168,7 @@ serve(async (req) => {
       // ÉCONOMIE MAXIMALE (0 crédit) : si une ANALYSE récente de ce compte existe déjà en base
       // (payée quand l'utilisateur a analysé son compte sur le site), on RÉUTILISE ses vidéos
       // récentes au lieu de re-scraper. Une dépense, deux usages.
-      let vids: { views: number; create_time: number; url: string; media_url?: string }[] = [];
+      let vids: { views: number; create_time: number; url: string; media_url?: string; likes?: number | null; comments?: number | null; shares?: number | null }[] = [];
       let fromAnalysis = false;
       try {
         const aPlat = acc.platform.startsWith("tiktok") ? "tiktok" : acc.platform;
@@ -190,11 +214,13 @@ serve(async (req) => {
         if (!v.create_time || v.create_time <= baselineSec) continue;   // publiée AVANT la connexion -> ignorée
         if (v.views >= creatorThreshold) {
           rows.push({ user_id: acc.user_id, platform: acc.platform, video_url: v.url,
-            media_url: v.media_url || null, views: v.views, create_time: v.create_time, scope: "creator" });
+            media_url: v.media_url || null, views: v.views, likes: v.likes ?? null,
+            comments: v.comments ?? null, shares: v.shares ?? null, create_time: v.create_time, scope: "creator" });
         }
         if (v.views >= GLOBAL_MIN_VIEWS) {
           rows.push({ user_id: acc.user_id, platform: acc.platform, video_url: v.url,
-            media_url: v.media_url || null, views: v.views, create_time: v.create_time, scope: "global" });
+            media_url: v.media_url || null, views: v.views, likes: v.likes ?? null,
+            comments: v.comments ?? null, shares: v.shares ?? null, create_time: v.create_time, scope: "global" });
         }
       }
       if (rows.length) {

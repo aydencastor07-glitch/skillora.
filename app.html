@@ -3116,6 +3116,7 @@
     recordReferral(user);
     paypalReturnCheck();
     cryptomusReturnCheck();
+    gumroadReturnCheck();
     loadReferralStats();
     checkOnboarding(user);
     loadHomeDashboard();
@@ -6317,39 +6318,46 @@
     } catch(e){}
   }
 
+  // Lien du produit Gumroad (le client paie par carte ; Skillora est payé sur
+  // le PayPal Finlande). À remplir dès que le produit est créé sur Gumroad.
+  var GUMROAD_PRODUCT_URL = '';
   async function choosePlan(plan) {
-    if (!PAYMENTS_ON) {
-      skModal({ icon:'🚀', iconBg:'#16263f', title:'Abonnements bientôt disponibles', message:'Les paiements arrivent très bientôt. Tu pourras passer Premium dans quelques jours — profite des fonctionnalités en attendant !', cancelText:'OK' });
+    if (!PAYMENTS_ON || !GUMROAD_PRODUCT_URL) {
+      skModal({ icon:'🚀', iconBg:'#16263f', title:'Abonnements bientôt disponibles', message:'Le paiement arrive très bientôt. Profite des fonctionnalités en attendant !', cancelText:'OK' });
       return;
     }
-    var btn = document.querySelector('.sk-card[data-plan="' + plan + '"] .sk-btn');
-    var oldLabel = btn ? btn.textContent : '';
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ Redirection...'; }
     try {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'signup.html'; return; }
-
-      const res = await fetch(SB_URL + '/functions/v1/' + CHECKOUT_FN, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + session.access_token,
-          'apikey': SB_KEY,
-        },
-        body: JSON.stringify({ plan: plan, billing: billingCycle }),
-      });
-      const data = await res.json();
-
-      if (data.success && data.url) {
-        window.location.href = data.url; // redirection vers la page de paiement Whop
-      } else {
-        alert('❌ ' + (data.error || 'Impossible de lancer le paiement. Réessaie.'));
-        if (btn) { btn.disabled = false; btn.textContent = oldLabel; }
-      }
+      var uid = session.user.id, email = session.user.email || '';
+      // On passe l'ID Skillora à Gumroad -> revient dans le webhook pour activer le bon compte
+      var url = GUMROAD_PRODUCT_URL
+        + (GUMROAD_PRODUCT_URL.indexOf('?') < 0 ? '?' : '&')
+        + 'wanted=true&skillora_uid=' + encodeURIComponent(uid)
+        + '&email=' + encodeURIComponent(email);
+      window.location.href = url;
     } catch (err) {
-      alert('❌ Erreur de connexion. Réessaie.');
-      if (btn) { btn.disabled = false; btn.textContent = oldLabel; }
+      skModal({ icon:'⚠️', title:'Erreur', message:'Impossible de lancer le paiement. Réessaie.', cancelText:'OK' });
     }
+  }
+
+  // Retour depuis Gumroad (?gumroad=1) : le webhook active côté serveur -> on poll.
+  function gumroadReturnCheck() {
+    try {
+      var q = new URLSearchParams(location.search);
+      if (!q.get('gumroad')) return;
+      history.replaceState({}, '', 'app.html');
+      skModal({ icon:'⏳', title:'Paiement en validation…', message:'On confirme ton paiement, ça prend quelques secondes.', cancelText:'OK' });
+      var tries = 0, before = userPlan;
+      var iv = setInterval(async function(){
+        tries++;
+        try { await loadUserPlan(); } catch(e){}
+        if (userPlan && userPlan !== 'starter' && userPlan !== before) {
+          clearInterval(iv);
+          skModal({ icon:'🎉', title:'Bienvenue en Pro !', message:'Ton abonnement est actif. Merci 🙏', cancelText:'Super !' });
+        } else if (tries >= 15) { clearInterval(iv); }
+      }, 4000);
+    } catch(e){}
   }
 
   /* ===== Contact Coach (réservé Elite) ===== */

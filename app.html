@@ -1999,10 +1999,17 @@
     <div class="owner-head">
       <h1 class="page-title">🛠 Espace propriétaire</h1>
       <p class="page-sub">Comptes connectés, stats et publication — visible uniquement par toi.</p>
-      <button class="owner-pub" onclick="goPublishOwner()">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
-        Publier une vidéo
-      </button>
+      <div class="owner-actions">
+        <button class="owner-pub" onclick="goPublishOwner()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+          Publier une vidéo
+        </button>
+        <button class="owner-scout" id="ownerScoutBtn" onclick="ownerScout()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span id="ownerScoutLbl">Lancer les éclaireurs (remplir le feed)</span>
+        </button>
+      </div>
+      <p class="owner-scout-note" id="ownerScoutNote">Cherche ~15 virales par style (TikTok Shop inclus) sur TikTok/YouTube/Insta/Facebook et les met en file. Consomme des crédits SociaVault. Elles apparaissent dans le feed une fois étudiées par le worker.</p>
     </div>
     <!-- Tableau de bord comptes (autre SaaS) : réservé au propriétaire -->
     <div id="homeDynamic"></div>
@@ -2389,8 +2396,13 @@
       .hvr-copy:active{transform:scale(.93);}
       /* ── Espace propriétaire ─────────────────────────────────────── */
       .owner-head{padding:6px 2px 4px;}
-      .owner-pub{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:11px 18px;border-radius:12px;border:none;background:linear-gradient(135deg,#3b82f6,#6d5ef0);color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:.84rem;cursor:pointer;box-shadow:0 12px 28px -12px rgba(59,130,246,.7);}
-      .owner-pub:active{transform:scale(.97);}
+      .owner-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
+      .owner-pub,.owner-scout{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;border:none;font-family:'Sora',sans-serif;font-weight:800;font-size:.84rem;cursor:pointer;}
+      .owner-pub{background:linear-gradient(135deg,#3b82f6,#6d5ef0);color:#fff;box-shadow:0 12px 28px -12px rgba(59,130,246,.7);}
+      .owner-scout{background:linear-gradient(135deg,#1fae68,#39d98a);color:#04140b;box-shadow:0 12px 28px -12px rgba(57,217,138,.7);}
+      .owner-pub:active,.owner-scout:active{transform:scale(.97);}
+      .owner-scout:disabled{opacity:.6;cursor:default;}
+      .owner-scout-note{margin-top:9px;font-size:.76rem;color:var(--muted);line-height:1.5;max-width:560px;}
       /* ── Langues (menu) : drapeaux + code ───────────────────────── */
       .skm-lab{padding:4px 12px 0;font-size:.62rem;font-weight:800;letter-spacing:.12em;color:#6b7690;text-transform:uppercase;}
       .skm-langs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:7px 8px 4px;}
@@ -5934,7 +5946,7 @@
     setTimeout(function(){ try { genStart(); } catch(e){} }, 300);
   }
   var _hv2All = null, _hv2Niche = '';
-  var HV2_NICHE_LB = { edit:'✂️ Edits', horror:'👻 Horreur', food:'🍔 Food', football:'⚽ Foot', beauty:'💄 Beauté', motivation:'🔥 Motivation', luxury:'💎 Luxe', animals:'🐾 Animaux', gaming:'🎮 Gaming', tech:'🤖 Tech' };
+  var HV2_NICHE_LB = { edit:'✂️ Edits', horror:'👻 Horreur', food:'🍔 Food', football:'⚽ Foot', basketball:'🏀 Basket', beauty:'💄 Beauté', fashion:'👗 Mode', motivation:'🔥 Motivation', luxury:'💎 Luxe', luxury_aesthetic:'💎 Luxe', animals:'🐾 Animaux', pets:'🐾 Animaux', gaming:'🎮 Gaming', tech:'🤖 Tech', gym:'💪 Fitness', cars:'🏎️ Autos', dance:'💃 Danse', comedy:'😂 Comédie', travel:'✈️ Voyage', vlog:'🎥 Vlog', energetic:'⚡ Énergie', talk_facecam:'🗣️ Facecam', story:'📖 Story', lifestyle:'🌿 Lifestyle', product:'📦 Produit', tiktok_shop:'🛍️ TikTok Shop' };
   async function hv2Load(){
     var feed = document.getElementById('hv2Feed'); if (!feed) return;
     try {
@@ -5942,7 +5954,7 @@
         var r = await sb.from('winning_videos')
           .select('platform,niche,views,likes,comments,shares,video_url,media_url')
           .eq('status','done').not('media_url','is',null)
-          .order('views',{ascending:false}).limit(60);
+          .order('views',{ascending:false}).limit(400);
         if (r.error) throw r.error;
         _hv2All = r.data || [];
         hv2Chips();
@@ -5956,7 +5968,7 @@
     var box = document.getElementById('hv2Chips'); if (!box || !_hv2All) return;
     var niches = []; _hv2All.forEach(function(v){ if (v.niche && niches.indexOf(v.niche)<0) niches.push(v.niche); });
     var h = '<button class="hv2-chip'+(_hv2Niche?'':' on')+'" data-n="" onclick="hv2Pick(this)">'+skT('trend')+'</button>';
-    niches.slice(0,10).forEach(function(n){ h += '<button class="hv2-chip" data-n="'+genEsc(n)+'" onclick="hv2Pick(this)">'+(HV2_NICHE_LB[n]||genEsc(n))+'</button>'; });
+    niches.slice(0,24).forEach(function(n){ h += '<button class="hv2-chip" data-n="'+genEsc(n)+'" onclick="hv2Pick(this)">'+(HV2_NICHE_LB[n]||genEsc(n))+'</button>'; });
     box.innerHTML = h;
   }
   function hv2Pick(b){
@@ -5966,7 +5978,7 @@
   }
   function hv2Render(){
     var feed = document.getElementById('hv2Feed'); if (!feed || !_hv2All) return;
-    var list = _hv2All.filter(function(v){ return !_hv2Niche || v.niche === _hv2Niche; }).slice(0,10);
+    var list = _hv2All.filter(function(v){ return !_hv2Niche || v.niche === _hv2Niche; }).slice(0,18);
     if (!list.length) { feed.innerHTML = '<div class="hv2-empty">Rien dans cette niche pour l\'instant.</div>'; return; }
     var PL = {
       tiktok:{c:'#25F4EE',n:'TikTok',ic:'<svg viewBox="0 0 24 24" width="16" height="16" fill="#25F4EE"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.04.78.12V9.7a5.9 5.9 0 0 0-.78-.05 5.75 5.75 0 1 0 5.75 5.75V9.86a7.3 7.3 0 0 0 4.25 1.36V8.1a4.3 4.3 0 0 1-3.2-2.28z"/></svg>'},
@@ -6040,6 +6052,40 @@
   function goCopier(){ switchView('ia', null); try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){} }
   // Publier n'est accessible qu'au propriétaire (depuis l'Espace propriétaire).
   function goPublishOwner(){ if (window._unlimited) switchView('publish', null); }
+
+  // Lance les agents éclaireurs À LA DEMANDE (propriétaire) : remplit la file de vidéos
+  // virales par style (TikTok Shop inclus). Consomme des crédits SociaVault -> uniquement au clic.
+  async function ownerScout(){
+    if (!window._unlimited) return;
+    var btn = document.getElementById('ownerScoutBtn');
+    var lbl = document.getElementById('ownerScoutLbl');
+    var note = document.getElementById('ownerScoutNote');
+    if (!btn || btn.disabled) return;
+    var old = lbl ? lbl.textContent : '';
+    btn.disabled = true; if (lbl) lbl.textContent = 'Recherche en cours… (≈1 min)';
+    try {
+      var s = await sb.auth.getSession();
+      var session = s && s.data ? s.data.session : null;
+      if (!session) throw new Error('Session expirée, reconnecte-toi.');
+      var hdr = { 'Content-Type':'application/json', 'Authorization':'Bearer ' + session.access_token, 'apikey': SB_KEY };
+      var ex = await fetch(SB_URL + '/functions/v1/scout-explore', { method:'POST', headers:hdr,
+        body: JSON.stringify({ all:true, max_per_niche:10 }) }).then(function(r){ return r.json(); });
+      var wi = await fetch(SB_URL + '/functions/v1/scout-winners', { method:'POST', headers:hdr,
+        body: JSON.stringify({ force:true }) }).then(function(r){ return r.json(); }).catch(function(){ return {}; });
+      if (ex && ex.success) {
+        var q = ex.queued || 0;
+        if (note) note.textContent = '✅ ' + q + ' vidéo(s) mises en file' +
+          (wi && wi.queued ? (' (+' + wi.queued + ' de tes comptes)') : '') +
+          '. Elles apparaîtront dans le feed dès que ton worker les aura étudiées.';
+      } else if (note) {
+        note.textContent = '⚠️ ' + ((ex && ex.error) || 'Échec du lancement.');
+      }
+    } catch(e){
+      if (note) note.textContent = '⚠️ ' + (e.message || e);
+    } finally {
+      if (lbl) lbl.textContent = old; btn.disabled = false;
+    }
+  }
 
   // Pilote le contrôle segmenté Accueil|Studio (surligneur glissant + états)
   function updateSegState(name) {

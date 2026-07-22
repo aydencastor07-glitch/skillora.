@@ -52,6 +52,7 @@ const DEFAULT_NICHES: Record<string, string> = {
   travel: "travel destination cinematic",
   pets: "funny pets cute animals",
   tech: "tech gadgets unboxing",
+  tiktok_shop: "tiktok shop finds product review must have amazon",
 };
 
 // Hashtag Instagram par niche (un mot, sans #)
@@ -62,7 +63,7 @@ const IG_TAGS: Record<string, string> = {
   gym: "gymmotivation", food: "foodasmr", comedy: "comedyvideos", gaming: "gamingclips",
   cars: "carsofinstagram", fashion: "ootd", beauty: "makeuptransformation",
   motivation: "motivationdaily", lifestyle: "aestheticlifestyle", travel: "travelreels",
-  pets: "funnypets", tech: "techtok",
+  pets: "funnypets", tech: "techtok", tiktok_shop: "tiktokshopfinds",
 };
 
 function j(o: unknown, s = 200) {

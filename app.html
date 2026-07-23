@@ -2375,8 +2375,15 @@
       /* ── Copie : focus + design v2 ───────────────────────────── */
       .gen-focus .page-title,.gen-focus .page-sub,.gen-focus .sktabs,.gen-focus #studioAcctPicker{display:none!important;}
       .gen-focus #genCard{background:transparent!important;border:none!important;box-shadow:none!important;padding:6px 0!important;}
-      /* ── Feed : une vidéo centrée + rail de stats à côté (style TikTok) ── */
-      .hv2-feed{display:flex;flex-direction:column;gap:30px;padding-bottom:36px;align-items:center;}
+      /* ── Feed : par niche, carrousel horizontal de 2-3 vidéos (swipe) ── */
+      .hv2-feed{display:flex;flex-direction:column;gap:20px;padding-bottom:36px;align-items:stretch;}
+      .hvn{width:100%;}
+      .hvn-head{display:flex;align-items:center;gap:8px;font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem;color:#eaf1ff;padding:0 2px 11px;}
+      .hvn-count{font-size:.64rem;font-weight:800;color:#9ec2ff;background:rgba(47,123,255,.14);padding:2px 8px;border-radius:99px;}
+      .hvn-row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 2px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+      .hvn-row::-webkit-scrollbar{display:none;}
+      .hvn-row .hvr{flex:0 0 auto;width:min(300px,80vw);scroll-snap-align:center;display:block;}
+      .hvn-row .hvr-video{width:100%;}
       .hvr{width:100%;display:flex;justify-content:center;}
       .hvr-video{position:relative;width:min(300px,76vw);aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 26px 64px -24px rgba(0,0,0,.9);}
       .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
@@ -5990,25 +5997,54 @@
       facebook:{c:'#1877F2',n:'Facebook',ic:'<svg viewBox="0 0 24 24" width="16" height="16" fill="#1877F2"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.87.24-1.46 1.5-1.46h1.4V5c-.28-.04-1.22-.12-2.32-.12-2.3 0-3.88 1.4-3.88 3.98V11H8v3h2.2v7z"/></svg>'}
     };
     function rail(k,val){ return '<div class="hvr-r"><span class="ic">'+genStatSvg(k)+'</span><b>'+genFmtN(val)+'</b></div>'; }
-    feed.innerHTML = list.map(function(v,i){
+    // Une carte vidéo. #t=0.1 -> le navigateur affiche la 1ʳᵉ image (fini les cases noires).
+    function card(v){
       var p = PL[(v.platform||'').toLowerCase()] || {c:'#9ec2ff',n:v.platform||'Viral',ic:''};
-      var niche = v.niche ? genEsc(HV2_NICHE_LB[v.niche]||v.niche) : '';
       return '<div class="hvr"><div class="hvr-video">'+
-        '<video src="'+genEsc(v.media_url)+'" muted playsinline preload="'+(i<3?'metadata':'none')+'" onclick="hv2Toggle(this)" onerror="hv2Broken(this)"></video>'+
+        '<video src="'+genEsc(v.media_url)+'#t=0.1" muted playsinline preload="metadata" onclick="hv2Toggle(this)" onerror="hv2Broken(this)"></video>'+
         '<span class="hvr-play"><svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
-        '<div class="hvr-tag">'+p.ic+'<span>'+genEsc(p.n)+(niche?' · '+niche:'')+'</span></div>'+
+        '<div class="hvr-tag">'+p.ic+'<span>'+genEsc(p.n)+'</span></div>'+
         '<div class="hvr-rail">'+
           rail('eye',v.views)+rail('heart',v.likes)+rail('chat',v.comments)+rail('share',v.shares)+
           '<button class="hvr-r hvr-copy" onclick="event.stopPropagation();goCopierWith(\''+genEsc(v.video_url)+'\')" aria-label="'+skT('copyVid')+'">'+
             '<span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0b0f1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg></span>'+
             '<b>'+skT('copyShort')+'</b></button>'+
         '</div></div></div>';
+    }
+    // ~3 par niche, en variant les plateformes (une TikTok, une YouTube, une Insta… si dispo).
+    function pick3(arr){
+      var byP = {}; arr.forEach(function(v){ (byP[v.platform]=byP[v.platform]||[]).push(v); });
+      Object.keys(byP).forEach(function(k){ byP[k].sort(function(a,b){ return (b.views||0)-(a.views||0); }); });
+      var out = [];
+      Object.keys(byP).forEach(function(k){ if (out.length<3 && byP[k].length) out.push(byP[k].shift()); });
+      var rest = []; Object.keys(byP).forEach(function(k){ rest = rest.concat(byP[k]); });
+      rest.sort(function(a,b){ return (b.views||0)-(a.views||0); });
+      while (out.length<3 && rest.length) out.push(rest.shift());
+      return out;
+    }
+    var groups = {}, order = [];
+    _hv2All.forEach(function(v){
+      if (_hv2Niche && v.niche !== _hv2Niche) return;
+      if (!groups[v.niche]) { groups[v.niche] = []; order.push(v.niche); }
+      groups[v.niche].push(v);
+    });
+    if (!order.length) { feed.innerHTML = '<div class="hv2-empty">Rien dans cette niche pour l\'instant.</div>'; return; }
+    feed.innerHTML = order.map(function(niche){
+      var vids = _hv2Niche ? groups[niche].slice(0,8) : pick3(groups[niche]);
+      return '<div class="hvn"><div class="hvn-head">'+genEsc(HV2_NICHE_LB[niche]||niche)+
+        '<span class="hvn-count">'+vids.length+'</span></div>'+
+        '<div class="hvn-row">'+vids.map(card).join('')+'</div></div>';
     }).join('');
   }
   // Un lien vidéo expiré (ancien lien TikTok/Insta) ne doit jamais laisser une case noire :
   // on retire proprement la carte. Les liens re-hébergés (permanents) ne déclenchent pas ça.
   function hv2Broken(v){
-    try { var c = v.closest('.hvr'); if (c) c.remove(); } catch(e){}
+    try {
+      var row = v.closest('.hvn-row');
+      var c = v.closest('.hvr'); if (c) c.remove();
+      // Si la rangée d'une niche devient vide, on masque tout le bloc de cette niche.
+      if (row && !row.querySelector('.hvr')) { var blk = row.closest('.hvn'); if (blk) blk.remove(); }
+    } catch(e){}
     try {
       var feed = document.getElementById('hv2Feed');
       if (feed && !feed.querySelector('.hvr')) feed.innerHTML = '<div class="hv2-empty">Les tendances se rechargent… reviens dans un instant ✨</div>';

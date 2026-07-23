@@ -1915,6 +1915,7 @@
         <button data-l="pt" onclick="skSetLang('pt')"><span class="fl">🇧🇷</span>PT</button>
       </div>
       <div class="skm-div"></div>
+      <button class="skm-it" onclick="skMenuClose();switchView('niches',null)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 8h16M9 4v16M15 4v16"/></svg></span><span data-i18n="m_niches">Niches virales</span><span class="skm-tag" style="background:rgba(255,183,3,.16);color:#ffb703;">★</span></button>
       <button class="skm-it" onclick="skMenuClose();openIdeasPage&&openIdeasPage()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.3 1.5 1.5 2.4h5c.2-.9.7-1.7 1.5-2.4A6.5 6.5 0 0 0 12 3z"/></svg></span><span data-i18n="m_ideas">Idées de vidéos</span><span class="skm-badge" id="skmIdeaBadge"></span></button>
       <button class="skm-it" onclick="skMenuClose();switchView('ia',null);studioTab&&studioTab('script')"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg></span><span data-i18n="m_script">Créer un script</span></button>
       <button class="skm-it" onclick="skMenuClose();switchView('ia',null);studioTab&&studioTab('script');setTimeout(function(){var a=document.getElementById('studioAcctPicker');if(a)a.scrollIntoView({behavior:'smooth'});},300)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span data-i18n="m_niche">Trouver ma niche</span></button>
@@ -2005,6 +2006,23 @@
     </div>
     <div class="hv2-chips reveal" id="hv2Chips" style="animation-delay:.18s"></div>
     <div class="hv2-feed" id="hv2Feed"><div class="hv2-empty">Chargement des tendances…</div></div>
+  </div>
+
+  <!-- ═══ NICHES VIRALES — catalogue façon « films » avec note de potentiel (Pro). ═══ -->
+  <div class="view" id="view-niches">
+    <div class="nz-head">
+      <h1 class="page-title" data-i18n="nz_title">🎬 Niches virales</h1>
+      <p class="page-sub" data-i18n="nz_sub">Les styles qui cartonnent, notés par potentiel viral. Choisis, ouvre, reproduis avec l'IA.</p>
+    </div>
+    <div class="nz-grid" id="nzGrid"><div class="hv2-empty">Chargement des niches…</div></div>
+  </div>
+
+  <!-- Fiche détaillée d'une niche -->
+  <div class="popup-overlay" id="nzDetail" onclick="nicheClose(event)">
+    <div class="popup-card nz-card" onclick="event.stopPropagation()">
+      <button class="popup-close" onclick="nicheClose()" aria-label="Fermer">✕</button>
+      <div id="nzBody"></div>
+    </div>
   </div>
 
   <!-- ═══ ESPACE PROPRIÉTAIRE (dev) — comptes, stats, publication. Invisible au public. ═══ -->
@@ -2409,6 +2427,27 @@
       .hvg-more:not(.locked):not(.ghost){background:rgba(255,255,255,.06);border:1px solid var(--border);color:#eaf1ff;}
       .hvg-more.ghost{background:transparent;color:var(--muted);}
       .hvg-more:active{transform:scale(.98);}
+      /* ── Niches virales : catalogue façon films ─────────────────── */
+      .nz-head{padding:6px 2px 14px;}
+      .nz-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-bottom:36px;}
+      .nz-cell{cursor:pointer;}
+      .nz-poster{position:relative;width:100%;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 16px 40px -22px rgba(0,0,0,.9);}
+      .nz-poster video{width:100%;height:100%;object-fit:cover;display:block;}
+      .nz-cell.locked .nz-poster video{filter:blur(8px) brightness(.55);transform:scale(1.08);}
+      .nz-score{position:absolute;top:8px;left:8px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);color:#ffb703;font-size:.74rem;font-weight:900;}
+      .nz-score.big{font-size:1rem;top:12px;left:12px;}
+      .nz-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);}
+      .nz-name{margin-top:9px;font-family:'Sora',sans-serif;font-weight:800;font-size:.9rem;color:#eaf1ff;}
+      .nz-n{font-size:.72rem;color:var(--muted);margin-top:1px;}
+      .nz-card{max-width:460px;text-align:left;}
+      .nzd-hero{position:relative;width:100%;aspect-ratio:9/16;max-height:50vh;border-radius:16px;overflow:hidden;background:#0b0f1a;margin:4px 0 14px;}
+      .nzd-hero video{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;}
+      .nzd-title{font-family:'Fraunces',serif;font-weight:800;font-size:1.3rem;margin-bottom:9px;}
+      .nzd-meter{height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:16px;}
+      .nzd-meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffb703,#ff8500);}
+      .nzd-lab{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7a86a0;margin-bottom:5px;}
+      .nzd-p{font-size:.88rem;color:#cdd6ea;line-height:1.55;margin-bottom:14px;}
+      .nzd-copy{margin-top:4px;}
       .hvr{width:min(340px,90vw);display:flex;flex-direction:column;}
       .hvr-video{position:relative;width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 28px 70px -26px rgba(0,0,0,.95);}
       .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
@@ -5948,6 +5987,7 @@
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
     skThemeDuo();
     if (name === 'home') { try { hv2Load(); } catch(e){} }
+    if (name === 'niches') { try { nichesLoad(); } catch(e){} }
     if (name === 'owner') { try { loadHomeDashboard(); } catch(e){} }
     if (name === 'library') applyBookLocks();
     if (name === 'ia') { if (typeof initStudioTool === 'function') initStudioTool(); redrawWorkflowSoon(); if (typeof loadStudioAccounts === 'function') loadStudioAccounts(); }
@@ -6062,6 +6102,81 @@
   }
   function hv2More(){ _hv2Expanded = true; hv2Render(); }
   function hv2Less(){ _hv2Expanded = false; hv2Render(); try{ document.getElementById('hv2Chips').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
+
+  // ── NICHES VIRALES : catalogue façon « films », note auto depuis les vraies stats ──
+  var NICHE_INFO = {
+    tiktok_shop:{t:'🛍️ TikTok Shop',why:"Un personnage tient un produit et le vend en parlant : le format qui convertit le plus (achats directs).",how:"Un avatar IA présente TON produit, gestes réalistes + voix off convaincante."},
+    product:{t:'📦 Produit',why:"Test / unboxing : la curiosité et la preuve font exploser les vues.",how:"Montre le produit en action, plans serrés, punchlines aux moments clés."},
+    funny:{t:'😂 Drôle',why:"L'humour se partage plus que tout : rétention + partages massifs.",how:"Un sketch court avec une chute rapide, personnages IA expressifs."},
+    diy:{t:'🔨 Bricolage',why:"Le fait-main satisfaisant (construction/réparation) capte jusqu'au bout.",how:"Étapes en accéléré, gros plans satisfaisants, voix off qui explique."},
+    asmr:{t:'🎧 ASMR',why:"Sons satisfaisants = hypnotique : temps de visionnage très élevé.",how:"Sons nets et rythmés, images propres, pas de musique qui couvre le son."},
+    horror:{t:'👻 Horreur',why:"La peur et le suspense créent rétention et commentaires énormes.",how:"POV + ambiance sombre, montée de tension, révélation finale."},
+    story:{t:'📖 Histoire',why:"Une bonne histoire garde le spectateur jusqu'à la fin.",how:"Narration off + visuels IA, hook fort dès la 1ʳᵉ seconde."},
+    motivation:{t:'🔥 Motivation',why:"Un discours qui inspire = partages et sauvegardes en masse.",how:"Voix off puissante, plans esthétiques, sous-titres punchy."},
+    quiz:{t:'❓ Quiz',why:"L'interaction (deviner) booste commentaires et rejouabilité.",how:"Questions rythmées, compte à rebours, réponse à la fin. Zéro tournage."},
+    luxury_aesthetic:{t:'💎 Luxe',why:"L'esthétique premium fait rêver et se partage énormément.",how:"Plans léchés, étalonnage riche, rythme lent et chic."},
+    talk_facecam:{t:'🗣️ Facecam',why:"Un visage qui parle crée proximité et confiance.",how:"Avatar IA face caméra, sous-titres, punch-ins aux phrases fortes."},
+    other:{t:'🎬 Divers',why:"Des pépites virales à fort potentiel.",how:"Analyse la vidéo et reproduis-la avec l'IA."}
+  };
+  function nicheScore(vids){
+    if(!vids.length) return 0;
+    var av=0, eng=0, ec=0;
+    vids.forEach(function(v){ av+=(v.views||0); if(v.views&&v.likes){ eng+=v.likes/v.views; ec++; } });
+    av/=vids.length;
+    var base = av>0 ? Math.log(av)/Math.LN10 : 0;   // ~4.7 (50k) .. 8 (100M)
+    var s = 6.4 + (base-4.7)*0.85;
+    if(ec) s += Math.min(0.6, (eng/ec)*4);
+    return Math.round(Math.max(6.2, Math.min(9.9, s))*10)/10;
+  }
+  async function nichesLoad(){
+    var grid=document.getElementById('nzGrid'); if(!grid) return;
+    if(!_hv2All){ try{ await hv2Load(); }catch(e){} }   // réutilise les vidéos déjà chargées
+    nichesRender();
+  }
+  function nichesRender(){
+    var grid=document.getElementById('nzGrid'); if(!grid) return;
+    var arr=(_hv2All||[]);
+    if(!arr.length){ grid.innerHTML='<div class="hv2-empty">Les niches arrivent bientôt ✨</div>'; return; }
+    var by={}; arr.forEach(function(v){ (by[v.niche]=by[v.niche]||[]).push(v); });
+    var rows=Object.keys(by).map(function(k){
+      var vids=by[k].slice().sort(function(a,b){return (b.views||0)-(a.views||0);});
+      return { niche:k, top:vids[0], n:vids.length, score:nicheScore(vids) };
+    }).sort(function(a,b){ return b.score-a.score; });
+    var pro=hv2IsPro();
+    grid.innerHTML=rows.map(function(r){
+      var info=NICHE_INFO[r.niche]||{t:HV2_NICHE_LB[r.niche]||r.niche};
+      var poster=r.top&&r.top.media_url?'<video src="'+genEsc(r.top.media_url)+'#t=0.1" muted playsinline preload="metadata"></video>':'';
+      return '<div class="nz-cell'+(pro?'':' locked')+'" onclick="nicheOpen(\''+genEsc(r.niche)+'\')">'+
+        '<div class="nz-poster">'+poster+
+          '<div class="nz-score">★ '+r.score.toFixed(1)+'</div>'+
+          (pro?'':'<div class="nz-lock"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>')+
+        '</div>'+
+        '<div class="nz-name">'+genEsc(info.t||r.niche)+'</div>'+
+        '<div class="nz-n">'+r.n+' vidéo'+(r.n>1?'s':'')+'</div>'+
+      '</div>';
+    }).join('');
+  }
+  function nicheOpen(k){
+    if(!hv2IsPro()){ try{ openUpgrade&&openUpgrade(); }catch(e){} return; }
+    var arr=(_hv2All||[]).filter(function(v){return v.niche===k;}).sort(function(a,b){return (b.views||0)-(a.views||0);});
+    if(!arr.length) return;
+    var info=NICHE_INFO[k]||{t:HV2_NICHE_LB[k]||k,why:'',how:''};
+    var top=arr[0], score=nicheScore(arr);
+    var body=document.getElementById('nzBody'); if(!body) return;
+    body.innerHTML=
+      '<div class="nzd-hero"><video src="'+genEsc(top.media_url)+'#t=0.1" muted playsinline preload="metadata" onclick="hv2Toggle(this)"></video>'+
+        '<span class="hvg-play"><svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
+        '<div class="nz-score big">★ '+score.toFixed(1)+'</div></div>'+
+      '<h3 class="nzd-title">'+genEsc(info.t||k)+'</h3>'+
+      '<div class="nzd-meter"><i style="width:'+Math.round(score*10)+'%"></i></div>'+
+      '<div class="nzd-lab">Pourquoi ça marche</div><p class="nzd-p">'+genEsc(info.why||'')+'</p>'+
+      '<div class="nzd-lab">Comment la reproduire</div><p class="nzd-p">'+genEsc(info.how||'')+'</p>'+
+      '<button class="hvg-cta nzd-copy" onclick="nicheClose();goCopierWith(\''+genEsc(top.video_url)+'\')">'+
+        '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>'+
+        '<span>'+skT('copyAI')+'</span></button>';
+    document.getElementById('nzDetail').classList.add('open');
+  }
+  function nicheClose(e){ if(e&&e.target&&e.target.id&&e.target.id!=='nzDetail') return; var p=document.getElementById('nzDetail'); if(p) p.classList.remove('open'); }
   // Ordonne pour éviter deux vidéos de suite de la MÊME plateforme (et si possible même niche).
   function hv2Order(arr){
     var pool = arr.slice().sort(function(a,b){ return (b.views||0)-(a.views||0); });
@@ -6129,10 +6244,10 @@
 
   // ── Langue (menu ☰, visible direct) ────────────────────────────────────
   var SK_I18N = {
-    fr:{heroA:"Une vidéo cartonne ?",heroB:"Refais-la. En mieux.",heroSub:"Colle le lien d'une vidéo virale — l'IA te sort le plan complet pour la recréer : images, prompts, montage.",heroGo:"Copier",heroImp:"ou importe ta vidéo",orT:"Ou choisis une tendance",orS:"Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.",trend:"🔥 Tendance",copyVid:"Copier la vidéo",copyShort:"Copier",copyAI:"Copier avec l'IA",seeMore:"Voir plus de tendances",seeLess:"Voir moins",unlockPro:"Débloque toutes les tendances (Pro)",ph:"Colle un lien viral ici…",m_ideas:"Idées de vidéos",m_script:"Créer un script",m_niche:"Trouver ma niche",m_sub:"Abonnement",m_set:"Paramètres",m_help:"Support",m_terms:"Termes & conditions"},
-    en:{heroA:"A video is blowing up?",heroB:"Remake it. Better.",heroSub:"Paste a viral video link — the AI gives you the full plan to recreate it: images, prompts, editing.",heroGo:"Copy",heroImp:"or upload your video",orT:"Or pick a trend",orS:"Viral videos generated or reproducible with AI — copy them in 1 click.",trend:"🔥 Trending",copyVid:"Copy this video",copyShort:"Copy",copyAI:"Copy with AI",seeMore:"See more trends",seeLess:"See less",unlockPro:"Unlock all trends (Pro)",ph:"Paste a viral link here…",m_ideas:"Video ideas",m_script:"Create a script",m_niche:"Find my niche",m_sub:"Subscription",m_set:"Settings",m_help:"Support",m_terms:"Terms & conditions"},
-    es:{heroA:"¿Un video está explotando?",heroB:"Recréalo. Mejor.",heroSub:"Pega el enlace de un video viral — la IA te da el plan completo para recrearlo: imágenes, prompts, edición.",heroGo:"Copiar",heroImp:"o sube tu video",orT:"O elige una tendencia",orS:"Videos virales generados o reproducibles con IA — cópialos en 1 clic.",trend:"🔥 Tendencia",copyVid:"Copiar este video",copyShort:"Copiar",copyAI:"Copiar con IA",seeMore:"Ver más tendencias",seeLess:"Ver menos",unlockPro:"Desbloquea todo (Pro)",ph:"Pega un enlace viral aquí…",m_ideas:"Ideas de videos",m_script:"Crear un guion",m_niche:"Encontrar mi nicho",m_sub:"Suscripción",m_set:"Ajustes",m_help:"Soporte",m_terms:"Términos y condiciones"},
-    pt:{heroA:"Um vídeo está bombando?",heroB:"Refaça. Melhor.",heroSub:"Cole o link de um vídeo viral — a IA te dá o plano completo para recriá-lo: imagens, prompts, edição.",heroGo:"Copiar",heroImp:"ou envie seu vídeo",orT:"Ou escolha uma tendência",orS:"Vídeos virais gerados ou reproduzíveis com IA — copie em 1 clique.",trend:"🔥 Em alta",copyVid:"Copiar este vídeo",copyShort:"Copiar",copyAI:"Copiar com IA",seeMore:"Ver mais tendências",seeLess:"Ver menos",unlockPro:"Desbloqueie tudo (Pro)",ph:"Cole um link viral aqui…",m_ideas:"Ideias de vídeos",m_script:"Criar um roteiro",m_niche:"Encontrar meu nicho",m_sub:"Assinatura",m_set:"Configurações",m_help:"Suporte",m_terms:"Termos e condições"}
+    fr:{heroA:"Une vidéo cartonne ?",heroB:"Refais-la. En mieux.",heroSub:"Colle le lien d'une vidéo virale — l'IA te sort le plan complet pour la recréer : images, prompts, montage.",heroGo:"Copier",heroImp:"ou importe ta vidéo",orT:"Ou choisis une tendance",orS:"Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.",trend:"🔥 Tendance",copyVid:"Copier la vidéo",copyShort:"Copier",copyAI:"Copier avec l'IA",seeMore:"Voir plus de tendances",seeLess:"Voir moins",unlockPro:"Débloque toutes les tendances (Pro)",ph:"Colle un lien viral ici…",m_niches:"Niches virales",nz_title:"🎬 Niches virales",nz_sub:"Les styles qui cartonnent, notés par potentiel viral. Choisis, ouvre, reproduis avec l'IA.",m_ideas:"Idées de vidéos",m_script:"Créer un script",m_niche:"Trouver ma niche",m_sub:"Abonnement",m_set:"Paramètres",m_help:"Support",m_terms:"Termes & conditions"},
+    en:{heroA:"A video is blowing up?",heroB:"Remake it. Better.",heroSub:"Paste a viral video link — the AI gives you the full plan to recreate it: images, prompts, editing.",heroGo:"Copy",heroImp:"or upload your video",orT:"Or pick a trend",orS:"Viral videos generated or reproducible with AI — copy them in 1 click.",trend:"🔥 Trending",copyVid:"Copy this video",copyShort:"Copy",copyAI:"Copy with AI",seeMore:"See more trends",seeLess:"See less",unlockPro:"Unlock all trends (Pro)",ph:"Paste a viral link here…",m_niches:"Viral niches",nz_title:"🎬 Viral niches",nz_sub:"The styles that blow up, rated by viral potential. Pick one, open it, remake it with AI.",m_ideas:"Video ideas",m_script:"Create a script",m_niche:"Find my niche",m_sub:"Subscription",m_set:"Settings",m_help:"Support",m_terms:"Terms & conditions"},
+    es:{heroA:"¿Un video está explotando?",heroB:"Recréalo. Mejor.",heroSub:"Pega el enlace de un video viral — la IA te da el plan completo para recrearlo: imágenes, prompts, edición.",heroGo:"Copiar",heroImp:"o sube tu video",orT:"O elige una tendencia",orS:"Videos virales generados o reproducibles con IA — cópialos en 1 clic.",trend:"🔥 Tendencia",copyVid:"Copiar este video",copyShort:"Copiar",copyAI:"Copiar con IA",seeMore:"Ver más tendencias",seeLess:"Ver menos",unlockPro:"Desbloquea todo (Pro)",ph:"Pega un enlace viral aquí…",m_niches:"Nichos virales",nz_title:"🎬 Nichos virales",nz_sub:"Los estilos que explotan, valorados por potencial viral. Elige, abre y recrea con IA.",m_ideas:"Ideas de videos",m_script:"Crear un guion",m_niche:"Encontrar mi nicho",m_sub:"Suscripción",m_set:"Ajustes",m_help:"Soporte",m_terms:"Términos y condiciones"},
+    pt:{heroA:"Um vídeo está bombando?",heroB:"Refaça. Melhor.",heroSub:"Cole o link de um vídeo viral — a IA te dá o plano completo para recriá-lo: imagens, prompts, edição.",heroGo:"Copiar",heroImp:"ou envie seu vídeo",orT:"Ou escolha uma tendência",orS:"Vídeos virais gerados ou reproduzíveis com IA — copie em 1 clique.",trend:"🔥 Em alta",copyVid:"Copiar este vídeo",copyShort:"Copiar",copyAI:"Copiar com IA",seeMore:"Ver mais tendências",seeLess:"Ver menos",unlockPro:"Desbloqueie tudo (Pro)",ph:"Cole um link viral aqui…",m_niches:"Nichos virais",nz_title:"🎬 Nichos virais",nz_sub:"Os estilos que bombam, avaliados por potencial viral. Escolha, abra e recrie com IA.",m_ideas:"Ideias de vídeos",m_script:"Criar um roteiro",m_niche:"Encontrar meu nicho",m_sub:"Assinatura",m_set:"Configurações",m_help:"Suporte",m_terms:"Termos e condições"}
   };
   function skLang(){ try { return localStorage.getItem('skillora_lang') || 'fr'; } catch(e){ return 'fr'; } }
   function skT(k){ var d=SK_I18N[skLang()]||SK_I18N.fr; return d[k]||SK_I18N.fr[k]||''; }

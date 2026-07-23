@@ -4513,27 +4513,92 @@ def _study_fail(row, msg):
                                 "error": msg[:500], "finished_at": "now()"})
 
 
+def _feed_fill(row):
+    """FEED (nouveau système) : on ne fait PLUS étudier la vidéo par Gemini. Le feed a juste
+    besoin d'une copie qui JOUE durablement (les liens TikTok/Insta expirent en ~jours). On
+    télécharge une fois, on ré-héberge (lien permanent) et on marque la vidéo prête. La niche
+    est déjà posée par l'agent Chercheur. Zéro Gemini, zéro quota."""
+    win_id = row["id"]
+    url = row.get("video_url") or ""
+    niche = re.sub(r"[^a-z0-9_]", "", str(row.get("niche") or "other").lower()) or "other"
+    if "youtu" in url.lower():
+        # YouTube : pas de mp4 exploitable pour le feed -> on l'écarte proprement.
+        mark_winner(win_id, {"status": "skipped", "niche": niche, "finished_at": "now()"})
+        return
+    candidates = [u for u in (row.get("media_url"), url) if u]
+    tmp = tempfile.mktemp(suffix=".mp4")
+    try:
+        def _is_video(p):
+            try:
+                return os.path.getsize(p) > 50000 and ffprobe_facts(p)["duration"] > 0.5
+            except Exception:
+                return False
+        got = False
+        for cand in candidates:
+            try:
+                download(cand, tmp)
+                if _is_video(tmp):
+                    got = True
+                    break
+            except Exception:
+                pass
+        if not got:                       # lien expiré ? on redemande un mp4 frais à SociaVault
+            fresh = sv_fresh_media(url)
+            if fresh:
+                try:
+                    download(fresh, tmp)
+                    got = _is_video(tmp)
+                except Exception:
+                    pass
+        if not got:
+            _study_fail(row, "téléchargement impossible (lien expiré ?)")
+            return
+        new_media = rehost_winner_media(win_id, tmp)
+        if not new_media:
+            _study_fail(row, "ré-hébergement échoué")
+            return
+        mark_winner(win_id, {"status": "done", "niche": niche,
+                             "media_url": new_media, "finished_at": "now()"})
+        print(f"Feed: {niche} -> lien permanent OK")
+    finally:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+
+
 def study_winner(row):
-    """Fait étudier UNE vidéo gagnante par Gemini et enrichit la mémoire de style.
-    YouTube : analyse directe du lien ; sinon téléchargement du mp4 (media_url) + analyse."""
+    """Traite UNE vidéo gagnante. Renvoie 'feed' (remplissage du feed, sans Gemini) ou
+    'study' (étude Gemini pour l'école du propriétaire) selon le scope.
+      • scope global  -> FEED : téléchargement + ré-hébergement, aucune étude.
+      • scope creator -> ÉCOLE : analyse Gemini du style (si l'école est ouverte)."""
     win_id = row["id"]
     url = row.get("video_url") or ""
     scope = row.get("scope") or "creator"
     views = int(row.get("views") or 0)
+    # ── FEED : on n'étudie pas, on remplit. (le cœur du nouveau système)
+    if scope != "creator":
+        try:
+            _feed_fill(row)
+        except Exception as e:
+            traceback.print_exc()
+            _study_fail(row, str(e))
+        return "feed"
+    # ── ÉCOLE (propriétaire) : étude Gemini, seulement si le quota le permet.
+    global _gemini_rest_until
+    if not ((GEMINI_KEY or OPENROUTER_KEY) and time.time() >= _gemini_rest_until
+            and _study_budget_left() > 0):
+        mark_winner(win_id, {"status": "queued"})  # on réessaiera quand l'école rouvre
+        return "skip"
+    _study_budget_spend()
     try:
         low = url.lower()
         gem = None
-        new_media = None  # URL permanente (re-hébergée) si on a réussi à télécharger le mp4
         if "youtu" in low:
             gem = gemini_study_url(url)  # analyse directe, pas de téléchargement
         else:
-            # ordre d'essai : mp4 direct connu -> lien page -> mp4 frais via SociaVault
             candidates = [u for u in (row.get("media_url"), url) if u]
             tmp = tempfile.mktemp(suffix=".mp4")
             try:
                 def _is_video(p):
-                    # les liens expirés renvoient des pages d'erreur parfois > 50 Ko :
-                    # seul ffprobe fait foi (vraie vidéo lisible, durée > 0,5 s)
                     try:
                         return os.path.getsize(p) > 50000 and ffprobe_facts(p)["duration"] > 0.5
                     except Exception:
@@ -4556,37 +4621,29 @@ def study_winner(row):
                     raise RuntimeError("téléchargement impossible (lien expiré ?)")
                 dur = ffprobe_facts(tmp)["duration"]
                 gem = gemini_analyze_video(tmp, dur)
-                # Lien PERMANENT pour le feed (avant de supprimer le fichier).
-                new_media = rehost_winner_media(win_id, tmp)
             finally:
                 if os.path.exists(tmp):
                     os.remove(tmp)
         if not gem or not isinstance(gem, dict):
-            global _gemini_rest_until
             _gemini_rest_until = time.time() + GEMINI_REST_S
             _study_fail(row, "Gemini n'a pas pu analyser (quota ? on réessaiera).")
-            print("Éclaireur: quota Gemini atteint -> école en pause 6 h (le quota restant est réservé aux clients).")
-            return
+            print("École: quota Gemini atteint -> pause 6 h (le quota restant est réservé aux clients).")
+            return "study"
         niche = re.sub(r"[^a-z0-9_]", "",
                        str(row.get("niche") or gem.get("niche") or gem.get("video_type") or "other").lower()) or "other"
-        if scope == "creator" and row.get("user_id"):
-            bucket, key = USERSTYLE_BUCKET, f"{row['user_id']}/{niche}.json"
-        else:
-            bucket, key = STYLE_BUCKET, f"{niche}.json"
+        bucket, key = USERSTYLE_BUCKET, f"{row['user_id']}/{niche}.json"
         prof = merge_winner_style(bucket, key, niche, gem, views, scope)
         _STYLE_CACHE.pop(niche, None)  # invalide le cache pour usage immédiat
-        winner_patch = {"status": "done", "niche": niche,
-                        "study_result": {"sub_style_id": prof.get("sub_style_id"),
-                                         "edit_intensity": prof.get("edit_intensity"),
-                                         "samples": prof.get("samples")},
-                        "finished_at": "now()"}
-        if new_media:
-            winner_patch["media_url"] = new_media  # lien permanent -> le feed ne casse plus
-        mark_winner(win_id, winner_patch)
-        print(f"Éclaireur: étudié {scope}/{niche} ({views} vues) -> {bucket}/{key}")
+        mark_winner(win_id, {"status": "done", "niche": niche,
+                             "study_result": {"sub_style_id": prof.get("sub_style_id"),
+                                              "edit_intensity": prof.get("edit_intensity"),
+                                              "samples": prof.get("samples")},
+                             "finished_at": "now()"})
+        print(f"École: étudié creator/{niche} ({views} vues) -> {bucket}/{key}")
     except Exception as e:
         traceback.print_exc()
         _study_fail(row, str(e))
+    return "study"
 
 
 # --- déclenchement automatique des agents (aucun cron à configurer) -------------
@@ -5953,19 +6010,17 @@ def main():
             print("Job réclamé:", job["id"])
             process(job)
             continue
-        # Au repos : 1) réveiller les agents si c'est l'heure ; 2) faire étudier UNE gagnante par Gemini.
+        # Au repos : 1) réveiller les agents si c'est l'heure ; 2) traiter UNE gagnante.
+        #   • scope global (FEED) : on télécharge + ré-héberge (lien permanent), SANS Gemini.
+        #   • scope creator (école du proprio) : étude Gemini, si l'école est ouverte.
+        # study_winner() choisit le bon traitement selon le scope -> le feed se remplit
+        # même quand le quota Gemini est épuisé.
         scout_tick()
-        school_open = ((GEMINI_KEY or OPENROUTER_KEY) and time.time() >= _gemini_rest_until
-                       and _study_budget_left() > 0)
-        win = claim_winner() if school_open else None
+        win = claim_winner()
         if win:
-            print("Éclaireur: gagnante réclamée:", win.get("video_url", "")[:60],
-                  "· budget du jour restant:", _study_budget_left() - 1)
-            _study_budget_spend()
-            study_winner(win)
-            # PAUSE entre deux études : 8 s en payant (OpenRouter n'impose pas de rythme),
-            # 45 s en gratuit (le quota Gemini punit la vitesse).
-            time.sleep(8 if OPENROUTER_KEY else 45)
+            did = study_winner(win)
+            # feed = rapide (pas de quota) ; étude Gemini = on espace (le quota punit la vitesse).
+            time.sleep((8 if OPENROUTER_KEY else 45) if did == "study" else 2)
             continue
         time.sleep(POLL_SECONDS)
 

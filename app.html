@@ -5946,7 +5946,10 @@
     setTimeout(function(){ try { genStart(); } catch(e){} }, 300);
   }
   var _hv2All = null, _hv2Niche = '';
-  var HV2_NICHE_LB = { edit:'✂️ Edits', horror:'👻 Horreur', food:'🍔 Food', football:'⚽ Foot', basketball:'🏀 Basket', beauty:'💄 Beauté', fashion:'👗 Mode', motivation:'🔥 Motivation', luxury:'💎 Luxe', luxury_aesthetic:'💎 Luxe', animals:'🐾 Animaux', pets:'🐾 Animaux', gaming:'🎮 Gaming', tech:'🤖 Tech', gym:'💪 Fitness', cars:'🏎️ Autos', dance:'💃 Danse', comedy:'😂 Comédie', travel:'✈️ Voyage', vlog:'🎥 Vlog', energetic:'⚡ Énergie', talk_facecam:'🗣️ Facecam', story:'📖 Story', lifestyle:'🌿 Lifestyle', product:'📦 Produit', tiktok_shop:'🛍️ TikTok Shop' };
+  // Le feed ne montre QUE les styles reproductibles avec l'IA (ceux qu'on recommande).
+  // On écarte les anciennes niches physiques (foot, sport, gym, danse, food…).
+  var HV2_ALLOWED = ['tiktok_shop','product','talk_facecam','horror','story','motivation','quiz','luxury_aesthetic'];
+  var HV2_NICHE_LB = { edit:'✂️ Edits', horror:'👻 Horreur', food:'🍔 Food', football:'⚽ Foot', basketball:'🏀 Basket', beauty:'💄 Beauté', fashion:'👗 Mode', motivation:'🔥 Motivation', luxury:'💎 Luxe', luxury_aesthetic:'💎 Luxe', animals:'🐾 Animaux', pets:'🐾 Animaux', gaming:'🎮 Gaming', tech:'🤖 Tech', gym:'💪 Fitness', cars:'🏎️ Autos', dance:'💃 Danse', comedy:'😂 Comédie', travel:'✈️ Voyage', vlog:'🎥 Vlog', energetic:'⚡ Énergie', talk_facecam:'🗣️ Facecam', story:'📖 Story', lifestyle:'🌿 Lifestyle', product:'📦 Produit', quiz:'❓ Quiz', tiktok_shop:'🛍️ TikTok Shop' };
   async function hv2Load(){
     var feed = document.getElementById('hv2Feed'); if (!feed) return;
     try {
@@ -5956,7 +5959,7 @@
           .eq('status','done').not('media_url','is',null)
           .order('views',{ascending:false}).limit(400);
         if (r.error) throw r.error;
-        _hv2All = r.data || [];
+        _hv2All = (r.data || []).filter(function(v){ return HV2_ALLOWED.indexOf(v.niche) >= 0; });
         hv2Chips();
       }
       hv2Render();

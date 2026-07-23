@@ -24,46 +24,27 @@ const DEFAULT_MAX_PER_NICHE = 3;  // les 3 meilleures par niche suffisent (Gemin
 // EXCELLENTE prof. Le tri "most-liked" + le seuil de vues font le filtre qualité.
 const DATE_POSTED = "last-3-months";
 
-// Requêtes de recherche par NICHE — le vocabulaire des créateurs, pas du jargon.
-// Couvre les grands univers de contenu, pas seulement les styles de montage.
+// NICHES RETENUES : uniquement ce qui est REPRODUCTIBLE avec notre IA (faceless,
+// avatar IA qui parle, storytime, histoire, quiz, produit/TikTok Shop). On EXCLUT
+// volontairement tout ce qui exige du réel physique difficile à générer (foot/sport
+// joué en vrai, gym, danse, food, animaux, vlog…). Tout ce qui est dans le feed = ce
+// qu'on RECOMMANDE parce qu'on sait le recréer.
 const DEFAULT_NICHES: Record<string, string> = {
-  // styles de montage
-  talk_facecam: "storytime advice talking to camera",
-  energetic: "high energy edit fast cuts",
-  vlog: "day in my life vlog",
-  horror: "pov horror story scary",
-  luxury_aesthetic: "luxury lifestyle aesthetic",
-  dance: "dance trend choreography",
-  product: "product review unboxing",
-  story: "emotional storytelling",
-  // univers de contenu (ce que publient vraiment les créateurs)
-  football: "football skills highlights",
-  basketball: "basketball highlights hoops",
-  edit: "4k edit transition velocity",
-  gym: "gym motivation fitness transformation",
-  food: "recipe cooking asmr food",
-  comedy: "funny skit comedy",
-  gaming: "gaming clip funny moments",
-  cars: "car edit supercar",
-  fashion: "outfit fashion grwm",
-  beauty: "makeup transformation beauty",
-  motivation: "motivational speech discipline mindset",
-  lifestyle: "aesthetic routine lifestyle",
-  travel: "travel destination cinematic",
-  pets: "funny pets cute animals",
-  tech: "tech gadgets unboxing",
   tiktok_shop: "tiktok shop finds product review must have amazon",
+  product: "product review unboxing ugc ad",
+  talk_facecam: "storytime advice talking to camera reddit",
+  horror: "pov horror story scary creepypasta",
+  story: "emotional storytelling narrated story",
+  motivation: "motivational speech discipline mindset",
+  quiz: "quiz trivia guess the answer challenge iq test",
+  luxury_aesthetic: "luxury lifestyle aesthetic ai",
 };
 
 // Hashtag Instagram par niche (un mot, sans #)
 const IG_TAGS: Record<string, string> = {
-  talk_facecam: "storytime", energetic: "edits", vlog: "dayinmylife", horror: "scarystories",
-  luxury_aesthetic: "luxurylifestyle", dance: "dancechallenge", product: "unboxing",
-  story: "motivation", football: "football", basketball: "basketball", edit: "edits",
-  gym: "gymmotivation", food: "foodasmr", comedy: "comedyvideos", gaming: "gamingclips",
-  cars: "carsofinstagram", fashion: "ootd", beauty: "makeuptransformation",
-  motivation: "motivationdaily", lifestyle: "aestheticlifestyle", travel: "travelreels",
-  pets: "funnypets", tech: "techtok", tiktok_shop: "tiktokshopfinds",
+  tiktok_shop: "tiktokshopfinds", product: "unboxing", talk_facecam: "storytime",
+  horror: "scarystories", story: "storytime", motivation: "motivationdaily",
+  quiz: "quiztime", luxury_aesthetic: "luxurylifestyle",
 };
 
 function j(o: unknown, s = 200) {

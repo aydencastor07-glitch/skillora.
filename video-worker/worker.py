@@ -4513,6 +4513,35 @@ def _study_fail(row, msg):
                                 "error": msg[:500], "finished_at": "now()"})
 
 
+# Détection de la CATÉGORIE d'une vidéo à partir de son titre/hashtags (mots-clés créateurs).
+# Ordre : du plus spécifique au plus général. Renvoie une niche ou None.
+_NICHE_KEYWORDS = [
+    ("asmr", ["asmr", "oddly satisfying", "satisfying", "relaxing sound", "tingles", "whisper"]),
+    ("diy", ["diy", "bushcraft", "survival", "shelter", "primitive", "woodworking", "build a",
+             "how to build", "repair", "restoration", "restore", "handmade", "construction",
+             "réparation", "bricolage", "abri", "life hack", "lifehack"]),
+    ("funny", ["funny", "comedy", "prank", "hilarious", " fail", "meme", " lol", "joke", "skit",
+               "drole", "drôle", "humour", "humor"]),
+    ("tiktok_shop", ["tiktok shop", "tiktokshop", "tiktokmademebuyit", "amazon finds", "must have",
+                     "tiktok made me buy", "amazon must"]),
+    ("product", ["unboxing", "product review", "gadget", "review"]),
+    ("horror", ["horror", "scary", "creepy", "creepypasta", "haunted", "ghost", "pov you"]),
+    ("story", ["storytime", "story time", "reddit", "aita", "confession", "narrated"]),
+    ("motivation", ["motivation", "discipline", "mindset", "grind", "self improvement", "success mindset"]),
+    ("quiz", ["quiz", "trivia", "guess the", "iq test", "riddle", "puzzle"]),
+    ("luxury_aesthetic", ["luxury", "billionaire", "wealth", "aesthetic", "rich life"]),
+]
+
+
+def _detect_niche(text):
+    t = (text or "").lower()
+    for niche, kws in _NICHE_KEYWORDS:
+        for kw in kws:
+            if kw in t:
+                return niche
+    return None
+
+
 def _feed_fill(row):
     """FEED (nouveau système) : on ne fait PLUS étudier la vidéo par Gemini. Le feed a juste
     besoin d'une copie qui JOUE durablement (les liens TikTok/Insta expirent en ~jours). On
@@ -4527,6 +4556,23 @@ def _feed_fill(row):
             return bool(p) and os.path.getsize(p) > 50000 and ffprobe_facts(p)["duration"] > 0.5
         except Exception:
             return False
+
+    # MÉTADONNÉES RÉELLES (yt-dlp) : on les récupère quand la catégorie est inconnue
+    # (vidéo ajoutée par lien) OU quand on n'a aucune stat -> vraies vues/likes/commentaires/
+    # partages + auto-catégorie via les hashtags/titre. Aucun Gemini.
+    extra = {}
+    need_meta = niche in ("", "other") or (row.get("likes") is None and
+                row.get("comments") is None and row.get("shares") is None)
+    if need_meta:
+        meta = _source_meta(url)
+        if meta:
+            if niche in ("", "other"):
+                niche = _detect_niche(meta.get("title")) or "other"
+            for k in ("views", "likes", "comments", "shares"):
+                if meta.get(k) is not None:
+                    extra[k] = meta[k]
+            if meta.get("platform"):
+                extra["platform"] = meta["platform"]
 
     tmp = tempfile.mktemp(suffix=".mp4")
     got_path = None
@@ -4566,9 +4612,11 @@ def _feed_fill(row):
         if not new_media:
             _study_fail(row, "ré-hébergement échoué")
             return
-        mark_winner(win_id, {"status": "done", "niche": niche,
-                             "media_url": new_media, "finished_at": "now()"})
-        print(f"Feed: {niche}/{row.get('platform') or '?'} -> lien permanent OK")
+        patch = {"status": "done", "niche": niche,
+                 "media_url": new_media, "finished_at": "now()"}
+        patch.update(extra)  # vraies vues/likes/commentaires/partages + plateforme si trouvées
+        mark_winner(win_id, patch)
+        print(f"Feed: {niche}/{patch.get('platform') or row.get('platform') or '?'} -> lien permanent OK")
     finally:
         for p in {tmp, got_path}:
             try:

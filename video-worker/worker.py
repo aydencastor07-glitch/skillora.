@@ -4542,6 +4542,45 @@ def _detect_niche(text):
     return None
 
 
+_FEED_CATS = ["tiktok_shop", "product", "funny", "diy", "asmr", "horror", "story",
+              "motivation", "quiz", "luxury_aesthetic", "talk_facecam"]
+
+
+def categorize_video(path, title=""):
+    """Gemini REGARDE la vidéo et choisit UNE catégorie du feed (classification légère,
+    pas une étude de montage). None si échec / pas de clé."""
+    if not (OPENROUTER_KEY or GEMINI_KEY):
+        return None
+    prompt = (
+        "Classe cette courte vidéo virale dans UNE seule catégorie de cette liste EXACTE.\n"
+        "- tiktok_shop : un personnage tient un PRODUIT en main et en parle pour le vendre\n"
+        "- product : test / unboxing / démo d'un produit\n"
+        "- funny : drôle, humour, sketch, blague, fail\n"
+        "- diy : bricolage, construction, réparation, survie, fabrication satisfaisante à la main\n"
+        "- asmr : sons satisfaisants / relaxants, oddly satisfying\n"
+        "- horror : horreur, effrayant, creepy\n"
+        "- story : une histoire racontée (storytime), narration\n"
+        "- motivation : discours motivant, mindset, discipline\n"
+        "- quiz : quiz, devinette, trivia, test de QI\n"
+        "- luxury_aesthetic : luxe, richesse, esthétique premium\n"
+        "- talk_facecam : quelqu'un parle face caméra (conseils, avis)\n"
+        + ("Titre/description : " + str(title)[:200] + "\n" if title else "")
+        + 'Réponds UNIQUEMENT ce JSON : {"category":"<cle>"}'
+    )
+    out = None
+    try:
+        if OPENROUTER_KEY:
+            out = or_generate(prompt, video_path=path, json_out=True)
+        if out is None and GEMINI_KEY:
+            uri = gemini_upload(path)
+            if uri:
+                out = gemini_generate(prompt, file_uri=uri, json_out=True)
+    except Exception as e:
+        print("categorize_video:", e, file=sys.stderr)
+    cat = str((out or {}).get("category", "")).strip().lower()
+    return cat if cat in _FEED_CATS else None
+
+
 def _feed_fill(row):
     """FEED (nouveau système) : on ne fait PLUS étudier la vidéo par Gemini. Le feed a juste
     besoin d'une copie qui JOUE durablement (les liens TikTok/Insta expirent en ~jours). On
@@ -4561,13 +4600,15 @@ def _feed_fill(row):
     # (vidéo ajoutée par lien) OU quand on n'a aucune stat -> vraies vues/likes/commentaires/
     # partages + auto-catégorie via les hashtags/titre. Aucun Gemini.
     extra = {}
+    title = ""
     need_meta = niche in ("", "other") or (row.get("likes") is None and
                 row.get("comments") is None and row.get("shares") is None)
     if need_meta:
         meta = _source_meta(url)
         if meta:
+            title = meta.get("title") or ""
             if niche in ("", "other"):
-                niche = _detect_niche(meta.get("title")) or "other"
+                niche = _detect_niche(title) or "other"
             for k in ("views", "likes", "comments", "shares"):
                 if meta.get(k) is not None:
                     extra[k] = meta[k]
@@ -4608,6 +4649,11 @@ def _feed_fill(row):
         if not got_path:
             _study_fail(row, "téléchargement impossible (toutes méthodes)")
             return
+        # CATÉGORIE PRÉCISE : quand les hashtags n'ont pas suffi, Gemini regarde la vidéo.
+        if niche in ("", "other"):
+            cat = categorize_video(got_path, title)
+            if cat:
+                niche = cat
         new_media = rehost_winner_media(win_id, got_path)
         if not new_media:
             _study_fail(row, "ré-hébergement échoué")

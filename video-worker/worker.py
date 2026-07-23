@@ -4359,6 +4359,28 @@ def mark_winner(win_id, patch):
         print("mark_winner:", e, file=sys.stderr)
 
 
+def make_winner_thumb(win_id, path):
+    """Extrait UNE image (jpg) de la vidéo et l'héberge -> le feed affiche la miniature
+    INSTANTANÉMENT (une image se charge bien plus vite qu'une vidéo). None si échec."""
+    try:
+        jpg = tempfile.mktemp(suffix=".jpg")
+        # image à ~0,8 s (souvent plus nette/représentative que la toute 1ʳᵉ frame)
+        run(["ffmpeg", "-y", "-ss", "0.8", "-i", path, "-frames:v", "1",
+             "-vf", "scale=540:-2", "-q:v", "4", jpg], timeout=60)
+        if not (os.path.exists(jpg) and os.path.getsize(jpg) > 2000):
+            return None
+        with open(jpg, "rb") as f:
+            blob = f.read()
+        os.remove(jpg)
+        key = f"winners/{win_id}.jpg"
+        http("POST", f"{SB_URL}/storage/v1/object/post-media/{key}",
+             sb_headers({"Content-Type": "image/jpeg", "x-upsert": "true"}), blob, timeout=120)
+        return f"{SB_URL}/storage/v1/object/public/post-media/{key}"
+    except Exception as e:
+        print("make_winner_thumb:", e, file=sys.stderr)
+        return None
+
+
 def rehost_winner_media(win_id, path):
     """Copie le mp4 étudié dans un bucket public PERMANENT. Les liens TikTok/Insta
     (tiktokcdn…) EXPIRENT en quelques jours -> le feed cassait. Ici on rend le lien
@@ -4658,8 +4680,11 @@ def _feed_fill(row):
         if not new_media:
             _study_fail(row, "ré-hébergement échoué")
             return
+        thumb = make_winner_thumb(win_id, got_path)   # miniature image -> feed instantané
         patch = {"status": "done", "niche": niche,
                  "media_url": new_media, "finished_at": "now()"}
+        if thumb:
+            patch["thumb_url"] = thumb
         patch.update(extra)  # vraies vues/likes/commentaires/partages + plateforme si trouvées
         mark_winner(win_id, patch)
         print(f"Feed: {niche}/{patch.get('platform') or row.get('platform') or '?'} -> lien permanent OK")

@@ -1918,7 +1918,6 @@
       <button class="skm-it" onclick="skMenuClose();switchView('niches',null)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 8h16M9 4v16M15 4v16"/></svg></span><span data-i18n="m_niches">Niches virales</span><span class="skm-tag" style="background:rgba(255,183,3,.16);color:#ffb703;">★</span></button>
       <button class="skm-it" onclick="skMenuClose();openIdeasPage&&openIdeasPage()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.3 1.5 1.5 2.4h5c.2-.9.7-1.7 1.5-2.4A6.5 6.5 0 0 0 12 3z"/></svg></span><span data-i18n="m_ideas">Idées de vidéos</span><span class="skm-badge" id="skmIdeaBadge"></span></button>
       <button class="skm-it" onclick="skMenuClose();switchView('ia',null);studioTab&&studioTab('script')"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg></span><span data-i18n="m_script">Créer un script</span></button>
-      <button class="skm-it" onclick="skMenuClose();switchView('ia',null);studioTab&&studioTab('script');setTimeout(function(){var a=document.getElementById('studioAcctPicker');if(a)a.scrollIntoView({behavior:'smooth'});},300)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span data-i18n="m_niche">Trouver ma niche</span></button>
       <div class="skm-div"></div>
       <button class="skm-it" onclick="skMenuClose();openUpgrade&&openUpgrade()"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 7 11l5-6 5 6 4-2.5-1.5 9.5h-15z"/><path d="M5.5 21h13"/></svg></span><span data-i18n="m_sub">Abonnement</span><span class="skm-tag" id="skmPlanTag"></span></button>
       <button class="skm-it" onclick="skMenuClose();switchView('profile',null)"><span class="skm-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg></span><span data-i18n="m_set">Paramètres</span></button>
@@ -2432,7 +2431,7 @@
       .nz-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-bottom:36px;}
       .nz-cell{cursor:pointer;}
       .nz-poster{position:relative;width:100%;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 16px 40px -22px rgba(0,0,0,.9);}
-      .nz-poster video{width:100%;height:100%;object-fit:cover;display:block;}
+      .nz-poster video,.nz-poster .nzimg{width:100%;height:100%;object-fit:cover;display:block;}
       .nz-cell.locked .nz-poster video{filter:blur(8px) brightness(.55);transform:scale(1.08);}
       .nz-score{position:absolute;top:8px;left:8px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);color:#ffb703;font-size:.74rem;font-weight:900;}
       .nz-score.big{font-size:1rem;top:12px;left:12px;}
@@ -6036,7 +6035,7 @@
     try {
       if (!_hv2All) {
         var r = await sb.from('winning_videos')
-          .select('id,platform,niche,views,likes,comments,shares,video_url,media_url')
+          .select('id,platform,niche,views,likes,comments,shares,video_url,media_url,thumb_url')
           .eq('status','done').not('media_url','is',null)
           .order('views',{ascending:false}).limit(400);
         if (r.error) throw r.error;
@@ -6074,8 +6073,10 @@
     function card(v){
       var p = PL[(v.platform||'').toLowerCase()] || {c:'#9ec2ff',n:v.platform||'Viral',ic:''};
       var lb = HV2_NICHE_LB[v.niche] || '';
-      return '<div class="hvg"><div class="hvg-vid">'+
-        '<video src="'+genEsc(v.media_url)+'#t=0.1" muted playsinline preload="metadata" onclick="hv2Toggle(this)" onerror="hv2Broken(this)"></video>'+
+      var vid = v.thumb_url
+        ? '<video src="'+genEsc(v.media_url)+'" poster="'+genEsc(v.thumb_url)+'" muted playsinline preload="none" onclick="hv2Toggle(this)"></video>'
+        : '<video src="'+genEsc(v.media_url)+'#t=0.1" muted playsinline preload="metadata" onclick="hv2Toggle(this)" onerror="hv2Broken(this)"></video>';
+      return '<div class="hvg"><div class="hvg-vid">'+ vid +
         '<span class="hvg-play"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
         '<div class="hvg-tag"><span class="plic">'+p.ic+'</span></div>'+
         (lb?'<div class="hvg-cat">'+genEsc(lb)+'</div>':'')+
@@ -6145,7 +6146,9 @@
     var pro=hv2IsPro();
     grid.innerHTML=rows.map(function(r){
       var info=NICHE_INFO[r.niche]||{t:HV2_NICHE_LB[r.niche]||r.niche};
-      var poster=r.top&&r.top.media_url?'<video src="'+genEsc(r.top.media_url)+'#t=0.1" muted playsinline preload="metadata"></video>':'';
+      var poster = r.top ? (r.top.thumb_url
+        ? '<img class="nzimg" src="'+genEsc(r.top.thumb_url)+'" loading="lazy" alt="">'
+        : (r.top.media_url ? '<video src="'+genEsc(r.top.media_url)+'" poster="" muted playsinline preload="none"></video>' : '')) : '';
       return '<div class="nz-cell'+(pro?'':' locked')+'" onclick="nicheOpen(\''+genEsc(r.niche)+'\')">'+
         '<div class="nz-poster">'+poster+
           '<div class="nz-score">★ '+r.score.toFixed(1)+'</div>'+
@@ -6164,7 +6167,7 @@
     var top=arr[0], score=nicheScore(arr);
     var body=document.getElementById('nzBody'); if(!body) return;
     body.innerHTML=
-      '<div class="nzd-hero"><video src="'+genEsc(top.media_url)+'#t=0.1" muted playsinline preload="metadata" onclick="hv2Toggle(this)"></video>'+
+      '<div class="nzd-hero"><video src="'+genEsc(top.media_url)+'" poster="'+genEsc(top.thumb_url||'')+'" muted playsinline preload="none" onclick="hv2Toggle(this)"></video>'+
         '<span class="hvg-play"><svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
         '<div class="nz-score big">★ '+score.toFixed(1)+'</div></div>'+
       '<h3 class="nzd-title">'+genEsc(info.t||k)+'</h3>'+

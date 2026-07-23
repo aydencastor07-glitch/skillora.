@@ -5965,7 +5965,11 @@
     if (!/^https?:\/\//i.test(v)) { skModal({icon:'🔗',title:'Lien invalide',message:'Colle un lien complet (https://…).',cancelText:'OK'}); return; }
     goCopierWith(v);
   }
+  // Pro = abonné payant OU propriétaire. Le feed se PARCOURT gratuitement (miniatures,
+  // catégories, tout déployer) mais REGARDER et COPIER une vidéo demandent le Pro.
+  function hv2IsPro(){ return window._unlimited === true || (typeof userIsSubscribed !== 'undefined' && userIsSubscribed); }
   function goCopierWith(url){
+    if (!hv2IsPro()) { try { openUpgrade && openUpgrade(); } catch(e){} return; }
     switchView('ia', null);
     try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){}
     try { genReset(); } catch(e){}
@@ -6045,17 +6049,12 @@
     }
     var list = hv2Order(_hv2All.filter(function(v){ return !_hv2Niche || v.niche === _hv2Niche; }));
     if (!list.length) { feed.innerHTML = '<div class="hv2-empty">Rien dans cette niche pour l\'instant.</div>'; return; }
-    var isPro = window._unlimited === true || (typeof userIsSubscribed !== 'undefined' && userIsSubscribed);
+    // Parcours GRATUIT : tout le monde peut déployer et voir toutes les miniatures/catégories.
     var shown = _hv2Expanded ? list : list.slice(0, HV2_FREE_LIMIT);
     var more = list.length - shown.length;
     var html = '<div class="hvg-grid">' + shown.map(card).join('') + '</div>';
-    if (more > 0 && isPro) {
+    if (more > 0) {
       html += '<button class="hvg-more" onclick="hv2More()">'+skT('seeMore')+' (+'+more+')</button>';
-    } else if (more > 0) {
-      // GRATUIT : le reste est réservé au Pro -> le bouton mène à l'abonnement.
-      html += '<button class="hvg-more locked" onclick="openUpgrade&&openUpgrade()">'+
-        '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'+
-        '<span>'+skT('unlockPro')+'</span></button>';
     } else if (_hv2Expanded && list.length > HV2_FREE_LIMIT) {
       html += '<button class="hvg-more ghost" onclick="hv2Less()">'+skT('seeLess')+'</button>';
     }
@@ -6116,6 +6115,8 @@
     } catch(e){}
   }
   function hv2Toggle(v){
+    // Regarder la vidéo = réservé au Pro. Le gratuit voit la miniature -> on l'invite à payer.
+    if (!hv2IsPro()) { try { v.pause(); } catch(e){} try { openUpgrade && openUpgrade(); } catch(e){} return; }
     try {
       var card = v.closest('.hvg-vid');
       if (v.paused) {
@@ -10925,9 +10926,7 @@
       nodes.forEach(function(x){wrap.appendChild(x);});
       var acct=document.getElementById('studioAcctPicker');
       if(acct) wrap.insertBefore(acct, wrap.firstChild);
-      var tabs=document.createElement('div'); tabs.className='sktabs';
-      tabs.innerHTML='<button class="sktab active" data-t="copie" onclick="studioTab(\'copie\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>Copie</button><button class="sktab" data-t="script" onclick="studioTab(\'script\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg>Script</button>';
-      view.insertBefore(tabs, card);
+      // Plus d'onglet « Script » : cliquer « Copier avec l'IA » va DIRECTEMENT sur la copie/animation.
       studioTab('copie');
     }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();

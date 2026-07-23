@@ -281,15 +281,22 @@ serve(async (req) => {
         }
       } catch (e) { console.error("explore facebook", niche, String(e)); }
 
-      const rows = found
-        .filter((x) => x.url && x.views >= GLOBAL_MIN_VIEWS)
-        .sort((a, b) => b.views - a.views)
-        .slice(0, maxPerNiche * 3)   // top toutes plateformes confondues (TikTok/YouTube/IG/FB)
-        .map((x) => ({
-          user_id: null, platform: x.platform, video_url: x.url, media_url: x.media_url || null,
-          views: x.views, likes: x.likes ?? null, comments: x.comments ?? null, shares: x.shares ?? null,
-          create_time: x.create_time, niche, scope: "global",
-        }));
+      // DIVERSITÉ DE PLATEFORME : meilleures PAR plateforme (pas un top global par vues,
+      // sinon TikTok — plus gros compteurs — rafle tout). YouTube/Instagram/Facebook entrent aussi.
+      const eligible = found.filter((x) => x.url && x.views >= GLOBAL_MIN_VIEWS);
+      const byPlat: Record<string, any[]> = {};
+      for (const x of eligible) (byPlat[x.platform] = byPlat[x.platform] || []).push(x);
+      const rows: any[] = [];
+      for (const plat of Object.keys(byPlat)) {
+        byPlat[plat].sort((a, b) => b.views - a.views);
+        for (const x of byPlat[plat].slice(0, maxPerNiche)) {
+          rows.push({
+            user_id: null, platform: x.platform, video_url: x.url, media_url: x.media_url || null,
+            views: x.views, likes: x.likes ?? null, comments: x.comments ?? null, shares: x.shares ?? null,
+            create_time: x.create_time, niche, scope: "global",
+          });
+        }
+      }
 
       if (rows.length) {
         await admin.from("winning_videos").upsert(rows, { onConflict: "video_url,scope", ignoreDuplicates: true });

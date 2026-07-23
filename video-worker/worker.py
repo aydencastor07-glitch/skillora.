@@ -4521,48 +4521,61 @@ def _feed_fill(row):
     win_id = row["id"]
     url = row.get("video_url") or ""
     niche = re.sub(r"[^a-z0-9_]", "", str(row.get("niche") or "other").lower()) or "other"
-    if "youtu" in url.lower():
-        # YouTube : pas de mp4 exploitable pour le feed -> on l'écarte proprement.
-        mark_winner(win_id, {"status": "skipped", "niche": niche, "finished_at": "now()"})
-        return
-    candidates = [u for u in (row.get("media_url"), url) if u]
+
+    def _is_video(p):
+        try:
+            return bool(p) and os.path.getsize(p) > 50000 and ffprobe_facts(p)["duration"] > 0.5
+        except Exception:
+            return False
+
     tmp = tempfile.mktemp(suffix=".mp4")
+    got_path = None
     try:
-        def _is_video(p):
+        # 1) mp4 direct connu (fourni par le Chercheur) — le plus rapide.
+        mu = row.get("media_url")
+        if mu:
             try:
-                return os.path.getsize(p) > 50000 and ffprobe_facts(p)["duration"] > 0.5
-            except Exception:
-                return False
-        got = False
-        for cand in candidates:
-            try:
-                download(cand, tmp)
+                download(mu, tmp)
                 if _is_video(tmp):
-                    got = True
-                    break
+                    got_path = tmp
             except Exception:
                 pass
-        if not got:                       # lien expiré ? on redemande un mp4 frais à SociaVault
+        # 2) yt-dlp sur la PAGE — marche pour TikTok / YouTube / Instagram / Facebook.
+        #    C'est ce qui rend le feed MULTI-PLATEFORME (plus seulement TikTok).
+        if not got_path:
+            try:
+                src = _fetch_source(url)
+                if _is_video(src):
+                    got_path = src
+            except Exception:
+                pass
+        # 3) SociaVault (lien mp4 frais) en tout dernier recours (TikTok/Insta).
+        if not got_path:
             fresh = sv_fresh_media(url)
             if fresh:
                 try:
                     download(fresh, tmp)
-                    got = _is_video(tmp)
+                    if _is_video(tmp):
+                        got_path = tmp
                 except Exception:
                     pass
-        if not got:
-            _study_fail(row, "téléchargement impossible (lien expiré ?)")
+        if not got_path:
+            _study_fail(row, "téléchargement impossible (toutes méthodes)")
             return
-        new_media = rehost_winner_media(win_id, tmp)
+        new_media = rehost_winner_media(win_id, got_path)
         if not new_media:
             _study_fail(row, "ré-hébergement échoué")
             return
         mark_winner(win_id, {"status": "done", "niche": niche,
                              "media_url": new_media, "finished_at": "now()"})
-        print(f"Feed: {niche} -> lien permanent OK")
+        print(f"Feed: {niche}/{row.get('platform') or '?'} -> lien permanent OK")
     finally:
-        if os.path.exists(tmp):
-            os.remove(tmp)
+        for p in {tmp, got_path}:
+            try:
+                if p and os.path.exists(p):
+                    os.remove(p)
+            except Exception:
+                pass
 
 
 def study_winner(row):

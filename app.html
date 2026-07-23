@@ -1945,6 +1945,19 @@
     </div>
   </div>
 
+  <!-- Éditeur de feed (propriétaire) : corriger catégorie + plateforme d'une vidéo -->
+  <div class="popup-overlay" id="hvEditPop" onclick="hvEditClose(event)">
+    <div class="popup-card" onclick="event.stopPropagation()" style="max-width:430px;">
+      <button class="popup-close" onclick="hvEditClose()" aria-label="Fermer">✕</button>
+      <h3 style="font-size:1.05rem;margin-bottom:3px;">✏️ Corriger la vidéo</h3>
+      <p style="color:var(--muted);font-size:.8rem;margin-bottom:16px;">Choisis la bonne catégorie et la plateforme affichée.</p>
+      <div class="hve-lab">Catégorie</div>
+      <div class="hve-grid" id="hveCats"></div>
+      <div class="hve-lab" style="margin-top:16px;">Plateforme affichée</div>
+      <div class="hve-grid" id="hvePlats"></div>
+    </div>
+  </div>
+
 
 
   <!-- ═══ ONBOARDING (première connexion) ═══ -->
@@ -2394,6 +2407,11 @@
       .hvr-r b{font-size:.72rem;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);font-variant-numeric:tabular-nums;}
       .hvr-cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:12px;padding:15px;border-radius:15px;border:none;background:#fff;color:#0b0f1a;font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 14px 30px -14px rgba(255,255,255,.5);}
       .hvr-cta:active{transform:scale(.98);}
+      .hvr-edit{position:absolute;left:12px;bottom:12px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.55);backdrop-filter:blur(6px);color:#fff;font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+      .hve-lab{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7a86a0;margin-bottom:9px;}
+      .hve-grid{display:flex;flex-wrap:wrap;gap:8px;}
+      .hve-chip{padding:9px 13px;border-radius:11px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .15s;}
+      .hve-chip.on{background:rgba(47,123,255,.2);border-color:#4d8fff;color:#fff;}
       /* ── Espace propriétaire ─────────────────────────────────────── */
       .owner-head{padding:6px 2px 4px;}
       .owner-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
@@ -5955,7 +5973,7 @@
     try {
       if (!_hv2All) {
         var r = await sb.from('winning_videos')
-          .select('platform,niche,views,likes,comments,shares,video_url,media_url')
+          .select('id,platform,niche,views,likes,comments,shares,video_url,media_url')
           .eq('status','done').not('media_url','is',null)
           .order('views',{ascending:false}).limit(400);
         if (r.error) throw r.error;
@@ -5999,6 +6017,7 @@
         '<span class="hvr-play"><svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
         '<div class="hvr-tag"><span class="plic">'+p.ic+'</span><span>'+genEsc(p.n)+'</span></div>'+
         (lb?'<div class="hvr-niche">'+genEsc(lb)+'</div>':'')+
+        (window._unlimited?'<button class="hvr-edit" onclick="hvEdit(event,\''+genEsc(v.id)+'\')" aria-label="Éditer">✏️</button>':'')+
         '<div class="hvr-rail">'+
           rail('eye',v.views)+rail('heart',v.likes)+rail('chat',v.comments)+rail('share',v.shares)+
         '</div></div>'+
@@ -6007,20 +6026,54 @@
           '<span>'+skT('copyAI')+'</span></button>'+
         '</div>';
     }
-    // UNE vidéo par écran : liste plate, entrelacée par niche (pour varier), triée par vues.
+    // UNE vidéo par écran, ordonnées pour ALTERNER plateforme ET catégorie (jamais 2 pareilles à la suite).
     var list = _hv2All.filter(function(v){ return !_hv2Niche || v.niche === _hv2Niche; });
-    list = _hv2Niche ? list.sort(function(a,b){ return (b.views||0)-(a.views||0); }) : hv2Interleave(list);
-    list = list.slice(0, 24);
+    list = hv2Order(list).slice(0, 24);
     if (!list.length) { feed.innerHTML = '<div class="hv2-empty">Rien dans cette niche pour l\'instant.</div>'; return; }
     feed.innerHTML = list.map(card).join('');
   }
-  // Entrelace les niches (une de chaque à tour de rôle) : évite 3 mêmes styles à la suite.
-  function hv2Interleave(arr){
-    var byN = {}; arr.forEach(function(v){ (byN[v.niche]=byN[v.niche]||[]).push(v); });
-    Object.keys(byN).forEach(function(k){ byN[k].sort(function(a,b){ return (b.views||0)-(a.views||0); }); });
-    var out = [], keys = Object.keys(byN), more = true;
-    while (more) { more = false; for (var i=0;i<keys.length;i++){ var a=byN[keys[i]]; if (a.length){ out.push(a.shift()); more=true; } } }
+  // Ordonne pour éviter deux vidéos de suite de la MÊME plateforme (et si possible même niche).
+  function hv2Order(arr){
+    var pool = arr.slice().sort(function(a,b){ return (b.views||0)-(a.views||0); });
+    var out = [], lastP = null, lastN = null;
+    while (pool.length){
+      var idx = -1;
+      for (var i=0;i<pool.length;i++){ if (pool[i].platform!==lastP && pool[i].niche!==lastN){ idx=i; break; } }
+      if (idx<0) for (var k=0;k<pool.length;k++){ if (pool[k].platform!==lastP){ idx=k; break; } }
+      if (idx<0) idx = 0;
+      var v = pool.splice(idx,1)[0];
+      out.push(v); lastP = v.platform; lastN = v.niche;
+    }
     return out;
+  }
+  // ── Éditeur de feed (propriétaire) : corriger catégorie + plateforme d'une vidéo ──
+  var HVE_CATS = {tiktok_shop:'🛍️ TikTok Shop',product:'📦 Produit',funny:'😂 Drôle',diy:'🔨 Bricolage',asmr:'🎧 ASMR',horror:'👻 Horreur',story:'📖 Histoire',motivation:'🔥 Motivation',quiz:'❓ Quiz',luxury_aesthetic:'💎 Luxe',talk_facecam:'🗣️ Facecam',other:'🎬 Divers'};
+  var HVE_PLATS = {tiktok:'TikTok',youtube:'YouTube',instagram:'Instagram',facebook:'Facebook'};
+  function hvEdit(e,id){
+    if (e) e.stopPropagation();
+    if (!window._unlimited) return;
+    window._hveId = id;
+    var v = (_hv2All||[]).filter(function(x){return x.id===id;})[0] || {};
+    var cg = document.getElementById('hveCats'), pg = document.getElementById('hvePlats');
+    if (cg) cg.innerHTML = Object.keys(HVE_CATS).map(function(k){ return '<button class="hve-chip'+(v.niche===k?' on':'')+'" onclick="hvApply(\'niche\',\''+k+'\')">'+HVE_CATS[k]+'</button>'; }).join('');
+    if (pg) pg.innerHTML = Object.keys(HVE_PLATS).map(function(k){ return '<button class="hve-chip'+(v.platform===k?' on':'')+'" onclick="hvApply(\'platform\',\''+k+'\')">'+HVE_PLATS[k]+'</button>'; }).join('');
+    document.getElementById('hvEditPop').classList.add('open');
+  }
+  function hvEditClose(e){ if (e && e.target && e.target.id && e.target.id!=='hvEditPop') return; var p=document.getElementById('hvEditPop'); if(p) p.classList.remove('open'); }
+  async function hvApply(field,val){
+    var id = window._hveId; if (!id) return;
+    try {
+      var s = await sb.auth.getSession(); var session = s && s.data ? s.data.session : null; if (!session) return;
+      var body = { id:id }; body[field] = val;
+      var r = await fetch(SB_URL + '/functions/v1/feed-edit', { method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token, 'apikey':SB_KEY },
+        body: JSON.stringify(body) }).then(function(x){ return x.json(); });
+      if (r && r.success) {
+        var v = (_hv2All||[]).filter(function(x){return x.id===id;})[0]; if (v) v[field] = val;
+        hvEdit(null, id);        // rafraîchit les puces actives
+        hv2Chips(); hv2Render();  // reflète le changement dans le feed
+      }
+    } catch(err){}
   }
   // Un lien vidéo expiré (ancien lien TikTok/Insta) ne doit jamais laisser une case noire :
   // on retire proprement la carte. Les liens re-hébergés (permanents) ne déclenchent pas ça.

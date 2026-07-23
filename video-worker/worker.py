@@ -4359,6 +4359,24 @@ def mark_winner(win_id, patch):
         print("mark_winner:", e, file=sys.stderr)
 
 
+def rehost_winner_media(win_id, path):
+    """Copie le mp4 étudié dans un bucket public PERMANENT. Les liens TikTok/Insta
+    (tiktokcdn…) EXPIRENT en quelques jours -> le feed cassait. Ici on rend le lien
+    stable pour toujours. Renvoie l'URL permanente, ou None si l'upload échoue."""
+    try:
+        with open(path, "rb") as f:
+            blob = f.read()
+        if len(blob) < 50000:
+            return None
+        key = f"winners/{win_id}.mp4"
+        http("POST", f"{SB_URL}/storage/v1/object/post-media/{key}",
+             sb_headers({"Content-Type": "video/mp4", "x-upsert": "true"}), blob, timeout=600)
+        return f"{SB_URL}/storage/v1/object/public/post-media/{key}"
+    except Exception as e:
+        print("rehost_winner_media:", e, file=sys.stderr)
+        return None
+
+
 def _read_style_json(bucket, key):
     """Lit un profil de style existant (ou None) depuis le storage public."""
     try:
@@ -4505,6 +4523,7 @@ def study_winner(row):
     try:
         low = url.lower()
         gem = None
+        new_media = None  # URL permanente (re-hébergée) si on a réussi à télécharger le mp4
         if "youtu" in low:
             gem = gemini_study_url(url)  # analyse directe, pas de téléchargement
         else:
@@ -4537,6 +4556,8 @@ def study_winner(row):
                     raise RuntimeError("téléchargement impossible (lien expiré ?)")
                 dur = ffprobe_facts(tmp)["duration"]
                 gem = gemini_analyze_video(tmp, dur)
+                # Lien PERMANENT pour le feed (avant de supprimer le fichier).
+                new_media = rehost_winner_media(win_id, tmp)
             finally:
                 if os.path.exists(tmp):
                     os.remove(tmp)
@@ -4554,11 +4575,14 @@ def study_winner(row):
             bucket, key = STYLE_BUCKET, f"{niche}.json"
         prof = merge_winner_style(bucket, key, niche, gem, views, scope)
         _STYLE_CACHE.pop(niche, None)  # invalide le cache pour usage immédiat
-        mark_winner(win_id, {"status": "done", "niche": niche,
-                             "study_result": {"sub_style_id": prof.get("sub_style_id"),
-                                              "edit_intensity": prof.get("edit_intensity"),
-                                              "samples": prof.get("samples")},
-                             "finished_at": "now()"})
+        winner_patch = {"status": "done", "niche": niche,
+                        "study_result": {"sub_style_id": prof.get("sub_style_id"),
+                                         "edit_intensity": prof.get("edit_intensity"),
+                                         "samples": prof.get("samples")},
+                        "finished_at": "now()"}
+        if new_media:
+            winner_patch["media_url"] = new_media  # lien permanent -> le feed ne casse plus
+        mark_winner(win_id, winner_patch)
         print(f"Éclaireur: étudié {scope}/{niche} ({views} vues) -> {bucket}/{key}")
     except Exception as e:
         traceback.print_exc()

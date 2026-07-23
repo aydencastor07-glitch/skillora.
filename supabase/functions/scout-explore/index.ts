@@ -212,6 +212,8 @@ serve(async (req) => {
       const week = Math.floor(Date.now() / 604800000);
       const start = (week * 8) % keys.length;
       const pick = Array.from({ length: 8 }, (_, i) => keys[(start + i) % keys.length]);
+      // TikTok Shop est toujours présent (demande explicite) : on l'ajoute s'il manque.
+      if (!pick.includes("tiktok_shop") && niches["tiktok_shop"]) pick[pick.length - 1] = "tiktok_shop";
       niches = Object.fromEntries(pick.map((k) => [k, niches[k]]));
     }
     const maxPerNiche = Math.max(1, Math.min(10, Number(body.max_per_niche) || DEFAULT_MAX_PER_NICHE));

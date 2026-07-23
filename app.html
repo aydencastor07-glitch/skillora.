@@ -2375,32 +2375,24 @@
       /* ── Copie : focus + design v2 ───────────────────────────── */
       .gen-focus .page-title,.gen-focus .page-sub,.gen-focus .sktabs,.gen-focus #studioAcctPicker{display:none!important;}
       .gen-focus #genCard{background:transparent!important;border:none!important;box-shadow:none!important;padding:6px 0!important;}
-      /* ── Feed : par niche, carrousel horizontal de 2-3 vidéos (swipe) ── */
-      .hv2-feed{display:flex;flex-direction:column;gap:20px;padding-bottom:36px;align-items:stretch;}
-      .hvn{width:100%;}
-      .hvn-head{display:flex;align-items:center;gap:8px;font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem;color:#eaf1ff;padding:0 2px 11px;}
-      .hvn-count{font-size:.64rem;font-weight:800;color:#9ec2ff;background:rgba(47,123,255,.14);padding:2px 8px;border-radius:99px;}
-      .hvn-row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 2px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
-      .hvn-row::-webkit-scrollbar{display:none;}
-      .hvn-row .hvr{flex:0 0 auto;width:min(300px,80vw);scroll-snap-align:center;display:block;}
-      .hvn-row .hvr-video{width:100%;}
-      .hvr{width:100%;display:flex;justify-content:center;}
-      .hvr-video{position:relative;width:min(300px,76vw);aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 26px 64px -24px rgba(0,0,0,.9);}
+      /* ── Feed : UNE vidéo par écran, propre, bouton « Copier avec l'IA » ── */
+      .hv2-feed{display:flex;flex-direction:column;gap:30px;padding-bottom:40px;align-items:center;}
+      .hvr{width:min(340px,90vw);display:flex;flex-direction:column;}
+      .hvr-video{position:relative;width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 28px 70px -26px rgba(0,0,0,.95);}
       .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
-      .hvr-play{position:absolute;inset:0;margin:auto;width:56px;height:56px;border-radius:50%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .2s;}
+      .hvr-play{position:absolute;inset:0;margin:auto;width:60px;height:60px;border-radius:50%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .2s;}
       .hvr-video.playing .hvr-play{opacity:0;}
-      .hvr-tag{position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;max-width:68%;padding:6px 11px;border-radius:999px;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);font-size:.72rem;font-weight:800;color:#fff;}
-      .hvr-tag svg{width:14px;height:14px;flex-shrink:0;}
+      .hvr-tag{position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:6px;max-width:70%;padding:6px 11px;border-radius:999px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);font-size:.74rem;font-weight:800;color:#fff;}
+      .hvr-tag svg{width:15px;height:15px;flex-shrink:0;}
       .hvr-tag span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-      .hvr-rail{position:absolute;right:9px;bottom:14px;display:flex;flex-direction:column;align-items:center;gap:13px;}
+      .hvr-niche{position:absolute;top:12px;right:12px;padding:5px 10px;border-radius:999px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);font-size:.68rem;font-weight:800;color:#eaf1ff;}
+      .hvr-rail{position:absolute;right:10px;bottom:14px;display:flex;flex-direction:column;align-items:center;gap:14px;}
       .hvr-r{display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;padding:0;}
-      .hvr-r .ic{width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.42);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#fff;}
-      .hvr-r .ic svg{width:22px;height:22px;}
-      .hvr-r b{font-size:.7rem;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);font-variant-numeric:tabular-nums;}
-      .hvr-copy{cursor:pointer;}
-      .hvr-copy .ic{background:#fff;box-shadow:0 6px 18px -6px rgba(255,255,255,.55);}
-      .hvr-copy b{color:#eaf1ff;}
-      .hvr-copy:active{transform:scale(.93);}
+      .hvr-r .ic{width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.42);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;color:#fff;}
+      .hvr-r .ic svg{width:23px;height:23px;}
+      .hvr-r b{font-size:.72rem;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);font-variant-numeric:tabular-nums;}
+      .hvr-cta{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:12px;padding:15px;border-radius:15px;border:none;background:#fff;color:#0b0f1a;font-family:'Sora',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 14px 30px -14px rgba(255,255,255,.5);}
+      .hvr-cta:active{transform:scale(.98);}
       /* ── Espace propriétaire ─────────────────────────────────────── */
       .owner-head{padding:6px 2px 4px;}
       .owner-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
@@ -6000,51 +5992,39 @@
     // Une carte vidéo. #t=0.1 -> le navigateur affiche la 1ʳᵉ image (fini les cases noires).
     function card(v){
       var p = PL[(v.platform||'').toLowerCase()] || {c:'#9ec2ff',n:v.platform||'Viral',ic:''};
+      var lb = HV2_NICHE_LB[v.niche] || '';
       return '<div class="hvr"><div class="hvr-video">'+
         '<video src="'+genEsc(v.media_url)+'#t=0.1" muted playsinline preload="metadata" onclick="hv2Toggle(this)" onerror="hv2Broken(this)"></video>'+
-        '<span class="hvr-play"><svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
+        '<span class="hvr-play"><svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
         '<div class="hvr-tag">'+p.ic+'<span>'+genEsc(p.n)+'</span></div>'+
+        (lb?'<div class="hvr-niche">'+genEsc(lb)+'</div>':'')+
         '<div class="hvr-rail">'+
           rail('eye',v.views)+rail('heart',v.likes)+rail('chat',v.comments)+rail('share',v.shares)+
-          '<button class="hvr-r hvr-copy" onclick="event.stopPropagation();goCopierWith(\''+genEsc(v.video_url)+'\')" aria-label="'+skT('copyVid')+'">'+
-            '<span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0b0f1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg></span>'+
-            '<b>'+skT('copyShort')+'</b></button>'+
-        '</div></div></div>';
+        '</div></div>'+
+        '<button class="hvr-cta" onclick="goCopierWith(\''+genEsc(v.video_url)+'\')">'+
+          '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>'+
+          '<span>'+skT('copyAI')+'</span></button>'+
+        '</div>';
     }
-    // ~3 par niche, en variant les plateformes (une TikTok, une YouTube, une Insta… si dispo).
-    function pick3(arr){
-      var byP = {}; arr.forEach(function(v){ (byP[v.platform]=byP[v.platform]||[]).push(v); });
-      Object.keys(byP).forEach(function(k){ byP[k].sort(function(a,b){ return (b.views||0)-(a.views||0); }); });
-      var out = [];
-      Object.keys(byP).forEach(function(k){ if (out.length<3 && byP[k].length) out.push(byP[k].shift()); });
-      var rest = []; Object.keys(byP).forEach(function(k){ rest = rest.concat(byP[k]); });
-      rest.sort(function(a,b){ return (b.views||0)-(a.views||0); });
-      while (out.length<3 && rest.length) out.push(rest.shift());
-      return out;
-    }
-    var groups = {}, order = [];
-    _hv2All.forEach(function(v){
-      if (_hv2Niche && v.niche !== _hv2Niche) return;
-      if (!groups[v.niche]) { groups[v.niche] = []; order.push(v.niche); }
-      groups[v.niche].push(v);
-    });
-    if (!order.length) { feed.innerHTML = '<div class="hv2-empty">Rien dans cette niche pour l\'instant.</div>'; return; }
-    feed.innerHTML = order.map(function(niche){
-      var vids = _hv2Niche ? groups[niche].slice(0,8) : pick3(groups[niche]);
-      return '<div class="hvn"><div class="hvn-head">'+genEsc(HV2_NICHE_LB[niche]||niche)+
-        '<span class="hvn-count">'+vids.length+'</span></div>'+
-        '<div class="hvn-row">'+vids.map(card).join('')+'</div></div>';
-    }).join('');
+    // UNE vidéo par écran : liste plate, entrelacée par niche (pour varier), triée par vues.
+    var list = _hv2All.filter(function(v){ return !_hv2Niche || v.niche === _hv2Niche; });
+    list = _hv2Niche ? list.sort(function(a,b){ return (b.views||0)-(a.views||0); }) : hv2Interleave(list);
+    list = list.slice(0, 24);
+    if (!list.length) { feed.innerHTML = '<div class="hv2-empty">Rien dans cette niche pour l\'instant.</div>'; return; }
+    feed.innerHTML = list.map(card).join('');
+  }
+  // Entrelace les niches (une de chaque à tour de rôle) : évite 3 mêmes styles à la suite.
+  function hv2Interleave(arr){
+    var byN = {}; arr.forEach(function(v){ (byN[v.niche]=byN[v.niche]||[]).push(v); });
+    Object.keys(byN).forEach(function(k){ byN[k].sort(function(a,b){ return (b.views||0)-(a.views||0); }); });
+    var out = [], keys = Object.keys(byN), more = true;
+    while (more) { more = false; for (var i=0;i<keys.length;i++){ var a=byN[keys[i]]; if (a.length){ out.push(a.shift()); more=true; } } }
+    return out;
   }
   // Un lien vidéo expiré (ancien lien TikTok/Insta) ne doit jamais laisser une case noire :
   // on retire proprement la carte. Les liens re-hébergés (permanents) ne déclenchent pas ça.
   function hv2Broken(v){
-    try {
-      var row = v.closest('.hvn-row');
-      var c = v.closest('.hvr'); if (c) c.remove();
-      // Si la rangée d'une niche devient vide, on masque tout le bloc de cette niche.
-      if (row && !row.querySelector('.hvr')) { var blk = row.closest('.hvn'); if (blk) blk.remove(); }
-    } catch(e){}
+    try { var c = v.closest('.hvr'); if (c) c.remove(); } catch(e){}
     try {
       var feed = document.getElementById('hv2Feed');
       if (feed && !feed.querySelector('.hvr')) feed.innerHTML = '<div class="hv2-empty">Les tendances se rechargent… reviens dans un instant ✨</div>';
@@ -6063,10 +6043,10 @@
 
   // ── Langue (menu ☰, visible direct) ────────────────────────────────────
   var SK_I18N = {
-    fr:{heroA:"Une vidéo cartonne ?",heroB:"Refais-la. En mieux.",heroSub:"Colle le lien d'une vidéo virale — l'IA te sort le plan complet pour la recréer : images, prompts, montage.",heroGo:"Copier",heroImp:"ou importe ta vidéo",orT:"Ou choisis une tendance",orS:"Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.",trend:"🔥 Tendance",copyVid:"Copier la vidéo",copyShort:"Copier",ph:"Colle un lien viral ici…",m_ideas:"Idées de vidéos",m_script:"Créer un script",m_niche:"Trouver ma niche",m_sub:"Abonnement",m_set:"Paramètres",m_help:"Support",m_terms:"Termes & conditions"},
-    en:{heroA:"A video is blowing up?",heroB:"Remake it. Better.",heroSub:"Paste a viral video link — the AI gives you the full plan to recreate it: images, prompts, editing.",heroGo:"Copy",heroImp:"or upload your video",orT:"Or pick a trend",orS:"Viral videos generated or reproducible with AI — copy them in 1 click.",trend:"🔥 Trending",copyVid:"Copy this video",copyShort:"Copy",ph:"Paste a viral link here…",m_ideas:"Video ideas",m_script:"Create a script",m_niche:"Find my niche",m_sub:"Subscription",m_set:"Settings",m_help:"Support",m_terms:"Terms & conditions"},
-    es:{heroA:"¿Un video está explotando?",heroB:"Recréalo. Mejor.",heroSub:"Pega el enlace de un video viral — la IA te da el plan completo para recrearlo: imágenes, prompts, edición.",heroGo:"Copiar",heroImp:"o sube tu video",orT:"O elige una tendencia",orS:"Videos virales generados o reproducibles con IA — cópialos en 1 clic.",trend:"🔥 Tendencia",copyVid:"Copiar este video",copyShort:"Copiar",ph:"Pega un enlace viral aquí…",m_ideas:"Ideas de videos",m_script:"Crear un guion",m_niche:"Encontrar mi nicho",m_sub:"Suscripción",m_set:"Ajustes",m_help:"Soporte",m_terms:"Términos y condiciones"},
-    pt:{heroA:"Um vídeo está bombando?",heroB:"Refaça. Melhor.",heroSub:"Cole o link de um vídeo viral — a IA te dá o plano completo para recriá-lo: imagens, prompts, edição.",heroGo:"Copiar",heroImp:"ou envie seu vídeo",orT:"Ou escolha uma tendência",orS:"Vídeos virais gerados ou reproduzíveis com IA — copie em 1 clique.",trend:"🔥 Em alta",copyVid:"Copiar este vídeo",copyShort:"Copiar",ph:"Cole um link viral aqui…",m_ideas:"Ideias de vídeos",m_script:"Criar um roteiro",m_niche:"Encontrar meu nicho",m_sub:"Assinatura",m_set:"Configurações",m_help:"Suporte",m_terms:"Termos e condições"}
+    fr:{heroA:"Une vidéo cartonne ?",heroB:"Refais-la. En mieux.",heroSub:"Colle le lien d'une vidéo virale — l'IA te sort le plan complet pour la recréer : images, prompts, montage.",heroGo:"Copier",heroImp:"ou importe ta vidéo",orT:"Ou choisis une tendance",orS:"Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.",trend:"🔥 Tendance",copyVid:"Copier la vidéo",copyShort:"Copier",copyAI:"Copier avec l'IA",ph:"Colle un lien viral ici…",m_ideas:"Idées de vidéos",m_script:"Créer un script",m_niche:"Trouver ma niche",m_sub:"Abonnement",m_set:"Paramètres",m_help:"Support",m_terms:"Termes & conditions"},
+    en:{heroA:"A video is blowing up?",heroB:"Remake it. Better.",heroSub:"Paste a viral video link — the AI gives you the full plan to recreate it: images, prompts, editing.",heroGo:"Copy",heroImp:"or upload your video",orT:"Or pick a trend",orS:"Viral videos generated or reproducible with AI — copy them in 1 click.",trend:"🔥 Trending",copyVid:"Copy this video",copyShort:"Copy",copyAI:"Copy with AI",ph:"Paste a viral link here…",m_ideas:"Video ideas",m_script:"Create a script",m_niche:"Find my niche",m_sub:"Subscription",m_set:"Settings",m_help:"Support",m_terms:"Terms & conditions"},
+    es:{heroA:"¿Un video está explotando?",heroB:"Recréalo. Mejor.",heroSub:"Pega el enlace de un video viral — la IA te da el plan completo para recrearlo: imágenes, prompts, edición.",heroGo:"Copiar",heroImp:"o sube tu video",orT:"O elige una tendencia",orS:"Videos virales generados o reproducibles con IA — cópialos en 1 clic.",trend:"🔥 Tendencia",copyVid:"Copiar este video",copyShort:"Copiar",copyAI:"Copiar con IA",ph:"Pega un enlace viral aquí…",m_ideas:"Ideas de videos",m_script:"Crear un guion",m_niche:"Encontrar mi nicho",m_sub:"Suscripción",m_set:"Ajustes",m_help:"Soporte",m_terms:"Términos y condiciones"},
+    pt:{heroA:"Um vídeo está bombando?",heroB:"Refaça. Melhor.",heroSub:"Cole o link de um vídeo viral — a IA te dá o plano completo para recriá-lo: imagens, prompts, edição.",heroGo:"Copiar",heroImp:"ou envie seu vídeo",orT:"Ou escolha uma tendência",orS:"Vídeos virais gerados ou reproduzíveis com IA — copie em 1 clique.",trend:"🔥 Em alta",copyVid:"Copiar este vídeo",copyShort:"Copiar",copyAI:"Copiar com IA",ph:"Cole um link viral aqui…",m_ideas:"Ideias de vídeos",m_script:"Criar um roteiro",m_niche:"Encontrar meu nicho",m_sub:"Assinatura",m_set:"Configurações",m_help:"Suporte",m_terms:"Termos e condições"}
   };
   function skLang(){ try { return localStorage.getItem('skillora_lang') || 'fr'; } catch(e){ return 'fr'; } }
   function skT(k){ var d=SK_I18N[skLang()]||SK_I18N.fr; return d[k]||SK_I18N.fr[k]||''; }

@@ -2544,6 +2544,25 @@
       .idz-acct-in:focus{outline:none;border-color:#4d8fff;}
       .idz-mail-btn{flex-shrink:0;padding:11px 18px;border-radius:11px;border:none;background:var(--blue);color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:.84rem;cursor:pointer;}
       .idz-mail.on .idz-mail-btn{background:rgba(57,217,138,.2);color:#39d98a;}
+      /* Étape 3 : nom de compte optionnel */
+      .idz-opt{font-weight:600;font-size:.68rem;color:var(--muted2);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:99px;margin-left:7px;text-transform:none;letter-spacing:0;}
+      #idzSetupAcct{width:100%;}
+      .idz-ctx-acct{color:#fff;font-weight:800;}
+      /* Mes comptes suivis */
+      .idz-accts-sec{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);}
+      .idz-accts-head{display:flex;align-items:center;justify-content:space-between;font-family:'Sora',sans-serif;font-weight:800;font-size:.96rem;color:#eaf1ff;margin-bottom:5px;}
+      .idz-add{padding:7px 13px;border-radius:10px;border:1px solid rgba(77,143,255,.4);background:rgba(47,123,255,.14);color:#9ec2ff;font-family:'Sora',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;}
+      .idz-accts-s{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:14px;}
+      .idz-acct{display:flex;align-items:center;gap:12px;padding:13px;border-radius:15px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);margin-bottom:10px;cursor:pointer;transition:border-color .15s,background .15s;}
+      .idz-acct.active{border-color:#4d8fff;background:rgba(47,123,255,.1);}
+      .idz-acct-ic{width:42px;height:42px;flex-shrink:0;border-radius:12px;background:rgba(47,123,255,.13);display:flex;align-items:center;justify-content:center;font-size:1.35rem;}
+      .idz-acct-m{flex:1;min-width:0;}
+      .idz-acct-n{display:block;font-family:'Sora',sans-serif;font-weight:800;font-size:.9rem;color:#eaf1ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .idz-acct-s{display:block;font-size:.76rem;color:var(--muted);margin-top:2px;}
+      .idz-sw{flex-shrink:0;width:46px;height:27px;border-radius:99px;background:rgba(255,255,255,.14);border:none;position:relative;cursor:pointer;transition:background .2s;padding:0;}
+      .idz-sw i{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+      .idz-sw.on{background:#2f7bff;}
+      .idz-sw.on i{left:22px;}
       .hvr{width:min(340px,90vw);display:flex;flex-direction:column;}
       .hvr-video{position:relative;width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 28px 70px -26px rgba(0,0,0,.95);}
       .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
@@ -2873,6 +2892,10 @@
         <div class="idz-slab"><span class="idz-snum">2</span> La plateforme</div>
         <div class="idz-chips idz-plats" id="idzPlats"></div>
       </div>
+      <div class="idz-step reveal" style="animation-delay:.3s">
+        <div class="idz-slab"><span class="idz-snum">3</span> Ton compte <span class="idz-opt">optionnel</span></div>
+        <input id="idzSetupAcct" class="idz-acct-in" maxlength="40" placeholder="@toncompte — pour recevoir tes idées par email">
+      </div>
       <button class="btn-primary idz-activate" id="idzActivateBtn" onclick="idzActivate()">✨ Activer mes idées</button>
       <p class="idz-hint">Rien n'est généré tant que tu n'ouvres pas cette page — zéro gaspillage.</p>
     </div>
@@ -2885,13 +2908,10 @@
       </div>
       <div id="idzToday"></div>
       <div id="idzHist" hidden></div>
-      <div class="idz-mail" id="idzMailCard">
-        <div class="idz-mail-h">📩 Reçois tes idées par email</div>
-        <div class="idz-mail-s">Mets le nom de ton compte : chaque matin on t'écrit « on a trouvé des idées pour @toncompte ».</div>
-        <div class="idz-mail-row">
-          <input id="idzAcct" class="idz-acct-in" maxlength="40" placeholder="@toncompte">
-          <button class="idz-mail-btn" id="idzMailBtn" onclick="idzToggleEmail()">Activer</button>
-        </div>
+      <div class="idz-accts-sec" id="idzAcctsSec" style="display:none;">
+        <div class="idz-accts-head"><span>📩 Mes comptes suivis</span><button class="idz-add" onclick="idzAddAccount()">+ Ajouter</button></div>
+        <div class="idz-accts-s">Active l'interrupteur pour recevoir chaque matin des idées par email. Touche un compte pour voir ses idées.</div>
+        <div id="idzAccts"></div>
       </div>
     </div>
   </div>
@@ -5796,20 +5816,27 @@
     if(tb)tb.classList.add('on'); if(hb)hb.classList.remove('on');
     var today=document.getElementById('idzToday'),hist=document.getElementById('idzHist');
     if(today)today.hidden=false; if(hist){hist.hidden=true;hist.removeAttribute('data-loaded');}
-    var inp=document.getElementById('idzAcct'); var acct=idzAcctName(); if(inp&&acct&&!inp.value) inp.value='@'+acct;
     idzLoadIdeas();
-    idzLoadEmailState();
+    idzRenderAccts();
   }
   function idzActivate(){
     if(!_idzNiche){ skModal({icon:'🎯',title:'Choisis ta niche',message:'Sélectionne une niche pour recevoir des idées.',cancelText:'OK'}); return; }
     if(!_idzPlat){ skModal({icon:'📱',title:'Choisis la plateforme',message:'Sélectionne une plateforme.',cancelText:'OK'}); return; }
+    var nameEl=document.getElementById('idzSetupAcct');
+    var name=((nameEl&&nameEl.value)||'').trim().replace(/^@/,'');
     try{localStorage.setItem('sk_idz_on','1');}catch(e){}
+    if(name){
+      _idzAcct=name; try{localStorage.setItem('sk_idz_acct',name);}catch(e){}
+      idzSaveAccount({name:name,nk:_idzNiche.k,nl:_idzNiche.l,ne:_idzNiche.e,plat:_idzPlat,pl:idzPlatLabel(_idzPlat),on:false});
+    } else { _idzAcct=''; try{localStorage.removeItem('sk_idz_acct');}catch(e){} }
     idzShowActive();
   }
-  function idzChange(){ try{localStorage.removeItem('sk_idz_on');}catch(e){} idzShowSetup(); try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){} }
+  function idzChange(){ try{localStorage.removeItem('sk_idz_on');}catch(e){} var n=document.getElementById('idzSetupAcct'); if(n)n.value=''; idzShowSetup(); try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){} }
+  function idzAddAccount(){ idzChange(); }
   function idzCtxBar(){
     var bar=document.getElementById('idzCtxBar'); if(!bar||!_idzNiche) return;
-    bar.innerHTML='<span class="idz-ctx-t"><span>'+_idzNiche.e+'</span>'+genEsc(_idzNiche.l)+' <span class="idz-ctx-plat">'+idzPlatIcon(_idzPlat)+genEsc(idzPlatLabel(_idzPlat))+'</span></span><button class="idz-change" onclick="idzChange()">Changer</button>';
+    var nm=_idzAcct?('<span class="idz-ctx-acct">@'+genEsc(_idzAcct)+'</span> · '):'';
+    bar.innerHTML='<span class="idz-ctx-t">'+nm+'<span>'+_idzNiche.e+'</span> '+genEsc(_idzNiche.l)+' <span class="idz-ctx-plat">'+idzPlatIcon(_idzPlat)+genEsc(idzPlatLabel(_idzPlat))+'</span></span><button class="idz-change" onclick="idzChange()">Changer</button>';
   }
   async function idzLoadIdeas(){
     var box=document.getElementById('idzToday'); if(!box||!_idzNiche||!_idzPlat) return;
@@ -5849,29 +5876,56 @@
       }).join('');
     }catch(e){ box.innerHTML='<div class="ideas-empty">Historique indisponible pour le moment.</div>'; }
   }
-  async function idzLoadEmailState(){
-    var acct=idzAcctName();
-    var card=document.getElementById('idzMailCard'), btn=document.getElementById('idzMailBtn');
-    _idzEmailOn=false;
-    if(!acct){ if(card)card.classList.remove('on'); if(btn)btn.textContent='Activer'; return; }
-    try{ var r=await sb.from('idea_email_subs').select('active').eq('platform',_idzPlat).eq('username',acct).maybeSingle(); _idzEmailOn=!!(r&&r.data&&r.data.active); }catch(e){}
-    if(card)card.classList.toggle('on',_idzEmailOn); if(btn)btn.textContent=_idzEmailOn?'✓ Activé':'Activer';
+  // ── Comptes suivis (nom + niche + plateforme + email on/off) ──
+  function idzAccounts(){ try{ return JSON.parse(localStorage.getItem('sk_idz_accounts')||'[]')||[]; }catch(e){ return []; } }
+  function idzSaveAccounts(list){ try{ localStorage.setItem('sk_idz_accounts',JSON.stringify(list)); }catch(e){} }
+  function idzSaveAccount(acc){
+    var list=idzAccounts(), i=-1;
+    for(var k=0;k<list.length;k++){ if(list[k].name.toLowerCase()===acc.name.toLowerCase() && list[k].plat===acc.plat){ i=k; break; } }
+    if(i>=0){ acc.on=list[i].on; list[i]=acc; } else { list.unshift(acc); }
+    idzSaveAccounts(list);
   }
-  async function idzToggleEmail(){
-    var inp=document.getElementById('idzAcct');
-    var acct=((inp&&inp.value)||'').trim().replace(/^@/,'');
-    if(!acct){ skModal({icon:'📩',title:'Ton nom de compte',message:'Mets le nom de ton compte pour personnaliser tes emails d\'idées.',cancelText:'OK'}); if(inp)inp.focus(); return; }
-    try{ localStorage.setItem('sk_idz_acct',acct); }catch(e){}
-    var next=!_idzEmailOn;
-    var card=document.getElementById('idzMailCard'), btn=document.getElementById('idzMailBtn');
-    if(card)card.classList.toggle('on',next); if(btn)btn.textContent=next?'✓ Activé':'Activer';
-    try{
-      var s=await sb.auth.getSession(); var u=s.data.session.user;
-      await sb.from('idea_email_subs').upsert({user_id:u.id,platform:_idzPlat,username:acct,email:u.email,active:next,updated_at:new Date().toISOString()},{onConflict:'user_id,platform,username'});
-      _idzEmailOn=next;
-      if(next){ skModal({icon:'✅',iconBg:'#16351f',title:'Email activé',message:'Chaque matin, on t\'enverra de nouvelles idées de vidéos pour <b>@'+genEsc(acct)+'</b> ('+genEsc(_idzNiche.l)+').<br><span style="color:#8b9bc4;font-size:.9em;">Pense à vérifier tes spams la 1ʳᵉ fois.</span>',cancelText:'Parfait'}); }
-      else { skModal({icon:'🔕',title:'Email désactivé',message:'Tu ne recevras plus les idées par email. Réactive quand tu veux.',cancelText:'OK'}); }
-    }catch(e){ if(card)card.classList.toggle('on',!next); if(btn)btn.textContent=!next?'✓ Activé':'Activer'; }
+  function idzRenderAccts(){
+    var sec=document.getElementById('idzAcctsSec'), box=document.getElementById('idzAccts'); if(!sec||!box) return;
+    var list=idzAccounts();
+    sec.style.display = list.length ? '' : 'none';
+    box.innerHTML=list.map(function(a,i){
+      return '<div class="idz-acct'+((a.name===_idzAcct)?' active':'')+'" onclick="idzOpenAcct('+i+')">'+
+        '<span class="idz-acct-ic">'+(a.ne||'💡')+'</span>'+
+        '<span class="idz-acct-m"><span class="idz-acct-n">@'+genEsc(a.name)+'</span><span class="idz-acct-s">'+genEsc(a.nl)+' · '+genEsc(a.pl)+'</span></span>'+
+        '<button class="idz-sw'+(a.on?' on':'')+'" onclick="event.stopPropagation();idzToggleAcct('+i+')" aria-label="Emails du matin"><i></i></button>'+
+      '</div>';
+    }).join('');
+  }
+  function idzOpenAcct(i){
+    var a=idzAccounts()[i]; if(!a) return;
+    _idzNiche={k:a.nk,l:a.nl,e:a.ne}; _idzPlat=a.plat; _idzAcct=a.name;
+    try{ localStorage.setItem('sk_idz_niche',JSON.stringify(_idzNiche)); localStorage.setItem('sk_idz_plat',a.plat); localStorage.setItem('sk_idz_acct',a.name); }catch(e){}
+    idzCtxBar(); idzRenderAccts();
+    var hist=document.getElementById('idzHist'); if(hist){hist.hidden=true;hist.removeAttribute('data-loaded');}
+    var tb=document.getElementById('idzTabTodayBtn'),hb=document.getElementById('idzTabHistBtn'); if(tb)tb.classList.add('on'); if(hb)hb.classList.remove('on');
+    var today=document.getElementById('idzToday'); if(today)today.hidden=false;
+    idzLoadIdeas();
+    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+  }
+  function idzToggleAcct(i){
+    var list=idzAccounts(), a=list[i]; if(!a) return;
+    var next=!a.on;
+    var msg = next
+      ? 'Tu vas recevoir <b>chaque matin par email</b> de nouvelles idées de vidéos virales pour <b>@'+genEsc(a.name)+'</b> ('+genEsc(a.nl)+' · '+genEsc(a.pl)+').<br><span style="color:#8b9bc4;font-size:.9em;">Rien d\'autre — et tu peux désactiver quand tu veux.</span>'
+      : 'Tu ne recevras <b>plus d\'emails</b> d\'idées pour <b>@'+genEsc(a.name)+'</b>.<br><span style="color:#8b9bc4;font-size:.9em;">Tes idées restent dispo ici quand tu ouvres la page.</span>';
+    skModal({
+      icon: next?'📩':'🔕', iconBg: next?'#16351f':undefined,
+      title: next?'Activer les emails du matin ?':'Désactiver les emails ?',
+      message: msg, confirmText: next?'Oui, activer':'Désactiver', cancelText:'Annuler',
+      onConfirm: async function(){
+        a.on=next; list[i]=a; idzSaveAccounts(list); idzRenderAccts();
+        try{
+          var s=await sb.auth.getSession(); var u=s.data.session.user;
+          await sb.from('idea_email_subs').upsert({user_id:u.id,platform:a.plat,username:a.name,email:u.email,active:next,updated_at:new Date().toISOString()},{onConflict:'user_id,platform,username'});
+        }catch(e){}
+      }
+    });
   }
 
   /* ===== Blueprint complet (rendu depuis l'analyse déjà générée — 0 crédit IA) ===== */

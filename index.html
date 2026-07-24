@@ -574,15 +574,20 @@
   .pl-pm b { display:block; font-size:.5rem; font-weight:800; color:#eaf1ff; }
   .pl-pm i { display:block; font-style:normal; font-size:.42rem; color:#7a8aaa; }
   .pl-pc { flex:none; padding:4px 8px; border-radius:6px; background:var(--blue); color:#fff; font-size:.44rem; font-weight:800; }
-  /* Zooms guidés : chaque élément grossit puis reprend sa place (sans sortir du téléphone) */
-  .p2-scene.on .pl-ref.z1 { animation:plZoom 8s ease-in-out 1.6s infinite; }
-  .p2-scene.on .pl-dl.z2 { animation:plPop 8s ease-in-out 2.9s infinite; }
-  .p2-scene.on .pl-prompt.z3 { animation:plZoomP 8s ease-in-out 4.2s infinite; }
-  .p2-scene.on .pl-prompt.z4 { animation:plZoomP 8s ease-in-out 5.5s infinite; }
-  .p2-scene.on .pl-src.z0 { animation:plZoomP 8s ease-in-out .4s infinite; }
-  @keyframes plZoom { 0%,100%{transform:scale(1);} 4%,11%{transform:scale(1.6);box-shadow:0 12px 30px -8px rgba(47,123,255,.8);border-color:#4d8fff;} }
-  @keyframes plZoomP { 0%,100%{transform:scale(1);border-color:rgba(255,255,255,.08);} 4%,11%{transform:scale(1.09);border-color:#4d8fff;box-shadow:0 10px 24px -8px rgba(47,123,255,.7);} }
-  @keyframes plPop { 0%,100%{transform:scale(1);} 4%,11%{transform:scale(1.9);box-shadow:0 0 0 4px rgba(47,123,255,.35);} }
+  /* Plan : zone défilante (le scroll descend jusqu'au montage) */
+  .pl-scene { overflow:hidden; }
+  .pl-viewport { position:absolute; inset:0 12px 8px; overflow:hidden; }
+  .pl-scroll { position:absolute; left:0; right:0; top:0; transition:transform .85s cubic-bezier(.3,.85,.3,1); }
+  /* Séquence guidée : l'élément visé passe AU CENTRE et grossit, les autres sont floutés */
+  .pl-scene.focusing .pl-scroll > * { filter:blur(2.4px); opacity:.35; transition:filter .35s ease, opacity .35s ease; }
+  .pl-scroll > * { transition:filter .35s ease, opacity .35s ease, transform .55s cubic-bezier(.2,.9,.25,1); }
+  .pl-scene .pl-focus { filter:none!important; opacity:1!important; position:relative; z-index:30; box-shadow:0 22px 50px -14px rgba(0,0,0,.95), 0 0 0 1.5px rgba(93,150,255,.6); border-radius:10px; }
+  .pl-focus .pl-dl { filter:none!important; opacity:1!important; }
+  /* le prompt qui s'écrit, révélé pendant le zoom */
+  .pl-ptxt { display:none; font-style:normal; text-decoration:none; font-size:.42rem; line-height:1.4; color:#cfe0ff; margin-top:3px; }
+  .pl-focus .pl-ptxt.show { display:block; }
+  .pl-pi { width:17px; height:17px; border-radius:5px; overflow:hidden; flex:none; display:block; }
+  .pl-pi svg { width:100%; height:100%; display:block; }
   .cp-sub { font-size:.66rem; color:var(--muted); text-align:center; margin-bottom:12px; }
   .cp-link { display:flex; align-items:center; gap:8px; padding:12px 12px; border-radius:12px; border:1.5px solid rgba(77,143,255,.4); background:rgba(12,18,36,.85); box-shadow:0 0 0 4px rgba(47,123,255,.06); }
   .cp-lk-ic { font-size:.9rem; }
@@ -800,28 +805,33 @@
               <div class="ca-prog"><i></i></div>
             </div>
 
-            <!-- Scène 2 : LE PLAN, présenté comme dans l'app + zooms guidés -->
-            <div class="p2-scene" data-s="2">
-              <div class="pl-head"><span class="pl-ok">✓</span><span><b>Ton plan est prêt</b><i>Barbier légumes</i></span></div>
-              <div class="pl-src z0">
-                <img src="https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg" alt="" loading="lazy">
-                <span class="pl-st">👁 1,9 M</span><span class="pl-st">❤ 195 k</span><span class="pl-st">↗ 2 k</span>
-              </div>
-              <div class="pl-score">
-                <span class="pl-note">9<small>/10</small></span>
-                <span class="pl-bars">
-                  <i><em>Accroche</em><b><s style="--w:94%"></s></b></i>
-                  <i><em>Rétention</em><b><s style="--w:88%"></s></b></i>
-                  <i><em>Format</em><b><s style="--w:96%"></s></b></i>
-                </span>
-              </div>
-              <div class="pl-step"><span class="pl-n">1</span>Salon de coiffure<span class="pl-dur">8 s</span></div>
-              <div class="pl-ref z1">
-                <img src="https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg" alt="" loading="lazy">
-                <span class="pl-dl z2">⬇︎</span>
-              </div>
-              <div class="pl-prompt z3"><span class="pl-pi">🖼️</span><span class="pl-pm"><b>Prompt image</b><i>Nano Banana 2</i></span><span class="pl-pc">Copier</span></div>
-              <div class="pl-prompt z4"><span class="pl-pi">🎬</span><span class="pl-pm"><b>Prompt animation</b><i>Kling 3.0</i></span><span class="pl-pc">Copier</span></div>
+            <!-- Scène 2 : LE PLAN, présenté comme dans l'app + séquence guidée (zoom centré + flou) -->
+            <div class="p2-scene pl-scene" data-s="2">
+              <div class="pl-viewport"><div class="pl-scroll" id="plScroll">
+                <div class="pl-head"><span class="pl-ok">✓</span><span><b>Ton plan est prêt</b><i>Barbier légumes</i></span></div>
+                <div class="pl-src" data-f="src">
+                  <img src="https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg" alt="" loading="lazy">
+                  <span class="pl-st">👁 1,9 M</span><span class="pl-st">❤ 195 k</span><span class="pl-st">↗ 2 k</span>
+                </div>
+                <div class="pl-score" data-f="score">
+                  <span class="pl-note">9<small>/10</small></span>
+                  <span class="pl-bars">
+                    <i><em>Accroche</em><b><s style="--w:94%"></s></b></i>
+                    <i><em>Rétention</em><b><s style="--w:88%"></s></b></i>
+                    <i><em>Format</em><b><s style="--w:96%"></s></b></i>
+                  </span>
+                </div>
+                <div class="pl-step"><span class="pl-n">1</span>Salon de coiffure<span class="pl-dur">8 s</span></div>
+                <div class="pl-ref" data-f="ref">
+                  <img src="https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg" alt="" loading="lazy">
+                  <span class="pl-dl" data-f="dl">⬇︎</span>
+                </div>
+                <div class="pl-prompt" data-f="pimg"><span class="pl-pi" data-lg="nano"></span><span class="pl-pm"><b>Prompt image</b><i>Nano Banana 2</i><u class="pl-ptxt" id="plPTxt"></u></span><span class="pl-pc">Copier</span></div>
+                <div class="pl-prompt" data-f="pani"><span class="pl-pi" data-lg="kling"></span><span class="pl-pm"><b>Prompt animation</b><i>Kling 3.0</i></span><span class="pl-pc">Copier</span></div>
+                <div class="pl-step"><span class="pl-n">2</span>Montage<span class="pl-dur">CapCut</span></div>
+                <div class="pl-prompt" data-f="mont"><span class="pl-pi" data-lg="capcut"></span><span class="pl-pm"><b>Montage &amp; sous-titres</b><i>Coupes rapides · sous-titres animés</i></span><span class="pl-pc">Voir</span></div>
+                <div class="pl-prompt" data-f="voice"><span class="pl-pi" data-lg="eleven"></span><span class="pl-pm"><b>Voix off</b><i>ElevenLabs · ton grave</i></span><span class="pl-pc">Copier</span></div>
+              </div></div>
             </div>
           </div>
         </div>
@@ -1105,15 +1115,23 @@
     var SCAN = ['Découpage des plans', 'Détection du hook', 'Voix off repérée', 'Reconstruction du montage'];
     // Démo : la vraie vidéo tendance (aucune copie réelle n'est lancée -> zéro crédit consommé).
     var DEMO_THUMB = 'https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg';
-    // Mêmes logos que dans l'app, pour garder la cohérence.
+    // Mêmes logos que dans l'app (dessinés en SVG, sans chargement réseau).
+    var LG = {
+      nano:   '<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#151b2c"/><path d="M12.5 11.5c.4 8.4 6.8 15.4 16.6 15.7 1.6 0 2.1-1.5.6-2-6.6-2.3-11-6.9-12.8-13.3-.4-1.6-2.5-1.4-2.4-.4z" fill="#FFCE3A"/><path d="M13.4 12c.6 7.5 6.3 13.6 15.2 14.3" fill="none" stroke="#E0A200" stroke-width="1.1" stroke-linecap="round"/></svg>',
+      eleven: '<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0a0a0a"/><rect x="14.5" y="11.5" width="3.6" height="17" rx="1.2" fill="#fff"/><rect x="22" y="11.5" width="3.6" height="17" rx="1.2" fill="#fff"/></svg>',
+      capcut: '<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#000"/><circle cx="17.5" cy="20" r="7.6" fill="none" stroke="#3CE0E0" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="36 12" transform="rotate(-42 17.5 20)"/><path d="M18.6 15.6 30 20l-11.4 4.4z" fill="#FF4D67"/><circle cx="17.6" cy="20" r="2.5" fill="#fff"/></svg>',
+      kling:  '<svg viewBox="0 0 40 40"><defs><linearGradient id="klg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6f7bff"/><stop offset="1" stop-color="#b44dff"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#klg)"/><path d="M15 11.5v17M15 20.2l8.4-8.7M17.6 22.4l7.6 6.1" stroke="#fff" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>'
+    };
     var LOGOS = [
-      {n:'Nano Banana', r:'Images', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#141b2b"/><path d="M11 12c.5 8 6.5 15 17 15 1.6 0 2.2-1.4.8-1.9-6.9-2.3-11.4-6.9-13.3-13.4-.4-1.5-2.6-1.2-2.5.3z" fill="#FFCE3A"/></svg>'},
-      {n:'ElevenLabs', r:'Voix off', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#000"/><rect x="14" y="12" width="4" height="16" rx="1.4" fill="#fff"/><rect x="22" y="12" width="4" height="16" rx="1.4" fill="#fff"/></svg>'},
-      {n:'CapCut', r:'Montage', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0a0a0a"/><path d="M15 13v14l12-7z" fill="#25e0d4"/><circle cx="26" cy="26.5" r="3" fill="#ff4d6d"/></svg>'},
-      {n:'Kling', r:'Animation', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#fff"/><path d="M20 8l2.6 6.9L30 17l-7.4 2.1L20 26l-2.6-6.9L10 17l7.4-2.1z" fill="#4285F4"/></svg>'}
+      {n:'Nano Banana', r:'Images', ic:LG.nano},
+      {n:'ElevenLabs', r:'Voix off', ic:LG.eleven},
+      {n:'CapCut', r:'Montage', ic:LG.capcut},
+      {n:'Kling', r:'Animation', ic:LG.kling}
     ];
+    // Place les logos dans la fiche du plan.
+    root.querySelectorAll('[data-lg]').forEach(function(el){ el.innerHTML = LG[el.getAttribute('data-lg')] || ''; });
     var cur = 0, typeTimer = null, scanTimer = null, deckTimer = null, li = 0;
-    var DUR = [4600, 5200, 9200];
+    var DUR = [4600, 5200, 17200];
     function press(b, at){
       if (!b) return;
       b.classList.remove('press');
@@ -1166,6 +1184,68 @@
           if (scanS) scanS.textContent = SCAN[li % SCAN.length];
         }, 1150);
       }
+      if (i === 2) runPlanTour();
+    }
+
+    /* ── Séquence guidée du plan : un élément à la fois passe AU CENTRE et grossit,
+       les autres sont floutés ; le prompt s'écrit ; on scrolle jusqu'au montage. ── */
+    var plScene = root.querySelector('.pl-scene');
+    var plScroll = document.getElementById('plScroll');
+    var plTxt = document.getElementById('plPTxt');
+    var PROMPT = "Un personnage brocoli dans un salon de coiffure vintage, lumière chaude, style Pixar, rendu 3D réaliste.";
+    var tourTimers = [];
+    function clearTour(){ tourTimers.forEach(clearTimeout); tourTimers = []; }
+    function later(fn, ms){ tourTimers.push(setTimeout(fn, ms)); }
+    function scrollTo(y, ms){ if (plScroll) plScroll.style.transform = 'translateY(' + (-y) + 'px)'; return ms; }
+    function focusOn(key, scale, hold, done){
+      if (!plScene || !plScroll) { done && done(); return; }
+      var el = plScroll.querySelector('[data-f="' + key + '"]');
+      if (!el) { done && done(); return; }
+      var vp = plScene.querySelector('.pl-viewport');
+      var vr = vp.getBoundingClientRect(), r = el.getBoundingClientRect();
+      var dx = (vr.left + vr.width / 2) - (r.left + r.width / 2);
+      var dy = (vr.top + vr.height / 2) - (r.top + r.height / 2);
+      plScene.classList.add('focusing');
+      el.classList.add('pl-focus');
+      el.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scale(' + scale + ')';
+      later(function(){
+        el.style.transform = '';
+        later(function(){
+          el.classList.remove('pl-focus');
+          plScene.classList.remove('focusing');
+          done && done();
+        }, 480);
+      }, hold);
+    }
+    function typePrompt(){
+      if (!plTxt) return;
+      plTxt.classList.add('show'); plTxt.textContent = '';
+      var k = 0;
+      var iv = setInterval(function(){
+        k++; plTxt.textContent = PROMPT.slice(0, k);
+        if (k >= PROMPT.length) clearInterval(iv);
+      }, 26);
+      tourTimers.push(setTimeout(function(){ clearInterval(iv); }, 3000));
+    }
+    function runPlanTour(){
+      clearTour();
+      if (!plScroll) return;
+      plScroll.style.transition = 'none'; scrollTo(0, 0);
+      if (plTxt) { plTxt.classList.remove('show'); plTxt.textContent = ''; }
+      later(function(){ if (plScroll) plScroll.style.transition = ''; }, 40);
+      // 1) la note  2) l'image de référence  3) le téléchargement
+      later(function(){ focusOn('score', 1.12, 1150); }, 700);
+      later(function(){ focusOn('ref', 1.85, 1250); }, 2500);
+      later(function(){ focusOn('dl', 2.6, 1050); }, 4300);
+      // 4) le prompt image : il se déploie ET s'écrit
+      later(function(){ focusOn('pimg', 1.16, 3200); typePrompt(); }, 5900);
+      // 5) le prompt animation
+      later(function(){ focusOn('pani', 1.16, 1150); }, 9600);
+      // 6) on descend jusqu'au montage (CapCut) puis la voix off
+      later(function(){ scrollTo(118, 850); }, 11200);
+      later(function(){ focusOn('mont', 1.16, 1400); }, 12200);
+      later(function(){ focusOn('voice', 1.16, 1200); }, 14000);
+      later(function(){ scrollTo(0, 850); }, 15600);
     }
     if (window.SK_STATIC) return; // mode figé (captures internes) — les visiteurs ont toujours l'animation
     show(0);

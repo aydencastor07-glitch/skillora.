@@ -510,7 +510,79 @@
   .p2-success .prow .pc { width:24px; height:24px; border-radius:8px; background:var(--surface); border:1px solid rgba(61,220,132,0.4); display:flex; align-items:center; justify-content:center; }
   .toast-c { top:96px; left:-16px; --rot:-3deg; --d:.2s; }
 
-  /* ===== Phone héros : COPIE → PLAN EXACT ===== */
+  /* ===== Phone héros : ACCUEIL → COPIE → PLAN (miroir de l'app) ===== */
+  .p1s .p2-scene { inset:44px 0 0; padding:0 12px; }
+  /* Scène accueil */
+  .ap-h1 { font-family:'Fraunces',serif; font-weight:700; font-size:.86rem; text-align:center; line-height:1.3; color:#dfe7f5; }
+  .ap-h1 b { background:linear-gradient(120deg,#8db8ff,#7c5cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .ap-paste { display:flex; align-items:center; gap:5px; margin-top:9px; padding:4px 4px 4px 9px; border-radius:999px; border:1px solid rgba(77,143,255,.45); background:rgba(10,16,32,.9); }
+  .ap-lk { font-size:.58rem; flex:none; }
+  .ap-lktx { flex:1; min-width:0; font-family:monospace; font-size:.5rem; color:#9fb0d6; white-space:nowrap; overflow:hidden; }
+  .ap-copy { position:relative; flex:none; padding:5px 9px; border-radius:999px; background:linear-gradient(135deg,#3b82f6,#7c3aed); color:#fff; font-size:.52rem; font-weight:800; }
+  .ap-plats { display:flex; justify-content:center; gap:8px; margin-top:7px; font-size:.46rem; color:#6b7690; font-weight:700; }
+  .ap-or { text-align:center; font-family:'Fraunces',serif; font-weight:700; font-size:.72rem; color:#eaf1ff; margin-top:11px; }
+  .ap-chips { display:flex; gap:4px; margin-top:6px; overflow:hidden; }
+  .ap-chips span { flex:none; padding:3px 7px; border-radius:999px; font-size:.46rem; font-weight:700; color:#8894ad; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); }
+  .ap-chips span.on { color:#cfe0ff; border-color:rgba(93,150,255,.55); background:rgba(47,123,255,.16); }
+  .ap-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:7px; }
+  .ap-card { position:relative; aspect-ratio:9/13; border-radius:9px; overflow:hidden; background:#0b0f1a; }
+  .ap-card img { width:100%; height:100%; object-fit:cover; display:block; }
+  .ap-cat { position:absolute; top:4px; right:4px; z-index:2; padding:2px 5px; border-radius:6px; background:rgba(6,10,20,.75); font-size:.42rem; font-weight:700; color:#fff; }
+  .ap-v { position:absolute; left:4px; bottom:4px; z-index:2; padding:2px 5px; border-radius:6px; background:rgba(6,10,20,.7); font-size:.44rem; font-weight:800; color:#fff; }
+  /* Scène copie (identique à l'app : cartes qui partent sur le côté + logos) */
+  .p1s .ca-brand { text-align:center; font-family:'Sora',sans-serif; font-weight:800; font-size:.54rem; letter-spacing:.06em; color:#9ec2ff; margin-bottom:10px; }
+  .p1s .ca-stage { position:relative; width:104px; height:168px; margin:0 auto 12px; }
+  .p1s .ca-stack { position:absolute; inset:0; }
+  .p1s .ca-card { position:absolute; top:0; left:50%; width:96px; margin-left:-48px; aspect-ratio:9/16; border-radius:10px; overflow:hidden; background:#0b0f1a; box-shadow:0 14px 30px -14px rgba(0,0,0,.9); transition:transform .55s cubic-bezier(.45,.02,.2,1), opacity .55s; }
+  .p1s .ca-card img { width:100%; height:100%; object-fit:cover; display:block; }
+  .p1s .ca-card.ca-fly-l { transform:translateX(-128%) rotate(-7deg) scale(.9)!important; opacity:0!important; }
+  .p1s .ca-card.ca-fly-r { transform:translateX(128%) rotate(7deg) scale(.9)!important; opacity:0!important; }
+  .p1s .ca-logo { position:absolute; left:5px; bottom:5px; display:inline-flex; align-items:center; gap:4px; padding:3px 6px 3px 3px; border-radius:7px; background:rgba(6,10,20,.78); border:1px solid rgba(255,255,255,.16); }
+  .p1s .ca-logo svg { width:14px; height:14px; border-radius:4px; display:block; }
+  .p1s .ca-logo b { font-size:.42rem; font-weight:800; color:#fff; line-height:1.1; }
+  .p1s .ca-logo em { display:block; font-style:normal; font-size:.36rem; color:#9fb0cf; }
+  .p1s .ca-label { text-align:center; font-family:'Sora',sans-serif; font-weight:700; font-size:.6rem; color:#eaf1ff; min-height:1.2em; }
+  .p1s .ca-prog { width:96px; height:3px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; margin:9px auto 0; }
+  .p1s .ca-prog i { display:block; height:100%; width:42%; border-radius:99px; background:linear-gradient(90deg,#4f8bff,#8b5cf6); animation:caProg 1.25s ease-in-out infinite; }
+  @keyframes caProg { 0%{margin-left:-42%} 100%{margin-left:100%} }
+  /* Scène plan (présentée comme dans l'app) */
+  .pl-head { display:flex; align-items:center; gap:7px; margin-bottom:8px; }
+  .pl-ok { width:17px; height:17px; flex:none; border-radius:50%; background:rgba(57,217,138,.16); color:#39d98a; font-size:.6rem; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .pl-head b { display:block; font-family:'Fraunces',serif; font-weight:700; font-size:.76rem; color:#fff; }
+  .pl-head i { display:block; font-style:normal; font-size:.5rem; color:#7a8aaa; }
+  .pl-src { display:flex; align-items:center; gap:6px; padding:5px; border-radius:9px; border:1px solid rgba(77,143,255,.28); background:rgba(47,123,255,.07); margin-bottom:8px; }
+  .pl-src img { width:24px; height:32px; object-fit:cover; border-radius:5px; flex:none; }
+  .pl-st { font-size:.46rem; font-weight:700; color:#cfe0ff; }
+  .pl-score { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+  .pl-note { font-family:'Fraunces',serif; font-weight:800; font-size:1.3rem; color:#39d98a; line-height:1; flex:none; }
+  .pl-note small { font-size:.5rem; color:#7a8aaa; }
+  .pl-bars { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+  .pl-bars i { display:flex; align-items:center; gap:5px; font-style:normal; }
+  .pl-bars em { font-style:normal; font-size:.44rem; color:#8894ad; width:38px; flex:none; }
+  .pl-bars b { flex:1; height:4px; border-radius:99px; background:rgba(255,255,255,.09); overflow:hidden; }
+  .pl-bars s { display:block; height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,#22c55e,#43e37f); text-decoration:none; }
+  .p2-scene.on .pl-bars s { width:var(--w); transition:width 1s cubic-bezier(.25,.8,.25,1) .35s; }
+  .pl-step { display:flex; align-items:center; gap:6px; font-size:.54rem; font-weight:800; color:#eaf1ff; margin-bottom:6px; }
+  .pl-n { width:15px; height:15px; flex:none; border-radius:5px; background:rgba(47,123,255,.2); color:#9ec2ff; font-size:.44rem; display:flex; align-items:center; justify-content:center; }
+  .pl-dur { margin-left:auto; font-size:.44rem; color:#7a8aaa; font-weight:600; }
+  .pl-ref { position:relative; width:62px; aspect-ratio:9/13; border-radius:8px; overflow:hidden; margin-bottom:7px; background:#0b0f1a; border:1px solid rgba(255,255,255,.1); }
+  .pl-ref img { width:100%; height:100%; object-fit:cover; display:block; }
+  .pl-dl { position:absolute; right:3px; bottom:3px; width:15px; height:15px; border-radius:5px; background:rgba(47,123,255,.92); color:#fff; font-size:.5rem; display:flex; align-items:center; justify-content:center; }
+  .pl-prompt { display:flex; align-items:center; gap:6px; padding:5px 6px; border-radius:8px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.08); margin-bottom:5px; }
+  .pl-pi { font-size:.6rem; flex:none; }
+  .pl-pm { flex:1; min-width:0; }
+  .pl-pm b { display:block; font-size:.5rem; font-weight:800; color:#eaf1ff; }
+  .pl-pm i { display:block; font-style:normal; font-size:.42rem; color:#7a8aaa; }
+  .pl-pc { flex:none; padding:4px 8px; border-radius:6px; background:var(--blue); color:#fff; font-size:.44rem; font-weight:800; }
+  /* Zooms guidés : chaque élément grossit puis reprend sa place (sans sortir du téléphone) */
+  .p2-scene.on .pl-ref.z1 { animation:plZoom 8s ease-in-out 1.6s infinite; }
+  .p2-scene.on .pl-dl.z2 { animation:plPop 8s ease-in-out 2.9s infinite; }
+  .p2-scene.on .pl-prompt.z3 { animation:plZoomP 8s ease-in-out 4.2s infinite; }
+  .p2-scene.on .pl-prompt.z4 { animation:plZoomP 8s ease-in-out 5.5s infinite; }
+  .p2-scene.on .pl-src.z0 { animation:plZoomP 8s ease-in-out .4s infinite; }
+  @keyframes plZoom { 0%,100%{transform:scale(1);} 4%,11%{transform:scale(1.6);box-shadow:0 12px 30px -8px rgba(47,123,255,.8);border-color:#4d8fff;} }
+  @keyframes plZoomP { 0%,100%{transform:scale(1);border-color:rgba(255,255,255,.08);} 4%,11%{transform:scale(1.09);border-color:#4d8fff;box-shadow:0 10px 24px -8px rgba(47,123,255,.7);} }
+  @keyframes plPop { 0%,100%{transform:scale(1);} 4%,11%{transform:scale(1.9);box-shadow:0 0 0 4px rgba(47,123,255,.35);} }
   .cp-sub { font-size:.66rem; color:var(--muted); text-align:center; margin-bottom:12px; }
   .cp-link { display:flex; align-items:center; gap:8px; padding:12px 12px; border-radius:12px; border:1.5px solid rgba(77,143,255,.4); background:rgba(12,18,36,.85); box-shadow:0 0 0 4px rgba(47,123,255,.06); }
   .cp-lk-ic { font-size:.9rem; }
@@ -707,35 +779,49 @@
             <div class="ph-right"><span class="ph-bell">🔔<i>3</i></span><span class="ph-menu"><b></b><b></b><b></b></span></div>
           </div>
           <div class="p2-body">
-            <div class="p2-title" id="pvTitle">Copie une vidéo virale</div>
-
-            <!-- Scène 1 : colle le lien + clic « Copier avec l'IA » -->
+            <!-- Scène 0 : l'ACCUEIL de l'app (hero + feed de tendances), on colle le lien puis on copie -->
             <div class="p2-scene on" data-s="0">
-              <div class="cp-sub">Colle le lien d'une vidéo qui cartonne.</div>
-              <div class="cp-link"><span class="cp-lk-ic">🔗</span><span class="cp-lk-tx" id="cpLink">https://vm.tiktok.com/…</span></div>
-              <div class="pv-btn" id="pvBtn">✨ Copier avec l'IA<span class="pv-tap">👆</span></div>
+              <div class="ap-h1">Une vidéo cartonne ?<br><b>Refais-la. En mieux.</b></div>
+              <div class="ap-paste"><span class="ap-lk">🔗</span><span class="ap-lktx" id="cpLink"></span><span class="ap-copy" id="pvBtn">Copier →<span class="pv-tap">👆</span></span></div>
+              <div class="ap-plats"><span>TikTok</span><span>Shorts</span><span>Reels</span><span>Facebook</span></div>
+              <div class="ap-or">Ou choisis une tendance</div>
+              <div class="ap-chips"><span class="on">🔥 Tendance</span><span>😂 Drôle</span><span>🔨 Bricolage</span></div>
+              <div class="ap-grid">
+                <div class="ap-card"><span class="ap-cat">📖 Story</span><img src="https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg" alt="" loading="lazy"><span class="ap-v">1,9 M</span></div>
+                <div class="ap-card"><span class="ap-cat">🔨 Bricolage</span><img src="https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/5ac20da6-01ee-46fa-bda5-47d0579a4333.jpg" alt="" loading="lazy"><span class="ap-v">10,7 M</span></div>
+              </div>
             </div>
 
-            <!-- Scène 2 : l'IA regarde/décortique la vidéo (plans qui défilent + outils) -->
+            <!-- Scène 1 : la VRAIE animation de copie de l'app (plans qui défilent sur le côté + logos) -->
             <div class="p2-scene" data-s="1">
-              <div class="cp-scan">
-                <div class="cp-frame"><img src="assets/demo-video.jpg" alt=""><span class="cp-beam"></span></div>
-                <div class="cp-scan-t">L'IA regarde la vidéo…</div>
-                <div class="cp-scan-s" id="cpScanS">Détection du hook</div>
-                <div class="cp-tools"><span>Nano Banana</span><span>ElevenLabs</span><span>CapCut</span><span>Veo 3</span></div>
-              </div>
+              <div class="ca-brand">✨ Skillora IA</div>
+              <div class="ca-stage"><div class="ca-stack" id="caStack"></div></div>
+              <div class="ca-label" id="cpScanS">Découpage des plans</div>
+              <div class="ca-prog"><i></i></div>
             </div>
 
-            <!-- Scène 3 : LE PLAN EXACT — images de réf + téléchargement + prompts (avec zooms) -->
+            <!-- Scène 2 : LE PLAN, présenté comme dans l'app + zooms guidés -->
             <div class="p2-scene" data-s="2">
-              <div class="cp-plan-h"><span class="cp-ok">✓</span> Ton plan exact est prêt</div>
-              <div class="cp-refs">
-                <div class="cp-ref z1"><img src="assets/demo-video.jpg" alt=""><span class="cp-dl">⬇︎</span></div>
-                <div class="cp-ref z2"><img src="assets/demo-video.jpg" alt=""><span class="cp-dl">⬇︎</span></div>
-                <div class="cp-ref z3"><img src="assets/demo-video.jpg" alt=""><span class="cp-dl">⬇︎</span></div>
+              <div class="pl-head"><span class="pl-ok">✓</span><span><b>Ton plan est prêt</b><i>Barbier légumes</i></span></div>
+              <div class="pl-src z0">
+                <img src="https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg" alt="" loading="lazy">
+                <span class="pl-st">👁 1,9 M</span><span class="pl-st">❤ 195 k</span><span class="pl-st">↗ 2 k</span>
               </div>
-              <div class="cp-prompt z4"><span class="cp-pl">🖼️ Prompt image</span><span class="cp-pv">Un personnage réaliste dans un salon sombre, lumière néon…</span></div>
-              <div class="cp-prompt z5"><span class="cp-pl">🎬 Prompt animation</span><span class="cp-pv">Léger travelling avant, la caméra se rapproche du visage…</span></div>
+              <div class="pl-score">
+                <span class="pl-note">9<small>/10</small></span>
+                <span class="pl-bars">
+                  <i><em>Accroche</em><b><s style="--w:94%"></s></b></i>
+                  <i><em>Rétention</em><b><s style="--w:88%"></s></b></i>
+                  <i><em>Format</em><b><s style="--w:96%"></s></b></i>
+                </span>
+              </div>
+              <div class="pl-step"><span class="pl-n">1</span>Salon de coiffure<span class="pl-dur">8 s</span></div>
+              <div class="pl-ref z1">
+                <img src="https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg" alt="" loading="lazy">
+                <span class="pl-dl z2">⬇︎</span>
+              </div>
+              <div class="pl-prompt z3"><span class="pl-pi">🖼️</span><span class="pl-pm"><b>Prompt image</b><i>Nano Banana 2</i></span><span class="pl-pc">Copier</span></div>
+              <div class="pl-prompt z4"><span class="pl-pi">🎬</span><span class="pl-pm"><b>Prompt animation</b><i>Kling 3.0</i></span><span class="pl-pc">Copier</span></div>
             </div>
           </div>
         </div>
@@ -1012,38 +1098,73 @@
     var root = document.getElementById('p1s'); if (!root) return;
     var scenes = root.querySelectorAll('.p2-scene');
     var btn = document.getElementById('pvBtn');
-    var title = document.getElementById('pvTitle');
     var linkEl = document.getElementById('cpLink');
     var scanS = document.getElementById('cpScanS');
-    var TITLES = ['Copie une vidéo virale', "L'IA décortique la vidéo", 'Ton plan exact'];
-    var FULL_LINK = 'https://vm.tiktok.com/ZN8kJ7q';
-    var SCAN = ['Détection du hook', 'Découpage des plans', 'Voix off repérée', 'Reconstruction du montage'];
-    var cur = 0, typeTimer = null, scanTimer = null;
-    var DUR = [3800, 3800, 5200];
+    var stack = document.getElementById('caStack');
+    var FULL_LINK = 'https://fb.watch/9kQzR2';
+    var SCAN = ['Découpage des plans', 'Détection du hook', 'Voix off repérée', 'Reconstruction du montage'];
+    // Démo : la vraie vidéo tendance (aucune copie réelle n'est lancée -> zéro crédit consommé).
+    var DEMO_THUMB = 'https://fkjqlmtugzdluzshxqsk.supabase.co/storage/v1/object/public/post-media/winners/49eb6e9c-2a6b-405b-a24a-6daacaa245df.jpg';
+    // Mêmes logos que dans l'app, pour garder la cohérence.
+    var LOGOS = [
+      {n:'Nano Banana', r:'Images', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#141b2b"/><path d="M11 12c.5 8 6.5 15 17 15 1.6 0 2.2-1.4.8-1.9-6.9-2.3-11.4-6.9-13.3-13.4-.4-1.5-2.6-1.2-2.5.3z" fill="#FFCE3A"/></svg>'},
+      {n:'ElevenLabs', r:'Voix off', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#000"/><rect x="14" y="12" width="4" height="16" rx="1.4" fill="#fff"/><rect x="22" y="12" width="4" height="16" rx="1.4" fill="#fff"/></svg>'},
+      {n:'CapCut', r:'Montage', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0a0a0a"/><path d="M15 13v14l12-7z" fill="#25e0d4"/><circle cx="26" cy="26.5" r="3" fill="#ff4d6d"/></svg>'},
+      {n:'Kling', r:'Animation', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#fff"/><path d="M20 8l2.6 6.9L30 17l-7.4 2.1L20 26l-2.6-6.9L10 17l7.4-2.1z" fill="#4285F4"/></svg>'}
+    ];
+    var cur = 0, typeTimer = null, scanTimer = null, deckTimer = null, li = 0;
+    var DUR = [4600, 5200, 9200];
     function press(b, at){
       if (!b) return;
       b.classList.remove('press');
       setTimeout(function(){ b.classList.add('press'); }, at);
       setTimeout(function(){ b.classList.remove('press'); }, at + 350);
     }
+    function buildDeck(){
+      if (!stack || stack.children.length) return;
+      LOGOS.forEach(function(g){
+        var c = document.createElement('div'); c.className = 'ca-card';
+        c.innerHTML = '<img src="' + DEMO_THUMB + '" alt="" loading="lazy">' +
+          '<div class="ca-logo">' + g.ic + '<b>' + g.n + '<em>' + g.r + '</em></b></div>';
+        stack.appendChild(c);
+      });
+    }
+    function restack(){
+      if (!stack) return;
+      Array.prototype.slice.call(stack.children).forEach(function(el, i){
+        el.style.zIndex = String(20 - i);
+        el.style.transform = 'translateX(' + (i * 9) + 'px) translateY(' + (i * 4) + 'px) scale(' + (1 - i * 0.05) + ')';
+        el.style.opacity = i < 3 ? (i === 0 ? '1' : (1 - i * 0.22) + '') : '0';
+      });
+    }
     function show(i){
       cur = i;
       scenes.forEach(function(s, k){ s.classList.toggle('on', k === i); });
-      if (title) title.textContent = TITLES[i] || 'Skillora';
       if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
       if (scanTimer) { clearInterval(scanTimer); scanTimer = null; }
+      if (deckTimer) { clearInterval(deckTimer); deckTimer = null; }
       if (i === 0 && linkEl) {
-        // on « tape » le lien puis on clique.
+        // On « colle » le lien dans la barre, puis on clique sur Copier.
         var ci = 0; linkEl.textContent = '';
         typeTimer = setInterval(function(){
           ci++; linkEl.textContent = FULL_LINK.slice(0, ci);
           if (ci >= FULL_LINK.length) { clearInterval(typeTimer); typeTimer = null; }
-        }, 70);
-        press(btn, 3000);
+        }, 65);
+        press(btn, 3600);
       }
-      if (i === 1 && scanS) {
-        var si = 0; scanS.textContent = SCAN[0];
-        scanTimer = setInterval(function(){ si = (si + 1) % SCAN.length; scanS.textContent = SCAN[si]; }, 850);
+      if (i === 1) {
+        buildDeck(); restack(); li = 0;
+        if (scanS) scanS.textContent = SCAN[0];
+        deckTimer = setInterval(function(){
+          var front = stack && stack.firstElementChild;
+          if (front && stack.children.length > 1) {
+            var dir = (li % 2 === 0) ? 'ca-fly-l' : 'ca-fly-r';
+            front.classList.add(dir);
+            setTimeout(function(){ front.classList.remove(dir); stack.appendChild(front); restack(); }, 560);
+          }
+          li++;
+          if (scanS) scanS.textContent = SCAN[li % SCAN.length];
+        }, 1150);
       }
     }
     if (window.SK_STATIC) return; // mode figé (captures internes) — les visiteurs ont toujours l'animation

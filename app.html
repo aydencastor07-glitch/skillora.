@@ -2616,6 +2616,7 @@
       .pf-btn-primary{border:none;background:var(--blue);color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:.9rem;padding:12px 18px;border-radius:12px;cursor:pointer;transition:transform .12s;}
       .pf-btn-primary:active{transform:scale(.97);}
       .pf-btn-auto{width:auto;flex-shrink:0;}
+      .pf-pro-badge{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;padding:10px 16px;border-radius:12px;border:none;background:linear-gradient(135deg,#39d98a,#1fae68);color:#0b1220;font-family:'Sora',sans-serif;font-weight:900;font-size:.9rem;box-shadow:0 8px 20px -8px rgba(57,217,138,.6);cursor:default;}
       .pf-btn-ghost{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#dbe4f5;font-family:'Sora',sans-serif;font-weight:700;font-size:.86rem;padding:12px 18px;border-radius:12px;cursor:pointer;}
       .pf-links{padding:6px 4px;}
       .pf-link{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;color:#dbe4f5;text-decoration:none;font-weight:600;font-size:.9rem;border-radius:12px;}
@@ -2982,21 +2983,13 @@
         <button class="pf-btn-primary" onclick="devOpen()">📊 Tableau de bord dev</button>
         <button class="pf-btn-ghost" onclick="switchView('publish', null)">🚀 Publier &amp; comptes connectés</button>
       </div>
-      <div class="pf-dev-test">
-        <span class="pf-dev-test-l">🧪 Tester un vrai paiement (Cryptomus)</span>
-        <div class="pf-dev-test-row">
-          <input id="ppTestAmt" type="number" min="1" max="50" step="1" value="1" />
-          <span class="ppt-cur">$</span>
-          <button onclick="paypalTest()">Payer (test)</button>
-        </div>
-      </div>
     </div>
 
     <!-- Abonnement -->
     <div class="pf-card">
       <div class="pf-row">
         <div><div class="pf-h">Abonnement</div><div class="pf-sub" id="profilePlan">Gratuit</div></div>
-        <button class="pf-btn-primary pf-btn-auto" onclick="openUpgrade()">Améliorer</button>
+        <button class="pf-btn-primary pf-btn-auto" id="pfSubBtn" onclick="openUpgrade()">Passer en Pro</button>
       </div>
     </div>
 
@@ -4059,9 +4052,21 @@
   // Affiche le plan courant dans le profil
   function updateProfilePlan() {
     var el = document.getElementById('profilePlan');
-    if (!el) return;
-    el.textContent = (typeof userIsSubscribed !== 'undefined' && userIsSubscribed && PLAN_NAMES[userPlan])
-      ? ('Plan ' + PLAN_NAMES[userPlan]) : 'Gratuit';
+    var btn = document.getElementById('pfSubBtn');
+    var pro = (typeof hv2IsPro === 'function') ? hv2IsPro() : (typeof userIsSubscribed !== 'undefined' && userIsSubscribed);
+    if (el) el.textContent = pro ? 'Tu es Pro' : 'Gratuit';
+    if (btn) {
+      if (pro) {
+        // Badge Pro pro (coche) — pas un bouton d'upsell puisque déjà abonné.
+        btn.className = 'pf-pro-badge';
+        btn.onclick = null;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#0b1220" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6"/></svg> Pro';
+      } else {
+        btn.className = 'pf-btn-primary pf-btn-auto';
+        btn.onclick = function(){ openUpgrade(); };
+        btn.textContent = 'Passer en Pro';
+      }
+    }
   }
 
   // Copie le lien de parrainage
@@ -4468,6 +4473,10 @@
   // dernière vidéo, courbe. Ne consomme PAS le quota manuel (juste le délai anti-gaspillage). Le scrape se
   // fait par compte, l'un après l'autre. Échec d'un compte = silencieux, on passe au suivant.
   async function maybeMorningRefreshAll(accounts){
+    // Auto-scraping des comptes connectés RETIRÉ du parcours : les stats ne s'actualisent plus
+    // toutes seules à l'entrée (plus d'écran « Mise à jour de tes stats »). L'actualisation reste
+    // possible manuellement dans la partie propriétaire (Publier & comptes connectés).
+    return;
     if (window._morningAllRan) return;
     window._morningAllRan = true;                                      // verrou synchrone (anti double-run)
     var today = localDateStr();

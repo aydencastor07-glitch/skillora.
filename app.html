@@ -2151,11 +2151,10 @@
     <h1 class="page-title reveal" style="animation-delay:.05s">Studio</h1>
     <p class="page-sub reveal" style="animation-delay:.12s">Colle une vidéo virale → repars avec le plan exact pour la refaire, images comprises.</p>
 
-    <!-- Compte : sélection rapide (uniquement pour l'outil Script ; les idées tournent seules) -->
-    <div id="studioAcctPicker">
-      <div class="studio-acc-label reveal" style="animation-delay:.16s">Ton compte</div>
-      <div id="studioAccounts" class="studio-accs reveal" style="animation-delay:.2s"></div>
-      <div id="studioAccCtx" class="reveal" style="animation-delay:.24s;display:none;"></div>
+    <!-- Sélection de compte retirée : créer un script ne demande plus de compte connecté. -->
+    <div id="studioAcctPicker" style="display:none;">
+      <div id="studioAccounts" class="studio-accs"></div>
+      <div id="studioAccCtx" style="display:none;"></div>
     </div>
 
     <!-- GÉNÉRATEUR IA — « Copier une vidéo » (bêta / mode test) -->
@@ -2796,9 +2795,7 @@
       <div id="scriptLabBody">
       <textarea id="scriptInput" class="composer-input" rows="5" placeholder="Écris ton idée…   ex : 3 erreurs qui ruinent ta progression à la salle" style="resize:none;"></textarea>
       <div class="composer-opts">
-        <div class="ps-label">Format — vidéo courte</div>
-        <div class="plat-select" id="platSelect"></div>
-        <div class="composer-dur"><span class="cd-label">Durée</span><span id="durLabel" class="cd-val">30 s</span></div>
+        <div class="composer-dur"><span class="cd-label">Durée de la vidéo</span><span id="durLabel" class="cd-val">30 s</span></div>
         <input type="range" id="durRange" class="dur-range" min="10" max="180" step="5" value="30" oninput="updateDur(this.value)">
       </div>
       <div id="shopImageZone" style="display:none;margin:0 0 14px;">
@@ -5645,14 +5642,9 @@
 
   /* ===== Idées du jour : bulle flottante + panneau ===== */
   function showIdeaFab(on) {
+    // Bulle 💡 retirée : plus d'ampoule flottante (les Idées restent accessibles via le menu ☰).
     var f = document.getElementById('ideaFab');
-    if (!f) return;
-    // La bulle 💡 des idées n'apparaît QUE sur le Studio — jamais sur l'accueil ni ailleurs,
-    // quel que soit l'appelant (on re-vérifie ici la vue active pour éviter tout affichage parasite).
-    var onStudio = !!(document.getElementById('view-ia') && document.getElementById('view-ia').classList.contains('active'));
-    var onScript = (window._skTab === 'script');   // les idées nourrissent les scripts, pas la Copie
-    var focusing = !!(document.getElementById('view-ia') && document.getElementById('view-ia').classList.contains('gen-focus'));
-    f.classList.toggle('show', !!on && onStudio && onScript && !focusing);
+    if (f) { f.classList.remove('show'); f.style.display = 'none'; }
   }
   function setIdeaBadge(n) {
     n = Number(n) || 0;
@@ -11302,8 +11294,7 @@
       var nodes=[],n=card.nextSibling; while(n){nodes.push(n);n=n.nextSibling;}
       view.appendChild(wrap);
       nodes.forEach(function(x){wrap.appendChild(x);});
-      var acct=document.getElementById('studioAcctPicker');
-      if(acct) wrap.insertBefore(acct, wrap.firstChild);
+      // Plus de sélecteur de compte pour le Script (idée + durée uniquement).
       // Plus d'onglet « Script » : cliquer « Copier avec l'IA » va DIRECTEMENT sur la copie/animation.
       studioTab('copie');
     }

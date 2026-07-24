@@ -101,7 +101,7 @@
   .reveal-d1.in { transition-delay:.08s; } .reveal-d2.in { transition-delay:.16s; } .reveal-d3.in { transition-delay:.24s; }
 
   /* ===== Hero ===== */
-  .hero { padding:58px 0 30px; }
+  .hero { padding:46px 0 30px; }
   /* Héro centré (style outil) : titre court, pastilles, barre « colle le lien », téléphone dessous. */
   .hero-grid { display:flex; flex-direction:column; align-items:center; gap:30px; }
   .hero-txt { text-align:center; max-width:720px; margin:0 auto; }
@@ -138,11 +138,12 @@
 
   /* ===== Téléphone (cadre) ===== */
   .phone-zone { position:relative; display:flex; justify-content:center; }
-  /* Téléphone du héros : mis à l'échelle pour être vu ENTIER (mobile comme ordinateur). */
-  .hero .phone { transform:scale(.8); transform-origin:top center; }
-  .hero .phone-zone { height:502px; }
-  @media (min-width:901px) { .hero .phone { transform:scale(.92); } .hero .phone-zone { height:577px; } }
-  @media (max-width:400px) { .hero .phone { transform:scale(.72); } .hero .phone-zone { height:452px; } }
+  /* Téléphone du héros : VRAIMENT plus petit (aucune mise à l'échelle, donc jamais coupé) */
+  .hero .phone { width:min(268px,76vw); padding:8px; border-radius:40px; }
+  .hero .phone-screen { height:466px; border-radius:33px; }
+  .hero .phone::before { top:17px; width:74px; height:19px; }
+  .hero .ph-head { padding-top:34px; }
+  @media (min-width:901px) { .hero .phone { width:292px; } .hero .phone-screen { height:506px; } }
   /* En-tête du téléphone : cloche + menu ☰ (comme l'app aujourd'hui, plus de barre du bas) */
   .ph-right { display:flex; align-items:center; gap:8px; }
   .ph-menu { width:26px; height:26px; border-radius:50%; border:1px solid rgba(255,255,255,.14); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; }
@@ -683,7 +684,6 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <div class="kicker reveal">⚡ Copie les vidéos qui cartonnent</div>
       <h1 class="reveal reveal-d1">Colle le lien d'une vidéo virale,<br class="h1br"> obtiens le plan pour <span class="rotwrap">la copier avec l'IA</span>.</h1>
       <a class="hero-paste reveal reveal-d2" href="signup.html">
         <span class="hp-ic">🔗</span>

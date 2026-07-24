@@ -5810,6 +5810,8 @@
   function idzPickPlat(k){ _idzPlat=k; try{localStorage.setItem('sk_idz_plat',k);}catch(e){} document.querySelectorAll('#idzPlats .idz-chip').forEach(function(b,i){ b.classList.toggle('on', IDZ_PLATS[i].k===k); }); }
   function idzShowSetup(){ var s=document.getElementById('idzSetup'),a=document.getElementById('idzActive'); if(s)s.style.display=''; if(a)a.style.display='none'; }
   function idzShowActive(){
+    // Garde-fou : jamais d'écran actif vide. Sans niche/plateforme valides -> on revient à la sélection.
+    if(!_idzNiche || !_idzNiche.l || !_idzPlat){ try{localStorage.removeItem('sk_idz_on');}catch(e){} idzShowSetup(); return; }
     var s=document.getElementById('idzSetup'),a=document.getElementById('idzActive'); if(s)s.style.display='none'; if(a)a.style.display='';
     idzCtxBar();
     var tb=document.getElementById('idzTabTodayBtn'),hb=document.getElementById('idzTabHistBtn');

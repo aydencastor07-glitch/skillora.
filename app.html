@@ -2432,18 +2432,42 @@
       .nz-cell{cursor:pointer;}
       .nz-poster{position:relative;width:100%;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 16px 40px -22px rgba(0,0,0,.9);}
       .nz-poster video,.nz-poster .nzimg{width:100%;height:100%;object-fit:cover;display:block;}
-      .nz-cell.locked .nz-poster video{filter:blur(8px) brightness(.55);transform:scale(1.08);}
-      .nz-score{position:absolute;top:8px;left:8px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);color:#ffb703;font-size:.74rem;font-weight:900;}
-      .nz-score.big{font-size:1rem;top:12px;left:12px;}
-      .nz-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);}
-      .nz-name{margin-top:9px;font-family:'Sora',sans-serif;font-weight:800;font-size:.9rem;color:#eaf1ff;}
-      .nz-n{font-size:.72rem;color:var(--muted);margin-top:1px;}
-      .nz-card{max-width:460px;text-align:left;}
-      .nzd-hero{position:relative;width:100%;aspect-ratio:9/16;max-height:50vh;border-radius:16px;overflow:hidden;background:#0b0f1a;margin:4px 0 14px;}
-      .nzd-hero video{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;}
-      .nzd-title{font-family:'Fraunces',serif;font-weight:800;font-size:1.3rem;margin-bottom:9px;}
-      .nzd-meter{height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:16px;}
-      .nzd-meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ffb703,#ff8500);}
+      .nz-score{position:absolute;top:8px;left:8px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.66);backdrop-filter:blur(6px);color:#43e37f;font-size:.82rem;font-weight:900;box-shadow:0 2px 10px -3px rgba(0,0,0,.8);}
+      .nz-score i{font-size:.6rem;font-weight:800;opacity:.75;font-style:normal;margin-left:1px;}
+      .nz-catchip{position:absolute;left:8px;bottom:8px;right:8px;padding:5px 9px;border-radius:11px;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);color:#eaf1ff;font-size:.74rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .nz-stats{margin-top:8px;display:flex;gap:11px;font-size:.72rem;color:var(--muted);font-weight:700;align-items:center;flex-wrap:wrap;}
+      .nz-stats span{display:inline-flex;align-items:center;gap:3px;}
+      .nz-stats svg{width:12px;height:12px;opacity:.75;}
+      .nz-card{max-width:480px;text-align:left;}
+      /* Fiche vidéo — vidéo + tableau de notes (façon « potentiel de viralité ») */
+      .nvd-top{display:flex;gap:13px;margin:2px 0 14px;align-items:stretch;}
+      .nvd-video{position:relative;flex:0 0 44%;aspect-ratio:9/16;border-radius:15px;overflow:hidden;background:#0b0f1a;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;}
+      .nvd-video video{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;}
+      .nvd-video .nvd-play{position:absolute;inset:0;margin:auto;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);border-radius:50%;pointer-events:none;transition:opacity .25s;}
+      .nvd-video.playing{transform:scale(1.05);box-shadow:0 24px 60px -20px rgba(0,0,0,.9);}
+      .nvd-video.playing .nvd-play{opacity:0;}
+      .nvd-video.locked video{filter:blur(9px) brightness(.5);transform:scale(1.08);}
+      .nvd-side{flex:1;display:flex;flex-direction:column;min-width:0;}
+      .nvd-cat{font-family:'Sora',sans-serif;font-weight:800;font-size:.92rem;color:#eaf1ff;}
+      .nvd-big{font-family:'Fraunces',serif;font-weight:800;font-size:2.1rem;line-height:1;color:#43e37f;margin:3px 0 1px;}
+      .nvd-big small{font-size:.9rem;color:var(--muted);font-weight:700;margin-left:2px;}
+      .nvd-glab{font-size:.6rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#7a86a0;margin-bottom:9px;}
+      .nvd-bar{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+      .nvd-bl{flex:0 0 auto;font-size:.66rem;font-weight:700;color:#aeb9d0;width:52px;}
+      .nvd-bt{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;}
+      .nvd-bt i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#22c55e,#43e37f);}
+      .nvd-bv{flex:0 0 auto;font-size:.72rem;font-weight:900;color:#43e37f;}
+      .nvd-bv small{font-size:.55rem;color:var(--muted);font-weight:700;}
+      .nvd-stats{display:flex;gap:14px;flex-wrap:wrap;font-size:.76rem;color:var(--muted);font-weight:600;padding:11px 0;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:14px;}
+      .nvd-stats span{display:inline-flex;align-items:center;gap:4px;}
+      .nvd-stats b{color:#eaf1ff;font-weight:800;}
+      .nvd-stats svg{width:13px;height:13px;opacity:.75;}
+      .nvd-blue{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:13px;}
+      .nvd-blue span{flex:1;min-width:130px;display:flex;align-items:center;gap:6px;justify-content:space-between;padding:9px 12px;border-radius:12px;background:rgba(45,120,255,.12);border:1px solid rgba(70,140,255,.32);color:#bcd4ff;font-size:.76rem;font-weight:600;}
+      .nvd-blue b{color:#8fb6ff;font-weight:800;}
+      .nvd-dots{font-style:normal;letter-spacing:2px;color:#5c8dff;font-size:.7rem;}
+      .nvd-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+      .nvd-tool{padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:.74rem;font-weight:700;color:#dbe4f5;}
       .nzd-lab{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7a86a0;margin-bottom:5px;}
       .nzd-p{font-size:.88rem;color:#cdd6ea;line-height:1.55;margin-bottom:14px;}
       .nzd-copy{margin-top:4px;}
@@ -6117,7 +6141,7 @@
   function hv2More(){ _hv2Expanded = true; hv2Render(); }
   function hv2Less(){ _hv2Expanded = false; hv2Render(); try{ document.getElementById('hv2Chips').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} }
 
-  // ── NICHES VIRALES : catalogue façon « films », note auto depuis les vraies stats ──
+  // ── NICHES VIRALES : chaque vidéo notée + fiche « comment la reproduire » ──
   var NICHE_INFO = {
     tiktok_shop:{t:'🛍️ TikTok Shop',why:"Un personnage tient un produit et le vend en parlant : le format qui convertit le plus (achats directs).",how:"Un avatar IA présente TON produit, gestes réalistes + voix off convaincante."},
     product:{t:'📦 Produit',why:"Test / unboxing : la curiosité et la preuve font exploser les vues.",how:"Montre le produit en action, plans serrés, punchlines aux moments clés."},
@@ -6132,16 +6156,38 @@
     talk_facecam:{t:'🗣️ Facecam',why:"Un visage qui parle crée proximité et confiance.",how:"Avatar IA face caméra, sous-titres, punch-ins aux phrases fortes."},
     other:{t:'🎬 Divers',why:"Des pépites virales à fort potentiel.",how:"Analyse la vidéo et reproduis-la avec l'IA."}
   };
-  function nicheScore(vids){
-    if(!vids.length) return 0;
-    var av=0, eng=0, ec=0;
-    vids.forEach(function(v){ av+=(v.views||0); if(v.views&&v.likes){ eng+=v.likes/v.views; ec++; } });
-    av/=vids.length;
-    var base = av>0 ? Math.log(av)/Math.LN10 : 0;   // ~4.7 (50k) .. 8 (100M)
-    var s = 6.4 + (base-4.7)*0.85;
-    if(ec) s += Math.min(0.6, (eng/ec)*4);
-    return Math.round(Math.max(6.2, Math.min(9.9, s))*10)/10;
+  // mont = difficulté de montage (1 Facile · 2 Moyen · 3 Avancé) · temps à reproduire · outils · méthode détaillée
+  var NICHE_META = {
+    tiktok_shop:{mont:2,temps:'~1 h',tools:['HeyGen (avatar IA)','ElevenLabs (voix)','CapCut (montage)'],how:"Un avatar IA présente TON produit face caméra : gestes réalistes, voix off convaincante, sous-titres punchy. Termine par un appel à l'action clair (« clique pour commander »)."},
+    product:{mont:2,temps:'~40 min',tools:['Clips produit / IA','ElevenLabs (voix)','CapCut (montage)'],how:"Montre le produit en action, plans serrés sur le résultat. Voix off qui liste les bénéfices, punchlines aux moments-clés."},
+    motivation:{mont:1,temps:'~30 min',tools:['Pinterest (clips)','ElevenLabs (voix)','CapCut (sous-titres)'],how:"Pas besoin de tout générer : récupère des clips puissants sur Pinterest (lions, nature, sport), ajoute une voix off ElevenLabs percutante, puis des sous-titres animés sur CapCut. Rythme lent et épique."},
+    quiz:{mont:1,temps:'~25 min',tools:['Banque d’images','CapCut (montage)','ElevenLabs (voix opt.)'],how:"Questions rythmées avec compte à rebours, réponse à la fin. Zéro tournage : images + texte animé sur CapCut. L'interaction booste les commentaires."},
+    horror:{mont:3,temps:'~1 h',tools:['Image/vidéo IA','ElevenLabs (voix)','CapCut (montage)'],how:"POV en ambiance sombre, montée de tension puis révélation finale. Visuels IA + voix off grave + sound design. Coupe juste avant la chute pour déclencher les commentaires."},
+    story:{mont:2,temps:'~45 min',tools:['Visuels IA / Pinterest','ElevenLabs (voix)','CapCut (sous-titres)'],how:"Narration voix off + visuels qui illustrent. Hook très fort dès la 1ʳᵉ seconde, cliffhanger au milieu, chute à la fin."},
+    asmr:{mont:1,temps:'~30 min',tools:['Clips propres','CapCut (montage)'],how:"Sons nets et rythmés, images propres, gros plans satisfaisants. Pas de musique qui couvre le son. Boucle hypnotique."},
+    diy:{mont:2,temps:'~45 min',tools:['Clips accélérés','ElevenLabs (voix)','CapCut (montage)'],how:"Étapes en accéléré, gros plans satisfaisants sur le résultat, voix off qui explique. Le « avant/après » retient jusqu'au bout."},
+    funny:{mont:1,temps:'~30 min',tools:['Personnages IA / clips','CapCut (montage)'],how:"Sketch court avec une chute rapide. Personnages IA expressifs ou clips détournés, timing serré, punchline finale."},
+    luxury_aesthetic:{mont:3,temps:'~1 h',tools:['Clips esthétiques','CapCut (étalonnage)','Musique premium'],how:"Plans léchés, étalonnage riche, rythme lent et chic. Musique premium. L'esthétique fait rêver et se partage."},
+    talk_facecam:{mont:1,temps:'~30 min',tools:['HeyGen (avatar IA)','ElevenLabs (voix)','CapCut (sous-titres)'],how:"Avatar IA face caméra, sous-titres, punch-ins aux phrases fortes. Un visage qui parle crée proximité et confiance."},
+    other:{mont:2,temps:'~45 min',tools:['IA / Pinterest','ElevenLabs','CapCut'],how:"Analyse la structure de la vidéo puis reproduis-la : clips (IA ou Pinterest) + voix off ElevenLabs + montage & sous-titres CapCut."}
+  };
+  function nvNum(x){ x=Number(x)||0; return x<0?0:x; }
+  function nvLog(v){ var x=nvNum(v.views); return x>0?Math.log(x)/Math.LN10:0; }   // ~4.7 (50k) .. 8 (100M)
+  function nvClamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+  // Note globale /10 par vidéo (portée + engagement)
+  function nvScore(v){
+    var V=nvNum(v.views), L=nvNum(v.likes), S=nvNum(v.shares);
+    var s = 5.9 + (nvLog(v)-4.7)*0.72;
+    if(V){ s += nvClamp((L/V)*8,0,1.2) + nvClamp((S/V)*30,0,0.8); }
+    return Math.round(nvClamp(s,6.0,9.9)*10)/10;
   }
+  function nvHook(v){ var V=nvNum(v.views),L=nvNum(v.likes);
+    return Math.round(nvClamp(6.6+(nvLog(v)-5.5)*0.6+(V?nvClamp((L/V)*10,0,1.8):0),6,10)*10)/10; }
+  function nvRet(v){ var V=nvNum(v.views),C=nvNum(v.comments),L=nvNum(v.likes);
+    return Math.round(nvClamp(6.3+(nvLog(v)-5)*0.45+(V?nvClamp((C/V)*60,0,1.6):0)+(V?nvClamp((L/V)*4,0,0.8):0),6,10)*10)/10; }
+  function nvCta(v){ var V=nvNum(v.views),S=nvNum(v.shares),C=nvNum(v.comments);
+    return Math.round(nvClamp(5.6+(V?nvClamp((S/V)*45,0,2.4):0)+(V?nvClamp((C/V)*40,0,1):0)+(nvLog(v)-6)*0.2,5,10)*10)/10; }
+  function montInfo(m){ return m>=3?{t:'Avancé',d:'●●●'}:(m>=2?{t:'Moyen',d:'●●○'}:{t:'Facile',d:'●○○'}); }
   async function nichesLoad(){
     var grid=document.getElementById('nzGrid'); if(!grid) return;
     // Si le feed d'accueil a déjà chargé les vidéos, on les réutilise : affichage instantané.
@@ -6159,50 +6205,83 @@
   }
   function nichesRender(){
     var grid=document.getElementById('nzGrid'); if(!grid) return;
-    var arr=(_hv2All||[]);
+    var arr=(_hv2All||[]).slice();
     if(!arr.length){ grid.innerHTML='<div class="hv2-empty">Les niches arrivent bientôt ✨</div>'; return; }
-    var by={}; arr.forEach(function(v){ (by[v.niche]=by[v.niche]||[]).push(v); });
-    var rows=Object.keys(by).map(function(k){
-      var vids=by[k].slice().sort(function(a,b){return (b.views||0)-(a.views||0);});
-      return { niche:k, top:vids[0], n:vids.length, score:nicheScore(vids) };
-    }).sort(function(a,b){ return b.score-a.score; });
-    var pro=hv2IsPro();
-    grid.innerHTML=rows.map(function(r){
-      var info=NICHE_INFO[r.niche]||{t:HV2_NICHE_LB[r.niche]||r.niche};
-      var poster = r.top ? (r.top.thumb_url
-        ? '<img class="nzimg" src="'+genEsc(r.top.thumb_url)+'" loading="lazy" alt="">'
-        : (r.top.media_url ? '<video src="'+genEsc(r.top.media_url)+'" poster="" muted playsinline preload="none"></video>' : '')) : '';
-      return '<div class="nz-cell'+(pro?'':' locked')+'" onclick="nicheOpen(\''+genEsc(r.niche)+'\')">'+
+    // Chaque vidéo est une carte notée. Classées de la plus forte note à la plus faible.
+    arr.forEach(function(v){ v._sc = nvScore(v); });
+    arr.sort(function(a,b){ return b._sc-a._sc; });
+    grid.innerHTML=arr.map(function(v){
+      var info=NICHE_INFO[v.niche]||{t:HV2_NICHE_LB[v.niche]||v.niche};
+      var poster = v.thumb_url
+        ? '<img class="nzimg" src="'+genEsc(v.thumb_url)+'" loading="lazy" alt="">'
+        : (v.media_url ? '<video src="'+genEsc(v.media_url)+'#t=0.1" muted playsinline preload="metadata"></video>' : '');
+      return '<div class="nz-cell" onclick="nicheOpen(\''+genEsc(v.id)+'\')">'+
         '<div class="nz-poster">'+poster+
-          '<div class="nz-score">★ '+r.score.toFixed(1)+'</div>'+
-          (pro?'':'<div class="nz-lock"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>')+
+          '<div class="nz-score">'+v._sc.toFixed(1)+'<i>/10</i></div>'+
+          '<div class="nz-catchip">'+genEsc(info.t||v.niche)+'</div>'+
         '</div>'+
-        '<div class="nz-name">'+genEsc(info.t||r.niche)+'</div>'+
-        '<div class="nz-n">'+r.n+' vidéo'+(r.n>1?'s':'')+'</div>'+
+        '<div class="nz-stats">'+
+          '<span>'+genStatSvg('eye')+genFmtN(v.views)+'</span>'+
+          '<span>❤ '+genFmtN(v.likes)+'</span>'+
+          '<span>↗ '+genFmtN(v.shares)+'</span>'+
+        '</div>'+
       '</div>';
     }).join('');
   }
-  function nicheOpen(k){
+  function nvBar(lab,val){
+    return '<div class="nvd-bar"><span class="nvd-bl">'+lab+'</span>'+
+      '<span class="nvd-bt"><i style="width:'+Math.round(val*10)+'%"></i></span>'+
+      '<b class="nvd-bv">'+val.toFixed(1)+'<small>/10</small></b></div>';
+  }
+  // Lecture animée : la vidéo s'agrandit un peu quand elle joue, reprend sa place à l'arrêt.
+  function nvToggle(el){
     if(!hv2IsPro()){ try{ openUpgrade&&openUpgrade(); }catch(e){} return; }
-    var arr=(_hv2All||[]).filter(function(v){return v.niche===k;}).sort(function(a,b){return (b.views||0)-(a.views||0);});
-    if(!arr.length) return;
-    var info=NICHE_INFO[k]||{t:HV2_NICHE_LB[k]||k,why:'',how:''};
-    var top=arr[0], score=nicheScore(arr);
+    var w=el.parentNode;
+    if(el.paused){ el.play(); if(w)w.classList.add('playing'); }
+    else{ el.pause(); if(w)w.classList.remove('playing'); }
+  }
+  function nvOnEnd(el){ var w=el.parentNode; if(w)w.classList.remove('playing'); }
+  function nicheOpen(id){
+    var v=(_hv2All||[]).filter(function(x){return x.id===id;})[0]; if(!v) return;
+    var info=NICHE_INFO[v.niche]||{t:HV2_NICHE_LB[v.niche]||v.niche,why:'',how:''};
+    var meta=NICHE_META[v.niche]||NICHE_META.other;
+    var score=nvScore(v), mi=montInfo(meta.mont), pro=hv2IsPro();
     var body=document.getElementById('nzBody'); if(!body) return;
     body.innerHTML=
-      '<div class="nzd-hero"><video src="'+genEsc(top.media_url)+'" poster="'+genEsc(top.thumb_url||'')+'" muted playsinline preload="none" onclick="hv2Toggle(this)"></video>'+
-        '<span class="hvg-play"><svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
-        '<div class="nz-score big">★ '+score.toFixed(1)+'</div></div>'+
-      '<h3 class="nzd-title">'+genEsc(info.t||k)+'</h3>'+
-      '<div class="nzd-meter"><i style="width:'+Math.round(score*10)+'%"></i></div>'+
+      '<div class="nvd-top">'+
+        '<div class="nvd-video'+(pro?'':' locked')+'">'+
+          '<video src="'+genEsc(v.media_url)+'" poster="'+genEsc(v.thumb_url||'')+'" muted playsinline preload="none" onclick="nvToggle(this)" onended="nvOnEnd(this)"></video>'+
+          '<span class="nvd-play"><svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>'+
+        '</div>'+
+        '<div class="nvd-side">'+
+          '<div class="nvd-cat">'+genEsc(info.t||v.niche)+'</div>'+
+          '<div class="nvd-big">'+score.toFixed(1)+'<small>/10</small></div>'+
+          '<div class="nvd-glab">Potentiel viral</div>'+
+          nvBar('Hook', nvHook(v))+
+          nvBar('Rétention', nvRet(v))+
+          nvBar('Call to action', nvCta(v))+
+        '</div>'+
+      '</div>'+
+      '<div class="nvd-stats">'+
+        '<span>'+genStatSvg('eye')+'<b>'+genFmtN(v.views)+'</b> vues</span>'+
+        '<span>❤ <b>'+genFmtN(v.likes)+'</b></span>'+
+        '<span>↗ <b>'+genFmtN(v.shares)+'</b></span>'+
+        '<span>💬 <b>'+genFmtN(v.comments)+'</b></span>'+
+      '</div>'+
+      '<div class="nvd-blue">'+
+        '<span>🎬 Montage <b>'+mi.t+'</b> <i class="nvd-dots">'+mi.d+'</i></span>'+
+        '<span>⏱ Temps à reproduire <b>'+genEsc(meta.temps)+'</b></span>'+
+      '</div>'+
+      '<div class="nvd-tools">'+meta.tools.map(function(t){return '<span class="nvd-tool">'+genEsc(t)+'</span>';}).join('')+'</div>'+
       '<div class="nzd-lab">Pourquoi ça marche</div><p class="nzd-p">'+genEsc(info.why||'')+'</p>'+
-      '<div class="nzd-lab">Comment la reproduire</div><p class="nzd-p">'+genEsc(info.how||'')+'</p>'+
-      '<button class="hvg-cta nzd-copy" onclick="nicheClose();goCopierWith(\''+genEsc(top.video_url)+'\')">'+
+      '<div class="nzd-lab">Comment la reproduire</div><p class="nzd-p">'+genEsc(meta.how||info.how||'')+'</p>'+
+      '<button class="hvg-cta nzd-copy" onclick="nicheClose();goCopierWith(\''+genEsc(v.video_url)+'\')">'+
         '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>'+
         '<span>'+skT('copyAI')+'</span></button>';
     document.getElementById('nzDetail').classList.add('open');
   }
-  function nicheClose(e){ if(e&&e.target&&e.target.id&&e.target.id!=='nzDetail') return; var p=document.getElementById('nzDetail'); if(p) p.classList.remove('open'); }
+  function nicheClose(e){ if(e&&e.target&&e.target.id&&e.target.id!=='nzDetail') return;
+    var p=document.getElementById('nzDetail'); if(p){ p.classList.remove('open'); try{ p.querySelectorAll('video').forEach(function(vd){vd.pause();}); }catch(err){} } }
   // Ordonne pour éviter deux vidéos de suite de la MÊME plateforme (et si possible même niche).
   function hv2Order(arr){
     var pool = arr.slice().sort(function(a,b){ return (b.views||0)-(a.views||0); });

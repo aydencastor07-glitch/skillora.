@@ -2563,6 +2563,19 @@
       .idz-sw i{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.4);}
       .idz-sw.on{background:#2f7bff;}
       .idz-sw.on i{left:22px;}
+      /* Liste comptes : ligne pro (logo plateforme + nom/niche + interrupteur) */
+      .idz-acct-plat{width:42px;height:42px;flex-shrink:0;border-radius:12px;display:flex;align-items:center;justify-content:center;}
+      .idz-acct-plat svg{width:17px;height:17px;}
+      .idz-acct-e{margin-right:5px;}
+      .idz-addbig{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:15px;border-radius:15px;border:1.5px dashed rgba(120,160,255,.4);background:rgba(47,123,255,.08);color:#9ec2ff;font-family:'Sora',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;transition:all .15s;}
+      .idz-addbig:active{transform:scale(.98);}
+      .idz-plus{font-size:1.2rem;line-height:1;font-weight:400;}
+      .idz-back{background:none;border:none;color:#9ec2ff;font-family:'Sora',sans-serif;font-weight:700;font-size:.86rem;cursor:pointer;padding:4px 0;margin-bottom:8px;}
+      .idz-empty2{text-align:center;padding:34px 20px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--border);}
+      .idz-empty-ic{font-size:2.6rem;margin-bottom:10px;}
+      .idz-empty-t{font-family:'Sora',sans-serif;font-weight:800;font-size:1.05rem;color:#eaf1ff;margin-bottom:6px;}
+      .idz-empty-s{font-size:.85rem;color:var(--muted);line-height:1.55;max-width:300px;margin:0 auto;}
+      .idz-ctx-ic{margin-right:2px;}
       .hvr{width:min(340px,90vw);display:flex;flex-direction:column;}
       .hvr-video{position:relative;width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 28px 70px -26px rgba(0,0,0,.95);}
       .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
@@ -2881,26 +2894,26 @@
   <!-- ═══ IDÉES DE VIDÉOS — page entière (niche + plateforme → idées, sans compte) ═══ -->
   <div class="view" id="view-ideas">
     <h1 class="page-title reveal" style="animation-delay:.05s">💡 Idées de vidéos</h1>
-    <p class="page-sub reveal" style="animation-delay:.12s">Choisis ta niche et ta plateforme — reçois des idées de vidéos virales prêtes à filmer. Pas besoin de connecter de compte.</p>
+    <p class="page-sub reveal" style="animation-delay:.12s">Ajoute une niche + ta plateforme → reçois des idées de vidéos virales prêtes à filmer. Pas besoin de connecter de compte.</p>
 
-    <div id="idzSetup">
-      <div class="idz-step reveal" style="animation-delay:.18s">
-        <div class="idz-slab"><span class="idz-snum">1</span> Ta niche</div>
-        <div class="idz-chips" id="idzNiches"></div>
-      </div>
-      <div class="idz-step reveal" style="animation-delay:.24s">
-        <div class="idz-slab"><span class="idz-snum">2</span> La plateforme</div>
-        <div class="idz-chips idz-plats" id="idzPlats"></div>
-      </div>
-      <div class="idz-step reveal" style="animation-delay:.3s">
-        <div class="idz-slab"><span class="idz-snum">3</span> Ton compte <span class="idz-opt">optionnel</span></div>
-        <input id="idzSetupAcct" class="idz-acct-in" maxlength="40" placeholder="@toncompte — pour recevoir tes idées par email">
-      </div>
-      <button class="btn-primary idz-activate" id="idzActivateBtn" onclick="idzActivate()">✨ Activer mes idées</button>
-      <p class="idz-hint">Rien n'est généré tant que tu n'ouvres pas cette page — zéro gaspillage.</p>
+    <!-- LISTE des comptes/niches suivis -->
+    <div id="idzList">
+      <div id="idzAccts"></div>
+      <button class="idz-addbig" onclick="idzOpenAdd()"><span class="idz-plus">＋</span> Ajouter une niche</button>
     </div>
 
-    <div id="idzActive" style="display:none;">
+    <!-- AJOUT d'une niche/compte -->
+    <div id="idzAdd" style="display:none;">
+      <button class="idz-back" onclick="idzShowList()">← Retour</button>
+      <div class="idz-step"><div class="idz-slab"><span class="idz-snum">1</span> Ta niche</div><div class="idz-chips" id="idzNiches"></div></div>
+      <div class="idz-step"><div class="idz-slab"><span class="idz-snum">2</span> La plateforme</div><div class="idz-chips idz-plats" id="idzPlats"></div></div>
+      <div class="idz-step"><div class="idz-slab"><span class="idz-snum">3</span> Nom du compte <span class="idz-opt">optionnel</span></div><input id="idzSetupAcct" class="idz-acct-in" maxlength="40" placeholder="@toncompte — pour recevoir par email"></div>
+      <button class="btn-primary idz-activate" onclick="idzCreate()">✨ Enregistrer</button>
+      <p class="idz-hint">Rien n'est généré tant que tu n'ouvres pas le compte — zéro gaspillage.</p>
+    </div>
+
+    <!-- DÉTAIL d'un compte : idées + historique -->
+    <div id="idzDetail" style="display:none;">
       <div class="idz-ctxbar" id="idzCtxBar"></div>
       <div class="idz-tabs">
         <button class="idz-tab on" id="idzTabTodayBtn" onclick="idzTab('today')">💡 Idées du jour</button>
@@ -2908,11 +2921,6 @@
       </div>
       <div id="idzToday"></div>
       <div id="idzHist" hidden></div>
-      <div class="idz-accts-sec" id="idzAcctsSec" style="display:none;">
-        <div class="idz-accts-head"><span>📩 Mes comptes suivis</span><button class="idz-add" onclick="idzAddAccount()">+ Ajouter</button></div>
-        <div class="idz-accts-s">Active l'interrupteur pour recevoir chaque matin des idées par email. Touche un compte pour voir ses idées.</div>
-        <div id="idzAccts"></div>
-      </div>
     </div>
   </div>
 
@@ -5793,52 +5801,40 @@
     {k:'education',l:'Éducation',e:'🎓'},{k:'travel',l:'Voyage',e:'✈️'}
   ];
   var IDZ_PLATS=[{k:'tiktok',l:'TikTok'},{k:'instagram',l:'Reels'},{k:'youtube',l:'Shorts'},{k:'facebook',l:'Facebook'}];
-  var _idzNiche=null,_idzPlat=null,_idzEmailOn=false;
+  var _idzNiche=null,_idzPlat=null,_idzAcct='';
+  var IDZ_TICK='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17l9-10"/></svg>';
   function idzPlatIcon(k){ try{ return pubPlatSVG(k,14); }catch(e){ return ''; } }
   function idzPlatLabel(k){ var p=IDZ_PLATS.filter(function(x){return x.k===k;})[0]; return p?p.l:k; }
-  function idzAcctName(){ return (localStorage.getItem('sk_idz_acct')||'').replace(/^@/,''); }
-  function idzRender(){
-    try{ _idzNiche=JSON.parse(localStorage.getItem('sk_idz_niche')||'null'); }catch(e){ _idzNiche=null; }
-    _idzPlat=localStorage.getItem('sk_idz_plat')||null;
+  function idzAcctName(){ return _idzAcct||''; }
+  // ── 3 écrans : LISTE des comptes · AJOUT · DÉTAIL (idées + historique) ──
+  function idzRender(){ idzShowList(); }
+  function idzShow(id){ ['idzList','idzAdd','idzDetail'].forEach(function(x){ var e=document.getElementById(x); if(e) e.style.display=(x===id?'':'none'); }); }
+  function idzShowList(){ idzShow('idzList'); idzRenderAccts(); try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){} }
+  function idzOpenAdd(){
+    idzShow('idzAdd'); _idzNiche=null; _idzPlat=null;
+    var acc=document.getElementById('idzSetupAcct'); if(acc) acc.value='';
+    idzRenderChips();
+    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+  }
+  function idzRenderChips(){
     var nb=document.getElementById('idzNiches');
-    if(nb) nb.innerHTML=IDZ_NICHES.map(function(n){ return '<button class="idz-chip'+((_idzNiche&&_idzNiche.k===n.k)?' on':'')+'" onclick="idzPickNiche(\''+n.k+'\')"><span class="idz-cic">'+n.e+'</span><span class="idz-cl">'+genEsc(n.l)+'</span><span class="idz-tick"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17l9-10"/></svg></span></button>'; }).join('');
+    if(nb) nb.innerHTML=IDZ_NICHES.map(function(n){ return '<button class="idz-chip'+((_idzNiche&&_idzNiche.k===n.k)?' on':'')+'" onclick="idzPickNiche(\''+n.k+'\')"><span class="idz-cic">'+n.e+'</span><span class="idz-cl">'+genEsc(n.l)+'</span><span class="idz-tick">'+IDZ_TICK+'</span></button>'; }).join('');
     var pb=document.getElementById('idzPlats');
-    if(pb) pb.innerHTML=IDZ_PLATS.map(function(p){ return '<button class="idz-chip idz-pchip'+((_idzPlat===p.k)?' on':'')+'" onclick="idzPickPlat(\''+p.k+'\')"><span class="idz-pic">'+idzPlatIcon(p.k)+'</span><span class="idz-cl">'+genEsc(p.l)+'</span><span class="idz-tick"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17l9-10"/></svg></span></button>'; }).join('');
-    if(localStorage.getItem('sk_idz_on')==='1' && _idzNiche && _idzPlat){ idzShowActive(); } else { idzShowSetup(); }
+    if(pb) pb.innerHTML=IDZ_PLATS.map(function(p){ return '<button class="idz-chip idz-pchip'+((_idzPlat===p.k)?' on':'')+'" onclick="idzPickPlat(\''+p.k+'\')"><span class="idz-pic">'+idzPlatIcon(p.k)+'</span><span class="idz-cl">'+genEsc(p.l)+'</span><span class="idz-tick">'+IDZ_TICK+'</span></button>'; }).join('');
   }
-  function idzPickNiche(k){ _idzNiche=IDZ_NICHES.filter(function(n){return n.k===k;})[0]||null; try{localStorage.setItem('sk_idz_niche',JSON.stringify(_idzNiche));}catch(e){} document.querySelectorAll('#idzNiches .idz-chip').forEach(function(b,i){ b.classList.toggle('on', IDZ_NICHES[i].k===k); }); }
-  function idzPickPlat(k){ _idzPlat=k; try{localStorage.setItem('sk_idz_plat',k);}catch(e){} document.querySelectorAll('#idzPlats .idz-chip').forEach(function(b,i){ b.classList.toggle('on', IDZ_PLATS[i].k===k); }); }
-  function idzShowSetup(){ var s=document.getElementById('idzSetup'),a=document.getElementById('idzActive'); if(s)s.style.display=''; if(a)a.style.display='none'; }
-  function idzShowActive(){
-    // Garde-fou : jamais d'écran actif vide. Sans niche/plateforme valides -> on revient à la sélection.
-    if(!_idzNiche || !_idzNiche.l || !_idzPlat){ try{localStorage.removeItem('sk_idz_on');}catch(e){} idzShowSetup(); return; }
-    var s=document.getElementById('idzSetup'),a=document.getElementById('idzActive'); if(s)s.style.display='none'; if(a)a.style.display='';
-    idzCtxBar();
-    var tb=document.getElementById('idzTabTodayBtn'),hb=document.getElementById('idzTabHistBtn');
-    if(tb)tb.classList.add('on'); if(hb)hb.classList.remove('on');
-    var today=document.getElementById('idzToday'),hist=document.getElementById('idzHist');
-    if(today)today.hidden=false; if(hist){hist.hidden=true;hist.removeAttribute('data-loaded');}
-    idzLoadIdeas();
-    idzRenderAccts();
-  }
-  function idzActivate(){
-    if(!_idzNiche){ skModal({icon:'🎯',title:'Choisis ta niche',message:'Sélectionne une niche pour recevoir des idées.',cancelText:'OK'}); return; }
+  function idzPickNiche(k){ _idzNiche=IDZ_NICHES.filter(function(n){return n.k===k;})[0]||null; document.querySelectorAll('#idzNiches .idz-chip').forEach(function(b,i){ b.classList.toggle('on', IDZ_NICHES[i].k===k); }); }
+  function idzPickPlat(k){ _idzPlat=k; document.querySelectorAll('#idzPlats .idz-chip').forEach(function(b,i){ b.classList.toggle('on', IDZ_PLATS[i].k===k); }); }
+  function idzCreate(){
+    if(!_idzNiche){ skModal({icon:'🎯',title:'Choisis ta niche',message:'Sélectionne une niche.',cancelText:'OK'}); return; }
     if(!_idzPlat){ skModal({icon:'📱',title:'Choisis la plateforme',message:'Sélectionne une plateforme.',cancelText:'OK'}); return; }
-    var nameEl=document.getElementById('idzSetupAcct');
-    var name=((nameEl&&nameEl.value)||'').trim().replace(/^@/,'');
-    try{localStorage.setItem('sk_idz_on','1');}catch(e){}
-    if(name){
-      _idzAcct=name; try{localStorage.setItem('sk_idz_acct',name);}catch(e){}
-      idzSaveAccount({name:name,nk:_idzNiche.k,nl:_idzNiche.l,ne:_idzNiche.e,plat:_idzPlat,pl:idzPlatLabel(_idzPlat),on:false});
-    } else { _idzAcct=''; try{localStorage.removeItem('sk_idz_acct');}catch(e){} }
-    idzShowActive();
+    var el=document.getElementById('idzSetupAcct'); var name=((el&&el.value)||'').trim().replace(/^@/,'');
+    idzSaveAccount({name:name,nk:_idzNiche.k,nl:_idzNiche.l,ne:_idzNiche.e,plat:_idzPlat,pl:idzPlatLabel(_idzPlat),on:false});
+    idzShowList();
   }
-  function idzChange(){ try{localStorage.removeItem('sk_idz_on');}catch(e){} var n=document.getElementById('idzSetupAcct'); if(n)n.value=''; idzShowSetup(); try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){} }
-  function idzAddAccount(){ idzChange(); }
   function idzCtxBar(){
     var bar=document.getElementById('idzCtxBar'); if(!bar||!_idzNiche) return;
-    var nm=_idzAcct?('<span class="idz-ctx-acct">@'+genEsc(_idzAcct)+'</span> · '):'';
-    bar.innerHTML='<span class="idz-ctx-t">'+nm+'<span>'+_idzNiche.e+'</span> '+genEsc(_idzNiche.l)+' <span class="idz-ctx-plat">'+idzPlatIcon(_idzPlat)+genEsc(idzPlatLabel(_idzPlat))+'</span></span><button class="idz-change" onclick="idzChange()">Changer</button>';
+    var title=_idzAcct?('@'+genEsc(_idzAcct)):genEsc(_idzNiche.l);
+    bar.innerHTML='<span class="idz-ctx-t"><span class="idz-ctx-ic">'+_idzNiche.e+'</span>'+title+' <span class="idz-ctx-plat">'+idzPlatIcon(_idzPlat)+genEsc(idzPlatLabel(_idzPlat))+'</span></span><button class="idz-change" onclick="idzShowList()">← Comptes</button>';
   }
   async function idzLoadIdeas(){
     var box=document.getElementById('idzToday'); if(!box||!_idzNiche||!_idzPlat) return;
@@ -5881,29 +5877,36 @@
   // ── Comptes suivis (nom + niche + plateforme + email on/off) ──
   function idzAccounts(){ try{ return JSON.parse(localStorage.getItem('sk_idz_accounts')||'[]')||[]; }catch(e){ return []; } }
   function idzSaveAccounts(list){ try{ localStorage.setItem('sk_idz_accounts',JSON.stringify(list)); }catch(e){} }
+  function idzKey(a){ return (a.name||'').toLowerCase()+'|'+a.nk+'|'+a.plat; }
   function idzSaveAccount(acc){
     var list=idzAccounts(), i=-1;
-    for(var k=0;k<list.length;k++){ if(list[k].name.toLowerCase()===acc.name.toLowerCase() && list[k].plat===acc.plat){ i=k; break; } }
+    for(var k=0;k<list.length;k++){ if(idzKey(list[k])===idzKey(acc)){ i=k; break; } }
     if(i>=0){ acc.on=list[i].on; list[i]=acc; } else { list.unshift(acc); }
     idzSaveAccounts(list);
   }
+  // Liste des comptes : une ligne chacun (logo plateforme + @nom/niche + interrupteur email au bout).
   function idzRenderAccts(){
-    var sec=document.getElementById('idzAcctsSec'), box=document.getElementById('idzAccts'); if(!sec||!box) return;
+    var box=document.getElementById('idzAccts'); if(!box) return;
     var list=idzAccounts();
-    sec.style.display = list.length ? '' : 'none';
+    if(!list.length){
+      box.innerHTML='<div class="idz-empty2"><div class="idz-empty-ic">💡</div><div class="idz-empty-t">Aucune niche suivie</div><div class="idz-empty-s">Ajoute une niche + ta plateforme pour recevoir des idées de vidéos virales prêtes à filmer.</div></div>';
+      return;
+    }
     box.innerHTML=list.map(function(a,i){
-      return '<div class="idz-acct'+((a.name===_idzAcct)?' active':'')+'" onclick="idzOpenAcct('+i+')">'+
-        '<span class="idz-acct-ic">'+(a.ne||'💡')+'</span>'+
-        '<span class="idz-acct-m"><span class="idz-acct-n">@'+genEsc(a.name)+'</span><span class="idz-acct-s">'+genEsc(a.nl)+' · '+genEsc(a.pl)+'</span></span>'+
+      var title=a.name?('@'+genEsc(a.name)):genEsc(a.nl);
+      var sub=a.name?(genEsc(a.nl)+' · '+genEsc(a.pl)):genEsc(a.pl);
+      return '<div class="idz-acct" onclick="idzOpenAcct('+i+')">'+
+        '<span class="idz-acct-plat" style="background:'+platBg(a.plat)+'">'+pubPlatSVG(a.plat,15)+'</span>'+
+        '<span class="idz-acct-m"><span class="idz-acct-n">'+title+'</span><span class="idz-acct-s"><span class="idz-acct-e">'+(a.ne||'')+'</span>'+sub+'</span></span>'+
         '<button class="idz-sw'+(a.on?' on':'')+'" onclick="event.stopPropagation();idzToggleAcct('+i+')" aria-label="Emails du matin"><i></i></button>'+
       '</div>';
     }).join('');
   }
   function idzOpenAcct(i){
     var a=idzAccounts()[i]; if(!a) return;
-    _idzNiche={k:a.nk,l:a.nl,e:a.ne}; _idzPlat=a.plat; _idzAcct=a.name;
-    try{ localStorage.setItem('sk_idz_niche',JSON.stringify(_idzNiche)); localStorage.setItem('sk_idz_plat',a.plat); localStorage.setItem('sk_idz_acct',a.name); }catch(e){}
-    idzCtxBar(); idzRenderAccts();
+    _idzNiche={k:a.nk,l:a.nl,e:a.ne}; _idzPlat=a.plat; _idzAcct=a.name||'';
+    idzShow('idzDetail');
+    idzCtxBar();
     var hist=document.getElementById('idzHist'); if(hist){hist.hidden=true;hist.removeAttribute('data-loaded');}
     var tb=document.getElementById('idzTabTodayBtn'),hb=document.getElementById('idzTabHistBtn'); if(tb)tb.classList.add('on'); if(hb)hb.classList.remove('on');
     var today=document.getElementById('idzToday'); if(today)today.hidden=false;
@@ -5913,9 +5916,10 @@
   function idzToggleAcct(i){
     var list=idzAccounts(), a=list[i]; if(!a) return;
     var next=!a.on;
+    var who = a.name?('<b>@'+genEsc(a.name)+'</b>'):('<b>'+genEsc(a.nl)+'</b>');
     var msg = next
-      ? 'Tu vas recevoir <b>chaque matin par email</b> de nouvelles idées de vidéos virales pour <b>@'+genEsc(a.name)+'</b> ('+genEsc(a.nl)+' · '+genEsc(a.pl)+').<br><span style="color:#8b9bc4;font-size:.9em;">Rien d\'autre — et tu peux désactiver quand tu veux.</span>'
-      : 'Tu ne recevras <b>plus d\'emails</b> d\'idées pour <b>@'+genEsc(a.name)+'</b>.<br><span style="color:#8b9bc4;font-size:.9em;">Tes idées restent dispo ici quand tu ouvres la page.</span>';
+      ? 'Tu vas recevoir <b>chaque matin par email</b> de nouvelles idées de vidéos virales pour '+who+' ('+genEsc(a.nl)+' · '+genEsc(a.pl)+').<br><span style="color:#8b9bc4;font-size:.9em;">Rien d\'autre — et tu peux désactiver quand tu veux.</span>'
+      : 'Tu ne recevras <b>plus d\'emails</b> d\'idées pour '+who+'.<br><span style="color:#8b9bc4;font-size:.9em;">Tes idées restent dispo ici quand tu ouvres la page.</span>';
     skModal({
       icon: next?'📩':'🔕', iconBg: next?'#16351f':undefined,
       title: next?'Activer les emails du matin ?':'Désactiver les emails ?',
@@ -5924,7 +5928,8 @@
         a.on=next; list[i]=a; idzSaveAccounts(list); idzRenderAccts();
         try{
           var s=await sb.auth.getSession(); var u=s.data.session.user;
-          await sb.from('idea_email_subs').upsert({user_id:u.id,platform:a.plat,username:a.name,email:u.email,active:next,updated_at:new Date().toISOString()},{onConflict:'user_id,platform,username'});
+          var uname=a.name || ('niche-'+a.nk);
+          await sb.from('idea_email_subs').upsert({user_id:u.id,platform:a.plat,username:uname,email:u.email,active:next,updated_at:new Date().toISOString()},{onConflict:'user_id,platform,username'});
         }catch(e){}
       }
     });

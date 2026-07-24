@@ -6036,10 +6036,11 @@
       if (!_hv2All || !_hv2All.length) {
         var r = await sb.from('winning_videos')
           .select('id,platform,niche,views,likes,comments,shares,video_url,media_url,thumb_url')
-          .eq('status','done').like('media_url','%/storage/v1/object/public/%').in('niche', HV2_ALLOWED)
+          .eq('status','done').in('niche', HV2_ALLOWED)
           .order('views',{ascending:false}).limit(120);
         if (r.error) throw r.error;
-        _hv2All = r.data || [];
+        // On ne garde que les vidéos hébergées en permanent (filtre en JS : plus robuste que .like côté serveur).
+        _hv2All = (r.data || []).filter(function(v){ return (v.media_url||'').indexOf('/storage/v1/object/public/') >= 0; });
         hv2Chips();
       }
       hv2Render();
@@ -6131,21 +6132,23 @@
   }
   async function nichesLoad(){
     var grid=document.getElementById('nzGrid'); if(!grid) return;
-    // Indépendant du feed d'accueil : la section Niches charge ses propres vidéos (jamais bloquée).
+    // Si le feed d'accueil a déjà chargé les vidéos, on les réutilise : affichage instantané.
+    if(_hv2All && _hv2All.length){ try{ nichesRender(); }catch(e){} return; }
+    grid.innerHTML='<div class="hv2-empty">Chargement des niches…</div>';
     try{
-      if(!_hv2All || !_hv2All.length){
-        var q = sb.from('winning_videos')
-          .select('id,platform,niche,views,likes,comments,shares,video_url,media_url,thumb_url')
-          .eq('status','done').like('media_url','%/storage/v1/object/public/%').in('niche', HV2_ALLOWED)
-          .order('views',{ascending:false}).limit(120);
-        var to = new Promise(function(res){ setTimeout(function(){ res({data:[],error:null,_t:1}); }, 12000); });
-        var r = await Promise.race([q, to]);
-        if(r && r.error) throw r.error;
-        if(r && !r._t) _hv2All = r.data||[];
-      }
-    }catch(e){ /* on affiche quand même ce qu'on a */ }
-    try{ nichesRender(); }
-    catch(e){ grid.innerHTML='<div class="hv2-empty">Les niches arrivent bientôt ✨</div>'; }
+      var r = await sb.from('winning_videos')
+        .select('id,platform,niche,views,likes,comments,shares,video_url,media_url,thumb_url')
+        .eq('status','done').in('niche', HV2_ALLOWED)
+        .order('views',{ascending:false}).limit(120);
+      if(r.error) throw r.error;
+      // Filtre en JS (plus robuste que .like côté serveur) : on ne garde que les vidéos hébergées en permanent.
+      _hv2All = (r.data||[]).filter(function(v){ return (v.media_url||'').indexOf('/storage/v1/object/public/') >= 0; });
+      nichesRender();
+    }catch(e){
+      // Plus de cul-de-sac silencieux : on propose de réessayer.
+      grid.innerHTML='<div class="hv2-empty">Impossible de charger les niches pour le moment.<br>'
+        +'<button class="hvg-more" style="margin-top:12px" onclick="nichesLoad()">Réessayer</button></div>';
+    }
   }
   function nichesRender(){
     var grid=document.getElementById('nzGrid'); if(!grid) return;

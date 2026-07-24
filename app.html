@@ -2148,8 +2148,8 @@
   </div>
 
   <div class="view" id="view-ia">
-    <h1 class="page-title reveal" style="animation-delay:.05s">Studio</h1>
-    <p class="page-sub reveal" style="animation-delay:.12s">Colle une vidéo virale → repars avec le plan exact pour la refaire, images comprises.</p>
+    <h1 class="page-title reveal" id="iaTitle" style="animation-delay:.05s">Créer un script</h1>
+    <p class="page-sub reveal" id="iaSub" style="animation-delay:.12s">Ton idée + la durée → un script noté et optimisé pour devenir viral.</p>
 
     <!-- Sélection de compte retirée : créer un script ne demande plus de compte connecté. -->
     <div id="studioAcctPicker" style="display:none;">
@@ -6052,9 +6052,14 @@
     if (name === 'owner') { try { loadHomeDashboard(); } catch(e){} }
     if (name === 'library') applyBookLocks();
     if (name === 'ia') {
-      if (typeof initStudioTool === 'function') initStudioTool(); redrawWorkflowSoon(); if (typeof loadStudioAccounts === 'function') loadStudioAccounts();
-      // Refresh sur le Studio : on restaure le dernier plan au lieu de retomber sur le formulaire vide.
-      if (!opts.noRestorePlan) { try { var _sp = sessionStorage.getItem('sk_plan'); if (_sp) { genRevealPlan(JSON.parse(_sp)); } } catch(e){} }
+      try { redrawWorkflowSoon(); } catch(e){}
+      // Plus de compte dans le Studio. Par défaut = « Créer un script ».
+      // Sur refresh avec un plan en cours (copie IA), on réaffiche le plan au lieu du formulaire.
+      if (!opts.noRestorePlan) {
+        var _sp=null; try { _sp = sessionStorage.getItem('sk_plan'); } catch(e){}
+        if (_sp) { try { studioTab('copie'); genRevealPlan(JSON.parse(_sp)); } catch(e){ studioTab('script'); } }
+        else { try { studioTab('script'); } catch(e){} }
+      }
     }
     // La bulle 💡 des idées n'apparaît que sur le Studio (point d'entrée, activé ou non).
     if (typeof showIdeaFab === 'function') showIdeaFab(name === 'ia');
@@ -11278,11 +11283,23 @@
   <script>
   function studioTab(t){
     window._skTab=t;
-    document.querySelectorAll('.sktab').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-t')===t);});
     var c=document.getElementById('genCard'); var sc=document.getElementById('skTool-script');
     if(c) c.style.display=(t==='copie'?'':'none');
     if(sc) sc.style.display=(t==='script'?'':'none');
-    try{ if(typeof showIdeaFab==='function') showIdeaFab(true); }catch(e){}
+    var title=document.getElementById('iaTitle'), sub=document.getElementById('iaSub');
+    if(t==='script'){
+      // Page « Créer un script » : titre propre, AUCUN compte, AUCUNE plateforme.
+      if(title){ title.textContent='Créer un script'; title.style.display=''; }
+      if(sub){ sub.textContent="Ton idée + la durée → un script noté et optimisé pour devenir viral."; sub.style.display=''; }
+      var tag=document.getElementById('analyzeProfileTag'); if(tag){ tag.style.display='none'; tag.innerHTML=''; }
+      var ap=document.getElementById('studioAcctPicker'); if(ap) ap.style.display='none';
+      var gb=document.getElementById('analyzeBtn'); if(gb) gb.textContent='✨ Générer mon script';
+    } else {
+      // Mode copie/plan : pas de formulaire manuel, pas de titre de page (le plan a son en-tête).
+      if(title) title.style.display='none';
+      if(sub) sub.style.display='none';
+      var gi=document.getElementById('genIntro'); if(gi) gi.style.display='none';
+    }
     try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
   }
   (function(){
@@ -11295,8 +11312,9 @@
       view.appendChild(wrap);
       nodes.forEach(function(x){wrap.appendChild(x);});
       // Plus de sélecteur de compte pour le Script (idée + durée uniquement).
-      // Plus d'onglet « Script » : cliquer « Copier avec l'IA » va DIRECTEMENT sur la copie/animation.
-      studioTab('copie');
+      // Studio = « Créer un script » par défaut. La copie IA arrive via les cartes (animation),
+      // jamais via un formulaire manuel visible.
+      studioTab('script');
     }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
   })();

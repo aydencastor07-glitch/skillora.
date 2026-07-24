@@ -2511,6 +2511,35 @@
       .ca-prog i{display:block;height:100%;width:42%;border-radius:99px;background:linear-gradient(90deg,#4f8bff,#8b5cf6);animation:caProg 1.25s ease-in-out infinite;}
       @keyframes caProg{0%{margin-left:-42%}100%{margin-left:100%}}
       .ca-hint{margin-top:4px;font-size:.76rem;color:#6b7690;max-width:300px;line-height:1.5;}
+      /* ── Idées de vidéos (page entière) ── */
+      .idz-step{margin-top:18px;}
+      .idz-slab{display:flex;align-items:center;gap:9px;font-family:'Sora',sans-serif;font-weight:800;font-size:.96rem;color:#eaf1ff;margin-bottom:12px;}
+      .idz-snum{width:24px;height:24px;flex-shrink:0;border-radius:8px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:900;}
+      .idz-chips{display:flex;flex-wrap:wrap;gap:9px;}
+      .idz-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:12px;background:rgba(255,255,255,.045);border:1.5px solid rgba(255,255,255,.1);color:#dbe4f5;font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .15s;}
+      .idz-chip span{font-size:1rem;line-height:1;}
+      .idz-chip svg{width:15px;height:15px;}
+      .idz-chip:active{transform:scale(.96);}
+      .idz-chip.on{background:rgba(47,123,255,.18);border-color:#4d8fff;color:#fff;box-shadow:0 6px 20px -8px rgba(47,123,255,.6);}
+      .idz-plats .idz-chip{padding:10px 16px;}
+      .idz-activate{margin-top:26px;}
+      .idz-hint{text-align:center;font-size:.78rem;color:var(--muted2);margin-top:12px;}
+      .idz-ctxbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:14px;background:rgba(47,123,255,.09);border:1px solid rgba(77,143,255,.24);margin-bottom:16px;}
+      .idz-ctxbar .idz-ctx-t{font-family:'Sora',sans-serif;font-weight:800;font-size:.88rem;color:#eaf1ff;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+      .idz-ctxbar .idz-ctx-t svg{width:15px;height:15px;}
+      .idz-ctx-plat{font-size:.72rem;font-weight:700;color:#9ec2ff;background:rgba(47,123,255,.16);padding:3px 9px;border-radius:99px;}
+      .idz-change{flex-shrink:0;padding:7px 12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#dbe4f5;font-weight:700;font-size:.76rem;cursor:pointer;}
+      .idz-tabs{display:flex;gap:8px;margin-bottom:16px;}
+      .idz-tab{flex:1;padding:11px 8px;border-radius:12px;background:rgba(255,255,255,.04);border:1.5px solid var(--border);color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.84rem;cursor:pointer;transition:all .15s;}
+      .idz-tab.on{background:rgba(47,123,255,.16);border-color:#4d8fff;color:#fff;}
+      .idz-mail{margin-top:18px;padding:16px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid var(--border);}
+      .idz-mail-h{font-family:'Sora',sans-serif;font-weight:800;font-size:.92rem;color:#eaf1ff;margin-bottom:5px;}
+      .idz-mail-s{font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:12px;}
+      .idz-mail-row{display:flex;gap:9px;}
+      .idz-acct-in{flex:1;min-width:0;padding:11px 13px;border-radius:11px;border:1.5px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);color:#eaf1ff;font-size:.9rem;}
+      .idz-acct-in:focus{outline:none;border-color:#4d8fff;}
+      .idz-mail-btn{flex-shrink:0;padding:11px 18px;border-radius:11px;border:none;background:var(--blue);color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:.84rem;cursor:pointer;}
+      .idz-mail.on .idz-mail-btn{background:rgba(57,217,138,.2);color:#39d98a;}
       .hvr{width:min(340px,90vw);display:flex;flex-direction:column;}
       .hvr-video{position:relative;width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 28px 70px -26px rgba(0,0,0,.95);}
       .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
@@ -2822,6 +2851,43 @@
         </div>
       </div>
       <div id="analyzeResult" style="display:none;margin-top:20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ IDÉES DE VIDÉOS — page entière (niche + plateforme → idées, sans compte) ═══ -->
+  <div class="view" id="view-ideas">
+    <h1 class="page-title reveal" style="animation-delay:.05s">💡 Idées de vidéos</h1>
+    <p class="page-sub reveal" style="animation-delay:.12s">Choisis ta niche et ta plateforme — reçois des idées de vidéos virales prêtes à filmer. Pas besoin de connecter de compte.</p>
+
+    <div id="idzSetup">
+      <div class="idz-step reveal" style="animation-delay:.18s">
+        <div class="idz-slab"><span class="idz-snum">1</span> Ta niche</div>
+        <div class="idz-chips" id="idzNiches"></div>
+      </div>
+      <div class="idz-step reveal" style="animation-delay:.24s">
+        <div class="idz-slab"><span class="idz-snum">2</span> La plateforme</div>
+        <div class="idz-chips idz-plats" id="idzPlats"></div>
+      </div>
+      <button class="btn-primary idz-activate" id="idzActivateBtn" onclick="idzActivate()">✨ Activer mes idées</button>
+      <p class="idz-hint">Rien n'est généré tant que tu n'ouvres pas cette page — zéro gaspillage.</p>
+    </div>
+
+    <div id="idzActive" style="display:none;">
+      <div class="idz-ctxbar" id="idzCtxBar"></div>
+      <div class="idz-tabs">
+        <button class="idz-tab on" id="idzTabTodayBtn" onclick="idzTab('today')">💡 Idées du jour</button>
+        <button class="idz-tab" id="idzTabHistBtn" onclick="idzTab('hist')">🗂️ Historique</button>
+      </div>
+      <div id="idzToday"></div>
+      <div id="idzHist" hidden></div>
+      <div class="idz-mail" id="idzMailCard">
+        <div class="idz-mail-h">📩 Reçois tes idées par email</div>
+        <div class="idz-mail-s">Mets le nom de ton compte : chaque matin on t'écrit « on a trouvé des idées pour @toncompte ».</div>
+        <div class="idz-mail-row">
+          <input id="idzAcct" class="idz-acct-in" maxlength="40" placeholder="@toncompte">
+          <button class="idz-mail-btn" id="idzMailBtn" onclick="idzToggleEmail()">Activer</button>
+        </div>
       </div>
     </div>
   </div>
@@ -5682,25 +5748,126 @@
     if (s) s.textContent = 'Des idées de contenu prêtes à filmer, pour tes comptes';
   }
 
-  function openIdeasPage() {
-    // Pas encore activé -> on ouvre le popup d'activation (coche des comptes) au lieu du panneau.
-    if (!ideasActivated()) {
-      var all = (typeof studioAccs !== 'undefined' && studioAccs) ? studioAccs : [];
-      if (all.length) { showIdeaActivate(all, false); return; }
-    }
-    var p = document.getElementById('ideasPanel');
-    if (!p) return;
-    updateIdeasHeader();
-    p.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    setIdeaBadge(0);
-    loadDailyIdea('ideasPanelBody');
-  }
+  // Ancien panneau -> désormais une PAGE entière (niche + plateforme, sans compte).
+  function openIdeasPage() { try { switchView('ideas', null); } catch(e){} }
   function closeIdeasPage(e) {
-    if (e && e.target && e.target.id && e.target.id !== 'ideasPanel') return;
     var p = document.getElementById('ideasPanel');
     if (p) p.classList.remove('open');
     document.body.style.overflow = '';
+  }
+
+  // ═══ Idées de vidéos (page entière) : niche + plateforme → idées, aucun compte requis ═══
+  var IDZ_NICHES=[
+    {k:'motivation',l:'Motivation',e:'🔥'},{k:'horror',l:'Horreur / Paranormal',e:'👻'},
+    {k:'story',l:'Storytime / Histoire',e:'📖'},{k:'funny',l:'Humour',e:'😂'},
+    {k:'diy',l:'Bricolage / DIY',e:'🔨'},{k:'asmr',l:'ASMR / Satisfaisant',e:'🎧'},
+    {k:'quiz',l:'Quiz',e:'❓'},{k:'product',l:'Produit / TikTok Shop',e:'🛍️'},
+    {k:'facecam',l:'Face caméra / Talk',e:'🗣️'},{k:'luxury',l:'Luxe / Aesthetic',e:'💎'},
+    {k:'fitness',l:'Fitness / Sport',e:'💪'},{k:'food',l:'Cuisine / Food',e:'🍔'},
+    {k:'beauty',l:'Beauté',e:'💄'},{k:'gaming',l:'Gaming',e:'🎮'},
+    {k:'tech',l:'Tech / IA',e:'🤖'},{k:'finance',l:'Argent / Finance',e:'💰'},
+    {k:'education',l:'Éducation',e:'🎓'},{k:'travel',l:'Voyage',e:'✈️'}
+  ];
+  var IDZ_PLATS=[{k:'tiktok',l:'TikTok'},{k:'instagram',l:'Reels'},{k:'youtube',l:'Shorts'},{k:'facebook',l:'Facebook'}];
+  var _idzNiche=null,_idzPlat=null,_idzEmailOn=false;
+  function idzPlatIcon(k){ try{ return pubPlatSVG(k,14); }catch(e){ return ''; } }
+  function idzPlatLabel(k){ var p=IDZ_PLATS.filter(function(x){return x.k===k;})[0]; return p?p.l:k; }
+  function idzAcctName(){ return (localStorage.getItem('sk_idz_acct')||'').replace(/^@/,''); }
+  function idzRender(){
+    try{ _idzNiche=JSON.parse(localStorage.getItem('sk_idz_niche')||'null'); }catch(e){ _idzNiche=null; }
+    _idzPlat=localStorage.getItem('sk_idz_plat')||null;
+    var nb=document.getElementById('idzNiches');
+    if(nb) nb.innerHTML=IDZ_NICHES.map(function(n){ return '<button class="idz-chip'+((_idzNiche&&_idzNiche.k===n.k)?' on':'')+'" onclick="idzPickNiche(\''+n.k+'\')"><span>'+n.e+'</span>'+genEsc(n.l)+'</button>'; }).join('');
+    var pb=document.getElementById('idzPlats');
+    if(pb) pb.innerHTML=IDZ_PLATS.map(function(p){ return '<button class="idz-chip'+((_idzPlat===p.k)?' on':'')+'" onclick="idzPickPlat(\''+p.k+'\')">'+idzPlatIcon(p.k)+genEsc(p.l)+'</button>'; }).join('');
+    if(localStorage.getItem('sk_idz_on')==='1' && _idzNiche && _idzPlat){ idzShowActive(); } else { idzShowSetup(); }
+  }
+  function idzPickNiche(k){ _idzNiche=IDZ_NICHES.filter(function(n){return n.k===k;})[0]||null; try{localStorage.setItem('sk_idz_niche',JSON.stringify(_idzNiche));}catch(e){} document.querySelectorAll('#idzNiches .idz-chip').forEach(function(b,i){ b.classList.toggle('on', IDZ_NICHES[i].k===k); }); }
+  function idzPickPlat(k){ _idzPlat=k; try{localStorage.setItem('sk_idz_plat',k);}catch(e){} document.querySelectorAll('#idzPlats .idz-chip').forEach(function(b,i){ b.classList.toggle('on', IDZ_PLATS[i].k===k); }); }
+  function idzShowSetup(){ var s=document.getElementById('idzSetup'),a=document.getElementById('idzActive'); if(s)s.style.display=''; if(a)a.style.display='none'; }
+  function idzShowActive(){
+    var s=document.getElementById('idzSetup'),a=document.getElementById('idzActive'); if(s)s.style.display='none'; if(a)a.style.display='';
+    idzCtxBar();
+    var tb=document.getElementById('idzTabTodayBtn'),hb=document.getElementById('idzTabHistBtn');
+    if(tb)tb.classList.add('on'); if(hb)hb.classList.remove('on');
+    var today=document.getElementById('idzToday'),hist=document.getElementById('idzHist');
+    if(today)today.hidden=false; if(hist){hist.hidden=true;hist.removeAttribute('data-loaded');}
+    var inp=document.getElementById('idzAcct'); var acct=idzAcctName(); if(inp&&acct&&!inp.value) inp.value='@'+acct;
+    idzLoadIdeas();
+    idzLoadEmailState();
+  }
+  function idzActivate(){
+    if(!_idzNiche){ skModal({icon:'🎯',title:'Choisis ta niche',message:'Sélectionne une niche pour recevoir des idées.',cancelText:'OK'}); return; }
+    if(!_idzPlat){ skModal({icon:'📱',title:'Choisis la plateforme',message:'Sélectionne une plateforme.',cancelText:'OK'}); return; }
+    try{localStorage.setItem('sk_idz_on','1');}catch(e){}
+    idzShowActive();
+  }
+  function idzChange(){ try{localStorage.removeItem('sk_idz_on');}catch(e){} idzShowSetup(); try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){} }
+  function idzCtxBar(){
+    var bar=document.getElementById('idzCtxBar'); if(!bar||!_idzNiche) return;
+    bar.innerHTML='<span class="idz-ctx-t"><span>'+_idzNiche.e+'</span>'+genEsc(_idzNiche.l)+' <span class="idz-ctx-plat">'+idzPlatIcon(_idzPlat)+genEsc(idzPlatLabel(_idzPlat))+'</span></span><button class="idz-change" onclick="idzChange()">Changer</button>';
+  }
+  async function idzLoadIdeas(){
+    var box=document.getElementById('idzToday'); if(!box||!_idzNiche||!_idzPlat) return;
+    box.innerHTML='<div class="ideas-loading">✨ On prépare tes idées pour '+genEsc(_idzNiche.l)+'…</div>';
+    try{
+      var s=await sb.auth.getSession(); var session=s.data.session;
+      if(!session){ box.innerHTML='<div class="ideas-empty">Connecte-toi pour voir tes idées.</div>'; return; }
+      var hdr={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SB_KEY};
+      var data=await fetch(SB_URL+'/functions/v1/daily-ideas',{method:'POST',headers:hdr,body:JSON.stringify({platform:_idzPlat,niche:_idzNiche.l,username:idzAcctName()})}).then(function(r){return r.json();});
+      var ideas=(data&&data.ideas)?data.ideas:[];
+      if(!ideas.length){ window._studioIdeas=[]; box.innerHTML='<div class="ideas-empty">'+genEsc((data&&data.message)||'Idées indisponibles pour le moment. Réessaie.')+'</div>'; return; }
+      window._studioIdeas=ideas; window._dailyIdeaAcc=null;
+      box.innerHTML=renderStudioIdeasList(ideas,'script');
+    }catch(e){ box.innerHTML='<div class="ideas-empty">Idées indisponibles pour le moment. Réessaie plus tard.</div>'; }
+  }
+  function idzTab(t){
+    var today=document.getElementById('idzToday'),hist=document.getElementById('idzHist');
+    var tb=document.getElementById('idzTabTodayBtn'),hb=document.getElementById('idzTabHistBtn');
+    var isH=(t==='hist');
+    if(today)today.hidden=isH; if(hist)hist.hidden=!isH;
+    if(tb)tb.classList.toggle('on',!isH); if(hb)hb.classList.toggle('on',isH);
+    if(isH && hist && !hist.getAttribute('data-loaded')){ hist.setAttribute('data-loaded','1'); idzHistory(); }
+  }
+  async function idzHistory(){
+    var box=document.getElementById('idzHist'); if(!box||!_idzNiche||!_idzPlat) return;
+    box.innerHTML='<div class="ideas-loading">On récupère ton historique…</div>';
+    try{
+      var s=await sb.auth.getSession(); var session=s.data.session;
+      if(!session){ box.innerHTML='<div class="ideas-empty">Connecte-toi.</div>'; return; }
+      var hdr={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SB_KEY};
+      var data=await fetch(SB_URL+'/functions/v1/daily-ideas',{method:'POST',headers:hdr,body:JSON.stringify({platform:_idzPlat,niche:_idzNiche.l,username:idzAcctName(),history:true})}).then(function(r){return r.json();});
+      var hist=((data&&data.history)?data.history:[]).filter(function(x){ return x.ideas && x.ideas.length; });
+      if(!hist.length){ box.innerHTML='<div class="ideas-empty">Aucune idée pour l\'instant.<br>Ouvre tes idées du jour pour lancer ton historique ✨</div>'; return; }
+      box.innerHTML=hist.map(function(g){
+        var n=g.ideas.length;
+        return '<details class="ideas-hist"><summary><span class="hist-acc">'+_idzNiche.e+' '+genEsc(_idzNiche.l)+'</span><span class="hist-meta">'+genEsc(frDate(g.idea_date))+' · '+n+' idée'+(n>1?'s':'')+'</span></summary>'+renderStudioIdeasList(g.ideas,'readonly')+'</details>';
+      }).join('');
+    }catch(e){ box.innerHTML='<div class="ideas-empty">Historique indisponible pour le moment.</div>'; }
+  }
+  async function idzLoadEmailState(){
+    var acct=idzAcctName();
+    var card=document.getElementById('idzMailCard'), btn=document.getElementById('idzMailBtn');
+    _idzEmailOn=false;
+    if(!acct){ if(card)card.classList.remove('on'); if(btn)btn.textContent='Activer'; return; }
+    try{ var r=await sb.from('idea_email_subs').select('active').eq('platform',_idzPlat).eq('username',acct).maybeSingle(); _idzEmailOn=!!(r&&r.data&&r.data.active); }catch(e){}
+    if(card)card.classList.toggle('on',_idzEmailOn); if(btn)btn.textContent=_idzEmailOn?'✓ Activé':'Activer';
+  }
+  async function idzToggleEmail(){
+    var inp=document.getElementById('idzAcct');
+    var acct=((inp&&inp.value)||'').trim().replace(/^@/,'');
+    if(!acct){ skModal({icon:'📩',title:'Ton nom de compte',message:'Mets le nom de ton compte pour personnaliser tes emails d\'idées.',cancelText:'OK'}); if(inp)inp.focus(); return; }
+    try{ localStorage.setItem('sk_idz_acct',acct); }catch(e){}
+    var next=!_idzEmailOn;
+    var card=document.getElementById('idzMailCard'), btn=document.getElementById('idzMailBtn');
+    if(card)card.classList.toggle('on',next); if(btn)btn.textContent=next?'✓ Activé':'Activer';
+    try{
+      var s=await sb.auth.getSession(); var u=s.data.session.user;
+      await sb.from('idea_email_subs').upsert({user_id:u.id,platform:_idzPlat,username:acct,email:u.email,active:next,updated_at:new Date().toISOString()},{onConflict:'user_id,platform,username'});
+      _idzEmailOn=next;
+      if(next){ skModal({icon:'✅',iconBg:'#16351f',title:'Email activé',message:'Chaque matin, on t\'enverra de nouvelles idées de vidéos pour <b>@'+genEsc(acct)+'</b> ('+genEsc(_idzNiche.l)+').<br><span style="color:#8b9bc4;font-size:.9em;">Pense à vérifier tes spams la 1ʳᵉ fois.</span>',cancelText:'Parfait'}); }
+      else { skModal({icon:'🔕',title:'Email désactivé',message:'Tu ne recevras plus les idées par email. Réactive quand tu veux.',cancelText:'OK'}); }
+    }catch(e){ if(card)card.classList.toggle('on',!next); if(btn)btn.textContent=!next?'✓ Activé':'Activer'; }
   }
 
   /* ===== Blueprint complet (rendu depuis l'analyse déjà générée — 0 crédit IA) ===== */
@@ -6049,6 +6216,7 @@
     skThemeDuo();
     if (name === 'home') { try { hv2Load(); } catch(e){} }
     if (name === 'niches') { try { nichesLoad(); } catch(e){} }
+    if (name === 'ideas') { try { idzRender(); } catch(e){} }
     if (name === 'owner') { try { loadHomeDashboard(); } catch(e){} }
     if (name === 'library') applyBookLocks();
     if (name === 'ia') {
@@ -8321,9 +8489,11 @@
     if (it.hook) lines.push('Hook : ' + it.hook);
     if (it.angle) lines.push('Angle : ' + it.angle);
     if (it.structure && it.structure.length) lines.push('Structure : ' + it.structure.join(' → '));
+    // Depuis « Idées », « Écrire le script » emmène directement sur la page Créer un script.
+    try { switchView('ia', null, { noRestorePlan:true }); if (typeof studioTab==='function') studioTab('script'); } catch(e){}
     var input = document.getElementById('scriptInput');
     if (input) input.value = lines.join('\n');
-    if (typeof closeIdeasPage === 'function') closeIdeasPage(); // on quitte la bulle -> retour au Script
+    if (typeof closeIdeasPage === 'function') closeIdeasPage(); // ferme l'ancien panneau s'il existait
     var card = document.getElementById('scriptLabCard');
     if (card) {
       setTimeout(function(){

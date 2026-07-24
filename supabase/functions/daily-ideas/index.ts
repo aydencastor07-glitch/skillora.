@@ -34,8 +34,12 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const platform = (body.platform ?? "tiktok").toLowerCase().trim();
-    const username = (body.username ?? "").trim().replace(/^@/, "");
-    if (!username) return j({ error: "username requis." }, 400);
+    const nicheIn = (body.niche ?? "").trim();
+    // Mode NICHE (nouveau) : aucun compte connecté requis. La clé de cache = le nom de compte
+    // saisi (optionnel, pour les e-mails) OU un identifiant dérivé de la niche.
+    const username = ((body.username ?? "").trim().replace(/^@/, "")) ||
+      (nicheIn ? ("niche-" + nicheIn.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")) : "");
+    if (!username) return j({ error: "niche ou username requis." }, 400);
 
     // Historique : dernières journées d'idées de ce compte.
     if (body.history === true) {
@@ -59,10 +63,13 @@ Deno.serve(async (req) => {
     // cache_only : on ne génère jamais ici (0 crédit).
     if (body.cache_only === true) return j({ success: true, ideas: [], date: today }, 200);
 
-    // Contexte : niche + signaux de type de contenu (profil + dernière analyse).
-    const ctx = await resolveContext(supabase, user.id, platform, username);
+    // Contexte : en mode NICHE on part directement de la niche choisie (aucune analyse requise).
+    // Sinon (ancien mode compte) on reconstruit le contexte depuis le profil + la dernière analyse.
+    const ctx = nicheIn
+      ? { niche: nicheIn, contentType: "", productionKind: "", needsScript: null, face: "", profTags: "", best: "", formula: "", patterns: "" }
+      : await resolveContext(supabase, user.id, platform, username);
     if (!ctx.niche && !ctx.best) {
-      return j({ success: true, ideas: [], date: today, message: "Tes idées arrivent après une première analyse de ce compte. Actualise-le sur l'Accueil." }, 200);
+      return j({ success: true, ideas: [], date: today, message: "Choisis une niche pour recevoir tes idées." }, 200);
     }
     if (!AI_KEY) return j({ success: true, ideas: [], date: today, message: "Idées indisponibles pour le moment." }, 200);
 

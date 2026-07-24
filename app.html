@@ -3306,24 +3306,22 @@
   <div class="popup-overlay" id="upgradePopup" onclick="closeUpgrade(event)">
     <div class="popup-card plans-card" onclick="event.stopPropagation()">
       <button class="popup-close" onclick="closeUpgrade()" aria-label="Fermer">✕</button>
-      <h3 style="font-size:1.5rem;margin-bottom:6px;text-align:center;">Choisis ton plan</h3>
-      <p style="color:var(--muted);font-size:.9rem;margin-bottom:6px;line-height:1.5;text-align:center;">Plus de comptes, d'idées, de scripts et d'outils pour faire décoller tes vidéos.</p>
+      <h3 style="font-size:1.5rem;margin-bottom:6px;text-align:center;">Passe en Pro</h3>
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:6px;line-height:1.5;text-align:center;">En gratuit tu <b style="color:#cdd6ea;">parcours</b> le feed et les niches. Le Pro débloque tout : regarder, copier et créer sans blocage.</p>
 
       <div class="sk-card popular" data-plan="pro" style="margin-top:6px;">
         <div class="sk-badge pop">✨ Accès complet</div>
         <div class="sk-name">Pro</div>
-        <div class="sk-tagline">Tout Skillora, sans limite de plan</div>
+        <div class="sk-tagline">Tout Skillora, débloqué</div>
         <div class="sk-price"><sup>$</sup><span class="sk-val">30</span></div>
         <div class="sk-period"><span class="sk-period-text">par mois</span></div>
         <ul class="sk-feats">
-          <li><span class="ck">✓</span><span class="ft">Copie de vidéos virales (plans + prompts)<b>✓</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Scripts viraux (Studio)<b>20 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Idées de vidéos<b>10 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Comptes connectés<b>3</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Profils de niche<b>10</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Publication multi-plateformes<b>6 / jour</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Analyse de tes concurrents<b>5 / mois</b></span></li>
-          <li><span class="ck">✓</span><span class="ft">Suivi de croissance<b>✓</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Regarder &amp; copier toutes les vidéos virales<b>✓</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Le plan exact : images, prompts, montage<b>✓</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Niches virales — tout le catalogue<b>✓</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Créer des scripts viraux (notés &amp; optimisés)<b>✓</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Idées de vidéos chaque jour + rappels email<b>✓</b></span></li>
+          <li><span class="ck">✓</span><span class="ft">Nouvelles vidéos ajoutées en continu<b>✓</b></span></li>
           <li><span class="ck">✓</span><span class="ft">Support prioritaire<b>✓</b></span></li>
         </ul>
         <button class="sk-btn sk-btn-filled" onclick="choosePlan('pro')">Payer 30 $ / mois</button>
@@ -7343,12 +7341,11 @@
       var p = box.getAttribute('data-plan');
       box.classList.remove('current');
       var btn = box.querySelector('.sk-btn');
-      if (p === userPlan) {
+      if (p === userPlan || (p === 'pro' && typeof hv2IsPro === 'function' && hv2IsPro())) {
         box.classList.add('current');
-        if (btn) btn.textContent = 'Ton plan actuel';
-      } else if (btn) {
-        btn.textContent = 'Choisir ' + PLAN_NAMES[p];
+        if (btn) { btn.textContent = 'Tu es déjà Pro ✓'; btn.disabled = true; }
       }
+      // sinon : on garde le texte du bouton défini dans le HTML (« Payer 30 $ / mois »).
     });
   }
   // Bascule Mensuel / Annuel dans le popup des plans

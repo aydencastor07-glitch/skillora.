@@ -6352,6 +6352,8 @@
     if (name === 'publish' && !window._unlimited) { name = 'ia'; }
     // Espace propriétaire (tableau de bord comptes) = uniquement pour moi.
     if (name === 'owner' && !window._unlimited) { name = 'home'; }
+    // Ancienne bibliothèque (ebooks) = retirée du public (atteignable via #library sinon).
+    if (name === 'library' && !window._unlimited) { name = 'home'; }
     // Toute navigation ferme les pop-ups flottants (cloche, choix de lecture) -> ils ne bloquent jamais une autre page.
     if (typeof closeNotifPanel === 'function') closeNotifPanel();
     if (typeof closeWatchChooser === 'function') closeWatchChooser();

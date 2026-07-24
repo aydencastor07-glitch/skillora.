@@ -3640,6 +3640,7 @@
       if (typeof updateCoachLock === 'function') updateCoachLock();
       if (typeof renderProfiles === 'function') { try { renderProfiles(); } catch(e){} }
       if (typeof updateProfilePlan === 'function') updateProfilePlan();
+      try { skCheckProNotif(); } catch(e){}   // notif : passage Pro / abonnement terminé
     } catch(e){}
   }
 
@@ -5107,12 +5108,44 @@
       return posts;
     } catch(e){ return window._pubPosts || []; }
   }
+  // ── Store de notifications (public) : niche ajoutée, idées, abonnement/paiement, passage Pro ──
+  function skNotifs(){ try{ return JSON.parse(localStorage.getItem('sk_notifs')||'[]')||[]; }catch(e){ return []; } }
+  function skNotifsSave(l){ try{ localStorage.setItem('sk_notifs', JSON.stringify(l.slice(0,30))); }catch(e){} }
+  function skPushNotif(n){
+    var l=skNotifs();
+    if(n.key){ for(var i=0;i<l.length;i++){ if(l[i].type===n.type && l[i].key===n.key) return; } }  // pas de doublon
+    n.ts=Date.now(); n.read=false; l.unshift(n); skNotifsSave(l);
+    try{ refreshNotifDot(); }catch(e){}
+  }
+  // Détecte un changement d'état d'abonnement (payé / terminé) et pousse la bonne notif.
+  function skCheckProNotif(){
+    var pro = (typeof hv2IsPro==='function') ? hv2IsPro() : false;
+    if(window._unlimited){ try{ localStorage.setItem('sk_pro_state','pro'); }catch(e){} return; }
+    var last=null; try{ last=localStorage.getItem('sk_pro_state'); }catch(e){}
+    if(pro){
+      if(last==='free'){ skPushNotif({type:'pro',key:'welcome',ic:'🎉',title:'Bienvenue en Pro !',sub:'Ton abonnement est actif. Tu peux maintenant regarder et copier toutes les vidéos.'}); }
+      try{ localStorage.setItem('sk_pro_state','pro'); }catch(e){}
+    } else {
+      if(last==='pro'){ skPushNotif({type:'pro',key:'ended_'+new Date().toISOString().slice(0,10),ic:'⚠️',title:'Ton abonnement est terminé',sub:'Le paiement n\'est pas passé (carte expirée ou refusée). Réactive ton Pro pour continuer à regarder et copier.',action:'upgrade'}); }
+      try{ localStorage.setItem('sk_pro_state','free'); }catch(e){}
+    }
+  }
+  function notifCardHTML(n){
+    var arrow = n.action ? '<span class="notif-idea-go">→</span>' : '';
+    var oc = n.action==='ideas' ? ' onclick="gotoStudioIdeas()"' : (n.action==='upgrade' ? ' onclick="closeNotifPanel();try{openUpgrade&&openUpgrade()}catch(e){}"' : '');
+    return '<div class="notif-idea"'+oc+'><span class="notif-idea-ic">'+(n.ic||'🔔')+'</span>'+
+      '<span class="notif-idea-tx"><b>'+genEsc(n.title||'')+'</b>'+(n.sub?('<br><span style="color:#9fb0d6;font-weight:500;">'+genEsc(n.sub)+'</span>'):'')+'</span>'+arrow+'</div>';
+  }
   function refreshNotifDot(){
     var dot = document.getElementById('notifDot'); if (!dot) return;
-    var posts = window._pubPosts || [];
-    var seen = parseInt(localStorage.getItem('sk_notif_seen') || '0', 10) || 0;
-    var unseen = posts.filter(function(p){ return new Date(p.created_at).getTime() > seen; }).length;
-    var total = unseen + (Number(window._ideaBadgeN) || 0);
+    var unread = skNotifs().filter(function(n){ return !n.read; }).length;
+    var total = unread + (Number(window._ideaBadgeN) || 0);
+    // Les publications ne comptent QUE pour le propriétaire (zone dev).
+    if (window._unlimited) {
+      var posts = window._pubPosts || [];
+      var seen = parseInt(localStorage.getItem('sk_notif_seen') || '0', 10) || 0;
+      total += posts.filter(function(p){ return new Date(p.created_at).getTime() > seen; }).length;
+    }
     if (total > 0) { dot.textContent = total > 9 ? '9+' : String(total); dot.classList.add('show'); }
     else { dot.classList.remove('show'); }
   }
@@ -5133,22 +5166,18 @@
   async function openNotifPanel(){
     var panel = document.getElementById('notifPanel'); var body = document.getElementById('notifBody');
     if (panel) panel.classList.add('open');
-    // Peinture INSTANTANÉE avec ce qu'on a déjà (mémoire ou cache disque) -> plus de "Chargement…"
-    // qui traîne à chaque ouverture. On revalide en fond et on ne remplace que si ça a changé.
-    if (!window._pubPosts) { try { var c = localStorage.getItem('sk_pubposts'); if (c) window._pubPosts = JSON.parse(c); } catch(e){} }
-    var cached = window._pubPosts || [];
-    var ic = ideaNotifCardHTML();
-    if (body) {
-      body.innerHTML = ic + (cached.length
-        ? cached.map(pubPostHTML).join('')
-        : (ic ? '' : '<div class="notif-empty">Chargement…</div>'));
+    try { skCheckProNotif(); } catch(e){}
+    // Notifs publiques : idées du jour + événements (niche ajoutée, abonnement, passage Pro).
+    var html = ideaNotifCardHTML() + skNotifs().map(notifCardHTML).join('');
+    // Les vidéos publiées ne s'affichent QUE pour le propriétaire (zone dev), jamais au public.
+    if (window._unlimited) {
+      if (!window._pubPosts) { try { var c = localStorage.getItem('sk_pubposts'); if (c) window._pubPosts = JSON.parse(c); } catch(e){} }
+      var posts = await loadPubPosts(true);
+      html += (posts||[]).map(pubPostHTML).join('');
     }
-    var posts = await loadPubPosts(true);
-    if (body) {
-      body.innerHTML = ic + (posts.length
-        ? posts.map(pubPostHTML).join('')
-        : (ic ? '' : '<div class="notif-empty">🔔<br><br>Aucune publication pour l\'instant.<br>Tes publications via Skillora apparaîtront ici.</div>'));
-    }
+    if (body) body.innerHTML = html || '<div class="notif-empty">🔔<br><br>Aucune notification pour l\'instant.<br>Tu seras prévenu ici quand tu ajoutes une niche, qu\'il y a de nouvelles idées, ou pour ton abonnement.</div>';
+    // Tout est vu -> on marque lu et on éteint la pastille.
+    try { var l = skNotifs(); l.forEach(function(n){ n.read = true; }); skNotifsSave(l); } catch(e){}
     try { localStorage.setItem('sk_notif_seen', String(Date.now())); } catch(e){}
     refreshNotifDot();
   }
@@ -5881,7 +5910,12 @@
   function idzSaveAccount(acc){
     var list=idzAccounts(), i=-1;
     for(var k=0;k<list.length;k++){ if(idzKey(list[k])===idzKey(acc)){ i=k; break; } }
-    if(i>=0){ acc.on=list[i].on; list[i]=acc; } else { list.unshift(acc); }
+    if(i>=0){ acc.on=list[i].on; list[i]=acc; }
+    else {
+      list.unshift(acc);
+      // Notif : nouvelle niche suivie.
+      try{ skPushNotif({type:'niche',key:idzKey(acc),ic:acc.ne||'💡',title:'Niche ajoutée',sub:'Tu suis maintenant '+acc.nl+' · '+acc.pl+(acc.name?(' (@'+acc.name+')'):'')+'. Touche pour voir tes idées.',action:'ideas'}); }catch(e){}
+    }
     idzSaveAccounts(list);
   }
   // Liste des comptes : une ligne chacun (logo plateforme + @nom/niche + interrupteur email au bout).

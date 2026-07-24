@@ -2598,6 +2598,44 @@
       .hve-grid{display:flex;flex-wrap:wrap;gap:8px;}
       .hve-chip{padding:9px 13px;border-radius:11px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .15s;}
       .hve-chip.on{background:rgba(47,123,255,.2);border-color:#4d8fff;color:#fff;}
+      /* ── Profil / Paramètres (premium) ── */
+      #view-profile .page-sub{margin-bottom:20px;}
+      .pf-card{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;margin-bottom:14px;}
+      .pf-id{display:flex;align-items:center;gap:14px;}
+      .pf-av{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#2f7bff,#7c3aed);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:800;font-size:1.5rem;color:#fff;flex-shrink:0;box-shadow:0 8px 22px -8px rgba(47,123,255,.6);}
+      .pf-idm{min-width:0;}
+      .pf-name{font-family:'Sora',sans-serif;font-weight:800;font-size:1.15rem;color:#eaf1ff;}
+      .pf-email{color:var(--muted);font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;}
+      .pf-provider{margin-top:14px;}
+      .pf-h{font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;color:#eaf1ff;}
+      .pf-sub{color:var(--muted);font-size:.85rem;margin-top:3px;}
+      .pf-p{color:var(--muted);font-size:.83rem;line-height:1.5;}
+      .pf-row{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+      .pf-input{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);color:#eaf1ff;font-size:.92rem;}
+      .pf-input:focus{outline:none;border-color:#4d8fff;}
+      .pf-btn-primary{border:none;background:var(--blue);color:#fff;font-family:'Sora',sans-serif;font-weight:800;font-size:.9rem;padding:12px 18px;border-radius:12px;cursor:pointer;transition:transform .12s;}
+      .pf-btn-primary:active{transform:scale(.97);}
+      .pf-btn-auto{width:auto;flex-shrink:0;}
+      .pf-btn-ghost{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#dbe4f5;font-family:'Sora',sans-serif;font-weight:700;font-size:.86rem;padding:12px 18px;border-radius:12px;cursor:pointer;}
+      .pf-links{padding:6px 4px;}
+      .pf-link{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;color:#dbe4f5;text-decoration:none;font-weight:600;font-size:.9rem;border-radius:12px;}
+      .pf-link:active{background:rgba(255,255,255,.05);}
+      .pf-arrow{color:var(--muted2);}
+      .pf-danger{margin-top:8px;display:flex;flex-direction:column;gap:10px;}
+      .pf-logout{width:100%;padding:14px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#eaf1ff;font-family:'Sora',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;}
+      .pf-delete{width:100%;padding:12px;border-radius:14px;background:none;border:none;color:#ff8a9c;font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;}
+      .pf-ver{text-align:center;color:var(--muted2);font-size:.72rem;margin-top:16px;}
+      /* Mode dev (proprio) — carte propre */
+      .pf-dev{background:linear-gradient(180deg,rgba(57,217,138,.08),rgba(57,217,138,.02));border-color:rgba(57,217,138,.24);}
+      .pf-dev-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;}
+      .pf-dev-ic{font-size:1.5rem;flex-shrink:0;}
+      .pf-dev-btns{display:flex;flex-direction:column;gap:9px;}
+      .pf-dev-test{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);}
+      .pf-dev-test-l{font-size:.8rem;color:var(--muted);font-weight:600;}
+      .pf-dev-test-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+      .pf-dev-test-row input{flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);color:#eaf1ff;}
+      .pf-dev-test-row .ppt-cur{color:var(--muted);font-weight:700;}
+      .pf-dev-test-row button{padding:10px 16px;border-radius:10px;border:none;background:rgba(57,217,138,.2);color:#39d98a;font-weight:800;font-size:.82rem;cursor:pointer;}
       /* ── Espace propriétaire ─────────────────────────────────────── */
       .owner-head{padding:6px 2px 4px;}
       .owner-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
@@ -2928,69 +2966,61 @@
     <h1 class="page-title">Profil</h1>
     <p class="page-sub">Ton compte, ton abonnement et tes réglages.</p>
 
-    <!-- Identité -->
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1857c4);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:800;font-size:1.5rem;flex-shrink:0;" id="avatarInitial">S</div>
-        <div style="min-width:0;"><h3 style="font-size:1.2rem;" id="profileName">Créateur</h3><p style="color:var(--muted);font-size:.85rem;overflow:hidden;text-overflow:ellipsis;" id="profileEmail">—</p></div>
+    <!-- Compte -->
+    <div class="pf-card">
+      <div class="pf-id">
+        <div class="pf-av" id="avatarInitial">S</div>
+        <div class="pf-idm"><div class="pf-name" id="profileName">Créateur</div><div class="pf-email" id="profileEmail">—</div></div>
       </div>
-      <div class="prof-provider" id="profProvider"></div>
+      <div class="pf-provider" id="profProvider"></div>
     </div>
 
-    <!-- Mode dev (visible uniquement pour le propriétaire) -->
-    <div class="card dev-card" id="devCard" style="display:none;">
-      <h3 style="font-size:1rem;">🛠️ Espace propriétaire</h3>
-      <p style="color:var(--muted);font-size:.83rem;margin:6px 0 12px;">Dashboard business : membres, revenus, canaux marketing. Visible seulement sur ton compte.</p>
-      <button class="imp-btn" style="max-width:260px;" onclick="devOpen()">Passer en mode dev</button>
-      <button class="imp-ghost" style="max-width:260px;margin-top:10px;" onclick="switchView('publish', null)">🚀 Publier &amp; comptes connectés</button>
-      <div class="dev-pptest">
-        <span>🧪 Tester un vrai paiement (Cryptomus)</span>
-        <div class="dev-pptest-row">
+    <!-- Mode dev (propriétaire uniquement) -->
+    <div class="pf-card pf-dev dev-card" id="devCard" style="display:none;">
+      <div class="pf-dev-head"><span class="pf-dev-ic">🛠️</span><div><div class="pf-h">Espace propriétaire</div><div class="pf-p">Membres, revenus, canaux marketing — visible seulement sur ton compte.</div></div></div>
+      <div class="pf-dev-btns">
+        <button class="pf-btn-primary" onclick="devOpen()">📊 Tableau de bord dev</button>
+        <button class="pf-btn-ghost" onclick="switchView('publish', null)">🚀 Publier &amp; comptes connectés</button>
+      </div>
+      <div class="pf-dev-test">
+        <span class="pf-dev-test-l">🧪 Tester un vrai paiement (Cryptomus)</span>
+        <div class="pf-dev-test-row">
           <input id="ppTestAmt" type="number" min="1" max="50" step="1" value="1" />
           <span class="ppt-cur">$</span>
           <button onclick="paypalTest()">Payer (test)</button>
         </div>
-        <small>Petit montant réel (payable en crypto) pour vérifier que l'argent arrive sur ton wallet.</small>
       </div>
     </div>
 
     <!-- Abonnement -->
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-        <div><h4 style="font-family:'Sora';font-weight:700;">Abonnement</h4><p style="color:var(--muted);font-size:.85rem;margin-top:3px;" id="profilePlan">Gratuit</p></div>
-        <button class="btn-primary" style="width:auto;padding:11px 18px;font-size:.9rem;" onclick="openUpgrade()">Améliorer</button>
+    <div class="pf-card">
+      <div class="pf-row">
+        <div><div class="pf-h">Abonnement</div><div class="pf-sub" id="profilePlan">Gratuit</div></div>
+        <button class="pf-btn-primary pf-btn-auto" onclick="openUpgrade()">Améliorer</button>
       </div>
-    </div>
-
-    <!-- Parrainage -->
-    <div class="card">
-      <div class="prof-sec-h">🎁 Parraine tes amis</div>
-      <p class="prof-sec-p">Partage ton lien. Dès qu'un ami <b>s'abonne</b>, tu reçois un crédit sur ta facture : <b>20%</b> (Starter), <b>25%</b> (Growth) ou <b>30%</b> (Elite) de son 1ᵉʳ paiement.</p>
-      <div class="prof-ref-row">
-        <input type="text" id="refLink" class="prof-ref-input" readonly value="—">
-        <button class="prof-ref-copy" id="refCopyBtn" onclick="copyRefLink()">Copier</button>
-      </div>
-      <div class="prof-ref-stat">👥 <b id="refCount">0</b> filleul(s) · 💳 <b id="refRewards">0</b> abonné(s) payant(s)</div>
     </div>
 
     <!-- Sécurité (mot de passe) — seulement pour les comptes email -->
-    <div class="card" id="profSecurity" style="display:none;">
-      <div class="prof-sec-h">🔒 Sécurité</div>
-      <p class="prof-sec-p">Modifie ton mot de passe.</p>
-      <input type="password" id="newPwd" class="email-field" style="margin:0 0 10px;" placeholder="Nouveau mot de passe (min. 6 caractères)">
-      <button class="btn-primary" style="font-size:.92rem;" onclick="changePassword()">Mettre à jour le mot de passe</button>
+    <div class="pf-card" id="profSecurity" style="display:none;">
+      <div class="pf-h">🔒 Mot de passe</div>
+      <p class="pf-p" style="margin:4px 0 12px;">Change ton mot de passe quand tu veux.</p>
+      <input type="password" id="newPwd" class="pf-input" placeholder="Nouveau mot de passe (min. 6 caractères)">
+      <button class="pf-btn-primary" style="width:100%;margin-top:10px;" onclick="changePassword()">Mettre à jour</button>
       <div class="status-msg" id="pwdStatus"></div>
     </div>
 
-    <!-- Aide & infos -->
-    <div class="card prof-links">
-      <a class="prof-link" href="mailto:support@skillora.me"><span>💬 Contacter le support</span><span class="prof-link-arrow">→</span></a>
-      <a class="prof-link" href="terms.html" target="_blank"><span>📄 Conditions d'utilisation</span><span class="prof-link-arrow">→</span></a>
-      <a class="prof-link" href="privacy.html" target="_blank"><span>🔐 Confidentialité</span><span class="prof-link-arrow">→</span></a>
+    <!-- Aide -->
+    <div class="pf-card pf-links">
+      <a class="pf-link" href="mailto:support@skillora.me"><span>💬 Contacter le support</span><span class="pf-arrow">→</span></a>
+      <a class="pf-link" href="privacy.html" target="_blank"><span>🔐 Confidentialité</span><span class="pf-arrow">→</span></a>
     </div>
 
-    <button class="btn-ghost" style="background:var(--surface);color:var(--white);border:1px solid var(--border);" onclick="signOut()">Se déconnecter</button>
-    <div style="text-align:center;color:var(--muted2);font-size:.72rem;margin-top:14px;">Skillora · v1.0</div>
+    <!-- Zone sensible -->
+    <div class="pf-danger">
+      <button class="pf-logout" onclick="signOut()">Se déconnecter</button>
+      <button class="pf-delete" onclick="pfDeleteAccount()">Supprimer mon compte</button>
+    </div>
+    <div class="pf-ver">Skillora · v1.0</div>
   </div>
 
   <div class="modal" id="composerModal" onclick="closeComposer(event)">
@@ -3979,6 +4009,27 @@
   }
 
   async function signOut() { try { localStorage.removeItem('sk_home_html'); localStorage.removeItem('sk_growth'); localStorage.removeItem('sk_pubposts'); } catch(e){} try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }
+  // Suppression de compte : confirmation forte -> demande de suppression au support + déconnexion.
+  function pfDeleteAccount() {
+    skModal({
+      icon: '🗑️', title: 'Supprimer ton compte ?',
+      message: 'Ton compte et tes données seront <b>définitivement supprimés</b> sous 48h.<br><span style="color:#8b9bc4;font-size:.9em;">Cette action est irréversible. Si tu as un abonnement actif, pense à l\'annuler d\'abord.</span>',
+      confirmText: 'Supprimer mon compte', cancelText: 'Annuler',
+      onConfirm: async function() {
+        var em = (window._userEmail || '');
+        try {
+          await sb.from('account_deletions').insert({ email: em, requested_at: new Date().toISOString() });
+        } catch(e){}
+        try {
+          var subj = encodeURIComponent('Suppression de mon compte Skillora');
+          var bd = encodeURIComponent('Bonjour, je demande la suppression définitive de mon compte (' + em + ') et de mes données. Merci.');
+          window.open('mailto:support@skillora.me?subject=' + subj + '&body=' + bd, '_blank');
+        } catch(e){}
+        skModal({ icon: '✅', title: 'Demande envoyée', message: 'Ta demande de suppression est enregistrée. Ton compte sera supprimé sous 48h. Tu vas être déconnecté.', cancelText: 'OK' });
+        setTimeout(function(){ signOut(); }, 2200);
+      }
+    });
+  }
 
   // Détail clair de l'objectif (au clic sur l'anneau)
   function openGoalInfo() {

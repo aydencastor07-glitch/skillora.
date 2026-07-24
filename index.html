@@ -11,17 +11,17 @@
   })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skillora — The AI that upgrades your videos and posts them everywhere</title>
-<meta name="description" content="Skillora makes your video pro in one click, tells you if it will take off, and posts it to TikTok, YouTube, Instagram, Facebook, X and Threads at the best time.">
+<title>Skillora — Copie les vidéos virales avec le plan exact</title>
+<meta name="description" content="Colle le lien d'une vidéo virale : Skillora te donne le plan exact pour la refaire — images de référence, prompts et montage. Plus feed viral, niches notées, scripts et idées de vidéos.">
 <link rel="canonical" href="https://skillora.me/">
 <meta name="robots" content="index,follow">
 <!-- Partage réseaux sociaux (carte riche) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Skillora">
-<meta property="og:locale" content="en_US">
+<meta property="og:locale" content="fr_FR">
 <meta property="og:url" content="https://skillora.me/">
-<meta property="og:title" content="Skillora — The AI that upgrades your videos and posts them everywhere">
-<meta property="og:description" content="Your video goes pro in one click — scored before you post, published everywhere at the best time.">
+<meta property="og:title" content="Skillora — Copie les vidéos virales avec le plan exact">
+<meta property="og:description" content="Colle le lien d'une vidéo virale, reçois le plan exact pour la refaire : images, prompts, montage. Feed viral, niches notées, scripts et idées de vidéos.">
 <meta property="og:image" content="https://skillora.me/assets/og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -486,6 +486,40 @@
   .p2-success .prow .pc { width:24px; height:24px; border-radius:8px; background:var(--surface); border:1px solid rgba(61,220,132,0.4); display:flex; align-items:center; justify-content:center; }
   .toast-c { top:96px; left:-16px; --rot:-3deg; --d:.2s; }
 
+  /* ===== Phone héros : COPIE → PLAN EXACT ===== */
+  .cp-sub { font-size:.66rem; color:var(--muted); text-align:center; margin-bottom:12px; }
+  .cp-link { display:flex; align-items:center; gap:8px; padding:12px 12px; border-radius:12px; border:1.5px solid rgba(77,143,255,.4); background:rgba(12,18,36,.85); box-shadow:0 0 0 4px rgba(47,123,255,.06); }
+  .cp-lk-ic { font-size:.9rem; }
+  .cp-lk-tx { font-size:.64rem; color:#cdd6ea; font-family:monospace; white-space:nowrap; overflow:hidden; }
+  .cp-lk-tx::after { content:''; display:inline-block; width:1.5px; height:.8em; background:#4d8fff; margin-left:1px; vertical-align:middle; animation:cpCaret 1s step-end infinite; }
+  @keyframes cpCaret { 50% { opacity:0; } }
+  .cp-scan { text-align:center; }
+  .cp-frame { position:relative; width:104px; aspect-ratio:9/16; margin:2px auto 12px; border-radius:12px; overflow:hidden; background:#0b0f1a; box-shadow:0 14px 34px -14px rgba(0,0,0,.9); }
+  .cp-frame img { width:100%; height:100%; object-fit:cover; }
+  .cp-beam { position:absolute; left:0; right:0; top:-40%; height:40%; background:linear-gradient(180deg,rgba(95,150,255,0),rgba(95,150,255,.5),rgba(95,150,255,0)); animation:cpBeam 1.8s ease-in-out infinite; }
+  @keyframes cpBeam { 0%{top:-40%} 100%{top:104%} }
+  .cp-scan-t { font-family:'Sora',sans-serif; font-weight:800; font-size:.78rem; color:#eaf1ff; }
+  .cp-scan-s { font-size:.66rem; color:#9ec2ff; margin-top:3px; min-height:1em; }
+  .cp-tools { display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-top:12px; }
+  .cp-tools span { font-size:.56rem; font-weight:700; color:#8894ad; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); padding:3px 7px; border-radius:99px; }
+  .cp-plan-h { display:flex; align-items:center; gap:6px; font-family:'Sora',sans-serif; font-weight:800; font-size:.74rem; color:#eaf1ff; margin-bottom:11px; }
+  .cp-ok { width:17px; height:17px; border-radius:50%; background:var(--green); color:#04240f; font-size:.6rem; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .cp-refs { display:flex; gap:7px; margin-bottom:11px; }
+  .cp-ref { position:relative; flex:1; aspect-ratio:9/13; border-radius:10px; overflow:hidden; background:#0b0f1a; border:1px solid rgba(255,255,255,.08); }
+  .cp-ref img { width:100%; height:100%; object-fit:cover; }
+  .cp-dl { position:absolute; bottom:4px; right:4px; width:17px; height:17px; border-radius:6px; background:rgba(47,123,255,.9); color:#fff; font-size:.62rem; display:flex; align-items:center; justify-content:center; }
+  .cp-prompt { display:flex; flex-direction:column; gap:2px; padding:8px 10px; border-radius:10px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.08); margin-bottom:7px; }
+  .cp-pl { font-size:.6rem; font-weight:800; color:#9ec2ff; }
+  .cp-pv { font-size:.6rem; color:#aeb9d0; line-height:1.35; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  /* Zooms séquentiels sur les éléments du plan (image de réf -> téléchargement -> prompts) */
+  .p2-scene.on .cp-ref.z1 { animation:cpZoom 5s ease-in-out .2s infinite; }
+  .p2-scene.on .cp-ref.z2 { animation:cpZoom 5s ease-in-out 1.2s infinite; }
+  .p2-scene.on .cp-ref.z3 { animation:cpZoom 5s ease-in-out 2.2s infinite; }
+  .p2-scene.on .cp-prompt.z4 { animation:cpZoomP 5s ease-in-out 3s infinite; }
+  .p2-scene.on .cp-prompt.z5 { animation:cpZoomP 5s ease-in-out 3.7s infinite; }
+  @keyframes cpZoom { 0%,100%{transform:scale(1);box-shadow:none;} 6%,14%{transform:scale(1.14);box-shadow:0 8px 22px -6px rgba(47,123,255,.7);z-index:3;border-color:#4d8fff;} }
+  @keyframes cpZoomP { 0%,100%{transform:scale(1);border-color:rgba(255,255,255,.08);} 6%,14%{transform:scale(1.06);border-color:#4d8fff;box-shadow:0 8px 22px -8px rgba(47,123,255,.6);} }
+
   /* ===== Témoignages ===== */
   .tst { padding:84px 0 20px; }
   .sec-head { text-align:center; max-width:620px; margin:0 auto 38px; padding:0 22px; }
@@ -626,20 +660,20 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <div class="kicker reveal">La plateforme tout-en-un des créateurs</div>
-      <h1 class="reveal reveal-d1">L'IA qui améliore tes vidéos, <span class="rotwrap"><span id="typedTxt">les publie partout en 3 clics.</span><span class="typed-caret"></span></span></h1>
-      <p class="hero-sub reveal reveal-d2">Clip, facecam, edit, repost — <b>n'importe quelle vidéo</b>. Skillora la rend <b>meilleure</b>, te dit <b>si elle va percer avant de la poster</b>, et la publie sur <b>tous tes comptes au meilleur moment</b>. Pendant que toi, tu crées.</p>
+      <div class="kicker reveal">Copie les vidéos qui cartonnent</div>
+      <h1 class="reveal reveal-d1">La vidéo qui explose ?<br>Refais-la avec <span class="rotwrap"><span id="typedTxt">le plan exact.</span><span class="typed-caret"></span></span></h1>
+      <p class="hero-sub reveal reveal-d2">Colle le lien d'une vidéo virale. En un clic, l'IA la <b>décortique</b> et te donne <b>le plan exact pour la refaire</b> : images de référence, prompts et montage. Tu ne pars pas de zéro — tu suis la recette.</p>
       <div class="hero-how reveal reveal-d2">
-        <span class="hh"><b>1</b> Envoie une simple vidéo</span><span class="ha">→</span>
-        <span class="hh"><b>2</b> Un clic : elle devient pro</span><span class="ha">→</span>
-        <span class="hh ok"><b>3</b> Prête à exploser, publiée sur tous tes réseaux</span>
+        <span class="hh"><b>1</b> Colle le lien</span><span class="ha">→</span>
+        <span class="hh"><b>2</b> L'IA décortique la vidéo</span><span class="ha">→</span>
+        <span class="hh ok"><b>3</b> Tu reçois le plan exact</span>
       </div>
       <div class="hero-cta reveal reveal-d3">
         <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
       </div>
-      <div class="hero-note reveal reveal-d3">Ton compte est prêt en 30 secondes.</div>
+      <div class="hero-note reveal reveal-d3">Gratuit pour parcourir · Pro pour tout copier.</div>
       <div class="hero-plats reveal reveal-d3">
-        <span class="lbl">Fonctionne avec</span>
+        <span class="lbl">Vidéos virales de</span>
         <span class="hp-chip" style="background:#010101" data-pi="tiktok"></span>
         <span class="hp-chip" data-pi="youtube"></span>
         <span class="hp-chip" data-pi="instagram"></span>
@@ -658,109 +692,39 @@
             <div class="ph-bell">🔔<i>3</i></div>
           </div>
           <div class="p2-body">
-            <div class="p2-title" id="pvTitle">Ta vidéo</div>
+            <div class="p2-title" id="pvTitle">Copie une vidéo virale</div>
 
-            <!-- Scène 1 : la vidéo À CÔTÉ de sa note rouge + bouton Améliorer -->
+            <!-- Scène 1 : colle le lien + clic « Copier avec l'IA » -->
             <div class="p2-scene on" data-s="0">
-              <div class="pvr">
-                <div class="th"><img src="assets/demo-video.jpg" alt=""></div>
-                <div class="sc scorebad">
-                  <span class="p2-score">4,1<small> / 10</small></span>
-                  <div class="p2-score-l">Peut faire mieux 😬</div>
-                </div>
-              </div>
-              <div class="p2-bars bad pvr-bars">
-                <div class="p2-bar"><span>Accroche</span><span class="tr"><i style="--w:38%"></i></span></div>
-                <div class="p2-bar"><span>Rythme</span><span class="tr"><i style="--w:41%"></i></span></div>
-                <div class="p2-bar"><span>Sous-titres</span><span class="tr"><i style="--w:8%"></i></span></div>
-                <div class="p2-bar"><span>Image</span><span class="tr"><i style="--w:45%"></i></span></div>
-              </div>
-              <div class="pv-btn" id="pvBtn">✨ Améliorer ma vidéo<span class="pv-tap">👆</span></div>
+              <div class="cp-sub">Colle le lien d'une vidéo qui cartonne.</div>
+              <div class="cp-link"><span class="cp-lk-ic">🔗</span><span class="cp-lk-tx" id="cpLink">https://vm.tiktok.com/…</span></div>
+              <div class="pv-btn" id="pvBtn">✨ Copier avec l'IA<span class="pv-tap">👆</span></div>
             </div>
 
-            <!-- Scène 2 : l'amélioration SUR la vidéo (balayage, sous-titres, badges) -->
+            <!-- Scène 2 : l'IA regarde/décortique la vidéo (plans qui défilent + outils) -->
             <div class="p2-scene" data-s="1">
-              <div class="imp">
-                <img class="base" src="assets/demo-video.jpg" alt="">
-                <img class="grade" src="assets/demo-video.jpg" alt="">
-                <span class="wline"></span>
-                <span class="imp-badge b1">✂️</span>
-                <span class="imp-badge b2">🎵</span>
-                <span class="imp-badge b3">🔍</span>
-                <div class="capk"><span class="w">CE</span> <span class="w">DÉTAIL</span><br><span class="w big">CHANGE</span> <span class="w big key">TOUT</span></div>
+              <div class="cp-scan">
+                <div class="cp-frame"><img src="assets/demo-video.jpg" alt=""><span class="cp-beam"></span></div>
+                <div class="cp-scan-t">L'IA regarde la vidéo…</div>
+                <div class="cp-scan-s" id="cpScanS">Détection du hook</div>
+                <div class="cp-tools"><span>Nano Banana</span><span>ElevenLabs</span><span>CapCut</span><span>Veo 3</span></div>
               </div>
-              <div class="imp-t">Amélioration <b>en direct</b>…</div>
             </div>
 
-            <!-- Scène 3 : les notes en VERT + bouton Publier -->
+            <!-- Scène 3 : LE PLAN EXACT — images de réf + téléchargement + prompts (avec zooms) -->
             <div class="p2-scene" data-s="2">
-              <div class="pvr good">
-                <div class="th"><img src="assets/demo-video.jpg" alt=""><div class="capk"><span class="w big key" style="animation:none;opacity:1">TOUT 🔥</span></div></div>
-                <div class="sc">
-                  <span class="p2-score">9,5<small> / 10</small></span>
-                  <div class="p2-score-l">Prête à exploser 🔥</div>
-                </div>
+              <div class="cp-plan-h"><span class="cp-ok">✓</span> Ton plan exact est prêt</div>
+              <div class="cp-refs">
+                <div class="cp-ref z1"><img src="assets/demo-video.jpg" alt=""><span class="cp-dl">⬇︎</span></div>
+                <div class="cp-ref z2"><img src="assets/demo-video.jpg" alt=""><span class="cp-dl">⬇︎</span></div>
+                <div class="cp-ref z3"><img src="assets/demo-video.jpg" alt=""><span class="cp-dl">⬇︎</span></div>
               </div>
-              <div class="p2-bars pvr-bars">
-                <div class="p2-bar"><span>Accroche</span><span class="tr"><i style="--w:95%"></i></span></div>
-                <div class="p2-bar"><span>Rythme</span><span class="tr"><i style="--w:92%"></i></span></div>
-                <div class="p2-bar"><span>Sous-titres</span><span class="tr"><i style="--w:98%"></i></span></div>
-                <div class="p2-bar"><span>Image</span><span class="tr"><i style="--w:94%"></i></span></div>
-              </div>
-              <div class="pv-btn" id="pvBtn2">🚀 Publier sur tous mes comptes<span class="pv-tap">👆</span></div>
-            </div>
-
-            <!-- Scène 4 : sélection de toutes les plateformes (l'animation aimée) -->
-            <div class="p2-scene" data-s="3">
-              <div class="p2-sub" style="margin-top:2px">Une vidéo, tous tes comptes — au meilleur moment.</div>
-              <div class="p2-plats" id="p1Plats" style="margin-top:12px">
-                <span class="pc" style="background:#010101" data-pi="tiktok"><span class="ck">✓</span></span>
-                <span class="pc" data-pi="youtube"><span class="ck">✓</span></span>
-                <span class="pc" data-pi="instagram"><span class="ck">✓</span></span>
-                <span class="pc" style="background:#1877F2" data-pi="facebook"><span class="ck">✓</span></span>
-                <span class="pc" style="background:#000" data-pi="x"><span class="ck">✓</span></span>
-                <span class="pc" style="background:#000" data-pi="threads"><span class="ck">✓</span></span>
-              </div>
-              <div class="p2-when" style="margin-top:14px">
-                <div class="wl">Quand publier</div>
-                <div class="p2-chips"><span class="p2-chip sel">⏰ Au bon moment</span><span class="p2-chip">Maintenant</span></div>
-              </div>
-              <div class="p2-all"><span>Sélectionner tous mes comptes</span><span class="sw"></span></div>
-            </div>
-
-            <!-- Scène 5 : la vidéo VOYAGE vers chaque plateforme -->
-            <div class="p2-scene" data-s="4">
-              <div class="p2-sub" style="margin-top:2px">Ta vidéo part sur chaque réseau…</div>
-              <div class="up-rows">
-                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" style="background:#010101" data-pi="tiktok"></span></div>
-                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" data-pi="youtube"></span></div>
-                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" data-pi="instagram"></span></div>
-                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" style="background:#1877F2" data-pi="facebook"></span></div>
-                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" style="background:#000" data-pi="x"></span></div>
-                <div class="up-row"><span class="track"><span class="fill"></span><span class="mini"><img src="assets/demo-video.jpg" alt=""></span></span><span class="pct">0%</span><span class="pc" style="background:#000" data-pi="threads"></span></div>
-              </div>
-              <div class="up-done">✓ 100 % — publiée sur les 6 plateformes</div>
-            </div>
-
-            <!-- Scène 6 : succès -->
-            <div class="p2-scene" data-s="5">
-              <div class="p2-success">
-                <div class="big">✓</div>
-                <div class="st">Publiée partout 🎉</div>
-                <div class="ss">Ta vidéo améliorée part sur chaque réseau<br>quand <b style="color:var(--green)">son audience est la plus active</b>.</div>
-                <div class="prow">
-                  <span class="pc" style="background:#010101" data-pi="tiktok"></span>
-                  <span class="pc" data-pi="youtube"></span>
-                  <span class="pc" data-pi="instagram"></span>
-                  <span class="pc" style="background:#1877F2" data-pi="facebook"></span>
-                  <span class="pc" style="background:#000" data-pi="x"></span>
-                  <span class="pc" style="background:#000" data-pi="threads"></span>
-                </div>
-              </div>
+              <div class="cp-prompt z4"><span class="cp-pl">🖼️ Prompt image</span><span class="cp-pv">Un personnage réaliste dans un salon sombre, lumière néon…</span></div>
+              <div class="cp-prompt z5"><span class="cp-pl">🎬 Prompt animation</span><span class="cp-pv">Léger travelling avant, la caméra se rapproche du visage…</span></div>
             </div>
           </div>
           <div class="ph-nav">
-            <span class="seg"><span>🏠 Accueil</span><b>✏️ Studio</b></span>
+            <span class="seg"><span>🏠 Accueil</span><b>✏️ Copie</b></span>
             <span class="plus">+</span>
             <span class="prof">👤 Profil ›</span>
           </div>
@@ -773,63 +737,20 @@
 <!-- ================= TOUT CE QUE FAIT SKILLORA ================= -->
 <section class="feats" id="fonctionnalites">
   <div class="sec-head reveal">
-    <h2>Tout ce qu'il faut pour percer.<br>Au même endroit.</h2>
-    <p>Chaque fonctionnalité remplace un outil, un abonnement ou des heures de travail.</p>
+    <h2>Ne pars plus jamais<br>de la page blanche.</h2>
+    <p>Skillora te montre ce qui marche, et te donne la recette exacte pour le refaire.</p>
   </div>
   <div class="wrap">
     <div class="feats-grid">
-      <div class="feat feat-star reveal"><span class="fi"><svg viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></svg></span><div><h3>Améliore tes vidéos <span class="feat-tag">Notre force</span></h3><p>Envoie n'importe quelle vidéo : temps morts coupés, sous-titres animés, musique, zooms, format parfait — dans le <b>style qui marche dans ta niche</b>. Une vidéo pro en quelques minutes.</p></div></div>
-      <div class="feat feat-star reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg></span><div><h3>Sache si ça va percer — avant de poster</h3><p>Ta vidéo est <b>notée sur 10</b> : accroche, rythme, image… Tu vois ce qui bloque, tu corriges, et tu ne publies que tes meilleures.</p></div></div>
-      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg></span><div><h3>Publie partout en 3 clics</h3><p>Une seule vidéo → TikTok, YouTube, Instagram, Facebook, X, Threads. Tous tes comptes d'un coup.</p></div></div>
-      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><div><h3>Au meilleur moment</h3><p>Chaque réseau reçoit ta vidéo quand <b>ton audience y est active</b>. Sans y penser.</p></div></div>
-      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span><div><h3>Analyse tous tes comptes</h3><p>Tes stats réelles, tes vidéos gagnantes, ta niche — les 6 plateformes au même endroit.</p></div></div>
-      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></span><div><h3>Idées & scripts chaque jour</h3><p>Des idées basées sur ce qui marche pour toi, et des <b>scripts prêts à tourner</b> : hook, structure, CTA.</p></div></div>
-      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/></svg></span><div><h3>Hashtags & légendes optimisés</h3><p>Fini la chasse aux hashtags : la <b>meilleure description</b> et les hashtags qui font découvrir ta vidéo, générés automatiquement.</p></div></div>
-      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></span><div><h3>Objectifs & alertes</h3><p>1 000 abonnés atteints, une vidéo qui décolle — <b>tu le sais en direct</b>.</p></div></div>
+      <div class="feat feat-star reveal"><span class="fi"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg></span><div><h3>Copie avec l'IA <span class="feat-tag">Le cœur</span></h3><p>Colle le lien d'une vidéo virale : tu reçois <b>le plan exact</b> pour la refaire — images de référence à télécharger, prompts image &amp; animation, et le montage.</p></div></div>
+      <div class="feat feat-star reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><div><h3>Le feed des vidéos virales</h3><p>Parcours en continu les vidéos qui <b>explosent</b> (TikTok, YouTube, Insta, Facebook), avec leurs vraies stats. Une seule touche pour la copier.</p></div></div>
+      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 8h16M9 4v16M15 4v16"/></svg></span><div><h3>Niches virales notées</h3><p>Un catalogue façon films, <b>noté par potentiel</b> : Hook, rétention, call-to-action, difficulté de montage. Tu vois d'un coup d'œil ce qui vaut le coup.</p></div></div>
+      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg></span><div><h3>Créer un script</h3><p>Une idée + une durée → un <b>script noté et optimisé</b> pour accrocher dès la première seconde. Sans compte à connecter, sans réglage compliqué.</p></div></div>
+      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.3 1.5 1.5 2.4h5c.2-.9.7-1.7 1.5-2.4A6.5 6.5 0 0 0 12 3z"/></svg></span><div><h3>Idées de vidéos chaque jour</h3><p>Choisis ta niche et ta plateforme : tu reçois des <b>idées prêtes à tourner</b>, et un rappel par e-mail chaque matin si tu veux.</p></div></div>
+      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></svg></span><div><h3>De nouvelles vidéos en continu</h3><p>Le feed se remplit sans arrêt de nouvelles pépites virales. <b>Tu ne manques jamais</b> une tendance à copier.</p></div></div>
     </div>
   </div>
 </section>
-
-<!-- ================= SECTION TABLEAU DE BORD (le QG) ================= -->
-<section class="amv" id="tableau">
-  <div class="wrap amv-grid">
-    <div class="amv-txt">
-      <div class="sec-kicker blue reveal">📊 Ton QG</div>
-      <h2 class="reveal reveal-d1">Tous tes réseaux.<br>Un seul tableau de bord.</h2>
-      <div class="pub-pts">
-        <div class="pub-pt gz-item"><span class="n">1</span><div><h3>Vois ce qui marche vraiment</h3><p>Tes stats et tes <b>vidéos gagnantes</b>, réseau par réseau — sans ouvrir six applis.</p></div></div>
-        <div class="pub-pt gz-item"><span class="n">2</span><div><h3>Reçois des idées et des scripts chaque jour</h3><p>Écrits pour <b>ta niche</b>, à partir de ce qui a déjà marché pour toi.</p></div></div>
-        <div class="pub-pt gz-item"><span class="n">3</span><div><h3>Suis ta croissance en direct</h3><p>Tes objectifs avancent, et tu reçois une <b>alerte dès qu'une vidéo décolle</b>.</p></div></div>
-      </div>
-    </div>
-
-    <!-- Téléphone 3 : dashboard + carrousel de comptes -->
-    <div class="phone-zone reveal">
-      <div class="phone">
-        <div class="phone-screen">
-          <div class="ph-head">
-            <div class="ph-logo"><img src="/apple-touch-icon.png" alt="" onerror="this.style.display='none'">Skill<span>ora</span></div>
-            <div class="ph-bell">🔔<i>3</i></div>
-          </div>
-          <div class="ph-greet"><div class="g1">Bonjour Léa 👋</div><div class="g2">Voici ton tableau de bord.</div></div>
-          <div class="car-track" id="carTrack"></div>
-          <div class="car-dots" id="carDots"></div>
-          <div class="ph-nav">
-            <span class="seg"><b>🏠 Accueil</b><span>✏️ Studio</span></span>
-            <span class="plus">+</span>
-            <span class="prof">👤 Profil ›</span>
-          </div>
-        </div>
-        <div class="toast green toast-b"><span class="ic">🎉</span><span><span class="t1">Félicitations !</span><span class="t2">Objectif atteint : <b style="color:var(--green)">1 000 abonnés</b> sur ton compte TikTok.</span></span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Toast flottant seul, entre les sections -->
-<div class="loose-toast">
-  <div class="toast green"><span class="ic">📈</span><span><span class="t1">+2 100 000 vues cette semaine</span><span class="t2">Sur l'ensemble de tes comptes connectés.</span></span></div>
-</div>
 
 <!-- ================= TÉMOIGNAGES ================= -->
 <section class="tst" id="avis">
@@ -838,12 +759,12 @@
   </div>
   <div class="wrap">
     <div class="tst-row">
-      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Le montage me bouffait mes soirées, et quand je déléguais, c'était 50 $ la vidéo avec deux jours d'attente. Maintenant j'envoie ma vidéo, je la récupère propre et prête à poster. <b>Je ne paye plus personne pour le montage</b> — et honnêtement, c'est mieux que ce qu'on me rendait. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-lea.jpg" alt=""><span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Léa M.</div><div class="tst-meta">Créatrice lifestyle · 214K abonnés</div></div></div></div>
-      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je gère 4 comptes. Avant, je passais mes soirées à republier la même vidéo partout, un compte après l'autre — j'en pouvais plus. Là je l'envoie une fois, <b>ça part partout tout seul, au moment où les gens sont connectés</b>. J'ai littéralement récupéré ma vie. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-sarah.jpg" alt=""><span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Sarah B.</div><div class="tst-meta">Clippeuse · 4 comptes gérés</div></div></div></div>
-      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Pour comprendre pourquoi une vidéo marchait, j'ouvrais TikTok, YouTube et Insta un par un, tous les matins. Maintenant je vois tout au même endroit — ce qui marche, ce qui flop. <b>Je ne devine plus, je vois.</b> Et ça se sent sur mes chiffres. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-ryan.jpg" alt=""><span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Ryan T.</div><div class="tst-meta">Gaming · 87K abonnés</div></div></div></div>
-      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Mon blocage à moi, c'était les légendes et les hashtags. Je pouvais y passer 30 minutes pour un résultat moyen. Maintenant c'est prêt en même temps que ma vidéo, et c'est mieux que ce que j'écrivais. <b>Je poste deux fois plus qu'avant.</b> »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-ines.jpg" alt=""><span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Inès K.</div><div class="tst-meta">Food & recettes · 158K abonnés</div></div></div></div>
-      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Mon problème c'était les 10 premières secondes : les gens partaient, toujours. Depuis que je tourne à partir des scripts, ça accroche direct. <b>Ma dernière vidéo a fait plus de vues que tout mon mois précédent.</b> »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-max.jpg" alt=""><span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Maxime R.</div><div class="tst-meta">Créateur fitness · 96K abonnés</div></div></div></div>
-      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Ce qui m'a bluffé, c'est de savoir AVANT de publier si ma vidéo tenait la route — et surtout pourquoi elle ne la tenait pas. J'ai arrêté de poster "pour voir". <b>Je poste moins, mais chaque vidéo compte.</b> »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-david.jpg" alt=""><span class="pl" style="background:#000" data-pi="x"></span></span><div><div class="tst-name">David O.</div><div class="tst-meta">Tech & IA · 61K abonnés</div></div></div></div>
+      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Avant je scrollais des heures pour “trouver l'inspiration”, sans jamais rien tourner. Là je repère une vidéo qui explose, je la copie, et j'ai <b>les images, les prompts et le montage</b>. Je passe de l'idée à la vidéo le jour même. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-lea.jpg" alt=""><span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Léa M.</div><div class="tst-meta">Créatrice lifestyle · 214K abonnés</div></div></div></div>
+      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Je faisais du contenu IA sans jamais savoir quel prompt donnait quoi. Skillora me sort <b>le prompt exact</b> à partir d'une vidéo qui a déjà marché. J'ai arrêté de deviner — je reproduis ce qui cartonne. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-sarah.jpg" alt=""><span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Sarah B.</div><div class="tst-meta">Créatrice IA · 4 chaînes</div></div></div></div>
+      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Le feed des vidéos virales est une mine d'or. Je vois direct <b>ce qui explose dans ma niche</b>, avec les vraies stats, et je choisis quoi refaire. Je ne rate plus une tendance. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-ryan.jpg" alt=""><span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Ryan T.</div><div class="tst-meta">Gaming · 87K abonnés</div></div></div></div>
+      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Les idées de vidéos par niche, c'est mon rituel du matin. Un e-mail, trois idées prêtes à tourner. <b>Je ne me demande plus quoi poster</b> — je choisis, j'ouvre le script, je tourne. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-ines.jpg" alt=""><span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Inès K.</div><div class="tst-meta">Food & recettes · 158K abonnés</div></div></div></div>
+      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Mon problème c'était les 10 premières secondes : les gens partaient, toujours. Depuis que je tourne à partir des scripts <b>notés et optimisés</b>, ça accroche direct. Ma dernière vidéo a battu tout mon mois précédent. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-max.jpg" alt=""><span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Maxime R.</div><div class="tst-meta">Créateur fitness · 96K abonnés</div></div></div></div>
+      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Ce qui m'a bluffé, c'est la note de potentiel viral sur chaque style. Je vois <b>Hook, rétention, CTA</b> avant même de commencer. J'arrête de tourner au hasard — je mise sur ce qui a des chances. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-david.jpg" alt=""><span class="pl" style="background:#000" data-pi="x"></span></span><div><div class="tst-name">David O.</div><div class="tst-meta">Tech & IA · 61K abonnés</div></div></div></div>
     </div>
   </div>
 </section>
@@ -863,12 +784,12 @@
         <div class="price-val"><sup>$</sup><span class="pv">30</span></div>
         <div class="price-per">par mois</div>
         <ul class="price-feats">
-          <li><span class="ck">✓</span>Copie de vidéos virales (plans + prompts)<b>✓</b></li>
-          <li><span class="ck">✓</span>Scripts viraux (Studio)<b>20 / jour</b></li>
-          <li><span class="ck">✓</span>Idées de contenu<b>10 / jour</b></li>
-          <li><span class="ck">✓</span>Comptes connectés<b>3</b></li>
-          <li><span class="ck">✓</span>Publication multi-plateformes<b>6 / jour</b></li>
-          <li><span class="ck">✓</span>Analyse de tes concurrents<b>5 / mois</b></li>
+          <li><span class="ck">✓</span>Regarder &amp; copier toutes les vidéos virales<b>✓</b></li>
+          <li><span class="ck">✓</span>Le plan exact : images, prompts, montage<b>✓</b></li>
+          <li><span class="ck">✓</span>Niches virales — tout le catalogue<b>✓</b></li>
+          <li><span class="ck">✓</span>Créer des scripts viraux<b>✓</b></li>
+          <li><span class="ck">✓</span>Idées de vidéos chaque jour + e-mail<b>✓</b></li>
+          <li><span class="ck">✓</span>Nouvelles vidéos ajoutées en continu<b>✓</b></li>
           <li><span class="ck">✓</span>Support prioritaire<b>✓</b></li>
         </ul>
         <a class="price-btn filled" href="signup.html">Commencer — 30 $ / mois</a>
@@ -882,13 +803,12 @@
 <section class="faq" id="faq">
   <div class="sec-head reveal"><h2>Questions fréquentes</h2></div>
   <div class="faq-list">
-    <details class="faq-item reveal"><summary>Est-ce que Skillora améliore vraiment mes vidéos ?</summary><p>Oui. Tu envoies ta vidéo telle quelle — même filmée au téléphone, sans montage — et tu la récupères prête à publier : sous-titres animés synchronisés, temps morts coupés, musique, format vertical parfait. En quelques minutes.</p></details>
-    <details class="faq-item reveal"><summary>Comment Skillora connaît le style qui marche dans ma niche ?</summary><p>Skillora suit en continu les vidéos qui explosent dans plus de 20 niches — football, beauté, motivation, gaming, humour, luxe… — et applique leurs codes à tes vidéos : rythme, sous-titres, couleurs. C'est mis à jour chaque semaine, automatiquement.</p></details>
-    <details class="faq-item reveal"><summary>Comment Skillora sait si ma vidéo peut être virale ?</summary><p>Skillora analyse ta vidéo avant publication (accroche, format, rétention estimée, légende) et la compare à ce qui marche déjà sur ton compte et dans ta niche. Tu obtiens une note sur 10 et des conseils concrets pour l'améliorer — avant de publier.</p></details>
-    <details class="faq-item reveal"><summary>Sur quelles plateformes puis-je publier ?</summary><p>TikTok, YouTube, Instagram, Facebook, X et Threads — depuis une seule publication, avec la possibilité de sélectionner tous tes comptes en un clic.</p></details>
-    <details class="faq-item reveal"><summary>C'est quoi, « publier au bon moment » ?</summary><p>Au lieu de publier partout à la même heure, Skillora publie sur chaque réseau au moment où son audience est la plus active. Tu cliques une fois, chaque plateforme reçoit ta vidéo à son meilleur créneau.</p></details>
-    <details class="faq-item reveal"><summary>Mes vidéos restent-elles à moi ?</summary><p>Oui, à 100 %. Tes vidéos t'appartiennent, avant comme après le montage. Skillora ne les publie jamais sans ton accord et ne les partage avec personne.</p></details>
-    <details class="faq-item reveal"><summary>Puis-je changer ou annuler mon abonnement ?</summary><p>Oui, à tout moment, sans engagement, directement depuis ton espace Profil.</p></details>
+    <details class="faq-item reveal"><summary>« Copier avec l'IA », ça génère la vidéo à ma place ?</summary><p>Non — et c'est justement ce qui la rend fiable. Skillora te donne <b>le plan exact</b> pour refaire la vidéo : les images de référence à télécharger, les prompts (image et animation) à utiliser dans tes outils, et le montage. Tu gardes la main sur la création, sans partir de la page blanche.</p></details>
+    <details class="faq-item reveal"><summary>Qu'est-ce que je peux faire gratuitement ?</summary><p>Tu peux <b>parcourir</b> tout le feed et toutes les niches — voir les vidéos, les catégories et les notes. Pour <b>regarder</b> une vidéo en entier, la <b>copier</b> (obtenir le plan) et créer sans limite, il faut l'abonnement Pro.</p></details>
+    <details class="faq-item reveal"><summary>Comment marchent les scripts ?</summary><p>Tu écris simplement ton idée et la durée voulue. Skillora te rend un <b>script noté</b> (est-il assez viral ?) et une <b>version optimisée</b> pour accrocher dès la première seconde. Pas besoin de connecter de compte.</p></details>
+    <details class="faq-item reveal"><summary>Et les idées de vidéos ?</summary><p>Tu choisis une <b>niche</b> et une <b>plateforme</b>, et tu reçois des idées prêtes à tourner. Tu peux mettre le nom de ton compte pour recevoir, si tu veux, un <b>rappel par e-mail</b> chaque matin. Aucun compte de réseau social à connecter.</p></details>
+    <details class="faq-item reveal"><summary>Combien ça coûte ?</summary><p>Un seul plan : <b>Pro à 30 $/mois</b>, qui débloque tout. Paiement par carte bancaire ou crypto. Sans engagement — tu changes ou annules quand tu veux depuis ton profil.</p></details>
+    <details class="faq-item reveal"><summary>Les vidéos que je crée sont-elles à moi ?</summary><p>Oui. Les scripts et les plans que tu génères pour tes propres vidéos t'appartiennent. Le feed sert d'inspiration : inspire-toi du format et de la structure, pas de la copie à l'identique de l'œuvre d'autrui.</p></details>
   </div>
 </section>
 
@@ -896,14 +816,10 @@
 <section class="final-cta">
   <div class="wrap">
     <div class="final-cta-inner gz-item gz-center">
-      <h2>Ajoute ta vidéo. <span class="hl-brand">On l'améliore.</span></h2>
-      <div class="drop" id="dropZone">
-        <div class="dz-ic"><svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></svg></div>
-        <div class="dz-t1">Dépose ta vidéo ici</div>
-        <div class="dz-t2">ou touche pour la choisir — clip, facecam, edit, repost</div>
-      </div>
-      <input type="file" id="dropInput" accept="video/*,image/*" style="display:none">
-      <div class="hero-note">Ta vidéo reste sur ton appareil.</div>
+      <h2>Colle un lien. <span class="hl-brand">Reçois le plan.</span></h2>
+      <p style="color:var(--muted);font-size:1rem;line-height:1.6;max-width:520px;margin:10px auto 26px;">La prochaine vidéo qui cartonne dans ta niche, tu peux la refaire dès aujourd'hui — avec les images, les prompts et le montage exacts.</p>
+      <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
+      <div class="hero-note">Gratuit pour parcourir · Pro pour tout copier.</div>
     </div>
   </div>
 </section>
@@ -913,7 +829,7 @@
     <div class="foot-top">
       <div class="foot-brand">
         <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'"><b class="logo-word">Skill<span>ora</span></b></div>
-        <p>Des vidéos prêtes à percer, publiées sur toutes tes plateformes au bon moment.</p>
+        <p>Copie les vidéos qui cartonnent : le plan exact pour les refaire — images, prompts et montage.</p>
       </div>
       <div class="foot-cols">
         <div class="foot-col"><h4>Produit</h4><a href="#fonctionnalites">Fonctionnalités</a><a href="#pricing">Tarifs</a><a href="app.html">Connexion</a></div>
@@ -968,7 +884,7 @@
   /* ===== Texte qui s'écrit tout seul (héro) ===== */
   (function(){
     var el = document.getElementById('typedTxt'); if (!el) return;
-    var PHRASES = ['les publie sur tous tes réseaux en 3 clics.', 'te dit si elles vont percer — et pourquoi.', 'choisit le meilleur moment pour publier.', 'analyse tous tes comptes.', "t'écrit des scripts prêts à tourner."];
+    var PHRASES = ['le plan exact.', 'les bons prompts.', 'le bon montage.', 'les images de référence.'];
     var pi = 0, ci = PHRASES[0].length, deleting = true;
     if (window.SK_STATIC) return; // mode figé (captures internes via ?static=1) — jamais pour les visiteurs
     setTimeout(function tick(){
@@ -1086,16 +1002,14 @@
     var root = document.getElementById('p1s'); if (!root) return;
     var scenes = root.querySelectorAll('.p2-scene');
     var btn = document.getElementById('pvBtn');
-    var btn2 = document.getElementById('pvBtn2');
     var title = document.getElementById('pvTitle');
-    var plats = root.querySelectorAll('#p1Plats .pc');
-    var pcts = root.querySelectorAll('.up-row .pct');
-    var rows = root.querySelectorAll('.up-row');
-    var TITLES = ['Ta vidéo', 'Amélioration ✨', 'Ta vidéo', 'Publier', 'Publication…', 'Publier'];
-    var cur = 0, pctTimer = null;
-    // Durées : note rouge + clic, amélioration sur la vidéo, note verte + clic,
-    // sélection des plateformes, envoi vers chaque réseau, succès.
-    var DUR = [4600, 3900, 4400, 3400, 3600, 3800];
+    var linkEl = document.getElementById('cpLink');
+    var scanS = document.getElementById('cpScanS');
+    var TITLES = ['Copie une vidéo virale', "L'IA décortique la vidéo", 'Ton plan exact'];
+    var FULL_LINK = 'https://vm.tiktok.com/ZN8kJ7q';
+    var SCAN = ['Détection du hook', 'Découpage des plans', 'Voix off repérée', 'Reconstruction du montage'];
+    var cur = 0, typeTimer = null, scanTimer = null;
+    var DUR = [3800, 3800, 5200];
     function press(b, at){
       if (!b) return;
       b.classList.remove('press');
@@ -1106,19 +1020,20 @@
       cur = i;
       scenes.forEach(function(s, k){ s.classList.toggle('on', k === i); });
       if (title) title.textContent = TITLES[i] || 'Skillora';
-      if (i === 0) { press(btn, 3600); plats.forEach(function(p){ p.classList.remove('sel'); }); }
-      if (i === 2) press(btn2, 2800);
-      if (i === 3) plats.forEach(function(p, k){ setTimeout(function(){ p.classList.add('sel'); }, 700 + k * 150); });
-      if (i === 4) {
-        // redémarre les barres + le compteur commun (toutes à la même vitesse)
-        rows.forEach(function(r){ r.classList.remove('go'); void r.offsetWidth; r.classList.add('go'); });
-        if (pctTimer) clearInterval(pctTimer);
-        var t0 = Date.now();
-        pctTimer = setInterval(function(){
-          var p = Math.min(100, Math.round((Date.now() - t0) / 25));
-          pcts.forEach(function(el){ el.textContent = p + '%'; });
-          if (p >= 100) clearInterval(pctTimer);
-        }, 50);
+      if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
+      if (scanTimer) { clearInterval(scanTimer); scanTimer = null; }
+      if (i === 0 && linkEl) {
+        // on « tape » le lien puis on clique.
+        var ci = 0; linkEl.textContent = '';
+        typeTimer = setInterval(function(){
+          ci++; linkEl.textContent = FULL_LINK.slice(0, ci);
+          if (ci >= FULL_LINK.length) { clearInterval(typeTimer); typeTimer = null; }
+        }, 70);
+        press(btn, 3000);
+      }
+      if (i === 1 && scanS) {
+        var si = 0; scanS.textContent = SCAN[0];
+        scanTimer = setInterval(function(){ si = (si + 1) % SCAN.length; scanS.textContent = SCAN[si]; }, 850);
       }
     }
     if (window.SK_STATIC) return; // mode figé (captures internes) — les visiteurs ont toujours l'animation

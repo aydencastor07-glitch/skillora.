@@ -2028,13 +2028,9 @@
   <div class="ca-ov" id="copyAnim" aria-hidden="true">
     <div class="ca-inner">
       <div class="ca-brand">✨ Skillora IA</div>
-      <div class="ca-stagewrap">
-        <div class="ca-stack" id="caStack"></div>
-        <div class="ca-beam"></div>
-      </div>
+      <div class="ca-stage"><div class="ca-stack" id="caStack"></div></div>
       <div class="ca-label in" id="caLabel">Analyse…</div>
       <div class="ca-prog"><i></i></div>
-      <div class="ca-tools" id="caTools"></div>
       <div class="ca-hint">On reconstruit le plan exact pour la refaire — images, prompts, montage.</div>
     </div>
   </div>
@@ -2487,29 +2483,32 @@
       .nzd-lab{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7a86a0;margin-bottom:5px;}
       .nzd-p{font-size:.88rem;color:#cdd6ea;line-height:1.55;margin-bottom:14px;}
       .nzd-copy{margin-top:4px;}
-      /* Animation « Copier avec l'IA » — décorticage plein écran */
+      /* Animation « Copier avec l'IA » — l'IA décortique la vidéo (pages qui tournent) */
       .ca-ov{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:24px;background:radial-gradient(130% 90% at 50% -5%,#0d1530 0%,#060810 68%);}
       .ca-ov.open{display:flex;animation:caFade .28s ease;}
       @keyframes caFade{from{opacity:0}to{opacity:1}}
       .ca-inner{width:min(360px,92vw);display:flex;flex-direction:column;align-items:center;text-align:center;}
-      .ca-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.07em;color:#9ec2ff;margin-bottom:18px;opacity:.92;}
-      .ca-stagewrap{position:relative;width:184px;height:296px;margin-bottom:20px;}
-      .ca-stack{position:absolute;inset:0;}
-      .ca-card{position:absolute;inset:0;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 26px 64px -26px rgba(0,0,0,.92);transition:transform .5s cubic-bezier(.4,0,.2,1),opacity .5s;will-change:transform,opacity;}
+      .ca-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.07em;color:#9ec2ff;margin-bottom:22px;opacity:.92;}
+      .ca-stage{position:relative;width:190px;height:300px;margin-bottom:24px;perspective:1100px;}
+      .ca-stack{position:absolute;inset:0;transform-style:preserve-3d;}
+      .ca-card{position:absolute;inset:0;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 26px 64px -26px rgba(0,0,0,.92);transition:transform .62s cubic-bezier(.5,0,.15,1),opacity .62s;transform-origin:left center;backface-visibility:hidden;will-change:transform,opacity;}
       .ca-card video,.ca-card img{width:100%;height:100%;object-fit:cover;display:block;}
       .ca-card.ca-ph{display:flex;align-items:center;justify-content:center;font-size:3rem;}
-      .ca-card.ca-fly{transform:translateY(128%) rotate(9deg) scale(.9)!important;opacity:0!important;}
-      .ca-beam{position:absolute;left:0;right:0;top:-36%;height:36%;border-radius:16px;pointer-events:none;background:linear-gradient(180deg,rgba(95,150,255,0),rgba(95,150,255,.38),rgba(95,150,255,0));mix-blend-mode:screen;animation:caBeam 2s ease-in-out infinite;}
-      @keyframes caBeam{0%{top:-36%}100%{top:104%}}
+      /* page qui se tourne vers la gauche (comme un livre) */
+      .ca-card.ca-turn{transform:translateX(4px) rotateY(-118deg)!important;opacity:0!important;}
+      /* le logo de la plateforme, posé SUR le plan */
+      .ca-logo{position:absolute;left:9px;bottom:9px;display:inline-flex;align-items:center;gap:7px;padding:5px 10px 5px 5px;border-radius:12px;background:rgba(6,10,20,.72);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);box-shadow:0 6px 18px -8px rgba(0,0,0,.9);}
+      .ca-logo svg{width:26px;height:26px;display:block;border-radius:8px;}
+      .ca-logo b{font-family:'Sora',sans-serif;font-size:.72rem;font-weight:800;color:#fff;letter-spacing:.01em;}
+      .ca-logo em{display:block;font-style:normal;font-size:.58rem;font-weight:700;color:#9fb0cf;line-height:1.1;}
+      .ca-scan{position:absolute;left:0;right:0;top:-40%;height:40%;border-radius:16px;pointer-events:none;background:linear-gradient(180deg,rgba(95,150,255,0),rgba(95,150,255,.32),rgba(95,150,255,0));mix-blend-mode:screen;animation:caScan 2s ease-in-out infinite;}
+      @keyframes caScan{0%{top:-40%}100%{top:104%}}
       .ca-label{font-family:'Sora',sans-serif;font-weight:700;font-size:.98rem;color:#eaf1ff;min-height:1.35em;opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s;}
       .ca-label.in{opacity:1;transform:none;}
       .ca-prog{width:150px;height:4px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin:13px 0 18px;}
       .ca-prog i{display:block;height:100%;width:42%;border-radius:99px;background:linear-gradient(90deg,#4f8bff,#8b5cf6);animation:caProg 1.25s ease-in-out infinite;}
       @keyframes caProg{0%{margin-left:-42%}100%{margin-left:100%}}
-      .ca-tools{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;max-width:310px;}
-      .ca-tool{padding:5px 10px;border-radius:999px;font-size:.71rem;font-weight:700;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#828fa8;transition:all .3s;}
-      .ca-tool.on{background:rgba(79,139,255,.2);border-color:rgba(120,160,255,.55);color:#e4edff;transform:scale(1.07);box-shadow:0 5px 18px -6px rgba(79,139,255,.7);}
-      .ca-hint{margin-top:16px;font-size:.76rem;color:#6b7690;max-width:300px;line-height:1.5;}
+      .ca-hint{margin-top:4px;font-size:.76rem;color:#6b7690;max-width:300px;line-height:1.5;}
       .hvr{width:min(340px,90vw);display:flex;flex-direction:column;}
       .hvr-video{position:relative;width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 28px 70px -26px rgba(0,0,0,.95);}
       .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
@@ -6087,54 +6086,66 @@
     genFile = null;
     setTimeout(function(){ try { genStart(); } catch(e){ copyAnimClose(); } }, 250);
   }
-  // ── Animation « Copier avec l'IA » : décorticage de la vidéo (cartes qui défilent + outils) ──
-  var CA_TOOLS=['CapCut','Veo 3','Kling','ElevenLabs','Midjourney','Runway','Nano Banana','HeyGen'];
-  var CA_LABELS=['Détection du hook','Découpage des plans','Lecture du script','Voix off repérée','Analyse du rythme','Sons & musique','Étalonnage des couleurs','Reconstruction du montage'];
-  var _caCyc=null,_caLog=null,_caActive=false;
+  // ── Animation « Copier avec l'IA » : l'IA décortique la vidéo (pages qui tournent) ──
+  // Logos dessinés en SVG (autonomes, nets, aucun chargement réseau). Chaque plan de la
+  // vidéo porte le logo de la plateforme qui le crée.
+  var CA_LOGOS=[
+    {n:'Nano Banana', role:'Images', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#141b2b"/><path d="M11 12c.5 8 6.5 15 17 15 1.6 0 2.2-1.4.8-1.9-6.9-2.3-11.4-6.9-13.3-13.4-.4-1.5-2.6-1.2-2.5.3z" fill="#FFCE3A"/><path d="M12 12.5c.6 7.5 6 13.5 15.5 14" fill="none" stroke="#E09B00" stroke-width="1.2" stroke-linecap="round"/></svg>'},
+    {n:'Pinterest', role:'Clips', ic:'<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#E60023"/><path fill="#fff" d="M21 9c-6 0-9 4-9 8 0 2 1 3.9 2.8 4.7.3.1.5 0 .6-.3l.2-1c.1-.3 0-.4-.2-.6-.5-.6-.8-1.4-.8-2.4 0-3 2.3-5.7 5.9-5.7 3.2 0 5 2 5 4.6 0 3.5-1.5 6.4-3.7 6.4-1.2 0-2.1-1-1.8-2.3.4-1.5 1.1-3.1 1.1-4.2 0-1-.5-1.8-1.6-1.8-1.3 0-2.3 1.3-2.3 3.1 0 1.1.4 1.9.4 1.9l-1.5 6.3c-.4 1.9-.1 4.2 0 4.4.1.1.2.1.3 0 1.2-1.6 2.3-3.6 2.7-5.1l.7-2.7c.5.9 1.8 1.6 3.1 1.6 4.1 0 7-3.8 7-8.9C29 12.3 25.6 9 21 9z"/></svg>'},
+    {n:'ElevenLabs', role:'Voix off', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#000"/><rect x="14" y="12" width="4" height="16" rx="1.4" fill="#fff"/><rect x="22" y="12" width="4" height="16" rx="1.4" fill="#fff"/></svg>'},
+    {n:'CapCut', role:'Montage', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0a0a0a"/><path d="M15 13v14l12-7z" fill="#25e0d4"/><circle cx="26" cy="26.5" r="3" fill="#ff4d6d"/></svg>'},
+    {n:'Veo 3', role:'Animation', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#fff"/><path d="M20 8l2.6 6.9L30 17l-7.4 2.1L20 26l-2.6-6.9L10 17l7.4-2.1z" fill="#4285F4"/></svg>'},
+    {n:'HeyGen', role:'Avatar', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#7c5cff"/><circle cx="20" cy="16.5" r="5" fill="#fff"/><path d="M10.5 30c1-5.2 5-7.5 9.5-7.5s8.5 2.3 9.5 7.5z" fill="#fff"/></svg>'}
+  ];
+  var CA_LABELS=['Découpage des plans','Détection du hook','Lecture du script','Voix off repérée','Analyse du rythme','Reconstruction du montage','Étalonnage des couleurs'];
+  var _caCyc=null,_caActive=false;
+  function caLogoHtml(i){
+    var g=CA_LOGOS[i%CA_LOGOS.length];
+    return '<div class="ca-logo">'+g.ic+'<b>'+genEsc(g.n)+'<em>'+genEsc(g.role)+'</em></b></div>';
+  }
   function caRestack(){
     var st=document.getElementById('caStack'); if(!st) return;
     Array.prototype.slice.call(st.children).forEach(function(el,i){
       el.style.zIndex=String(20-i);
-      el.style.transform='translateY('+(i*7)+'px) scale('+(1-i*0.035)+')';
+      el.style.transform='translateX('+(i*4)+'px) translateY('+(i*5)+'px) scale('+(1-i*0.03)+')';
       el.style.opacity = i<4 ? '1' : '0';
     });
   }
   function copyAnimOpen(media, thumb){
     var ov=document.getElementById('copyAnim'); if(!ov) return;
     var st=document.getElementById('caStack'); if(!st) return; st.innerHTML='';
-    if(media){
-      [0.1,0.3,0.5,0.7,0.9].forEach(function(p){
-        var c=document.createElement('div'); c.className='ca-card';
-        var vd=document.createElement('video'); vd.muted=true; vd.playsInline=true; vd.preload='metadata'; vd.src=media;
+    var frames=[0.08,0.28,0.48,0.68,0.88];
+    frames.forEach(function(p,idx){
+      var c=document.createElement('div'); c.className='ca-card';
+      var inner='';
+      if(media){ inner='<video muted playsinline preload="metadata"></video>'; }
+      else if(thumb){ inner='<img src="'+genEsc(thumb)+'" alt="">'; }
+      else { c.classList.add('ca-ph'); inner='🎬'; }
+      c.innerHTML=inner+'<div class="ca-scan"></div>'+caLogoHtml(idx);
+      if(media){
+        var vd=c.querySelector('video'); vd.src=media;
         vd.addEventListener('loadedmetadata',function(){ try{ vd.currentTime=Math.max(0.1,(vd.duration||6)*p); }catch(e){} });
-        c.appendChild(vd); st.appendChild(c);
-      });
-    } else if(thumb){
-      for(var k=0;k<4;k++){ var c=document.createElement('div'); c.className='ca-card'; c.innerHTML='<img src="'+genEsc(thumb)+'" alt="">'; st.appendChild(c); }
-    } else {
-      var c0=document.createElement('div'); c0.className='ca-card ca-ph'; c0.textContent='🎬'; st.appendChild(c0);
-    }
+      }
+      st.appendChild(c);
+    });
     caRestack();
-    var tb=document.getElementById('caTools');
-    if(tb) tb.innerHTML=CA_TOOLS.map(function(t){return '<span class="ca-tool">'+genEsc(t)+'</span>';}).join('');
     ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _caActive=true;
     var li=0, lab=document.getElementById('caLabel');
+    if(lab){ lab.textContent=CA_LABELS[0]; lab.classList.add('in'); }
     function tick(){
       var front=st.firstElementChild;
       if(front && st.children.length>1){
-        front.classList.add('ca-fly');
-        setTimeout(function(){ front.classList.remove('ca-fly'); st.appendChild(front); caRestack(); },520);
+        front.classList.add('ca-turn');
+        setTimeout(function(){ front.classList.remove('ca-turn'); st.appendChild(front); caRestack(); },620);
       }
-      if(lab){ lab.classList.remove('in'); setTimeout(function(){ lab.textContent=CA_LABELS[li%CA_LABELS.length]; li++; lab.classList.add('in'); },180); }
+      li++;
+      if(lab){ lab.classList.remove('in'); setTimeout(function(){ lab.textContent=CA_LABELS[li%CA_LABELS.length]; lab.classList.add('in'); },190); }
     }
-    tick(); if(_caCyc)clearInterval(_caCyc); _caCyc=setInterval(tick,1450);
-    var ti=0;
-    function tools(){ var els=document.querySelectorAll('#caTools .ca-tool'); if(!els.length)return; els.forEach(function(e){e.classList.remove('on');}); els[ti%els.length].classList.add('on'); ti++; }
-    tools(); if(_caLog)clearInterval(_caLog); _caLog=setInterval(tools,850);
+    if(_caCyc)clearInterval(_caCyc); _caCyc=setInterval(tick,1300);
   }
   function copyAnimClose(){
     _caActive=false;
-    if(_caCyc){clearInterval(_caCyc);_caCyc=null;} if(_caLog){clearInterval(_caLog);_caLog=null;}
+    if(_caCyc){clearInterval(_caCyc);_caCyc=null;}
     var ov=document.getElementById('copyAnim'); if(ov){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); }
     var st=document.getElementById('caStack'); if(st){ try{ st.querySelectorAll('video').forEach(function(v){v.pause();}); }catch(e){} st.innerHTML=''; }
   }

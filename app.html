@@ -6030,17 +6030,29 @@
   // On écarte les anciennes niches physiques (foot, sport, gym, danse, food…).
   var HV2_ALLOWED = ['tiktok_shop','product','talk_facecam','horror','story','motivation','quiz','luxury_aesthetic','funny','diy','asmr','other'];
   var HV2_NICHE_LB = { edit:'✂️ Edits', horror:'👻 Horreur', food:'🍔 Food', football:'⚽ Foot', basketball:'🏀 Basket', beauty:'💄 Beauté', fashion:'👗 Mode', motivation:'🔥 Motivation', luxury:'💎 Luxe', luxury_aesthetic:'💎 Luxe', animals:'🐾 Animaux', pets:'🐾 Animaux', gaming:'🎮 Gaming', tech:'🤖 Tech', gym:'💪 Fitness', cars:'🏎️ Autos', dance:'💃 Danse', comedy:'😂 Comédie', travel:'✈️ Voyage', vlog:'🎥 Vlog', energetic:'⚡ Énergie', talk_facecam:'🗣️ Facecam', story:'📖 Story', lifestyle:'🌿 Lifestyle', product:'📦 Produit', quiz:'❓ Quiz', tiktok_shop:'🛍️ TikTok Shop', funny:'😂 Drôle', diy:'🔨 Bricolage', asmr:'🎧 ASMR', other:'🎬 Divers' };
+  // Lecture PUBLIQUE des vidéos via fetch direct + clé anon (jamais le token utilisateur) :
+  // garantit le rôle anon (pas de session périmée qui renverrait 401) + réessais automatiques
+  // en cas de réseau instable (mobile). Filtre en JS : uniquement les vidéos hébergées en permanent.
+  async function hv2Fetch(){
+    var url = SB_URL + '/rest/v1/winning_videos'
+      + '?select=id,platform,niche,views,likes,comments,shares,video_url,media_url,thumb_url'
+      + '&status=eq.done&niche=in.(' + HV2_ALLOWED.join(',') + ')&order=views.desc&limit=120';
+    var lastErr;
+    for (var attempt=0; attempt<3; attempt++){
+      try{
+        var res = await fetch(url, { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, Accept: 'application/json' } });
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        var data = await res.json();
+        return (data||[]).filter(function(v){ return (v.media_url||'').indexOf('/storage/v1/object/public/') >= 0; });
+      }catch(e){ lastErr = e; await new Promise(function(r){ setTimeout(r, 700*(attempt+1)); }); }
+    }
+    throw lastErr || new Error('fetch failed');
+  }
   async function hv2Load(){
     var feed = document.getElementById('hv2Feed'); if (!feed) return;
     try {
       if (!_hv2All || !_hv2All.length) {
-        var r = await sb.from('winning_videos')
-          .select('id,platform,niche,views,likes,comments,shares,video_url,media_url,thumb_url')
-          .eq('status','done').in('niche', HV2_ALLOWED)
-          .order('views',{ascending:false}).limit(120);
-        if (r.error) throw r.error;
-        // On ne garde que les vidéos hébergées en permanent (filtre en JS : plus robuste que .like côté serveur).
-        _hv2All = (r.data || []).filter(function(v){ return (v.media_url||'').indexOf('/storage/v1/object/public/') >= 0; });
+        _hv2All = await hv2Fetch();
         hv2Chips();
       }
       hv2Render();
@@ -6136,17 +6148,12 @@
     if(_hv2All && _hv2All.length){ try{ nichesRender(); }catch(e){} return; }
     grid.innerHTML='<div class="hv2-empty">Chargement des niches…</div>';
     try{
-      var r = await sb.from('winning_videos')
-        .select('id,platform,niche,views,likes,comments,shares,video_url,media_url,thumb_url')
-        .eq('status','done').in('niche', HV2_ALLOWED)
-        .order('views',{ascending:false}).limit(120);
-      if(r.error) throw r.error;
-      // Filtre en JS (plus robuste que .like côté serveur) : on ne garde que les vidéos hébergées en permanent.
-      _hv2All = (r.data||[]).filter(function(v){ return (v.media_url||'').indexOf('/storage/v1/object/public/') >= 0; });
+      _hv2All = await hv2Fetch();
       nichesRender();
     }catch(e){
-      // Plus de cul-de-sac silencieux : on propose de réessayer.
+      // Plus de cul-de-sac silencieux : on propose de réessayer (avec le message d'erreur pour diagnostic).
       grid.innerHTML='<div class="hv2-empty">Impossible de charger les niches pour le moment.<br>'
+        +'<small style="opacity:.6">('+genEsc(String(e&&e.message||e))+')</small><br>'
         +'<button class="hvg-more" style="margin-top:12px" onclick="nichesLoad()">Réessayer</button></div>';
     }
   }

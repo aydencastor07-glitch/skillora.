@@ -2489,15 +2489,15 @@
       @keyframes caFade{from{opacity:0}to{opacity:1}}
       .ca-inner{width:min(360px,92vw);display:flex;flex-direction:column;align-items:center;text-align:center;}
       .ca-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.07em;color:#9ec2ff;margin-bottom:22px;opacity:.92;}
-      .ca-stage{position:relative;width:190px;height:300px;margin-bottom:24px;perspective:1100px;}
-      .ca-stack{position:absolute;inset:0;transform-style:preserve-3d;}
-      .ca-card{position:absolute;inset:0;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 26px 64px -26px rgba(0,0,0,.92);transition:transform .62s cubic-bezier(.5,0,.15,1),opacity .62s;transform-origin:left center;backface-visibility:hidden;will-change:transform,opacity;}
+      .ca-stage{position:relative;width:174px;height:352px;margin-bottom:24px;}
+      .ca-stack{position:absolute;inset:0;}
+      .ca-card{position:absolute;top:0;left:50%;width:160px;margin-left:-80px;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 22px 54px -24px rgba(0,0,0,.92);transition:transform .58s cubic-bezier(.45,.02,.2,1),opacity .58s;will-change:transform,opacity;}
       .ca-card video,.ca-card img{width:100%;height:100%;object-fit:cover;display:block;}
       .ca-card.ca-ph{display:flex;align-items:center;justify-content:center;font-size:3rem;}
-      /* page qui se tourne vers la gauche (comme un livre) */
-      .ca-card.ca-turn{transform:translateX(4px) rotateY(-118deg)!important;opacity:0!important;}
-      /* le logo de la plateforme, posé SUR le plan */
-      .ca-logo{position:absolute;left:9px;bottom:9px;display:inline-flex;align-items:center;gap:7px;padding:5px 10px 5px 5px;border-radius:12px;background:rgba(6,10,20,.72);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);box-shadow:0 6px 18px -8px rgba(0,0,0,.9);}
+      /* la carte du dessus part vers le haut puis repasse derrière (on décortique plan par plan) */
+      .ca-card.ca-fly{transform:translateY(-142%) rotate(-5deg) scale(.9)!important;opacity:0!important;}
+      /* le logo de la plateforme, posé SUR le plan (sa position change d'un plan à l'autre) */
+      .ca-logo{position:absolute;left:9px;bottom:9px;display:inline-flex;align-items:center;gap:7px;padding:5px 10px 5px 5px;border-radius:12px;background:rgba(6,10,20,.74);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);box-shadow:0 6px 18px -8px rgba(0,0,0,.9);}
       .ca-logo svg{width:26px;height:26px;display:block;border-radius:8px;}
       .ca-logo b{font-family:'Sora',sans-serif;font-size:.72rem;font-weight:800;color:#fff;letter-spacing:.01em;}
       .ca-logo em{display:block;font-style:normal;font-size:.58rem;font-weight:700;color:#9fb0cf;line-height:1.1;}
@@ -6026,7 +6026,8 @@
     document.getElementById('montageGuide').classList.remove('open');
   }
 
-  function switchView(name, btn) {
+  function switchView(name, btn, opts) {
+    opts = opts || {};
     // Publier & comptes connectés = retirés du public, réservés au propriétaire (zone dev).
     if (name === 'publish' && !window._unlimited) { name = 'ia'; }
     // Espace propriétaire (tableau de bord comptes) = uniquement pour moi.
@@ -6046,18 +6047,42 @@
       });
     }
     try { localStorage.setItem('skillora_view', name); } catch(e) {}
+    // Le plan Studio ne survit QUE si on reste sur le Studio (refresh) ; dès qu'on va
+    // ailleurs, on l'efface (« si la personne navigue ailleurs, les plans sont retirés »).
+    if (name !== 'ia') { try { sessionStorage.removeItem('sk_plan'); } catch(e){} }
     skThemeDuo();
     if (name === 'home') { try { hv2Load(); } catch(e){} }
     if (name === 'niches') { try { nichesLoad(); } catch(e){} }
     if (name === 'owner') { try { loadHomeDashboard(); } catch(e){} }
     if (name === 'library') applyBookLocks();
-    if (name === 'ia') { if (typeof initStudioTool === 'function') initStudioTool(); redrawWorkflowSoon(); if (typeof loadStudioAccounts === 'function') loadStudioAccounts(); }
+    if (name === 'ia') {
+      if (typeof initStudioTool === 'function') initStudioTool(); redrawWorkflowSoon(); if (typeof loadStudioAccounts === 'function') loadStudioAccounts();
+      // Refresh sur le Studio : on restaure le dernier plan au lieu de retomber sur le formulaire vide.
+      if (!opts.noRestorePlan) { try { var _sp = sessionStorage.getItem('sk_plan'); if (_sp) { genRevealPlan(JSON.parse(_sp)); } } catch(e){} }
+    }
     // La bulle 💡 des idées n'apparaît que sur le Studio (point d'entrée, activé ou non).
     if (typeof showIdeaFab === 'function') showIdeaFab(name === 'ia');
     if (name === 'publish' && typeof refreshConnections === 'function') refreshConnections();
     updateSegState(name);
-    window.scrollTo(0, 0);
+    // Historique : chaque écran devient une étape (le bouton Retour du téléphone revient
+    // à l'écran précédent au lieu de sortir du site). On ne pousse pas si on vient de l'historique.
+    if (!opts.fromHistory) {
+      try {
+        var _cur = (history.state && history.state.skview);
+        if (_cur === name) history.replaceState({ skview: name }, '', '#' + name);
+        else history.pushState({ skview: name }, '', '#' + name);
+      } catch(e){}
+    }
+    if (!opts.keepScroll) window.scrollTo(0, 0);
   }
+  // Bouton Retour du téléphone : on revient à l'écran précédent (jamais on ne quitte le site
+  // par surprise). Si l'animation de copie est ouverte, Retour la ferme d'abord.
+  window.addEventListener('popstate', function(e){
+    try { if (_caActive) { copyAnimClose(); } } catch(err){}
+    var name = (e.state && e.state.skview) || (String(location.hash||'').replace('#','')) || 'home';
+    if (!document.getElementById('view-' + name)) name = 'home';
+    try { switchView(name, null, { fromHistory: true }); } catch(err){}
+  });
   // ── Accueil v2 : héros Copie + feed de vidéos virales ──────────────────
   function hv2Go(){
     var v = (document.getElementById('hv2Link')||{}).value || '';
@@ -6078,8 +6103,9 @@
   function goCopierWith(url, opts){
     if (!hv2IsPro()) { try { openUpgrade && openUpgrade(); } catch(e){} return; }
     opts = opts || {};
+    try { sessionStorage.removeItem('sk_plan'); } catch(e){}  // nouvelle copie : on oublie l'ancien plan
     copyAnimOpen(opts.media, opts.thumb);   // animation plein écran immédiate (on ne voit jamais le vieux Studio)
-    switchView('ia', null);
+    switchView('ia', null, { noRestorePlan: true });
     try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){}
     try { genReset(); } catch(e){}
     var i = document.getElementById('genLink'); if (i) i.value = url;
@@ -6098,23 +6124,34 @@
     {n:'HeyGen', role:'Avatar', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#7c5cff"/><circle cx="20" cy="16.5" r="5" fill="#fff"/><path d="M10.5 30c1-5.2 5-7.5 9.5-7.5s8.5 2.3 9.5 7.5z" fill="#fff"/></svg>'}
   ];
   var CA_LABELS=['Découpage des plans','Détection du hook','Lecture du script','Voix off repérée','Analyse du rythme','Reconstruction du montage','Étalonnage des couleurs'];
+  // Le logo change de place d'un plan à l'autre (il « se déplace ») : coins, milieu…
+  var CA_POS=[
+    'left:9px;bottom:9px;',
+    'right:9px;top:9px;',
+    'left:9px;top:9px;',
+    'left:50%;top:50%;transform:translate(-50%,-50%);',
+    'right:9px;bottom:9px;',
+    'left:50%;bottom:12px;transform:translateX(-50%);'
+  ];
   var _caCyc=null,_caActive=false;
   function caLogoHtml(i){
-    var g=CA_LOGOS[i%CA_LOGOS.length];
-    return '<div class="ca-logo">'+g.ic+'<b>'+genEsc(g.n)+'<em>'+genEsc(g.role)+'</em></b></div>';
+    var g=CA_LOGOS[i%CA_LOGOS.length], pos=CA_POS[i%CA_POS.length];
+    return '<div class="ca-logo" style="'+pos+'">'+g.ic+'<b>'+genEsc(g.n)+'<em>'+genEsc(g.role)+'</em></b></div>';
   }
   function caRestack(){
     var st=document.getElementById('caStack'); if(!st) return;
+    // Pile étalée : ~4 plans visibles avec de grands espaces (décalage vertical net).
     Array.prototype.slice.call(st.children).forEach(function(el,i){
       el.style.zIndex=String(20-i);
-      el.style.transform='translateX('+(i*4)+'px) translateY('+(i*5)+'px) scale('+(1-i*0.03)+')';
-      el.style.opacity = i<4 ? '1' : '0';
+      el.style.transform='translateY('+(i*22)+'px) scale('+(1-i*0.05)+')';
+      el.style.opacity = i<4 ? (i===0?'1':(1-i*0.18)+'') : '0';
     });
   }
   function copyAnimOpen(media, thumb){
     var ov=document.getElementById('copyAnim'); if(!ov) return;
     var st=document.getElementById('caStack'); if(!st) return; st.innerHTML='';
-    var frames=[0.08,0.28,0.48,0.68,0.88];
+    // 6 plans -> les 6 logos passent tous (Nano Banana, Pinterest, ElevenLabs, CapCut, Veo 3, HeyGen).
+    var frames=[0.07,0.24,0.41,0.58,0.75,0.9];
     frames.forEach(function(p,idx){
       var c=document.createElement('div'); c.className='ca-card';
       var inner='';
@@ -6135,13 +6172,13 @@
     function tick(){
       var front=st.firstElementChild;
       if(front && st.children.length>1){
-        front.classList.add('ca-turn');
-        setTimeout(function(){ front.classList.remove('ca-turn'); st.appendChild(front); caRestack(); },620);
+        front.classList.add('ca-fly');   // le plan du dessus part en haut
+        setTimeout(function(){ front.classList.remove('ca-fly'); st.appendChild(front); caRestack(); },560);  // puis repasse derrière
       }
       li++;
       if(lab){ lab.classList.remove('in'); setTimeout(function(){ lab.textContent=CA_LABELS[li%CA_LABELS.length]; lab.classList.add('in'); },190); }
     }
-    if(_caCyc)clearInterval(_caCyc); _caCyc=setInterval(tick,1300);
+    if(_caCyc)clearInterval(_caCyc); _caCyc=setInterval(tick,1250);
   }
   function copyAnimClose(){
     _caActive=false;
@@ -10047,6 +10084,8 @@
     var total=urls.length, done=0, finished=false;
     function reveal(){
       if(finished) return; finished=true;
+      // On garde le plan pour un refresh (il reste tant qu'on ne navigue pas ailleurs).
+      try{ if(bp) sessionStorage.setItem('sk_plan', JSON.stringify(bp)); }catch(e){}
       gwStopTips(); genFocus(false);
       document.getElementById('genProgress').style.display='none';
       var gr=document.getElementById('genResult'); gr.style.display='block';

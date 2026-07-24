@@ -2024,6 +2024,21 @@
     </div>
   </div>
 
+  <!-- Animation « Copier avec l'IA » : l'IA décortique la vidéo (plein écran) -->
+  <div class="ca-ov" id="copyAnim" aria-hidden="true">
+    <div class="ca-inner">
+      <div class="ca-brand">✨ Skillora IA</div>
+      <div class="ca-stagewrap">
+        <div class="ca-stack" id="caStack"></div>
+        <div class="ca-beam"></div>
+      </div>
+      <div class="ca-label in" id="caLabel">Analyse…</div>
+      <div class="ca-prog"><i></i></div>
+      <div class="ca-tools" id="caTools"></div>
+      <div class="ca-hint">On reconstruit le plan exact pour la refaire — images, prompts, montage.</div>
+    </div>
+  </div>
+
   <!-- ═══ ESPACE PROPRIÉTAIRE (dev) — comptes, stats, publication. Invisible au public. ═══ -->
   <div class="view" id="view-owner">
     <div class="owner-head">
@@ -2428,16 +2443,17 @@
       .hvg-more:active{transform:scale(.98);}
       /* ── Niches virales : catalogue façon films ─────────────────── */
       .nz-head{padding:6px 2px 14px;}
-      .nz-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-bottom:36px;}
+      .nz-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding-bottom:34px;}
       .nz-cell{cursor:pointer;}
-      .nz-poster{position:relative;width:100%;aspect-ratio:2/3;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 16px 40px -22px rgba(0,0,0,.9);}
+      .nz-poster{position:relative;width:100%;aspect-ratio:3/4;border-radius:15px;overflow:hidden;background:#0b0f1a;box-shadow:0 14px 34px -20px rgba(0,0,0,.9);}
       .nz-poster video,.nz-poster .nzimg{width:100%;height:100%;object-fit:cover;display:block;}
-      .nz-score{position:absolute;top:8px;left:8px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.66);backdrop-filter:blur(6px);color:#43e37f;font-size:.82rem;font-weight:900;box-shadow:0 2px 10px -3px rgba(0,0,0,.8);}
-      .nz-score i{font-size:.6rem;font-weight:800;opacity:.75;font-style:normal;margin-left:1px;}
-      .nz-catchip{position:absolute;left:8px;bottom:8px;right:8px;padding:5px 9px;border-radius:11px;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);color:#eaf1ff;font-size:.74rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-      .nz-stats{margin-top:8px;display:flex;gap:11px;font-size:.72rem;color:var(--muted);font-weight:700;align-items:center;flex-wrap:wrap;}
+      .nz-poster::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28) 0%,transparent 26%,transparent 58%,rgba(0,0,0,.72) 100%);pointer-events:none;}
+      .nz-score{position:absolute;top:7px;right:7px;padding:3px 8px;border-radius:999px;background:rgba(6,10,20,.72);backdrop-filter:blur(6px);color:#43e37f;font-size:.8rem;font-weight:900;z-index:2;box-shadow:0 2px 10px -3px rgba(0,0,0,.8);}
+      .nz-score i{font-size:.56rem;font-weight:800;opacity:.7;font-style:normal;margin-left:1px;}
+      .nz-catchip{position:absolute;left:7px;bottom:7px;max-width:calc(100% - 14px);padding:4px 9px;border-radius:9px;background:rgba(255,255,255,.14);backdrop-filter:blur(7px);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:.7rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;}
+      .nz-stats{margin-top:7px;display:flex;gap:9px;font-size:.68rem;color:var(--muted);font-weight:700;align-items:center;flex-wrap:wrap;}
       .nz-stats span{display:inline-flex;align-items:center;gap:3px;}
-      .nz-stats svg{width:12px;height:12px;opacity:.75;}
+      .nz-stats svg{width:11px;height:11px;opacity:.7;}
       .nz-card{max-width:480px;text-align:left;}
       /* Fiche vidéo — vidéo + tableau de notes (façon « potentiel de viralité ») */
       .nvd-top{display:flex;gap:13px;margin:2px 0 14px;align-items:stretch;}
@@ -2471,6 +2487,29 @@
       .nzd-lab{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7a86a0;margin-bottom:5px;}
       .nzd-p{font-size:.88rem;color:#cdd6ea;line-height:1.55;margin-bottom:14px;}
       .nzd-copy{margin-top:4px;}
+      /* Animation « Copier avec l'IA » — décorticage plein écran */
+      .ca-ov{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:24px;background:radial-gradient(130% 90% at 50% -5%,#0d1530 0%,#060810 68%);}
+      .ca-ov.open{display:flex;animation:caFade .28s ease;}
+      @keyframes caFade{from{opacity:0}to{opacity:1}}
+      .ca-inner{width:min(360px,92vw);display:flex;flex-direction:column;align-items:center;text-align:center;}
+      .ca-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.07em;color:#9ec2ff;margin-bottom:18px;opacity:.92;}
+      .ca-stagewrap{position:relative;width:184px;height:296px;margin-bottom:20px;}
+      .ca-stack{position:absolute;inset:0;}
+      .ca-card{position:absolute;inset:0;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 26px 64px -26px rgba(0,0,0,.92);transition:transform .5s cubic-bezier(.4,0,.2,1),opacity .5s;will-change:transform,opacity;}
+      .ca-card video,.ca-card img{width:100%;height:100%;object-fit:cover;display:block;}
+      .ca-card.ca-ph{display:flex;align-items:center;justify-content:center;font-size:3rem;}
+      .ca-card.ca-fly{transform:translateY(128%) rotate(9deg) scale(.9)!important;opacity:0!important;}
+      .ca-beam{position:absolute;left:0;right:0;top:-36%;height:36%;border-radius:16px;pointer-events:none;background:linear-gradient(180deg,rgba(95,150,255,0),rgba(95,150,255,.38),rgba(95,150,255,0));mix-blend-mode:screen;animation:caBeam 2s ease-in-out infinite;}
+      @keyframes caBeam{0%{top:-36%}100%{top:104%}}
+      .ca-label{font-family:'Sora',sans-serif;font-weight:700;font-size:.98rem;color:#eaf1ff;min-height:1.35em;opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s;}
+      .ca-label.in{opacity:1;transform:none;}
+      .ca-prog{width:150px;height:4px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin:13px 0 18px;}
+      .ca-prog i{display:block;height:100%;width:42%;border-radius:99px;background:linear-gradient(90deg,#4f8bff,#8b5cf6);animation:caProg 1.25s ease-in-out infinite;}
+      @keyframes caProg{0%{margin-left:-42%}100%{margin-left:100%}}
+      .ca-tools{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;max-width:310px;}
+      .ca-tool{padding:5px 10px;border-radius:999px;font-size:.71rem;font-weight:700;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#828fa8;transition:all .3s;}
+      .ca-tool.on{background:rgba(79,139,255,.2);border-color:rgba(120,160,255,.55);color:#e4edff;transform:scale(1.07);box-shadow:0 5px 18px -6px rgba(79,139,255,.7);}
+      .ca-hint{margin-top:16px;font-size:.76rem;color:#6b7690;max-width:300px;line-height:1.5;}
       .hvr{width:min(340px,90vw);display:flex;flex-direction:column;}
       .hvr-video{position:relative;width:100%;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0b0f1a;box-shadow:0 28px 70px -26px rgba(0,0,0,.95);}
       .hvr-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
@@ -6031,14 +6070,73 @@
   // Pro = abonné payant OU propriétaire. Le feed se PARCOURT gratuitement (miniatures,
   // catégories, tout déployer) mais REGARDER et COPIER une vidéo demandent le Pro.
   function hv2IsPro(){ return window._unlimited === true || (typeof userIsSubscribed !== 'undefined' && userIsSubscribed); }
-  function goCopierWith(url){
+  // Copie depuis une carte : on retrouve la vidéo pour passer sa miniature/média à l'animation.
+  function hvCopy(id){
+    var v=(_hv2All||[]).filter(function(x){return x.id===id;})[0];
+    if(v) goCopierWith(v.video_url,{media:v.media_url,thumb:v.thumb_url});
+    else goCopierWith(id);
+  }
+  function goCopierWith(url, opts){
     if (!hv2IsPro()) { try { openUpgrade && openUpgrade(); } catch(e){} return; }
+    opts = opts || {};
+    copyAnimOpen(opts.media, opts.thumb);   // animation plein écran immédiate (on ne voit jamais le vieux Studio)
     switchView('ia', null);
     try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){}
     try { genReset(); } catch(e){}
     var i = document.getElementById('genLink'); if (i) i.value = url;
     genFile = null;
-    setTimeout(function(){ try { genStart(); } catch(e){} }, 250);
+    setTimeout(function(){ try { genStart(); } catch(e){ copyAnimClose(); } }, 250);
+  }
+  // ── Animation « Copier avec l'IA » : décorticage de la vidéo (cartes qui défilent + outils) ──
+  var CA_TOOLS=['CapCut','Veo 3','Kling','ElevenLabs','Midjourney','Runway','Nano Banana','HeyGen'];
+  var CA_LABELS=['Détection du hook','Découpage des plans','Lecture du script','Voix off repérée','Analyse du rythme','Sons & musique','Étalonnage des couleurs','Reconstruction du montage'];
+  var _caCyc=null,_caLog=null,_caActive=false;
+  function caRestack(){
+    var st=document.getElementById('caStack'); if(!st) return;
+    Array.prototype.slice.call(st.children).forEach(function(el,i){
+      el.style.zIndex=String(20-i);
+      el.style.transform='translateY('+(i*7)+'px) scale('+(1-i*0.035)+')';
+      el.style.opacity = i<4 ? '1' : '0';
+    });
+  }
+  function copyAnimOpen(media, thumb){
+    var ov=document.getElementById('copyAnim'); if(!ov) return;
+    var st=document.getElementById('caStack'); if(!st) return; st.innerHTML='';
+    if(media){
+      [0.1,0.3,0.5,0.7,0.9].forEach(function(p){
+        var c=document.createElement('div'); c.className='ca-card';
+        var vd=document.createElement('video'); vd.muted=true; vd.playsInline=true; vd.preload='metadata'; vd.src=media;
+        vd.addEventListener('loadedmetadata',function(){ try{ vd.currentTime=Math.max(0.1,(vd.duration||6)*p); }catch(e){} });
+        c.appendChild(vd); st.appendChild(c);
+      });
+    } else if(thumb){
+      for(var k=0;k<4;k++){ var c=document.createElement('div'); c.className='ca-card'; c.innerHTML='<img src="'+genEsc(thumb)+'" alt="">'; st.appendChild(c); }
+    } else {
+      var c0=document.createElement('div'); c0.className='ca-card ca-ph'; c0.textContent='🎬'; st.appendChild(c0);
+    }
+    caRestack();
+    var tb=document.getElementById('caTools');
+    if(tb) tb.innerHTML=CA_TOOLS.map(function(t){return '<span class="ca-tool">'+genEsc(t)+'</span>';}).join('');
+    ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _caActive=true;
+    var li=0, lab=document.getElementById('caLabel');
+    function tick(){
+      var front=st.firstElementChild;
+      if(front && st.children.length>1){
+        front.classList.add('ca-fly');
+        setTimeout(function(){ front.classList.remove('ca-fly'); st.appendChild(front); caRestack(); },520);
+      }
+      if(lab){ lab.classList.remove('in'); setTimeout(function(){ lab.textContent=CA_LABELS[li%CA_LABELS.length]; li++; lab.classList.add('in'); },180); }
+    }
+    tick(); if(_caCyc)clearInterval(_caCyc); _caCyc=setInterval(tick,1450);
+    var ti=0;
+    function tools(){ var els=document.querySelectorAll('#caTools .ca-tool'); if(!els.length)return; els.forEach(function(e){e.classList.remove('on');}); els[ti%els.length].classList.add('on'); ti++; }
+    tools(); if(_caLog)clearInterval(_caLog); _caLog=setInterval(tools,850);
+  }
+  function copyAnimClose(){
+    _caActive=false;
+    if(_caCyc){clearInterval(_caCyc);_caCyc=null;} if(_caLog){clearInterval(_caLog);_caLog=null;}
+    var ov=document.getElementById('copyAnim'); if(ov){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); }
+    var st=document.getElementById('caStack'); if(st){ try{ st.querySelectorAll('video').forEach(function(v){v.pause();}); }catch(e){} st.innerHTML=''; }
   }
   function hv2Upload(input){
     var f = input && input.files && input.files[0];
@@ -6120,7 +6218,7 @@
         '<div class="hvg-views">'+genStatSvg('eye')+'<b>'+genFmtN(v.views)+'</b></div>'+
         (window._unlimited?'<button class="hvr-edit hvg-edit" onclick="hvEdit(event,\''+genEsc(v.id)+'\')" aria-label="Éditer">✏️</button>':'')+
         '</div>'+
-        '<button class="hvg-cta" onclick="goCopierWith(\''+genEsc(v.video_url)+'\')">'+
+        '<button class="hvg-cta" onclick="hvCopy(\''+genEsc(v.id)+'\')">'+
           '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>'+
           '<span>'+skT('copyAI')+'</span></button>'+
       '</div>';
@@ -6275,7 +6373,7 @@
       '<div class="nvd-tools">'+meta.tools.map(function(t){return '<span class="nvd-tool">'+genEsc(t)+'</span>';}).join('')+'</div>'+
       '<div class="nzd-lab">Pourquoi ça marche</div><p class="nzd-p">'+genEsc(info.why||'')+'</p>'+
       '<div class="nzd-lab">Comment la reproduire</div><p class="nzd-p">'+genEsc(meta.how||info.how||'')+'</p>'+
-      '<button class="hvg-cta nzd-copy" onclick="nicheClose();goCopierWith(\''+genEsc(v.video_url)+'\')">'+
+      '<button class="hvg-cta nzd-copy" onclick="nicheClose();hvCopy(\''+genEsc(v.id)+'\')">'+
         '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg>'+
         '<span>'+skT('copyAI')+'</span></button>';
     document.getElementById('nzDetail').classList.add('open');
@@ -10416,6 +10514,7 @@
       genPoll();
       genTimer = setInterval(genPoll, 3000);
     } catch (e) {
+      try { copyAnimClose(); } catch(_){}
       btn.disabled = false; btn.textContent = 'Obtenir le plan exact';
       skModal({ icon: '⚠️', title: 'Génération impossible', message: String(e.message || e), cancelText: 'OK' });
     }
@@ -10432,9 +10531,11 @@
         clearInterval(genTimer); genTimer = null;
         var bp = (j.plan && j.plan.blueprint) ? j.plan.blueprint : null;
         var st=document.getElementById('gwStatus'); if(st) st.textContent='Préparation de ton plan';
+        try { copyAnimClose(); } catch(e){}   // on ferme l'animation -> le plan apparaît dessous
         genRevealPlan(bp);
       } else if (j.status === 'error') {
         clearInterval(genTimer); genTimer = null; gwStopTips(); genFocus(false);
+        try { copyAnimClose(); } catch(e){}
         document.getElementById('genProgress').style.display = 'none';
         document.getElementById('genIntro').style.display = 'block';
         var btn = document.getElementById('genGo'); btn.disabled = false; btn.textContent = 'Obtenir le plan exact';

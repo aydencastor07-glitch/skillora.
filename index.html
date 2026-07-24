@@ -102,7 +102,20 @@
 
   /* ===== Hero ===== */
   .hero { padding:58px 0 30px; }
-  .hero-grid { display:grid; grid-template-columns:1.06fr .94fr; gap:44px; align-items:center; }
+  /* Héro centré (style outil) : titre court, pastilles, barre « colle le lien », téléphone dessous. */
+  .hero-grid { display:flex; flex-direction:column; align-items:center; gap:30px; }
+  .hero-txt { text-align:center; max-width:720px; margin:0 auto; }
+  .hero-txt .hero-sub { margin-left:auto; margin-right:auto; }
+  .hero-pills { display:flex; flex-wrap:wrap; justify-content:center; gap:9px; margin-top:18px; }
+  .hpill { font-size:.78rem; font-weight:600; color:#aeb9d0; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.1); padding:7px 13px; border-radius:999px; }
+  .hero-paste { display:flex; align-items:center; gap:10px; max-width:520px; margin:26px auto 0; padding:8px 8px 8px 16px; border-radius:999px; background:rgba(12,18,36,.9); border:1px solid rgba(255,255,255,.12); text-decoration:none; box-shadow:0 18px 44px -20px rgba(0,0,0,.9); transition:border-color .18s, transform .18s; }
+  .hero-paste:hover { border-color:rgba(93,150,255,.5); }
+  .hero-paste:active { transform:scale(.985); }
+  .hero-paste .hp-ic { font-size:1rem; flex:none; }
+  .hero-paste .hp-tx { flex:1; min-width:0; text-align:left; color:#7a8aaa; font-size:.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hero-paste .hp-go { flex:none; padding:12px 20px; border-radius:999px; background:linear-gradient(135deg,#4d8fff,#7c3aed); color:#fff; font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; box-shadow:0 10px 26px -10px rgba(93,63,211,.9); }
+  .hero-plats { justify-content:center; }
+  @media (max-width:560px) { .hero-paste { max-width:100%; padding-left:13px; } .hero-paste .hp-go { padding:11px 15px; font-size:.84rem; } .hpill { font-size:.72rem; padding:6px 11px; } }
   .kicker { display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--blue-light); background:rgba(47,123,255,0.1); border:1px solid rgba(47,123,255,0.24); padding:6px 13px; border-radius:999px; margin-bottom:18px; }
   .hero h1 { font-size:clamp(2.05rem,5.2vw,3.05rem); letter-spacing:-0.035em; line-height:1.07; }
   .hero h1 .hl { color:var(--blue-light); }
@@ -240,13 +253,12 @@
   .pub { padding:84px 0 30px; }
   .pub-grid { display:grid; grid-template-columns:.94fr 1.06fr; gap:48px; align-items:center; }
   /* ===== Héros : segment rotatif (la phrase reste, seul un morceau change) ===== */
-  .hero h1 { min-height:3.4em; }
+  .hero h1 { text-wrap:balance; }
   .hero h1 .rotwrap { background:linear-gradient(120deg,#8db8ff 10%,#4d8fff 45%,#8b5cf6 95%); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
   .hero h1 .rotwrap .typed-caret { -webkit-text-fill-color:initial; }
   .hl-brand { background:linear-gradient(120deg,#8db8ff 5%,#4d8fff 55%,#7c8cff 100%); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
   .tst .sec-head h2 { letter-spacing:-0.03em; line-height:1.14; text-wrap:balance; max-width:30ch; margin-inline:auto; }
   .hero h1 .typed-caret { display:inline-block; width:4px; height:.8em; background:#7db2ff; margin-left:5px; vertical-align:-.06em; animation:caretBlink 1s steps(1) infinite; border-radius:2px; }
-  @media (max-width:560px) { .hero h1 { min-height:4.6em; } }
   /* bandeau 3 étapes sous le texte du héros : le parcours en un coup d'œil */
   .hero-how { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:20px; }
   .hero-how .hh { display:inline-flex; align-items:center; gap:8px; font-size:.78rem; font-weight:700; color:#cfe0ff; background:rgba(47,123,255,0.1); border:1px solid rgba(94,155,255,0.3); padding:8px 13px; border-radius:999px; }
@@ -660,17 +672,18 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <div class="kicker reveal">Copie les vidéos qui cartonnent</div>
-      <h1 class="reveal reveal-d1">Refais les vidéos<br>qui <span class="rotwrap">explosent</span>.</h1>
-      <p class="hero-sub reveal reveal-d2">Colle le lien d'une vidéo virale et obtiens <b>le plan pour la copier avec l'IA</b> — images, prompts et montage. Tu peux même <b>l'optimiser</b>.</p>
-      <div class="hero-how reveal reveal-d2">
-        <span class="hh"><b>1</b> Colle le lien</span><span class="ha">→</span>
-        <span class="hh"><b>2</b> L'IA décortique la vidéo</span><span class="ha">→</span>
-        <span class="hh ok"><b>3</b> Tu reçois le plan exact</span>
+      <div class="kicker reveal">⚡ Copie les vidéos qui cartonnent</div>
+      <h1 class="reveal reveal-d1">Colle le lien d'une vidéo virale, obtiens le plan pour <span class="rotwrap">la copier avec l'IA</span>.</h1>
+      <div class="hero-pills reveal reveal-d2">
+        <span class="hpill">🖼️ Images de référence</span>
+        <span class="hpill">✍️ Prompts prêts</span>
+        <span class="hpill">🎬 Montage détaillé</span>
       </div>
-      <div class="hero-cta reveal reveal-d3">
-        <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
-      </div>
+      <a class="hero-paste reveal reveal-d3" href="signup.html">
+        <span class="hp-ic">🔗</span>
+        <span class="hp-tx">Colle le lien d'une vidéo ici…</span>
+        <span class="hp-go">Essayer ⚡</span>
+      </a>
       <div class="hero-note reveal reveal-d3">Gratuit pour parcourir · Pro pour tout copier.</div>
       <div class="hero-plats reveal reveal-d3">
         <span class="lbl">Vidéos virales de</span>
@@ -678,8 +691,6 @@
         <span class="hp-chip" data-pi="youtube"></span>
         <span class="hp-chip" data-pi="instagram"></span>
         <span class="hp-chip" style="background:#1877F2" data-pi="facebook"></span>
-        <span class="hp-chip" style="background:#000" data-pi="x"></span>
-        <span class="hp-chip" style="background:#000" data-pi="threads"></span>
       </div>
     </div>
 
@@ -1100,24 +1111,8 @@
   })();
 
 
-  /* ===== Ordinateur : le téléphone héros tient TOUJOURS entier dans le premier écran =====
-     On ne touche pas à sa maquette (pixels fixes) : on le met à l'échelle comme un zoom photo. */
-  (function(){
-    var ph = document.querySelector('.hero .phone');
-    var zone = document.querySelector('.hero .phone-zone');
-    if (!ph || !zone) return;
-    function fit(){
-      if (window.innerWidth <= 900) { ph.style.transform = ''; zone.style.height = ''; return; }
-      var H = ph.offsetHeight;                      // hauteur naturelle de la maquette
-      var avail = window.innerHeight - 165;         // place sous la barre de navigation
-      var f = Math.min(1.15, Math.max(0.55, avail / H)); // léger zoom sur grands écrans, réduit sur petits
-      ph.style.transformOrigin = 'top center';
-      ph.style.transform = 'scale(' + f + ')';
-      zone.style.height = Math.round(H * f) + 'px'; // la grille suit la taille réelle affichée
-    }
-    fit();
-    window.addEventListener('resize', fit);
-  })();
+  /* Héro désormais centré (téléphone SOUS le texte) : plus de mise à l'échelle,
+     la maquette garde sa taille naturelle sur tous les écrans. */
 
   /* ===== Reveal au scroll (avec filets de sécurité) ===== */
   var revealEls = document.querySelectorAll('.reveal');

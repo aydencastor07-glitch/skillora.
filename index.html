@@ -650,10 +650,10 @@
   .cmp-badge.win { background:rgba(15,60,35,.9); border-color:rgba(61,220,132,.5); color:#5df0a2; }
   .cmp-img { border-radius:14px; overflow:hidden; background:#0b0f1a; aspect-ratio:9/16; }
   .cmp-img img { width:100%; height:100%; object-fit:cover; display:block; }
-  .cmp-meta { display:flex; gap:10px; margin-top:12px; padding:0 2px; }
-  .cmp-stat { flex:1; text-align:center; padding:9px 6px; border-radius:12px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.07); }
-  .cmp-stat b { display:block; font-family:'Sora',sans-serif; font-weight:800; font-size:1.05rem; color:#eaf1ff; letter-spacing:-.01em; }
-  .cmp-stat span { display:block; font-size:.68rem; color:var(--muted); margin-top:2px; }
+  .cmp-meta { display:flex; gap:6px; margin-top:11px; padding:0 2px; }
+  .cmp-stat { flex:1; min-width:0; text-align:center; padding:8px 4px; border-radius:11px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.07); }
+  .cmp-stat b { display:block; font-family:'Sora',sans-serif; font-weight:800; font-size:.95rem; color:#eaf1ff; letter-spacing:-.02em; white-space:nowrap; }
+  .cmp-stat span { display:block; font-size:.62rem; color:var(--muted); margin-top:3px; line-height:1.25; }
   .cmp-stat.up b { color:#3ddc84; }
   .cmp-arrow { display:flex; align-items:center; justify-content:center; }
   .cmp-arrow span { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;
@@ -668,10 +668,10 @@
     .cmp-card { padding:8px; border-radius:16px; }
     .cmp-badge { top:14px; left:14px; padding:4px 9px; font-size:.58rem; }
     .cmp-img { border-radius:11px; }
-    .cmp-meta { gap:6px; margin-top:8px; }
-    .cmp-stat { padding:7px 3px; border-radius:9px; }
-    .cmp-stat b { font-size:.88rem; }
-    .cmp-stat span { font-size:.58rem; }
+    .cmp-meta { gap:4px; margin-top:8px; }
+    .cmp-stat { padding:6px 2px; border-radius:8px; }
+    .cmp-stat b { font-size:.72rem; }
+    .cmp-stat span { font-size:.52rem; margin-top:2px; }
     .cmp-pill { font-size:.7rem; padding:7px 11px; }
   }
 
@@ -926,6 +926,7 @@
         <div class="cmp-img"><img src="assets/cmp-original.jpg" alt="La vidéo virale d'origine" loading="lazy"></div>
         <figcaption class="cmp-meta">
           <div class="cmp-stat"><b>1,2 M</b><span>vues</span></div>
+          <div class="cmp-stat"><b>720p</b><span>qualité</span></div>
           <div class="cmp-stat"><b>2 h</b><span>de création</span></div>
         </figcaption>
       </figure>
@@ -937,6 +938,7 @@
         <div class="cmp-img"><img src="assets/cmp-copie.jpg" alt="La version refaite avec Skillora" loading="lazy"></div>
         <figcaption class="cmp-meta">
           <div class="cmp-stat up"><b>5,9 M</b><span>vues</span></div>
+          <div class="cmp-stat up"><b>1080p</b><span>qualité HD</span></div>
           <div class="cmp-stat up"><b>20 min</b><span>pour la refaire</span></div>
         </figcaption>
       </figure>
@@ -944,7 +946,7 @@
     <div class="cmp-foot reveal">
       <span class="cmp-pill">+ 4,7 M de vues</span>
       <span class="cmp-pill">6× plus rapide</span>
-      <span class="cmp-pill">700 → 1 700 abonnés</span>
+      <span class="cmp-pill">720p → 1080p HD</span>
     </div>
   </div>
 </section>

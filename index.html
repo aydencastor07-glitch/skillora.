@@ -112,7 +112,35 @@
   .hero-paste:active { transform:scale(.985); }
   .hero-paste .hp-ic { font-size:1rem; flex:none; }
   .hero-paste .hp-tx { flex:1; min-width:0; text-align:left; color:#7a8aaa; font-size:.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .hero-paste .hp-go { flex:none; padding:12px 20px; border-radius:999px; background:linear-gradient(135deg,#4d8fff,#7c3aed); color:#fff; font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; box-shadow:0 10px 26px -10px rgba(93,63,211,.9); }
+  .hero-paste .hp-in { flex:1; min-width:0; border:none; background:none; outline:none; color:#eaf1ff; font-family:'Sora',sans-serif; font-size:.92rem; padding:4px 0; }
+  .hero-paste .hp-in::placeholder { color:#7a8aaa; }
+  .hero-paste .hp-go { flex:none; border:none; cursor:pointer; padding:12px 20px; border-radius:999px; background:linear-gradient(135deg,#4d8fff,#7c3aed); color:#fff; font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; box-shadow:0 10px 26px -10px rgba(93,63,211,.9); }
+  /* Démo « Copier avec l'IA » (gratuite, 100 % locale) */
+  .try-ov { position:fixed; inset:0; z-index:6000; display:none; align-items:center; justify-content:center; padding:22px;
+    background:rgba(3,6,14,.82); backdrop-filter:blur(7px); }
+  .try-ov.open { display:flex; animation:caFade .25s ease; }
+  .try-card { position:relative; width:min(330px,92vw); border-radius:22px; padding:26px 22px 24px; text-align:center;
+    background:linear-gradient(180deg,#0f1730,#080c18); border:1px solid rgba(94,155,255,.28); box-shadow:0 40px 90px -34px rgba(0,0,0,.95); }
+  .try-x { position:absolute; top:12px; right:12px; width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05); color:#dbe4f5; font-size:.8rem; cursor:pointer; }
+  .try-brand { font-family:'Sora',sans-serif; font-weight:800; font-size:.72rem; letter-spacing:.06em; color:#9ec2ff; margin-bottom:16px; }
+  .try-stage { display:flex; justify-content:center; margin-bottom:16px; }
+  .try-frame { position:relative; width:118px; aspect-ratio:9/16; border-radius:13px; overflow:hidden; background:#0b0f1a; border:1px solid rgba(255,255,255,.09); }
+  .try-frame img { width:100%; height:100%; object-fit:cover; display:block; }
+  .try-beam { position:absolute; left:0; right:0; top:-40%; height:40%; z-index:2;
+    background:linear-gradient(180deg,rgba(95,150,255,0),rgba(95,150,255,.5),rgba(95,150,255,0)); animation:cpBeam 1.7s ease-in-out infinite; }
+  .try-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.88rem; color:#eaf1ff; min-height:1.3em; }
+  .try-prog { width:130px; height:4px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; margin:14px auto 0; }
+  .try-prog i { display:block; height:100%; width:42%; border-radius:99px; background:linear-gradient(90deg,#4f8bff,#8b5cf6); animation:caProg 1.2s ease-in-out infinite; }
+  .try-gate { display:none; }
+  .try-card.gated .try-body { display:none; }
+  .try-card.gated .try-gate { display:block; animation:caFade .3s ease; }
+  .try-gate-ic { font-size:2.2rem; margin-bottom:10px; }
+  .try-gate-t { font-family:'Fraunces',serif; font-weight:800; font-size:1.3rem; color:#fff; }
+  .try-gate-s { font-size:.85rem; color:var(--muted); line-height:1.55; margin:8px auto 20px; max-width:250px; }
+  .try-gate-btn { display:block; padding:14px; border-radius:14px; text-decoration:none; font-family:'Sora',sans-serif; font-weight:800;
+    font-size:.95rem; color:#fff; background:linear-gradient(135deg,#4d8fff,#1a6fff); box-shadow:0 16px 34px -12px rgba(47,123,255,.8); }
+  .try-gate-n { font-size:.74rem; color:var(--muted2); margin-top:11px; }
   /* Plateformes : logo + NOM, centrées, plus bas (fin du 1er écran) */
   .hero-plats { justify-content:center; flex-wrap:wrap; gap:10px 20px; margin-top:34px; }
   .hplat { display:inline-flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:#8f9cb5; letter-spacing:.01em; }
@@ -716,9 +744,14 @@
   .price-btn.filled { background:linear-gradient(135deg,#4d8fff,#1a6fff); border:none; color:#fff; box-shadow:0 12px 26px -10px rgba(47,123,255,0.65); }
   .price-btn:active { transform:scale(0.97); }
 
-  /* ===== Tarif : carte unique, aérée (fini le gros bloc) ===== */
-  .pr-card { max-width:520px; margin:0 auto; }
-  .pr-top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding:0 4px 20px; border-bottom:1px solid rgba(255,255,255,.09); }
+  /* ===== Tarif : carte unique, encadrée et aérée ===== */
+  .pr-card { max-width:520px; margin:0 auto; position:relative; padding:30px 26px 26px; border-radius:24px;
+    background:linear-gradient(180deg,rgba(47,123,255,.09),rgba(255,255,255,.02) 46%,rgba(255,255,255,.012));
+    border:1px solid rgba(94,155,255,.3); box-shadow:0 34px 80px -34px rgba(47,123,255,.55), inset 0 1px 0 rgba(255,255,255,.06); }
+  .pr-card::before { content:'✨ Accès complet'; position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    padding:6px 15px; border-radius:999px; font-family:'Sora',sans-serif; font-weight:800; font-size:.68rem; white-space:nowrap;
+    background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; box-shadow:0 10px 22px -8px rgba(47,123,255,.85); }
+  .pr-top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding:6px 0 20px; border-bottom:1px solid rgba(255,255,255,.09); }
   .pr-name { font-family:'Sora',sans-serif; font-weight:800; font-size:1.15rem; color:#eaf1ff; letter-spacing:-.01em; }
   .pr-price { display:flex; align-items:baseline; gap:2px; font-family:'Sora',sans-serif; font-weight:800; color:#fff; }
   .pr-price sup { font-size:1.05rem; color:var(--muted); font-weight:700; }
@@ -739,6 +772,7 @@
   .pr-btn:active { transform:scale(.98); }
   .pr-note { text-align:center; font-size:.76rem; color:var(--muted2); margin-top:13px; }
   @media (max-width:640px) {
+    .pr-card { padding:26px 17px 20px; border-radius:20px; margin:0 4px; }
     .pr-list { padding-top:16px; }
     .pr-list li { padding:11px 0 11px 28px; }
     .pr-list li b { font-size:.88rem; }
@@ -847,11 +881,32 @@
   <div class="wrap hero-grid">
     <div class="hero-txt">
       <h1 class="reveal reveal-d1">Colle le lien d'une vidéo virale,<br class="h1br"> obtiens le plan pour <span class="rotwrap">la copier avec l'IA</span>.</h1>
-      <a class="hero-paste reveal reveal-d2" href="signup.html">
+      <form class="hero-paste reveal reveal-d2" id="tryForm" onsubmit="return tryCopy(event)">
         <span class="hp-ic">🔗</span>
-        <span class="hp-tx">Colle le lien d'une vidéo ici…</span>
-        <span class="hp-go">Essayer ⚡</span>
-      </a>
+        <input class="hp-in" id="tryLink" type="url" inputmode="url" placeholder="Colle le lien d'une vidéo ici…" autocomplete="off">
+        <button class="hp-go" type="submit">Copier avec l'IA</button>
+      </form>
+
+      <!-- Démo gratuite : l'IA « décortique » la vidéo, puis on invite à créer le compte.
+           100 % local (aucun appel à nos fonctions IA) -> ne coûte aucun crédit. -->
+      <div class="try-ov" id="tryOv" aria-hidden="true">
+        <div class="try-card">
+          <button class="try-x" onclick="tryClose()" aria-label="Fermer">✕</button>
+          <div class="try-body" id="tryBody">
+            <div class="try-brand">✨ Skillora IA</div>
+            <div class="try-stage"><div class="try-frame" id="tryFrame"><span class="try-beam"></span></div></div>
+            <div class="try-label" id="tryLabel">Lecture de la vidéo…</div>
+            <div class="try-prog"><i></i></div>
+          </div>
+          <div class="try-gate" id="tryGate">
+            <div class="try-gate-ic">🔒</div>
+            <div class="try-gate-t">Ton plan est prêt</div>
+            <div class="try-gate-s">Crée ton compte pour voir les images de référence, les prompts et le montage.</div>
+            <a class="try-gate-btn" href="signup.html">Voir mon plan →</a>
+            <div class="try-gate-n">Gratuit · 30 secondes</div>
+          </div>
+        </div>
+      </div>
       <div class="hero-plats reveal reveal-d3">
         <span class="hplat"><i class="hp-chip" style="background:#010101" data-pi="tiktok"></i>TikTok</span>
         <span class="hplat"><i class="hp-chip" data-pi="youtube"></i>YouTube</span>
@@ -1031,12 +1086,12 @@
 <section class="faq" id="faq">
   <div class="sec-head reveal"><h2>Questions fréquentes</h2></div>
   <div class="faq-list">
-    <details class="faq-item reveal"><summary>« Copier avec l'IA », ça génère la vidéo à ma place ?</summary><p>Non — et c'est justement ce qui la rend fiable. Skillora te donne <b>le plan exact</b> pour refaire la vidéo : les images de référence à télécharger, les prompts (image et animation) à utiliser dans tes outils, et le montage. Tu gardes la main sur la création, sans partir de la page blanche.</p></details>
-    <details class="faq-item reveal"><summary>Qu'est-ce que je peux faire gratuitement ?</summary><p>Tu peux <b>parcourir</b> tout le feed et toutes les niches — voir les vidéos, les catégories et les notes. Pour <b>regarder</b> une vidéo en entier, la <b>copier</b> (obtenir le plan) et créer sans limite, il faut l'abonnement Pro.</p></details>
-    <details class="faq-item reveal"><summary>Comment marchent les scripts ?</summary><p>Tu écris simplement ton idée et la durée voulue. Skillora te rend un <b>script noté</b> (est-il assez viral ?) et une <b>version optimisée</b> pour accrocher dès la première seconde. Pas besoin de connecter de compte.</p></details>
-    <details class="faq-item reveal"><summary>Et les idées de vidéos ?</summary><p>Tu choisis une <b>niche</b> et une <b>plateforme</b>, et tu reçois des idées prêtes à tourner. Tu peux mettre le nom de ton compte pour recevoir, si tu veux, un <b>rappel par e-mail</b> chaque matin. Aucun compte de réseau social à connecter.</p></details>
-    <details class="faq-item reveal"><summary>Combien ça coûte ?</summary><p>Un seul plan : <b>Pro à 30 $/mois</b>, qui débloque tout. Paiement par carte bancaire ou crypto. Sans engagement — tu changes ou annules quand tu veux depuis ton profil.</p></details>
-    <details class="faq-item reveal"><summary>Les vidéos que je crée sont-elles à moi ?</summary><p>Oui. Les scripts et les plans que tu génères pour tes propres vidéos t'appartiennent. Le feed sert d'inspiration : inspire-toi du format et de la structure, pas de la copie à l'identique de l'œuvre d'autrui.</p></details>
+    <details class="faq-item reveal"><summary>Qu'est-ce que je reçois exactement quand je colle un lien ?</summary><p>Le <b>plan complet de la vidéo</b> : les images de référence à générer, les prompts image et animation prêts à copier-coller, la voix off, et le montage étape par étape. Tu n'as plus à deviner pourquoi une vidéo a marché — tu as la recette, tu la refais.</p></details>
+    <details class="faq-item reveal"><summary>Je débute avec l'IA. C'est trop technique pour moi ?</summary><p>Non. Tu n'as rien à apprendre et rien à paramétrer : tu copies le prompt, tu le colles dans l'outil indiqué, tu suis les étapes de montage. C'est fait pour quelqu'un qui n'a jamais touché à l'IA — <b>pas besoin d'acheter une formation</b> pour comprendre ce qui marche.</p></details>
+    <details class="faq-item reveal"><summary>Combien de temps il me faut pour refaire une vidéo ?</summary><p>Environ <b>20 minutes</b>. Le vrai gain n'est pas le montage : c'est de ne plus passer deux heures par jour à scroller pour trouver une idée qui marche. Le format est déjà validé par les vues avant même que tu commences.</p></details>
+    <details class="faq-item reveal"><summary>Est-ce que mes vidéos sont 100 % originales ?</summary><p>Oui. Tu ne réuploades jamais la vidéo de quelqu'un d'autre : <b>toutes les images sont régénérées</b> par l'IA, les mouvements et les cadrages sont différents, la voix et le montage sont les tiens. C'est le <b>format</b> qui est repris — pas le fichier. Un format ne se protège pas ; c'est ce que font déjà tous les gros comptes.</p></details>
+    <details class="faq-item reveal"><summary>Est-ce que ce contenu est monétisable ?</summary><p>Oui, <b>100 %</b>. Comme chaque image est générée à partir de zéro et que le montage est le tien, la vidéo est un contenu neuf : pas de réutilisation de contenu, pas de copyright sur des images qui n'existaient pas avant toi.</p></details>
+    <details class="faq-item reveal"><summary>Ça coûte combien, et je peux arrêter quand je veux ?</summary><p>Un seul plan : <b>Pro à 30 $/mois</b>, tout est débloqué, aucune limite de copies. Paiement sécurisé par carte bancaire, <b>sans engagement</b> — tu annules en un clic depuis ton profil et tu gardes l'accès jusqu'à la fin du mois payé.</p></details>
   </div>
 </section>
 
@@ -1489,6 +1544,96 @@
   } else {
     toastEls.forEach(function(el){ el.classList.add('pop'); });
   }
+
+  /* ===== Démo « Copier avec l'IA » du héros =====
+     100 % locale : on lit le lien, on récupère la miniature publique côté visiteur,
+     on joue l'analyse, puis on ouvre la porte d'inscription AVANT la fin.
+     Aucun appel à nos fonctions IA -> ne consomme aucun crédit. */
+  var TRY_T = [], TRY_STEPS = [
+    'Lecture de la vidéo…',
+    'Extraction des images clés…',
+    'Analyse du hook et du rythme…',
+    'Écriture des prompts…',
+    'Construction du montage…'
+  ];
+
+  function tryThumb(url){
+    // YouTube : la miniature se déduit de l'ID, aucun appel réseau tiers nécessaire.
+    var yt = url.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);
+    if (yt) return Promise.resolve('https://i.ytimg.com/vi/' + yt[1] + '/hqdefault.jpg');
+    // TikTok : oEmbed public et gratuit (CORS ouvert). On abandonne vite si ça traîne.
+    if (/tiktok\.com/i.test(url)) {
+      var ctl = ('AbortController' in window) ? new AbortController() : null;
+      if (ctl) setTimeout(function(){ ctl.abort(); }, 2500);
+      return fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(url), ctl ? { signal:ctl.signal } : undefined)
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(j){ return (j && j.thumbnail_url) || null; })
+        .catch(function(){ return null; });
+    }
+    return Promise.resolve(null);
+  }
+
+  function tryCopy(e){
+    if (e && e.preventDefault) e.preventDefault();
+    var inp = document.getElementById('tryLink');
+    var ov  = document.getElementById('tryOv');
+    if (!inp || !ov) return false;
+
+    var url = (inp.value || '').trim();
+    if (!/^https?:\/\//i.test(url) && /\.[a-z]{2,}/i.test(url)) url = 'https://' + url;
+    if (!/^https?:\/\/\S+\.\S+/i.test(url)) {           // pas un lien -> on ne lance rien
+      inp.focus();
+      var form = document.getElementById('tryForm');
+      if (form) { form.style.borderColor = '#ff5a7a'; setTimeout(function(){ form.style.borderColor = ''; }, 1100); }
+      return false;
+    }
+
+    var card  = ov.querySelector('.try-card');
+    var frame = document.getElementById('tryFrame');
+    var label = document.getElementById('tryLabel');
+
+    TRY_T.forEach(clearTimeout); TRY_T = [];
+    if (card) card.classList.remove('gated');
+    if (label) label.textContent = TRY_STEPS[0];
+    if (frame) { var old = frame.querySelector('img'); if (old) old.remove(); }
+
+    ov.classList.add('open');
+    ov.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    // Miniature réelle si la plateforme l'expose publiquement, sinon visuel de secours.
+    tryThumb(url).then(function(src){
+      if (!frame || !ov.classList.contains('open')) return;
+      var img = new Image();
+      img.onerror = function(){ if (src) { img.onerror = null; img.src = 'assets/cmp-original.jpg'; } };
+      img.alt = '';
+      img.src = src || 'assets/cmp-original.jpg';
+      frame.insertBefore(img, frame.firstChild);
+    });
+
+    var t = 0;
+    TRY_STEPS.forEach(function(txt, i){
+      if (i === 0) return;
+      t += 1200;
+      TRY_T.push(setTimeout(function(){ if (label) label.textContent = txt; }, t));
+    });
+    // ~2 s avant la fin de l'analyse : le plan est prêt, on demande le compte.
+    TRY_T.push(setTimeout(function(){ if (card) card.classList.add('gated'); }, t + 1200));
+    return false;
+  }
+
+  function tryClose(){
+    var ov = document.getElementById('tryOv');
+    TRY_T.forEach(clearTimeout); TRY_T = [];
+    if (ov) { ov.classList.remove('open'); ov.setAttribute('aria-hidden', 'true'); }
+    document.body.style.overflow = '';
+  }
+
+  (function(){
+    var ov = document.getElementById('tryOv'); if (!ov) return;
+    ov.addEventListener('click', function(e){ if (e.target === ov) tryClose(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && ov.classList.contains('open')) tryClose(); });
+  })();
 
   /* ===== Tarifs : bascule mensuel / annuel ===== */
   function setBilling(period){

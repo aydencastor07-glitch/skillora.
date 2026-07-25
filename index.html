@@ -115,32 +115,31 @@
   .hero-paste .hp-in { flex:1; min-width:0; border:none; background:none; outline:none; color:#eaf1ff; font-family:'Sora',sans-serif; font-size:.92rem; padding:4px 0; }
   .hero-paste .hp-in::placeholder { color:#7a8aaa; }
   .hero-paste .hp-go { flex:none; border:none; cursor:pointer; padding:12px 20px; border-radius:999px; background:linear-gradient(135deg,#4d8fff,#7c3aed); color:#fff; font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; box-shadow:0 10px 26px -10px rgba(93,63,211,.9); }
-  /* Démo « Copier avec l'IA » (gratuite, 100 % locale) */
-  .try-ov { position:fixed; inset:0; z-index:6000; display:none; align-items:center; justify-content:center; padding:22px;
-    background:rgba(3,6,14,.82); backdrop-filter:blur(7px); }
-  .try-ov.open { display:flex; animation:caFade .25s ease; }
-  .try-card { position:relative; width:min(330px,92vw); border-radius:22px; padding:26px 22px 24px; text-align:center;
-    background:linear-gradient(180deg,#0f1730,#080c18); border:1px solid rgba(94,155,255,.28); box-shadow:0 40px 90px -34px rgba(0,0,0,.95); }
-  .try-x { position:absolute; top:12px; right:12px; width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.05); color:#dbe4f5; font-size:.8rem; cursor:pointer; }
-  .try-brand { font-family:'Sora',sans-serif; font-weight:800; font-size:.72rem; letter-spacing:.06em; color:#9ec2ff; margin-bottom:16px; }
-  .try-stage { display:flex; justify-content:center; margin-bottom:16px; }
-  .try-frame { position:relative; width:118px; aspect-ratio:9/16; border-radius:13px; overflow:hidden; background:#0b0f1a; border:1px solid rgba(255,255,255,.09); }
-  .try-frame img { width:100%; height:100%; object-fit:cover; display:block; }
-  .try-beam { position:absolute; left:0; right:0; top:-40%; height:40%; z-index:2;
-    background:linear-gradient(180deg,rgba(95,150,255,0),rgba(95,150,255,.5),rgba(95,150,255,0)); animation:cpBeam 1.7s ease-in-out infinite; }
-  .try-label { font-family:'Sora',sans-serif; font-weight:700; font-size:.88rem; color:#eaf1ff; min-height:1.3em; }
-  .try-prog { width:130px; height:4px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; margin:14px auto 0; }
-  .try-prog i { display:block; height:100%; width:42%; border-radius:99px; background:linear-gradient(90deg,#4f8bff,#8b5cf6); animation:caProg 1.2s ease-in-out infinite; }
-  .try-gate { display:none; }
-  .try-card.gated .try-body { display:none; }
-  .try-card.gated .try-gate { display:block; animation:caFade .3s ease; }
-  .try-gate-ic { font-size:2.2rem; margin-bottom:10px; }
-  .try-gate-t { font-family:'Fraunces',serif; font-weight:800; font-size:1.3rem; color:#fff; }
-  .try-gate-s { font-size:.85rem; color:var(--muted); line-height:1.55; margin:8px auto 20px; max-width:250px; }
-  .try-gate-btn { display:block; padding:14px; border-radius:14px; text-decoration:none; font-family:'Sora',sans-serif; font-weight:800;
-    font-size:.95rem; color:#fff; background:linear-gradient(135deg,#4d8fff,#1a6fff); box-shadow:0 16px 34px -12px rgba(47,123,255,.8); }
-  .try-gate-n { font-size:.74rem; color:var(--muted2); margin-top:11px; }
+  /* Animation « Copier avec l'IA » — STRICTEMENT identique à celle de l'app (app.html).
+     Toute retouche doit être répercutée des deux côtés. */
+  .ca-ov{position:fixed;inset:0;z-index:6000;display:none;align-items:center;justify-content:center;padding:24px;background:radial-gradient(130% 90% at 50% -5%,#0d1530 0%,#060810 68%);}
+  .ca-ov.open{display:flex;animation:caFade .28s ease;}
+  @keyframes caFade{from{opacity:0}to{opacity:1}}
+  .ca-inner{width:min(360px,92vw);display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .ca-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.07em;color:#9ec2ff;margin-bottom:22px;opacity:.92;}
+  .ca-stage{position:relative;width:174px;height:352px;margin-bottom:24px;}
+  .ca-stack{position:absolute;inset:0;}
+  .ca-card{position:absolute;top:0;left:50%;width:160px;margin-left:-80px;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 22px 54px -24px rgba(0,0,0,.92);transition:transform .58s cubic-bezier(.45,.02,.2,1),opacity .58s;will-change:transform,opacity;}
+  .ca-card video,.ca-card img{width:100%;height:100%;object-fit:cover;display:block;}
+  .ca-card.ca-ph{display:flex;align-items:center;justify-content:center;font-size:3rem;}
+  .ca-card.ca-fly-l{transform:translateX(-128%) rotate(-7deg) scale(.9)!important;opacity:0!important;}
+  .ca-card.ca-fly-r{transform:translateX(128%) rotate(7deg) scale(.9)!important;opacity:0!important;}
+  .ca-logo{position:absolute;left:9px;bottom:9px;display:inline-flex;align-items:center;gap:7px;padding:5px 10px 5px 5px;border-radius:12px;background:rgba(6,10,20,.74);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);box-shadow:0 6px 18px -8px rgba(0,0,0,.9);}
+  .ca-logo svg{width:26px;height:26px;display:block;border-radius:8px;}
+  .ca-logo b{font-family:'Sora',sans-serif;font-size:.72rem;font-weight:800;color:#fff;letter-spacing:.01em;}
+  .ca-logo em{display:block;font-style:normal;font-size:.58rem;font-weight:700;color:#9fb0cf;line-height:1.1;}
+  .ca-scan{position:absolute;left:0;right:0;top:-40%;height:40%;border-radius:16px;pointer-events:none;background:linear-gradient(180deg,rgba(95,150,255,0),rgba(95,150,255,.32),rgba(95,150,255,0));mix-blend-mode:screen;animation:caScan 2s ease-in-out infinite;}
+  @keyframes caScan{0%{top:-40%}100%{top:104%}}
+  .ca-label{font-family:'Sora',sans-serif;font-weight:700;font-size:.98rem;color:#eaf1ff;min-height:1.35em;opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s;}
+  .ca-label.in{opacity:1;transform:none;}
+  .ca-prog{width:150px;height:4px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin:13px 0 18px;}
+  .ca-prog i{display:block;height:100%;width:42%;border-radius:99px;background:linear-gradient(90deg,#4f8bff,#8b5cf6);animation:caProg 1.25s ease-in-out infinite;}
+  .ca-hint{margin-top:4px;font-size:.76rem;color:#6b7690;max-width:300px;line-height:1.5;}
   /* Plateformes : logo + NOM, centrées, plus bas (fin du 1er écran) */
   .hero-plats { justify-content:center; flex-wrap:wrap; gap:10px 20px; margin-top:34px; }
   .hplat { display:inline-flex; align-items:center; gap:8px; font-size:.82rem; font-weight:600; color:#8f9cb5; letter-spacing:.01em; }
@@ -887,24 +886,16 @@
         <button class="hp-go" type="submit">Copier avec l'IA</button>
       </form>
 
-      <!-- Démo gratuite : l'IA « décortique » la vidéo, puis on invite à créer le compte.
-           100 % local (aucun appel à nos fonctions IA) -> ne coûte aucun crédit. -->
-      <div class="try-ov" id="tryOv" aria-hidden="true">
-        <div class="try-card">
-          <button class="try-x" onclick="tryClose()" aria-label="Fermer">✕</button>
-          <div class="try-body" id="tryBody">
-            <div class="try-brand">✨ Skillora IA</div>
-            <div class="try-stage"><div class="try-frame" id="tryFrame"><span class="try-beam"></span></div></div>
-            <div class="try-label" id="tryLabel">Lecture de la vidéo…</div>
-            <div class="try-prog"><i></i></div>
-          </div>
-          <div class="try-gate" id="tryGate">
-            <div class="try-gate-ic">🔒</div>
-            <div class="try-gate-t">Ton plan est prêt</div>
-            <div class="try-gate-s">Crée ton compte pour voir les images de référence, les prompts et le montage.</div>
-            <a class="try-gate-btn" href="signup.html">Voir mon plan →</a>
-            <div class="try-gate-n">Gratuit · 30 secondes</div>
-          </div>
+      <!-- Animation « Copier avec l'IA » : exactement celle de l'app (voir app.html #copyAnim).
+           100 % locale, aucun appel à nos fonctions IA -> ne coûte aucun crédit.
+           À la fin, on envoie le visiteur sur l'inscription. -->
+      <div class="ca-ov" id="copyAnim" aria-hidden="true">
+        <div class="ca-inner">
+          <div class="ca-brand">✨ Skillora IA</div>
+          <div class="ca-stage"><div class="ca-stack" id="caStack"></div></div>
+          <div class="ca-label in" id="caLabel">Analyse…</div>
+          <div class="ca-prog"><i></i></div>
+          <div class="ca-hint">On reconstruit le plan exact pour la refaire — images, prompts, montage.</div>
         </div>
       </div>
       <div class="hero-plats reveal reveal-d3">
@@ -1545,23 +1536,92 @@
     toastEls.forEach(function(el){ el.classList.add('pop'); });
   }
 
-  /* ===== Démo « Copier avec l'IA » du héros =====
-     100 % locale : on lit le lien, on récupère la miniature publique côté visiteur,
-     on joue l'analyse, puis on ouvre la porte d'inscription AVANT la fin.
-     Aucun appel à nos fonctions IA -> ne consomme aucun crédit. */
-  var TRY_T = [], TRY_STEPS = [
-    'Lecture de la vidéo…',
-    'Extraction des images clés…',
-    'Analyse du hook et du rythme…',
-    'Écriture des prompts…',
-    'Construction du montage…'
-  ];
+  /* ===== « Copier avec l'IA » depuis le héros =====
+     L'animation ci-dessous est COPIÉE À L'IDENTIQUE de l'app (app.html, copyAnimOpen).
+     Le visiteur non connecté voit donc exactement ce que voit un abonné qui copie
+     une vidéo. 100 % locale : aucun appel à nos fonctions IA -> aucun crédit consommé.
+     À la fin de l'analyse, on l'envoie sur l'inscription. */
+  function caEsc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
 
-  function tryThumb(url){
-    // YouTube : la miniature se déduit de l'ID, aucun appel réseau tiers nécessaire.
+  var CA_LOGOS=[
+    {n:'Nano Banana', role:'Images', ic:'<svg viewBox="0 0 40 40"><defs><linearGradient id="cagem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4285F4"/><stop offset="52%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="#12172a"/><g transform="translate(8,8)"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" fill="url(#cagem)"/></g></svg>'},
+    {n:'Pinterest', role:'Clips', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#fff"/><g transform="translate(8,8)"><path fill="#E60023" d="M12 0a12 12 0 0 0-4.373 23.178c-.035-.926-.006-2.036.23-3.043.256-1.076 1.71-7.245 1.71-7.245s-.424-.849-.424-2.104c0-1.97 1.142-3.44 2.564-3.44 1.21 0 1.793.908 1.793 1.997 0 1.216-.775 3.035-1.174 4.72-.334 1.411.707 2.562 2.099 2.562 2.52 0 4.216-3.236 4.216-7.068 0-2.913-1.962-5.094-5.531-5.094-4.032 0-6.546 3.007-6.546 6.366 0 1.158.342 1.975.877 2.607.246.29.28.407.19.741-.063.244-.209.829-.269 1.06-.088.335-.359.455-.662.331-1.847-.754-2.708-2.777-2.708-5.052 0-3.756 3.168-8.26 9.453-8.26 5.05 0 8.375 3.658 8.375 7.584 0 5.19-2.886 9.068-7.14 9.068-1.43 0-2.774-.773-3.234-1.652 0 0-.77 3.056-.933 3.646-.28 1.024-.832 2.047-1.336 2.845A12 12 0 1 0 12 0"/></g></svg>'},
+    {n:'ElevenLabs', role:'Voix off', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#000"/><g transform="translate(8,8)"><path d="M4.6035 0v24h4.9317V0zm9.8613 0v24h4.9317V0z" fill="#fff"/></g></svg>'},
+    {n:'CapCut', role:'Montage', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#000"/><g transform="translate(6.5,6.5) scale(0.5625)" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M43.5 35.9L4.505 16.242v-1.383a3.717 3.717 0 0 1 3.722-3.728h21.998a3.717 3.717 0 0 1 3.722 3.728v1.695"/><path d="m43.5 11.836l-39 19.66l.005 1.645a3.717 3.717 0 0 0 3.723 3.728h21.996a3.717 3.717 0 0 0 3.723-3.728v-1.948"/></g></svg>'},
+    {n:'Veo 3', role:'Animation', ic:'<svg viewBox="0 0 40 40"><defs><linearGradient id="caveo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4285F4"/><stop offset="52%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="#fff"/><g transform="translate(8,8)"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" fill="url(#caveo)"/></g></svg>'},
+    {n:'Kling', role:'Animation', ic:'<svg viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="#0b1020"/><g transform="translate(8,8)"><path d="M5.412 13.775A23.193 23.193 0 017.41 9.32c3.17-5.492 7.795-8.757 10.33-7.294C12.038-1.266 4.598.944 1.122 6.964A13.378 13.378 0 00.085 9.22c-.259.739.092 1.534.77 1.926l4.557 2.63z" fill="url(#cakl0)"/><path d="M18.588 10.164a23.188 23.188 0 01-1.999 4.455c-3.17 5.492-7.795 8.758-10.33 7.294 5.703 3.293 13.143 1.082 16.619-4.938a13.392 13.392 0 001.037-2.255c.259-.738-.092-1.534-.77-1.925l-4.557-2.63z" fill="url(#cakl1)"/><path d="M16.59 14.62c3.17-5.492 3.686-11.13 1.15-12.594C15.207.563 10.582 3.83 7.41 9.32c2.074-3.59 5.809-5.315 8.344-3.852 2.534 1.464 2.908 5.56.835 9.151z" fill="url(#cakl2)"/><path d="M7.41 9.32c-3.17 5.492-3.686 11.13-1.15 12.593 2.534 1.464 7.159-1.802 10.33-7.294-2.074 3.591-5.809 5.316-8.344 3.852-2.534-1.463-2.908-5.56-.835-9.15z" fill="url(#cakl3)"/><defs><radialGradient cx="0" cy="0" gradientTransform="matrix(7.47772 -12.51022 17.14368 10.24728 5.173 13.637)" gradientUnits="userSpaceOnUse" id="cakl0" r="1"><stop offset=".095" stop-color="#FFF959"/><stop offset=".326" stop-color="#0DF35E"/><stop offset=".64" stop-color="#0BF2F9"/><stop offset="1" stop-color="#04A6F0"/></radialGradient><radialGradient cx="0" cy="0" gradientTransform="rotate(120.868 6.491 10.491) scale(14.5747 19.9728)" gradientUnits="userSpaceOnUse" id="cakl1" r="1"><stop offset=".095" stop-color="#FFF959"/><stop offset=".326" stop-color="#0DF35E"/><stop offset=".64" stop-color="#0BF2F9"/><stop offset="1" stop-color="#04A6F0"/></radialGradient><linearGradient gradientUnits="userSpaceOnUse" id="cakl2" x1="15.578" x2="18.062" y1="1.798" y2="9.861"><stop stop-color="#003EFF"/><stop offset="1" stop-color="#0BFFE7"/></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="cakl3" x1="8.422" x2="5.938" y1="22.142" y2="14.079"><stop stop-color="#003EFF"/><stop offset="1" stop-color="#0BFFE7"/></linearGradient></defs></g></svg>'}
+  ];
+  var CA_LABELS=['Découpage des plans','Détection du hook','Lecture du script','Voix off repérée','Analyse du rythme','Reconstruction du montage','Étalonnage des couleurs'];
+  // Le logo change de place d'un plan à l'autre (il « se déplace ») : coins, milieu…
+  var CA_POS=[
+    'left:9px;bottom:9px;',
+    'right:9px;top:9px;',
+    'left:9px;top:9px;',
+    'left:50%;top:50%;transform:translate(-50%,-50%);',
+    'right:9px;bottom:9px;',
+    'left:50%;bottom:12px;transform:translateX(-50%);'
+  ];
+  var _caCyc=null,_caActive=false;
+  function caLogoHtml(i){
+    var g=CA_LOGOS[i%CA_LOGOS.length], pos=CA_POS[i%CA_POS.length];
+    return '<div class="ca-logo" style="'+pos+'">'+g.ic+'<b>'+caEsc(g.n)+'<em>'+caEsc(g.role)+'</em></b></div>';
+  }
+  function caRestack(){
+    var st=document.getElementById('caStack'); if(!st) return;
+    // Pile étalée SUR LE CÔTÉ : ~4 plans visibles décalés vers la droite (jamais vers le bas).
+    Array.prototype.slice.call(st.children).forEach(function(el,i){
+      el.style.zIndex=String(20-i);
+      el.style.transform='translateX('+(i*20)+'px) translateY('+(i*5)+'px) scale('+(1-i*0.05)+')';
+      el.style.opacity = i<4 ? (i===0?'1':(1-i*0.16)+'') : '0';
+    });
+  }
+  function copyAnimOpen(media, thumb){
+    var ov=document.getElementById('copyAnim'); if(!ov) return;
+    var st=document.getElementById('caStack'); if(!st) return; st.innerHTML='';
+    // 6 plans -> les 6 logos passent tous (Nano Banana, Pinterest, ElevenLabs, CapCut, Veo 3, HeyGen).
+    var frames=[0.07,0.24,0.41,0.58,0.75,0.9];
+    frames.forEach(function(p,idx){
+      var c=document.createElement('div'); c.className='ca-card';
+      var inner='';
+      if(media){ inner='<video muted playsinline preload="metadata"></video>'; }
+      else if(thumb){ inner='<img src="'+caEsc(thumb)+'" alt="">'; }
+      else { c.classList.add('ca-ph'); inner='🎬'; }
+      c.innerHTML=inner+'<div class="ca-scan"></div>'+caLogoHtml(idx);
+      if(media){
+        var vd=c.querySelector('video'); vd.src=media;
+        vd.addEventListener('loadedmetadata',function(){ try{ vd.currentTime=Math.max(0.1,(vd.duration||6)*p); }catch(e){} });
+      }
+      st.appendChild(c);
+    });
+    caRestack();
+    ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _caActive=true;
+    var li=0, lab=document.getElementById('caLabel');
+    if(lab){ lab.textContent=CA_LABELS[0]; lab.classList.add('in'); }
+    function tick(){
+      var front=st.firstElementChild;
+      if(front && st.children.length>1){
+        var dir = (li%2===0) ? 'ca-fly-l' : 'ca-fly-r';   // le plan du dessus part à gauche, puis à droite…
+        front.classList.add(dir);
+        setTimeout(function(){ front.classList.remove(dir); st.appendChild(front); caRestack(); },560);  // puis repasse derrière
+      }
+      li++;
+      if(lab){ lab.classList.remove('in'); setTimeout(function(){ lab.textContent=CA_LABELS[li%CA_LABELS.length]; lab.classList.add('in'); },190); }
+    }
+    if(_caCyc)clearInterval(_caCyc); _caCyc=setInterval(tick,1250);
+  }
+  function copyAnimClose(){
+    _caActive=false;
+    if(_caCyc){clearInterval(_caCyc);_caCyc=null;}
+    var ov=document.getElementById('copyAnim'); if(ov){ ov.classList.remove('open'); ov.setAttribute('aria-hidden','true'); }
+    var st=document.getElementById('caStack'); if(st){ try{ st.querySelectorAll('video').forEach(function(v){v.pause();}); }catch(e){} st.innerHTML=''; }
+  }
+
+  /* Miniature réelle de la vidéo collée, récupérée par le navigateur du visiteur
+     (sources publiques et gratuites). Aucun de nos serveurs n'est sollicité. */
+  function caThumb(url){
     var yt = url.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);
     if (yt) return Promise.resolve('https://i.ytimg.com/vi/' + yt[1] + '/hqdefault.jpg');
-    // TikTok : oEmbed public et gratuit (CORS ouvert). On abandonne vite si ça traîne.
     if (/tiktok\.com/i.test(url)) {
       var ctl = ('AbortController' in window) ? new AbortController() : null;
       if (ctl) setTimeout(function(){ ctl.abort(); }, 2500);
@@ -1573,67 +1633,52 @@
     return Promise.resolve(null);
   }
 
+  var _caGo = null;
   function tryCopy(e){
     if (e && e.preventDefault) e.preventDefault();
-    var inp = document.getElementById('tryLink');
-    var ov  = document.getElementById('tryOv');
-    if (!inp || !ov) return false;
+    var inp = document.getElementById('tryLink'); if (!inp) return false;
 
     var url = (inp.value || '').trim();
     if (!/^https?:\/\//i.test(url) && /\.[a-z]{2,}/i.test(url)) url = 'https://' + url;
-    if (!/^https?:\/\/\S+\.\S+/i.test(url)) {           // pas un lien -> on ne lance rien
+    if (!/^https?:\/\/\S+\.\S+/i.test(url)) {          // pas un lien -> on ne lance rien
       inp.focus();
       var form = document.getElementById('tryForm');
       if (form) { form.style.borderColor = '#ff5a7a'; setTimeout(function(){ form.style.borderColor = ''; }, 1100); }
       return false;
     }
+    try { localStorage.setItem('sk_try_link', url); } catch(err){}  // on le retrouvera après l'inscription
 
-    var card  = ov.querySelector('.try-card');
-    var frame = document.getElementById('tryFrame');
-    var label = document.getElementById('tryLabel');
-
-    TRY_T.forEach(clearTimeout); TRY_T = [];
-    if (card) card.classList.remove('gated');
-    if (label) label.textContent = TRY_STEPS[0];
-    if (frame) { var old = frame.querySelector('img'); if (old) old.remove(); }
-
-    ov.classList.add('open');
-    ov.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-
-    // Miniature réelle si la plateforme l'expose publiquement, sinon visuel de secours.
-    tryThumb(url).then(function(src){
-      if (!frame || !ov.classList.contains('open')) return;
-      var img = new Image();
-      img.onerror = function(){ if (src) { img.onerror = null; img.src = 'assets/cmp-original.jpg'; } };
-      img.alt = '';
-      img.src = src || 'assets/cmp-original.jpg';
-      frame.insertBefore(img, frame.firstChild);
+    copyAnimOpen(null, null);                       // démarre immédiatement, comme dans l'app
+    caThumb(url).then(function(src){                // puis les plans prennent la vraie image
+      var probe = new Image();
+      probe.onerror = function(){ if (probe.src.indexOf('assets/') < 0) { probe.onerror = null; probe.src = 'assets/cmp-original.jpg'; } };
+      probe.onload = function(){
+        if (!_caActive) return;
+        var st = document.getElementById('caStack'); if (!st) return;
+        Array.prototype.slice.call(st.children).forEach(function(c){
+          var logo = c.querySelector('.ca-logo');          // chaque plan garde SON logo
+          c.classList.remove('ca-ph');
+          c.innerHTML = '<img src="' + caEsc(probe.src) + '" alt=""><div class="ca-scan"></div>';
+          if (logo) c.appendChild(logo);
+        });
+      };
+      probe.src = src || 'assets/cmp-original.jpg';
     });
 
-    var t = 0;
-    TRY_STEPS.forEach(function(txt, i){
-      if (i === 0) return;
-      t += 1200;
-      TRY_T.push(setTimeout(function(){ if (label) label.textContent = txt; }, t));
-    });
-    // ~2 s avant la fin de l'analyse : le plan est prêt, on demande le compte.
-    TRY_T.push(setTimeout(function(){ if (card) card.classList.add('gated'); }, t + 1200));
+    // L'analyse va au bout (les 6 plans passent), puis direction l'inscription.
+    if (_caGo) clearTimeout(_caGo);
+    _caGo = setTimeout(function(){ location.href = 'signup.html'; }, 7600);
     return false;
   }
 
   function tryClose(){
-    var ov = document.getElementById('tryOv');
-    TRY_T.forEach(clearTimeout); TRY_T = [];
-    if (ov) { ov.classList.remove('open'); ov.setAttribute('aria-hidden', 'true'); }
+    if (_caGo) { clearTimeout(_caGo); _caGo = null; }
+    try { copyAnimClose(); } catch(err){}
     document.body.style.overflow = '';
   }
 
-  (function(){
-    var ov = document.getElementById('tryOv'); if (!ov) return;
-    ov.addEventListener('click', function(e){ if (e.target === ov) tryClose(); });
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && ov.classList.contains('open')) tryClose(); });
-  })();
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && _caActive) tryClose(); });
 
   /* ===== Tarifs : bascule mensuel / annuel ===== */
   function setBilling(period){

@@ -578,14 +578,27 @@
   .pl-scene { overflow:hidden; }
   .pl-viewport { position:absolute; inset:0 12px 8px; overflow:hidden; }
   .pl-scroll { position:absolute; left:0; right:0; top:0; transition:transform .85s cubic-bezier(.3,.85,.3,1); }
-  /* Séquence guidée : l'élément visé passe AU CENTRE et grossit, les autres sont floutés */
-  .pl-scene.focusing .pl-scroll > * { filter:blur(2.4px); opacity:.35; transition:filter .35s ease, opacity .35s ease; }
-  .pl-scroll > * { transition:filter .35s ease, opacity .35s ease, transform .55s cubic-bezier(.2,.9,.25,1); }
-  .pl-scene .pl-focus { filter:none!important; opacity:1!important; position:relative; z-index:30; box-shadow:0 22px 50px -14px rgba(0,0,0,.95), 0 0 0 1.5px rgba(93,150,255,.6); border-radius:10px; }
-  .pl-focus .pl-dl { filter:none!important; opacity:1!important; }
-  /* le prompt qui s'écrit, révélé pendant le zoom */
-  .pl-ptxt { display:none; font-style:normal; text-decoration:none; font-size:.42rem; line-height:1.4; color:#cfe0ff; margin-top:3px; }
+  /* Séquence guidée — MÊME style que le guide de l'app : l'élément visé RESTE À SA PLACE,
+     entouré de bleu et net ; tout le reste est estompé. Rien ne peut donc sortir du cadre. */
+  .pl-scene.focusing .pl-scroll > * { filter:blur(2.6px); opacity:.32; transition:filter .35s ease, opacity .35s ease; }
+  .pl-scroll > * { transition:filter .35s ease, opacity .35s ease, box-shadow .35s ease; }
+  .pl-scene .pl-focus { filter:none!important; opacity:1!important; position:relative; z-index:30; border-radius:10px;
+    box-shadow:0 0 0 1.6px #4d8fff, 0 0 0 5px rgba(77,143,255,.16), 0 16px 36px -14px rgba(0,0,0,.9); }
+  .pl-focus .pl-dl, .pl-focus .pl-ptxt { filter:none!important; opacity:1!important; }
+  /* Bulle d'explication (comme le guide de l'app, mais SANS les boutons Passer/Suivant) */
+  .pl-tip { position:absolute; left:10px; right:10px; bottom:8px; z-index:40; padding:8px 10px; border-radius:11px;
+    background:rgba(14,20,40,.97); border:1px solid rgba(93,150,255,.5); box-shadow:0 16px 34px -12px rgba(0,0,0,.95);
+    font-size:.52rem; line-height:1.45; color:#eaf1ff; opacity:0; transform:translateY(6px); transition:opacity .3s, transform .3s; pointer-events:none; }
+  .pl-tip.show { opacity:1; transform:none; }
+  .pl-dots { display:flex; gap:3px; margin-top:5px; }
+  .pl-dots i { width:9px; height:3px; border-radius:99px; background:rgba(255,255,255,.2); transition:all .25s; }
+  .pl-dots i.on { background:#4d8fff; width:14px; }
+  /* le prompt qui s'écrit — contenu DANS la carte, jamais débordant */
+  .pl-ptxt { display:none; font-style:normal; text-decoration:none; font-size:.42rem; line-height:1.4; color:#cfe0ff; margin-top:3px; overflow-wrap:anywhere; }
   .pl-focus .pl-ptxt.show { display:block; }
+  .pl-prompt { max-width:100%; overflow:hidden; }
+  .pl-pm { min-width:0; overflow:hidden; }
+  .pl-pm b, .pl-pm i { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pl-pi { width:17px; height:17px; border-radius:5px; overflow:hidden; flex:none; display:block; }
   .pl-pi svg { width:100%; height:100%; display:block; }
   .cp-sub { font-size:.66rem; color:var(--muted); text-align:center; margin-bottom:12px; }
@@ -832,6 +845,7 @@
                 <div class="pl-prompt" data-f="mont"><span class="pl-pi" data-lg="capcut"></span><span class="pl-pm"><b>Montage &amp; sous-titres</b><i>Coupes rapides · sous-titres animés</i></span><span class="pl-pc">Voir</span></div>
                 <div class="pl-prompt" data-f="voice"><span class="pl-pi" data-lg="eleven"></span><span class="pl-pm"><b>Voix off</b><i>ElevenLabs · ton grave</i></span><span class="pl-pc">Copier</span></div>
               </div></div>
+              <div class="pl-tip" id="plTip"><span id="plTipTx"></span><span class="pl-dots" id="plDots"></span></div>
             </div>
           </div>
         </div>
@@ -1131,7 +1145,7 @@
     // Place les logos dans la fiche du plan.
     root.querySelectorAll('[data-lg]').forEach(function(el){ el.innerHTML = LG[el.getAttribute('data-lg')] || ''; });
     var cur = 0, typeTimer = null, scanTimer = null, deckTimer = null, li = 0;
-    var DUR = [4600, 5200, 17200];
+    var DUR = [4600, 5200, 25500];
     function press(b, at){
       if (!b) return;
       b.classList.remove('press');
@@ -1187,35 +1201,44 @@
       if (i === 2) runPlanTour();
     }
 
-    /* ── Séquence guidée du plan : un élément à la fois passe AU CENTRE et grossit,
-       les autres sont floutés ; le prompt s'écrit ; on scrolle jusqu'au montage. ── */
+    /* ── Guide du plan, façon app : l'élément visé RESTE à sa place (entouré en bleu, net),
+       tout le reste est estompé. On fait défiler pour l'amener à l'écran -> rien ne déborde. ── */
     var plScene = root.querySelector('.pl-scene');
     var plScroll = document.getElementById('plScroll');
     var plTxt = document.getElementById('plPTxt');
-    var PROMPT = "Un personnage brocoli dans un salon de coiffure vintage, lumière chaude, style Pixar, rendu 3D réaliste.";
+    var plTip = document.getElementById('plTip');
+    var plTipTx = document.getElementById('plTipTx');
+    var plDots = document.getElementById('plDots');
+    var PROMPT = "Un personnage brocoli dans un salon de coiffure vintage, lumière chaude, style Pixar.";
+    // Étapes du guide : [clé, texte, durée]
+    var STEPS = [
+      ['src',   'La vidéo virale que tu copies — avec ses vraies stats.', 1900],
+      ['score', 'Sa note de potentiel viral : accroche, rétention, format.', 1900],
+      ['ref',   "L'image de référence de la scène, prête à télécharger.", 1900],
+      ['dl',    'Un tap et tu la récupères sur ton téléphone.', 1600],
+      ['pimg',  "Le prompt image, écrit pour toi — copie-le dans ton outil.", 3600],
+      ['pani',  "Le prompt d'animation pour faire bouger la scène.", 1900],
+      ['mont',  'Le montage : coupes et sous-titres, pas à pas.', 2100],
+      ['voice', 'Et la voix off, avec le ton à utiliser.', 1900]
+    ];
     var tourTimers = [];
     function clearTour(){ tourTimers.forEach(clearTimeout); tourTimers = []; }
     function later(fn, ms){ tourTimers.push(setTimeout(fn, ms)); }
-    function scrollTo(y, ms){ if (plScroll) plScroll.style.transform = 'translateY(' + (-y) + 'px)'; return ms; }
-    function focusOn(key, scale, hold, done){
-      if (!plScene || !plScroll) { done && done(); return; }
-      var el = plScroll.querySelector('[data-f="' + key + '"]');
-      if (!el) { done && done(); return; }
+    function setScroll(y){ if (plScroll) plScroll.style.transform = 'translateY(' + (-Math.max(0, y)) + 'px)'; }
+    // Amène l'élément bien dans le champ (jamais collé aux bords).
+    function scrollIntoView(el){
+      if (!plScroll || !plScene) return;
       var vp = plScene.querySelector('.pl-viewport');
-      var vr = vp.getBoundingClientRect(), r = el.getBoundingClientRect();
-      var dx = (vr.left + vr.width / 2) - (r.left + r.width / 2);
-      var dy = (vr.top + vr.height / 2) - (r.top + r.height / 2);
-      plScene.classList.add('focusing');
-      el.classList.add('pl-focus');
-      el.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scale(' + scale + ')';
-      later(function(){
-        el.style.transform = '';
-        later(function(){
-          el.classList.remove('pl-focus');
-          plScene.classList.remove('focusing');
-          done && done();
-        }, 480);
-      }, hold);
+      var vh = vp.clientHeight, ch = plScroll.scrollHeight;
+      var top = el.offsetTop, h = el.offsetHeight;
+      var y = top - (vh - h) / 2;
+      y = Math.max(0, Math.min(y, Math.max(0, ch - vh + 6)));
+      setScroll(y);
+    }
+    function dots(idx){
+      if (!plDots) return;
+      var h = ''; for (var k = 0; k < STEPS.length; k++) h += '<i class="' + (k === idx ? 'on' : '') + '"></i>';
+      plDots.innerHTML = h;
     }
     function typePrompt(){
       if (!plTxt) return;
@@ -1224,28 +1247,42 @@
       var iv = setInterval(function(){
         k++; plTxt.textContent = PROMPT.slice(0, k);
         if (k >= PROMPT.length) clearInterval(iv);
-      }, 26);
-      tourTimers.push(setTimeout(function(){ clearInterval(iv); }, 3000));
+      }, 24);
+      tourTimers.push(setTimeout(function(){ clearInterval(iv); }, 2600));
+    }
+    // Une étape après l'autre, en chaîne (jamais deux en même temps).
+    function step(i){
+      if (i >= STEPS.length) {           // fin : on remonte tranquillement
+        if (plTip) plTip.classList.remove('show');
+        later(function(){ setScroll(0); }, 300);
+        return;
+      }
+      var s = STEPS[i], el = plScroll && plScroll.querySelector('[data-f="' + s[0] + '"]');
+      if (!el) { step(i + 1); return; }
+      scrollIntoView(el.closest('.pl-ref') && s[0] === 'dl' ? el.closest('.pl-ref') : el);
+      later(function(){
+        plScene.classList.add('focusing');
+        el.classList.add('pl-focus');
+        if (plTipTx) plTipTx.textContent = s[1];
+        dots(i);
+        if (plTip) plTip.classList.add('show');
+        if (s[0] === 'pimg') typePrompt();
+        later(function(){
+          el.classList.remove('pl-focus');
+          plScene.classList.remove('focusing');
+          later(function(){ step(i + 1); }, 380);   // l'étape suivante ne démarre qu'après
+        }, s[2]);
+      }, 520);                                       // on laisse le défilement se terminer
     }
     function runPlanTour(){
       clearTour();
-      if (!plScroll) return;
-      plScroll.style.transition = 'none'; scrollTo(0, 0);
+      if (!plScroll || !plScene) return;
+      plScene.classList.remove('focusing');
+      plScroll.querySelectorAll('.pl-focus').forEach(function(e){ e.classList.remove('pl-focus'); });
+      if (plTip) plTip.classList.remove('show');
       if (plTxt) { plTxt.classList.remove('show'); plTxt.textContent = ''; }
-      later(function(){ if (plScroll) plScroll.style.transition = ''; }, 40);
-      // 1) la note  2) l'image de référence  3) le téléchargement
-      later(function(){ focusOn('score', 1.12, 1150); }, 700);
-      later(function(){ focusOn('ref', 1.85, 1250); }, 2500);
-      later(function(){ focusOn('dl', 2.6, 1050); }, 4300);
-      // 4) le prompt image : il se déploie ET s'écrit
-      later(function(){ focusOn('pimg', 1.16, 3200); typePrompt(); }, 5900);
-      // 5) le prompt animation
-      later(function(){ focusOn('pani', 1.16, 1150); }, 9600);
-      // 6) on descend jusqu'au montage (CapCut) puis la voix off
-      later(function(){ scrollTo(118, 850); }, 11200);
-      later(function(){ focusOn('mont', 1.16, 1400); }, 12200);
-      later(function(){ focusOn('voice', 1.16, 1200); }, 14000);
-      later(function(){ scrollTo(0, 850); }, 15600);
+      plScroll.style.transition = 'none'; setScroll(0);
+      later(function(){ plScroll.style.transition = ''; step(0); }, 60);
     }
     if (window.SK_STATIC) return; // mode figé (captures internes) — les visiteurs ont toujours l'animation
     show(0);

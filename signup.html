@@ -427,7 +427,7 @@
     <!-- STEP 1 — CONNEXION -->
     <div class="step-panel active" id="step1">
       <div class="step-title">Créer mon compte</div>
-      <div class="step-subtitle">Rejoins des milliers de membres qui apprennent et gagnent.</div>
+      <div class="step-subtitle">Colle le lien d'une vidéo qui marche, repars avec le plan pour la refaire.</div>
 
       <button class="btn-google" onclick="signInWithGoogle()">
         <svg viewBox="0 0 24 24" fill="none">
@@ -518,30 +518,9 @@
   const totalSteps = 2;
   let pendingEmail = null;
   let pendingPassword = null;
-  let selectedTime = null;
 
-  // Pays éligibles TikTok Shop (2026) + monétisation directe (Creator Rewards)
-  const SHOP_COUNTRIES = ['US','GB','DE','FR','IT','ES','IE','JP','SG','ID','MY','TH','VN','PH','MX','BR','AT','BE','NL','PL'];
-  const REWARDS_COUNTRIES = ['US','GB','DE','FR','BR','JP','KR','AU','CA','MX','ES','IT'];
-  const COUNTRIES = [
-    ['FR','France'],['BE','Belgique'],['CH','Suisse'],['CA','Canada'],['US','États-Unis'],
-    ['GB','Royaume-Uni'],['DE','Allemagne'],['ES','Espagne'],['IT','Italie'],['IE','Irlande'],
-    ['NL','Pays-Bas'],['AT','Autriche'],['PL','Pologne'],['PT','Portugal'],['LU','Luxembourg'],
-    ['MA','Maroc'],['DZ','Algérie'],['TN','Tunisie'],['SN','Sénégal'],['CI','Côte d\'Ivoire'],
-    ['CM','Cameroun'],['CD','RD Congo'],['ML','Mali'],['BF','Burkina Faso'],['GN','Guinée'],
-    ['JP','Japon'],['KR','Corée du Sud'],['SG','Singapour'],['ID','Indonésie'],['MY','Malaisie'],
-    ['TH','Thaïlande'],['VN','Vietnam'],['PH','Philippines'],['MX','Mexique'],['BR','Brésil'],
-    ['AU','Australie'],['AE','Émirats arabes unis'],['SA','Arabie saoudite'],['OTHER','Autre pays']
-  ];
-  function fillCountries() {
-    var sel = document.getElementById('country');
-    if (!sel) return;
-    COUNTRIES.forEach(function(c){
-      var o = document.createElement('option');
-      o.value = c[0]; o.textContent = c[1];
-      sel.appendChild(o);
-    });
-  }
+  // Les questions du profil ne sont plus posées ici : elles le sont au premier accès
+  // à l'app, pour être identiques que l'on s'inscrive par Google ou par e-mail.
 
   function updateProgress() {
     const pct = ((currentStep - 1) / (totalSteps - 1)) * 100;
@@ -684,14 +663,6 @@
     }
   }
 
-  function selectChoice(el, group) {
-    document.querySelectorAll('#' + group + 'Choices .choice-item').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-
-  function goToDashboard() {
-    window.location.href = 'app.html';
-  }
 </script>
 </body>
 </html>

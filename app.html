@@ -663,57 +663,17 @@
   .ob-opts { display:flex; flex-direction:column; gap:11px; }
   .ob-opt { text-align:left; background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:17px 18px; color:var(--white); font-family:'Sora',sans-serif; font-weight:600; font-size:.95rem; cursor:pointer; transition:border-color .15s, transform .12s, background .15s; }
   .ob-opt:active { transform:scale(0.98); border-color:var(--blue); background:rgba(26,111,255,0.08); }
-  .ob-select { width:100%; background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:16px; color:var(--white); font-family:'Sora',sans-serif; font-size:.95rem; outline:none; margin-bottom:16px; appearance:none; }
-  .ob-next { background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:13px; padding:16px; font-family:'Sora',sans-serif; font-weight:700; font-size:.98rem; cursor:pointer; width:100%; }
+  /* Choix multiple : titre + ce que contient la section, et une coche quand c'est retenu */
+  .ob-multi { position:relative; padding:16px 46px 15px 18px; }
+  .ob-multi .ob-opt-t { display:block; }
+  .ob-multi .ob-opt-d { display:block; margin-top:4px; font-family:'DM Sans',sans-serif; font-weight:400; font-size:.79rem; line-height:1.45; color:var(--muted); }
+  .ob-multi .ob-tick { position:absolute; right:16px; top:50%; transform:translateY(-50%); width:23px; height:23px; border-radius:7px; border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:.72rem; color:transparent; transition:background .15s, border-color .15s, color .15s; }
+  .ob-multi.sel { border-color:var(--blue); background:rgba(26,111,255,0.09); }
+  .ob-multi.sel .ob-tick { background:var(--blue); border-color:var(--blue); color:#fff; }
+  .ob-next { background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:13px; padding:16px; margin-top:16px; font-family:'Sora',sans-serif; font-weight:700; font-size:.98rem; cursor:pointer; width:100%; }
   .ob-next:active { transform:scale(0.98); }
+  .ob-next[disabled] { opacity:.45; cursor:default; }
   .ob-back { background:transparent; border:none; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.86rem; margin-top:18px; cursor:pointer; align-self:center; }
-  .ob-done-badge { align-self:flex-start; background:rgba(61,220,132,0.13); border:1px solid rgba(61,220,132,0.35); color:var(--green); font-family:'Sora',sans-serif; font-weight:800; font-size:.64rem; letter-spacing:.12em; padding:5px 11px; border-radius:999px; margin-bottom:14px; }
-  .ob-recos { display:flex; flex-direction:column; gap:11px; margin-bottom:24px; }
-  .ob-reco { display:flex; align-items:center; gap:13px; background:var(--surface); border:1.5px solid rgba(61,220,132,0.3); border-radius:14px; padding:16px; }
-  .ob-reco-n { width:26px; height:26px; flex:0 0 auto; display:flex; align-items:center; justify-content:center; background:rgba(61,220,132,0.13); border:1px solid rgba(61,220,132,0.35); color:var(--green); border-radius:50%; font-family:'Fraunces',serif; font-weight:800; font-size:.85rem; }
-  .ob-reco-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.95rem; color:var(--white); }
-  .ob-note { text-align:center; font-size:.78rem; color:var(--muted2); margin-top:14px; }
-  /* Onboarding — sélection d'ebooks (couvertures) */
-  .ob-books { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
-  .ob-book { position:relative; border-radius:14px; overflow:hidden; aspect-ratio:1/1.08; border:2px solid var(--border); display:flex; flex-direction:column; justify-content:flex-end; padding:11px; cursor:pointer; transition:transform .15s, border-color .2s, box-shadow .2s; }
-  .ob-book:active { transform:scale(0.97); }
-  .ob-book-bottom { position:relative; z-index:2; }
-  .ob-book h4 { font-size:.8rem; line-height:1.2; color:var(--white); font-family:'Fraunces',serif; }
-  .ob-book-rate { margin-top:4px; font-family:'Sora',sans-serif; font-weight:700; font-size:.64rem; color:var(--white); }
-  .ob-rate-star { color:#f5c84c; }
-  .ob-rate-n { color:var(--muted2); font-weight:600; }
-  .ob-book-grad { position:absolute; inset:0; background:linear-gradient(180deg,transparent 25%,rgba(0,0,0,0.82)); }
-  .ob-book-reco { position:absolute; top:8px; left:8px; z-index:3; background:rgba(61,220,132,0.92); color:#04240f; font-family:'Sora',sans-serif; font-weight:800; font-size:.52rem; letter-spacing:.04em; padding:3px 7px; border-radius:999px; }
-  .ob-book-check { position:absolute; top:8px; right:8px; z-index:4; width:22px; height:22px; border-radius:50%; background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.35); color:transparent; display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:800; transition:all .2s; }
-  .ob-book.sel { border-color:var(--blue); box-shadow:0 0 0 3px rgba(47,123,255,0.28), 0 8px 22px rgba(47,123,255,0.22); }
-  .ob-book.sel .ob-book-check { background:var(--blue); border-color:var(--blue); color:#fff; }
-
-  /* Carte cadeau (offert) */
-  .ob-gift { display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,rgba(61,220,132,0.10),rgba(61,220,132,0.03)); border:1.5px solid rgba(61,220,132,0.35); border-radius:14px; padding:13px 14px; margin-bottom:16px; }
-  .ob-gift-ic { width:40px; height:40px; flex:0 0 auto; border-radius:11px; background:rgba(61,220,132,0.12); display:flex; align-items:center; justify-content:center; }
-  .ob-gift-tx { flex:1; min-width:0; }
-  .ob-gift-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.86rem; color:var(--white); }
-  .ob-gift-s { font-size:.72rem; color:var(--muted); margin-top:2px; }
-  .ob-gift-badge { background:var(--green); color:#04240f; font-family:'Sora',sans-serif; font-weight:800; font-size:.6rem; letter-spacing:.08em; padding:5px 10px; border-radius:999px; }
-  .ob-plan-bar { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:14px; }
-  .ob-plan-main { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
-  .ob-plan-name { font-family:'Fraunces',serif; font-weight:800; font-size:1.05rem; color:var(--white); }
-  .ob-plan-price { margin-left:auto; font-family:'Sora',sans-serif; font-weight:800; font-size:.95rem; color:var(--blue-light); }
-  .ob-plan-pop { background:rgba(47,123,255,0.16); border:1px solid rgba(47,123,255,0.4); color:var(--blue-light); font-family:'Sora',sans-serif; font-weight:800; font-size:.56rem; letter-spacing:.08em; padding:3px 8px; border-radius:999px; }
-  .ob-plan-sub { font-size:.8rem; color:var(--muted); margin-top:6px; line-height:1.45; }
-  .ob-plan-sub strong { color:var(--white); }
-  .ob-plan-up { margin-top:10px; background:rgba(47,123,255,0.08); border:1px solid rgba(47,123,255,0.22); border-radius:10px; padding:9px 12px; font-size:.78rem; color:var(--white); line-height:1.45; }
-  .ob-plan-up strong { color:var(--blue-light); }
-  .ob-plan-hint { font-size:.82rem; color:var(--muted); text-align:center; }
-  .ob-next:disabled { opacity:.5; }
-  .ob-cta-row { display:flex; gap:10px; align-items:center; }
-  .ob-skip { flex:0 0 auto; background:transparent; border:1.5px solid var(--border); color:var(--muted); border-radius:13px; padding:15px 20px; font-family:'Sora',sans-serif; font-weight:600; font-size:.92rem; cursor:pointer; transition:all .15s; }
-  .ob-skip:active { transform:scale(0.97); }
-  .ob-take { flex:1; background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; border:none; border-radius:13px; padding:15px; font-family:'Sora',sans-serif; font-weight:700; font-size:.98rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 8px 24px rgba(47,123,255,0.3); transition:transform .15s, box-shadow .2s; }
-  .ob-take:active { transform:scale(0.98); }
-  .ob-take:disabled { opacity:.5; box-shadow:none; }
-  .ob-take-arr { transition:transform .2s; }
-  .ob-take:active .ob-take-arr { transform:translateX(3px); }
 
 
   .stat-box .v { font-family:'Fraunces',serif; font-weight:600; font-size:1.7rem; }
@@ -3714,39 +3674,45 @@
   }
 
 
-  /* ═══════════ ONBOARDING ═══════════ */
-  var OB_COUNTRIES = [
-    ['FR','France'],['BE','Belgique'],['CH','Suisse'],['CA','Canada'],['US','États-Unis'],
-    ['GB','Royaume-Uni'],['DE','Allemagne'],['ES','Espagne'],['IT','Italie'],['PT','Portugal'],
-    ['MA','Maroc'],['DZ','Algérie'],['TN','Tunisie'],['SN','Sénégal'],['CI','Côte d\u2019Ivoire'],
-    ['BJ','Bénin'],['TG','Togo'],['CM','Cameroun'],['CD','RD Congo'],['CG','Congo'],
-    ['GA','Gabon'],['ML','Mali'],['BF','Burkina Faso'],['NE','Niger'],['GN','Guinée'],
-    ['MG','Madagascar'],['HT','Haïti'],['BR','Brésil'],['JP','Japon'],['KR','Corée du Sud'],
-    ['MX','Mexique'],['AE','Émirats arabes unis'],['AU','Australie'],['OTHER','Autre pays']
-  ];
-  var OB_REWARDS_OK = ['US','FR','GB','DE','JP','KR','BR'];
-
+  /* ═══════════ ONBOARDING ═══════════
+     3 questions, posées UNE FOIS au premier accès — quelle que soit la méthode
+     d'inscription (Google ou e-mail), puisque les deux atterrissent ici.
+     L'ancien parcours (âge, pays, ebooks, plans Starter/Growth/Elite) est supprimé :
+     il décrivait une version du produit qui n'existe plus. */
   var OB_STEPS = [
-    { key:'age_range', title:'Ton âge', sub:'Pour adapter les stratégies à ta situation.',
-      opts:[['13-17','13 – 17 ans'],['18-24','18 – 24 ans'],['25-34','25 – 34 ans'],['35+','35 ans et plus']] },
-    { key:'country', title:'Ton pays', sub:'Certaines monétisations dépendent de ton pays.', type:'select' },
-    { key:'platform', title:'Ta plateforme principale', sub:'Celle où tu veux percer en premier.',
-      opts:[['tiktok','TikTok'],['youtube','YouTube'],['instagram','Instagram']] },
-    { key:'editing_level', title:'Ton niveau en montage', sub:'Pour calibrer les guides techniques.',
-      opts:[['never','Je n\u2019ai jamais monté de vidéo'],['beginner','Débutant, je me débrouille un peu'],['intermediate','À l\u2019aise avec CapCut / les bases'],['expert','Expert, montage avancé']] },
-    { key:'goal', title:'Ton objectif n°1', sub:'Ce qui compte le plus pour toi maintenant.',
-      opts:[['money_fast','Gagner de l\u2019argent rapidement'],['audience','Construire une grosse audience'],['passion','Monétiser ma passion'],['business','Booster mon business']] },
-    { key:'show_face', title:'Montrer ton visage ?', sub:'Le contenu sans visage est une vraie stratégie.',
-      opts:[['yes','Oui, pas de problème'],['no','Non, contenu sans visage']] },
-    { key:'time_available', title:'Ton temps par jour', sub:'Pour calibrer ton plan d\u2019action.',
-      opts:[['lt30','Moins de 30 min'],['30-60','30 min – 1 h'],['1-2h','1 h – 2 h'],['gt2h','Plus de 2 h']] }
+    { key:'level', title:'Où tu en es aujourd’hui ?', sub:'Pour adapter ce qu’on te propose dès le premier jour.',
+      opts:[
+        ['none',    'Je n’ai jamais publié de vidéo'],
+        ['started', 'J’ai déjà publié, sans vraiment percer'],
+        ['regular', 'Je poste régulièrement, ça commence à marcher'],
+        ['pro',     'Je vis déjà de mon contenu']
+      ] },
+    { key:'heard_from', title:'Comment tu as connu Skillora ?', sub:'Ça nous dit où on doit être présents. Réponds franchement, ça nous aide vraiment.',
+      opts:[
+        ['tiktok',    'TikTok'],
+        ['instagram', 'Instagram'],
+        ['youtube',   'YouTube'],
+        ['facebook',  'Facebook'],
+        ['google',    'Une recherche Google'],
+        ['ai',        'ChatGPT ou une autre IA'],
+        ['friend',    'Quelqu’un m’en a parlé'],
+        ['other',     'Autrement']
+      ] },
+    { key:'main_features', type:'multi', title:'Qu’est-ce que tu comptes utiliser le plus ?', sub:'Choisis tout ce qui t’intéresse — tu auras accès à tout, de toute façon.',
+      opts:[
+        ['copy',   'Copier une vidéo',            'Images de référence, prompts image et animation, montage'],
+        ['script', 'Créer un script',             'Ton idée et la durée → un script noté puis optimisé'],
+        ['ideas',  'Des idées de vidéos chaque jour', 'Par niche et par plateforme, avec rappel par e-mail'],
+        ['niches', 'Trouver une niche qui marche', 'Les niches notées, avec les vraies statistiques']
+      ] }
   ];
 
   var obAnswers = {};
   var obIndex = 0;
+  var obMulti = [];
 
   function showOnboarding() {
-    obIndex = 0; obAnswers = {};
+    obIndex = 0; obAnswers = {}; obMulti = [];
     document.getElementById('obOverlay').classList.add('open');
     renderOb();
   }
@@ -3755,19 +3721,21 @@
     var step = OB_STEPS[obIndex];
     var body = document.getElementById('obBody');
     document.getElementById('obStepLabel').textContent = 'ÉTAPE ' + (obIndex+1) + ' / ' + OB_STEPS.length;
-    document.getElementById('obProgressFill').style.width = Math.round(((obIndex)/OB_STEPS.length)*100) + '%';
+    document.getElementById('obProgressFill').style.width = Math.round((obIndex/OB_STEPS.length)*100) + '%';
 
     var html = '<div class="ob-q">' +
       '<div class="ob-title">' + step.title + '</div>' +
-      '<div class="ob-sub">' + step.sub + '</div>';
+      '<div class="ob-sub">' + step.sub + '</div><div class="ob-opts">';
 
-    if (step.type === 'select') {
-      html += '<select id="obSelect" class="ob-select"><option value="">Choisis ton pays…</option>';
-      OB_COUNTRIES.forEach(function(c){ html += '<option value="' + c[0] + '">' + c[1] + '</option>'; });
-      html += '</select>' +
-        '<button class="ob-next" onclick="obSelectNext()">Continuer</button>';
+    if (step.type === 'multi') {
+      obMulti = obAnswers[step.key] ? obAnswers[step.key].slice() : [];
+      step.opts.forEach(function(o){
+        html += '<button class="ob-opt ob-multi' + (obMulti.indexOf(o[0])>=0?' sel':'') + '" data-ob="' + o[0] + '" onclick="obToggle(\'' + o[0] + '\')">' +
+          '<span class="ob-tick">✓</span><span class="ob-opt-t">' + o[1] + '</span>' +
+          '<span class="ob-opt-d">' + o[2] + '</span></button>';
+      });
+      html += '</div><button class="ob-next" id="obMultiNext" onclick="obMultiNext()">Continuer</button>';
     } else {
-      html += '<div class="ob-opts">';
       step.opts.forEach(function(o){
         html += '<button class="ob-opt" onclick="obPick(\'' + o[0] + '\')">' + o[1] + '</button>';
       });
@@ -3776,225 +3744,83 @@
     if (obIndex > 0) html += '<button class="ob-back" onclick="obBack()">Retour</button>';
     html += '</div>';
     body.innerHTML = html;
+    if (step.type === 'multi') obSyncMulti();
+    try { body.parentNode.scrollTop = 0; document.getElementById('obOverlay').scrollTop = 0; } catch(e){}
   }
 
-  function obPick(val) {
-    obAnswers[OB_STEPS[obIndex].key] = val;
+  function obPick(val) { obAnswers[OB_STEPS[obIndex].key] = val; obAdvance(); }
+
+  function obToggle(val) {
+    var i = obMulti.indexOf(val);
+    if (i >= 0) obMulti.splice(i, 1); else obMulti.push(val);
+    var el = document.querySelector('.ob-opt[data-ob="' + val + '"]');
+    if (el) el.classList.toggle('sel', obMulti.indexOf(val) >= 0);
+    obSyncMulti();
+  }
+  function obSyncMulti() {
+    var btn = document.getElementById('obMultiNext');
+    if (!btn) return;
+    btn.disabled = obMulti.length === 0;
+    btn.textContent = obMulti.length ? 'Terminer' : 'Choisis au moins une chose';
+  }
+  function obMultiNext() {
+    if (!obMulti.length) return;
+    obAnswers[OB_STEPS[obIndex].key] = obMulti.slice();
     obAdvance();
   }
-  function obSelectNext() {
-    var v = document.getElementById('obSelect').value;
-    if (!v) return;
-    obAnswers[OB_STEPS[obIndex].key] = v;
-    obAdvance();
-  }
+
   function obBack() { if (obIndex > 0) { obIndex--; renderOb(); } }
-  var OB_FOLLOWERS_STEP = { key:'goal_followers', title:'Ton objectif d\u2019abonnés', sub:'On suivra ta progression vers ce cap.',
-      opts:[['10000','10 K'],['50000','50 K'],['100000','100 K'],['1000000','1 M et plus']] };
 
   function obAdvance() {
     obIndex++;
-    if (obAnswers.goal && obAnswers.goal !== 'money_fast' && !OB_STEPS.some(function(s){return s.key==='goal_followers';})) {
-      var goalIdx = OB_STEPS.findIndex(function(s){return s.key==='goal';});
-      OB_STEPS.splice(goalIdx+1, 0, OB_FOLLOWERS_STEP);
-    }
-    if (obAnswers.goal === 'money_fast') {
-      var fi = OB_STEPS.findIndex(function(s){return s.key==='goal_followers';});
-      if (fi >= 0) OB_STEPS.splice(fi, 1);
-    }
     if (obIndex >= OB_STEPS.length) finishOnboarding();
     else renderOb();
   }
 
-  function obRecommend(a) {
-    var picks = [];
-    var eligible = OB_REWARDS_OK.indexOf(a.country) >= 0;
-    function add(id){ if (picks.indexOf(id) < 0 && picks.length < 3) picks.push(id); }
-
-    // Priorité 1 : objectif principal
-    if (a.goal === 'money_fast') {
-      // Argent rapide : si pays éligible -> rémunération ; sinon Shop + affiliation
-      if (eligible && a.platform !== 'youtube') add('tt_remu');
-      add('tt_shop');
-      if (a.show_face === 'no') add('yt_auto');
-    } else if (a.goal === 'audience') {
-      if (a.platform === 'youtube') { add('yt_shorts'); add('yt_auto'); }
-      else if (a.platform === 'instagram') { add('ig_croiss'); }
-      else { add('tt_shop'); }
-      if (a.show_face === 'no') add('yt_auto');
-    } else if (a.goal === 'passion') {
-      if (a.platform === 'instagram') add('ig_croiss');
-      if (a.platform === 'youtube') add('yt_shorts');
-      add('tt_shop');
-    } else if (a.goal === 'business') {
-      add('ig_croiss'); add('tt_shop'); add('ig_scaling');
-    }
-
-    // Priorité 2 : sans visage -> contenus faceless
-    if (a.show_face === 'no') { add('yt_auto'); add('tt_shop'); }
-
-    // Priorité 3 : plateforme principale
-    if (a.platform === 'youtube') { add('yt_shorts'); add('yt_auto'); }
-    else if (a.platform === 'instagram') { add('ig_croiss'); add('ig_scaling'); }
-    else { if (eligible) add('tt_remu'); add('tt_shop'); }
-
-    // Niveau avancé -> scaling
-    if (a.editing_level === 'expert') add('ig_scaling');
-
-    // Compléter si moins de 3
-    ['tt_shop','yt_shorts','ig_croiss'].forEach(add);
-    return picks.slice(0,3);
-  }
-
-  var OB_BOOK_COVERS = { tt_remu:'b1', tt_shop:'b1b', yt_auto:'b3', yt_shorts:'b3b', ig_croiss:'b2', ig_scaling:'b4' };
-  var OB_BOOK_RATINGS = { tt_remu:4.9, tt_shop:4.8, yt_auto:4.7, yt_shorts:4.8, ig_croiss:4.6, ig_scaling:4.7 };
-  var obSelected = [];
-
   async function finishOnboarding() {
     document.getElementById('obProgressFill').style.width = '100%';
-    var recos = obRecommend(obAnswers);
-    var eligible = OB_REWARDS_OK.indexOf(obAnswers.country) >= 0;
+    var patch = {
+      level: obAnswers.level || null,
+      heard_from: obAnswers.heard_from || null,
+      main_features: obAnswers.main_features || [],
+      onboarding_done: true
+    };
+    // La source technique (?src=) est conservée à part : on veut pouvoir recouper
+    // ce que la personne déclare avec le lien par lequel elle est arrivée.
+    try { var s = localStorage.getItem('sk_src'); if (s) patch.ref_source = s; } catch(e){}
 
     try {
       var { data: { session } } = await sb.auth.getSession();
-      if (session) {
-        await sb.from('profiles').update({
-          age_range: obAnswers.age_range, country: obAnswers.country,
-          platform: obAnswers.platform, level: obAnswers.level,
-          level: obAnswers.editing_level, goal: obAnswers.goal, show_face: obAnswers.show_face === 'yes',
-          time_available: obAnswers.time_available,
-          goal_followers: parseInt(obAnswers.goal_followers || 0, 10),
-          recommended_books: recos, onboarding_done: true
-        }).eq('id', session.user.id);
-      }
+      if (session) await sb.from('profiles').update(patch).eq('id', session.user.id);
     } catch(e) { console.log('ob save error', e); }
-    try {
-      localStorage.setItem('skillora_onboarding', JSON.stringify({
-        goal_followers: obAnswers.goal_followers, platform: obAnswers.platform,
-        goal: obAnswers.goal, suggested: recos
-      }));
-    } catch(e) {}
+
     window._userProfile = window._userProfile || {};
-    window._userProfile.goal_followers = parseInt(obAnswers.goal_followers || 0, 10);
+    window._userProfile.level = patch.level;
+    window._userProfile.heard_from = patch.heard_from;
+    window._userProfile.main_features = patch.main_features;
     window._userProfile.onboarding_done = true;
-    window._userProfile.recommended_books = recos;
 
-    var note = '';
-    if (obAnswers.show_face === 'no') {
-      note = 'Stratégie sans visage activée : ces méthodes ne demandent jamais de te montrer.';
-    } else if (obAnswers.goal === 'money_fast') {
-      note = 'Les voies de monétisation les plus rapides pour ton profil.';
-    } else if (obAnswers.goal === 'audience') {
-      note = 'Les méthodes qui font grossir une audience le plus vite.';
-    } else {
-      note = 'Sélectionnés pour ton profil. Tu peux en choisir d\u2019autres.';
-    }
-
-    obSelected = recos.length ? [recos[0]] : [];
-    window._obRecos = recos;
-
-    var giftSvg = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none"><rect x="3" y="9" width="18" height="12" rx="2" stroke="#3ddc84" stroke-width="1.7"/><path d="M3 9h18M12 9v12" stroke="#3ddc84" stroke-width="1.7"/><path d="M12 9c-1.8 0-4.5-.6-4.5-2.7C7.5 4.9 8.6 4 9.8 4 11.4 4 12 6 12 9zm0 0c1.8 0 4.5-.6 4.5-2.7C16.5 4.9 15.4 4 14.2 4 12.6 4 12 6 12 9z" stroke="#3ddc84" stroke-width="1.5"/></svg>';
-    var html = '<div class="ob-q"><div class="ob-done-badge">TON PLAN PERSONNALIS\u00c9</div>' +
-      '<div class="ob-title">Choisis tes guides</div>' +
-      '<div class="ob-sub">' + note + '</div>' +
-      '<div class="ob-gift">' +
-        '<div class="ob-gift-ic">' + giftSvg + '</div>' +
-        '<div class="ob-gift-tx"><div class="ob-gift-t">Le montage pour d\u00e9butants</div><div class="ob-gift-s">Inclus avec tous les plans \u00b7 valeur 29\u20ac</div></div>' +
-        '<span class="ob-gift-badge">OFFERT</span>' +
-      '</div>' +
-      '<div class="ob-books" id="obBooks">';
-    Object.keys(OB_BOOK_COVERS).forEach(function(id){
-      var isReco = recos.indexOf(id) >= 0;
-      var rt = OB_BOOK_RATINGS[id] || 4.7;
-      html += '<div class="ob-book ' + OB_BOOK_COVERS[id] + (obSelected.indexOf(id)>=0?' sel':'') + '" data-ob-book="' + id + '" onclick="obToggleBook(\'' + id + '\')">' +
-        (isReco ? '<span class="ob-book-reco">\u2605 Recommand\u00e9</span>' : '') +
-        '<span class="ob-book-check">\u2713</span>' +
-        '<div class="ob-book-grad"></div>' +
-        '<div class="ob-book-bottom"><h4>' + BOOK_TITLES[id] + '</h4>' +
-        '<div class="ob-book-rate"><span class="ob-rate-star">\u2605</span> ' + rt + '</div></div>' +
-      '</div>';
-    });
-    html += '</div>' +
-      '<div class="ob-plan-bar" id="obPlanBar"></div>' +
-      '<div class="ob-cta-row">' +
-        '<button class="ob-skip" onclick="closeOnboarding()">Plus tard</button>' +
-        '<button class="ob-take" id="obTakeBtn" onclick="obTakeBooks()">Je les prends <span class="ob-take-arr">\u2192</span></button>' +
-      '</div></div>';
-    document.getElementById('obBody').innerHTML = html;
-    document.getElementById('obStepLabel').textContent = 'DERNI\u00c8RE \u00c9TAPE';
-    obUpdatePlanBar();
-  }
-
-  function obToggleBook(id) {
-    var i = obSelected.indexOf(id);
-    if (i >= 0) obSelected.splice(i, 1); else obSelected.push(id);
-    var el = document.querySelector('.ob-book[data-ob-book="' + id + '"]');
-    if (el) el.classList.toggle('sel', obSelected.indexOf(id) >= 0);
-    obUpdatePlanBar();
-  }
-
-  function obUpdatePlanBar() {
-    var bar = document.getElementById('obPlanBar');
-    var btn = document.getElementById('obTakeBtn');
-    if (!bar) return;
-    var n = obSelected.length;
-    if (n === 0) {
-      bar.innerHTML = '<div class="ob-plan-hint">S\u00e9lectionne au moins 1 guide pour continuer</div>';
-      if (btn) btn.disabled = true;
-      return;
-    }
-    if (btn) btn.disabled = false;
-    if (n === 1) {
-      bar.innerHTML =
-        '<div class="ob-plan-main"><span class="ob-plan-name">Plan Starter</span><span class="ob-plan-price">19$/mois</span></div>' +
-        '<div class="ob-plan-sub">1 guide + Le montage pour d\u00e9butants offert</div>' +
-        '<div class="ob-plan-up">Ajoute 1 guide \u2192 passe en <strong>Growth</strong>, le plan le plus choisi (4\u00d7 plus d\u2019analyses, 2 r\u00e9seaux)</div>';
-    } else if (n === 2) {
-      bar.innerHTML =
-        '<div class="ob-plan-main"><span class="ob-plan-name">Plan Growth</span><span class="ob-plan-pop">LE PLUS POPULAIRE</span><span class="ob-plan-price">49$/mois</span></div>' +
-        '<div class="ob-plan-sub">2 guides + montage offert \u00b7 13 analyses/jour \u00b7 2 r\u00e9seaux</div>';
-    } else {
-      bar.innerHTML =
-        '<div class="ob-plan-main"><span class="ob-plan-name">Plan Elite</span><span class="ob-plan-price">99$/mois</span></div>' +
-        '<div class="ob-plan-sub">' + n + ' guides s\u00e9lectionn\u00e9s \u2192 Elite d\u00e9bloque <strong>tous</strong> les guides + analyses illimit\u00e9es + concurrents</div>';
-    }
-  }
-
-  function obTakeBooks() {
-    if (!obSelected.length) return;
-    try { saveChosenBooks(obSelected.slice(0, 99)); } catch(e) {}
-    try {
-      var ob = JSON.parse(localStorage.getItem('skillora_onboarding') || '{}');
-      ob.selected = obSelected;
-      localStorage.setItem('skillora_onboarding', JSON.stringify(ob));
-    } catch(e) {}
-    window.location.href = 'index.html#pricing';
+    closeOnboarding();
   }
 
   function closeOnboarding() {
     document.getElementById('obOverlay').classList.remove('open');
-    try {
-      var ob = JSON.parse(localStorage.getItem('skillora_onboarding') || '{}');
-      (ob.suggested || []).forEach(function(id){
-        var el = document.querySelector('.book[data-book="' + id + '"]');
-        if (el) el.classList.add('suggested');
-      });
-    } catch(e) {}
     loadHomeDashboard();
   }
 
   async function checkOnboarding(user) {
-    // L'ancien parcours « choisis tes ebooks » est SUPPRIMÉ : le site a changé de système.
-    // On charge juste le profil, on marque onboarding_done pour les anciens comptes, et on entre.
+    // Les 3 questions ne sont posées qu'aux nouveaux comptes (onboarding_done vide),
+    // quelle que soit la méthode d'inscription : Google et e-mail arrivent tous les deux ici.
+    // Les comptes existants sont déjà marqués « done » et ne sont pas ré-interrogés.
     try {
       var { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
       window._userProfile = prof || {};
-      if (prof && !prof.onboarding_done) {
-        try { await sb.from('profiles').update({ onboarding_done: true }).eq('id', user.id); } catch(e2) {}
-        window._userProfile.onboarding_done = true;
-      }
+      if (!window._userProfile.onboarding_done) { showOnboarding(); return; }
       loadHomeDashboard();
-    } catch(e) { console.log('profile load error', e); }
+    } catch(e) {
+      console.log('profile load error', e);
+      loadHomeDashboard();   // en cas de pépin réseau, on entre quand même dans l'app
+    }
   }
 
   async function signOut() { try { localStorage.removeItem('sk_home_html'); localStorage.removeItem('sk_growth'); localStorage.removeItem('sk_pubposts'); } catch(e){} try { await sb.auth.signOut(); } catch(e){} window.location.href = 'signup.html'; }

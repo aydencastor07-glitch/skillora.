@@ -47,17 +47,21 @@
   .logo-word { white-space:nowrap; }
   .logo span { color: var(--blue); }
   .top-icons { display: flex; gap: 10px; align-items: center; }
-  /* Pastille d'abonnement dans la barre du haut */
-  .top-plan { flex:none; display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 14px; border-radius:999px; border:none; cursor:pointer;
-    font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:-0.01em; white-space:nowrap; color:#fff;
-    background:linear-gradient(135deg,#62a0ff,#2f7bff 55%,#1659d8); box-shadow:0 8px 20px -8px rgba(47,123,255,0.85), inset 0 1px 0 rgba(255,255,255,0.35);
-    transition:transform .16s, box-shadow .2s; }
-  .top-plan:active { transform:scale(0.95); }
-  /* Déjà abonné : badge de statut, plus un bouton de vente. */
-  .top-plan.is-pro { cursor:default; color:#0b1220; background:linear-gradient(135deg,#7ef2b0,#3ddc84 60%,#22c46c); box-shadow:0 8px 20px -9px rgba(61,220,132,0.8), inset 0 1px 0 rgba(255,255,255,0.45); }
+  /* Pastille d'abonnement de la barre du haut. Même famille visuelle que les deux
+     boutons ronds voisins : fond sombre, filet fin, ni aplat de couleur ni halo.
+     L'accent se limite au texte et à la coche — c'est ce qui fait sérieux. */
+  .top-plan { flex:none; display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 12px; border-radius:999px; cursor:pointer;
+    font-family:'Sora',sans-serif; font-weight:600; font-size:.72rem; letter-spacing:-0.01em; white-space:nowrap;
+    color:#9fc2ff; background:rgba(47,123,255,0.10); border:1px solid rgba(94,155,255,0.30);
+    transition:background .18s, border-color .18s, transform .14s; }
+  .top-plan:hover { background:rgba(47,123,255,0.17); border-color:rgba(120,170,255,0.48); }
+  .top-plan:active { transform:scale(0.96); }
+  /* Déjà abonné : un statut, pas une offre. */
+  .top-plan.is-pro { cursor:default; color:#54e39a; background:rgba(61,220,132,0.08); border-color:rgba(61,220,132,0.28); }
+  .top-plan.is-pro:hover { background:rgba(61,220,132,0.08); border-color:rgba(61,220,132,0.28); }
   .top-plan.is-pro:active { transform:none; }
   .top-plan svg { flex:none; display:block; }
-  @media (max-width:360px) { .top-plan { padding:0 11px; font-size:.73rem; } .top-icons { gap:7px; } }
+  @media (max-width:360px) { .top-plan { padding:0 10px; font-size:.69rem; } .top-icons { gap:7px; } }
   .icon-btn { width:42px; height:42px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.05rem; position:relative; transition:transform .2s; }
   .icon-btn:active { transform: scale(0.92); }
   .icon-btn .dot { position:absolute; top:10px; right:11px; width:7px; height:7px; background:var(--orange); border-radius:50%; box-shadow:0 0 8px var(--orange); }

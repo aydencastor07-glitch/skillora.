@@ -1827,6 +1827,52 @@
   .pub-err-m{font-size:.86rem;color:#ffb4b4;line-height:1.5;word-break:break-word;}
   .pub-err-btn{margin-top:16px;display:inline-block;background:linear-gradient(135deg,#4d8fff,#1a6fff);color:#fff;font-family:'Sora';font-weight:600;font-size:.9rem;padding:11px 24px;border-radius:12px;border:none;cursor:pointer;}
 
+  /* ═══════════════ ORDINATEUR ═══════════════
+     Jusqu'ici l'app était une colonne de 480 px centrée : sur un écran large on
+     avait une bande au milieu et du vide de chaque côté. Ici on élargit la zone
+     de contenu et on répartit les grilles sur la largeur disponible. Les blocs
+     qui doivent rester lisibles (titres, textes, formulaires) gardent une
+     largeur de lecture confortable au lieu de s'étirer d'un bord à l'autre. */
+  @media (min-width: 1000px) {
+    :root { --max: 1120px; }
+    .view { padding: 34px 34px 56px; }
+    .page-title { font-size: 2.5rem; }
+    .page-sub { max-width: 62ch; font-size: 1.02rem; }
+    .topbar { padding: 18px 34px 16px; }
+    .logo { font-size: 1.7rem; }
+
+    /* Accueil : le héros reste centré et lisible, le feed occupe toute la largeur */
+    .hv2-hero { padding: 44px 4px 18px; }
+    .hv2-title { font-size: 2.9rem; }
+    .hv2-sub { max-width: 60ch; margin-left: auto; margin-right: auto; }
+    /* Ces grilles sont redéfinies dans un bloc <style> plus bas : on préfixe par
+       .phone pour l'emporter sans dépendre de l'ordre des blocs. */
+    .phone .hvg-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .phone .nz-grid  { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .phone .stat-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .phone .idz-chips { grid-template-columns: repeat(4, 1fr); }
+    .phone .book-grid { grid-template-columns: repeat(4, 1fr); }
+    .phone .home-connect-grid.rows { grid-template-columns: repeat(4, 1fr); }
+
+    /* Profil / réglages : les cartes se répartissent sur deux colonnes.
+       On passe la vue elle-même en grille (l'id l'emporte sur .view.active),
+       le titre et le sous-titre occupant toute la largeur. */
+    #view-profile.active { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; align-content: start; }
+    #view-profile > .page-title, #view-profile > .page-sub { grid-column: 1 / -1; }
+    #view-profile > .page-title { margin-bottom: 0; }
+    #view-profile .pf-card { margin-bottom: 0; align-self: start; }
+
+    /* Les cartes et panneaux calés sur la largeur du téléphone suivent la nouvelle largeur */
+    .modal-sheet, .ideas-sheet { max-width: 640px; }
+    .ob-shell { max-width: 620px; }
+  }
+  /* Très grands écrans : on cesse d'élargir, on aère. */
+  @media (min-width: 1500px) {
+    :root { --max: 1280px; }
+    .phone .hvg-grid { grid-template-columns: repeat(5, 1fr); }
+    .phone .nz-grid  { grid-template-columns: repeat(4, 1fr); }
+  }
+
 </style>
 </head>
 <body>
@@ -3805,6 +3851,9 @@
 
   function closeOnboarding() {
     document.getElementById('obOverlay').classList.remove('open');
+    // On atterrit TOUJOURS sur l'accueil, jamais sur l'écran actif avant le questionnaire
+    // (on tombait sinon dans les paramètres au retour d'une connexion Google).
+    try { switchView('home', null); } catch(e){}
     loadHomeDashboard();
   }
 

@@ -654,7 +654,11 @@
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: appReturnUrl()
+          redirectTo: appReturnUrl(),
+          // Sans ceci, Google réutilise en silence la session déjà ouverte dans le
+          // navigateur : la personne n'a jamais le choix du compte, et si son compte
+          // Skillora a été supprimé elle se retrouve directement dans le questionnaire.
+          queryParams: { prompt: 'select_account' }
         }
       });
       if (error) alert('Erreur Google : ' + error.message);

@@ -3665,6 +3665,7 @@
       if (typeof updateCoachLock === 'function') updateCoachLock();
       if (typeof renderProfiles === 'function') { try { renderProfiles(); } catch(e){} }
       if (typeof updateProfilePlan === 'function') updateProfilePlan();
+      window._planLoaded = true;              // à partir d'ici seulement, l'état Pro est fiable
       try { skCheckProNotif(); } catch(e){}   // notif : passage Pro / abonnement terminé
     } catch(e){}
   }
@@ -5050,16 +5051,33 @@
   }
   // Détecte un changement d'état d'abonnement (payé / terminé) et pousse la bonne notif.
   function skCheckProNotif(){
+    // Tant que le plan n'est pas revenu du serveur, on ne sait RIEN : hv2IsPro() répond
+    // « non » simplement parce que la donnée n'est pas encore chargée. Sans ce garde-fou,
+    // ouvrir la cloche trop tôt annonçait un abonnement terminé à quelqu'un qui est Pro.
+    if(!window._planLoaded) return;
+    if(window._unlimited){
+      try{ localStorage.setItem('sk_pro_state','pro'); }catch(e){}
+      skDropProEndedNotif();   // efface une éventuelle fausse alerte laissée par l'ancienne version
+      return;
+    }
     var pro = (typeof hv2IsPro==='function') ? hv2IsPro() : false;
-    if(window._unlimited){ try{ localStorage.setItem('sk_pro_state','pro'); }catch(e){} return; }
     var last=null; try{ last=localStorage.getItem('sk_pro_state'); }catch(e){}
     if(pro){
       if(last==='free'){ skPushNotif({type:'pro',key:'welcome',ic:'🎉',title:'Bienvenue en Pro !',sub:'Ton abonnement est actif. Tu peux maintenant regarder et copier toutes les vidéos.'}); }
+      skDropProEndedNotif();
       try{ localStorage.setItem('sk_pro_state','pro'); }catch(e){}
     } else {
-      if(last==='pro'){ skPushNotif({type:'pro',key:'ended_'+new Date().toISOString().slice(0,10),ic:'⚠️',title:'Ton abonnement est terminé',sub:'Le paiement n\'est pas passé (carte expirée ou refusée). Réactive ton Pro pour continuer à regarder et copier.',action:'upgrade'}); }
+      // On sait que l'accès n'est plus actif — on ne sait PAS pourquoi (carte refusée,
+      // résiliation volontaire, fin de période…). On n'invente donc aucune cause.
+      if(last==='pro'){ skPushNotif({type:'pro',key:'ended_'+new Date().toISOString().slice(0,10),ic:'⚠️',title:'Ton accès Pro n\'est plus actif',sub:'Réactive-le pour continuer à regarder et copier les vidéos.',action:'upgrade'}); }
       try{ localStorage.setItem('sk_pro_state','free'); }catch(e){}
     }
+  }
+  // Retire les notifications « abonnement terminé » quand l'accès est en fait actif.
+  function skDropProEndedNotif(){
+    var l = skNotifs();
+    var net = l.filter(function(n){ return !(n.type==='pro' && String(n.key||'').indexOf('ended_')===0); });
+    if(net.length !== l.length){ skNotifsSave(net); try{ refreshNotifDot(); }catch(e){} }
   }
   function notifCardHTML(n){
     var arrow = n.action ? '<span class="notif-idea-go">→</span>' : '';

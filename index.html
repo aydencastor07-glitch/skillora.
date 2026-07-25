@@ -716,6 +716,32 @@
   .price-btn.filled { background:linear-gradient(135deg,#4d8fff,#1a6fff); border:none; color:#fff; box-shadow:0 12px 26px -10px rgba(47,123,255,0.65); }
   .price-btn:active { transform:scale(0.97); }
 
+  /* ===== Tarif : carte unique, aérée (fini le gros bloc) ===== */
+  .pr-card { max-width:520px; margin:0 auto; }
+  .pr-top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding:0 4px 20px; border-bottom:1px solid rgba(255,255,255,.09); }
+  .pr-name { font-family:'Sora',sans-serif; font-weight:800; font-size:1.15rem; color:#eaf1ff; letter-spacing:-.01em; }
+  .pr-price { display:flex; align-items:baseline; gap:2px; font-family:'Sora',sans-serif; font-weight:800; color:#fff; }
+  .pr-price sup { font-size:1.05rem; color:var(--muted); font-weight:700; }
+  .pr-price span { font-size:2.5rem; letter-spacing:-.03em; line-height:1; }
+  .pr-price em { font-style:normal; font-size:.86rem; color:var(--muted); font-weight:600; margin-left:5px; }
+  .pr-list { list-style:none; margin:0; padding:20px 4px 4px; display:grid; grid-template-columns:1fr 1fr; gap:2px 24px; }
+  .pr-list li { position:relative; padding:9px 0 9px 26px; font-size:.86rem; color:#cdd6ea; line-height:1.4; }
+  .pr-list li::before { content:''; position:absolute; left:0; top:12px; width:15px; height:15px; border-radius:50%;
+    background:rgba(61,220,132,.14); border:1px solid rgba(61,220,132,.4); }
+  .pr-list li::after { content:''; position:absolute; left:4.6px; top:16px; width:6px; height:3px;
+    border-left:1.7px solid #3ddc84; border-bottom:1.7px solid #3ddc84; transform:rotate(-45deg); }
+  .pr-btn { display:block; margin:26px auto 0; max-width:300px; padding:15px; border-radius:14px; text-align:center;
+    font-family:'Sora',sans-serif; font-weight:800; font-size:.98rem; color:#fff; text-decoration:none;
+    background:linear-gradient(135deg,#4d8fff,#1a6fff); box-shadow:0 16px 34px -12px rgba(47,123,255,.75); transition:transform .15s; }
+  .pr-btn:active { transform:scale(.98); }
+  .pr-note { text-align:center; font-size:.76rem; color:var(--muted2); margin-top:13px; }
+  @media (max-width:640px) {
+    .pr-list { grid-template-columns:1fr; gap:0; padding-top:16px; }
+    .pr-list li { font-size:.84rem; padding:8px 0 8px 25px; }
+    .pr-price span { font-size:2.1rem; }
+    .pr-btn { max-width:100%; }
+  }
+
   /* ===== FAQ ===== */
   .faq { padding:70px 0 30px; }
   .faq-list { max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:10px; padding:0 22px; }
@@ -972,29 +998,34 @@
 <!-- ================= TARIFS ================= -->
 <section class="pricing" id="pricing">
   <div class="sec-head reveal">
-    <h2>Un plan pour chaque étape.</h2>
-    <p>Change ou annule à tout moment. Aucun engagement.</p>
+    <h2>Un seul plan. Tout est dedans.</h2>
+    <p>Sans engagement — tu annules quand tu veux.</p>
   </div>
   <div class="wrap">
-    <div class="price-grid" style="justify-content:center;">
-      <div class="price-card pop reveal" style="max-width:360px;">
-        <div class="price-badge">✨ Accès complet</div>
-        <div class="price-name">Pro</div>
-        <div class="price-tag">Tout Skillora, un seul plan</div>
-        <div class="price-val"><sup>$</sup><span class="pv">30</span></div>
-        <div class="price-per">par mois</div>
-        <ul class="price-feats">
-          <li><span class="ck">✓</span>Regarder &amp; copier toutes les vidéos virales<b>✓</b></li>
-          <li><span class="ck">✓</span>Le plan exact : images, prompts, montage<b>✓</b></li>
-          <li><span class="ck">✓</span>Niches virales — tout le catalogue<b>✓</b></li>
-          <li><span class="ck">✓</span>Créer des scripts viraux<b>✓</b></li>
-          <li><span class="ck">✓</span>Idées de vidéos chaque jour + e-mail<b>✓</b></li>
-          <li><span class="ck">✓</span>Nouvelles vidéos ajoutées en continu<b>✓</b></li>
-          <li><span class="ck">✓</span>Support prioritaire<b>✓</b></li>
-        </ul>
-        <a class="price-btn filled" href="signup.html">Commencer — 30 $ / mois</a>
-        <div style="text-align:center;font-size:.78rem;color:var(--muted,#8a93a6);margin-top:10px;">💳 Carte bancaire ou crypto</div>
+    <div class="pr-card reveal">
+      <div class="pr-top">
+        <div class="pr-name">Pro</div>
+        <div class="pr-price"><sup>$</sup><span>30</span><em>/ mois</em></div>
       </div>
+
+      <ul class="pr-list">
+        <li>Regarder toutes les vidéos virales</li>
+        <li>Copier n'importe quelle vidéo</li>
+        <li>Les images de référence à télécharger</li>
+        <li>Les prompts pour générer les images</li>
+        <li>Les prompts d'animation</li>
+        <li>Le plan de montage détaillé</li>
+        <li>Les outils utilisés, étape par étape</li>
+        <li>Le catalogue des niches virales notées</li>
+        <li>Les scripts notés et optimisés</li>
+        <li>Les idées de vidéos chaque jour</li>
+        <li>Le rappel par e-mail le matin</li>
+        <li>Les nouvelles vidéos ajoutées en continu</li>
+        <li>Support prioritaire</li>
+      </ul>
+
+      <a class="pr-btn" href="signup.html">Commencer</a>
+      <div class="pr-note">Paiement sécurisé par carte bancaire · Résiliable à tout moment</div>
     </div>
   </div>
 </section>

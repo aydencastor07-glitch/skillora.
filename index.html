@@ -724,20 +724,25 @@
   .pr-price sup { font-size:1.05rem; color:var(--muted); font-weight:700; }
   .pr-price span { font-size:2.5rem; letter-spacing:-.03em; line-height:1; }
   .pr-price em { font-style:normal; font-size:.86rem; color:var(--muted); font-weight:600; margin-left:5px; }
-  .pr-list { list-style:none; margin:0; padding:20px 4px 4px; display:grid; grid-template-columns:1fr 1fr; gap:2px 24px; }
-  .pr-list li { position:relative; padding:9px 0 9px 26px; font-size:.86rem; color:#cdd6ea; line-height:1.4; }
-  .pr-list li::before { content:''; position:absolute; left:0; top:12px; width:15px; height:15px; border-radius:50%;
-    background:rgba(61,220,132,.14); border:1px solid rgba(61,220,132,.4); }
-  .pr-list li::after { content:''; position:absolute; left:4.6px; top:16px; width:6px; height:3px;
-    border-left:1.7px solid #3ddc84; border-bottom:1.7px solid #3ddc84; transform:rotate(-45deg); }
+  .pr-list { list-style:none; margin:0; padding:22px 2px 4px; display:flex; flex-direction:column; gap:3px; }
+  .pr-list li { position:relative; padding:12px 0 12px 30px; }
+  .pr-list li + li { border-top:1px solid rgba(255,255,255,.055); }
+  .pr-list li b { display:block; font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; color:#eaf1ff; letter-spacing:-.01em; }
+  .pr-list li span { display:block; font-size:.78rem; color:var(--muted); margin-top:2px; line-height:1.45; }
+  .pr-list li::before { content:''; position:absolute; left:0; top:15px; width:17px; height:17px; border-radius:50%;
+    background:rgba(61,220,132,.14); border:1px solid rgba(61,220,132,.42); }
+  .pr-list li::after { content:''; position:absolute; left:5px; top:19.5px; width:6.5px; height:3.4px;
+    border-left:1.8px solid #3ddc84; border-bottom:1.8px solid #3ddc84; transform:rotate(-45deg); }
   .pr-btn { display:block; margin:26px auto 0; max-width:300px; padding:15px; border-radius:14px; text-align:center;
     font-family:'Sora',sans-serif; font-weight:800; font-size:.98rem; color:#fff; text-decoration:none;
     background:linear-gradient(135deg,#4d8fff,#1a6fff); box-shadow:0 16px 34px -12px rgba(47,123,255,.75); transition:transform .15s; }
   .pr-btn:active { transform:scale(.98); }
   .pr-note { text-align:center; font-size:.76rem; color:var(--muted2); margin-top:13px; }
   @media (max-width:640px) {
-    .pr-list { grid-template-columns:1fr; gap:0; padding-top:16px; }
-    .pr-list li { font-size:.84rem; padding:8px 0 8px 25px; }
+    .pr-list { padding-top:16px; }
+    .pr-list li { padding:11px 0 11px 28px; }
+    .pr-list li b { font-size:.88rem; }
+    .pr-list li span { font-size:.74rem; }
     .pr-price span { font-size:2.1rem; }
     .pr-btn { max-width:100%; }
   }
@@ -1009,19 +1014,11 @@
       </div>
 
       <ul class="pr-list">
-        <li>Regarder toutes les vidéos virales</li>
-        <li>Copier n'importe quelle vidéo</li>
-        <li>Les images de référence à télécharger</li>
-        <li>Les prompts pour générer les images</li>
-        <li>Les prompts d'animation</li>
-        <li>Le plan de montage détaillé</li>
-        <li>Les outils utilisés, étape par étape</li>
-        <li>Le catalogue des niches virales notées</li>
-        <li>Les scripts notés et optimisés</li>
-        <li>Les idées de vidéos chaque jour</li>
-        <li>Le rappel par e-mail le matin</li>
-        <li>Les nouvelles vidéos ajoutées en continu</li>
-        <li>Support prioritaire</li>
+        <li><b>Copies illimitées</b><span>Le plan complet pour refaire n'importe quelle vidéo virale</span></li>
+        <li><b>Toutes les niches virales</b><span>Le catalogue entier, noté par potentiel</span></li>
+        <li><b>Des idées de vidéos chaque jour</b><span>Pour ta niche, envoyées le matin</span></li>
+        <li><b>Génération de scripts</b><span>Notés et optimisés avant de tourner</span></li>
+        <li><b>Support prioritaire</b><span>On te répond en premier</span></li>
       </ul>
 
       <a class="pr-btn" href="signup.html">Commencer</a>

@@ -46,7 +46,18 @@
   .logo-mark { width:30px; height:30px; border-radius:8px; object-fit:cover; flex:none; box-shadow:0 3px 10px -3px rgba(47,123,255,0.5); }
   .logo-word { white-space:nowrap; }
   .logo span { color: var(--blue); }
-  .top-icons { display: flex; gap: 10px; }
+  .top-icons { display: flex; gap: 10px; align-items: center; }
+  /* Pastille d'abonnement dans la barre du haut */
+  .top-plan { flex:none; display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 14px; border-radius:999px; border:none; cursor:pointer;
+    font-family:'Sora',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:-0.01em; white-space:nowrap; color:#fff;
+    background:linear-gradient(135deg,#62a0ff,#2f7bff 55%,#1659d8); box-shadow:0 8px 20px -8px rgba(47,123,255,0.85), inset 0 1px 0 rgba(255,255,255,0.35);
+    transition:transform .16s, box-shadow .2s; }
+  .top-plan:active { transform:scale(0.95); }
+  /* Déjà abonné : badge de statut, plus un bouton de vente. */
+  .top-plan.is-pro { cursor:default; color:#0b1220; background:linear-gradient(135deg,#7ef2b0,#3ddc84 60%,#22c46c); box-shadow:0 8px 20px -9px rgba(61,220,132,0.8), inset 0 1px 0 rgba(255,255,255,0.45); }
+  .top-plan.is-pro:active { transform:none; }
+  .top-plan svg { flex:none; display:block; }
+  @media (max-width:360px) { .top-plan { padding:0 11px; font-size:.73rem; } .top-icons { gap:7px; } }
   .icon-btn { width:42px; height:42px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.05rem; position:relative; transition:transform .2s; }
   .icon-btn:active { transform: scale(0.92); }
   .icon-btn .dot { position:absolute; top:10px; right:11px; width:7px; height:7px; background:var(--orange); border-radius:50%; box-shadow:0 0 8px var(--orange); }
@@ -1905,6 +1916,9 @@
   <div class="topbar">
     <div class="logo" onclick="switchView('home', null)" style="cursor:pointer;"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'"><b class="logo-word">Skill<span>ora</span></b></div>
     <div class="top-icons">
+      <!-- Pastille d'abonnement : « Devenir Pro » tant que l'accès n'est pas actif,
+           badge « Pro » avec sa coche une fois abonné. Rempli par updateTopPlan(). -->
+      <button class="top-plan" id="topPlan" type="button" style="visibility:hidden;"></button>
       <div class="icon-btn" onclick="openNotifPanel()" role="button" aria-label="Notifications">🔔<span class="notif-dot" id="notifDot"></span></div>
       <div class="icon-btn" onclick="skMenuToggle(event)" role="button" aria-label="Menu" id="skMenuBtn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg></div>
     </div>
@@ -3666,6 +3680,7 @@
       if (typeof renderProfiles === 'function') { try { renderProfiles(); } catch(e){} }
       if (typeof updateProfilePlan === 'function') updateProfilePlan();
       window._planLoaded = true;              // à partir d'ici seulement, l'état Pro est fiable
+      if (typeof updateTopPlan === 'function') updateTopPlan();
       try { skCheckProNotif(); } catch(e){}   // notif : passage Pro / abonnement terminé
     } catch(e){}
   }
@@ -3938,6 +3953,25 @@
         btn.onclick = function(){ openUpgrade(); };
         btn.textContent = 'Passer en Pro';
       }
+    }
+  }
+
+  // Pastille d'abonnement de la barre du haut. Tant que le plan n'est pas revenu du
+  // serveur on ne l'affiche pas : proposer « Devenir Pro » à un abonné, même une
+  // demi-seconde, donne l'impression que son abonnement ne compte pas.
+  function updateTopPlan() {
+    var el = document.getElementById('topPlan'); if (!el) return;
+    if (!window._planLoaded) { el.style.visibility = 'hidden'; return; }
+    var pro = (typeof hv2IsPro === 'function') ? hv2IsPro() : (typeof userIsSubscribed !== 'undefined' && userIsSubscribed);
+    el.style.visibility = 'visible';
+    if (pro) {
+      el.className = 'top-plan is-pro';
+      el.onclick = null;
+      el.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9.5 18 20 6"/></svg>' + skT('planPro');
+    } else {
+      el.className = 'top-plan';
+      el.onclick = function(){ openUpgrade(); };
+      el.textContent = skT('planUp');
     }
   }
 
@@ -6715,10 +6749,10 @@
 
   // ── Langue (menu ☰, visible direct) ────────────────────────────────────
   var SK_I18N = {
-    fr:{heroA:"Colle le lien d'une vidéo virale.",heroB:"Repars avec le plan.",heroSub:"L'IA s'occupe du reste.",heroGo:"Copier",heroImp:"ou importe ta vidéo",orT:"Ou choisis une tendance",orS:"Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.",trend:"🔥 Tendance",copyVid:"Copier la vidéo",copyShort:"Copier",copyAI:"Copier avec l'IA",seeMore:"Voir plus de tendances",seeLess:"Voir moins",unlockPro:"Débloque toutes les tendances (Pro)",ph:"Colle un lien viral ici…",m_niches:"Niches virales",nz_title:"🎬 Niches virales",nz_sub:"Les styles qui cartonnent, notés par potentiel viral. Choisis, ouvre, reproduis avec l'IA.",m_ideas:"Idées de vidéos",m_script:"Créer un script",m_niche:"Trouver ma niche",m_sub:"Abonnement",m_set:"Paramètres",m_help:"Support",m_terms:"Termes & conditions"},
-    en:{heroA:"Paste a viral video link.",heroB:"Walk away with the plan.",heroSub:"The AI handles the rest.",heroGo:"Copy",heroImp:"or upload your video",orT:"Or pick a trend",orS:"Viral videos generated or reproducible with AI — copy them in 1 click.",trend:"🔥 Trending",copyVid:"Copy this video",copyShort:"Copy",copyAI:"Copy with AI",seeMore:"See more trends",seeLess:"See less",unlockPro:"Unlock all trends (Pro)",ph:"Paste a viral link here…",m_niches:"Viral niches",nz_title:"🎬 Viral niches",nz_sub:"The styles that blow up, rated by viral potential. Pick one, open it, remake it with AI.",m_ideas:"Video ideas",m_script:"Create a script",m_niche:"Find my niche",m_sub:"Subscription",m_set:"Settings",m_help:"Support",m_terms:"Terms & conditions"},
-    es:{heroA:"Pega el enlace de un video viral.",heroB:"Llévate el plan.",heroSub:"La IA se encarga del resto.",heroGo:"Copiar",heroImp:"o sube tu video",orT:"O elige una tendencia",orS:"Videos virales generados o reproducibles con IA — cópialos en 1 clic.",trend:"🔥 Tendencia",copyVid:"Copiar este video",copyShort:"Copiar",copyAI:"Copiar con IA",seeMore:"Ver más tendencias",seeLess:"Ver menos",unlockPro:"Desbloquea todo (Pro)",ph:"Pega un enlace viral aquí…",m_niches:"Nichos virales",nz_title:"🎬 Nichos virales",nz_sub:"Los estilos que explotan, valorados por potencial viral. Elige, abre y recrea con IA.",m_ideas:"Ideas de videos",m_script:"Crear un guion",m_niche:"Encontrar mi nicho",m_sub:"Suscripción",m_set:"Ajustes",m_help:"Soporte",m_terms:"Términos y condiciones"},
-    pt:{heroA:"Cole o link de um vídeo viral.",heroB:"Saia com o plano.",heroSub:"A IA cuida do resto.",heroGo:"Copiar",heroImp:"ou envie seu vídeo",orT:"Ou escolha uma tendência",orS:"Vídeos virais gerados ou reproduzíveis com IA — copie em 1 clique.",trend:"🔥 Em alta",copyVid:"Copiar este vídeo",copyShort:"Copiar",copyAI:"Copiar com IA",seeMore:"Ver mais tendências",seeLess:"Ver menos",unlockPro:"Desbloqueie tudo (Pro)",ph:"Cole um link viral aqui…",m_niches:"Nichos virais",nz_title:"🎬 Nichos virais",nz_sub:"Os estilos que bombam, avaliados por potencial viral. Escolha, abra e recrie com IA.",m_ideas:"Ideias de vídeos",m_script:"Criar um roteiro",m_niche:"Encontrar meu nicho",m_sub:"Assinatura",m_set:"Configurações",m_help:"Suporte",m_terms:"Termos e condições"}
+    fr:{heroA:"Colle le lien d'une vidéo virale.",heroB:"Repars avec le plan.",heroSub:"L'IA s'occupe du reste.",heroGo:"Copier",heroImp:"ou importe ta vidéo",orT:"Ou choisis une tendance",orS:"Des vidéos virales générées ou reproductibles avec l'IA — copie-les en 1 clic.",trend:"🔥 Tendance",copyVid:"Copier la vidéo",copyShort:"Copier",copyAI:"Copier avec l'IA",seeMore:"Voir plus de tendances",seeLess:"Voir moins",unlockPro:"Débloque toutes les tendances (Pro)",ph:"Colle un lien viral ici…",m_niches:"Niches virales",nz_title:"🎬 Niches virales",nz_sub:"Les styles qui cartonnent, notés par potentiel viral. Choisis, ouvre, reproduis avec l'IA.",m_ideas:"Idées de vidéos",m_script:"Créer un script",m_niche:"Trouver ma niche",m_sub:"Abonnement",m_set:"Paramètres",m_help:"Support",m_terms:"Termes & conditions",planUp:"Devenir Pro",planPro:"Pro"},
+    en:{heroA:"Paste a viral video link.",heroB:"Walk away with the plan.",heroSub:"The AI handles the rest.",heroGo:"Copy",heroImp:"or upload your video",orT:"Or pick a trend",orS:"Viral videos generated or reproducible with AI — copy them in 1 click.",trend:"🔥 Trending",copyVid:"Copy this video",copyShort:"Copy",copyAI:"Copy with AI",seeMore:"See more trends",seeLess:"See less",unlockPro:"Unlock all trends (Pro)",ph:"Paste a viral link here…",m_niches:"Viral niches",nz_title:"🎬 Viral niches",nz_sub:"The styles that blow up, rated by viral potential. Pick one, open it, remake it with AI.",m_ideas:"Video ideas",m_script:"Create a script",m_niche:"Find my niche",m_sub:"Subscription",m_set:"Settings",m_help:"Support",m_terms:"Terms & conditions",planUp:"Upgrade",planPro:"Pro"},
+    es:{heroA:"Pega el enlace de un video viral.",heroB:"Llévate el plan.",heroSub:"La IA se encarga del resto.",heroGo:"Copiar",heroImp:"o sube tu video",orT:"O elige una tendencia",orS:"Videos virales generados o reproducibles con IA — cópialos en 1 clic.",trend:"🔥 Tendencia",copyVid:"Copiar este video",copyShort:"Copiar",copyAI:"Copiar con IA",seeMore:"Ver más tendencias",seeLess:"Ver menos",unlockPro:"Desbloquea todo (Pro)",ph:"Pega un enlace viral aquí…",m_niches:"Nichos virales",nz_title:"🎬 Nichos virales",nz_sub:"Los estilos que explotan, valorados por potencial viral. Elige, abre y recrea con IA.",m_ideas:"Ideas de videos",m_script:"Crear un guion",m_niche:"Encontrar mi nicho",m_sub:"Suscripción",m_set:"Ajustes",m_help:"Soporte",m_terms:"Términos y condiciones",planUp:"Hazte Pro",planPro:"Pro"},
+    pt:{heroA:"Cole o link de um vídeo viral.",heroB:"Saia com o plano.",heroSub:"A IA cuida do resto.",heroGo:"Copiar",heroImp:"ou envie seu vídeo",orT:"Ou escolha uma tendência",orS:"Vídeos virais gerados ou reproduzíveis com IA — copie em 1 clique.",trend:"🔥 Em alta",copyVid:"Copiar este vídeo",copyShort:"Copiar",copyAI:"Copiar com IA",seeMore:"Ver mais tendências",seeLess:"Ver menos",unlockPro:"Desbloqueie tudo (Pro)",ph:"Cole um link viral aqui…",m_niches:"Nichos virais",nz_title:"🎬 Nichos virais",nz_sub:"Os estilos que bombam, avaliados por potencial viral. Escolha, abra e recrie com IA.",m_ideas:"Ideias de vídeos",m_script:"Criar um roteiro",m_niche:"Encontrar meu nicho",m_sub:"Assinatura",m_set:"Configurações",m_help:"Suporte",m_terms:"Termos e condições",planUp:"Seja Pro",planPro:"Pro"}
   };
   function skLang(){ try { return localStorage.getItem('skillora_lang') || 'fr'; } catch(e){ return 'fr'; } }
   function skT(k){ var d=SK_I18N[skLang()]||SK_I18N.fr; return d[k]||SK_I18N.fr[k]||''; }
@@ -6731,6 +6765,7 @@
     document.querySelectorAll('#skmLangs button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-l')===l); });
     document.querySelectorAll('[data-i18n]').forEach(function(el){ var t=skT(el.getAttribute('data-i18n')); if(t) el.innerHTML=t; });
     var inp=document.getElementById('hv2Link'); if(inp) inp.placeholder=skT('ph');
+    try { updateTopPlan(); } catch(e){}
     try { hv2Chips(); hv2Render(); } catch(e){}
   }
   // Accueil en noir (le blanc masquait les détails) — plus de thème clair.

@@ -137,7 +137,10 @@
   /* Plan pas encore chargé : un fond qui respire, jamais une icône seule sur du vide. */
   .ca-card.ca-ph{background:linear-gradient(100deg,#0d1424 20%,#182238 42%,#0d1424 68%);background-size:220% 100%;animation:caSkel 1.5s linear infinite;font-size:0;}
   @keyframes caSkel{0%{background-position:160% 0}100%{background-position:-60% 0}}
-  .ca-stage{position:relative;width:174px;height:352px;margin-bottom:24px;}
+  .ca-stage{position:relative;width:174px;height:352px;margin-bottom:24px;transition:width .3s,height .3s;}
+  /* Format long (16:9) : meme animation, cadre adapte — on ne recadre plus en vertical. */
+  .ca-stage.ca-wide{width:296px;height:208px;}
+  .ca-stage.ca-wide .ca-card{width:270px;margin-left:-135px;aspect-ratio:16/9;}
   .ca-stack{position:absolute;inset:0;}
   .ca-card{position:absolute;top:0;left:50%;width:160px;margin-left:-80px;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 22px 54px -24px rgba(0,0,0,.92);transition:transform .58s cubic-bezier(.45,.02,.2,1),opacity .58s;will-change:transform,opacity;}
   .ca-card video,.ca-card img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -1627,6 +1630,12 @@
     var img=new Image();
     img.onload=function(){
       if(!_caActive) return;
+      // Source horizontale (YouTube format long) : la scene passe en 16:9 au lieu
+      // de recadrer l'image en vertical. L'animation reste exactement la meme.
+      try{
+        var stage = st.parentNode;
+        if(stage) stage.classList.toggle('ca-wide', img.naturalWidth > img.naturalHeight * 1.15);
+      }catch(e){}
       Array.prototype.slice.call(st.children).forEach(function(c){
         if(c.querySelector('img,video')) return;          // deja servi
         var logo=c.querySelector('.ca-logo');

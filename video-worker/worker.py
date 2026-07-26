@@ -4920,24 +4920,73 @@ def _gen_clamp_shot(sh, language, n_scenes):
     return sh
 
 
+# Navigateur crédible : sans ça, TikTok et YouTube répondent souvent par une
+# page de vérification au lieu de la vidéo.
+DL_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+         "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+
+
+def _ytdlp_bin():
+    return shutil.which("yt-dlp") or "/usr/local/bin/yt-dlp"
+
+
 def _dl_video(url):
-    """Télécharge une vidéo depuis un lien de PAGE (TikTok, Instagram, Reels…)
-    via yt-dlp — indispensable car Gemini ne peut pas « lire » une page web,
-    seulement une vraie vidéo. Renvoie un chemin mp4, ou None."""
+    """Télécharge une vidéo depuis un lien de PAGE (TikTok, YouTube, Instagram,
+    Facebook…) via yt-dlp — indispensable car le modèle ne peut pas « lire » une
+    page web, seulement une vraie vidéo. Renvoie un chemin, ou None.
+
+    On plafonne à 720p : les images de référence et l'analyse n'ont pas besoin
+    de plus, et la 1080p/4K faisait durer le téléchargement plusieurs minutes.
+    YouTube exige en plus de se présenter comme un client mobile, sinon il
+    refuse — c'est la raison pour laquelle les plans YouTube n'avaient AUCUNE
+    image de référence : le téléchargement échouait en silence.
+    """
     if not url:
         return None
-    d = tempfile.mkdtemp(prefix="dl-")
-    ytdlp = shutil.which("yt-dlp") or "/usr/local/bin/yt-dlp"
+    ytdlp = _ytdlp_bin()
+    base = [ytdlp, "--no-playlist", "--no-warnings", "--no-part",
+            "--user-agent", DL_UA,
+            "--retries", "3", "--fragment-retries", "3",
+            "--socket-timeout", "20",
+            "--merge-output-format", "mp4"]
+    # Plusieurs tentatives, de la plus rapide à la plus permissive.
+    essais = [
+        ["-f", "bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720][ext=mp4]/b[height<=720]"],
+        ["--extractor-args", "youtube:player_client=android,ios,web", "-f", "b[height<=720]/b"],
+        ["-f", "best"],
+    ]
+    for i, extra in enumerate(essais):
+        d = tempfile.mkdtemp(prefix="dl-")
+        try:
+            run(base + extra + ["-o", os.path.join(d, "v.%(ext)s"), url], timeout=150)
+            cand = [os.path.join(d, f) for f in os.listdir(d)]
+            cand = [c for c in cand if os.path.getsize(c) > 10000]
+            if cand:
+                return max(cand, key=os.path.getsize)
+        except Exception as e:
+            print("_dl_video tentative %d:" % (i + 1), e, file=sys.stderr)
+    return None
+
+
+def _dl_poster(url):
+    """Image d'illustration officielle de la vidéo, SANS télécharger la vidéo.
+    Filet de sécurité : quand la plateforme bloque le téléchargement, on a au
+    moins une vraie image de la vidéo source plutôt que rien du tout."""
+    if not url:
+        return None
+    d = tempfile.mkdtemp(prefix="poster-")
     try:
-        run([ytdlp, "--no-playlist", "--merge-output-format", "mp4",
-             "-f", "mp4/bv*+ba/best", "-o", os.path.join(d, "v.%(ext)s"), url],
-            timeout=240)
-        cand = [os.path.join(d, f) for f in os.listdir(d)]
-        cand = [c for c in cand if os.path.getsize(c) > 10000]
+        run([_ytdlp_bin(), "--no-playlist", "--no-warnings", "--skip-download",
+             "--write-thumbnail", "--convert-thumbnails", "jpg",
+             "--user-agent", DL_UA, "--socket-timeout", "20",
+             "-o", os.path.join(d, "p.%(ext)s"), url], timeout=90)
+        cand = [os.path.join(d, f) for f in os.listdir(d)
+                if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))]
+        cand = [c for c in cand if os.path.getsize(c) > 3000]
         if cand:
             return max(cand, key=os.path.getsize)
     except Exception as e:
-        print("_dl_video:", e, file=sys.stderr)
+        print("_dl_poster:", e, file=sys.stderr)
     return None
 
 
@@ -6115,6 +6164,33 @@ def generate_blueprint_job(job, steps):
                         except Exception:
                             pass
             steps.done("ref", "%d captures" % n_ok)
+        elif source_url:
+            # La plateforme a refusé le téléchargement (YouTube le fait souvent).
+            # Plutôt que de livrer un plan SANS aucune image de référence, on
+            # récupère l'affiche officielle de la vidéo et on la donne comme
+            # référence commune : c'est une vraie image de la vidéo source.
+            steps.start("ref", "Récupération de l'image de référence…")
+            poster = _dl_poster(source_url)
+            n_ok = 0
+            try:
+                if poster:
+                    url = sb_upload_public(poster, "bp/%s/%s/ref_poster.jpg" % (uid, jid),
+                                           content_type="image/jpeg")
+                    if url:
+                        guide["poster_url"] = url
+                        for p_ in (guide.get("plans") or [])[:16]:
+                            p_.setdefault("frame_url", url)
+                            p_["frame_is_poster"] = True
+                            n_ok += 1
+            except Exception as e:
+                print("blueprint poster:", e, file=sys.stderr)
+            finally:
+                if poster and os.path.exists(poster):
+                    try:
+                        os.remove(poster)
+                    except Exception:
+                        pass
+            steps.done("ref", ("affiche de la vidéo" if n_ok else "indisponible"))
         update_job(jid, {"status": "done", "plan": {"blueprint": guide},
                          "finished_at": "now()", "steps": steps.items})
         print("Blueprint", jid, "terminé.")

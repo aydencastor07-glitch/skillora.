@@ -121,7 +121,22 @@
   .ca-ov.open{display:flex;animation:caFade .28s ease;}
   @keyframes caFade{from{opacity:0}to{opacity:1}}
   .ca-inner{width:min(360px,92vw);display:flex;flex-direction:column;align-items:center;text-align:center;}
-  .ca-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.07em;color:#9ec2ff;margin-bottom:22px;opacity:.92;}
+  .ca-brand{display:flex;flex-direction:column;align-items:center;gap:5px;margin-bottom:22px;}
+  /* Le nom balayé par une lueur : ça montre que ça travaille, sans clignoter. */
+  .ca-brand-n{font-family:'Sora',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.07em;
+    background:linear-gradient(100deg,#7fb0ff 20%,#ffffff 42%,#c8b4ff 58%,#7fb0ff 80%);
+    background-size:260% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:caShine 2.6s linear infinite;}
+  @keyframes caShine{0%{background-position:180% 0}100%{background-position:-80% 0}}
+  .ca-brand-a{font-family:'Sora',sans-serif;font-weight:600;font-size:.68rem;letter-spacing:.02em;color:#6f7f9e;display:inline-flex;align-items:baseline;}
+  .ca-brand-a i{width:3px;height:3px;border-radius:50%;background:#6f7f9e;margin-left:3px;opacity:.25;animation:caDot 1.25s ease-in-out infinite;}
+  .ca-brand-a i:nth-child(1){margin-left:5px;}
+  .ca-brand-a i:nth-child(2){animation-delay:.18s;}
+  .ca-brand-a i:nth-child(3){animation-delay:.36s;}
+  @keyframes caDot{0%,100%{opacity:.22;transform:translateY(0)}45%{opacity:1;transform:translateY(-2px)}}
+  /* Plan pas encore chargé : un fond qui respire, jamais une icône seule sur du vide. */
+  .ca-card.ca-ph{background:linear-gradient(100deg,#0d1424 20%,#182238 42%,#0d1424 68%);background-size:220% 100%;animation:caSkel 1.5s linear infinite;font-size:0;}
+  @keyframes caSkel{0%{background-position:160% 0}100%{background-position:-60% 0}}
   .ca-stage{position:relative;width:174px;height:352px;margin-bottom:24px;}
   .ca-stack{position:absolute;inset:0;}
   .ca-card{position:absolute;top:0;left:50%;width:160px;margin-left:-80px;aspect-ratio:9/16;border-radius:16px;overflow:hidden;background:#0b0f1a;box-shadow:0 22px 54px -24px rgba(0,0,0,.92);transition:transform .58s cubic-bezier(.45,.02,.2,1),opacity .58s;will-change:transform,opacity;}
@@ -560,7 +575,10 @@
   .ap-cat { position:absolute; top:4px; right:4px; z-index:2; padding:2px 5px; border-radius:6px; background:rgba(6,10,20,.75); font-size:.42rem; font-weight:700; color:#fff; }
   .ap-v { position:absolute; left:4px; bottom:4px; z-index:2; padding:2px 5px; border-radius:6px; background:rgba(6,10,20,.7); font-size:.44rem; font-weight:800; color:#fff; }
   /* Scène copie (identique à l'app : cartes qui partent sur le côté + logos) */
-  .p1s .ca-brand { text-align:center; font-family:'Sora',sans-serif; font-weight:800; font-size:.54rem; letter-spacing:.06em; color:#9ec2ff; margin-bottom:10px; }
+  .p1s .ca-brand { align-items:center; gap:3px; margin-bottom:10px; }
+  .p1s .ca-brand-n { font-size:.54rem; letter-spacing:.06em; }
+  .p1s .ca-brand-a { font-size:.44rem; }
+  .p1s .ca-brand-a i { width:2px; height:2px; margin-left:2px; }
   .p1s .ca-stage { position:relative; width:104px; height:168px; margin:0 auto 12px; }
   .p1s .ca-stack { position:absolute; inset:0; }
   .p1s .ca-card { position:absolute; top:0; left:50%; width:96px; margin-left:-48px; aspect-ratio:9/16; border-radius:10px; overflow:hidden; background:#0b0f1a; box-shadow:0 14px 30px -14px rgba(0,0,0,.9); transition:transform .55s cubic-bezier(.45,.02,.2,1), opacity .55s; }
@@ -891,7 +909,7 @@
            À la fin, on envoie le visiteur sur l'inscription. -->
       <div class="ca-ov" id="copyAnim" aria-hidden="true">
         <div class="ca-inner">
-          <div class="ca-brand">✨ Skillora IA</div>
+          <div class="ca-brand"><span class="ca-brand-n">✨ Skillora IA</span><span class="ca-brand-a">analyse la vidéo<i></i><i></i><i></i></span></div>
           <div class="ca-stage"><div class="ca-stack" id="caStack"></div></div>
           <div class="ca-label in" id="caLabel">Analyse…</div>
           <div class="ca-prog"><i></i></div>
@@ -930,7 +948,7 @@
 
             <!-- Scène 1 : la VRAIE animation de copie de l'app (plans qui défilent sur le côté + logos) -->
             <div class="p2-scene" data-s="1">
-              <div class="ca-brand">✨ Skillora IA</div>
+              <div class="ca-brand"><span class="ca-brand-n">✨ Skillora IA</span><span class="ca-brand-a">analyse la vidéo<i></i><i></i><i></i></span></div>
               <div class="ca-stage"><div class="ca-stack" id="caStack"></div></div>
               <div class="ca-label" id="cpScanS">Découpage des plans</div>
               <div class="ca-prog"><i></i></div>
@@ -1537,12 +1555,13 @@
   }
 
   /* ===== « Copier avec l'IA » depuis le héros =====
-     L'animation ci-dessous est COPIÉE À L'IDENTIQUE de l'app (app.html, copyAnimOpen).
-     Le visiteur non connecté voit donc exactement ce que voit un abonné qui copie
-     une vidéo. 100 % locale : aucun appel à nos fonctions IA -> aucun crédit consommé.
-     À la fin de l'analyse, on l'envoie sur l'inscription. */
+     Bloc COPIÉ À L'IDENTIQUE de l'app (app.html). Le visiteur non connecté voit donc
+     exactement ce que voit un abonné qui copie une vidéo. 100 % local : aucun appel à
+     nos fonctions IA -> aucun crédit consommé. À la fin, direction l'inscription.
+     Toute retouche ici doit être répercutée dans app.html, et inversement. */
   function caEsc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
     return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+  var _caActive = false, _caCyc = null;
 
   var CA_LOGOS=[
     {n:'Nano Banana', role:'Images', ic:'<svg viewBox="0 0 40 40"><defs><linearGradient id="cagem" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4285F4"/><stop offset="52%" stop-color="#9B72CB"/><stop offset="100%" stop-color="#D96570"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="#12172a"/><g transform="translate(8,8)"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" fill="url(#cagem)"/></g></svg>'},
@@ -1576,7 +1595,43 @@
       el.style.opacity = i<4 ? (i===0?'1':(1-i*0.16)+'') : '0';
     });
   }
-  function copyAnimOpen(media, thumb){
+  // Miniature publique de la video collee, recuperee par le navigateur du visiteur.
+  // Gratuit, aucun serveur a nous sollicite. On coupe vite : mieux vaut un fond qui
+  // respire qu'une attente. Le resultat est mis en cache pour les copies suivantes.
+  var _caThumbCache = {};
+  function caThumb(url){
+    if(_caThumbCache[url] !== undefined) return Promise.resolve(_caThumbCache[url]);
+    function keep(v){ _caThumbCache[url]=v; return v; }
+    var yt = url.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);
+    if(yt) return Promise.resolve(keep('https://i.ytimg.com/vi/'+yt[1]+'/hqdefault.jpg'));
+    if(/tiktok\.com/i.test(url)){
+      var ctl = ('AbortController' in window) ? new AbortController() : null;
+      if(ctl) setTimeout(function(){ ctl.abort(); }, 1200);
+      return fetch('https://www.tiktok.com/oembed?url='+encodeURIComponent(url), ctl?{signal:ctl.signal}:undefined)
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(j){ return keep((j && j.thumbnail_url) || null); })
+        .catch(function(){ return keep(null); });
+    }
+    return Promise.resolve(keep(null));
+  }
+  // Pose une image sur tous les plans deja affiches, en gardant le logo de chacun.
+  function caSetThumb(src){
+    if(!_caActive || !src) return;
+    var st=document.getElementById('caStack'); if(!st) return;
+    var img=new Image();
+    img.onload=function(){
+      if(!_caActive) return;
+      Array.prototype.slice.call(st.children).forEach(function(c){
+        if(c.querySelector('img,video')) return;          // deja servi
+        var logo=c.querySelector('.ca-logo');
+        c.classList.remove('ca-ph');
+        c.innerHTML='<img src="'+caEsc(src)+'" alt=""><div class="ca-scan"></div>';
+        if(logo) c.appendChild(logo);
+      });
+    };
+    img.src=src;
+  }
+  function copyAnimOpen(media, thumb, url){
     var ov=document.getElementById('copyAnim'); if(!ov) return;
     var st=document.getElementById('caStack'); if(!st) return; st.innerHTML='';
     // 6 plans -> les 6 logos passent tous (Nano Banana, Pinterest, ElevenLabs, CapCut, Veo 3, HeyGen).
@@ -1586,7 +1641,7 @@
       var inner='';
       if(media){ inner='<video muted playsinline preload="metadata"></video>'; }
       else if(thumb){ inner='<img src="'+caEsc(thumb)+'" alt="">'; }
-      else { c.classList.add('ca-ph'); inner='🎬'; }
+      else { c.classList.add('ca-ph'); inner=''; }
       c.innerHTML=inner+'<div class="ca-scan"></div>'+caLogoHtml(idx);
       if(media){
         var vd=c.querySelector('video'); vd.src=media;
@@ -1596,6 +1651,9 @@
     });
     caRestack();
     ov.classList.add('open'); ov.setAttribute('aria-hidden','false'); _caActive=true;
+    // Rien a montrer pour l'instant : on cherche la miniature en parallele de l'animation
+    // et on la pose des qu'elle arrive, sans attendre la reponse de nos serveurs.
+    if(!media && !thumb && url){ try{ caThumb(url).then(caSetThumb); }catch(e){} }
     var li=0, lab=document.getElementById('caLabel');
     if(lab){ lab.textContent=CA_LABELS[0]; lab.classList.add('in'); }
     function tick(){
@@ -1617,22 +1675,6 @@
     var st=document.getElementById('caStack'); if(st){ try{ st.querySelectorAll('video').forEach(function(v){v.pause();}); }catch(e){} st.innerHTML=''; }
   }
 
-  /* Miniature réelle de la vidéo collée, récupérée par le navigateur du visiteur
-     (sources publiques et gratuites). Aucun de nos serveurs n'est sollicité. */
-  function caThumb(url){
-    var yt = url.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);
-    if (yt) return Promise.resolve('https://i.ytimg.com/vi/' + yt[1] + '/hqdefault.jpg');
-    if (/tiktok\.com/i.test(url)) {
-      var ctl = ('AbortController' in window) ? new AbortController() : null;
-      if (ctl) setTimeout(function(){ ctl.abort(); }, 2500);
-      return fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(url), ctl ? { signal:ctl.signal } : undefined)
-        .then(function(r){ return r.ok ? r.json() : null; })
-        .then(function(j){ return (j && j.thumbnail_url) || null; })
-        .catch(function(){ return null; });
-    }
-    return Promise.resolve(null);
-  }
-
   var _caGo = null;
   function tryCopy(e){
     if (e && e.preventDefault) e.preventDefault();
@@ -1649,22 +1691,7 @@
     try { localStorage.setItem('sk_try_link', url); } catch(err){}  // on le retrouvera après l'inscription
 
     document.body.style.overflow = 'hidden';
-    copyAnimOpen(null, null);                       // démarre immédiatement, comme dans l'app
-    caThumb(url).then(function(src){                // puis les plans prennent la vraie image
-      var probe = new Image();
-      probe.onerror = function(){ if (probe.src.indexOf('assets/') < 0) { probe.onerror = null; probe.src = 'assets/cmp-original.jpg'; } };
-      probe.onload = function(){
-        if (!_caActive) return;
-        var st = document.getElementById('caStack'); if (!st) return;
-        Array.prototype.slice.call(st.children).forEach(function(c){
-          var logo = c.querySelector('.ca-logo');          // chaque plan garde SON logo
-          c.classList.remove('ca-ph');
-          c.innerHTML = '<img src="' + caEsc(probe.src) + '" alt=""><div class="ca-scan"></div>';
-          if (logo) c.appendChild(logo);
-        });
-      };
-      probe.src = src || 'assets/cmp-original.jpg';
-    });
+    copyAnimOpen(null, null, url);   // démarre immédiatement, la miniature arrive en route
 
     // L'analyse va au bout (les 6 plans passent), puis direction l'inscription.
     if (_caGo) clearTimeout(_caGo);

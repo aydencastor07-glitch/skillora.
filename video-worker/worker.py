@@ -4989,16 +4989,63 @@ def _dl_video(url):
     return None
 
 
+def _og_image(url):
+    """Image d'illustration declaree par la PAGE elle-meme (balise og:image).
+    Toutes les plateformes la publient pour que les liens s'affichent joliment
+    quand on les partage — Instagram, Facebook, TikTok, X, LinkedIn… C'est donc
+    un filet de securite universel, qui ne demande ni compte ni cookie."""
+    if not url:
+        return None
+    try:
+        req = urllib.request.Request(url, headers={
+            "User-Agent": DL_UA,
+            "Accept": "text/html,application/xhtml+xml",
+            "Accept-Language": "fr,en;q=0.8",
+        })
+        with urllib.request.urlopen(req, timeout=20) as r:
+            html = r.read(400000).decode("utf-8", "ignore")
+    except Exception as e:
+        print("_og_image:", e, file=sys.stderr)
+        return None
+    for motif in (r'<meta[^>]+property=["\']og:image(?::secure_url)?["\'][^>]+content=["\']([^"\']+)',
+                  r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image',
+                  r'<meta[^>]+name=["\']twitter:image["\'][^>]+content=["\']([^"\']+)',
+                  r'"thumbnail_url"\s*:\s*"([^"]+)"',
+                  r'"display_url"\s*:\s*"([^"]+)"'):
+        m = re.search(motif, html, re.I)
+        if not m:
+            continue
+        src = m.group(1).replace("&amp;", "&").encode().decode("unicode_escape", "ignore")
+        if not src.startswith("http"):
+            continue
+        try:
+            out = tempfile.mktemp(suffix=".jpg")
+            req = urllib.request.Request(src, headers={"User-Agent": DL_UA})
+            with urllib.request.urlopen(req, timeout=25) as r, open(out, "wb") as f:
+                shutil.copyfileobj(r, f)
+            if os.path.getsize(out) > 3000:
+                return out
+        except Exception:
+            pass
+    return None
+
+
 def _dl_poster(url):
-    """Image d'illustration officielle de la vidéo, SANS télécharger la vidéo.
-    Filet de sécurité : quand la plateforme bloque le téléchargement, on a au
-    moins une vraie image de la vidéo source plutôt que rien du tout."""
+    """Image d'illustration officielle de la video, SANS telecharger la video.
+    Filet de securite valable pour TOUTES les plateformes : quand le
+    telechargement est refuse (YouTube et Instagram bloquent les adresses de
+    centre de donnees), on a quand meme une vraie image de la video source.
+
+    Trois voies, de la plus fiable a la plus generale :
+      1. YouTube  -> affiche publique deduite de l'identifiant ;
+      2. yt-dlp   -> miniature declaree par l'extracteur ;
+      3. og:image -> la balise que la page publie pour le partage (Instagram,
+                     Facebook, TikTok, X…), qui ne demande ni compte ni cookie.
+    """
     if not url:
         return None
     d = tempfile.mkdtemp(prefix="poster-")
-    # YouTube : l'affiche est servie publiquement à partir de l'identifiant.
-    # Aucun yt-dlp, aucun cookie, aucune verification anti-robot — donc ça marche
-    # même quand le telechargement de la video est refuse.
+
     yid = _youtube_id(url)
     if yid:
         for nom in ("maxresdefault", "sddefault", "hqdefault"):
@@ -5010,6 +5057,7 @@ def _dl_poster(url):
                     return out
             except Exception:
                 pass
+
     try:
         run(_ytdlp_args("--skip-download", "--write-thumbnail",
                         "--convert-thumbnails", "jpg",
@@ -5020,8 +5068,9 @@ def _dl_poster(url):
         if cand:
             return max(cand, key=os.path.getsize)
     except Exception as e:
-        print("_dl_poster:", e, file=sys.stderr)
-    return None
+        print("_dl_poster (yt-dlp):", e, file=sys.stderr)
+
+    return _og_image(url)
 
 
 def _analyze_source(prompt, source_url):

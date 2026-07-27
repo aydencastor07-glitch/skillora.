@@ -58,7 +58,26 @@ journalctl -u skillora-worker -f
 Le fichier installé est `/opt/skillora-worker/worker.py` et le service
 s'appelle `skillora-worker`.
 
-## YouTube : « Sign in to confirm you're not a bot »
+## Images de référence : ce que tu obtiens selon la source
+
+| Source | Téléchargement de la vidéo | Images de référence |
+|---|---|---|
+| **Fichier importé** | direct depuis le stockage | **une capture par plan** (idéal) |
+| **TikTok** | oui | **une capture par plan** |
+| **YouTube** | bloqué (IP de centre de données) | affiche de la vidéo, sauf si cookies |
+| **Instagram** | souvent bloqué | affiche de la publication |
+| **Facebook** | souvent bloqué | affiche de la publication |
+
+Quand le téléchargement échoue, le worker ne rend **jamais** un plan sans image :
+il récupère l'affiche par trois voies successives — identifiant YouTube, miniature
+déclarée par yt-dlp, puis la balise `og:image` que **toutes** les plateformes
+publient pour l'affichage des liens partagés. Cette dernière ne demande ni compte
+ni cookie, et couvre Instagram, Facebook, TikTok et X.
+
+Pour obtenir **une capture par plan** partout, deux leviers : importer le fichier
+plutôt que coller un lien (toujours parfait), ou fournir des cookies (ci-dessous).
+
+## YouTube et Instagram : « Sign in to confirm you're not a bot »
 
 YouTube bloque les adresses de **centre de données** (Hetzner, AWS…). Le
 téléchargement de la vidéo échoue donc, même avec un yt-dlp à jour. Ce n'est
@@ -85,8 +104,9 @@ Environment=YTDLP_COOKIES=/opt/skillora-worker/cookies.txt
 
 4. `systemctl restart skillora-worker`
 
-Les cookies expirent au bout de quelques semaines : si YouTube redemande une
-connexion, ré-exporte-les. TikTok, Instagram et Facebook n'en ont pas besoin.
+Les cookies expirent au bout de quelques semaines : si la plateforme redemande
+une connexion, ré-exporte-les. Le même fichier sert à YouTube et à Instagram.
+TikTok fonctionne sans.
 
 ## Alternative Docker (Railway, Fly.io, n'importe où)
 

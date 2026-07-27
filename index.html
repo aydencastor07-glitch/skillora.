@@ -801,17 +801,28 @@
     .pr-btn { max-width:100%; }
   }
 
-  /* Sélecteur de langue de la page d'accueil : visible sans compte. */
-  .sk-langs { display:flex; gap:5px; margin-right:4px; }
-  .sk-langs button { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#8f9cb5;
-    border-radius:8px; padding:5px 8px; font-family:'Sora',sans-serif; font-weight:700; font-size:.68rem;
-    cursor:pointer; transition:all .16s; }
-  .sk-langs button:hover { border-color:rgba(93,150,255,.5); color:#eaf1ff; }
-  .sk-langs button.on { background:rgba(47,123,255,.18); border-color:rgba(93,150,255,.6); color:#fff; }
-  /* Sur petit écran, le sélecteur passe sous le logo au lieu de le pousser. */
-  @media (max-width:900px){
-    .nav-in { flex-wrap:wrap; row-gap:8px; }
-    .sk-langs { order:3; width:100%; justify-content:center; margin:0; }
+  /* Sélecteur de langue : rangé DANS le menu ☰, jamais en bandeau sur la page.
+     Accessible sans compte — c'était le vrai manque pour les visiteurs étrangers. */
+  .sk-langs { display:none; }
+  .nav-links.mob-open .sk-langs { display:block; padding-top:16px; margin-top:2px; border-top:1px solid var(--border); }
+  .sk-langs-l { display:block; font-family:'Sora',sans-serif; font-weight:800; font-size:.62rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted2); margin-bottom:10px; }
+  .sk-langs-r { display:grid; grid-template-columns:repeat(5,1fr); gap:7px; }
+  .sk-langs-r button { display:flex; flex-direction:column; align-items:center; gap:4px; padding:9px 0 7px;
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#8f9cb5;
+    font-family:'Sora',sans-serif; font-weight:700; font-size:.64rem; cursor:pointer;
+    transition:background .16s, border-color .16s, color .16s; }
+  .sk-langs-r button i { font-style:normal; font-size:1.05rem; line-height:1; }
+  .sk-langs-r button:hover { border-color:rgba(93,150,255,.45); color:#eaf1ff; }
+  .sk-langs-r button.on { background:rgba(47,123,255,.16); border-color:rgba(93,150,255,.62); color:#fff; }
+  /* Sur ordinateur il n'y a pas de menu ☰ : le sélecteur reste accessible, en
+     version compacte parmi les liens — discret, sans bandeau ni drapeaux. */
+  @media (min-width:901px){
+    .sk-langs { display:flex; align-items:center; gap:6px; }
+    .sk-langs-l { display:none; }
+    .sk-langs-r { display:flex; gap:4px; }
+    .sk-langs-r button { flex-direction:row; padding:5px 8px; font-size:.66rem; border-radius:8px; }
+    .sk-langs-r button i { display:none; }
   }
   /* ===== FAQ ===== */
   .faq { padding:70px 0 30px; }
@@ -898,16 +909,19 @@
       <a href="#avis" data-t="nav_avis">Avis</a>
       <a href="#pricing" data-t="nav_price">Tarifs</a>
       <a href="#faq">FAQ</a>
+      <div class="sk-langs" id="skLangs">
+        <span class="sk-langs-l" data-t="nav_lang">Langue</span>
+        <div class="sk-langs-r">
+          <button data-l="fr" onclick="skLandingLang('fr')"><i>🇫🇷</i>FR</button>
+          <button data-l="en" onclick="skLandingLang('en')"><i>🇺🇸</i>EN</button>
+          <button data-l="es" onclick="skLandingLang('es')"><i>🇪🇸</i>ES</button>
+          <button data-l="pt" onclick="skLandingLang('pt')"><i>🇧🇷</i>PT</button>
+          <button data-l="de" onclick="skLandingLang('de')"><i>🇩🇪</i>DE</button>
+        </div>
+      </div>
       <a class="btn-ghost-nav mob-only sk-signin" href="app.html" data-t="nav_login">Connexion</a>
       <a class="btn-primary-nav mob-only sk-signup" href="signup.html" data-t="nav_signup">Créer mon compte</a>
     </div>
-      <div class="sk-langs" id="skLangs">
-        <button data-l="fr" onclick="skLandingLang('fr')">FR</button>
-        <button data-l="en" onclick="skLandingLang('en')">EN</button>
-        <button data-l="es" onclick="skLandingLang('es')">ES</button>
-        <button data-l="pt" onclick="skLandingLang('pt')">PT</button>
-        <button data-l="de" onclick="skLandingLang('de')">DE</button>
-      </div>
     <div class="nav-cta">
       <a class="btn-ghost-nav sk-signin" href="app.html" data-t="nav_login">Connexion</a>
       <a class="btn-primary-nav sk-signup" href="signup.html" data-t="nav_signup">Créer mon compte</a>

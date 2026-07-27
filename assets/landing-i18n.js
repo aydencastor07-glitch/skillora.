@@ -7,6 +7,7 @@
   var D = {};
 
   D.fr = {
+    nav_lang:"Langue",
     nav_feat:"Fonctionnalités", nav_avis:"Avis", nav_price:"Tarifs",
     nav_login:"Connexion", nav_signup:"Créer mon compte",
     hero_h1:"Colle le lien d'une vidéo virale,<br class=\"h1br\"> obtiens le plan pour <span class=\"rotwrap\">la copier avec l'IA</span>.",
@@ -67,6 +68,7 @@
   };
 
   D.en = {
+    nav_lang:"Language",
     nav_feat:"Features", nav_avis:"Reviews", nav_price:"Pricing",
     nav_login:"Log in", nav_signup:"Create my account",
     hero_h1:"Paste the link of a viral video,<br class=\"h1br\"> get the plan to <span class=\"rotwrap\">copy it with AI</span>.",
@@ -127,6 +129,7 @@
   };
 
   D.es = {
+    nav_lang:"Idioma",
     nav_feat:"Funciones", nav_avis:"Opiniones", nav_price:"Precios",
     nav_login:"Iniciar sesión", nav_signup:"Crear mi cuenta",
     hero_h1:"Pega el enlace de un video viral,<br class=\"h1br\"> obtén el plan para <span class=\"rotwrap\">copiarlo con IA</span>.",
@@ -187,6 +190,7 @@
   };
 
   D.pt = {
+    nav_lang:"Idioma",
     nav_feat:"Funcionalidades", nav_avis:"Opiniões", nav_price:"Preços",
     nav_login:"Entrar", nav_signup:"Criar a minha conta",
     hero_h1:"Cola o link de um vídeo viral,<br class=\"h1br\"> recebe o plano para <span class=\"rotwrap\">o copiar com IA</span>.",
@@ -247,6 +251,7 @@
   };
 
   D.de = {
+    nav_lang:"Sprache",
     nav_feat:"Funktionen", nav_avis:"Bewertungen", nav_price:"Preise",
     nav_login:"Anmelden", nav_signup:"Konto erstellen",
     hero_h1:"Füge den Link eines viralen Videos ein,<br class=\"h1br\"> erhalte den Plan, um es <span class=\"rotwrap\">mit KI zu kopieren</span>.",

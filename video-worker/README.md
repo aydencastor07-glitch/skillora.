@@ -37,7 +37,23 @@ cd /opt/video-worker && bash install.sh
 C'est tout : le service tourne en continu et redémarre tout seul
 (`journalctl -u skillora-worker -f` pour les logs).
 
-## Mettre à jour le worker (déjà installé)
+## Mise à jour automatique (à faire une fois)
+
+Une seule commande, sur le serveur. Ensuite le worker se met à jour tout seul,
+toutes les 10 minutes — plus rien à taper après chaque correction :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/aydencastor07-glitch/skillora./main/video-worker/install-auto-update.sh | bash
+```
+
+Deux garde-fous : le service n'est **redémarré que si le fichier a réellement
+changé**, et une version qui ne compile pas est **refusée** — elle ne remplace
+jamais celle qui tourne. L'ancienne version est conservée dans
+`worker.py.precedent`.
+
+Suivre les mises à jour : `journalctl -u skillora-maj -f`
+
+## Mettre à jour à la main (si besoin)
 
 **Depuis le serveur lui-même** (pas depuis ta machine — il n'y a rien à copier) :
 

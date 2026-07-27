@@ -4930,6 +4930,27 @@ def _ytdlp_bin():
     return shutil.which("yt-dlp") or "/usr/local/bin/yt-dlp"
 
 
+# YouTube bloque les adresses de centre de donnees (« Sign in to confirm you're
+# not a bot »). Un fichier de cookies exporte depuis un navigateur leve le
+# blocage : depose-le sur le serveur et renseigne YTDLP_COOKIES.
+YTDLP_COOKIES = os.environ.get("YTDLP_COOKIES", "").strip()
+
+
+def _ytdlp_args(*extra):
+    """Arguments communs a tous les appels yt-dlp : navigateur credible,
+    cookies si disponibles, et pas de bruit inutile."""
+    a = [_ytdlp_bin(), "--no-playlist", "--no-warnings",
+         "--user-agent", DL_UA, "--socket-timeout", "20"]
+    if YTDLP_COOKIES and os.path.exists(YTDLP_COOKIES):
+        a += ["--cookies", YTDLP_COOKIES]
+    return a + list(extra)
+
+
+def _youtube_id(url):
+    m = re.search(r"(?:youtu\.be/|[?&]v=|/shorts/|/embed/|/live/)([\w-]{11})", url or "")
+    return m.group(1) if m else None
+
+
 def _dl_video(url):
     """Télécharge une vidéo depuis un lien de PAGE (TikTok, YouTube, Instagram,
     Facebook…) via yt-dlp — indispensable car le modèle ne peut pas « lire » une
@@ -4944,15 +4965,15 @@ def _dl_video(url):
     if not url:
         return None
     ytdlp = _ytdlp_bin()
-    base = [ytdlp, "--no-playlist", "--no-warnings", "--no-part",
-            "--user-agent", DL_UA,
-            "--retries", "3", "--fragment-retries", "3",
-            "--socket-timeout", "20",
-            "--merge-output-format", "mp4"]
-    # Plusieurs tentatives, de la plus rapide à la plus permissive.
+    base = _ytdlp_args("--no-part", "--retries", "3", "--fragment-retries", "3",
+                       "--merge-output-format", "mp4")
+    # Plusieurs tentatives, de la plus rapide à la plus permissive. Les clients
+    # « tv » et « mweb » passent souvent la verification anti-robot de YouTube
+    # là où le client web se fait refuser.
     essais = [
         ["-f", "bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720][ext=mp4]/b[height<=720]"],
-        ["--extractor-args", "youtube:player_client=android,ios,web", "-f", "b[height<=720]/b"],
+        ["--extractor-args", "youtube:player_client=tv,mweb,android", "-f", "b[height<=720]/b"],
+        ["--extractor-args", "youtube:player_client=web_safari,ios", "-f", "b/best"],
         ["-f", "best"],
     ]
     for i, extra in enumerate(essais):
@@ -4975,11 +4996,24 @@ def _dl_poster(url):
     if not url:
         return None
     d = tempfile.mkdtemp(prefix="poster-")
+    # YouTube : l'affiche est servie publiquement à partir de l'identifiant.
+    # Aucun yt-dlp, aucun cookie, aucune verification anti-robot — donc ça marche
+    # même quand le telechargement de la video est refuse.
+    yid = _youtube_id(url)
+    if yid:
+        for nom in ("maxresdefault", "sddefault", "hqdefault"):
+            out = os.path.join(d, nom + ".jpg")
+            try:
+                urllib.request.urlretrieve(
+                    "https://i.ytimg.com/vi/%s/%s.jpg" % (yid, nom), out)
+                if os.path.getsize(out) > 3000:
+                    return out
+            except Exception:
+                pass
     try:
-        run([_ytdlp_bin(), "--no-playlist", "--no-warnings", "--skip-download",
-             "--write-thumbnail", "--convert-thumbnails", "jpg",
-             "--user-agent", DL_UA, "--socket-timeout", "20",
-             "-o", os.path.join(d, "p.%(ext)s"), url], timeout=90)
+        run(_ytdlp_args("--skip-download", "--write-thumbnail",
+                        "--convert-thumbnails", "jpg",
+                        "-o", os.path.join(d, "p.%(ext)s"), url), timeout=90)
         cand = [os.path.join(d, f) for f in os.listdir(d)
                 if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))]
         cand = [c for c in cand if os.path.getsize(c) > 3000]
@@ -6026,11 +6060,17 @@ def _source_meta(url):
     """Métadonnées publiques de la vidéo source (plateforme, vues, likes,
     commentaires, partages, auteur) via yt-dlp — pour l'en-tête pro du plan."""
     try:
-        r = subprocess.run(["yt-dlp", "-J", "--skip-download", "--no-warnings", url],
+        r = subprocess.run(_ytdlp_args("-J", "--skip-download") + [url],
                            capture_output=True, text=True, timeout=90)
+        # yt-dlp ecrit "null" quand il echoue (YouTube qui reclame une connexion) :
+        # json.loads rend alors None, et le .get suivant plantait tout le job.
         d = json.loads(r.stdout or "{}")
+        if not isinstance(d, dict):
+            return None
         if isinstance(d.get("entries"), list) and d["entries"]:
             d = d["entries"][0]
+        if not isinstance(d, dict):
+            return None
         ex = str(d.get("extractor_key") or d.get("extractor") or "").lower()
         plat = ("tiktok" if "tiktok" in ex else
                 "youtube" if "youtube" in ex else

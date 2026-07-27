@@ -58,6 +58,36 @@ journalctl -u skillora-worker -f
 Le fichier installé est `/opt/skillora-worker/worker.py` et le service
 s'appelle `skillora-worker`.
 
+## YouTube : « Sign in to confirm you're not a bot »
+
+YouTube bloque les adresses de **centre de données** (Hetzner, AWS…). Le
+téléchargement de la vidéo échoue donc, même avec un yt-dlp à jour. Ce n'est
+pas un bug : c'est une protection anti-robot liée à l'IP du serveur.
+
+Sans rien faire, le worker s'en sort quand même : il récupère l'**affiche
+officielle** de la vidéo (servie publiquement par YouTube à partir de
+l'identifiant, sans aucune vérification) et la donne comme image de référence.
+Le plan n'est jamais livré sans image.
+
+Pour récupérer **une capture par plan** sur YouTube, il faut des cookies :
+
+1. Sur ton ordinateur, connecte-toi à YouTube et exporte les cookies au format
+   Netscape (extension « Get cookies.txt LOCALLY » par exemple).
+2. Dépose le fichier sur le serveur, ex. `/opt/skillora-worker/cookies.txt`.
+3. Ajoute la variable au service :
+
+```bash
+systemctl edit skillora-worker
+# puis, dans l'éditeur :
+[Service]
+Environment=YTDLP_COOKIES=/opt/skillora-worker/cookies.txt
+```
+
+4. `systemctl restart skillora-worker`
+
+Les cookies expirent au bout de quelques semaines : si YouTube redemande une
+connexion, ré-exporte-les. TikTok, Instagram et Facebook n'en ont pas besoin.
+
 ## Alternative Docker (Railway, Fly.io, n'importe où)
 
 ```bash

@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://skillora.me/</loc>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://skillora.me/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://skillora.me/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://skillora.me/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://skillora.me/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://skillora.me/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://skillora.me/"/>
   </url>
   <url>
     <loc>https://skillora.me/signup.html</loc>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://skillora.me/privacy.html</loc>
+    <loc>https://skillora.me/terms.html</loc>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://skillora.me/terms.html</loc>
+    <loc>https://skillora.me/privacy.html</loc>
+    <lastmod>2026-07-27</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>

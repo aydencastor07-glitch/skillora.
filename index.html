@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <script>
@@ -11,23 +11,38 @@
   })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Skillora — Copie les vidéos virales avec le plan exact</title>
-<meta name="description" content="Colle le lien d'une vidéo virale : Skillora te donne le plan exact pour la refaire — images de référence, prompts et montage. Plus feed viral, niches notées, scripts et idées de vidéos.">
+<title>Skillora — Copy any viral video, get the exact plan</title>
+<meta name="description" content="Paste a viral video link and get the exact plan to remake it: reference images, AI prompts and editing steps. Plus a viral feed and rated niches.">
 <link rel="canonical" href="https://skillora.me/">
 <meta name="robots" content="index,follow">
+<!-- Le site s'affiche dans la langue du visiteur (5 langues) sur une seule
+     adresse : on declare l'anglais comme langue de reference et les autres
+     comme variantes, sinon Google indexe le site en francais pour tout le
+     monde — ce qui etait le cas. -->
+<link rel="alternate" hreflang="en" href="https://skillora.me/">
+<link rel="alternate" hreflang="fr" href="https://skillora.me/">
+<link rel="alternate" hreflang="es" href="https://skillora.me/">
+<link rel="alternate" hreflang="pt" href="https://skillora.me/">
+<link rel="alternate" hreflang="de" href="https://skillora.me/">
+<link rel="alternate" hreflang="x-default" href="https://skillora.me/">
 <!-- Partage réseaux sociaux (carte riche) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Skillora">
-<meta property="og:locale" content="fr_FR">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="fr_FR">
+<meta property="og:locale:alternate" content="es_ES">
+<meta property="og:locale:alternate" content="pt_BR">
+<meta property="og:locale:alternate" content="de_DE">
 <meta property="og:url" content="https://skillora.me/">
-<meta property="og:title" content="Skillora — Copie les vidéos virales avec le plan exact">
-<meta property="og:description" content="Colle le lien d'une vidéo virale, reçois le plan exact pour la refaire : images, prompts, montage. Feed viral, niches notées, scripts et idées de vidéos.">
+<meta property="og:title" content="Skillora — Copy any viral video, get the exact plan">
+<meta property="og:description" content="Paste a viral video link, walk away with the exact plan to remake it: reference images, AI prompts, editing. Viral feed, rated niches and ready-made scripts.">
 <meta property="og:image" content="https://skillora.me/assets/og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Skillora — paste a viral video link, get the exact plan to remake it">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Skillora — The AI that upgrades your videos and posts them everywhere">
-<meta name="twitter:description" content="Your video goes pro in one click — scored before you post, published everywhere at the best time.">
+<meta name="twitter:title" content="Skillora — Copy any viral video, get the exact plan">
+<meta name="twitter:description" content="Paste a viral video link, walk away with the exact plan to remake it: reference images, AI prompts, editing.">
 <meta name="twitter:image" content="https://skillora.me/assets/og-cover.jpg">
 <!-- Données structurées Google (fiche riche) -->
 <script type="application/ld+json">
@@ -39,8 +54,17 @@
   "image": "https://skillora.me/assets/og-cover.jpg",
   "applicationCategory": "MultimediaApplication",
   "operatingSystem": "Web",
-  "description": "Colle le lien d'une vidéo virale et obtiens le plan pour la copier avec l'IA : images de référence, prompts et montage. Feed de vidéos virales, niches notées, scripts et idées de vidéos.",
-  "inLanguage": "fr",
+  "description": "Paste the link of a viral video and Skillora gives you the exact plan to remake it: reference images taken from the source, ready-to-use AI prompts for each shot, and the editing steps. Also includes a viral video feed, niches rated by viral potential, and ready-made scripts.",
+  "inLanguage": ["en", "fr", "es", "pt", "de"],
+  "featureList": [
+    "Copy a viral video from its link and get the exact plan to remake it",
+    "Reference image extracted from the source video for every shot",
+    "Ready-to-use image and animation prompts for each shot",
+    "Step-by-step editing guide",
+    "Feed of viral videos to copy in one click",
+    "Niches rated by viral potential",
+    "Ready-made scripts and video ideas"
+  ],
   "offers": { "@type": "Offer", "priceCurrency": "USD", "price": "30", "category": "subscription" },
   "publisher": { "@type": "Organization", "name": "Skillora", "url": "https://skillora.me/", "logo": "https://skillora.me/apple-touch-icon.png" }
 }

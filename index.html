@@ -952,7 +952,7 @@
             <!-- Scène 1 : la VRAIE animation de copie de l'app (plans qui défilent sur le côté + logos) -->
             <div class="p2-scene" data-s="1">
               <div class="ca-brand"><span class="ca-brand-n">✨ Skillora IA</span><span class="ca-brand-a">analyse la vidéo<i></i><i></i><i></i></span></div>
-              <div class="ca-stage"><div class="ca-stack" id="caStack"></div></div>
+              <div class="ca-stage"><div class="ca-stack" id="phoneStack"></div></div>
               <div class="ca-label" id="cpScanS">Découpage des plans</div>
               <div class="ca-prog"><i></i></div>
             </div>
@@ -1299,7 +1299,7 @@
     var btn = document.getElementById('pvBtn');
     var linkEl = document.getElementById('cpLink');
     var scanS = document.getElementById('cpScanS');
-    var stack = document.getElementById('caStack');
+    var stack = document.getElementById('phoneStack');   // la pile DU TÉLÉPHONE, pas celle de la fenêtre de démo
     var FULL_LINK = 'https://fb.watch/9kQzR2';
     var SCAN = ['Découpage des plans', 'Détection du hook', 'Voix off repérée', 'Reconstruction du montage'];
     // Démo : la vraie vidéo tendance (aucune copie réelle n'est lancée -> zéro crédit consommé).

@@ -2116,15 +2116,15 @@ def gemini_generate(prompt, file_uri=None, mime="video/mp4", json_out=True):
 OR_MODELS = ("google/gemini-2.5-flash", "google/gemini-2.0-flash-001")
 
 
-def _video_proxy(path, max_mb=18):
+def _video_proxy(path, max_mb=18, hauteur=640):
     """Si la vidéo est trop lourde pour un envoi base64, fabrique une copie
-    allégée (640 px de haut) — largement suffisant pour l'ANALYSE. Renvoie
+    allégée — largement suffisant pour l'ANALYSE. Renvoie
     (chemin, est_temporaire)."""
     try:
         if os.path.getsize(path) <= max_mb * 1024 * 1024:
             return path, False
         small = tempfile.mktemp(suffix=".mp4")
-        run(["ffmpeg", "-y", "-i", path, "-vf", "scale=-2:640",
+        run(["ffmpeg", "-y", "-i", path, "-vf", "scale=-2:%d" % int(hauteur),
              "-c:v", "libx264", "-preset", "veryfast", "-crf", "30",
              "-c:a", "aac", "-b:a", "64k", small], timeout=600)
         if os.path.exists(small) and os.path.getsize(small) > 10000:
@@ -2134,58 +2134,146 @@ def _video_proxy(path, max_mb=18):
     return path, False
 
 
+def _json_repare(txt):
+    """Récupère un JSON COUPÉ EN PLEIN MILIEU.
+
+    Un plan long (8-9 scènes, prompts détaillés) frôle la limite de sortie du
+    modèle. Quand il la dépasse, la réponse s'arrête net — au milieu d'un
+    prompt — et json.loads jette TOUT. On perdait alors une analyse entière
+    (et ses crédits) alors que 90 % du plan était déjà écrit.
+
+    Ici on revient au dernier élément COMPLET et on referme proprement. Le
+    créateur reçoit un plan un peu plus court plutôt que rien du tout."""
+    t = (txt or "").strip()
+    if t.startswith("```"):
+        t = re.sub(r"^```[a-z]*\s*|\s*```$", "", t).strip()
+    try:
+        return json.loads(t)
+    except Exception:
+        pass
+    pile, dans_chaine, echap = [], False, False
+    coupe, pile_coupe = None, None
+    for i, c in enumerate(t):
+        if dans_chaine:
+            if echap:
+                echap = False
+            elif c == "\\":
+                echap = True
+            elif c == '"':
+                dans_chaine = False
+            continue
+        if c == '"':
+            dans_chaine = True
+        elif c in "[{":
+            pile.append(c)
+        elif c in "]}":
+            if pile:
+                pile.pop()
+            coupe, pile_coupe = i + 1, list(pile)
+        elif c == ",":
+            coupe, pile_coupe = i, list(pile)
+    if coupe is None or not pile_coupe:
+        return None
+    repare = t[:coupe] + "".join("]" if x == "[" else "}" for x in reversed(pile_coupe))
+    try:
+        d = json.loads(repare)
+        print("or_generate: réponse tronquée par le modèle, plan récupéré "
+              "(%d caractères sauvés)" % len(repare), file=sys.stderr)
+        return d
+    except Exception:
+        return None
+
+
+# Raison du dernier échec, pour que le job dise la VÉRITÉ au lieu d'un message
+# passe-partout qui envoie le créateur chercher un autre lien pour rien.
+_OR_ECHEC = {"raison": ""}
+
+
 def or_generate(prompt, video_path=None, video_url=None, json_out=True):
     """Canal PAYANT (OpenRouter) : mêmes yeux Gemini, sans limites du gratuit.
     Vidéo locale -> data-URL base64 (compressée si lourde) ; lien YouTube ->
-    passé tel quel. Renvoie le JSON décodé (ou le texte), sinon None."""
+    passé tel quel. Renvoie le JSON décodé (ou le texte), sinon None.
+
+    DEUX ESSAIS. Le premier vise le meilleur modèle SEUL : le repli automatique
+    d'OpenRouter bascule sur un modèle dont la sortie est bien plus courte, ce
+    qui coupait le plan en deux et faisait échouer l'analyse d'un lien
+    parfaitement valide. Le repli n'intervient qu'au second essai, où l'on
+    allège aussi la vidéo."""
     if not OPENROUTER_KEY:
+        _OR_ECHEC["raison"] = "analyse non activée (clé absente)"
         return None
-    content = [{"type": "text", "text": prompt}]
-    proxy, is_tmp = None, False
-    try:
-        if video_path:
-            proxy, is_tmp = _video_proxy(video_path)
-            with open(proxy, "rb") as f:
-                b64 = base64.b64encode(f.read()).decode()
-            content.append({"type": "video_url",
-                            "video_url": {"url": "data:video/mp4;base64," + b64}})
-        elif video_url:
-            content.append({"type": "video_url", "video_url": {"url": video_url}})
-        body = {"model": OR_MODELS[0],
-                "models": list(OR_MODELS),  # repli automatique côté OpenRouter
-                "messages": [{"role": "user", "content": content}],
-                "temperature": 0.2}
-        if json_out:
-            body["response_format"] = {"type": "json_object"}
-        st, raw = http("POST", "https://openrouter.ai/api/v1/chat/completions",
-                       {"Authorization": "Bearer " + OPENROUTER_KEY,
-                        "X-Title": "Skillora"}, body, timeout=300)
-        out = json.loads(raw)
-        txt = (((out.get("choices") or [{}])[0]).get("message") or {}).get("content") or ""
-        if not txt:
-            print("or_generate: réponse vide:", str(out)[:250], file=sys.stderr)
-            return None
-        if json_out:
-            t = txt.strip()
-            if t.startswith("```"):
-                t = re.sub(r"^```[a-z]*\s*|\s*```$", "", t)
-            return json.loads(t)
-        return txt
-    except urllib.error.HTTPError as e:
+    _OR_ECHEC["raison"] = ""
+    essais = [
+        {"modeles": [OR_MODELS[0]], "hauteur": None},
+        {"modeles": list(OR_MODELS), "hauteur": 480},
+    ]
+    for n, essai in enumerate(essais):
+        content = [{"type": "text", "text": prompt}]
+        proxy, is_tmp = None, False
         try:
-            print("or_generate HTTP", e.code, ":", e.read().decode()[:250], file=sys.stderr)
-        except Exception:
-            print("or_generate HTTP", e.code, file=sys.stderr)
-        return None
-    except Exception as e:
-        print("or_generate:", e, file=sys.stderr)
-        return None
-    finally:
-        if is_tmp and proxy and os.path.exists(proxy):
+            if video_path:
+                proxy, is_tmp = _video_proxy(
+                    video_path, max_mb=(18 if essai["hauteur"] is None else 8),
+                    hauteur=essai["hauteur"] or 640)
+                with open(proxy, "rb") as f:
+                    b64 = base64.b64encode(f.read()).decode()
+                content.append({"type": "video_url",
+                                "video_url": {"url": "data:video/mp4;base64," + b64}})
+            elif video_url:
+                content.append({"type": "video_url", "video_url": {"url": video_url}})
+            body = {"model": essai["modeles"][0],
+                    "messages": [{"role": "user", "content": content}],
+                    "temperature": 0.2}
+            if len(essai["modeles"]) > 1:
+                body["models"] = essai["modeles"]
+            if json_out:
+                body["response_format"] = {"type": "json_object"}
+            st, raw = http("POST", "https://openrouter.ai/api/v1/chat/completions",
+                           {"Authorization": "Bearer " + OPENROUTER_KEY,
+                            "X-Title": "Skillora"}, body, timeout=300)
+            out = json.loads(raw)
+            choix = (out.get("choices") or [{}])[0]
+            txt = (choix.get("message") or {}).get("content") or ""
+            if not txt:
+                _OR_ECHEC["raison"] = "le modèle n'a rien renvoyé"
+                print("or_generate: réponse vide:", str(out)[:250], file=sys.stderr)
+                continue
+            if choix.get("finish_reason") == "length":
+                print("or_generate: sortie coupée par la limite du modèle",
+                      out.get("model"), file=sys.stderr)
+            if not json_out:
+                return txt
+            d = _json_repare(txt)
+            if isinstance(d, dict) and d:
+                return d
+            _OR_ECHEC["raison"] = "réponse illisible du modèle (%s)" % (out.get("model") or "?")
+            print("or_generate: JSON irrécupérable (%s):" % out.get("model"),
+                  txt[:200], file=sys.stderr)
+        except urllib.error.HTTPError as e:
+            corps = ""
             try:
-                os.remove(proxy)
+                corps = e.read().decode()[:250]
             except Exception:
                 pass
+            _OR_ECHEC["raison"] = ("crédits d'analyse épuisés" if e.code == 402 else
+                                   "trop de demandes en même temps" if e.code == 429 else
+                                   "vidéo trop lourde pour l'analyse" if e.code == 413 else
+                                   "erreur %d du service d'analyse" % e.code)
+            print("or_generate HTTP", e.code, ":", corps, file=sys.stderr)
+            if e.code == 402:
+                return None           # inutile d'insister : rien ne passera
+        except Exception as e:
+            _OR_ECHEC["raison"] = "analyse interrompue (%s)" % type(e).__name__
+            print("or_generate:", e, file=sys.stderr)
+        finally:
+            if is_tmp and proxy and os.path.exists(proxy):
+                try:
+                    os.remove(proxy)
+                except Exception:
+                    pass
+        if n == 0:
+            print("or_generate: second essai (vidéo allégée)", file=sys.stderr)
+    return None
 
 
 def gemini_analyze_video(path, duration, user_styles=None, style_library=None):
@@ -6318,7 +6406,14 @@ def generate_blueprint_job(job, steps):
                               variation=variation, variation_opts=variation_opts,
                               lang=lang)
         if not guide:
-            raise RuntimeError("Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
+            # On dit ce qui s'est REELLEMENT passé : envoyer quelqu'un chercher
+            # un autre lien alors que le sien marche très bien, c'est le pire
+            # service à lui rendre.
+            pourquoi = (_OR_ECHEC.get("raison") or "").strip()
+            raise RuntimeError(
+                ("Analyse impossible : %s. Réessaie dans un instant." % pourquoi)
+                if pourquoi else
+                "Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
         steps.done("bp", "%d plans" % len(guide.get("plans") or []))
         # Stats publiques de la vidéo (plateforme, vues, likes…) pour l'en-tête.
         # `infos` vient du téléchargement : dans ce cas, zéro requête réseau.

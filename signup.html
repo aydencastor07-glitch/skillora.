@@ -608,6 +608,12 @@
         return;
       }
 
+      // Compte cree : on donne tout de suite a Meta de quoi relier cette
+      // inscription a la publicite qui l'a amenee. Le navigateur chiffre
+      // ces valeurs avant l'envoi. L'inscription n'est comptee comme
+      // TERMINEE qu'apres le questionnaire, dans l'app.
+      try { skPixelIdentite({ email: email, name: name }); } catch(e){}
+      try { skPixelPerso('InscriptionDemarree', {}); } catch(e){}
       // Compte créé - email de confirmation envoyé
       pendingEmail = email;
       pendingPassword = pass;

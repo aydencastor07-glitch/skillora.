@@ -3581,6 +3581,10 @@
 
   function applyUser(user) {
     const name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || (user.email ? user.email.split('@')[0] : 'Créateur');
+    // Correspondance avancee : sans elle, Meta ne relie qu'une partie des
+    // inscriptions a la publicite qui les a amenees. Le navigateur chiffre
+    // ces valeurs avant l'envoi — rien ne part en clair.
+    try { skPixelIdentite({ email: user.email, id: user.id, name: name }); } catch(e){}
     const greetEl = document.querySelector('#view-home .page-title');
     if (greetEl) greetEl.textContent = 'Bonjour ' + name + ' 👋';
     const emailInput = document.getElementById('emailInput');
@@ -7443,6 +7447,8 @@
 
   /* ===== Upgrade popup ===== */
   function openUpgrade() {
+    // Debut de paiement : Meta apprend qui s'approche de l'abonnement.
+    try { skPixel('InitiateCheckout', { value: 30, currency: 'USD', content_name: 'Skillora Pro' }); } catch(e){}
     document.getElementById('upgradePopup').classList.add('open');
     markCurrentPlan();
   }
@@ -10527,6 +10533,8 @@
   // On ne révèle le plan QUE lorsque toutes les images sont chargées (zéro
   // image qui apparaît après). Le scan continue de tourner pendant ce temps.
   function genRevealPlan(bp){
+    // Le plan est livre : c'est le moment ou la promesse est tenue.
+    try { skPixelPerso('PlanLivre', { plans: (bp && bp.plans ? bp.plans.length : 0) }); } catch(e){}
     var urls=[]; (bp&&bp.plans?bp.plans:[]).forEach(function(p){ if(p.frame_url) urls.push(p.frame_url); });
     var total=urls.length, done=0, finished=false;
     function reveal(){

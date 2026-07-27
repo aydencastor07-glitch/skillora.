@@ -1914,8 +1914,12 @@
     }, { passive:true });
   })();
 </script>
+<script src="assets/pixel.js"></script>
 </head>
 <body>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=1816149169379314&ev=PageView&noscript=1"/></noscript>
+
 
 <script>
 /* Garde d'accès : le dashboard ne doit JAMAIS s'afficher sans connexion.
@@ -3940,6 +3944,9 @@
   }
 
   async function finishOnboarding() {
+    // Mesure des publicites : c'est ICI que l'inscription est vraiment
+    // terminee (email comme Google passent tous les deux par le questionnaire).
+    try { skPixelUneFois('inscription', 'CompleteRegistration', { status: true }); } catch(e){}
     document.getElementById('obProgressFill').style.width = '100%';
     var patch = {
       level: obAnswers.level || null,
@@ -5197,7 +5204,11 @@
     var pro = (typeof hv2IsPro==='function') ? hv2IsPro() : false;
     var last=null; try{ last=localStorage.getItem('sk_pro_state'); }catch(e){}
     if(pro){
-      if(last==='free'){ skPushNotif({type:'pro',key:'welcome',ic:'🎉',title:'Bienvenue en Pro !',sub:'Ton abonnement est actif. Tu peux maintenant regarder et copier toutes les vidéos.'}); }
+      if(last==='free'){
+        skPushNotif({type:'pro',key:'welcome',ic:'🎉',title:'Bienvenue en Pro !',sub:'Ton abonnement est actif. Tu peux maintenant regarder et copier toutes les vidéos.'});
+        // L'abonnement vient de devenir actif : c'est la conversion qui compte.
+        try { skPixelUneFois('abonnement', 'Subscribe', { value: 30, currency: 'USD' }); } catch(e){}
+      }
       skDropProEndedNotif();
       try{ localStorage.setItem('sk_pro_state','pro'); }catch(e){}
     } else {
@@ -11003,6 +11014,10 @@
       var data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || ('Erreur ' + res.status));
       genJobId = data.job_id;
+      // Activation : la personne se sert vraiment du produit. Utile pour
+      // reperer les publicites qui amenent des curieux plutot que des
+      // createurs — un clic ne vaut rien, une copie lancee si.
+      try { skPixelPerso('CopieLancee', { cached: !!data.cached }); } catch(e){}
       document.getElementById('genIntro').style.display = 'none';
       document.getElementById('genProgress').style.display = 'block';
       genFocus(true);

@@ -56,7 +56,10 @@ serve(async (req) => {
       lang: typeof body.variation_opts.lang === "string" ? body.variation_opts.lang.slice(0, 20) : null,
       changes: Array.isArray(body.variation_opts.changes) ? body.variation_opts.changes.filter((x) => typeof x === "string").slice(0, 6) : [],
     } : null;
-    const context = { mode, idea, source_url: sourceUrl, variation: !!body.variation, variation_opts: vo };
+    // Langue de l'interface : le plan doit etre redige dans la langue de la
+    // personne, pas dans celle de la video qu'elle copie.
+    const lang = ["fr", "en", "es", "pt", "de"].includes(String(body.lang || "")) ? String(body.lang) : "fr";
+    const context = { mode, idea, source_url: sourceUrl, variation: !!body.variation, variation_opts: vo, lang };
     const { data: job, error } = await admin.from("video_jobs").insert({
       user_id: userId,
       source_url: sourceUrl || "generate://idea",

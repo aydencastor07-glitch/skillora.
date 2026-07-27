@@ -5820,7 +5820,12 @@ def _variation_charter(opts):
     return "\n".join(lines) + "\n\n"
 
 
-def gen_blueprint(idea, source_url=None, source_path=None, variation=False, variation_opts=None):
+LANGUES = {"fr": "FRANÇAIS", "en": "ANGLAIS", "es": "ESPAGNOL",
+           "pt": "PORTUGAIS (Brésil)", "de": "ALLEMAND"}
+
+
+def gen_blueprint(idea, source_url=None, source_path=None, variation=False,
+                  variation_opts=None, lang="fr"):
     """« COPIE » — analyse une vidéo (ou une idée) et rend un PLAN étape par
     étape : NOTES, PERSONNAGES verrouillés, OUTILS par tâche (avec les bons
     modèles), et pour CHAQUE plan deux prompts (image puis animation) dans la
@@ -5869,6 +5874,12 @@ def gen_blueprint(idea, source_url=None, source_path=None, variation=False, vari
         "reutilise = n° du plan). Vise très peu d'images. Tu peux aussi mettre "
         "2-3 images dans une seule animation avec transitions (dis-le, et note "
         "au montage de couper).\n\n"
+        "LANGUE DU GUIDE (RÈGLE ABSOLUE) : TOUT le texte que lira le créateur "
+        "est écrit en " + LANGUES.get(lang, "FRANÇAIS") + " : les titres de plans, "
+        "les notes, le commentaire de la note, le script, et TOUTES les consignes "
+        "de montage (rythme, transitions, sous-titres, musique, effets). N'écris "
+        "JAMAIS ces textes dans une autre langue, même si la vidéo analysée est "
+        "dans une autre langue. Seuls les deux prompts font exception.\n\n"
         "LANGUE DES PROMPTS : image_prompt ET animation_prompt sont EN ANGLAIS "
         "(les IA comprennent mieux l'anglais), TRÈS précis et détaillés. SEULS "
         "les DIALOGUES restent dans la langue parlée de la vidéo, entre "
@@ -6190,8 +6201,12 @@ def generate_blueprint_job(job, steps):
             else:
                 steps.done("dl", "lien direct")
         steps.start("bp", "Analyse de la vidéo & rédaction du plan…")
+        lang = str(context.get("lang") or "fr").lower()
+        if lang not in LANGUES:
+            lang = "fr"
         guide = gen_blueprint(idea, source_url=source_url, source_path=local,
-                              variation=variation, variation_opts=variation_opts)
+                              variation=variation, variation_opts=variation_opts,
+                              lang=lang)
         if not guide:
             raise RuntimeError("Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
         steps.done("bp", "%d plans" % len(guide.get("plans") or []))

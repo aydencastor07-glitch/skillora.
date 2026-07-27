@@ -1612,16 +1612,14 @@
     // YouTube : deduit de l'identifiant, instantane et sans reseau.
     var yt = url.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);
     if(yt) return Promise.resolve(keep('https://i.ytimg.com/vi/'+yt[1]+'/hqdefault.jpg'));
-    // Le reste passe par notre fonction : TikTok bloque l'appel direct depuis le
-    // navigateur (CORS), et les liens courts vm./vt. doivent d'abord etre suivis.
-    var ctl = ('AbortController' in window) ? new AbortController() : null;
-    if(ctl) setTimeout(function(){ ctl.abort(); }, 6000);
-    return fetch(SB_URL + '/functions/v1/video-thumb?url=' + encodeURIComponent(url),
-                 { headers:{ apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
-                   signal: ctl ? ctl.signal : undefined })
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(j){ return keep((j && j.thumb) || null); })
-      .catch(function(){ return keep(null); });
+    // Tout le reste passe par notre fonction, qui RELAIE l'image elle-meme.
+    // Renvoyer seulement l'adresse ne marche pas : les CDN d'Instagram et de
+    // Facebook refusent d'etre affiches depuis un autre domaine, le navigateur
+    // recevait l'adresse sans pouvoir charger l'image. Ici <img src> pointe sur
+    // notre domaine : un seul aller-retour, et plus aucun refus.
+    return Promise.resolve(keep(
+      SB_URL + '/functions/v1/video-thumb?raw=1&url=' + encodeURIComponent(url)
+             + '&apikey=' + encodeURIComponent(SB_KEY)));
   }
   // Pose une image sur tous les plans deja affiches, en gardant le logo de chacun.
   function caSetThumb(src){

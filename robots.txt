@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /app.html
 
-Sitemap: https://skillora.me/sitemap.xml
+Sitemap: https://www.skillora.me/sitemap.xml

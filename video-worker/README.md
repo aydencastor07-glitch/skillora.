@@ -37,6 +37,27 @@ cd /opt/video-worker && bash install.sh
 C'est tout : le service tourne en continu et redémarre tout seul
 (`journalctl -u skillora-worker -f` pour les logs).
 
+## Mettre à jour le worker (déjà installé)
+
+**Depuis le serveur lui-même** (pas depuis ta machine — il n'y a rien à copier) :
+
+```bash
+# 1. yt-dlp à jour : c'est lui qui récupère les vidéos. Une version ancienne
+#    fait échouer YouTube en silence -> plans sans images de référence.
+pip3 install --break-system-packages -U yt-dlp
+
+# 2. Dernière version du worker
+curl -fsSL https://raw.githubusercontent.com/aydencastor07-glitch/skillora./main/video-worker/worker.py \
+  -o /opt/skillora-worker/worker.py
+
+# 3. Redémarrage + vérification
+systemctl restart skillora-worker
+journalctl -u skillora-worker -f
+```
+
+Le fichier installé est `/opt/skillora-worker/worker.py` et le service
+s'appelle `skillora-worker`.
+
 ## Alternative Docker (Railway, Fly.io, n'importe où)
 
 ```bash

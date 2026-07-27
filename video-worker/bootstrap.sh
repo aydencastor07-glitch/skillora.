@@ -21,6 +21,11 @@ echo "[1/5] Installation de ffmpeg et Python…"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq ffmpeg fonts-dejavu-core fontconfig python3 python3-pip curl librsvg2-bin >/dev/null
+# yt-dlp : c'est lui qui récupère les vidéos TikTok/YouTube/Instagram/Facebook.
+# On l'installe par pip (jamais par apt : la version d'apt est trop vieille et
+# YouTube la refuse, ce qui prive les plans de leurs images de référence).
+pip3 install -q --break-system-packages -U yt-dlp >/dev/null 2>&1 || \
+  echo "      ⚠️  yt-dlp non installé : les plans n'auront pas d'images de référence" 
 # Détourage IA (texte 3D derrière la personne) — optionnel : le worker marche sans
 pip3 install -q --break-system-packages rembg onnxruntime pillow >/dev/null 2>&1 || \
   echo "      (rembg non installé : l'effet 'texte derrière la personne' sera sauté)"

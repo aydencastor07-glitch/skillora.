@@ -12,7 +12,10 @@ set -euo pipefail
 : "${SUPABASE_SERVICE_ROLE_KEY:?Définis SUPABASE_SERVICE_ROLE_KEY (Supabase > Settings > API)}"
 
 apt-get update
-apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core python3
+apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core python3 python3-pip
+# yt-dlp par pip (la version d'apt est trop ancienne : YouTube la refuse).
+pip3 install --break-system-packages -U yt-dlp || \
+  echo "⚠️  yt-dlp non installé : les plans n'auront pas d'images de référence" 
 
 install -d /opt/skillora-worker
 cp "$(dirname "$0")/worker.py" /opt/skillora-worker/worker.py

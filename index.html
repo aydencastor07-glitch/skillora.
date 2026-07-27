@@ -801,6 +801,18 @@
     .pr-btn { max-width:100%; }
   }
 
+  /* Sélecteur de langue de la page d'accueil : visible sans compte. */
+  .sk-langs { display:flex; gap:5px; margin-right:4px; }
+  .sk-langs button { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:#8f9cb5;
+    border-radius:8px; padding:5px 8px; font-family:'Sora',sans-serif; font-weight:700; font-size:.68rem;
+    cursor:pointer; transition:all .16s; }
+  .sk-langs button:hover { border-color:rgba(93,150,255,.5); color:#eaf1ff; }
+  .sk-langs button.on { background:rgba(47,123,255,.18); border-color:rgba(93,150,255,.6); color:#fff; }
+  /* Sur petit écran, le sélecteur passe sous le logo au lieu de le pousser. */
+  @media (max-width:900px){
+    .nav-in { flex-wrap:wrap; row-gap:8px; }
+    .sk-langs { order:3; width:100%; justify-content:center; margin:0; }
+  }
   /* ===== FAQ ===== */
   .faq { padding:70px 0 30px; }
   .faq-list { max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:10px; padding:0 22px; }
@@ -873,6 +885,7 @@
 </style>
 </head>
 <body>
+<script src="assets/landing-i18n.js"></script>
 <script>document.documentElement.classList.add('js');window.SK_STATIC=/[?&]static=1/.test(location.search);</script>
 <div class="bg-glow"></div>
 <canvas class="stars" id="stars"></canvas>
@@ -881,16 +894,23 @@
   <div class="nav-in">
     <div class="logo"><img src="/apple-touch-icon.png" alt="" class="logo-mark" onerror="this.style.display='none'"><b class="logo-word">Skill<span>ora</span></b></div>
     <div class="nav-links">
-      <a href="#fonctionnalites">Fonctionnalités</a>
-      <a href="#avis">Avis</a>
-      <a href="#pricing">Tarifs</a>
+      <a href="#fonctionnalites" data-t="nav_feat">Fonctionnalités</a>
+      <a href="#avis" data-t="nav_avis">Avis</a>
+      <a href="#pricing" data-t="nav_price">Tarifs</a>
       <a href="#faq">FAQ</a>
-      <a class="btn-ghost-nav mob-only sk-signin" href="app.html">Connexion</a>
-      <a class="btn-primary-nav mob-only sk-signup" href="signup.html">Créer mon compte</a>
+      <a class="btn-ghost-nav mob-only sk-signin" href="app.html" data-t="nav_login">Connexion</a>
+      <a class="btn-primary-nav mob-only sk-signup" href="signup.html" data-t="nav_signup">Créer mon compte</a>
     </div>
+      <div class="sk-langs" id="skLangs">
+        <button data-l="fr" onclick="skLandingLang('fr')">FR</button>
+        <button data-l="en" onclick="skLandingLang('en')">EN</button>
+        <button data-l="es" onclick="skLandingLang('es')">ES</button>
+        <button data-l="pt" onclick="skLandingLang('pt')">PT</button>
+        <button data-l="de" onclick="skLandingLang('de')">DE</button>
+      </div>
     <div class="nav-cta">
-      <a class="btn-ghost-nav sk-signin" href="app.html">Connexion</a>
-      <a class="btn-primary-nav sk-signup" href="signup.html">Créer mon compte</a>
+      <a class="btn-ghost-nav sk-signin" href="app.html" data-t="nav_login">Connexion</a>
+      <a class="btn-primary-nav sk-signup" href="signup.html" data-t="nav_signup">Créer mon compte</a>
     </div>
     <button class="nav-burger" onclick="document.querySelector('.nav-links').classList.toggle('mob-open')" aria-label="Menu"><span></span></button>
   </div>
@@ -900,11 +920,11 @@
 <header class="hero">
   <div class="wrap hero-grid">
     <div class="hero-txt">
-      <h1 class="reveal reveal-d1">Colle le lien d'une vidéo virale,<br class="h1br"> obtiens le plan pour <span class="rotwrap">la copier avec l'IA</span>.</h1>
+      <h1 class="reveal reveal-d1" data-t="hero_h1">Colle le lien d'une vidéo virale,<br class="h1br"> obtiens le plan pour <span class="rotwrap">la copier avec l'IA</span>.</h1>
       <form class="hero-paste reveal reveal-d2" id="tryForm" onsubmit="return tryCopy(event)">
         <span class="hp-ic">🔗</span>
-        <input class="hp-in" id="tryLink" type="url" inputmode="url" placeholder="Colle le lien d'une vidéo ici…" autocomplete="off">
-        <button class="hp-go" type="submit">Copier avec l'IA</button>
+        <input class="hp-in" id="tryLink" type="url" inputmode="url" placeholder="Colle le lien d'une vidéo ici…" data-tph="hero_ph" autocomplete="off">
+        <button class="hp-go" type="submit" data-t="hero_go">Copier avec l'IA</button>
       </form>
 
       <!-- Animation « Copier avec l'IA » : exactement celle de l'app (voir app.html #copyAnim).
@@ -996,17 +1016,17 @@
 <!-- ================= TOUT CE QUE FAIT SKILLORA ================= -->
 <section class="feats" id="fonctionnalites">
   <div class="sec-head reveal">
-    <h2>Ce que tu obtiens</h2>
-    <p>Pour chaque vidéo qui marche : la recette complète, prête à exécuter.</p>
+    <h2 data-t="feat_t">Ce que tu obtiens</h2>
+    <p data-t="feat_s">Pour chaque vidéo qui marche : la recette complète, prête à exécuter.</p>
   </div>
   <div class="wrap">
     <div class="feats-grid">
-      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg></span><h3>Le plan exact</h3><p>Images de référence, prompts image et animation, montage. Tout ce qu'il faut pour refaire la vidéo.</p></div>
-      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><h3>Le feed viral</h3><p>Les vidéos qui explosent sur TikTok, YouTube, Instagram et Facebook, avec leurs vraies stats.</p></div>
-      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 8h16M9 4v16M15 4v16"/></svg></span><h3>Les niches notées</h3><p>Hook, rétention, call-to-action, difficulté de montage. Tu vois tout de suite ce qui vaut le coup.</p></div>
-      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg></span><h3>Des scripts notés</h3><p>Ton idée et une durée. Tu repars avec un script noté puis optimisé pour accrocher dès la première seconde.</p></div>
-      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.3 1.5 1.5 2.4h5c.2-.9.7-1.7 1.5-2.4A6.5 6.5 0 0 0 12 3z"/></svg></span><h3>Des idées chaque jour</h3><p>Ta niche, ta plateforme, et des idées prêtes à tourner. Avec un rappel le matin si tu veux.</p></div>
-      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></svg></span><h3>Les outils utilisés</h3><p>Quelle IA pour l'image, laquelle pour l'animation, quoi pour la voix et le montage. Tu ne cherches plus.</p></div>
+      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M4 16V5.5A1.5 1.5 0 0 1 5.5 4H15"/></svg></span><h3 data-t="f1t">Le plan exact</h3><p data-t="f1d">Images de référence, prompts image et animation, montage. Tout ce qu'il faut pour refaire la vidéo.</p></div>
+      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><h3 data-t="f2t">Le feed viral</h3><p data-t="f2d">Les vidéos qui explosent sur TikTok, YouTube, Instagram et Facebook, avec leurs vraies stats.</p></div>
+      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 8h16M9 4v16M15 4v16"/></svg></span><h3 data-t="f3t">Les niches notées</h3><p data-t="f3d">Hook, rétention, call-to-action, difficulté de montage. Tu vois tout de suite ce qui vaut le coup.</p></div>
+      <div class="feat reveal"><span class="fi"><svg viewBox="0 0 24 24"><path d="M14 4.5 19.5 10 8 21.5H2.5V16z"/><path d="m12.5 6 5.5 5.5"/></svg></span><h3 data-t="f4t">Des scripts notés</h3><p data-t="f4d">Ton idée et une durée. Tu repars avec un script noté puis optimisé pour accrocher dès la première seconde.</p></div>
+      <div class="feat reveal reveal-d1"><span class="fi"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-4 11.6c.8.7 1.3 1.5 1.5 2.4h5c.2-.9.7-1.7 1.5-2.4A6.5 6.5 0 0 0 12 3z"/></svg></span><h3 data-t="f5t">Des idées chaque jour</h3><p data-t="f5d">Ta niche, ta plateforme, et des idées prêtes à tourner. Avec un rappel le matin si tu veux.</p></div>
+      <div class="feat reveal reveal-d2"><span class="fi"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></svg></span><h3 data-t="f6t">Les outils utilisés</h3><p data-t="f6d">Quelle IA pour l'image, laquelle pour l'animation, quoi pour la voix et le montage. Tu ne cherches plus.</p></div>
     </div>
   </div>
 </section>
@@ -1014,8 +1034,8 @@
 <!-- ================= AVANT / APRÈS : l'original vs la copie ================= -->
 <section class="cmp" id="exemple">
   <div class="sec-head reveal">
-    <h2>L'original. Et la copie.</h2>
-    <p>Même idée, refaite avec Skillora — en une fraction du temps.</p>
+    <h2 data-t="cmp_t">L'original. Et la copie.</h2>
+    <p data-t="cmp_s">Même idée, refaite avec Skillora — en une fraction du temps.</p>
   </div>
   <div class="wrap">
     <div class="cmp-grid">
@@ -1052,17 +1072,17 @@
 <!-- ================= TÉMOIGNAGES ================= -->
 <section class="tst" id="avis">
   <div class="sec-head reveal">
-    <h2>Ce que Skillora leur rapporte.</h2>
-    <p>Des débutants qui partaient de zéro, des créateurs qui vivent déjà de leurs vues.</p>
+    <h2 data-t="tst_t">Ce que Skillora leur rapporte.</h2>
+    <p data-t="tst_s">Des débutants qui partaient de zéro, des créateurs qui vivent déjà de leurs vues.</p>
   </div>
   <div class="wrap">
     <div class="tst-row">
-      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« La vidéo que j'ai copiée tournait déjà. J'ai suivi le plan : images régénérées, mon montage, ma voix — donc c'est ma vidéo, pas un repost. Elle est partie à <b>3,1 M de vues, et 2 570 $ de récompenses créateur.</b> Sur une seule vidéo. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-david.jpg" alt=""><span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">David O.</div><div class="tst-meta">TikTok · programme créateur</div></div></div></div>
-      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« J'avais jamais fait de contenu. Je voyais des vidéos à des millions de vues, j'essayais de refaire pareil, ça ressemblait à rien et j'abandonnais. Là je colle le lien et j'ai les images, les prompts, l'appli à utiliser. <b>Deux de mes comptes ont dépassé 50 000 abonnés.</b> »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-max.jpg" alt=""><span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Maxime R.</div><div class="tst-meta">A commencé il y a 5 mois</div></div></div></div>
-      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Avant je republiais des vidéos et la chaîne se faisait démonétiser. Là je reprends le format et je le refais en mieux — 1080p, ma voix off, mes plans. <b>500 $ de revenus YouTube</b> le mois dernier, et zéro souci de droits : le contenu est généré, il est à moi. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-lea.jpg" alt=""><span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Léa M.</div><div class="tst-meta">Shorts · chaîne monétisée</div></div></div></div>
-      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt">« Avant je passais 2 h sur TikTok à chercher quelle niche marchait. Maintenant j'ouvre les niches, je vois les notes, <b>je prends et je sais exactement comment la faire.</b> »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-ines.jpg" alt=""><span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Inès K.</div><div class="tst-meta">Gère 3 comptes</div></div></div></div>
-      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt">« J'ai payé 300 € une formation qui m'apprenait un seul type de vidéo. Ici <b>j'apprends n'importe quel format</b> juste en collant un lien. Le rapport qualité prix il y a pas photo. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-ryan.jpg" alt=""><span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Ryan T.</div><div class="tst-meta">Gaming &amp; tech</div></div></div></div>
-      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★☆</div><p class="tst-txt">« Franchement au début j'y croyais pas trop. Mais le fait d'avoir les images de référence à télécharger, ça change tout. <b>Je ne pars plus de zéro.</b> Il manque juste plus de vidéos dans certaines niches. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-sarah.jpg" alt=""><span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Sarah B.</div><div class="tst-meta">Story &amp; horreur</div></div></div></div>
+      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt" data-t="t1">« La vidéo que j'ai copiée tournait déjà. J'ai suivi le plan : images régénérées, mon montage, ma voix — donc c'est ma vidéo, pas un repost. Elle est partie à <b>3,1 M de vues, et 2 570 $ de récompenses créateur.</b> Sur une seule vidéo. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-david.jpg" alt=""><span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">David O.</div><div class="tst-meta" data-t="t1m">TikTok · programme créateur</div></div></div></div>
+      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt" data-t="t2">« J'avais jamais fait de contenu. Je voyais des vidéos à des millions de vues, j'essayais de refaire pareil, ça ressemblait à rien et j'abandonnais. Là je colle le lien et j'ai les images, les prompts, l'appli à utiliser. <b>Deux de mes comptes ont dépassé 50 000 abonnés.</b> »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-max.jpg" alt=""><span class="pl" style="background:#010101" data-pi="tiktok"></span></span><div><div class="tst-name">Maxime R.</div><div class="tst-meta" data-t="t2m">A commencé il y a 5 mois</div></div></div></div>
+      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★★</div><p class="tst-txt" data-t="t3">« Avant je republiais des vidéos et la chaîne se faisait démonétiser. Là je reprends le format et je le refais en mieux — 1080p, ma voix off, mes plans. <b>500 $ de revenus YouTube</b> le mois dernier, et zéro souci de droits : le contenu est généré, il est à moi. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-lea.jpg" alt=""><span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Léa M.</div><div class="tst-meta" data-t="t3m">Shorts · chaîne monétisée</div></div></div></div>
+      <div class="tst-card reveal"><div class="tst-stars">★★★★★</div><p class="tst-txt" data-t="t4">« Avant je passais 2 h sur TikTok à chercher quelle niche marchait. Maintenant j'ouvre les niches, je vois les notes, <b>je prends et je sais exactement comment la faire.</b> »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-ines.jpg" alt=""><span class="pl" data-pi="instagram"></span></span><div><div class="tst-name">Inès K.</div><div class="tst-meta" data-t="t4m">Gère 3 comptes</div></div></div></div>
+      <div class="tst-card reveal reveal-d1"><div class="tst-stars">★★★★★</div><p class="tst-txt" data-t="t5">« J'ai payé 300 € une formation qui m'apprenait un seul type de vidéo. Ici <b>j'apprends n'importe quel format</b> juste en collant un lien. Le rapport qualité prix il y a pas photo. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-ryan.jpg" alt=""><span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Ryan T.</div><div class="tst-meta" data-t="t5m">Gaming &amp; tech</div></div></div></div>
+      <div class="tst-card reveal reveal-d2"><div class="tst-stars">★★★★☆</div><p class="tst-txt" data-t="t6">« Franchement au début j'y croyais pas trop. Mais le fait d'avoir les images de référence à télécharger, ça change tout. <b>Je ne pars plus de zéro.</b> Il manque juste plus de vidéos dans certaines niches. »</p><div class="tst-who"><span class="tst-av"><img src="assets/av-sarah.jpg" alt=""><span class="pl" data-pi="youtube"></span></span><div><div class="tst-name">Sarah B.</div><div class="tst-meta" data-t="t6m">Story &amp; horreur</div></div></div></div>
     </div>
   </div>
 </section>
@@ -1070,8 +1090,8 @@
 <!-- ================= TARIFS ================= -->
 <section class="pricing" id="pricing">
   <div class="sec-head reveal">
-    <h2>Un seul plan. Tout est dedans.</h2>
-    <p>Sans engagement — tu annules quand tu veux.</p>
+    <h2 data-t="pr_t">Un seul plan. Tout est dedans.</h2>
+    <p data-t="pr_s">Sans engagement — tu annules quand tu veux.</p>
   </div>
   <div class="wrap">
     <div class="pr-card reveal">
@@ -1081,29 +1101,29 @@
       </div>
 
       <ul class="pr-list">
-        <li><b>Copies illimitées</b><span>Le plan complet pour refaire n'importe quelle vidéo virale</span></li>
-        <li><b>Toutes les niches virales</b><span>Le catalogue entier, noté par potentiel</span></li>
-        <li><b>Des idées de vidéos chaque jour</b><span>Pour ta niche, envoyées le matin</span></li>
-        <li><b>Génération de scripts</b><span>Notés et optimisés avant de tourner</span></li>
-        <li><b>Support prioritaire</b><span>On te répond en premier</span></li>
+        <li><b data-t="pr_l1">Copies illimitées</b><span data-t="pr_d1">Le plan complet pour refaire n'importe quelle vidéo virale</span></li>
+        <li><b data-t="pr_l2">Toutes les niches virales</b><span data-t="pr_d2">Le catalogue entier, noté par potentiel</span></li>
+        <li><b data-t="pr_l3">Des idées de vidéos chaque jour</b><span data-t="pr_d3">Pour ta niche, envoyées le matin</span></li>
+        <li><b data-t="pr_l4">Génération de scripts</b><span data-t="pr_d4">Notés et optimisés avant de tourner</span></li>
+        <li><b data-t="pr_l5">Support prioritaire</b><span data-t="pr_d5">On te répond en premier</span></li>
       </ul>
 
-      <a class="pr-btn sk-signup" href="signup.html">Commencer</a>
-      <div class="pr-note">Paiement sécurisé par carte bancaire · Résiliable à tout moment</div>
+      <a class="pr-btn sk-signup" href="signup.html" data-t="pr_btn">Commencer</a>
+      <div class="pr-note" data-t="pr_note">Paiement sécurisé par carte bancaire · Résiliable à tout moment</div>
     </div>
   </div>
 </section>
 
 <!-- ================= FAQ ================= -->
 <section class="faq" id="faq">
-  <div class="sec-head reveal"><h2>Questions fréquentes</h2></div>
+  <div class="sec-head reveal"><h2 data-t="faq_t">Questions fréquentes</h2></div>
   <div class="faq-list">
-    <details class="faq-item reveal"><summary>Qu'est-ce que je reçois exactement quand je colle un lien ?</summary><p>Le <b>plan complet de la vidéo</b> : les images de référence à générer, les prompts image et animation prêts à copier-coller, la voix off, et le montage étape par étape. Tu n'as plus à deviner pourquoi une vidéo a marché — tu as la recette, tu la refais.</p></details>
-    <details class="faq-item reveal"><summary>Je débute avec l'IA. C'est trop technique pour moi ?</summary><p>Non. Tu n'as rien à apprendre et rien à paramétrer : tu copies le prompt, tu le colles dans l'outil indiqué, tu suis les étapes de montage. C'est fait pour quelqu'un qui n'a jamais touché à l'IA — <b>pas besoin d'acheter une formation</b> pour comprendre ce qui marche.</p></details>
-    <details class="faq-item reveal"><summary>Combien de temps il me faut pour refaire une vidéo ?</summary><p>Environ <b>20 minutes</b>. Le vrai gain n'est pas le montage : c'est de ne plus passer deux heures par jour à scroller pour trouver une idée qui marche. Le format est déjà validé par les vues avant même que tu commences.</p></details>
-    <details class="faq-item reveal"><summary>Est-ce que mes vidéos sont 100 % originales ?</summary><p>Oui. Tu ne réuploades jamais la vidéo de quelqu'un d'autre : <b>toutes les images sont régénérées</b> par l'IA, les mouvements et les cadrages sont différents, la voix et le montage sont les tiens. C'est le <b>format</b> qui est repris — pas le fichier. Un format ne se protège pas ; c'est ce que font déjà tous les gros comptes.</p></details>
-    <details class="faq-item reveal"><summary>Est-ce que ce contenu est monétisable ?</summary><p>Oui, <b>100 %</b>. Comme chaque image est générée à partir de zéro et que le montage est le tien, la vidéo est un contenu neuf : pas de réutilisation de contenu, pas de copyright sur des images qui n'existaient pas avant toi.</p></details>
-    <details class="faq-item reveal"><summary>Ça coûte combien, et je peux arrêter quand je veux ?</summary><p>Un seul plan : <b>Pro à 30 $/mois</b>, tout est débloqué, aucune limite de copies. Paiement sécurisé par carte bancaire, <b>sans engagement</b> — tu annules en un clic depuis ton profil et tu gardes l'accès jusqu'à la fin du mois payé.</p></details>
+    <details class="faq-item reveal"><summary data-t="q1">Qu'est-ce que je reçois exactement quand je colle un lien ?</summary><p data-t="a1">Le <b>plan complet de la vidéo</b> : les images de référence à générer, les prompts image et animation prêts à copier-coller, la voix off, et le montage étape par étape. Tu n'as plus à deviner pourquoi une vidéo a marché — tu as la recette, tu la refais.</p></details>
+    <details class="faq-item reveal"><summary data-t="q2">Je débute avec l'IA. C'est trop technique pour moi ?</summary><p data-t="a2">Non. Tu n'as rien à apprendre et rien à paramétrer : tu copies le prompt, tu le colles dans l'outil indiqué, tu suis les étapes de montage. C'est fait pour quelqu'un qui n'a jamais touché à l'IA — <b>pas besoin d'acheter une formation</b> pour comprendre ce qui marche.</p></details>
+    <details class="faq-item reveal"><summary data-t="q3">Combien de temps il me faut pour refaire une vidéo ?</summary><p data-t="a3">Environ <b>20 minutes</b>. Le vrai gain n'est pas le montage : c'est de ne plus passer deux heures par jour à scroller pour trouver une idée qui marche. Le format est déjà validé par les vues avant même que tu commences.</p></details>
+    <details class="faq-item reveal"><summary data-t="q4">Est-ce que mes vidéos sont 100 % originales ?</summary><p data-t="a4">Oui. Tu ne réuploades jamais la vidéo de quelqu'un d'autre : <b>toutes les images sont régénérées</b> par l'IA, les mouvements et les cadrages sont différents, la voix et le montage sont les tiens. C'est le <b>format</b> qui est repris — pas le fichier. Un format ne se protège pas ; c'est ce que font déjà tous les gros comptes.</p></details>
+    <details class="faq-item reveal"><summary data-t="q5">Est-ce que ce contenu est monétisable ?</summary><p data-t="a5">Oui, <b>100 %</b>. Comme chaque image est générée à partir de zéro et que le montage est le tien, la vidéo est un contenu neuf : pas de réutilisation de contenu, pas de copyright sur des images qui n'existaient pas avant toi.</p></details>
+    <details class="faq-item reveal"><summary data-t="q6">Ça coûte combien, et je peux arrêter quand je veux ?</summary><p data-t="a6">Un seul plan : <b>Pro à 30 $/mois</b>, tout est débloqué, aucune limite de copies. Paiement sécurisé par carte bancaire, <b>sans engagement</b> — tu annules en un clic depuis ton profil et tu gardes l'accès jusqu'à la fin du mois payé.</p></details>
   </div>
 </section>
 
@@ -1111,10 +1131,10 @@
 <section class="final-cta">
   <div class="wrap">
     <div class="final-cta-inner gz-item gz-center">
-      <h2>Colle un lien. <span class="hl-brand">Reçois le plan.</span></h2>
+      <h2>Colle un lien. <span class="hl-brand" data-t="cta_t">Reçois le plan.</span></h2>
       <p style="color:var(--muted);font-size:1rem;line-height:1.6;max-width:520px;margin:10px auto 26px;">La prochaine vidéo qui cartonne dans ta niche, tu peux la refaire dès aujourd'hui — avec les images, les prompts et le montage exacts.</p>
-      <a class="btn-primary-lg sk-signup" href="signup.html">Créer mon compte →</a>
-      <div class="hero-note">Gratuit pour parcourir · Pro pour tout copier.</div>
+      <a class="btn-primary-lg sk-signup" href="signup.html" data-t="cta_b">Créer mon compte →</a>
+      <div class="hero-note" data-t="cta_n">Gratuit pour parcourir · Pro pour tout copier.</div>
     </div>
   </div>
 </section>
@@ -1127,11 +1147,11 @@
         <p>Copie les vidéos qui cartonnent : le plan exact pour les refaire — images, prompts et montage.</p>
       </div>
       <div class="foot-cols">
-        <div class="foot-col"><h4>Produit</h4><a href="#fonctionnalites">Fonctionnalités</a><a href="#pricing">Tarifs</a><a href="app.html">Connexion</a></div>
-        <div class="foot-col"><h4>Légal</h4><a href="privacy.html">Confidentialité</a><a href="terms.html">Conditions d'utilisation</a></div>
+        <div class="foot-col"><h4 data-t="foot_p">Produit</h4><a href="#fonctionnalites">Fonctionnalités</a><a href="#pricing">Tarifs</a><a href="app.html">Connexion</a></div>
+        <div class="foot-col"><h4 data-t="foot_l">Légal</h4><a href="privacy.html" data-t="foot_priv">Confidentialité</a><a href="terms.html" data-t="foot_terms">Conditions d'utilisation</a></div>
       </div>
     </div>
-    <div class="foot-bottom">© 2026 Skillora. Tous droits réservés.</div>
+    <div class="foot-bottom" data-t="foot_c">© 2026 Skillora. Tous droits réservés.</div>
   </div>
 </footer>
 

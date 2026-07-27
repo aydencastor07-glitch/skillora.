@@ -311,13 +311,19 @@
     foot_c:"© 2026 Skillora. Alle Rechte vorbehalten."
   };
 
+  /* LANGUE PAR DEFAUT : L'ANGLAIS.
+     Les publicites sont en anglais et touchent le monde entier : la premiere
+     chose qu'un visiteur voit doit etre dans la meme langue que l'annonce
+     qui l'a amene. On ne devine plus la langue du navigateur — un visiteur
+     francais qui clique sur une annonce anglaise verrait sinon une page
+     francaise, sans rapport avec ce qu'il vient de lire.
+     Des que la personne choisit une langue, ce choix est retenu et prime. */
   function langue() {
     try {
       var c = localStorage.getItem('skillora_lang');
       if (c && D[c]) return c;
-      var n = String((navigator.languages && navigator.languages[0]) || navigator.language || 'fr').slice(0, 2).toLowerCase();
-      return D[n] ? n : 'fr';
-    } catch (e) { return 'fr'; }
+    } catch (e) {}
+    return 'en';
   }
 
   function appliquer() {

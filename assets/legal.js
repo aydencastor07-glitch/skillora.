@@ -172,14 +172,19 @@
       ["10. Kontakt","Bei Fragen zu dieser Erklärung oder deinen Daten: <a href=\"mailto:support@skillora.me\">support@skillora.me</a>"],
       ["11. Änderungen","Wir können diese Erklärung aktualisieren. Änderungen werden auf dieser Seite mit einem neuen Aktualisierungsdatum veröffentlicht."]] };
 
-  /* Langue : celle choisie dans l'app, sinon celle du navigateur, sinon le français. */
+  /* LANGUE PAR DEFAUT : L'ANGLAIS.
+     Les publicites sont en anglais et touchent le monde entier : la premiere
+     chose qu'un visiteur voit doit etre dans la meme langue que l'annonce
+     qui l'a amene. On ne devine plus la langue du navigateur — un visiteur
+     francais qui clique sur une annonce anglaise verrait sinon une page
+     francaise, sans rapport avec ce qu'il vient de lire.
+     Des que la personne choisit une langue, ce choix est retenu et prime. */
   function langue() {
     try {
       var c = localStorage.getItem('skillora_lang');
       if (c && T[c]) return c;
-      var n = String((navigator.languages && navigator.languages[0]) || navigator.language || 'fr').slice(0, 2).toLowerCase();
-      return T[n] ? n : 'fr';
-    } catch (e) { return 'fr'; }
+    } catch (e) {}
+    return 'en';
   }
 
   function rendre(quoi) {

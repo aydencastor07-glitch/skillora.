@@ -6918,13 +6918,17 @@
   };
   // Premiere visite : on suit la langue du navigateur. Un visiteur allemand qui
   // arrive par une pub doit voir l'app en allemand, pas en francais.
+  // LANGUE PAR DEFAUT : L'ANGLAIS — la meme regle que la page d'accueil et
+  // que les pages legales. Quelqu'un qui arrive par une publicite anglaise
+  // et cree son compte doit retrouver l'app dans la meme langue ; deviner la
+  // langue du navigateur le ferait basculer sans raison. Des que la personne
+  // choisit une langue dans le menu, ce choix est retenu et prime partout.
   function skLang(){
     try {
       var choisi = localStorage.getItem('skillora_lang');
       if (choisi && SK_I18N[choisi]) return choisi;
-      var nav = String((navigator.languages && navigator.languages[0]) || navigator.language || 'fr').slice(0,2).toLowerCase();
-      return SK_I18N[nav] ? nav : 'fr';
-    } catch(e){ return 'fr'; }
+    } catch(e){}
+    return 'en';
   }
   function skT(k){ var d=SK_I18N[skLang()]||SK_I18N.fr; return d[k]||SK_I18N.fr[k]||''; }
   function skSetLang(l){

@@ -10,7 +10,7 @@
     }
   })();
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Skillora — Copie les vidéos virales avec le plan exact</title>
 <meta name="description" content="Colle le lien d'une vidéo virale : Skillora te donne le plan exact pour la refaire — images de référence, prompts et montage. Plus feed viral, niches notées, scripts et idées de vidéos.">
 <link rel="canonical" href="https://skillora.me/">
@@ -894,6 +894,31 @@
     .nav-burger { display:flex; }
   }
 </style>
+<script>
+  /* PAGE STABLE — la mise en page ne doit JAMAIS pouvoir etre deplacee au doigt.
+     Un pincement, meme leger, permet ensuite de faire glisser toute la page :
+     le logo et les textes sortent de l'ecran et le site parait casse.
+     La balise viewport suffit sur Android ; iOS l'ignore depuis iOS 10, d'ou
+     ces deux garde-fous :
+       - on refuse le pincement (gesturestart/change/end) ;
+       - on refuse le double-tap qui zoome. */
+  (function(){
+    ['gesturestart','gesturechange','gestureend'].forEach(function(e){
+      document.addEventListener(e, function(ev){ ev.preventDefault(); }, { passive:false });
+    });
+    var dernier = 0;
+    document.addEventListener('touchend', function(ev){
+      var t = Date.now();
+      if (t - dernier <= 320) ev.preventDefault();   // double-tap = zoom
+      dernier = t;
+    }, { passive:false });
+    // Filet : si quelque chose deborde malgre tout, on ne laisse pas la page
+    // partir sur le cote.
+    window.addEventListener('scroll', function(){
+      if (window.scrollX !== 0) window.scrollTo(0, window.scrollY);
+    }, { passive:true });
+  })();
+</script>
 </head>
 <body>
 <script src="assets/landing-i18n.js"></script>

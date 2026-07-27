@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Skillora</title>
 <meta name="robots" content="noindex,nofollow">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -1889,6 +1889,31 @@
   }
 
 </style>
+<script>
+  /* PAGE STABLE — la mise en page ne doit JAMAIS pouvoir etre deplacee au doigt.
+     Un pincement, meme leger, permet ensuite de faire glisser toute la page :
+     le logo et les textes sortent de l'ecran et le site parait casse.
+     La balise viewport suffit sur Android ; iOS l'ignore depuis iOS 10, d'ou
+     ces deux garde-fous :
+       - on refuse le pincement (gesturestart/change/end) ;
+       - on refuse le double-tap qui zoome. */
+  (function(){
+    ['gesturestart','gesturechange','gestureend'].forEach(function(e){
+      document.addEventListener(e, function(ev){ ev.preventDefault(); }, { passive:false });
+    });
+    var dernier = 0;
+    document.addEventListener('touchend', function(ev){
+      var t = Date.now();
+      if (t - dernier <= 320) ev.preventDefault();   // double-tap = zoom
+      dernier = t;
+    }, { passive:false });
+    // Filet : si quelque chose deborde malgre tout, on ne laisse pas la page
+    // partir sur le cote.
+    window.addEventListener('scroll', function(){
+      if (window.scrollX !== 0) window.scrollTo(0, window.scrollY);
+    }, { passive:true });
+  })();
+</script>
 </head>
 <body>
 
@@ -10535,17 +10560,18 @@
     var sm=bp.source_meta;
     if(sm){
       var th0=null;(bp.plans||[]).some(function(p){if(p.frame_url){th0=p.frame_url;return true;}return false;});
-      // On n'affiche QUE les chiffres qu'on a vraiment. Une colonne « — » ne
-      // dit rien et prend la place des vraies stats : sur un petit telephone
-      // c'est elle qui poussait la derniere hors de l'ecran.
-      var sts='';
-      [['eye',sm.views],['heart',sm.likes],['chat',sm.comments],['share',sm.shares]]
-        .forEach(function(x){
-          if(x[1]==null) return;
-          sts+='<span class="src2-st">'+genStatSvg(x[0])+'<b>'+genFmtN(x[1])+'</b></span>';
-        });
-      if(sts) h+='<div class="src2">'+(th0?'<img class="src2-th" src="'+genEsc(th0)+'" alt=""/>':'')
-        +genPlatSvg(sm.platform)+'<div class="src2-sts">'+sts+'</div></div>';
+      // Les QUATRE stats sont affichees, toujours : vues, j'aime, commentaires,
+      // partages. Ce sont elles qui montrent que la video marche vraiment —
+      // on n'en cache aucune. Le « — » signale honnetement une valeur que la
+      // plateforme ne publie pas. C'est la mise en page qui s'adapte a
+      // l'ecran (voir .src2-sts), pas le contenu qui disparait.
+      h+='<div class="src2">'+(th0?'<img class="src2-th" src="'+genEsc(th0)+'" alt=""/>':'')+genPlatSvg(sm.platform)+
+        '<div class="src2-sts">'+
+        '<span class="src2-st">'+genStatSvg('eye')+'<b>'+genFmtN(sm.views)+'</b></span>'+
+        '<span class="src2-st">'+genStatSvg('heart')+'<b>'+genFmtN(sm.likes)+'</b></span>'+
+        '<span class="src2-st">'+genStatSvg('chat')+'<b>'+genFmtN(sm.comments)+'</b></span>'+
+        '<span class="src2-st">'+genStatSvg('share')+'<b>'+genFmtN(sm.shares)+'</b></span>'+
+        '</div></div>';
     }
     var g=(s.global!=null?s.global:null);
     if(g!=null){

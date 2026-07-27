@@ -885,12 +885,12 @@
       <a href="#avis">Avis</a>
       <a href="#pricing">Tarifs</a>
       <a href="#faq">FAQ</a>
-      <a class="btn-ghost-nav mob-only" href="app.html">Connexion</a>
-      <a class="btn-primary-nav mob-only" href="signup.html">Créer mon compte</a>
+      <a class="btn-ghost-nav mob-only sk-signin" href="app.html">Connexion</a>
+      <a class="btn-primary-nav mob-only sk-signup" href="signup.html">Créer mon compte</a>
     </div>
     <div class="nav-cta">
-      <a class="btn-ghost-nav" href="app.html">Connexion</a>
-      <a class="btn-primary-nav" href="signup.html">Créer mon compte</a>
+      <a class="btn-ghost-nav sk-signin" href="app.html">Connexion</a>
+      <a class="btn-primary-nav sk-signup" href="signup.html">Créer mon compte</a>
     </div>
     <button class="nav-burger" onclick="document.querySelector('.nav-links').classList.toggle('mob-open')" aria-label="Menu"><span></span></button>
   </div>
@@ -1088,7 +1088,7 @@
         <li><b>Support prioritaire</b><span>On te répond en premier</span></li>
       </ul>
 
-      <a class="pr-btn" href="signup.html">Commencer</a>
+      <a class="pr-btn sk-signup" href="signup.html">Commencer</a>
       <div class="pr-note">Paiement sécurisé par carte bancaire · Résiliable à tout moment</div>
     </div>
   </div>
@@ -1113,7 +1113,7 @@
     <div class="final-cta-inner gz-item gz-center">
       <h2>Colle un lien. <span class="hl-brand">Reçois le plan.</span></h2>
       <p style="color:var(--muted);font-size:1rem;line-height:1.6;max-width:520px;margin:10px auto 26px;">La prochaine vidéo qui cartonne dans ta niche, tu peux la refaire dès aujourd'hui — avec les images, les prompts et le montage exacts.</p>
-      <a class="btn-primary-lg" href="signup.html">Créer mon compte →</a>
+      <a class="btn-primary-lg sk-signup" href="signup.html">Créer mon compte →</a>
       <div class="hero-note">Gratuit pour parcourir · Pro pour tout copier.</div>
     </div>
   </div>
@@ -1557,6 +1557,30 @@
     toastEls.forEach(function(el){ el.classList.add('pop'); });
   }
 
+
+  /* ===== Session : la landing sait si on est deja connecte =====
+     Meme controle que app.html : la presence d'un jeton Supabase dans le
+     stockage local. Aucun appel reseau, donc aucun clignotement. Sans ca, un
+     abonne qui revenait sur la page d'accueil se voyait proposer de creer un
+     compte, comme s'il avait ete deconnecte. */
+  function skConnecte(){
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('sb-') === 0 && k.indexOf('-auth-token') > 0 && localStorage.getItem(k)) return true;
+      }
+    } catch(e){}
+    return false;
+  }
+  (function(){
+    if (!skConnecte()) return;
+    document.querySelectorAll('.sk-signup').forEach(function(a){
+      a.href = 'app.html';
+      a.textContent = a.classList.contains('pr-btn') ? 'Ouvrir mon espace' : 'Ouvrir mon espace →';
+    });
+    document.querySelectorAll('.sk-signin').forEach(function(a){ a.textContent = 'Mon espace'; });
+  })();
+
   /* ===== « Copier avec l'IA » depuis le héros =====
      Bloc COPIÉ À L'IDENTIQUE de l'app (app.html). Le visiteur non connecté voit donc
      exactement ce que voit un abonné qui copie une vidéo. 100 % local : aucun appel à
@@ -1702,6 +1726,10 @@
       return false;
     }
     try { localStorage.setItem('sk_try_link', url); } catch(err){}  // on le retrouvera après l'inscription
+
+    // Deja connecte : pas de demonstration ni d'inscription — on ouvre l'app et
+    // on lance la vraie copie, avec le vrai plan a la cle.
+    if (skConnecte()) { location.href = 'app.html?copy=' + encodeURIComponent(url); return false; }
 
     document.body.style.overflow = 'hidden';
     copyAnimOpen(null, null, url);   // démarre immédiatement, la miniature arrive en route

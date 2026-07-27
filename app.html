@@ -3713,6 +3713,22 @@
     } catch(e){}
   }
 
+  // Lien collé depuis la page d'accueil (?copy=…) : on lance la vraie copie dès
+  // que le plan de la personne est connu, puis on nettoie l'adresse.
+  function skCopieDepuisLanding(){
+    var lien = '';
+    try { lien = new URLSearchParams(location.search).get('copy') || ''; } catch(e){}
+    if (!/^https?:\/\//i.test(lien)) return;
+    try { history.replaceState({}, '', location.pathname); } catch(e){}
+    var essais = 0;
+    (function attendre(){
+      if (window._planLoaded) { try { goCopierWith(lien); } catch(e){} return; }
+      if (++essais > 40) return;               // ~10 s au maximum
+      setTimeout(attendre, 250);
+    })();
+  }
+  try { skCopieDepuisLanding(); } catch(e){}
+
   // Gère le retour depuis Whop (?checkout=success ou ?checkout=cancel)
   function handleCheckoutReturn() {
     var params = new URLSearchParams(window.location.search);

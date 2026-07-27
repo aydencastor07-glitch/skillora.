@@ -10,17 +10,20 @@
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;line-height:1.7;font-size:15px;}
   body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,111,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,111,255,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
-  nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 6vw;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(5,8,16,0.9);backdrop-filter:blur(12px);z-index:10;}
+  nav{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:1.2rem 6vw;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(5,8,16,0.9);backdrop-filter:blur(12px);z-index:10;flex-wrap:wrap;}
   .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;}
   .logo span{color:var(--blue);}
   .back-link{color:var(--blue-light);text-decoration:none;font-size:.85rem;font-weight:600;}
+  /* Sélecteur de langue : la page suit celle de l'app, et peut être changée ici. */
+  .langs{display:flex;gap:6px;}
+  .langs button{background:rgba(26,111,255,0.06);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 9px;font-family:'Syne',sans-serif;font-weight:700;font-size:.72rem;cursor:pointer;transition:all .18s;}
+  .langs button:hover{border-color:var(--blue-light);color:var(--white);}
+  .langs button.on{background:rgba(26,111,255,0.18);border-color:var(--blue);color:#fff;}
   .container{max-width:800px;margin:0 auto;padding:3rem 6vw 5rem;position:relative;z-index:1;}
   h1{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-0.02em;}
   .updated{color:var(--muted);font-size:.85rem;margin-bottom:2.5rem;}
   h2{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;margin:2.5rem 0 .8rem;color:var(--blue-light);}
   p{color:#c5cee0;margin-bottom:1rem;}
-  ul{margin:0 0 1rem 1.3rem;color:#c5cee0;}
-  li{margin-bottom:.5rem;}
   a{color:var(--blue-light);}
   .highlight{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;padding:1.2rem 1.4rem;margin:1.5rem 0;}
   footer{border-top:1px solid var(--border);padding:2rem 6vw;text-align:center;color:var(--muted);font-size:.8rem;position:relative;z-index:1;}
@@ -29,77 +32,20 @@
 <body>
 <nav>
   <div class="logo">Skill<span>ora</span></div>
-  <a href="index.html" class="back-link">← Retour au site</a>
+  <div class="langs" id="legalLangs">
+    <button data-l="fr" onclick="legalSetLang('fr')">FR</button>
+    <button data-l="en" onclick="legalSetLang('en')">EN</button>
+    <button data-l="es" onclick="legalSetLang('es')">ES</button>
+    <button data-l="pt" onclick="legalSetLang('pt')">PT</button>
+    <button data-l="de" onclick="legalSetLang('de')">DE</button>
+  </div>
+  <a href="index.html" class="back-link" id="backLink">← Retour au site</a>
 </nav>
 
-<div class="container">
-  <h1>Politique de Confidentialité</h1>
-  <div class="updated">Dernière mise à jour : 24 juillet 2026</div>
+<div class="container" id="legalBody"></div>
 
-  <p>Chez Skillora, nous prenons votre vie privée au sérieux. Cette politique explique quelles données nous collectons, comment nous les utilisons, et vos droits concernant ces données.</p>
-
-  <div class="highlight">
-    <p style="margin:0;"><strong>En résumé :</strong> nous collectons le minimum nécessaire pour faire fonctionner le service (ton compte, tes préférences, ce que tu génères). Nous ne connectons pas tes réseaux sociaux, nous ne stockons pas ton numéro de carte, et nous ne vendons jamais tes données.</p>
-  </div>
-
-  <h2>1. Données que nous collectons</h2>
-  <ul>
-    <li><strong>Compte :</strong> ton adresse e-mail, ton nom (si fourni via Google), et un mot de passe chiffré si tu t'inscris par e-mail. L'authentification est gérée par notre prestataire Supabase.</li>
-    <li><strong>Préférences d'idées :</strong> les niches et plateformes que tu choisis, et le nom de compte optionnel que tu saisis pour personnaliser tes rappels par e-mail.</li>
-    <li><strong>Contenus générés :</strong> les scripts, plans de reproduction et idées de vidéos que tu génères, conservés pour te permettre de les retrouver (ton historique).</li>
-    <li><strong>Données d'usage :</strong> des informations techniques et d'utilisation nécessaires au bon fonctionnement et à l'amélioration du service.</li>
-    <li><strong>Paiement :</strong> ton statut d'abonnement. Les paiements sont traités par Gumroad ; <strong>nous ne recevons ni ne stockons les numéros de carte bancaire.</strong></li>
-  </ul>
-
-  <h2>2. Pas de connexion à tes réseaux sociaux</h2>
-  <p>Skillora ne demande pas de connecter tes comptes de réseaux sociaux et ne publie rien à ta place. Le feed de vidéos est constitué à partir de contenus <strong>publiquement accessibles</strong>, à des fins d'analyse et d'inspiration.</p>
-
-  <h2>3. Comment nous utilisons vos données</h2>
-  <ul>
-    <li>fournir et faire fonctionner le service (compte, abonnement, historique) ;</li>
-    <li>générer tes scripts et tes idées de vidéos à l'aide de modèles d'intelligence artificielle ;</li>
-    <li>t'envoyer, si tu l'actives, un rappel e-mail avec de nouvelles idées ;</li>
-    <li>te contacter au sujet de ton compte, de ton abonnement ou du support ;</li>
-    <li>améliorer la qualité et la sécurité du service.</li>
-  </ul>
-
-  <h2>4. Partage des données et sous-traitants</h2>
-  <p>Nous ne vendons pas vos données. Nous faisons appel à des prestataires de confiance, uniquement pour faire fonctionner le service :</p>
-  <ul>
-    <li><strong>Supabase</strong> — hébergement, base de données et authentification ;</li>
-    <li><strong>Fournisseurs d'IA</strong> (dont Anthropic) — pour générer les scripts et les idées à partir de ce que tu saisis ;</li>
-    <li><strong>Gumroad</strong> — traitement des paiements ;</li>
-    <li><strong>Service d'envoi d'e-mails</strong> — pour les rappels d'idées et les messages liés au compte.</li>
-  </ul>
-  <p>Nous pouvons également divulguer des données si la loi l'exige.</p>
-
-  <h2>5. Stockage local (cookies)</h2>
-  <p>Skillora utilise le stockage local de ton navigateur pour retenir tes préférences (langue, niches suivies, dernier écran, état de session). Ces informations restent sur ton appareil et servent à améliorer ton expérience.</p>
-
-  <h2>6. Sécurité</h2>
-  <p>Nous mettons en œuvre des mesures techniques et organisationnelles raisonnables pour protéger vos données. Les échanges sont chiffrés (HTTPS) et les mots de passe ne sont jamais stockés en clair. Aucune méthode n'est toutefois sûre à 100 %.</p>
-
-  <h2>7. Vos droits</h2>
-  <ul>
-    <li>accéder à vos données et demander une copie ;</li>
-    <li>rectifier des informations inexactes ;</li>
-    <li><strong>supprimer votre compte et vos données</strong> à tout moment depuis les paramètres (« Supprimer mon compte ») ;</li>
-    <li>vous désabonner des e-mails d'idées quand vous le souhaitez.</li>
-  </ul>
-
-  <h2>8. Conservation des données</h2>
-  <p>Nous conservons vos données tant que votre compte est actif. Après la suppression de votre compte, vos données personnelles sont effacées dans un délai raisonnable, sauf obligation légale de conservation.</p>
-
-  <h2>9. Mineurs</h2>
-  <p>Skillora est destiné aux personnes de 18 ans et plus. Nous ne collectons pas sciemment de données concernant des personnes n'ayant pas l'âge requis.</p>
-
-  <h2>10. Contact</h2>
-  <p>Pour toute question concernant cette politique ou vos données, contactez-nous à : <a href="mailto:support@skillora.me">support@skillora.me</a></p>
-
-  <h2>11. Modifications</h2>
-  <p>Nous pouvons mettre à jour cette politique. Les changements seront publiés sur cette page avec une nouvelle date de mise à jour.</p>
-</div>
-
-<footer>© 2026 Skillora. Tous droits réservés.</footer>
+<footer id="legalFoot">© 2026 Skillora. Tous droits réservés.</footer>
+<script src="assets/legal.js"></script>
+<script>legalRender('privacy');</script>
 </body>
 </html>

@@ -10,17 +10,20 @@
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;line-height:1.7;font-size:15px;}
   body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(26,111,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(26,111,255,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
-  nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 6vw;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(5,8,16,0.9);backdrop-filter:blur(12px);z-index:10;}
+  nav{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:1.2rem 6vw;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(5,8,16,0.9);backdrop-filter:blur(12px);z-index:10;flex-wrap:wrap;}
   .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;}
   .logo span{color:var(--blue);}
   .back-link{color:var(--blue-light);text-decoration:none;font-size:.85rem;font-weight:600;}
+  /* Sélecteur de langue : la page suit celle de l'app, et peut être changée ici. */
+  .langs{display:flex;gap:6px;}
+  .langs button{background:rgba(26,111,255,0.06);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 9px;font-family:'Syne',sans-serif;font-weight:700;font-size:.72rem;cursor:pointer;transition:all .18s;}
+  .langs button:hover{border-color:var(--blue-light);color:var(--white);}
+  .langs button.on{background:rgba(26,111,255,0.18);border-color:var(--blue);color:#fff;}
   .container{max-width:800px;margin:0 auto;padding:3rem 6vw 5rem;position:relative;z-index:1;}
   h1{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-0.02em;}
   .updated{color:var(--muted);font-size:.85rem;margin-bottom:2.5rem;}
   h2{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;margin:2.5rem 0 .8rem;color:var(--blue-light);}
   p{color:#c5cee0;margin-bottom:1rem;}
-  ul{margin:0 0 1rem 1.3rem;color:#c5cee0;}
-  li{margin-bottom:.5rem;}
   a{color:var(--blue-light);}
   .highlight{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;padding:1.2rem 1.4rem;margin:1.5rem 0;}
   footer{border-top:1px solid var(--border);padding:2rem 6vw;text-align:center;color:var(--muted);font-size:.8rem;position:relative;z-index:1;}
@@ -29,79 +32,20 @@
 <body>
 <nav>
   <div class="logo">Skill<span>ora</span></div>
-  <a href="index.html" class="back-link">← Retour au site</a>
+  <div class="langs" id="legalLangs">
+    <button data-l="fr" onclick="legalSetLang('fr')">FR</button>
+    <button data-l="en" onclick="legalSetLang('en')">EN</button>
+    <button data-l="es" onclick="legalSetLang('es')">ES</button>
+    <button data-l="pt" onclick="legalSetLang('pt')">PT</button>
+    <button data-l="de" onclick="legalSetLang('de')">DE</button>
+  </div>
+  <a href="index.html" class="back-link" id="backLink">← Retour au site</a>
 </nav>
 
-<div class="container">
-  <h1>Conditions d'Utilisation</h1>
-  <div class="updated">Dernière mise à jour : 24 juillet 2026</div>
+<div class="container" id="legalBody"></div>
 
-  <p>Bienvenue sur Skillora. En accédant à notre plateforme et en l'utilisant, vous acceptez les présentes Conditions d'Utilisation. Veuillez les lire attentivement.</p>
-
-  <div class="highlight">
-    <p style="margin:0;"><strong>En résumé :</strong> Skillora est un outil créatif assisté par IA. Il t'aide à comprendre et reproduire des vidéos courtes qui marchent, à écrire des scripts et à trouver des idées. Le parcours est gratuit ; regarder, copier et créer sans limite demandent l'abonnement Pro (30 $/mois). Tu es responsable des vidéos que tu crées et publies.</p>
-  </div>
-
-  <h2>1. Acceptation des conditions</h2>
-  <p>En créant un compte ou en utilisant Skillora, vous acceptez d'être lié par ces conditions. Si vous n'êtes pas d'accord, veuillez ne pas utiliser le service.</p>
-
-  <h2>2. Description du service</h2>
-  <p>Skillora est un outil créatif assisté par intelligence artificielle destiné aux créateurs de vidéos courtes. Il propose notamment :</p>
-  <ul>
-    <li>un <strong>feed de vidéos virales</strong> multi-plateformes, avec des statistiques publiques ;</li>
-    <li>la <strong>« Copie avec l'IA »</strong> : à partir d'une vidéo, Skillora produit un plan de reproduction (idées d'images, prompts, structure et montage) ;</li>
-    <li>un catalogue de <strong>niches virales</strong> noté par potentiel ;</li>
-    <li>la <strong>création de scripts</strong> à partir d'une idée et d'une durée, avec une note et une version optimisée ;</li>
-    <li>des <strong>idées de vidéos</strong> générées par niche et par plateforme, avec un rappel e-mail optionnel.</li>
-  </ul>
-  <p>Skillora est un outil d'aide à la création. Il ne publie pas automatiquement à votre place et ne requiert pas la connexion de vos comptes de réseaux sociaux.</p>
-
-  <h2>3. Conditions d'âge</h2>
-  <p>Vous devez avoir au moins 18 ans pour utiliser Skillora. En utilisant le service, vous confirmez avoir l'âge légal requis.</p>
-
-  <h2>4. Votre compte</h2>
-  <p>Vous créez un compte avec une adresse e-mail (mot de passe) ou via Google. Vous êtes responsable de :</p>
-  <ul>
-    <li>maintenir la confidentialité de vos identifiants ;</li>
-    <li>toutes les activités effectuées sous votre compte ;</li>
-    <li>fournir des informations exactes lors de l'inscription.</li>
-  </ul>
-  <p>Vous pouvez supprimer votre compte à tout moment depuis les paramètres.</p>
-
-  <h2>5. Abonnement et paiements</h2>
-  <p>Skillora propose un abonnement <strong>Pro à 30 $/mois</strong> qui débloque l'accès complet (regarder et copier les vidéos, créer scripts et idées sans limite de plan). Les paiements sont traités de manière sécurisée par notre prestataire <strong>Gumroad</strong> (carte bancaire). L'abonnement se renouvelle automatiquement chaque mois jusqu'à résiliation.</p>
-  <p>Vous pouvez annuler à tout moment ; l'accès Pro reste actif jusqu'à la fin de la période déjà payée. Sauf disposition légale contraire, aucun remboursement n'est effectué pour une période déjà entamée. En cas d'échec de paiement (par exemple carte expirée ou refusée), l'accès Pro peut être suspendu.</p>
-
-  <h2>6. Contenu, IA et responsabilité de création</h2>
-  <p>Le feed présente des vidéos issues de sources publiques, à des fins d'<strong>analyse et d'inspiration</strong>. Skillora ne revendique aucune propriété sur ces vidéos, qui restent celles de leurs auteurs.</p>
-  <p>Les plans, prompts, scripts et idées générés par l'IA sont des <strong>suggestions</strong> : ils peuvent contenir des erreurs et doivent être vérifiés avant utilisation. Vous êtes seul responsable des vidéos que vous produisez à partir de Skillora, de leur contenu, et de leur publication. Vous vous engagez à respecter les droits d'auteur, les droits des tiers et les règles des plateformes sur lesquelles vous publiez. Ne copiez pas à l'identique le contenu protégé d'autrui : inspirez-vous du format et de la structure, pas de l'œuvre elle-même.</p>
-
-  <h2>7. Utilisation acceptable</h2>
-  <p>Vous acceptez de ne pas :</p>
-  <ul>
-    <li>utiliser le service à des fins illégales ou trompeuses ;</li>
-    <li>partager votre accès Pro avec des tiers ;</li>
-    <li>revendre, redistribuer ou automatiser l'extraction de nos contenus et outils sans autorisation ;</li>
-    <li>générer des contenus haineux, violents, sexuellement explicites impliquant des mineurs, diffamatoires ou portant atteinte aux droits d'autrui ;</li>
-    <li>tenter de pirater, surcharger ou perturber le service.</li>
-  </ul>
-
-  <h2>8. Propriété intellectuelle</h2>
-  <p>La plateforme Skillora (son interface, ses textes, son design, son logo et ses systèmes) est notre propriété. Les <strong>scripts et plans que vous générez pour vos propres vidéos vous appartiennent</strong> et vous êtes libre de les utiliser. Vous ne pouvez pas reproduire ou distribuer les éléments de la plateforme elle-même sans autorisation écrite.</p>
-
-  <h2>9. Absence de garantie de résultats</h2>
-  <p>Skillora est un outil d'aide à la création. Nous ne garantissons aucun résultat précis (vues, abonnés, revenus). Votre réussite dépend de nombreux facteurs, dont vos propres efforts et la qualité de votre exécution. Le service est fourni « tel quel », sans garantie de disponibilité ininterrompue.</p>
-
-  <h2>10. Résiliation</h2>
-  <p>Nous nous réservons le droit de suspendre ou supprimer un compte qui enfreint ces conditions. Vous pouvez supprimer votre compte et vos données à tout moment depuis les paramètres.</p>
-
-  <h2>11. Modifications</h2>
-  <p>Nous pouvons modifier ces conditions. Les changements seront publiés sur cette page. Votre utilisation continue du service vaut acceptation des nouvelles conditions.</p>
-
-  <h2>12. Contact</h2>
-  <p>Pour toute question, contactez-nous à : <a href="mailto:support@skillora.me">support@skillora.me</a></p>
-</div>
-
-<footer>© 2026 Skillora. Tous droits réservés.</footer>
+<footer id="legalFoot">© 2026 Skillora. Tous droits réservés.</footer>
+<script src="assets/legal.js"></script>
+<script>legalRender('terms');</script>
 </body>
 </html>

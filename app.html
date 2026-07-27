@@ -3457,6 +3457,10 @@
     try {
       var v = localStorage.getItem('skillora_view');
       if (v === 'library') v = null; // ancien système ebook retiré
+      // La page « Copier avec l'IA » ne se restaure PAS : recharger dessus doit
+      // ramener à l'accueil avec le champ vide, pas rouvrir un plan périmé ni
+      // l'écran de script. Les autres pages, elles, restent où on les a laissées.
+      if (v === 'ia') v = null;
       if (v && v !== 'home' && document.getElementById('view-' + v)) {
         var vs = document.querySelectorAll('.view');
         for (var i=0;i<vs.length;i++) vs[i].classList.remove('active');
@@ -6337,7 +6341,8 @@
         if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'" + name + "'") >= 0) b.classList.add('active');
       });
     }
-    try { localStorage.setItem('skillora_view', name); } catch(e) {}
+    // On ne mémorise pas la page de copie : au rechargement on veut l'accueil.
+    try { localStorage.setItem('skillora_view', name === 'ia' ? 'home' : name); } catch(e) {}
     // Le plan Studio ne survit QUE si on reste sur le Studio (refresh) ; dès qu'on va
     // ailleurs, on l'efface (« si la personne navigue ailleurs, les plans sont retirés »).
     if (name !== 'ia') { try { sessionStorage.removeItem('sk_plan'); } catch(e){} }
@@ -6939,6 +6944,7 @@
     try {
       var v = localStorage.getItem('skillora_view');
       if (v === 'library') return; // ancien système ebook retiré
+      if (v === 'ia') return;      // voir plus haut : on ne restaure jamais la copie
       if (v && v !== 'home' && document.getElementById('view-' + v)) {
         switchView(v, null);
       }

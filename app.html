@@ -10768,6 +10768,9 @@
 
   /* ── GÉNÉRATEUR IA (« Copier une vidéo ») — job créé via video-generate, traité par le video-worker ── */
   var genJobId = null, genTimer = null, genUrl = null, genMode = 'upload', genFile = null, genPrevUrl = null;
+  // Minuteries de la relecture d'un plan deja connu (voir genRejoue)
+  var genCacheT = [];
+  function genCacheStop(){ genCacheT.forEach(clearTimeout); genCacheT = []; }
   var genVarMode = 0;
   function genSetVar(v){genVarMode=v;var el=document.getElementById('genVar');if(el)Array.prototype.forEach.call(el.querySelectorAll('button'),function(b){b.classList.toggle('active',parseInt(b.getAttribute('data-v'),10)===v);});var sl=document.getElementById('gvSlider');if(sl)sl.style.transform='translateX('+(v?'100%':'0')+')';var op=document.getElementById('genVarOpts');if(op)op.classList.toggle('open',v===1);}
   var gvoSel={changes:[],lang:null};
@@ -10880,6 +10883,7 @@
 
   function genReset() {
     if (genTimer) { clearInterval(genTimer); genTimer = null; } gwStopTips(); genFocus(false);
+    genCacheStop();
     genJobId = null; genUrl = null;
     var p = document.getElementById('genProgress'); if (p) p.style.display = 'none';
     var r = document.getElementById('genResult'); if (r) r.style.display = 'none';
@@ -10925,8 +10929,12 @@
       genFocus(true);
       genShowScan(genMode === 'link' ? link : null);
       gwStartTips(); scanHudStart();
-      genPoll();
-      genTimer = setInterval(genPoll, 3000);
+      if (data.cached) {
+        genRejoue();                       // plan deja connu : rien a repayer
+      } else {
+        genPoll();
+        genTimer = setInterval(genPoll, 3000);
+      }
     } catch (e) {
       try { copyAnimClose(); } catch(_){}
       try { genRetourAccueil(); } catch(_){}
@@ -10935,10 +10943,34 @@
     }
   }
 
+  // ── VIDEO DEJA ANALYSEE ───────────────────────────────────────────────────
+  // Le plan de cette video existe deja : on le ressort tel quel, sans relancer
+  // la moindre analyse. On garde quand meme une dizaine de secondes
+  // d'animation : le plan doit arriver comme un RESULTAT, pas comme un clic
+  // qui n'aurait rien fait. Et c'est deja dix fois plus rapide qu'avant.
+  var CACHE_ANIM_MS = 11000;
+  function genRejoue(){
+    genCacheStop();
+    var jalons = [
+      [   0, [{key:'dl',  state:'running'}]],
+      [2600, [{key:'dl',  state:'done'}, {key:'bp', state:'running'}]],
+      [7600, [{key:'dl',  state:'done'}, {key:'bp', state:'done'}, {key:'ref', state:'running'}]]
+    ];
+    jalons.forEach(function(j){
+      genCacheT.push(setTimeout(function(){ gwUpdate(j[1]); }, j[0]));
+    });
+    genCacheT.push(setTimeout(function(){
+      genCacheStop();
+      genPoll();
+      if (!genTimer) genTimer = setInterval(genPoll, 3000);  // filet si le reseau tousse
+    }, CACHE_ANIM_MS));
+  }
+
   // Apres un echec, on ne laisse JAMAIS reapparaitre l'ancienne page Studio :
   // on referme tout et on revient a l'accueil, ou le champ est pret a recevoir
   // un autre lien. Avec focus=true, on place aussi le curseur dedans.
   function genRetourAccueil(focus) {
+    try { genCacheStop(); } catch(e){}
     try { document.getElementById('genProgress').style.display = 'none'; } catch(e){}
     try { document.getElementById('genIntro').style.display = 'none'; } catch(e){}
     try { var b = document.getElementById('genGo'); if (b) { b.disabled = false; b.textContent = 'Obtenir le plan exact'; } } catch(e){}

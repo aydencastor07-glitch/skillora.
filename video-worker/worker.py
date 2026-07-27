@@ -25,6 +25,7 @@ Env optionnel: PEXELS_API_KEY (b-roll), MUSIC_BUCKET (musique libre de droits)
 """
 
 import base64
+import hashlib
 import json
 import os
 import re
@@ -37,6 +38,7 @@ import traceback
 import urllib.error
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 
 SB_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SB_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
@@ -4951,7 +4953,7 @@ def _youtube_id(url):
     return m.group(1) if m else None
 
 
-def _dl_video(url):
+def _dl_video(url, infos=None):
     """Télécharge une vidéo depuis un lien de PAGE (TikTok, YouTube, Instagram,
     Facebook…) via yt-dlp — indispensable car le modèle ne peut pas « lire » une
     page web, seulement une vraie vidéo. Renvoie un chemin, ou None.
@@ -4961,31 +4963,62 @@ def _dl_video(url):
     YouTube exige en plus de se présenter comme un client mobile, sinon il
     refuse — c'est la raison pour laquelle les plans YouTube n'avaient AUCUNE
     image de référence : le téléchargement échouait en silence.
+
+    VITESSE : on récupère les MÉTADONNÉES pendant le téléchargement
+    (--write-info-json). Avant, une SECONDE extraction yt-dlp complète tournait
+    après l'analyse juste pour lire les vues/likes — sur TikTok elle coûtait à
+    elle seule jusqu'à une minute, pour une information que le premier appel
+    avait déjà sous la main. Si `infos` est un dict, on le remplit avec.
     """
     if not url:
         return None
-    ytdlp = _ytdlp_bin()
-    base = _ytdlp_args("--no-part", "--retries", "3", "--fragment-retries", "3",
-                       "--merge-output-format", "mp4")
-    # Plusieurs tentatives, de la plus rapide à la plus permissive. Les clients
-    # « tv » et « mweb » passent souvent la verification anti-robot de YouTube
+    d0 = tempfile.mkdtemp(prefix="dl-")
+    base = _ytdlp_args("--no-part", "--retries", "2", "--fragment-retries", "2",
+                       "--concurrent-fragments", "5", "--merge-output-format", "mp4",
+                       "--write-info-json")
+    # Plusieurs tentatives, de la plus rapide à la plus permissive. La PREMIÈRE
+    # vise un fichier DÉJÀ complet (image + son dans le même fichier) : pas de
+    # fusion ffmpeg à la fin, donc plusieurs secondes de gagnées. Les clients
+    # « tv » et « mweb » passent souvent la vérification anti-robot de YouTube
     # là où le client web se fait refuser.
     essais = [
-        ["-f", "bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720][ext=mp4]/b[height<=720]"],
-        ["--extractor-args", "youtube:player_client=tv,mweb,android", "-f", "b[height<=720]/b"],
-        ["--extractor-args", "youtube:player_client=web_safari,ios", "-f", "b/best"],
-        ["-f", "best"],
+        (["-f", "b[height<=720][ext=mp4]/b[height<=720]/bv*[height<=720][ext=mp4]+ba[ext=m4a]"], 90),
+        (["--extractor-args", "youtube:player_client=tv,mweb,android", "-f", "b[height<=720]/b"], 90),
+        (["--extractor-args", "youtube:player_client=web_safari,ios", "-f", "b/best"], 80),
+        (["-f", "best"], 70),
     ]
-    for i, extra in enumerate(essais):
-        d = tempfile.mkdtemp(prefix="dl-")
+    # Budget global : mieux vaut échouer en 2 min et proposer un autre lien que
+    # faire patienter 4 min pour rien.
+    fin = time.time() + 200
+    for i, (extra, tmo) in enumerate(essais):
+        if i and time.time() >= fin:
+            print("_dl_video: budget de temps épuisé", file=sys.stderr)
+            break
+        d = d0 if i == 0 else tempfile.mkdtemp(prefix="dl-")
         try:
-            run(base + extra + ["-o", os.path.join(d, "v.%(ext)s"), url], timeout=150)
-            cand = [os.path.join(d, f) for f in os.listdir(d)]
-            cand = [c for c in cand if os.path.getsize(c) > 10000]
-            if cand:
-                return max(cand, key=os.path.getsize)
+            run(base + extra + ["-o", os.path.join(d, "v.%(ext)s"), url],
+                timeout=max(30, min(tmo, int(fin - time.time()))))
         except Exception as e:
             print("_dl_video tentative %d:" % (i + 1), e, file=sys.stderr)
+        try:
+            noms = os.listdir(d)
+        except Exception:
+            continue
+        if isinstance(infos, dict) and not infos:
+            for f in noms:
+                if f.endswith(".info.json"):
+                    try:
+                        with open(os.path.join(d, f), encoding="utf-8") as fh:
+                            j = json.load(fh)
+                        if isinstance(j, dict):
+                            infos.update(j)
+                    except Exception:
+                        pass
+                    break
+        cand = [os.path.join(d, f) for f in noms if not f.endswith(".info.json")]
+        cand = [c for c in cand if os.path.isfile(c) and os.path.getsize(c) > 10000]
+        if cand:
+            return max(cand, key=os.path.getsize)
     return None
 
 
@@ -6116,15 +6149,22 @@ def gen_blueprint(idea, source_url=None, source_path=None, variation=False,
     return g
 
 
-def _source_meta(url):
+def _source_meta(url, infos=None):
     """Métadonnées publiques de la vidéo source (plateforme, vues, likes,
-    commentaires, partages, auteur) via yt-dlp — pour l'en-tête pro du plan."""
+    commentaires, partages, auteur) — pour l'en-tête pro du plan.
+
+    `infos` = ce que yt-dlp a déjà écrit PENDANT le téléchargement. Quand on
+    l'a, aucune requête réseau : c'est gratuit et instantané. Sinon seulement,
+    on interroge yt-dlp (cas d'un téléchargement refusé)."""
     try:
-        r = subprocess.run(_ytdlp_args("-J", "--skip-download") + [url],
-                           capture_output=True, text=True, timeout=90)
-        # yt-dlp ecrit "null" quand il echoue (YouTube qui reclame une connexion) :
-        # json.loads rend alors None, et le .get suivant plantait tout le job.
-        d = json.loads(r.stdout or "{}")
+        if isinstance(infos, dict) and infos:
+            d = infos
+        else:
+            r = subprocess.run(_ytdlp_args("-J", "--skip-download") + [url],
+                               capture_output=True, text=True, timeout=60)
+            # yt-dlp ecrit "null" quand il echoue (YouTube qui reclame une connexion) :
+            # json.loads rend alors None, et le .get suivant plantait tout le job.
+            d = json.loads(r.stdout or "{}")
         if not isinstance(d, dict):
             return None
         if isinstance(d.get("entries"), list) and d["entries"]:
@@ -6152,7 +6192,7 @@ def _source_meta(url):
         return None
 
 
-def _fetch_source(source_url):
+def _fetch_source(source_url, infos=None):
     """Récupère la vidéo source en LOCAL (pour l'analyse ET l'extraction des
     captures de référence). URL directe/storage -> téléchargement simple ;
     page TikTok/Insta/YouTube -> yt-dlp. Renvoie un chemin, ou None."""
@@ -6165,10 +6205,72 @@ def _fetch_source(source_url):
             out = tempfile.mktemp(suffix=".mp4")
             urllib.request.urlretrieve(source_url, out)
             return out if os.path.getsize(out) > 10000 else None
-        return _dl_video(source_url)
+        return _dl_video(source_url, infos=infos)
     except Exception as e:
         print("_fetch_source:", e, file=sys.stderr)
         return None
+
+
+# ── IDENTITÉ D'UNE VIDÉO ────────────────────────────────────────────────────
+# Deux liens différents désignent souvent la MÊME vidéo (un lien de partage
+# TikTok et l'adresse complète, par exemple). On en tire une clé unique et
+# stable : c'est elle qui permet de reconnaître une vidéo déjà analysée et de
+# ne pas repayer son analyse.
+#
+# ATTENTION : ce format doit rester IDENTIQUE à celui de la fonction
+# supabase/functions/video-generate (cleDirecte / cleAdresse). Si les deux
+# divergent, le cache ne se retrouve plus.
+
+def _cle_directe(url):
+    """Clé lisible directement dans le lien, sans aucun appel réseau."""
+    if not url:
+        return None
+    for motif, prefixe in (
+            (r"(?:youtu\.be/|[?&]v=|/shorts/|/embed/|/live/)([\w-]{11})", "yt:"),
+            (r"tiktok\.com/@[^/]+/(?:video|photo)/(\d+)", "tt:"),
+            (r"tiktok\.com/(?:v|embed)/(\d+)", "tt:"),
+            (r"instagram\.com/(?:reels?|p|tv)/([A-Za-z0-9_-]+)", "ig:"),
+            (r"facebook\.com/(?:[^/]+/)?(?:videos|reel)/(\d+)", "fb:"),
+            (r"facebook\.com/watch/?\?(?:.*&)?v=(\d+)", "fb:"),
+            (r"(?:twitter|x)\.com/[^/]+/status/(\d+)", "x:")):
+        m = re.search(motif, url)
+        if m:
+            return prefixe + m.group(1)
+    return None
+
+
+def _cle_adresse(url):
+    """Repli : l'adresse elle-même, nettoyée de ses paramètres de suivi."""
+    nu = url.split("#")[0].split("?")[0]
+    nu = re.sub(r"^https?://(www\.|m\.)?", "", nu, flags=re.I).rstrip("/")
+    coupe = nu.split("/")[0]
+    norm = coupe.lower() + nu[len(coupe):]
+    return "url:" + hashlib.sha256(norm.encode("utf-8")).hexdigest()[:32]
+
+
+def _video_key(url, infos=None):
+    """Identité canonique de la vidéo. Quand yt-dlp a fourni ses métadonnées,
+    on se sert de l'identifiant OFFICIEL de la plateforme : c'est la seule
+    façon de reconnaître qu'un lien de partage raccourci (vm.tiktok.com/…)
+    désigne une vidéo déjà analysée sous son adresse complète."""
+    if not url or not url.lower().startswith(("http://", "https://")):
+        return None
+    if "/storage/v1/object/public/" in url:
+        return None  # fichier importé : jamais deux fois le même chemin
+    if isinstance(infos, dict) and infos:
+        vid = str(infos.get("id") or "").strip()
+        ex = str(infos.get("extractor_key") or infos.get("extractor") or "").lower()
+        prefixe = ("yt:" if "youtube" in ex else "tt:" if "tiktok" in ex else
+                   "ig:" if "instagram" in ex else "fb:" if "facebook" in ex else
+                   "x:" if ex in ("twitter", "x") else None)
+        if vid and prefixe:
+            return prefixe + vid
+        # Certains extracteurs donnent l'adresse canonique : elle porte l'id.
+        for champ in ("webpage_url", "original_url"):
+            k = _cle_directe(str(infos.get(champ) or ""))
+            if k:
+                return k
+    return _cle_directe(url) or _cle_adresse(url)
 
 
 def generate_blueprint_job(job, steps):
@@ -6192,14 +6294,22 @@ def generate_blueprint_job(job, steps):
     if not (idea or source_url):
         raise RuntimeError("Donne une idée ou colle le lien d'une vidéo.")
     local = None
+    infos = {}          # métadonnées yt-dlp récoltées PENDANT le téléchargement
+    poster_futur = None  # affiche récupérée EN MÊME TEMPS que l'analyse
+    pool = ThreadPoolExecutor(max_workers=6)
     try:
         if source_url:
             steps.start("dl", "Récupération de la vidéo…")
-            local = _fetch_source(source_url)
+            local = _fetch_source(source_url, infos=infos)
             if local:
                 steps.done("dl")
             else:
                 steps.done("dl", "lien direct")
+        # La plateforme a refusé le téléchargement ? On lance TOUT DE SUITE la
+        # récupération de l'affiche, en parallèle de l'analyse. Avant, elle
+        # attendait la fin de l'analyse et ajoutait son temps au total.
+        if source_url and not local:
+            poster_futur = pool.submit(_dl_poster, source_url)
         steps.start("bp", "Analyse de la vidéo & rédaction du plan…")
         lang = str(context.get("lang") or "fr").lower()
         if lang not in LANGUES:
@@ -6210,35 +6320,47 @@ def generate_blueprint_job(job, steps):
         if not guide:
             raise RuntimeError("Je n'ai pas réussi à analyser ça. Réessaie avec un autre lien.")
         steps.done("bp", "%d plans" % len(guide.get("plans") or []))
-        # Stats publiques de la vidéo (plateforme, vues, likes…) pour l'en-tête
+        # Stats publiques de la vidéo (plateforme, vues, likes…) pour l'en-tête.
+        # `infos` vient du téléchargement : dans ce cas, zéro requête réseau.
         if source_url and "/storage/v1/object/public/" not in source_url \
                 and not source_url.lower().endswith((".mp4", ".mov", ".webm", ".m4v")):
-            meta = _source_meta(source_url)
+            meta = _source_meta(source_url, infos=infos)
             if meta:
                 guide["source_meta"] = meta
-        # CAPTURES DE RÉFÉRENCE : une image extraite de la source par plan
+        # CAPTURES DE RÉFÉRENCE : une image extraite de la source par plan.
+        # Ces extractions sont indépendantes les unes des autres : on les mène
+        # DE FRONT. En série, 16 plans × 5 captures + 16 envois faisaient à eux
+        # seuls une bonne partie de l'attente.
         if local:
             steps.start("ref", "Extraction des images de référence…")
             try:
                 dur = ffprobe_facts(local)["duration"] or 0
             except Exception:
                 dur = 0
-            n_ok = 0
-            for p in (guide.get("plans") or [])[:16]:
-                t = p.get("source_time_s")
+
+            def _capture(p, rang):
+                try:
+                    t = p.get("source_time_s")
+                    t = float(t) if t is not None else None
+                except Exception:
+                    t = None
                 if t is None and dur:
                     t = min(dur * 0.5, 2.0)
                 if t is None:
-                    continue
+                    return False
                 if dur:
-                    t = max(0.0, min(float(t), max(0.0, dur - 0.5)))
+                    t = max(0.0, min(t, max(0.0, dur - 0.5)))
+                try:
+                    n = int(p.get("n") or rang)
+                except Exception:
+                    n = rang
                 # Anti-flou : 5 captures autour de t, on garde la plus NETTE.
                 # (à qualité/résolution égales, une image nette pèse plus lourd
                 # en JPEG qu'une image floue — c'est un bon score de netteté)
                 best, best_sz = None, 0
                 cands = []
                 for dt in (-0.4, -0.15, 0.0, 0.3, 0.6):
-                    tc = float(t) + dt
+                    tc = t + dt
                     if tc < 0 or (dur and tc > dur - 0.3):
                         continue
                     fr = tempfile.mktemp(suffix=".jpg")
@@ -6254,11 +6376,11 @@ def generate_blueprint_job(job, steps):
                 try:
                     if best and best_sz > 5000:
                         url = sb_upload_public(
-                            best, "bp/%s/%s/ref_%02d.jpg" % (uid, jid, p["n"]),
+                            best, "bp/%s/%s/ref_%02d.jpg" % (uid, jid, n),
                             content_type="image/jpeg")
                         if url:
                             p["frame_url"] = url
-                            n_ok += 1
+                            return True
                 except Exception as e:
                     print("blueprint frame:", e, file=sys.stderr)
                 finally:
@@ -6267,14 +6389,32 @@ def generate_blueprint_job(job, steps):
                             os.remove(fr)
                         except Exception:
                             pass
+                return False
+
+            def _capture_sur(p, rang):
+                # Un plan mal formé ne doit JAMAIS faire perdre les images des
+                # autres : chaque capture échoue pour son compte.
+                try:
+                    return _capture(p, rang)
+                except Exception as e:
+                    print("blueprint frame (plan %s):" % rang, e, file=sys.stderr)
+                    return False
+
+            plans = (guide.get("plans") or [])[:16]
+            n_ok = sum(1 for r in pool.map(_capture_sur, plans, range(1, len(plans) + 1)) if r)
             steps.done("ref", "%d captures" % n_ok)
         elif source_url:
             # La plateforme a refusé le téléchargement (YouTube le fait souvent).
             # Plutôt que de livrer un plan SANS aucune image de référence, on
             # récupère l'affiche officielle de la vidéo et on la donne comme
             # référence commune : c'est une vraie image de la vidéo source.
+            # Elle a été lancée AVANT l'analyse : ici, elle est déjà prête.
             steps.start("ref", "Récupération de l'image de référence…")
-            poster = _dl_poster(source_url)
+            try:
+                poster = poster_futur.result(timeout=60) if poster_futur else _dl_poster(source_url)
+            except Exception as e:
+                print("blueprint poster (attente):", e, file=sys.stderr)
+                poster = None
             n_ok = 0
             try:
                 if poster:
@@ -6295,11 +6435,24 @@ def generate_blueprint_job(job, steps):
                     except Exception:
                         pass
             steps.done("ref", ("affiche de la vidéo" if n_ok else "indisponible"))
-        update_job(jid, {"status": "done", "plan": {"blueprint": guide},
-                         "finished_at": "now()", "steps": steps.items})
+        patch = {"status": "done", "plan": {"blueprint": guide},
+                 "finished_at": "now()", "steps": steps.items}
+        # Identité de la vidéo : maintenant que yt-dlp nous a donné l'id
+        # OFFICIEL de la plateforme, on l'enregistre. C'est ce qui fera
+        # reconnaître demain un lien de partage raccourci comme étant cette
+        # même vidéo — et évitera de repayer l'analyse.
+        if source_url and not variation:
+            vk = _video_key(source_url, infos=infos)
+            if vk:
+                patch["video_key"] = vk
+        update_job(jid, patch)
         print("Blueprint", jid, "terminé.")
         return guide
     finally:
+        try:
+            pool.shutdown(wait=False)
+        except Exception:
+            pass
         if local and os.path.exists(local):
             try:
                 os.remove(local)

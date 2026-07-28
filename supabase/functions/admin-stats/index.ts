@@ -66,8 +66,14 @@ serve(async (req) => {
         name: String(body.nom || code).slice(0, 120),
         platform: String(body.plateforme || "other").slice(0, 30),
         destination: String(body.destination || "/").slice(0, 120),
-        spend: Number(body.depense) || 0,
-        currency: String(body.devise || "USD").slice(0, 6),
+        // Le CIBLAGE fait partie du lien : meme plateforme mais pays ou age
+        // different = lien different. C'est la seule facon de savoir quel
+        // ciblage fonctionne, et pas seulement quelle plateforme.
+        country: body.pays ? String(body.pays).slice(0, 60) : null,
+        age_min: body.age_min != null ? Number(body.age_min) : null,
+        age_max: body.age_max != null ? Number(body.age_max) : null,
+        creative_type: body.creatif ? String(body.creatif).slice(0, 10) : null,
+        creative_url: body.creatif_url ? String(body.creatif_url).slice(0, 400) : null,
         note: body.note ? String(body.note).slice(0, 500) : null,
       }).select("id, code").single();
       if (error) {
@@ -81,8 +87,12 @@ serve(async (req) => {
       const patch: Record<string, unknown> = {};
       if (body.nom !== undefined) patch.name = String(body.nom).slice(0, 120);
       if (body.plateforme !== undefined) patch.platform = String(body.plateforme).slice(0, 30);
-      if (body.depense !== undefined) patch.spend = Number(body.depense) || 0;
       if (body.note !== undefined) patch.note = String(body.note).slice(0, 500);
+      if (body.pays !== undefined) patch.country = body.pays ? String(body.pays).slice(0, 60) : null;
+      if (body.age_min !== undefined) patch.age_min = body.age_min != null ? Number(body.age_min) : null;
+      if (body.age_max !== undefined) patch.age_max = body.age_max != null ? Number(body.age_max) : null;
+      if (body.creatif !== undefined) patch.creative_type = body.creatif ? String(body.creatif).slice(0, 10) : null;
+      if (body.creatif_url !== undefined) patch.creative_url = body.creatif_url ? String(body.creatif_url).slice(0, 400) : null;
       if (body.archive !== undefined) patch.archived = !!body.archive;
       if (!Object.keys(patch).length) return json({ success: false, error: "Rien à modifier." }, 400);
       const { error } = await admin.from("ad_campaigns").update(patch).eq("id", String(body.id));
@@ -116,25 +126,21 @@ serve(async (req) => {
     ]);
     if (apercu.error) return json({ success: false, error: apercu.error.message }, 500);
 
-    // Le retour sur investissement se calcule ici, pas en base : il depend du
-    // prix courant, qui peut changer sans qu'on ait a reecrire une migration.
+    // PAS DE DEPENSE ICI. Skillora ne peut pas connaitre ce qui a ete depense
+    // sur Meta ou Google — l'inventer donnerait un « retour sur
+    // investissement » faux, donc pire que pas de chiffre du tout. On s'en
+    // tient a ce qu'on MESURE vraiment : clics, inscrits, payants, revenu.
     const campagnes = ((pubs.data as Record<string, unknown>[]) || []).map((c) => {
       const clics = Number(c.clics) || 0;
       const inscrits = Number(c.inscrits) || 0;
       const payants = Number(c.payants) || 0;
-      const depense = Number(c.depense) || 0;
-      const revenu = payants * PRIX_MENSUEL;
       return {
         ...c,
-        revenu,
+        revenu: payants * PRIX_MENSUEL,
         // Sur 100 clics, combien creent un compte.
         taux_inscription: clics ? +(inscrits * 100 / clics).toFixed(1) : 0,
         // Sur 100 inscrits, combien passent Pro.
         taux_paiement: inscrits ? +(payants * 100 / inscrits).toFixed(1) : 0,
-        // Les seuls chiffres qui disent vraiment si une publicite vaut la peine.
-        cout_inscription: inscrits ? +(depense / inscrits).toFixed(2) : null,
-        cout_client: payants ? +(depense / payants).toFixed(2) : null,
-        roi: depense > 0 ? +(((revenu - depense) / depense) * 100).toFixed(0) : null,
       };
     });
 

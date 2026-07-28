@@ -2003,6 +2003,80 @@
   .own-plus:hover{border-color:rgba(94,155,255,.6);color:#fff;}
 
   /* Ordinateur : on respire, on passe en colonnes */
+  /* ── Chiffres cles CLIQUABLES : le graphique suit celui qu'on choisit ── */
+  .own-k{display:block;width:100%;text-align:left;font-family:'Sora',sans-serif;cursor:pointer;}
+  .own-k.on{border-color:rgba(94,155,255,.65);background:linear-gradient(160deg,rgba(47,123,255,.12),rgba(255,255,255,.02));}
+  .own-k.on .own-k-l{color:#8fc0ff;}
+  .own-k-l,.own-k-v,.own-k-s{display:block;}
+
+  /* ── Publicites : une carte par lien, POSEE sur le fond. Aucune boite
+        englobante — c'est ce qui alourdissait la page. ────────────────── */
+  .own-secT{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:22px 2px 11px;}
+  .own-secT b{font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;color:#eaf1ff;}
+  .own-secT span{font-size:.7rem;color:var(--muted2);}
+  .own-ad{display:block;width:100%;text-align:left;padding:13px 14px;margin-bottom:9px;cursor:pointer;
+    background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+    border:1px solid var(--border);border-radius:16px;font-family:'Sora',sans-serif;transition:border-color .16s,transform .12s;}
+  .own-ad:hover{border-color:rgba(94,155,255,.5);}
+  .own-ad:active{transform:scale(.995);}
+  .own-ad-h{display:flex;align-items:center;gap:11px;margin-bottom:12px;}
+  .own-ad-lg{width:34px;height:34px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.06);border:1px solid var(--border);}
+  .own-ad-lg svg{width:19px;height:19px;}
+  .own-ad-lg.big{width:44px;height:44px;} .own-ad-lg.big svg{width:25px;height:25px;}
+  .own-ad-n{flex:1;min-width:0;}
+  .own-ad-n b{display:block;font-size:.87rem;color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .own-ad-n small{display:block;font-size:.68rem;color:var(--muted2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .own-ad-x{width:16px;height:16px;flex:none;color:var(--muted2);}
+  .own-ad-s{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;}
+  .own-s{text-align:center;padding:8px 2px;background:rgba(255,255,255,.035);}
+  .own-ad-s .own-s:first-child{border-radius:9px 0 0 9px;} .own-ad-s .own-s:last-child{border-radius:0 9px 9px 0;}
+  .own-s b{display:block;font-family:'Fraunces',serif;font-weight:800;font-size:.98rem;color:#fff;line-height:1;}
+  .own-s b.vert{color:#5ee79c;} .own-s b.or{color:#f5c043;}
+  .own-s small{display:block;font-size:.58rem;color:var(--muted2);margin-top:4px;}
+
+  /* Fenetre riche : fiche detaillee et formulaire de creation */
+  .sk-modal.large{max-width:440px;text-align:left;}
+  .sk-modal-h{max-height:66vh;overflow-y:auto;margin-bottom:16px;-webkit-overflow-scrolling:touch;}
+  .own-d-h{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .own-d-h b{display:block;font-size:1rem;color:#fff;font-weight:700;}
+  .own-d-h small{display:block;font-size:.72rem;color:var(--muted);margin-top:2px;}
+  .own-d-med{width:100%;max-height:190px;object-fit:cover;border-radius:12px;margin-bottom:14px;background:#000;}
+  .own-d-g{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:14px;}
+  .own-d-g .own-s:first-child{border-radius:9px 0 0 9px;} .own-d-g .own-s:last-child{border-radius:0 9px 9px 0;}
+  .own-d-t{font-size:.68rem;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px;}
+  .own-d-r{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;}
+  .own-d-r span{color:var(--muted);} .own-d-r b{color:#eaf1ff;font-weight:700;}
+  .own-d-r b.or{color:#f5c043;} .own-d-r.big{font-size:.95rem;padding:12px 0;}
+  .own-d-lien{font-family:ui-monospace,monospace;font-size:.72rem;color:#8fc0ff;background:rgba(47,123,255,.09);
+    border:1px solid rgba(94,155,255,.3);border-radius:10px;padding:11px 12px;word-break:break-all;cursor:pointer;}
+
+  /* Formulaire de creation */
+  .own-f-t{font-family:'Fraunces',serif;font-weight:800;font-size:1.15rem;color:#fff;margin-bottom:5px;}
+  .own-f-s{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:16px;}
+  .own-f-l{font-size:.68rem;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin:15px 0 8px;}
+  .own-f-i{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);
+    color:var(--white);font-family:'Sora',sans-serif;font-size:.84rem;}
+  .own-f-plats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+  .own-f-plats button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:11px 4px;border-radius:12px;
+    border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;
+    font-family:'Sora',sans-serif;font-weight:600;font-size:.66rem;transition:all .16s;}
+  .own-f-plats button svg{width:21px;height:21px;}
+  .own-f-plats button.on{border-color:rgba(94,155,255,.7);background:rgba(47,123,255,.14);color:#fff;}
+  .own-f-ages{display:flex;flex-wrap:wrap;gap:6px;}
+  .own-f-ages button{padding:8px 13px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);
+    color:var(--muted);font-family:'Sora',sans-serif;font-weight:600;font-size:.75rem;cursor:pointer;transition:all .16s;}
+  .own-f-ages button.on{border-color:rgba(94,155,255,.7);background:rgba(47,123,255,.14);color:#fff;}
+  .own-f-med{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;border-radius:13px;
+    border:1px dashed var(--border2);background:rgba(255,255,255,.02);color:var(--muted);font-size:.78rem;cursor:pointer;text-align:center;}
+  .own-f-med img,.own-f-med video{width:100%;max-height:130px;object-fit:cover;border-radius:10px;background:#000;}
+
+  @media (min-width:900px){
+    .own-ad-s{grid-template-columns:repeat(5,1fr);}
+    .own-s b{font-size:1.1rem;}
+    .sk-modal.large{max-width:520px;}
+  }
+
   @media (min-width:900px){
     .own-kpis{grid-template-columns:repeat(3,1fr);gap:12px;}
     .own-k-v{font-size:2.1rem;}
@@ -2241,8 +2315,9 @@
       <div class="own-per" id="ownPer"></div>
       <div class="own-kpis" id="ownKpis"></div>
 
+      <!-- La courbe suit le chiffre choisi juste au-dessus. -->
       <div class="own-card">
-        <div class="own-card-h"><span class="own-card-t">Inscriptions</span><span class="own-card-x" id="ownChartX">—</span></div>
+        <div class="own-card-h"><span class="own-card-t" id="ownChartT">Revenu</span><span class="own-card-x" id="ownChartX">—</span></div>
         <div id="ownChart"></div>
       </div>
 
@@ -2257,14 +2332,19 @@
         </div>
       </div>
 
+      <!-- Ce que les gens font vraiment : dit pourquoi ils restent. -->
       <div class="own-card">
-        <div class="own-card-h"><span class="own-card-t">Tes publicités</span><span class="own-card-x" id="ownCampX"></span></div>
-        <div id="ownCamps"></div>
-        <button class="own-plus" onclick="ownNouvelleCampagne()">+ Créer un lien de publicité</button>
+        <div class="own-card-h"><span class="own-card-t">Ce qu'ils utilisent le plus</span><span class="own-card-x">actions</span></div>
+        <div class="own-bars" id="ownUsages"></div>
       </div>
 
-      <div class="own-card">
-        <div class="own-card-h"><span class="own-card-t">Membres</span><span class="own-card-x" id="ownMemX"></span></div>
+      <!-- Publicites : des cartes posees sur le fond, sans boite englobante. -->
+      <div class="own-secT"><b>Tes publicités</b><span>touche une carte pour tout voir</span></div>
+      <div id="ownCamps"></div>
+      <button class="own-plus" onclick="ownNouvelleCampagne()">+ Créer un lien de publicité</button>
+
+      <div class="own-secT"><b>Membres</b><span id="ownMemX"></span></div>
+      <div>
         <div class="own-tools">
           <input id="ownMemQ" type="search" placeholder="Chercher un email ou un nom…" oninput="ownMembresDiffere()">
           <select id="ownMemPlan" onchange="ownMembres()">
@@ -3895,10 +3975,33 @@
   }
 
   /* ═══ ESPACE PROPRIETAIRE ══════════════════════════════════════════════
-     Trois onglets : ce qui se passe (vue complete), avec qui (comptes),
-     quoi publier (publication). Tout vient de la fonction admin-stats, qui
-     verifie que l'email est bien celui du proprietaire avant de repondre. */
-  var OWN = { onglet:'vue', periode:'30j', mois:null, data:null, memPage:0, memTimer:null };
+     Trois onglets. Tout vient de la fonction admin-stats, qui verifie que
+     l'email est bien celui du proprietaire avant de repondre.
+
+     PAS DE DEPENSE NULLE PART : Skillora ne peut pas savoir ce qui a ete
+     depense sur Meta ou Google. Inventer un « retour sur investissement »
+     donnerait un chiffre faux — pire que pas de chiffre. On s'en tient a ce
+     qu'on MESURE : vues, clics, inscrits, payants, gratuits, revenu. */
+  var OWN = { onglet:'vue', periode:'30j', mois:null, data:null, metrique:'revenu', memPage:0, memTimer:null };
+
+  /* Vrais logos des regies publicitaires — dessines, jamais charges. */
+  var OWN_LOGOS = {
+    meta:'<svg viewBox="0 0 24 24"><path fill="#0081FB" d="M6.9 15.5c.6 0 1.1-.2 1.6-.7.4-.4 1-1.1 1.8-2.3l1.2-1.9.9 1.5c1 1.7 1.6 2.6 2.1 3.1.5.5 1.1.7 1.8.7 1.6 0 2.5-1.4 2.5-3.7 0-2.4-.9-4.7-2-6.1C15.9 5 15 4.5 13.9 4.5c-1.2 0-2.2.7-3.3 2.3-.8-1-1.5-1.6-2.1-2C7.9 4.4 7.3 4.2 6.7 4.2 4.5 4.2 3 6.5 3 10c0 3.5 1.4 5.5 3.9 5.5zm.7-2.1c-.8 0-1.4-1.2-1.4-3.3 0-2.3.7-3.7 1.6-3.7.5 0 1 .3 1.5 1 .4.5.9 1.2 1.4 2l-.8 1.3c-1.2 1.9-2 2.7-2.3 2.7zm8.2 0c-.4 0-.8-.3-1.4-1.2-.4-.6-.9-1.4-1.4-2.3l.4-.6c1-1.6 1.7-2.2 2.5-2.2 1.1 0 1.9 1.7 1.9 4.1 0 1.4-.5 2.2-2 2.2z"/></svg>',
+    facebook:'<svg viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.6 4.5-4.6 1.3 0 2.6.2 2.6.2v2.9h-1.5c-1.5 0-1.9.9-1.9 1.8V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0 0 24 12z"/></svg>',
+    google:'<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.7-.2-2.5H12v4.7h6.4a5.5 5.5 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.6-5.2 3.6-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3a7.2 7.2 0 0 1-10.7-3.8H1.4v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.3 14.3a7.1 7.1 0 0 1 0-4.6V6.6H1.4a12 12 0 0 0 0 10.8l3.9-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.4.6 4.6 1.8l3.5-3.5A12 12 0 0 0 1.4 6.6l3.9 3.1A7.2 7.2 0 0 1 12 4.8z"/></svg>',
+    tiktok:'<svg viewBox="0 0 24 24"><path fill="#25F4EE" d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.9 5.9 0 0 0-.8-.1 5.8 5.8 0 1 0 5.8 5.8V9.9a7.3 7.3 0 0 0 4.2 1.4V8.1a4.3 4.3 0 0 1-3.2-2.3z"/></svg>',
+    youtube:'<svg viewBox="0 0 24 24"><path fill="#FF0033" d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.3 5 12 5 12 5s-6.3 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.7 19 12 19 12 19s6.3 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3z"/></svg>',
+    instagram:'<svg viewBox="0 0 24 24"><path fill="#E4405F" d="M12 2.2c3.2 0 3.6 0 4.9.1 3.2.1 4.7 1.7 4.9 4.9.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.9c-.1 3.2-1.6 4.7-4.9 4.9-1.2.1-1.6.1-4.9.1s-3.6 0-4.9-.1c-3.2-.1-4.7-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9C2.4 3.9 3.9 2.4 7.1 2.3 8.4 2.2 8.8 2.2 12 2.2zm0 3.7a6.1 6.1 0 1 0 0 12.2 6.1 6.1 0 0 0 0-12.2zm0 2.2a3.9 3.9 0 1 1 0 7.8 3.9 3.9 0 0 1 0-7.8zm6.4-2.5a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg>',
+    x:'<svg viewBox="0 0 24 24"><path fill="#e7e9ea" d="M17.5 3h3l-6.6 7.5L21.7 21h-6.1l-4.8-6.2L5.4 21h-3l7-8-7.4-10h6.3l4.3 5.7z"/></svg>',
+    snapchat:'<svg viewBox="0 0 24 24"><path fill="#FFFC00" d="M12 2c2.8 0 4.6 2 4.7 4.7 0 .7 0 1.4-.1 2 .3.1.6.1.9 0 .5-.1 1 .2 1.1.6.1.5-.2.9-.7 1.1-.2.1-.6.2-.9.3-.4.1-.7.3-.7.6 0 .2.1.4.2.7.6 1.3 1.6 2.4 3 2.8.4.1.6.4.5.8-.1.5-.9.8-1.9 1-.3 0-.4.2-.5.5 0 .2-.1.4-.2.6-.1.3-.3.4-.7.3-.4 0-.9-.1-1.5-.1-.9 0-1.5.2-2.2.8-.7.6-1.4 1-2.4 1s-1.7-.4-2.4-1c-.7-.6-1.3-.8-2.2-.8-.6 0-1.1.1-1.5.1-.4.1-.6 0-.7-.3-.1-.2-.2-.4-.2-.6 0-.3-.2-.5-.5-.5-1-.2-1.8-.5-1.9-1-.1-.4.1-.7.5-.8 1.4-.4 2.4-1.5 3-2.8.1-.3.2-.5.2-.7 0-.3-.3-.5-.7-.6-.3-.1-.7-.2-.9-.3-.5-.2-.8-.6-.7-1.1.1-.4.6-.7 1.1-.6.3.1.6.1.9 0-.1-.6-.1-1.3-.1-2C7.4 4 9.2 2 12 2z"/></svg>',
+    other:'<svg viewBox="0 0 24 24"><path fill="none" stroke="#8fa1c0" stroke-width="1.8" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2c2.5 2.7 3.9 6.3 4 10-.1 3.7-1.5 7.3-4 10-2.5-2.7-3.9-6.3-4-10 .1-3.7 1.5-7.3 4-10z"/></svg>'
+  };
+  var OWN_PLATS = [
+    ['meta','Meta'],['facebook','Facebook'],['instagram','Instagram'],['google','Google Ads'],
+    ['tiktok','TikTok'],['youtube','YouTube'],['x','X'],['snapchat','Snapchat'],['other','Autre']
+  ];
+  function ownLogo(k){ return OWN_LOGOS[k] || OWN_LOGOS.other; }
+  function ownNomPlat(k){ var f = OWN_PLATS.filter(function(p){return p[0]===k;})[0]; return f ? f[1] : (k||'Autre'); }
 
   function ownAppel(corps){
     return sb.auth.getSession().then(function(r){
@@ -3918,14 +4021,11 @@
       var el = document.getElementById('ownPan' + k.charAt(0).toUpperCase() + k.slice(1));
       if (el) el.classList.toggle('on', k === nom);
     });
-    // La publication : on DEPLACE l'ecran existant dans l'onglet, une seule
-    // fois. Rien n'est duplique, donc rien ne casse.
+    // Publication : on DEPLACE l'ecran existant dans l'onglet, une seule fois.
     if (nom === 'pub') {
       var hote = document.getElementById('ownPanPub');
       var src  = document.getElementById('view-publish');
-      if (hote && src && !hote.children.length) {
-        while (src.firstChild) hote.appendChild(src.firstChild);
-      }
+      if (hote && src && !hote.children.length) { while (src.firstChild) hote.appendChild(src.firstChild); }
     }
     if (nom === 'vue' && !OWN.data) ownCharger();
   }
@@ -3946,15 +4046,12 @@
     if (n >= 1e3) return (n/1e3).toFixed(n%1e3?1:0).replace('.0','') + ' k';
     return String(n);
   }
-  /* Les chiffres montent au lieu d'apparaitre : on voit tout de suite ce qui
-     a bouge depuis la derniere fois. */
-  function ownAnime(el, fin, prefixe, suffixe){
-    var deb = 0, t0 = null, duree = 700;
+  function ownAnime(el, fin, prefixe){
+    var t0 = null, duree = 650;
     function pas(t){
       if (!t0) t0 = t;
-      var k = Math.min(1, (t - t0) / duree);
-      k = 1 - Math.pow(1 - k, 3);
-      el.textContent = (prefixe||'') + ownNb(Math.round(deb + (fin - deb) * k)) + (suffixe||'');
+      var k = Math.min(1, (t - t0) / duree); k = 1 - Math.pow(1 - k, 3);
+      el.textContent = (prefixe||'') + ownNb(Math.round(fin * k));
       if (k < 1) requestAnimationFrame(pas);
     }
     requestAnimationFrame(pas);
@@ -3968,7 +4065,7 @@
       var d = await ownAppel({ action:'tableau', periode:OWN.periode, mois:OWN.mois });
       if (!d.success) throw new Error(d.error || 'Erreur');
       OWN.data = d;
-      ownKpis(d); ownGraphique(d); ownRepartitions(d); ownCampagnes(d);
+      ownKpis(d); ownGraphique(); ownRepartitions(d); ownCampagnes(d);
       OWN.memPage = 0; ownMembres();
     } catch(e){
       if (kp) kp.innerHTML = '<div class="own-k" style="grid-column:1/-1"><div class="own-k-l">Impossible de charger</div>'+
@@ -3976,32 +4073,41 @@
     }
   }
 
+  /* Chaque chiffre porte SA courbe : on clique, le graphique suit.
+     [cle, libelle, valeur, sous-titre, prefixe, couleur] */
+  function ownTuiles(a){
+    var per = { auj:"aujourd'hui", '7j':'7 jours', '30j':'30 jours', '90j':'90 jours', '365j':'1 an', tout:'depuis le début', mois:'ce mois' }[OWN.periode] || '';
+    return [
+      ['revenu','Revenu',   a.revenu_periode||0, 'MRR $'+ownNb(a.mrr||0)+' · ARR $'+ownNb(a.arr||0), '$', 'rgba(245,192,67,.18)'],
+      ['vues','Vues',       a.vues_periode||0,   ownNb(a.visiteurs_periode||0)+' visiteurs uniques', '', 'rgba(47,123,255,.18)'],
+      ['membres','Membres', a.membres_periode||0, 'total '+ownNb(a.membres_total||0), '', 'rgba(94,155,255,.16)'],
+      ['abos','Abonnés Pro',a.abos_periode||0,   'actifs '+ownNb(a.abos_actifs||0), '', 'rgba(61,220,132,.18)'],
+      ['clics','Clics pub', a.clics_periode||0,  ownNb(a.inscrits_pub||0)+' inscrits via pub', '', 'rgba(155,114,203,.16)'],
+      ['copies','Copies',   a.copies_periode||0, 'sur '+per, '', 'rgba(255,159,74,.16)']
+    ];
+  }
   function ownKpis(d){
     var a = d.apercu || {}, kp = document.getElementById('ownKpis'); if (!kp) return;
-    var clics = a.clics_periode||0, insc = a.inscrits_pub||0;
-    var tuiles = [
-      ['Membres',        a.membres_total,   'rgba(47,123,255,.18)', (a.membres_periode||0)+' sur la période'],
-      ['Abonnés Pro',    a.abos_actifs,     'rgba(61,220,132,.16)', (a.abos_periode||0)+' nouveaux'],
-      ['Revenu mensuel', a.mrr,             'rgba(245,192,67,.16)', '$'+ownNb((a.mrr||0)*12)+' par an', '$'],
-      ['Copies faites',  a.copies_periode,  'rgba(155,114,203,.16)', 'sur la période'],
-      ['Clics pub',      clics,             'rgba(47,123,255,.14)', (a.visiteurs_periode||0)+' visiteurs uniques'],
-      ['Inscrits via pub', insc,            'rgba(61,220,132,.14)', clics ? (insc*100/clics).toFixed(1)+' % des clics' : 'aucun clic encore']
-    ];
     kp.innerHTML = '';
-    tuiles.forEach(function(t){
-      var el = document.createElement('div');
-      el.className = 'own-k'; el.style.setProperty('--kc', t[2]);
-      el.innerHTML = '<div class="own-k-l">'+t[0]+'</div><div class="own-k-v">0</div><div class="own-k-s">'+t[3]+'</div>';
+    ownTuiles(a).forEach(function(t){
+      var el = document.createElement('button');
+      el.className = 'own-k' + (OWN.metrique === t[0] ? ' on' : '');
+      el.style.setProperty('--kc', t[5]);
+      el.onclick = function(){ OWN.metrique = t[0]; ownKpis(OWN.data); ownGraphique(); };
+      el.innerHTML = '<span class="own-k-l">'+t[1]+'</span><span class="own-k-v">0</span><span class="own-k-s">'+t[3]+'</span>';
       kp.appendChild(el);
-      ownAnime(el.querySelector('.own-k-v'), t[1]||0, t[4]||'');
+      ownAnime(el.querySelector('.own-k-v'), t[2], t[4]);
     });
   }
 
-  function ownGraphique(d){
-    var j = (d.apercu && d.apercu.par_jour) || [], box = document.getElementById('ownChart');
-    if (!box) return;
-    if (!j.length){ box.innerHTML = '<div class="own-vide">Pas encore de données sur cette période.</div>'; return; }
-    var v = j.map(function(x){ return Number(x.n)||0; });
+  var OWN_TITRES = { revenu:'Revenu', vues:'Vues', membres:'Inscriptions', abos:'Abonnements', clics:'Clics publicitaires', copies:'Copies' };
+  function ownGraphique(){
+    var box = document.getElementById('ownChart'); if (!box || !OWN.data) return;
+    var s = ((OWN.data.apercu||{}).series || {})[OWN.metrique] || [];
+    var t = document.getElementById('ownChartT'); if (t) t.textContent = OWN_TITRES[OWN.metrique] || '';
+    if (!s.length){ box.innerHTML = '<div class="own-vide">Pas de données sur cette période.</div>';
+      var z = document.getElementById('ownChartX'); if (z) z.textContent = ''; return; }
+    var v = s.map(function(x){ return Number(x.n)||0; });
     var mx = Math.max.apply(null, v.concat([1])), W = 1000, H = 132, n = v.length;
     var X = function(i){ return n>1 ? (i*(W/(n-1))) : W/2; };
     var Y = function(k){ return H - 10 - (k/mx)*(H-30); };
@@ -4013,102 +4119,181 @@
       '<stop offset="0" stop-color="#2f7bff" stop-opacity=".38"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/></linearGradient></defs>'+
       '<polygon class="aire" points="0,'+H+' '+pts+' '+W+','+H+'"/>'+
       '<polyline class="trait" points="'+pts+'"/>'+
-      (mx>0 ? '<circle class="pt" cx="'+X(haut).toFixed(1)+'" cy="'+Y(mx).toFixed(1)+'" r="4"/>' : '')+
-      '</svg>'+
-      '<div class="own-axe"><span>'+(j[0].j||'').slice(5)+'</span><span>pic : '+mx+'/jour</span><span>'+(j[n-1].j||'').slice(5)+'</span></div>';
+      (mx>0?'<circle class="pt" cx="'+X(haut).toFixed(1)+'" cy="'+Y(mx).toFixed(1)+'" r="4"/>':'')+'</svg>'+
+      '<div class="own-axe"><span>'+(s[0].j||'').slice(5)+'</span><span>pic : '+ownNb(mx)+'</span><span>'+(s[n-1].j||'').slice(5)+'</span></div>';
     var tot = v.reduce(function(a,b){return a+b;},0);
     var x = document.getElementById('ownChartX');
-    if (x) x.textContent = tot + (tot>1?' inscrits':' inscrit');
+    if (x) x.textContent = (OWN.metrique==='revenu'?'$':'') + ownNb(tot) + ' au total';
   }
 
   var OWN_PAYS = {FR:'🇫🇷',US:'🇺🇸',TG:'🇹🇬',BE:'🇧🇪',CA:'🇨🇦',CH:'🇨🇭',GB:'🇬🇧',DE:'🇩🇪',ES:'🇪🇸',IT:'🇮🇹',
     PT:'🇵🇹',BR:'🇧🇷',MA:'🇲🇦',DZ:'🇩🇿',TN:'🇹🇳',SN:'🇸🇳',CI:'🇨🇮',CM:'🇨🇲',NG:'🇳🇬',IN:'🇮🇳',NL:'🇳🇱',MX:'🇲🇽'};
-  function ownBarres(cible, lignes, icone){
+  var OWN_USAGE = { copie:'🎬 Copier une vidéo', plan_vu:'📋 Consulter un plan', script:'✍️ Écrire un script',
+                    niche:'🎯 Explorer les niches', idee:'💡 Idées du jour', publication:'🚀 Publier' };
+  function ownBarres(cible, lignes){
     var b = document.getElementById(cible); if (!b) return;
-    if (!lignes.length){ b.innerHTML = '<div class="own-vide">Rien à afficher — les données arrivent au premier clic sur une publicité.</div>'; return; }
+    if (!lignes.length){ b.innerHTML = '<div class="own-vide">Rien encore.</div>'; return; }
     var mx = Math.max.apply(null, lignes.map(function(l){ return l.n; }).concat([1]));
     b.innerHTML = lignes.map(function(l){
-      return '<div class="own-bar"><span class="own-bar-n">'+(icone?icone(l):'')+genEsc(l.nom)+'</span>'+
+      return '<div class="own-bar"><span class="own-bar-n">'+l.nom+'</span>'+
              '<span class="own-bar-t"><i data-w="'+Math.max(4,(l.n/mx)*100)+'"></i></span>'+
-             '<span class="own-bar-v">'+l.n+'</span></div>';
+             '<span class="own-bar-v">'+ownNb(l.n)+'</span></div>';
     }).join('');
     setTimeout(function(){ b.querySelectorAll('.own-bar-t i').forEach(function(i){ i.style.width = i.getAttribute('data-w')+'%'; }); }, 60);
   }
   function ownRepartitions(d){
     var a = d.apercu || {};
-    ownBarres('ownPays', (a.pays||[]).map(function(p){ return { nom:p.code, n:Number(p.n)||0 }; }),
-      function(l){ return (OWN_PAYS[l.nom]||'🌍') + ' '; });
+    ownBarres('ownPays', (a.pays||[]).map(function(p){ return { nom:(OWN_PAYS[p.code]||'🌍')+' '+genEsc(p.code), n:Number(p.n)||0 }; }));
     var NOMS = { mobile:'📱 Téléphone', desktop:'💻 Ordinateur', tablette:'📟 Tablette' };
-    ownBarres('ownAppareils', (a.appareils||[]).map(function(p){ return { nom:(NOMS[p.k]||p.k||'?'), n:Number(p.n)||0 }; }));
+    ownBarres('ownAppareils', (a.appareils||[]).map(function(p){ return { nom:(NOMS[p.k]||genEsc(p.k||'?')), n:Number(p.n)||0 }; }));
+    ownBarres('ownUsages', (a.usages||[]).map(function(p){ return { nom:(OWN_USAGE[p.k]||genEsc(p.k)), n:Number(p.n)||0 }; }));
   }
 
-  var OWN_PLAT = { meta:'📘', google:'🔍', tiktok:'🎵', youtube:'▶️', x:'✖️', other:'🌐' };
+  /* ── Cartes publicitaires : plus de grosse boite, une carte par lien ──── */
   function ownCampagnes(d){
     var box = document.getElementById('ownCamps'), c = d.campagnes || [];
     if (!box) return;
-    var x = document.getElementById('ownCampX');
-    if (x) x.textContent = c.length ? c.length + (c.length>1?' liens':' lien') : '';
     if (!c.length){
-      box.innerHTML = '<div class="own-vide">Aucun lien pour l\'instant.<br>Crée-en un par publicité : c\'est ce qui permet de savoir <b>laquelle</b> rapporte.</div>';
+      box.innerHTML = '<div class="own-vide">Aucun lien pour l\'instant.<br>Crée-en un par ciblage : c\'est ce qui permet de savoir <b>lequel</b> rapporte.</div>';
       return;
     }
     box.innerHTML = c.map(function(k){
-      var roi = k.roi, cls = roi==null?'neutre':(roi>=0?'plus':'moins');
-      var lien = 'https://www.skillora.me/?src=' + k.code;
-      return '<div class="own-camp'+(roi!=null&&roi>0?' gagne':'')+'">'+
-        '<div class="own-camp-h">'+
-          '<span class="own-camp-p">'+(OWN_PLAT[k.plateforme]||'🌐')+'</span>'+
-          '<span class="own-camp-n"><b>'+genEsc(k.nom||k.code)+'</b><small>?src='+genEsc(k.code)+'</small></span>'+
-          '<span class="own-camp-roi '+cls+'">'+(roi==null?'—':(roi>0?'+':'')+roi+' %')+'</span>'+
-        '</div>'+
-        '<div class="own-tunnel">'+
-          '<div class="own-tu"><b>'+ownNb(k.clics)+'</b><small>clics</small></div>'+
-          '<div class="own-tu"><b>'+ownNb(k.visiteurs)+'</b><small>visiteurs</small></div>'+
-          '<div class="own-tu"><b>'+ownNb(k.inscrits)+'</b><small>inscrits</small></div>'+
-          '<div class="own-tu vert"><b>'+ownNb(k.payants)+'</b><small>payants</small></div>'+
-        '</div>'+
-        '<div class="own-camp-f">'+
-          '<span class="own-chip">inscription <b>'+k.taux_inscription+' %</b></span>'+
-          '<span class="own-chip">paiement <b>'+k.taux_paiement+' %</b></span>'+
-          (k.cout_client!=null?'<span class="own-chip">client <b>$'+k.cout_client+'</b></span>':'')+
-          (Number(k.depense)>0?'<span class="own-chip">dépensé <b>$'+k.depense+'</b></span>':'')+
-          '<span class="own-chip">gagné <b>$'+(k.revenu||0)+'</b></span>'+
-          '<span class="own-camp-b">'+
-            '<button class="pri" onclick="ownCopier(\''+genEsc(lien)+'\',this)">Copier le lien</button>'+
-            '<button onclick="ownEditerCampagne(\''+k.id+'\')">Modifier</button>'+
-          '</span>'+
-        '</div></div>';
+      var cible = [];
+      if (k.pays) cible.push((OWN_PAYS[k.pays]||'🌍')+' '+genEsc(k.pays));
+      if (k.age_min || k.age_max) cible.push((k.age_min||18)+'–'+(k.age_max||65)+' ans');
+      if (k.creatif) cible.push(k.creatif === 'video' ? '🎬 vidéo' : '🖼️ image');
+      return '<button class="own-ad" onclick="ownDetailPub(\''+k.id+'\')">'+
+        '<span class="own-ad-h">'+
+          '<span class="own-ad-lg">'+ownLogo(k.plateforme)+'</span>'+
+          '<span class="own-ad-n"><b>'+genEsc(k.nom||k.code)+'</b><small>'+ownNomPlat(k.plateforme)+
+            (cible.length?' · '+cible.join(' · '):'')+'</small></span>'+
+          '<svg class="own-ad-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>'+
+        '</span>'+
+        '<span class="own-ad-s">'+
+          '<span class="own-s"><b>'+ownNb(k.clics)+'</b><small>clics</small></span>'+
+          '<span class="own-s"><b>'+ownNb(k.inscrits)+'</b><small>membres</small></span>'+
+          '<span class="own-s"><b class="vert">'+ownNb(k.payants)+'</b><small>payants</small></span>'+
+          '<span class="own-s"><b>'+ownNb(k.gratuits)+'</b><small>gratuits</small></span>'+
+          '<span class="own-s"><b class="or">$'+ownNb(k.revenu||0)+'</b><small>généré</small></span>'+
+        '</span></button>';
     }).join('');
   }
-  function ownCopier(lien, btn){
+
+  /* ── Detail d'une publicite : tout ce qu'on sait, au meme endroit ────── */
+  function ownDetailPub(id){
+    var k = (OWN.data.campagnes||[]).filter(function(x){ return x.id===id; })[0]; if (!k) return;
+    var lien = 'https://www.skillora.me/?src=' + k.code;
+    var cible = '';
+    if (k.pays) cible += '<div class="own-d-r"><span>Pays visé</span><b>'+(OWN_PAYS[k.pays]||'🌍')+' '+genEsc(k.pays)+'</b></div>';
+    if (k.age_min || k.age_max) cible += '<div class="own-d-r"><span>Tranche d\'âge</span><b>'+(k.age_min||18)+'–'+(k.age_max||65)+' ans</b></div>';
+    if (k.creatif) cible += '<div class="own-d-r"><span>Format</span><b>'+(k.creatif==='video'?'🎬 Vidéo':'🖼️ Image')+'</b></div>';
+    var apercu = k.creatif_url ? (k.creatif === 'video'
+        ? '<video class="own-d-med" src="'+genEsc(k.creatif_url)+'" muted playsinline controls></video>'
+        : '<img class="own-d-med" src="'+genEsc(k.creatif_url)+'" alt="">') : '';
+    var usages = (k.usages||[]).length
+      ? '<div class="own-d-t">Ce que font ces membres</div>' + (k.usages||[]).map(function(u){
+          return '<div class="own-d-r"><span>'+(OWN_USAGE[u.k]||genEsc(u.k))+'</span><b>'+ownNb(u.n)+'</b></div>'; }).join('')
+      : '<div class="own-d-t">Ce que font ces membres</div><div class="own-vide" style="padding:12px">Aucune action encore.</div>';
+
+    skModal({
+      icon:'', title:'', html:
+        '<div class="own-d">'+
+          '<div class="own-d-h"><span class="own-ad-lg big">'+ownLogo(k.plateforme)+'</span>'+
+            '<span><b>'+genEsc(k.nom||k.code)+'</b><small>'+ownNomPlat(k.plateforme)+'</small></span></div>'+
+          apercu +
+          '<div class="own-d-g">'+
+            '<span class="own-s"><b>'+ownNb(k.clics)+'</b><small>clics</small></span>'+
+            '<span class="own-s"><b>'+ownNb(k.inscrits)+'</b><small>membres</small></span>'+
+            '<span class="own-s"><b class="vert">'+ownNb(k.payants)+'</b><small>payants</small></span>'+
+            '<span class="own-s"><b>'+ownNb(k.gratuits)+'</b><small>gratuits</small></span>'+
+          '</div>'+
+          '<div class="own-d-r big"><span>Argent généré</span><b class="or">$'+ownNb(k.revenu||0)+'</b></div>'+
+          '<div class="own-d-r"><span>Sur 100 clics, inscrits</span><b>'+k.taux_inscription+'</b></div>'+
+          '<div class="own-d-r"><span>Sur 100 membres, payants</span><b>'+k.taux_paiement+'</b></div>'+
+          cible +
+          usages +
+          '<div class="own-d-t">Le lien</div>'+
+          '<div class="own-d-lien" onclick="ownCopier(\''+genEsc(lien)+'\',this)">'+genEsc(lien)+'</div>'+
+        '</div>',
+      confirmText:'Copier le lien', onConfirm:function(){ try{navigator.clipboard.writeText(lien);}catch(e){} },
+      cancelText:'Fermer'
+    });
+  }
+  function ownCopier(lien, el){
     try { navigator.clipboard.writeText(lien); } catch(e){}
-    var av = btn.textContent; btn.textContent = 'Copié ✓';
-    setTimeout(function(){ btn.textContent = av; }, 1400);
+    var av = el.textContent; el.textContent = 'Copié ✓';
+    setTimeout(function(){ el.textContent = av; }, 1300);
   }
 
-  async function ownNouvelleCampagne(){
-    var nom = prompt('Nom de la publicité (pour toi) :\n\nex. « Meta · Copy any video · août »'); if (!nom) return;
-    var plat = prompt('Plateforme ?\n\nmeta · google · tiktok · youtube · x · other', 'meta'); if (!plat) return;
-    var code = prompt('Code du lien (lettres, chiffres, tirets) :\n\nIl apparaîtra dans skillora.me/?src=…',
-      (plat.toLowerCase()+'-'+Date.now().toString(36).slice(-4)));
-    if (!code) return;
-    var dep = prompt('Budget prévu en $ (tu pourras le modifier) :', '0');
-    var r = await ownAppel({ action:'pub_creer', nom:nom, plateforme:plat.toLowerCase().trim(),
-                             code:code.toLowerCase().trim(), depense:Number(dep)||0 });
+  /* ── Creation d'un lien : un vrai formulaire, pas des fenetres system ── */
+  var OWN_NEW = { plateforme:'meta', creatif:null, creatif_url:null, age:[18,35] };
+  var OWN_AGES = [[18,24],[25,34],[35,44],[45,54],[55,65],[18,65]];
+  function ownNouvelleCampagne(){
+    OWN_NEW = { plateforme:'meta', creatif:null, creatif_url:null, age:[18,35] };
+    skModal({ icon:'', title:'', html:
+      '<div class="own-f">'+
+        '<div class="own-f-t">Nouveau lien de publicité</div>'+
+        '<div class="own-f-s">Un lien par ciblage. Deux pays, deux liens — c\'est ce qui te dira lequel marche.</div>'+
+        '<div class="own-f-l">Plateforme</div>'+
+        '<div class="own-f-plats" id="ownFPlats">'+ OWN_PLATS.map(function(p){
+            return '<button class="'+(p[0]==='meta'?'on':'')+'" data-p="'+p[0]+'" onclick="ownFPlat(\''+p[0]+'\')">'+
+                   ownLogo(p[0])+'<span>'+p[1]+'</span></button>'; }).join('') +'</div>'+
+        '<div class="own-f-l">Nom (pour toi)</div>'+
+        '<input class="own-f-i" id="ownFNom" placeholder="ex. Meta · US · 25-34 · vidéo">'+
+        '<div class="own-f-l">Pays visé</div>'+
+        '<input class="own-f-i" id="ownFPays" maxlength="2" placeholder="US, FR, CA… (2 lettres)" style="text-transform:uppercase">'+
+        '<div class="own-f-l">Tranche d\'âge</div>'+
+        '<div class="own-f-ages" id="ownFAges">'+ OWN_AGES.map(function(a,i){
+            return '<button class="'+(i===0?'on':'')+'" onclick="ownFAge('+a[0]+','+a[1]+',this)">'+a[0]+'–'+a[1]+'</button>'; }).join('') +'</div>'+
+        '<div class="own-f-l">Le visuel de la pub</div>'+
+        '<div class="own-f-med" id="ownFMed" onclick="document.getElementById(\'ownFFile\').click()">'+
+          '<span>📎 Choisir une image ou une vidéo</span></div>'+
+        '<input type="file" id="ownFFile" accept="image/*,video/*" style="display:none" onchange="ownFFichier(this)">'+
+      '</div>',
+      confirmText:'Créer le lien', onConfirm:ownCreerLien, cancelText:'Annuler' });
+  }
+  function ownFPlat(p){
+    OWN_NEW.plateforme = p;
+    document.querySelectorAll('#ownFPlats button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-p')===p); });
+  }
+  function ownFAge(a,b,el){
+    OWN_NEW.age = [a,b];
+    document.querySelectorAll('#ownFAges button').forEach(function(x){ x.classList.remove('on'); });
+    el.classList.add('on');
+  }
+  async function ownFFichier(inp){
+    var f = inp.files && inp.files[0]; if (!f) return;
+    var zone = document.getElementById('ownFMed');
+    if (f.size > 60*1024*1024) { zone.innerHTML = '<span style="color:#ff9f9f">Fichier trop lourd (60 Mo max)</span>'; return; }
+    OWN_NEW.creatif = f.type.indexOf('video') === 0 ? 'video' : 'image';
+    zone.innerHTML = '<span>Envoi…</span>';
+    try {
+      var sess = await sb.auth.getSession();
+      var uid = sess.data.session.user.id;
+      var ext = (f.name.split('.').pop() || 'bin').toLowerCase();
+      var chemin = 'ads/' + uid + '/' + Date.now() + '.' + ext;
+      var up = await sb.storage.from('post-media').upload(chemin, f, { contentType:f.type, upsert:false });
+      if (up.error) throw new Error(up.error.message);
+      OWN_NEW.creatif_url = sb.storage.from('post-media').getPublicUrl(chemin).data.publicUrl;
+      zone.innerHTML = OWN_NEW.creatif === 'video'
+        ? '<video src="'+OWN_NEW.creatif_url+'" muted playsinline></video><span>🎬 Vidéo prête</span>'
+        : '<img src="'+OWN_NEW.creatif_url+'" alt=""><span>🖼️ Image prête</span>';
+    } catch(e){ zone.innerHTML = '<span style="color:#ff9f9f">Envoi impossible</span>'; }
+  }
+  async function ownCreerLien(){
+    var nom  = (document.getElementById('ownFNom')||{}).value || '';
+    var pays = ((document.getElementById('ownFPays')||{}).value || '').toUpperCase().slice(0,2);
+    if (!nom.trim()) { skModal({icon:'✏️',title:'Il manque le nom',message:'Donne un nom à cette publicité pour la retrouver.',cancelText:'OK'}); return; }
+    var code = (OWN_NEW.plateforme + '-' + (pays||'all') + '-' + OWN_NEW.age[0] + OWN_NEW.age[1] + '-' + Date.now().toString(36).slice(-3)).toLowerCase();
+    var r = await ownAppel({ action:'pub_creer', nom:nom.trim(), plateforme:OWN_NEW.plateforme, code:code,
+      pays:pays||null, age_min:OWN_NEW.age[0], age_max:OWN_NEW.age[1],
+      creatif:OWN_NEW.creatif, creatif_url:OWN_NEW.creatif_url });
     if (!r.success) { skModal({icon:'⚠️',title:'Impossible',message:r.error||'Erreur',cancelText:'OK'}); return; }
     var lien = 'https://www.skillora.me/?src=' + r.campagne.code;
     try { navigator.clipboard.writeText(lien); } catch(e){}
     skModal({ icon:'🔗', title:'Lien créé et copié',
-      message:'<b>'+genEsc(lien)+'</b><br><br>Colle-le dans le champ « URL du site web » de ta publicité. Chaque clic, inscription et abonnement sera rattaché à ce lien.',
+      message:'<b style="word-break:break-all">'+genEsc(lien)+'</b><br><br>Colle-le dans le champ « URL du site web » de cette publicité. Chaque clic, membre et abonnement lui sera rattaché.',
       cancelText:'Parfait' });
-    ownCharger();
-  }
-  async function ownEditerCampagne(id){
-    var c = (OWN.data.campagnes||[]).filter(function(x){ return x.id===id; })[0]; if (!c) return;
-    var dep = prompt('Combien as-tu dépensé sur « '+c.nom+' » ? (en $)\n\nC\'est ce chiffre qui calcule ton retour sur investissement.', String(c.depense||0));
-    if (dep === null) return;
-    var r = await ownAppel({ action:'pub_maj', id:id, depense:Number(dep)||0 });
-    if (!r.success) { skModal({icon:'⚠️',title:'Impossible',message:r.error||'Erreur',cancelText:'OK'}); return; }
     ownCharger();
   }
 
@@ -6852,6 +7037,10 @@
     if (name === 'home') { try { hv2Load(); } catch(e){} }
     if (name === 'niches') { try { nichesLoad(); } catch(e){} }
     if (name === 'ideas') { try { idzRender(); } catch(e){} }
+    // Ce que la personne consulte : dit ce qui l'interesse vraiment.
+    if (name === 'niches') skUsage('niche');
+    if (name === 'ideas')  skUsage('idee');
+    if (name === 'publish') skUsage('publication');
     if (name === 'owner') {
       try { loadHomeDashboard(); } catch(e){}
       // La vue complete se charge des l'ouverture : le proprietaire doit voir
@@ -10983,6 +11172,7 @@
   function genRevealPlan(bp){
     // Le plan est livre : c'est le moment ou la promesse est tenue.
     try { skPixelPerso('PlanLivre', { plans: (bp && bp.plans ? bp.plans.length : 0) }); } catch(e){}
+    skUsage('plan_vu');
     var urls=[]; (bp&&bp.plans?bp.plans:[]).forEach(function(p){ if(p.frame_url) urls.push(p.frame_url); });
     var total=urls.length, done=0, finished=false;
     function reveal(){
@@ -11158,6 +11348,7 @@
       window._scrVersions=d.versions;
     }catch(e){ skModal({icon:'⚠️',title:skT('sc_ko'),message:String(e.message||e),cancelText:'OK'}); }
     btn.disabled=false; btn.textContent=skT('sc_go');
+    skUsage('script');
   }
   function scrUse(i){ var v=(window._scrVersions||[])[i]; if(v) scrApply(v.script); }
   var TOOL_SITES={
@@ -11474,6 +11665,7 @@
       // reperer les publicites qui amenent des curieux plutot que des
       // createurs — un clic ne vaut rien, une copie lancee si.
       try { skPixelPerso('CopieLancee', { cached: !!data.cached }); } catch(e){}
+      skUsage('copie');
       document.getElementById('genIntro').style.display = 'none';
       document.getElementById('genProgress').style.display = 'block';
       genFocus(true);
@@ -12176,10 +12368,13 @@
     var btns = '';
     if (opts.confirmText) btns += '<button class="sk-modal-primary" id="skModalOk">' + opts.confirmText + '</button>';
     btns += '<button class="sk-modal-ghost" id="skModalCancel">' + (opts.cancelText || 'Fermer') + '</button>';
-    ov.innerHTML = '<div class="sk-modal">' +
+    ov.innerHTML = '<div class="sk-modal' + (opts.html ? ' large' : '') + '">' +
       (opts.icon ? '<div class="sk-modal-ic"' + (opts.iconBg ? ' style="background:' + opts.iconBg + '"' : '') + '>' + opts.icon + '</div>' : '') +
       (opts.title ? '<div class="sk-modal-t">' + opts.title + '</div>' : '') +
       (opts.message ? '<div class="sk-modal-m">' + opts.message + '</div>' : '') +
+      // `html` : un contenu riche (formulaire, fiche detaillee) au lieu d'un
+      // simple message. La fenetre s'elargit alors pour le recevoir.
+      (opts.html ? '<div class="sk-modal-h">' + opts.html + '</div>' : '') +
       '<div class="sk-modal-btns">' + btns + '</div></div>';
     function close(){ ov.classList.remove('open'); window._skModalClearT = setTimeout(function(){ if (ov) ov.innerHTML = ''; }, 220); }
     var ok = document.getElementById('skModalOk'); if (ok) ok.onclick = function(){ close(); if (opts.onConfirm) opts.onConfirm(); };

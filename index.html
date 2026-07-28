@@ -1863,11 +1863,12 @@
 (function(){try{
   var q = new URLSearchParams(location.search);
   var src = (q.get('src') || q.get('utm_campaign') || '').trim().toLowerCase().slice(0,64);
-  if (!src) return;
+  /* On n'abandonne PLUS quand il n'y a pas de code : la visite compte aussi.
+     Sans ca on ne connaitrait que le trafic paye, jamais le trafic reel. */
 
   /* PREMIER CONTACT GAGNE : si quelqu'un revient plus tard par une autre
      publicite, on garde celle qui l'a fait decouvrir Skillora. */
-  try { if (!localStorage.getItem('sk_src')) localStorage.setItem('sk_src', src); } catch(e){}
+  try { if (src && !localStorage.getItem('sk_src')) localStorage.setItem('sk_src', src); } catch(e){}
 
   var vis = null;
   try {
@@ -1878,15 +1879,15 @@
     }
   } catch(e){}
 
-  /* Un seul clic compte par visite : actualiser la page ne gonfle rien. */
-  try { if (sessionStorage.getItem('sk_src_logged')) return;
-        sessionStorage.setItem('sk_src_logged','1'); } catch(e){}
+  /* Une seule visite comptee par session : actualiser ne gonfle rien. */
+  try { if (sessionStorage.getItem('sk_vu')) return;
+        sessionStorage.setItem('sk_vu','1'); } catch(e){}
 
   fetch('https://fkjqlmtugzdluzshxqsk.supabase.co/functions/v1/ad-track', {
     method: 'POST', keepalive: true,
     headers: { 'Content-Type': 'application/json',
                apikey: 'sb_publishable_u8BiBh7ciFGr13GPQHLnGQ_f17a_5aA' },
-    body: JSON.stringify({ code: src, visitor: vis,
+    body: JSON.stringify({ code: src || '', visitor: vis,
                            referrer: document.referrer || '',
                            lang: (navigator.language || '') })
   }).catch(function(){});

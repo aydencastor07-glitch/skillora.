@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Skillora — Créer mon compte</title>
-<meta name="description" content="Crée ton compte Skillora en 30 secondes : améliore tes vidéos en un clic et publie-les sur tous tes réseaux au meilleur moment.">
+<title>Skillora — Create my account</title>
+<meta name="description" content="Create your Skillora account in 30 seconds: paste the link of a viral video and get the exact plan to remake it.">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -459,15 +459,15 @@
       <div class="step-dot active" id="dot1">1</div>
       <div class="step-dot" id="dot2">2</div>
     </div>
-    <div class="progress-label" id="progressLabel">Étape 1 sur 2</div>
+    <div class="progress-label" id="progressLabel" data-sg="prog">Étape 1 sur 2</div>
   </div>
 
   <div class="card">
 
     <!-- STEP 1 — CONNEXION -->
     <div class="step-panel active" id="step1">
-      <div class="step-title">Créer mon compte</div>
-      <div class="step-subtitle">Colle le lien d'une vidéo qui marche, repars avec le plan pour la refaire.</div>
+      <div class="step-title" data-sg="s1_t">Créer mon compte</div>
+      <div class="step-subtitle" data-sg="s1_s">Colle le lien d'une vidéo qui marche, repars avec le plan pour la refaire.</div>
 
       <button class="btn-google" onclick="signInWithGoogle()">
         <svg viewBox="0 0 24 24" fill="none">
@@ -476,28 +476,28 @@
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
-        Continuer avec Google
+        <span data-sg="s1_g">Continuer avec Google</span>
       </button>
 
-      <div class="divider">ou avec ton email</div>
+      <div class="divider" data-sg="s1_or">ou avec ton email</div>
 
       <div class="field">
-        <label>Nom complet</label>
-        <input type="text" id="fullName" placeholder="Ex: Jean Dupont" />
-        <div class="error-msg" id="nameError">Merci d'entrer ton nom complet.</div>
+        <label data-sg="s1_ln">Nom complet</label>
+        <input type="text" id="fullName" placeholder="Ex: Jean Dupont" data-sgph="s1_pn" />
+        <div class="error-msg" id="nameError" data-sg="s1_en">Merci d'entrer ton nom complet.</div>
       </div>
       <div class="field">
-        <label>Adresse email</label>
-        <input type="email" id="email" placeholder="ton@email.com" />
-        <div class="error-msg" id="emailError">Merci d'entrer une adresse email valide.</div>
+        <label data-sg="s1_le">Adresse email</label>
+        <input type="email" id="email" placeholder="ton@email.com" data-sgph="s1_pe" />
+        <div class="error-msg" id="emailError" data-sg="s1_ee">Merci d'entrer une adresse email valide.</div>
       </div>
       <div class="field">
-        <label>Mot de passe</label>
-        <input type="password" id="password" placeholder="Minimum 8 caractères" />
-        <div class="error-msg" id="passError">Le mot de passe doit faire au moins 8 caractères.</div>
+        <label data-sg="s1_lp">Mot de passe</label>
+        <input type="password" id="password" placeholder="Minimum 8 caractères" data-sgph="s1_pp" />
+        <div class="error-msg" id="passError" data-sg="s1_ep">Le mot de passe doit faire au moins 8 caractères.</div>
       </div>
 
-      <button class="btn-primary" onclick="validateStep1()">Continuer →</button>
+      <button class="btn-primary" onclick="validateStep1()" data-sg="s1_go">Continuer →</button>
     </div>
 
     <!-- STEP 2 — TEMPS DISPONIBLE -->
@@ -511,24 +511,154 @@
           <div class="rang-s" id="rangS"></div>
         </div>
         <div style="font-size:3.4rem;margin-bottom:1rem;">📬</div>
-        <div class="step-title" style="margin-bottom:.6rem;">Confirme ton email</div>
+        <div class="step-title" style="margin-bottom:.6rem;" data-sg="s2_t">Confirme ton email</div>
         <div class="step-subtitle" style="margin-bottom:1.5rem;">
-          On vient d'envoyer un lien de confirmation à <strong id="confirmEmailAddr" style="color:var(--blue);"></strong>.<br>
-          Clique sur le lien dans l'email pour activer ton compte, puis reviens ici.
+          <span data-sg="s2_s1">On vient d'envoyer un lien de confirmation à</span> <strong id="confirmEmailAddr" style="color:var(--blue);"></strong>.<br>
+          <span data-sg="s2_s2">Clique sur le lien dans l'email pour activer ton compte, puis reviens ici.</span>
         </div>
         <div style="background:rgba(61,220,132,0.1);border:1px solid rgba(61,220,132,0.3);border-radius:10px;padding:.8rem 1rem;margin-bottom:1.3rem;font-size:.82rem;color:#3ddc84;text-align:left;">
-          ✉️ Pense à vérifier tes spams si tu ne vois pas l'email tout de suite.
+          <span data-sg="s2_spam">✉️ Pense à vérifier tes spams si tu ne vois pas l'email tout de suite.</span>
         </div>
         <div class="error-msg" id="confirmError" style="display:none;margin-bottom:.8rem;color:#ff6b6b;">
-          Ton email n'est pas encore confirmé. Clique sur le lien reçu, puis réessaie.
+          <span data-sg="s2_err">Ton email n'est pas encore confirmé. Clique sur le lien reçu, puis réessaie.</span>
         </div>
-        <button class="btn-primary" onclick="checkEmailConfirmed()" id="confirmBtn">J'ai confirmé mon email →</button>
-        <button class="btn-secondary" onclick="resendConfirmation()" id="resendBtn" style="margin-top:.7rem;background:transparent;border:1px solid var(--border);color:var(--muted);">Renvoyer l'email</button>
+        <button class="btn-primary" onclick="checkEmailConfirmed()" id="confirmBtn" data-sg="s2_ok">J'ai confirmé mon email →</button>
+        <button class="btn-secondary" onclick="resendConfirmation()" id="resendBtn" style="margin-top:.7rem;background:transparent;border:1px solid var(--border);color:var(--muted);" data-sg="s2_re">Renvoyer l'email</button>
       </div>
     </div>
 
   </div>
 </div>
+
+<script>
+/* ═══ TRADUCTION DE LA PAGE D'INSCRIPTION ═══════════════════════════════
+   Cette page etait ecrite entierement en francais, en dur : quelqu'un qui
+   arrivait d'une publicite anglaise voyait « Créer mon compte » juste apres
+   une page d'accueil en anglais.
+
+   Meme regle que le reste du produit : la langue choisie si elle existe,
+   sinon celle du navigateur, sinon l'ANGLAIS — jamais le francais par
+   defaut, la majorite du trafic publicitaire n'etant pas francophone.
+
+   Ce script est place ICI, juste apres le contenu et avant tout le reste :
+   il s'execute donc avant le premier affichage, et aucun texte francais
+   n'apparait le temps d'une image. */
+var SG = {
+  fr:{
+    prog:"Étape {n} sur {t}",
+    s1_t:"Créer mon compte", s1_s:"Colle le lien d'une vidéo qui marche, repars avec le plan pour la refaire.",
+    s1_g:"Continuer avec Google", s1_or:"ou avec ton email",
+    s1_ln:"Nom complet", s1_pn:"Ex : Jean Dupont", s1_en:"Merci d'entrer ton nom complet.",
+    s1_le:"Adresse email", s1_pe:"toi@email.com", s1_ee:"Merci d'entrer une adresse email valide.",
+    s1_lp:"Mot de passe", s1_pp:"Minimum 8 caractères", s1_ep:"Le mot de passe doit faire au moins 8 caractères.",
+    s1_go:"Continuer →", s1_wait:"Création du compte…",
+    s2_t:"Confirme ton email", s2_s1:"On vient d'envoyer un lien de confirmation à",
+    s2_s2:"Clique sur le lien dans l'email pour activer ton compte, puis reviens ici.",
+    s2_spam:"✉️ Pense à vérifier tes spams si tu ne vois pas l'email tout de suite.",
+    s2_err:"Ton email n'est pas encore confirmé. Clique sur le lien reçu, puis réessaie.",
+    s2_ok:"J'ai confirmé mon email →", s2_re:"Renvoyer l'email",
+    s2_check:"Vérification…", s2_send:"Envoi…", s2_sent:"✓ Email renvoyé",
+    err:"Erreur : ", err_gen:"Une erreur est survenue. Réessaie.", err_g:"Une erreur est survenue avec Google.",
+    r_f:"Félicitations 🎉", r_t:"{n}e personne inscrite ce mois-ci",
+    r_s:"Il restait {r} places sur {q}. La tienne est gardée."
+  },
+  en:{
+    prog:"Step {n} of {t}",
+    s1_t:"Create my account", s1_s:"Paste the link of a video that works, walk away with the plan to remake it.",
+    s1_g:"Continue with Google", s1_or:"or with your email",
+    s1_ln:"Full name", s1_pn:"E.g. John Smith", s1_en:"Please enter your full name.",
+    s1_le:"Email address", s1_pe:"you@email.com", s1_ee:"Please enter a valid email address.",
+    s1_lp:"Password", s1_pp:"At least 8 characters", s1_ep:"Your password must be at least 8 characters.",
+    s1_go:"Continue →", s1_wait:"Creating your account…",
+    s2_t:"Confirm your email", s2_s1:"We've just sent a confirmation link to",
+    s2_s2:"Click the link in the email to activate your account, then come back here.",
+    s2_spam:"✉️ Check your spam folder if you don't see the email right away.",
+    s2_err:"Your email isn't confirmed yet. Click the link we sent, then try again.",
+    s2_ok:"I've confirmed my email →", s2_re:"Resend the email",
+    s2_check:"Checking…", s2_send:"Sending…", s2_sent:"✓ Email sent",
+    err:"Error: ", err_gen:"Something went wrong. Please try again.", err_g:"Something went wrong with Google.",
+    r_f:"Congratulations 🎉", r_t:"{n} signup this month",
+    r_s:"{r} of {q} spots were left. Yours is secured."
+  },
+  es:{
+    prog:"Paso {n} de {t}",
+    s1_t:"Crear mi cuenta", s1_s:"Pega el enlace de un vídeo que funciona y llévate el plan para rehacerlo.",
+    s1_g:"Continuar con Google", s1_or:"o con tu correo",
+    s1_ln:"Nombre completo", s1_pn:"Ej.: Juan Pérez", s1_en:"Introduce tu nombre completo.",
+    s1_le:"Correo electrónico", s1_pe:"tu@email.com", s1_ee:"Introduce un correo electrónico válido.",
+    s1_lp:"Contraseña", s1_pp:"Mínimo 8 caracteres", s1_ep:"La contraseña debe tener al menos 8 caracteres.",
+    s1_go:"Continuar →", s1_wait:"Creando tu cuenta…",
+    s2_t:"Confirma tu correo", s2_s1:"Acabamos de enviar un enlace de confirmación a",
+    s2_s2:"Haz clic en el enlace del correo para activar tu cuenta y vuelve aquí.",
+    s2_spam:"✉️ Revisa tu carpeta de spam si no ves el correo enseguida.",
+    s2_err:"Tu correo aún no está confirmado. Haz clic en el enlace recibido e inténtalo de nuevo.",
+    s2_ok:"He confirmado mi correo →", s2_re:"Reenviar el correo",
+    s2_check:"Comprobando…", s2_send:"Enviando…", s2_sent:"✓ Correo enviado",
+    err:"Error: ", err_gen:"Ha ocurrido un error. Inténtalo de nuevo.", err_g:"Ha ocurrido un error con Google.",
+    r_f:"Enhorabuena 🎉", r_t:"{n}.º inscrito este mes",
+    r_s:"Quedaban {r} de {q} plazas. La tuya está reservada."
+  },
+  pt:{
+    prog:"Passo {n} de {t}",
+    s1_t:"Criar a minha conta", s1_s:"Cola o link de um vídeo que funciona e sai com o plano para o refazer.",
+    s1_g:"Continuar com o Google", s1_or:"ou com o teu e-mail",
+    s1_ln:"Nome completo", s1_pn:"Ex.: João Silva", s1_en:"Introduz o teu nome completo.",
+    s1_le:"Endereço de e-mail", s1_pe:"tu@email.com", s1_ee:"Introduz um endereço de e-mail válido.",
+    s1_lp:"Palavra-passe", s1_pp:"Mínimo 8 caracteres", s1_ep:"A palavra-passe deve ter pelo menos 8 caracteres.",
+    s1_go:"Continuar →", s1_wait:"A criar a tua conta…",
+    s2_t:"Confirma o teu e-mail", s2_s1:"Acabámos de enviar um link de confirmação para",
+    s2_s2:"Clica no link do e-mail para ativar a tua conta e volta aqui.",
+    s2_spam:"✉️ Verifica o spam se não vires o e-mail de imediato.",
+    s2_err:"O teu e-mail ainda não está confirmado. Clica no link recebido e tenta de novo.",
+    s2_ok:"Confirmei o meu e-mail →", s2_re:"Reenviar o e-mail",
+    s2_check:"A verificar…", s2_send:"A enviar…", s2_sent:"✓ E-mail enviado",
+    err:"Erro: ", err_gen:"Ocorreu um erro. Tenta de novo.", err_g:"Ocorreu um erro com o Google.",
+    r_f:"Parabéns 🎉", r_t:"{n}.º inscrito este mês",
+    r_s:"Restavam {r} de {q} vagas. A tua está garantida."
+  },
+  de:{
+    prog:"Schritt {n} von {t}",
+    s1_t:"Konto erstellen", s1_s:"Füge den Link eines Videos ein, das funktioniert — und nimm den Plan mit, um es nachzubauen.",
+    s1_g:"Mit Google fortfahren", s1_or:"oder mit deiner E-Mail",
+    s1_ln:"Vollständiger Name", s1_pn:"z. B. Max Mustermann", s1_en:"Bitte gib deinen vollständigen Namen ein.",
+    s1_le:"E-Mail-Adresse", s1_pe:"du@email.de", s1_ee:"Bitte gib eine gültige E-Mail-Adresse ein.",
+    s1_lp:"Passwort", s1_pp:"Mindestens 8 Zeichen", s1_ep:"Das Passwort muss mindestens 8 Zeichen haben.",
+    s1_go:"Weiter →", s1_wait:"Konto wird erstellt…",
+    s2_t:"Bestätige deine E-Mail", s2_s1:"Wir haben gerade einen Bestätigungslink gesendet an",
+    s2_s2:"Klicke auf den Link in der E-Mail, um dein Konto zu aktivieren, und komm dann zurück.",
+    s2_spam:"✉️ Sieh im Spam-Ordner nach, falls die E-Mail nicht sofort ankommt.",
+    s2_err:"Deine E-Mail ist noch nicht bestätigt. Klicke auf den Link und versuche es erneut.",
+    s2_ok:"Ich habe meine E-Mail bestätigt →", s2_re:"E-Mail erneut senden",
+    s2_check:"Wird geprüft…", s2_send:"Wird gesendet…", s2_sent:"✓ E-Mail gesendet",
+    err:"Fehler: ", err_gen:"Es ist ein Fehler aufgetreten. Bitte versuche es erneut.", err_g:"Mit Google ist ein Fehler aufgetreten.",
+    r_f:"Glückwunsch 🎉", r_t:"{n}. Anmeldung diesen Monat",
+    r_s:"Es waren noch {r} von {q} Plätzen frei. Deiner ist gesichert."
+  }
+};
+
+function sgLangue(){
+  try { var c = localStorage.getItem('skillora_lang'); if (c && SG[c]) return c; } catch(e){}
+  var n = (navigator.language || '').slice(0,2).toLowerCase();
+  return SG[n] ? n : 'en';
+}
+function sgT(k){ var d = SG[sgLangue()] || SG.en; return d[k] != null ? d[k] : (SG.en[k] || ''); }
+
+(function(){
+  var lg = sgLangue();
+  document.documentElement.lang = lg;
+  document.querySelectorAll('[data-sg]').forEach(function(el){
+    var v = sgT(el.getAttribute('data-sg')); if (v) el.textContent = v;
+  });
+  document.querySelectorAll('[data-sgph]').forEach(function(el){
+    var v = sgT(el.getAttribute('data-sgph')); if (v) el.setAttribute('placeholder', v);
+  });
+  /* Le libelle d'etape porte un gabarit : sans cette ligne, la page
+     affichait « Step {n} of {t} » tel quel jusqu'au premier changement
+     d'etape. updateProgress() le reecrira ensuite avec les vrais chiffres. */
+  var pl = document.getElementById('progressLabel');
+  if (pl) pl.textContent = sgT('prog').replace('{n}', '1').replace('{t}', '2');
+})();
+</script>
 
 <script>
   // ── SUPABASE INIT ──
@@ -572,7 +702,8 @@
   function updateProgress() {
     const pct = ((currentStep - 1) / (totalSteps - 1)) * 100;
     document.getElementById('progressLine').style.width = pct + '%';
-    document.getElementById('progressLabel').textContent = `Étape ${currentStep} sur ${totalSteps}`;
+    document.getElementById('progressLabel').textContent =
+      sgT('prog').replace('{n}', currentStep).replace('{t}', totalSteps);
 
     for (let i = 1; i <= totalSteps; i++) {
       const dot = document.getElementById('dot' + i);
@@ -606,7 +737,7 @@
 
     const btn = document.querySelector('#step1 .btn-primary');
     const originalText = btn.textContent;
-    btn.textContent = 'Création du compte...';
+    btn.textContent = sgT('s1_wait');
     btn.disabled = true;
 
     try {
@@ -620,7 +751,7 @@
       });
 
       if (error) {
-        alert('Erreur : ' + error.message);
+        alert(sgT('err') + error.message);
         btn.textContent = originalText;
         btn.disabled = false;
         return;
@@ -641,7 +772,7 @@
       btn.disabled = false;
       nextStep();
     } catch (err) {
-      alert('Une erreur est survenue. Réessaie.');
+      alert(sgT('err_gen'));
       btn.textContent = originalText;
       btn.disabled = false;
     }
@@ -653,7 +784,7 @@
     var errEl = document.getElementById('confirmError');
     errEl.style.display = 'none';
     var original = btn.textContent;
-    btn.textContent = 'Vérification...';
+    btn.textContent = sgT('s2_check');
     btn.disabled = true;
     try {
       // On retente une connexion : si l'email n'est pas confirmé, Supabase refuse
@@ -686,7 +817,7 @@
   async function resendConfirmation() {
     var btn = document.getElementById('resendBtn');
     var original = btn.textContent;
-    btn.textContent = 'Envoi...';
+    btn.textContent = sgT('s2_send');
     btn.disabled = true;
     try {
       await supabaseClient.auth.resend({
@@ -694,7 +825,7 @@
         email: pendingEmail,
         options: { emailRedirectTo: appReturnUrl() }
       });
-      btn.textContent = '✓ Email renvoyé';
+      btn.textContent = sgT('s2_sent');
       setTimeout(function(){ btn.textContent = original; btn.disabled = false; }, 4000);
     } catch (e) {
       btn.textContent = original;
@@ -714,9 +845,9 @@
           queryParams: { prompt: 'select_account' }
         }
       });
-      if (error) alert('Erreur Google : ' + error.message);
+      if (error) alert(sgT('err') + error.message);
     } catch (err) {
-      alert('Une erreur est survenue avec Google.');
+      alert(sgT('err_g'));
     }
   }
 
@@ -729,17 +860,7 @@
    passer par l'accueil, on recalcule le meme rang au lieu de ne rien montrer
    (voir rangDeSecours). */
 (function(){
-  var T = {
-    fr:{f:"Félicitations 🎉", t:"{n}e personne inscrite ce mois-ci", s:"Il restait {r} places sur {q}. La tienne est gardée."},
-    en:{f:"Congratulations 🎉", t:"{n} signup this month",          s:"{r} of {q} spots were left. Yours is secured."},
-    es:{f:"Enhorabuena 🎉",    t:"{n}.º inscrito este mes",         s:"Quedaban {r} de {q} plazas. La tuya está reservada."},
-    pt:{f:"Parabéns 🎉",       t:"{n}.º inscrito este mês",         s:"Restavam {r} de {q} vagas. A tua está garantida."},
-    de:{f:"Glückwunsch 🎉",    t:"{n}. Anmeldung diesen Monat",     s:"Es waren noch {r} von {q} Plätzen frei. Deiner ist gesichert."}
-  };
-  function langue(){
-    try { var c = localStorage.getItem('skillora_lang'); if (c && T[c]) return c; } catch(e){}
-    return 'en';
-  }
+  /* Les libelles vivent dans SG, avec le reste de la page (cles r_*). */
   /* « 971st », pas « 971th » : l'anglais change de suffixe selon le chiffre,
      et un ordinal faux saute aux yeux d'un anglophone. */
   function ordinal(n, l){
@@ -766,12 +887,12 @@
     try { d = JSON.parse(localStorage.getItem('sk_rang') || 'null'); } catch(e){}
     var mois = new Date().toISOString().slice(0,7);
     if (!d || !d.r || d.m !== mois) d = rangDeSecours();     // rang absent ou d'un mois passe
-    var lg = langue(), L = T[lg] || T.en, q = d.q || 1000;
+    var lg = sgLangue(), q = d.q || 1000;
     var b = document.getElementById('rangBox'); if (!b) return;
-    document.getElementById('rangF').textContent = L.f;
+    document.getElementById('rangF').textContent = sgT('r_f');
     document.getElementById('rangN').textContent = '#' + d.r;
-    document.getElementById('rangT').textContent = L.t.replace('{n}', ordinal(d.r, lg));
-    document.getElementById('rangS').textContent = L.s.replace('{r}', Math.max(0, q - d.r)).replace('{q}', q);
+    document.getElementById('rangT').textContent = sgT('r_t').replace('{n}', ordinal(d.r, lg));
+    document.getElementById('rangS').textContent = sgT('r_s').replace('{r}', Math.max(0, q - d.r)).replace('{q}', q);
     b.style.display = '';
   }
   /* L'etape 2 n'existe qu'apres la creation du compte : on attend son

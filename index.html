@@ -1852,17 +1852,44 @@
   }
 </script>
 <script>
-/* Suivi marketing : ?src=fb-ads|tiktok-organic|nom-influenceur… */
+/* ── TRACAGE PUBLICITAIRE ────────────────────────────────────────────────
+   Un lien par publicite : skillora.me/?src=<code>. Ce bloc enregistre le
+   clic, puis garde le code sur l'appareil pour que l'inscription — qui
+   arrivera peut-etre trois jours plus tard — soit rattachee a la bonne
+   publicite. Sans cette memoire, on saurait combien de gens ont clique,
+   jamais combien ont paye.
+   L'identifiant de visiteur est un nombre au hasard : il sert uniquement a
+   ne pas compter trois fois la meme personne qui actualise la page. */
 (function(){try{
-  var q=new URLSearchParams(location.search);var src=(q.get('src')||'').trim().toLowerCase().slice(0,64);
-  if(!src)return;
-  if(!localStorage.getItem('sk_src'))localStorage.setItem('sk_src',src); /* 1er contact gagne */
-  if(!sessionStorage.getItem('sk_src_logged')){
-    sessionStorage.setItem('sk_src_logged','1');
-    fetch('https://fkjqlmtugzdluzshxqsk.supabase.co/rest/v1/marketing_clicks',{method:'POST',
-      headers:{apikey:'sb_publishable_u8BiBh7ciFGr13GPQHLnGQ_f17a_5aA','Content-Type':'application/json',Prefer:'return=minimal'},
-      body:JSON.stringify({ref:src,path:location.pathname})}).catch(function(){});
-  }
+  var q = new URLSearchParams(location.search);
+  var src = (q.get('src') || q.get('utm_campaign') || '').trim().toLowerCase().slice(0,64);
+  if (!src) return;
+
+  /* PREMIER CONTACT GAGNE : si quelqu'un revient plus tard par une autre
+     publicite, on garde celle qui l'a fait decouvrir Skillora. */
+  try { if (!localStorage.getItem('sk_src')) localStorage.setItem('sk_src', src); } catch(e){}
+
+  var vis = null;
+  try {
+    vis = localStorage.getItem('sk_vis');
+    if (!vis) {
+      vis = (Date.now().toString(36) + Math.random().toString(36).slice(2,10));
+      localStorage.setItem('sk_vis', vis);
+    }
+  } catch(e){}
+
+  /* Un seul clic compte par visite : actualiser la page ne gonfle rien. */
+  try { if (sessionStorage.getItem('sk_src_logged')) return;
+        sessionStorage.setItem('sk_src_logged','1'); } catch(e){}
+
+  fetch('https://fkjqlmtugzdluzshxqsk.supabase.co/functions/v1/ad-track', {
+    method: 'POST', keepalive: true,
+    headers: { 'Content-Type': 'application/json',
+               apikey: 'sb_publishable_u8BiBh7ciFGr13GPQHLnGQ_f17a_5aA' },
+    body: JSON.stringify({ code: src, visitor: vis,
+                           referrer: document.referrer || '',
+                           lang: (navigator.language || '') })
+  }).catch(function(){});
 }catch(e){}})();
 </script>
 </body>

@@ -4099,11 +4099,24 @@
   // Enregistre le filleul une fois le compte confirmé (RLS empêche l'auto-parrainage)
   async function recordReferral(user) {
     try {
-      // Source marketing (?src=) -> profiles.ref_source (une seule fois)
-      try { var _src = localStorage.getItem('sk_src');
-        if (_src) { var { data: _pf } = await sb.from('profiles').select('ref_source').eq('id', user.id).single();
-          if (_pf && !_pf.ref_source) await sb.from('profiles').update({ ref_source: _src }).eq('id', user.id);
-          localStorage.removeItem('sk_src'); } } catch(_e){}
+      // ATTRIBUTION PUBLICITAIRE : on relie l'inscription a la publicite qui
+      // a amene la personne. C'est ce chainon qui permet ensuite de dire
+      // « cette publicite a rapporte X abonnes », et pas seulement des clics.
+      // On garde ref_source (l'historique s'en sert) et on renseigne en plus
+      // ad_code + ad_visitor, qui font le lien avec la table des clics.
+      try {
+        var _src = localStorage.getItem('sk_src');
+        var _vis = localStorage.getItem('sk_vis');
+        if (_src) {
+          var { data: _pf } = await sb.from('profiles').select('ref_source, ad_code').eq('id', user.id).single();
+          if (_pf && !_pf.ad_code) {
+            var _patch = { ad_code: _src, ad_visitor: _vis || null };
+            if (!_pf.ref_source) _patch.ref_source = _src;
+            await sb.from('profiles').update(_patch).eq('id', user.id);
+          }
+          localStorage.removeItem('sk_src');
+        }
+      } catch(_e){}
       var ref = localStorage.getItem('skillora_ref');
       if (!ref) return;
       if (!/^[0-9a-fA-F-]{30,40}$/.test(ref) || ref === user.id) { localStorage.removeItem('skillora_ref'); return; }

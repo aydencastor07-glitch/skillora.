@@ -344,7 +344,17 @@
   .pub { padding:84px 0 30px; }
   .pub-grid { display:grid; grid-template-columns:.94fr 1.06fr; gap:48px; align-items:center; }
   /* ===== Héros : segment rotatif (la phrase reste, seul un morceau change) ===== */
+  /* text-wrap:balance egalise la longueur des lignes — parfait sur grand
+     ecran, ou la phrase tient en deux lignes pleines. Sur telephone il fait
+     l'inverse de ce qu'on veut : il RACCOURCIT les lignes pour les egaliser,
+     et le titre se retrouve serre au milieu alors qu'il reste de la place a
+     gauche et a droite. On le desactive sous 760 px, et on retire la coupure
+     forcee pour que le texte occupe toute la largeur. */
   .hero h1 { text-wrap:balance; }
+  @media (max-width:760px) {
+    .hero h1 { text-wrap:normal; max-width:none; }
+    .hero h1 .h1br { display:none; }
+  }
   /* Le segment rotatif garde l'animation, mais plus le degrade : l'accroche
      est entierement blanche. */
   .hero h1 .rotwrap { color:#fff; -webkit-text-fill-color:#fff; }
@@ -946,7 +956,10 @@
      sur un site entierement bleu, c'est ce qui fait qu'on la voit sans la
      chercher. De l'air au-dessus et en dessous, sinon le chiffre se noie
      dans le reste. */
-  .qt { margin:36px 0 30px; display:flex; align-items:flex-start;
+  .qt { margin:32px 0 26px; }
+  .qt-note { margin:0 0 18px; font-size:.78rem; color:var(--muted); line-height:1.5;
+    max-width:46ch; margin-left:auto; margin-right:auto; }
+  .qt-row { display:flex; align-items:flex-start;
     justify-content:center; gap:clamp(26px,8vw,58px); }
   .qt-c { text-align:center; min-width:0; }
   .qt-v { font-family:'Sora',sans-serif; font-weight:800; line-height:1;
@@ -967,7 +980,7 @@
   /* Le compteur avance : un tres court flash sur le chiffre, jamais plus. */
   .qt-v.up { animation:qtUp .6s ease; }
   @keyframes qtUp { 0%{transform:translateY(-3px);opacity:.35} 100%{transform:none;opacity:1} }
-  @media (max-width:360px){ .qt { gap:20px; } .qt-k { font-size:.55rem; letter-spacing:.12em; } }
+  @media (max-width:360px){ .qt-row { gap:20px; } .qt-k { font-size:.55rem; letter-spacing:.12em; } }
 
   /* Prix barre : l'ancien tarif reste visible a cote du nouveau.
      La regle generale « .pr-price span » impose 2,5 rem a TOUT span de la
@@ -1059,20 +1072,6 @@
         <button class="hp-go" type="submit" data-t="hero_go">Copier avec l'IA</button>
       </form>
 
-      <!-- Compteur de places : juste sous la ligne du bouton, pose sur le noir.
-           Rempli par le script en bas de page. -->
-      <div class="qt reveal reveal-d2" id="qt" style="display:none;">
-        <div class="qt-c left">
-          <span class="qt-v" id="qtLeft">—</span>
-          <span class="qt-k" data-t="qt_left">Places restantes</span>
-        </div>
-        <div class="qt-sep"></div>
-        <div class="qt-c">
-          <span class="qt-v" id="qtIn"><i class="qt-d"></i>—</span>
-          <span class="qt-k" data-t="qt_in">Inscrits ce mois-ci</span>
-        </div>
-      </div>
-
       <!-- Animation « Copier avec l'IA » : exactement celle de l'app (voir app.html #copyAnim).
            100 % locale, aucun appel à nos fonctions IA -> ne coûte aucun crédit.
            À la fin, on envoie le visiteur sur l'inscription. -->
@@ -1085,11 +1084,33 @@
           <div class="ca-hint" data-t="ca_hint">On reconstruit le plan exact pour la refaire — images, prompts, montage.</div>
         </div>
       </div>
+      <!-- Les plateformes viennent juste apres le champ : elles disent ce que
+           le lien peut etre. Le compteur passe apres — c'est un argument, pas
+           une explication du produit. -->
       <div class="hero-plats reveal reveal-d3">
         <span class="hplat"><i class="hp-chip" style="background:#010101" data-pi="tiktok"></i>TikTok</span>
         <span class="hplat"><i class="hp-chip" data-pi="youtube"></i>YouTube</span>
         <span class="hplat"><i class="hp-chip" data-pi="instagram"></i>Instagram</span>
         <span class="hplat"><i class="hp-chip" style="background:#1877F2" data-pi="facebook"></i>Facebook</span>
+      </div>
+
+      <!-- Compteur de places. La ligne du dessus dit CE QUE COMPTENT ces deux
+           chiffres : sans elle, « 28 » et « 972 » ne veulent rien dire pour
+           quelqu'un qui arrive de la publicite. Rempli par le script en bas
+           de page. -->
+      <div class="qt reveal reveal-d2" id="qt" style="display:none;">
+        <p class="qt-note" data-t="qt_note">Skillora n'ouvre que 1 000 places par mois.</p>
+        <div class="qt-row">
+          <div class="qt-c left">
+            <span class="qt-v" id="qtLeft">—</span>
+            <span class="qt-k" data-t="qt_left">Places restantes</span>
+          </div>
+          <div class="qt-sep"></div>
+          <div class="qt-c">
+            <span class="qt-v" id="qtIn"><i class="qt-d"></i>—</span>
+            <span class="qt-k" data-t="qt_in">Inscrits ce mois-ci</span>
+          </div>
+        </div>
       </div>
     </div>
 

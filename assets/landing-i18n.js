@@ -7,7 +7,7 @@
   var D = {};
 
   D.fr = {
-    qt_l:"Places ce mois-ci",qt_reste:"Il reste <b>{n}</b> places ce mois-ci.",pr_save:"Économise 40 %",
+    qt_left:"Places restantes",qt_in:"Inscrits ce mois-ci",pr_save:"Économise 40 %",
     up_s1:"Analyse de ta vidéo…",up_s2:"Coupes & rythme ✂️",up_s3:"Sous-titres dynamiques 💬",up_s4:"Colorimétrie & son 🎨",up_s5:"Derniers réglages…",up_ok:"Prête ✅ Crée ton compte pour la récupérer",
     pr_badge:"Accès complet",pr_per:"/ mois",
     ro_img:"Images",ro_clip:"Clips",ro_voice:"Voix off",ro_edit:"Montage",ro_anim:"Animation",sc_script:"Lecture du script",sc_rythm:"Analyse du rythme",sc_color:"Étalonnage des couleurs",
@@ -74,7 +74,7 @@
   };
 
   D.en = {
-    qt_l:"Spots this month",qt_reste:"<b>{n}</b> spots left this month.",pr_save:"Save 40%",
+    qt_left:"Spots left",qt_in:"Signed up this month",pr_save:"Save 40%",
     up_s1:"Analysing your video…",up_s2:"Cuts & rhythm ✂️",up_s3:"Dynamic subtitles 💬",up_s4:"Colour & sound 🎨",up_s5:"Final touches…",up_ok:"Ready ✅ Create your account to get it",
     pr_badge:"Full access",pr_per:"/ month",
     ro_img:"Images",ro_clip:"Clips",ro_voice:"Voice-over",ro_edit:"Editing",ro_anim:"Animation",sc_script:"Reading the script",sc_rythm:"Analysing the rhythm",sc_color:"Colour grading",
@@ -141,7 +141,7 @@
   };
 
   D.es = {
-    qt_l:"Plazas este mes",qt_reste:"Quedan <b>{n}</b> plazas este mes.",pr_save:"Ahorra 40 %",
+    qt_left:"Plazas libres",qt_in:"Inscritos este mes",pr_save:"Ahorra 40 %",
     up_s1:"Analizando tu video…",up_s2:"Cortes y ritmo ✂️",up_s3:"Subtítulos dinámicos 💬",up_s4:"Color y sonido 🎨",up_s5:"Últimos ajustes…",up_ok:"Lista ✅ Crea tu cuenta para obtenerla",
     pr_badge:"Acceso completo",pr_per:"/ mes",
     ro_img:"Imágenes",ro_clip:"Clips",ro_voice:"Voz en off",ro_edit:"Edición",ro_anim:"Animación",sc_script:"Lectura del guion",sc_rythm:"Análisis del ritmo",sc_color:"Etalonaje de color",
@@ -208,7 +208,7 @@
   };
 
   D.pt = {
-    qt_l:"Vagas este mês",qt_reste:"Restam <b>{n}</b> vagas este mês.",pr_save:"Poupa 40 %",
+    qt_left:"Vagas livres",qt_in:"Inscritos este mês",pr_save:"Poupa 40 %",
     up_s1:"A analisar o teu vídeo…",up_s2:"Cortes e ritmo ✂️",up_s3:"Legendas dinâmicas 💬",up_s4:"Cor e som 🎨",up_s5:"Últimos ajustes…",up_ok:"Pronta ✅ Cria a tua conta para a obteres",
     pr_badge:"Acesso completo",pr_per:"/ mês",
     ro_img:"Imagens",ro_clip:"Clipes",ro_voice:"Voz off",ro_edit:"Edição",ro_anim:"Animação",sc_script:"Leitura do roteiro",sc_rythm:"Análise do ritmo",sc_color:"Correção de cor",
@@ -275,7 +275,7 @@
   };
 
   D.de = {
-    qt_l:"Plätze diesen Monat",qt_reste:"Noch <b>{n}</b> Plätze diesen Monat.",pr_save:"Spare 40 %",
+    qt_left:"Freie Plätze",qt_in:"Anmeldungen",pr_save:"Spare 40 %",
     up_s1:"Dein Video wird analysiert…",up_s2:"Schnitte & Rhythmus ✂️",up_s3:"Dynamische Untertitel 💬",up_s4:"Farbe & Ton 🎨",up_s5:"Letzte Feinheiten…",up_ok:"Fertig ✅ Erstelle dein Konto, um es zu holen",
     pr_badge:"Voller Zugang",pr_per:"/ Monat",
     ro_img:"Bilder",ro_clip:"Clips",ro_voice:"Voice-over",ro_edit:"Schnitt",ro_anim:"Animation",sc_script:"Skript wird gelesen",sc_rythm:"Rhythmus wird analysiert",sc_color:"Farbkorrektur",

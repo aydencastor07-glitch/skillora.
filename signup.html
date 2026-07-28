@@ -406,16 +406,14 @@
   }
 
   /* Rang d'inscription : ce que la personne voit juste apres avoir cree son
-     compte. Sobre, une seule ligne forte — pas de confettis. */
-  .rang { margin:0 0 1.3rem; padding:16px 18px; border-radius:16px; text-align:center;
-    background:linear-gradient(160deg,rgba(47,123,255,.14),rgba(61,220,132,.06));
-    border:1px solid rgba(94,155,255,.34); }
-  .rang-n { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; line-height:1;
-    background:linear-gradient(96deg,#5e9bff,#8f7bff 60%,#5ee79c);
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-.02em; }
-  .rang-f { font-size:.72rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase;
-    color:#5ee79c; margin-bottom:9px; }
-  .rang-t { font-size:.86rem; color:#dfe7f5; font-weight:600; margin-top:6px; }
+     compte. Pose sur le fond, SANS encadre — le chiffre porte tout seul, et
+     c'est exactement la meme presentation que dans l'app (app.html, .obr). */
+  .rang { margin:0 0 1.6rem; text-align:center; }
+  .rang-n { font-family:'Syne',sans-serif; font-weight:800; font-size:2.6rem; line-height:1;
+    color:#fff; letter-spacing:-.035em; margin:11px 0 9px; }
+  .rang-f { font-size:.7rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase;
+    color:#5ee79c; }
+  .rang-t { font-size:.86rem; color:#dfe7f5; font-weight:600; }
   .rang-s { font-size:.75rem; color:var(--muted); margin-top:5px; line-height:1.5; }
 </style>
 <script>

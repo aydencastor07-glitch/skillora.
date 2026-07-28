@@ -193,7 +193,10 @@
   @media (max-width:560px) { .hero-paste { max-width:100%; padding-left:13px; } .hero-paste .hp-go { padding:11px 15px; font-size:.84rem; } .hero-plats { gap:9px 14px; margin-top:26px; } .hplat { font-size:.74rem; gap:6px; } .hplat .hp-chip { width:22px; height:22px; border-radius:7px; } }
   .kicker { display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--blue-light); background:rgba(47,123,255,0.1); border:1px solid rgba(47,123,255,0.24); padding:6px 13px; border-radius:999px; margin-bottom:18px; }
   /* Titre : plus fin et plus aéré (fini le gros bloc lourd) */
-  .hero h1 { font-size:clamp(1.62rem,3.5vw,2.55rem); font-weight:600; letter-spacing:-0.022em; line-height:1.3; max-width:24ch; margin:0 auto; color:#e9eefb; }
+  /* Accroche : typographie lourde et serree, tout en blanc. Le poids et la
+     taille portent le message — plus besoin de couleur pour attirer l'oeil,
+     et le regard n'est plus partage entre trois teintes. */
+  .hero h1 { font-size:clamp(1.98rem,5.4vw,3.05rem); font-weight:800; letter-spacing:-0.035em; line-height:1.1; max-width:900px; margin:0 auto; color:#fff; }
   .hero h1 .hl { color:var(--blue-light); }
   .typed-line { margin-top:16px; font-family:'Sora',sans-serif; font-weight:700; font-size:clamp(1.02rem,2.6vw,1.3rem); color:var(--green); min-height:1.5em; letter-spacing:-0.01em; }
   .typed-caret { display:inline-block; width:2px; height:1.05em; background:var(--green); margin-left:2px; vertical-align:-0.15em; animation:caretBlink 1s step-end infinite; }
@@ -232,7 +235,7 @@
   @media (min-width:901px) and (max-height:780px) {
     .hero { padding:16px 0 14px; }
     .kicker { margin-bottom:12px; padding:5px 11px; }
-    .hero h1 { font-size:clamp(1.65rem, 2.7vw, 2.15rem); }
+    .hero h1 { font-size:clamp(1.85rem, 3.4vw, 2.5rem); }
     .hero-sub { font-size:.88rem; margin-top:11px; line-height:1.55; max-width:440px; }
     .hero-how { margin-top:14px; gap:6px; }
     .hero-how .hh { font-size:.72rem; padding:6px 11px; }
@@ -342,7 +345,9 @@
   .pub-grid { display:grid; grid-template-columns:.94fr 1.06fr; gap:48px; align-items:center; }
   /* ===== Héros : segment rotatif (la phrase reste, seul un morceau change) ===== */
   .hero h1 { text-wrap:balance; }
-  .hero h1 .rotwrap { background:linear-gradient(120deg,#8db8ff 10%,#4d8fff 45%,#8b5cf6 95%); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+  /* Le segment rotatif garde l'animation, mais plus le degrade : l'accroche
+     est entierement blanche. */
+  .hero h1 .rotwrap { color:#fff; -webkit-text-fill-color:#fff; }
   .hero h1 .rotwrap .typed-caret { -webkit-text-fill-color:initial; }
   .hl-brand { background:linear-gradient(120deg,#8db8ff 5%,#4d8fff 55%,#7c8cff 100%); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
   .tst .sec-head h2 { letter-spacing:-0.03em; line-height:1.14; text-wrap:balance; max-width:30ch; margin-inline:auto; }
@@ -932,30 +937,37 @@
     .nav-burger { display:flex; }
   }
 
-  /* ═══ QUOTA MENSUEL ════════════════════════════════════════════════════
-     Place sous l'accroche, la ou le regard tombe apres avoir lu la promesse
-     — pas tout en haut, ou il passerait pour un bandeau publicitaire.
-     Sobre : une ligne, une jauge, un chiffre. Rien qui clignote. */
-  .qt { margin:18px 0 4px; padding:14px 16px; border-radius:16px; max-width:430px;
-    background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
-    border:1px solid var(--border); }
-  .qt-h { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
-  .qt-l { display:inline-flex; align-items:center; gap:7px; font-size:.76rem; font-weight:600; color:var(--muted); }
-  .qt-l i { width:6px; height:6px; border-radius:50%; background:#3ddc84; flex:none;
-    box-shadow:0 0 0 3px rgba(61,220,132,.16); animation:qtP 2.4s ease-in-out infinite; }
-  @keyframes qtP { 0%,100%{opacity:1} 50%{opacity:.35} }
-  .qt-n { font-family:'Sora',sans-serif; font-weight:800; font-size:.95rem; color:#fff; letter-spacing:-.02em;
-    font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .qt-n b { color:#fff; } .qt-n span { color:var(--muted2); font-weight:600; }
-  .qt-b { height:7px; border-radius:99px; background:rgba(255,255,255,.07); overflow:hidden; }
-  .qt-b i { display:block; height:100%; border-radius:99px; width:0;
-    background:linear-gradient(90deg,#2f7bff,#5e9bff 60%,#8f7bff);
-    transition:width 1.1s cubic-bezier(.2,.8,.3,1); }
-  .qt-s { margin-top:9px; font-size:.72rem; color:var(--muted2); }
-  .qt-s b { color:#8fc0ff; font-weight:700; }
-  /* Le compteur bouge : un tres court flash sur le chiffre, jamais plus. */
-  .qt-n.up { animation:qtUp .5s ease; }
-  @keyframes qtUp { 0%{color:#5ee79c;transform:translateY(-1px)} 100%{color:#fff;transform:none} }
+  /* ═══ COMPTEUR DE PLACES ═══════════════════════════════════════════════
+     Un vrai compteur, pas une carte : AUCUN fond, AUCUNE bordure. Deux gros
+     chiffres poses directement sur le noir, chacun sous sa legende — la meme
+     lecture qu'un minuteur.
+
+     Les places restantes sont en AMBRE, la seule couleur chaude de la page :
+     sur un site entierement bleu, c'est ce qui fait qu'on la voit sans la
+     chercher. De l'air au-dessus et en dessous, sinon le chiffre se noie
+     dans le reste. */
+  .qt { margin:36px 0 30px; display:flex; align-items:flex-start;
+    justify-content:center; gap:clamp(26px,8vw,58px); }
+  .qt-c { text-align:center; min-width:0; }
+  .qt-v { font-family:'Sora',sans-serif; font-weight:800; line-height:1;
+    font-size:clamp(2.35rem,8.4vw,3.25rem); letter-spacing:-.045em; color:#fff;
+    font-variant-numeric:tabular-nums; display:block; }
+  .qt-c.left .qt-v { color:#ffb020; text-shadow:0 0 34px rgba(255,176,32,.34); }
+  .qt-k { display:block; margin-top:9px; font-size:.6rem; font-weight:700;
+    letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.42);
+    line-height:1.45; max-width:15ch; margin-left:auto; margin-right:auto; }
+  /* Le trait qui separe les deux compteurs : un cheveu, pas une boite. */
+  .qt-sep { width:1px; align-self:stretch; margin-top:6px; margin-bottom:22px;
+    background:linear-gradient(180deg,transparent,rgba(255,255,255,.16),transparent); }
+  /* Point vivant : dit que le chiffre bouge vraiment, sans rien encadrer. */
+  .qt-d { display:inline-block; width:7px; height:7px; border-radius:50%;
+    background:#3ddc84; margin-right:9px; vertical-align:middle;
+    box-shadow:0 0 0 4px rgba(61,220,132,.14); animation:qtP 2.4s ease-in-out infinite; }
+  @keyframes qtP { 0%,100%{opacity:1} 50%{opacity:.3} }
+  /* Le compteur avance : un tres court flash sur le chiffre, jamais plus. */
+  .qt-v.up { animation:qtUp .6s ease; }
+  @keyframes qtUp { 0%{transform:translateY(-3px);opacity:.35} 100%{transform:none;opacity:1} }
+  @media (max-width:360px){ .qt { gap:20px; } .qt-k { font-size:.55rem; letter-spacing:.12em; } }
 
   /* Prix barre : l'ancien tarif reste visible a cote du nouveau.
      La regle generale « .pr-price span » impose 2,5 rem a TOUT span de la
@@ -1047,15 +1059,18 @@
         <button class="hp-go" type="submit" data-t="hero_go">Copier avec l'IA</button>
       </form>
 
-      <!-- Quota mensuel : sous l'accroche, la ou le regard tombe apres avoir
-           lu la promesse. Rempli par le script en bas de page. -->
+      <!-- Compteur de places : juste sous la ligne du bouton, pose sur le noir.
+           Rempli par le script en bas de page. -->
       <div class="qt reveal reveal-d2" id="qt" style="display:none;">
-        <div class="qt-h">
-          <span class="qt-l"><i></i><span data-t="qt_l">Places ce mois-ci</span></span>
-          <span class="qt-n" id="qtN"><b>—</b> <span>/ 1000</span></span>
+        <div class="qt-c left">
+          <span class="qt-v" id="qtLeft">—</span>
+          <span class="qt-k" data-t="qt_left">Places restantes</span>
         </div>
-        <div class="qt-b"><i id="qtB"></i></div>
-        <div class="qt-s" id="qtS"></div>
+        <div class="qt-sep"></div>
+        <div class="qt-c">
+          <span class="qt-v" id="qtIn"><i class="qt-d"></i>—</span>
+          <span class="qt-k" data-t="qt_in">Inscrits ce mois-ci</span>
+        </div>
       </div>
 
       <!-- Animation « Copier avec l'IA » : exactement celle de l'app (voir app.html #copyAnim).
@@ -1928,7 +1943,7 @@
   var SB = 'https://fkjqlmtugzdluzshxqsk.supabase.co';
   var KEY = 'sb_publishable_u8BiBh7ciFGr13GPQHLnGQ_f17a_5aA';
   var boite = document.getElementById('qt'); if (!boite) return;
-  var elN = document.getElementById('qtN'), elB = document.getElementById('qtB'), elS = document.getElementById('qtS');
+  var elIn = document.getElementById('qtIn'), elLeft = document.getElementById('qtLeft');
   var cfg = { quota:1000, depart:588, par_heure:12, actif:true };
   var moisCle = new Date().toISOString().slice(0,7);       // « 2026-07 »
   var valeur = 0, minuteur = null, plafondVisite = 0;
@@ -1969,12 +1984,13 @@
 
   function afficher(anime){
     var reste = Math.max(0, cfg.quota - valeur);
-    elN.innerHTML = '<b>' + valeur + '</b> <span>/ ' + cfg.quota + '</span>';
-    if (anime){ elN.classList.remove('up'); void elN.offsetWidth; elN.classList.add('up'); }
-    elB.style.width = Math.min(100, (valeur / cfg.quota) * 100) + '%';
-    // La traduction porte deja le <b> autour de {n} : on n'insere que le nombre.
-    var t = (window.skT ? skT('qt_reste') : 'Il reste <b>{n}</b> places ce mois-ci.');
-    elS.innerHTML = t.replace('{n}', String(reste));
+    elLeft.textContent = String(reste);
+    // Le point vert vit dans le chiffre des inscrits : il doit survivre a
+    // chaque mise a jour, donc on le reecrit avec.
+    elIn.innerHTML = '<i class="qt-d"></i>' + valeur;
+    if (anime) [elLeft, elIn].forEach(function(el){
+      el.classList.remove('up'); void el.offsetWidth; el.classList.add('up');
+    });
   }
 
   /* Montee lente et irreguliere pendant la visite : par defaut un pas toutes

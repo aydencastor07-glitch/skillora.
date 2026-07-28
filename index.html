@@ -792,9 +792,16 @@
   .pr-card { max-width:520px; margin:0 auto; position:relative; padding:30px 26px 26px; border-radius:24px;
     background:linear-gradient(180deg,rgba(47,123,255,.09),rgba(255,255,255,.02) 46%,rgba(255,255,255,.012));
     border:1px solid rgba(94,155,255,.3); box-shadow:0 34px 80px -34px rgba(47,123,255,.55), inset 0 1px 0 rgba(255,255,255,.06); }
-  .pr-card::before { content:'✨ Accès complet'; position:absolute; top:-13px; left:50%; transform:translateX(-50%);
-    padding:6px 15px; border-radius:999px; font-family:'Sora',sans-serif; font-weight:800; font-size:.68rem; white-space:nowrap;
-    background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff; box-shadow:0 10px 22px -8px rgba(47,123,255,.85); }
+  /* Le badge etait un pseudo-element CSS : sans noeud dans la page, il ne
+     pouvait ni etre traduit ni accueillir le logo. C'est un vrai element
+     maintenant — la marque remplace l'emoji. */
+  .pr-badge { position:absolute; top:-15px; left:50%; transform:translateX(-50%);
+    display:inline-flex; align-items:center; gap:8px; padding:7px 17px 7px 8px; border-radius:999px;
+    font-family:'Sora',sans-serif; font-weight:800; font-size:.72rem; letter-spacing:.01em; white-space:nowrap;
+    background:linear-gradient(135deg,#4d8fff,#1a6fff); color:#fff;
+    box-shadow:0 10px 22px -8px rgba(47,123,255,.85), inset 0 1px 0 rgba(255,255,255,.22); }
+  .pr-badge img { width:22px; height:22px; border-radius:7px; flex:none; object-fit:cover;
+    box-shadow:0 2px 6px -1px rgba(0,0,0,.5); }
   .pr-top { display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding:6px 0 20px; border-bottom:1px solid rgba(255,255,255,.09); }
   .pr-name { font-family:'Sora',sans-serif; font-weight:800; font-size:1.15rem; color:#eaf1ff; letter-spacing:-.01em; }
   .pr-price { display:flex; align-items:baseline; gap:2px; font-family:'Sora',sans-serif; font-weight:800; color:#fff; }
@@ -1162,9 +1169,10 @@
   </div>
   <div class="wrap">
     <div class="pr-card reveal">
+      <div class="pr-badge"><img src="/apple-touch-icon.png" alt="" onerror="this.style.display='none'"><span data-t="pr_badge">Accès complet</span></div>
       <div class="pr-top">
         <div class="pr-name">Pro</div>
-        <div class="pr-price"><sup>$</sup><span>30</span><em>/ mois</em></div>
+        <div class="pr-price"><sup>$</sup><span>30</span><em data-t="pr_per">/ mois</em></div>
       </div>
 
       <ul class="pr-list">
@@ -1585,7 +1593,7 @@
           '<div class="dz-bar"><span id="dzFill"></span></div>' +
           '<div class="dz-pct" id="dzPct">0%</div>' +
         '</div>';
-      var steps = ['Analyse de ta vidéo…', 'Coupes & rythme ✂️', 'Sous-titres dynamiques 💬', 'Colorimétrie & son 🎨', 'Derniers réglages…'];
+      var steps = [skT('up_s1'), skT('up_s2'), skT('up_s3'), skT('up_s4'), skT('up_s5')];
       var t0 = Date.now(), DUR = 3600;
       var iv = setInterval(function(){
         var p = Math.min(100, Math.round((Date.now() - t0) / DUR * 100));
@@ -1595,7 +1603,7 @@
         if (st && p < 100) st.textContent = steps[Math.min(steps.length - 1, Math.floor(p / (100 / steps.length)))];
         if (p >= 100) {
           clearInterval(iv);
-          if (st) st.textContent = 'Prête ✅ Crée ton compte pour la récupérer';
+          if (st) st.textContent = skT('up_ok');
           setTimeout(function(){ window.location.href = 'signup.html'; }, 1100);
         }
       }, 60);

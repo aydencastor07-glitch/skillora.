@@ -1,5 +1,14 @@
-// SKILLORA — statistiques business (mode dev). Réservé au propriétaire :
-// vérifie l'email du JWT puis lit tout avec le service-role.
+// SKILLORA — poste de pilotage du proprietaire.
+// ============================================
+// Une seule porte d'entree pour tout l'espace dev : vue d'ensemble, liste des
+// membres, entonnoir publicitaire, gestion des liens de campagne.
+//
+// SECURITE : l'email du jeton doit figurer dans OWNERS. Tout est ensuite lu
+// avec la cle de service — jamais depuis le navigateur, ou n'importe qui
+// pourrait recuperer la liste des membres.
+//
+// Les agregats lourds sont calcules EN BASE (fonctions admin_*) : a mille
+// membres, tout telecharger pour compter en JavaScript deviendrait lent.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -9,12 +18,28 @@ const cors = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 const OWNERS = ["aydencastor07@gmail.com", "aydencastor1020@gmail.com"];
-// Prix mensuels ($) ; l'annuel est ramené au mois (250/12…)
-const PRICE_M: Record<string, number> = { starter: 25, growth: 49, elite: 89 };
-const PRICE_Y: Record<string, number> = { starter: 250, growth: 490, elite: 890 };
+const PRIX_MENSUEL = 30;   // USD — l'offre unique
 
 function json(o: unknown, s = 200) {
   return new Response(JSON.stringify(o), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
+}
+
+/* Bornes de la periode demandee. « mois » accepte « 2026-07 » pour revenir
+   sur un mois precis. */
+function periode(p: Record<string, unknown>) {
+  const now = new Date();
+  const t = String(p.periode || "30j");
+  if (t === "mois" && /^\d{4}-\d{2}$/.test(String(p.mois || ""))) {
+    const [a, m] = String(p.mois).split("-").map(Number);
+    return { from: new Date(Date.UTC(a, m - 1, 1)), to: new Date(Date.UTC(a, m, 1)) };
+  }
+  const fin = new Date(now.getTime() + 86400000);
+  if (t === "tout") return { from: new Date("2020-01-01"), to: fin };
+  const jours: Record<string, number> = { "auj": 1, "7j": 7, "30j": 30, "90j": 90, "365j": 365 };
+  const n = jours[t] ?? 30;
+  const deb = new Date(now); deb.setUTCHours(0, 0, 0, 0);
+  deb.setUTCDate(deb.getUTCDate() - (n - 1));
+  return { from: deb, to: fin };
 }
 
 serve(async (req) => {
@@ -26,69 +51,101 @@ serve(async (req) => {
     const email = (u?.user?.email || "").toLowerCase();
     if (!OWNERS.includes(email)) return json({ success: false, error: "Réservé au propriétaire." }, 403);
 
-    const now = new Date();
-    const dayMs = 86400000;
-    const d1 = new Date(now.getTime() - dayMs).toISOString();
-    const d7 = new Date(now.getTime() - 7 * dayMs).toISOString();
-    const d30 = new Date(now.getTime() - 30 * dayMs).toISOString();
+    const body = await req.json().catch(() => ({} as Record<string, unknown>));
+    const action = String(body.action || "tableau");
+    const { from, to } = periode(body);
 
-    // ── Membres ──────────────────────────────────────────────────────────────
-    const { count: usersTotal } = await admin.from("profiles").select("id", { count: "exact", head: true });
-    const { count: users24h } = await admin.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", d1);
-    const { count: users7d } = await admin.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", d7);
-
-    const { data: recent } = await admin.from("profiles")
-      .select("id,email,created_at,ref_source,country")
-      .order("created_at", { ascending: false }).limit(12);
-
-    // Inscriptions / jour (30 j)
-    const { data: p30 } = await admin.from("profiles").select("created_at").gte("created_at", d30);
-    const byDay: Record<string, number> = {};
-    for (let i = 29; i >= 0; i--) byDay[new Date(now.getTime() - i * dayMs).toISOString().slice(0, 10)] = 0;
-    (p30 || []).forEach((r) => { const k = String(r.created_at).slice(0, 10); if (k in byDay) byDay[k]++; });
-
-    // ── Abonnements / revenus ────────────────────────────────────────────────
-    const { data: subs } = await admin.from("subscriptions")
-      .select("user_id,plan,billing,status,created_at,current_period_end");
-    const active = (subs || []).filter((s) =>
-      ["active", "trialing", "completed"].includes(String(s.status || "").toLowerCase()) &&
-      (!s.current_period_end || new Date(s.current_period_end) > now));
-    let mrr = 0;
-    const byPlan: Record<string, number> = {};
-    const paidUsers = new Set<string>();
-    for (const s of active) {
-      const p = String(s.plan || "").toLowerCase();
-      const yearly = String(s.billing || "").toLowerCase().startsWith("ann") || String(s.billing || "").toLowerCase() === "y";
-      mrr += yearly ? (PRICE_Y[p] || 0) / 12 : (PRICE_M[p] || 0);
-      byPlan[p] = (byPlan[p] || 0) + 1;
-      if (s.user_id) paidUsers.add(String(s.user_id));
+    // ── Creer un lien publicitaire ────────────────────────────────────────
+    if (action === "pub_creer") {
+      const code = String(body.code || "").trim().toLowerCase().slice(0, 60);
+      if (!/^[a-z0-9._-]{2,60}$/.test(code)) {
+        return json({ success: false, error: "Le code ne peut contenir que des lettres, chiffres, tirets et points." }, 400);
+      }
+      const { data, error } = await admin.from("ad_campaigns").insert({
+        code,
+        name: String(body.nom || code).slice(0, 120),
+        platform: String(body.plateforme || "other").slice(0, 30),
+        destination: String(body.destination || "/").slice(0, 120),
+        spend: Number(body.depense) || 0,
+        currency: String(body.devise || "USD").slice(0, 6),
+        note: body.note ? String(body.note).slice(0, 500) : null,
+      }).select("id, code").single();
+      if (error) {
+        const dup = String(error.message || "").includes("duplicate");
+        return json({ success: false, error: dup ? "Ce code existe déjà — choisis-en un autre." : error.message }, 400);
+      }
+      return json({ success: true, campagne: data });
     }
-    const newSubs24h = (subs || []).filter((s) => s.created_at >= d1).length;
-    const newSubs7d = (subs || []).filter((s) => s.created_at >= d7).length;
 
-    // ── Canaux marketing (clics / inscrits / payants par ?src=) ─────────────
-    const { data: clicks } = await admin.from("marketing_clicks").select("ref,created_at").gte("created_at", d30);
-    const { data: srcProfiles } = await admin.from("profiles").select("id,ref_source").not("ref_source", "is", null);
-    const channels: Record<string, { clicks: number; clicks7d: number; signups: number; paying: number }> = {};
-    const ch = (k: string) => channels[k] || (channels[k] = { clicks: 0, clicks7d: 0, signups: 0, paying: 0 });
-    (clicks || []).forEach((c) => { const e = ch(String(c.ref)); e.clicks++; if (c.created_at >= d7) e.clicks7d++; });
-    (srcProfiles || []).forEach((p) => {
-      const e = ch(String(p.ref_source)); e.signups++;
-      if (paidUsers.has(String(p.id))) e.paying++;
+    if (action === "pub_maj") {
+      const patch: Record<string, unknown> = {};
+      if (body.nom !== undefined) patch.name = String(body.nom).slice(0, 120);
+      if (body.plateforme !== undefined) patch.platform = String(body.plateforme).slice(0, 30);
+      if (body.depense !== undefined) patch.spend = Number(body.depense) || 0;
+      if (body.note !== undefined) patch.note = String(body.note).slice(0, 500);
+      if (body.archive !== undefined) patch.archived = !!body.archive;
+      if (!Object.keys(patch).length) return json({ success: false, error: "Rien à modifier." }, 400);
+      const { error } = await admin.from("ad_campaigns").update(patch).eq("id", String(body.id));
+      if (error) return json({ success: false, error: error.message }, 400);
+      return json({ success: true });
+    }
+
+    if (action === "pub_supprimer") {
+      const { error } = await admin.from("ad_campaigns").delete().eq("id", String(body.id));
+      if (error) return json({ success: false, error: error.message }, 400);
+      return json({ success: true });
+    }
+
+    // ── Liste des membres (paginee, filtrable) ────────────────────────────
+    if (action === "membres") {
+      const { data, error } = await admin.rpc("admin_membres", {
+        p_limit: Number(body.limite) || 50,
+        p_offset: Number(body.decalage) || 0,
+        p_q: body.recherche ? String(body.recherche).slice(0, 80) : null,
+        p_plan: String(body.plan || "tous"),
+      });
+      if (error) return json({ success: false, error: error.message }, 500);
+      return json({ success: true, ...(data as Record<string, unknown>) });
+    }
+
+    // ── Tableau de bord complet ───────────────────────────────────────────
+    const [apercu, pubs, membres] = await Promise.all([
+      admin.rpc("admin_overview", { p_from: from.toISOString(), p_to: to.toISOString() }),
+      admin.rpc("admin_pubs", { p_from: from.toISOString(), p_to: to.toISOString() }),
+      admin.rpc("admin_membres", { p_limit: 12, p_offset: 0, p_q: null, p_plan: "tous" }),
+    ]);
+    if (apercu.error) return json({ success: false, error: apercu.error.message }, 500);
+
+    // Le retour sur investissement se calcule ici, pas en base : il depend du
+    // prix courant, qui peut changer sans qu'on ait a reecrire une migration.
+    const campagnes = ((pubs.data as Record<string, unknown>[]) || []).map((c) => {
+      const clics = Number(c.clics) || 0;
+      const inscrits = Number(c.inscrits) || 0;
+      const payants = Number(c.payants) || 0;
+      const depense = Number(c.depense) || 0;
+      const revenu = payants * PRIX_MENSUEL;
+      return {
+        ...c,
+        revenu,
+        // Sur 100 clics, combien creent un compte.
+        taux_inscription: clics ? +(inscrits * 100 / clics).toFixed(1) : 0,
+        // Sur 100 inscrits, combien passent Pro.
+        taux_paiement: inscrits ? +(payants * 100 / inscrits).toFixed(1) : 0,
+        // Les seuls chiffres qui disent vraiment si une publicite vaut la peine.
+        cout_inscription: inscrits ? +(depense / inscrits).toFixed(2) : null,
+        cout_client: payants ? +(depense / payants).toFixed(2) : null,
+        roi: depense > 0 ? +(((revenu - depense) / depense) * 100).toFixed(0) : null,
+      };
     });
 
     return json({
       success: true,
-      generated_at: now.toISOString(),
-      users: { total: usersTotal || 0, last24h: users24h || 0, last7d: users7d || 0, by_day: byDay },
-      revenue: {
-        mrr: Math.round(mrr * 100) / 100,
-        arr: Math.round(mrr * 12 * 100) / 100,
-        active_subs: active.length, by_plan: byPlan,
-        new_subs_24h: newSubs24h, new_subs_7d: newSubs7d,
-      },
-      channels,
-      recent: recent || [],
+      periode: { debut: from.toISOString(), fin: to.toISOString(), type: String(body.periode || "30j") },
+      apercu: apercu.data,
+      campagnes,
+      derniers: (membres.data as Record<string, unknown>)?.lignes || [],
+      prix_mensuel: PRIX_MENSUEL,
+      genere_le: new Date().toISOString(),
     });
   } catch (e) {
     return json({ success: false, error: String((e as Error)?.message || e) }, 500);

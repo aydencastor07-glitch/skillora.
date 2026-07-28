@@ -404,6 +404,19 @@
     font-size: 3rem;
     margin-bottom: 1rem;
   }
+
+  /* Rang d'inscription : ce que la personne voit juste apres avoir cree son
+     compte. Sobre, une seule ligne forte — pas de confettis. */
+  .rang { margin:0 0 1.3rem; padding:16px 18px; border-radius:16px; text-align:center;
+    background:linear-gradient(160deg,rgba(47,123,255,.14),rgba(61,220,132,.06));
+    border:1px solid rgba(94,155,255,.34); }
+  .rang-n { font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; line-height:1;
+    background:linear-gradient(96deg,#5e9bff,#8f7bff 60%,#5ee79c);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-.02em; }
+  .rang-f { font-size:.72rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase;
+    color:#5ee79c; margin-bottom:9px; }
+  .rang-t { font-size:.86rem; color:#dfe7f5; font-weight:600; margin-top:6px; }
+  .rang-s { font-size:.75rem; color:var(--muted); margin-top:5px; line-height:1.5; }
 </style>
 <script>
   /* PAGE STABLE — la mise en page ne doit JAMAIS pouvoir etre deplacee au doigt.
@@ -492,6 +505,13 @@
     <!-- STEP 2 — TEMPS DISPONIBLE -->
     <div class="step-panel" id="step2">
       <div style="text-align:center;padding:.5rem 0;">
+        <!-- Rang d'inscription, rempli par le script plus bas. -->
+        <div class="rang" id="rangBox" style="display:none;">
+          <div class="rang-f" id="rangF"></div>
+          <div class="rang-n" id="rangN">—</div>
+          <div class="rang-t" id="rangT"></div>
+          <div class="rang-s" id="rangS"></div>
+        </div>
         <div style="font-size:3.4rem;margin-bottom:1rem;">📬</div>
         <div class="step-title" style="margin-bottom:.6rem;">Confirme ton email</div>
         <div class="step-subtitle" style="margin-bottom:1.5rem;">
@@ -702,6 +722,68 @@
     }
   }
 
+</script>
+
+<script>
+/* Le rang d'inscription, retenu sur la page d'accueil au moment du clic.
+   On l'affiche une fois le compte cree : la personne voit qu'elle a pris une
+   place, pas qu'elle en cherche une. Si elle est arrivee directement ici sans
+   passer par l'accueil, on recalcule le meme rang au lieu de ne rien montrer
+   (voir rangDeSecours). */
+(function(){
+  var T = {
+    fr:{f:"Félicitations 🎉", t:"{n}e personne inscrite ce mois-ci", s:"Il restait {r} places sur {q}. La tienne est gardée."},
+    en:{f:"Congratulations 🎉", t:"{n} signup this month",          s:"{r} of {q} spots were left. Yours is secured."},
+    es:{f:"Enhorabuena 🎉",    t:"{n}.º inscrito este mes",         s:"Quedaban {r} de {q} plazas. La tuya está reservada."},
+    pt:{f:"Parabéns 🎉",       t:"{n}.º inscrito este mês",         s:"Restavam {r} de {q} vagas. A tua está garantida."},
+    de:{f:"Glückwunsch 🎉",    t:"{n}. Anmeldung diesen Monat",     s:"Es waren noch {r} von {q} Plätzen frei. Deiner ist gesichert."}
+  };
+  function langue(){
+    try { var c = localStorage.getItem('skillora_lang'); if (c && T[c]) return c; } catch(e){}
+    return 'en';
+  }
+  /* « 971st », pas « 971th » : l'anglais change de suffixe selon le chiffre,
+     et un ordinal faux saute aux yeux d'un anglophone. */
+  function ordinal(n, l){
+    if (l !== 'en') return String(n);
+    var c = n % 100, u = n % 10;
+    if (c >= 11 && c <= 13) return n + 'th';
+    return n + (u === 1 ? 'st' : u === 2 ? 'nd' : u === 3 ? 'rd' : 'th');
+  }
+  /* Arrivee DIRECTE sur signup (le lien de la pub pointe parfois ici) : la
+     personne n'a jamais vu le compteur, donc aucun rang n'a ete retenu. On
+     recalcule la meme courbe que la page d'accueil pour ne pas la priver de
+     sa place — meme formule, memes constantes. */
+  function rangDeSecours(){
+    var quota = 1000, depart = 588, haut = quota - 4, d = new Date();
+    var deb = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1);
+    var fin = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1);
+    var p = Math.min(1, Math.max(0, (Date.now() - deb) / (fin - deb)));
+    var v = Math.round(depart + (haut - depart) * Math.pow(p, 0.55));
+    return { m: new Date().toISOString().slice(0,7), r: v + 1, q: quota };
+  }
+
+  function montrer(){
+    var d = null;
+    try { d = JSON.parse(localStorage.getItem('sk_rang') || 'null'); } catch(e){}
+    var mois = new Date().toISOString().slice(0,7);
+    if (!d || !d.r || d.m !== mois) d = rangDeSecours();     // rang absent ou d'un mois passe
+    var lg = langue(), L = T[lg] || T.en, q = d.q || 1000;
+    var b = document.getElementById('rangBox'); if (!b) return;
+    document.getElementById('rangF').textContent = L.f;
+    document.getElementById('rangN').textContent = '#' + d.r;
+    document.getElementById('rangT').textContent = L.t.replace('{n}', ordinal(d.r, lg));
+    document.getElementById('rangS').textContent = L.s.replace('{r}', Math.max(0, q - d.r)).replace('{q}', q);
+    b.style.display = '';
+  }
+  /* L'etape 2 n'existe qu'apres la creation du compte : on attend son
+     affichage plutot que de deviner un delai. */
+  var obs = new MutationObserver(function(){
+    var p = document.getElementById('step2');
+    if (p && p.classList.contains('active')) { montrer(); obs.disconnect(); }
+  });
+  if (document.getElementById('step2')) obs.observe(document.body, { attributes:true, subtree:true, attributeFilter:['class'] });
+})();
 </script>
 </body>
 </html>

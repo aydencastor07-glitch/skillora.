@@ -1868,7 +1868,15 @@
 
   /* PREMIER CONTACT GAGNE : si quelqu'un revient plus tard par une autre
      publicite, on garde celle qui l'a fait decouvrir Skillora. */
-  try { if (src && !localStorage.getItem('sk_src')) localStorage.setItem('sk_src', src); } catch(e){}
+  try {
+    if (src && !localStorage.getItem('sk_src')) {
+      localStorage.setItem('sk_src', src);
+      // L'HEURE du clic. Elle sert a ne rattacher a cette publicite que les
+      // comptes crees APRES : sans elle, le proprietaire qui teste son propre
+      // lien voit son compte de juin compte comme « membre venu de Meta ».
+      localStorage.setItem('sk_src_t', String(Date.now()));
+    }
+  } catch(e){}
 
   var vis = null;
   try {

@@ -1888,6 +1888,129 @@
     .phone .nz-grid  { grid-template-columns: repeat(4, 1fr); }
   }
 
+
+  /* ═══ ESPACE PROPRIETAIRE — poste de pilotage ═══════════════════════════
+     Pense pour le telephone D'ABORD (c'est la qu'il est consulte le plus
+     souvent), puis elargi sur ordinateur. Peu de texte, des chiffres qui se
+     lisent d'un coup d'oeil, une navigation en trois onglets. */
+  .own-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .own-top h1{font-family:'Fraunces',serif;font-weight:800;font-size:1.5rem;letter-spacing:-.02em;flex:1;min-width:0;}
+  .own-live{display:inline-flex;align-items:center;gap:6px;font-size:.68rem;font-weight:700;color:#5ee79c;
+    background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.28);padding:5px 10px;border-radius:999px;flex:none;}
+  .own-live i{width:6px;height:6px;border-radius:50%;background:#3ddc84;animation:ownPulse 1.8s infinite;}
+  @keyframes ownPulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* Onglets : barre segmentee, collante en haut quand on fait defiler */
+  .own-tabs{position:sticky;top:0;z-index:30;display:flex;gap:4px;padding:5px;margin:0 0 16px;
+    background:rgba(9,14,28,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--border);border-radius:14px;}
+  .own-tabs button{flex:1;min-width:0;padding:10px 4px;border:none;border-radius:10px;background:transparent;
+    color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.74rem;letter-spacing:-.02em;
+    cursor:pointer;transition:color .18s,background .18s;display:flex;align-items:center;justify-content:center;gap:5px;
+    white-space:nowrap;}
+  .own-tabs button svg{width:15px;height:15px;flex:none;}
+  .own-tabs button.on{background:linear-gradient(135deg,#2f7bff,#1a5fd8);color:#fff;
+    box-shadow:0 6px 16px -6px rgba(47,123,255,.8);}
+  .own-pan{display:none;} .own-pan.on{display:block;animation:ownIn .26s ease;}
+  @keyframes ownIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* Periode */
+  .own-per{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;}
+  .own-per::-webkit-scrollbar{display:none;}
+  .own-per button{flex:none;padding:7px 13px;border-radius:999px;border:1px solid var(--border);
+    background:var(--surface);color:var(--muted);font-family:'Sora',sans-serif;font-weight:600;font-size:.75rem;cursor:pointer;transition:all .16s;}
+  .own-per button.on{background:rgba(47,123,255,.16);border-color:rgba(94,155,255,.55);color:#fff;}
+  .own-per input[type=month]{flex:none;padding:6px 10px;border-radius:999px;border:1px solid var(--border);
+    background:var(--surface);color:var(--white);font-family:'Sora',sans-serif;font-size:.75rem;}
+
+  /* Chiffres cles */
+  .own-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:16px;}
+  .own-k{position:relative;overflow:hidden;background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.014));
+    border:1px solid var(--border);border-radius:16px;padding:14px 14px 13px;}
+  .own-k::after{content:'';position:absolute;inset:0;background:radial-gradient(120px 60px at 100% 0,var(--kc,rgba(47,123,255,.16)),transparent 70%);pointer-events:none;}
+  .own-k-l{font-size:.7rem;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:5px;margin-bottom:7px;}
+  .own-k-v{font-family:'Fraunces',serif;font-weight:800;font-size:1.75rem;line-height:1;letter-spacing:-.02em;color:#fff;}
+  .own-k-s{font-size:.68rem;color:var(--muted);margin-top:5px;}
+  .own-k-s b{color:#5ee79c;}
+
+  /* Graphique */
+  .own-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px 15px;margin-bottom:14px;}
+  .own-card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px;}
+  .own-card-t{font-family:'Sora',sans-serif;font-weight:700;font-size:.92rem;color:#eaf1ff;}
+  .own-card-x{font-size:.7rem;color:var(--muted);}
+  .own-chart{width:100%;height:132px;display:block;overflow:visible;}
+  .own-chart .aire{fill:url(#ownG);}
+  .own-chart .trait{fill:none;stroke:#5e9bff;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round;
+    stroke-dasharray:2000;stroke-dashoffset:2000;animation:ownDraw 1.1s ease forwards;}
+  @keyframes ownDraw{to{stroke-dashoffset:0}}
+  .own-chart .pt{fill:#8fc0ff;}
+  .own-axe{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted2);margin-top:6px;}
+
+  /* Barres (pays, appareils) */
+  .own-bars{display:flex;flex-direction:column;gap:9px;}
+  .own-bar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;font-size:.78rem;}
+  .own-bar-n{color:#dfe7f5;font-weight:600;display:flex;align-items:center;gap:6px;min-width:0;}
+  .own-bar-t{height:7px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;}
+  .own-bar-t i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#2f7bff,#7ea8ff);width:0;transition:width .7s cubic-bezier(.2,.8,.3,1);}
+  .own-bar-v{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600;}
+
+  /* Campagnes publicitaires */
+  .own-camp{border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px;background:rgba(255,255,255,.02);}
+  .own-camp.gagne{border-color:rgba(61,220,132,.4);background:rgba(61,220,132,.045);}
+  .own-camp-h{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+  .own-camp-p{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none;font-size:.85rem;background:rgba(255,255,255,.06);}
+  .own-camp-n{flex:1;min-width:0;}
+  .own-camp-n b{display:block;font-size:.86rem;color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .own-camp-n small{display:block;font-size:.68rem;color:var(--muted2);font-family:ui-monospace,monospace;margin-top:2px;}
+  .own-camp-roi{flex:none;font-size:.72rem;font-weight:800;padding:4px 9px;border-radius:999px;}
+  .own-camp-roi.plus{color:#5ee79c;background:rgba(61,220,132,.14);}
+  .own-camp-roi.moins{color:#ff8f8f;background:rgba(255,90,90,.13);}
+  .own-camp-roi.neutre{color:var(--muted);background:rgba(255,255,255,.05);}
+  .own-tunnel{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:11px;}
+  .own-tu{text-align:center;padding:9px 3px;background:rgba(255,255,255,.03);}
+  .own-tu:first-child{border-radius:10px 0 0 10px;} .own-tu:last-child{border-radius:0 10px 10px 0;}
+  .own-tu b{display:block;font-family:'Fraunces',serif;font-weight:800;font-size:1.02rem;color:#fff;line-height:1;}
+  .own-tu small{display:block;font-size:.6rem;color:var(--muted2);margin-top:4px;}
+  .own-tu.vert b{color:#5ee79c;}
+  .own-camp-f{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .own-chip{font-size:.66rem;color:var(--muted);background:rgba(255,255,255,.045);border:1px solid var(--border);padding:4px 8px;border-radius:999px;}
+  .own-chip b{color:#dfe7f5;}
+  .own-camp-b{margin-left:auto;display:flex;gap:6px;}
+  .own-camp-b button{font-size:.68rem;font-weight:700;padding:6px 11px;border-radius:9px;border:1px solid var(--border);
+    background:rgba(255,255,255,.05);color:#dfe7f5;cursor:pointer;transition:all .15s;}
+  .own-camp-b button:hover{border-color:rgba(94,155,255,.5);color:#fff;}
+  .own-camp-b button.pri{background:linear-gradient(135deg,#2f7bff,#1a5fd8);border-color:transparent;color:#fff;}
+
+  /* Membres */
+  .own-tools{display:flex;gap:7px;margin-bottom:11px;}
+  .own-tools input{flex:1;min-width:0;padding:9px 12px;border-radius:11px;border:1px solid var(--border);
+    background:var(--surface2);color:var(--white);font-family:'Sora',sans-serif;font-size:.8rem;}
+  .own-tools select{flex:none;padding:9px 10px;border-radius:11px;border:1px solid var(--border);
+    background:var(--surface2);color:var(--white);font-family:'Sora',sans-serif;font-size:.78rem;}
+  .own-mem{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid rgba(255,255,255,.05);}
+  .own-mem:last-child{border-bottom:none;}
+  .own-mem-a{width:32px;height:32px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:.8rem;color:#cfe0ff;background:linear-gradient(140deg,rgba(47,123,255,.3),rgba(47,123,255,.09));}
+  .own-mem-m{flex:1;min-width:0;}
+  .own-mem-m b{display:block;font-size:.79rem;color:#eaf1ff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .own-mem-m small{display:block;font-size:.66rem;color:var(--muted2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .own-tag{flex:none;font-size:.63rem;font-weight:800;padding:4px 8px;border-radius:999px;}
+  .own-tag.pro{color:#5ee79c;background:rgba(61,220,132,.14);}
+  .own-tag.free{color:var(--muted);background:rgba(255,255,255,.055);}
+  .own-vide{text-align:center;color:var(--muted2);font-size:.8rem;padding:26px 10px;line-height:1.6;}
+  .own-plus{width:100%;padding:12px;border-radius:13px;border:1px dashed var(--border2);background:transparent;
+    color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .16s;}
+  .own-plus:hover{border-color:rgba(94,155,255,.6);color:#fff;}
+
+  /* Ordinateur : on respire, on passe en colonnes */
+  @media (min-width:900px){
+    .own-kpis{grid-template-columns:repeat(3,1fr);gap:12px;}
+    .own-k-v{font-size:2.1rem;}
+    .own-tabs button{font-size:.85rem;padding:11px 8px;}
+    .own-duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+    .own-duo>.own-card{margin-bottom:0;}
+    .own-chart{height:190px;}
+  }
 </style>
 <script>
   /* PAGE STABLE — la mise en page ne doit JAMAIS pouvoir etre deplacee au doigt.
@@ -2098,23 +2221,80 @@
 
   <!-- ═══ ESPACE PROPRIÉTAIRE (dev) — comptes, stats, publication. Invisible au public. ═══ -->
   <div class="view" id="view-owner">
-    <div class="owner-head">
-      <h1 class="page-title">🛠 Espace propriétaire</h1>
-      <p class="page-sub">Comptes connectés, stats et publication — visible uniquement par toi.</p>
-      <div class="owner-actions">
-        <button class="owner-pub" onclick="goPublishOwner()">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
-          Publier une vidéo
-        </button>
-        <button class="owner-scout" id="ownerScoutBtn" onclick="ownerScout()">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <span id="ownerScoutLbl">Lancer les éclaireurs (remplir le feed)</span>
-        </button>
-      </div>
-      <p class="owner-scout-note" id="ownerScoutNote">Cherche ~15 virales au total (8 styles, TikTok Shop toujours inclus) sur TikTok/YouTube/Insta/Facebook. Le worker les télécharge et les héberge en permanent (PAS d'étude Gemini) puis elles s'affichent toutes seules dans le feed, dans le bon style. Consomme des crédits SociaVault.</p>
+    <div class="own-top">
+      <h1>Pilotage</h1>
+      <span class="own-live"><i></i>en direct</span>
     </div>
-    <!-- Tableau de bord comptes (autre SaaS) : réservé au propriétaire -->
-    <div id="homeDynamic"></div>
+
+    <!-- Trois onglets : ce qui se passe, avec qui, et quoi publier. -->
+    <div class="own-tabs" id="ownTabs">
+      <button class="on" data-o="vue" onclick="ownTab('vue')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3.5-4 3 2.5L21 6"/></svg>Vue complète</button>
+      <button data-o="comptes" onclick="ownTab('comptes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>Comptes</button>
+      <button data-o="pub" onclick="ownTab('pub')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>Publication</button>
+    </div>
+
+    <!-- ════ ONGLET 1 : VUE COMPLETE ════════════════════════════════════ -->
+    <div class="own-pan on" id="ownPanVue">
+      <div class="own-per" id="ownPer"></div>
+      <div class="own-kpis" id="ownKpis"></div>
+
+      <div class="own-card">
+        <div class="own-card-h"><span class="own-card-t">Inscriptions</span><span class="own-card-x" id="ownChartX">—</span></div>
+        <div id="ownChart"></div>
+      </div>
+
+      <div class="own-duo">
+        <div class="own-card">
+          <div class="own-card-h"><span class="own-card-t">D'où ils viennent</span><span class="own-card-x">pays</span></div>
+          <div class="own-bars" id="ownPays"></div>
+        </div>
+        <div class="own-card">
+          <div class="own-card-h"><span class="own-card-t">Sur quoi ils arrivent</span><span class="own-card-x">appareil</span></div>
+          <div class="own-bars" id="ownAppareils"></div>
+        </div>
+      </div>
+
+      <div class="own-card">
+        <div class="own-card-h"><span class="own-card-t">Tes publicités</span><span class="own-card-x" id="ownCampX"></span></div>
+        <div id="ownCamps"></div>
+        <button class="own-plus" onclick="ownNouvelleCampagne()">+ Créer un lien de publicité</button>
+      </div>
+
+      <div class="own-card">
+        <div class="own-card-h"><span class="own-card-t">Membres</span><span class="own-card-x" id="ownMemX"></span></div>
+        <div class="own-tools">
+          <input id="ownMemQ" type="search" placeholder="Chercher un email ou un nom…" oninput="ownMembresDiffere()">
+          <select id="ownMemPlan" onchange="ownMembres()">
+            <option value="tous">Tous</option><option value="pro">Pro</option><option value="gratuit">Gratuit</option>
+          </select>
+        </div>
+        <div id="ownMembres"></div>
+        <button class="own-plus" id="ownMemPlus" style="display:none;" onclick="ownMembres(true)">Voir plus</button>
+      </div>
+    </div>
+
+    <!-- ════ ONGLET 2 : COMPTES CONNECTES ═══════════════════════════════ -->
+    <div class="own-pan" id="ownPanComptes">
+      <div class="own-card">
+        <div class="own-card-h"><span class="own-card-t">Remplir le feed</span></div>
+        <button class="owner-scout" id="ownerScoutBtn" onclick="ownerScout()" style="width:100%;justify-content:center;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span id="ownerScoutLbl">Lancer les éclaireurs</span>
+        </button>
+        <p class="owner-scout-note" id="ownerScoutNote">Cherche une quinzaine de vidéos virales sur TikTok, YouTube, Instagram et Facebook, les héberge, puis les affiche dans le feed. Consomme des crédits SociaVault.</p>
+      </div>
+      <!-- Tableau de bord des comptes connectes -->
+      <div id="homeDynamic"></div>
+    </div>
+
+    <!-- ════ ONGLET 3 : PUBLICATION ═════════════════════════════════════ -->
+    <!-- Le contenu de l'ecran « Publier » est DEPLACE ici au premier clic
+         (voir ownTab) : aucun code duplique, la publication continue de
+         fonctionner exactement comme avant. -->
+    <div class="own-pan" id="ownPanPub"></div>
   </div>
 
   <div class="view" id="view-library">
@@ -3712,6 +3892,248 @@
     } catch(e){
       kp.innerHTML='<div class="dev-kpi"><div class="k-l">Erreur</div><div class="k-v" style="font-size:.9rem;">'+(e.message||e)+'</div></div>';
     }
+  }
+
+  /* ═══ ESPACE PROPRIETAIRE ══════════════════════════════════════════════
+     Trois onglets : ce qui se passe (vue complete), avec qui (comptes),
+     quoi publier (publication). Tout vient de la fonction admin-stats, qui
+     verifie que l'email est bien celui du proprietaire avant de repondre. */
+  var OWN = { onglet:'vue', periode:'30j', mois:null, data:null, memPage:0, memTimer:null };
+
+  function ownAppel(corps){
+    return sb.auth.getSession().then(function(r){
+      var t = r.data.session ? r.data.session.access_token : '';
+      return fetch(SB_URL + '/functions/v1/admin-stats', { method:'POST',
+        headers:{ 'Authorization':'Bearer '+t, apikey:SB_KEY, 'Content-Type':'application/json' },
+        body: JSON.stringify(corps || {}) }).then(function(x){ return x.json(); });
+    });
+  }
+
+  function ownTab(nom){
+    OWN.onglet = nom;
+    document.querySelectorAll('#ownTabs button').forEach(function(b){
+      b.classList.toggle('on', b.getAttribute('data-o') === nom);
+    });
+    ['vue','comptes','pub'].forEach(function(k){
+      var el = document.getElementById('ownPan' + k.charAt(0).toUpperCase() + k.slice(1));
+      if (el) el.classList.toggle('on', k === nom);
+    });
+    // La publication : on DEPLACE l'ecran existant dans l'onglet, une seule
+    // fois. Rien n'est duplique, donc rien ne casse.
+    if (nom === 'pub') {
+      var hote = document.getElementById('ownPanPub');
+      var src  = document.getElementById('view-publish');
+      if (hote && src && !hote.children.length) {
+        while (src.firstChild) hote.appendChild(src.firstChild);
+      }
+    }
+    if (nom === 'vue' && !OWN.data) ownCharger();
+  }
+
+  var OWN_PER = [['auj',"Aujourd'hui"],['7j','7 jours'],['30j','30 jours'],['90j','90 jours'],['365j','1 an'],['tout','Tout']];
+  function ownPeriodes(){
+    var b = document.getElementById('ownPer'); if (!b) return;
+    b.innerHTML = OWN_PER.map(function(p){
+      return '<button class="'+(OWN.periode===p[0]?'on':'')+'" onclick="ownSetPer(\''+p[0]+'\')">'+p[1]+'</button>';
+    }).join('') + '<input type="month" id="ownMois" onchange="ownSetMois(this.value)" title="Un mois précis">';
+  }
+  function ownSetPer(p){ OWN.periode = p; OWN.mois = null; ownPeriodes(); ownCharger(); }
+  function ownSetMois(v){ if(!v) return; OWN.periode='mois'; OWN.mois=v; ownPeriodes(); ownCharger(); }
+
+  function ownNb(n){
+    n = Number(n) || 0;
+    if (n >= 1e6) return (n/1e6).toFixed(n%1e6?1:0).replace('.0','') + ' M';
+    if (n >= 1e3) return (n/1e3).toFixed(n%1e3?1:0).replace('.0','') + ' k';
+    return String(n);
+  }
+  /* Les chiffres montent au lieu d'apparaitre : on voit tout de suite ce qui
+     a bouge depuis la derniere fois. */
+  function ownAnime(el, fin, prefixe, suffixe){
+    var deb = 0, t0 = null, duree = 700;
+    function pas(t){
+      if (!t0) t0 = t;
+      var k = Math.min(1, (t - t0) / duree);
+      k = 1 - Math.pow(1 - k, 3);
+      el.textContent = (prefixe||'') + ownNb(Math.round(deb + (fin - deb) * k)) + (suffixe||'');
+      if (k < 1) requestAnimationFrame(pas);
+    }
+    requestAnimationFrame(pas);
+  }
+
+  async function ownCharger(){
+    var kp = document.getElementById('ownKpis');
+    if (kp) kp.innerHTML = '<div class="own-k"><div class="own-k-l">Chargement…</div><div class="own-k-v">·</div></div>';
+    ownPeriodes();
+    try {
+      var d = await ownAppel({ action:'tableau', periode:OWN.periode, mois:OWN.mois });
+      if (!d.success) throw new Error(d.error || 'Erreur');
+      OWN.data = d;
+      ownKpis(d); ownGraphique(d); ownRepartitions(d); ownCampagnes(d);
+      OWN.memPage = 0; ownMembres();
+    } catch(e){
+      if (kp) kp.innerHTML = '<div class="own-k" style="grid-column:1/-1"><div class="own-k-l">Impossible de charger</div>'+
+        '<div class="own-k-v" style="font-size:.95rem">'+genEsc(String(e.message||e))+'</div></div>';
+    }
+  }
+
+  function ownKpis(d){
+    var a = d.apercu || {}, kp = document.getElementById('ownKpis'); if (!kp) return;
+    var clics = a.clics_periode||0, insc = a.inscrits_pub||0;
+    var tuiles = [
+      ['Membres',        a.membres_total,   'rgba(47,123,255,.18)', (a.membres_periode||0)+' sur la période'],
+      ['Abonnés Pro',    a.abos_actifs,     'rgba(61,220,132,.16)', (a.abos_periode||0)+' nouveaux'],
+      ['Revenu mensuel', a.mrr,             'rgba(245,192,67,.16)', '$'+ownNb((a.mrr||0)*12)+' par an', '$'],
+      ['Copies faites',  a.copies_periode,  'rgba(155,114,203,.16)', 'sur la période'],
+      ['Clics pub',      clics,             'rgba(47,123,255,.14)', (a.visiteurs_periode||0)+' visiteurs uniques'],
+      ['Inscrits via pub', insc,            'rgba(61,220,132,.14)', clics ? (insc*100/clics).toFixed(1)+' % des clics' : 'aucun clic encore']
+    ];
+    kp.innerHTML = '';
+    tuiles.forEach(function(t){
+      var el = document.createElement('div');
+      el.className = 'own-k'; el.style.setProperty('--kc', t[2]);
+      el.innerHTML = '<div class="own-k-l">'+t[0]+'</div><div class="own-k-v">0</div><div class="own-k-s">'+t[3]+'</div>';
+      kp.appendChild(el);
+      ownAnime(el.querySelector('.own-k-v'), t[1]||0, t[4]||'');
+    });
+  }
+
+  function ownGraphique(d){
+    var j = (d.apercu && d.apercu.par_jour) || [], box = document.getElementById('ownChart');
+    if (!box) return;
+    if (!j.length){ box.innerHTML = '<div class="own-vide">Pas encore de données sur cette période.</div>'; return; }
+    var v = j.map(function(x){ return Number(x.n)||0; });
+    var mx = Math.max.apply(null, v.concat([1])), W = 1000, H = 132, n = v.length;
+    var X = function(i){ return n>1 ? (i*(W/(n-1))) : W/2; };
+    var Y = function(k){ return H - 10 - (k/mx)*(H-30); };
+    var pts = v.map(function(k,i){ return X(i).toFixed(1)+','+Y(k).toFixed(1); }).join(' ');
+    var haut = v.indexOf(mx);
+    box.innerHTML =
+      '<svg class="own-chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
+      '<defs><linearGradient id="ownG" x1="0" y1="0" x2="0" y2="1">'+
+      '<stop offset="0" stop-color="#2f7bff" stop-opacity=".38"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/></linearGradient></defs>'+
+      '<polygon class="aire" points="0,'+H+' '+pts+' '+W+','+H+'"/>'+
+      '<polyline class="trait" points="'+pts+'"/>'+
+      (mx>0 ? '<circle class="pt" cx="'+X(haut).toFixed(1)+'" cy="'+Y(mx).toFixed(1)+'" r="4"/>' : '')+
+      '</svg>'+
+      '<div class="own-axe"><span>'+(j[0].j||'').slice(5)+'</span><span>pic : '+mx+'/jour</span><span>'+(j[n-1].j||'').slice(5)+'</span></div>';
+    var tot = v.reduce(function(a,b){return a+b;},0);
+    var x = document.getElementById('ownChartX');
+    if (x) x.textContent = tot + (tot>1?' inscrits':' inscrit');
+  }
+
+  var OWN_PAYS = {FR:'🇫🇷',US:'🇺🇸',TG:'🇹🇬',BE:'🇧🇪',CA:'🇨🇦',CH:'🇨🇭',GB:'🇬🇧',DE:'🇩🇪',ES:'🇪🇸',IT:'🇮🇹',
+    PT:'🇵🇹',BR:'🇧🇷',MA:'🇲🇦',DZ:'🇩🇿',TN:'🇹🇳',SN:'🇸🇳',CI:'🇨🇮',CM:'🇨🇲',NG:'🇳🇬',IN:'🇮🇳',NL:'🇳🇱',MX:'🇲🇽'};
+  function ownBarres(cible, lignes, icone){
+    var b = document.getElementById(cible); if (!b) return;
+    if (!lignes.length){ b.innerHTML = '<div class="own-vide">Rien à afficher — les données arrivent au premier clic sur une publicité.</div>'; return; }
+    var mx = Math.max.apply(null, lignes.map(function(l){ return l.n; }).concat([1]));
+    b.innerHTML = lignes.map(function(l){
+      return '<div class="own-bar"><span class="own-bar-n">'+(icone?icone(l):'')+genEsc(l.nom)+'</span>'+
+             '<span class="own-bar-t"><i data-w="'+Math.max(4,(l.n/mx)*100)+'"></i></span>'+
+             '<span class="own-bar-v">'+l.n+'</span></div>';
+    }).join('');
+    setTimeout(function(){ b.querySelectorAll('.own-bar-t i').forEach(function(i){ i.style.width = i.getAttribute('data-w')+'%'; }); }, 60);
+  }
+  function ownRepartitions(d){
+    var a = d.apercu || {};
+    ownBarres('ownPays', (a.pays||[]).map(function(p){ return { nom:p.code, n:Number(p.n)||0 }; }),
+      function(l){ return (OWN_PAYS[l.nom]||'🌍') + ' '; });
+    var NOMS = { mobile:'📱 Téléphone', desktop:'💻 Ordinateur', tablette:'📟 Tablette' };
+    ownBarres('ownAppareils', (a.appareils||[]).map(function(p){ return { nom:(NOMS[p.k]||p.k||'?'), n:Number(p.n)||0 }; }));
+  }
+
+  var OWN_PLAT = { meta:'📘', google:'🔍', tiktok:'🎵', youtube:'▶️', x:'✖️', other:'🌐' };
+  function ownCampagnes(d){
+    var box = document.getElementById('ownCamps'), c = d.campagnes || [];
+    if (!box) return;
+    var x = document.getElementById('ownCampX');
+    if (x) x.textContent = c.length ? c.length + (c.length>1?' liens':' lien') : '';
+    if (!c.length){
+      box.innerHTML = '<div class="own-vide">Aucun lien pour l\'instant.<br>Crée-en un par publicité : c\'est ce qui permet de savoir <b>laquelle</b> rapporte.</div>';
+      return;
+    }
+    box.innerHTML = c.map(function(k){
+      var roi = k.roi, cls = roi==null?'neutre':(roi>=0?'plus':'moins');
+      var lien = 'https://www.skillora.me/?src=' + k.code;
+      return '<div class="own-camp'+(roi!=null&&roi>0?' gagne':'')+'">'+
+        '<div class="own-camp-h">'+
+          '<span class="own-camp-p">'+(OWN_PLAT[k.plateforme]||'🌐')+'</span>'+
+          '<span class="own-camp-n"><b>'+genEsc(k.nom||k.code)+'</b><small>?src='+genEsc(k.code)+'</small></span>'+
+          '<span class="own-camp-roi '+cls+'">'+(roi==null?'—':(roi>0?'+':'')+roi+' %')+'</span>'+
+        '</div>'+
+        '<div class="own-tunnel">'+
+          '<div class="own-tu"><b>'+ownNb(k.clics)+'</b><small>clics</small></div>'+
+          '<div class="own-tu"><b>'+ownNb(k.visiteurs)+'</b><small>visiteurs</small></div>'+
+          '<div class="own-tu"><b>'+ownNb(k.inscrits)+'</b><small>inscrits</small></div>'+
+          '<div class="own-tu vert"><b>'+ownNb(k.payants)+'</b><small>payants</small></div>'+
+        '</div>'+
+        '<div class="own-camp-f">'+
+          '<span class="own-chip">inscription <b>'+k.taux_inscription+' %</b></span>'+
+          '<span class="own-chip">paiement <b>'+k.taux_paiement+' %</b></span>'+
+          (k.cout_client!=null?'<span class="own-chip">client <b>$'+k.cout_client+'</b></span>':'')+
+          (Number(k.depense)>0?'<span class="own-chip">dépensé <b>$'+k.depense+'</b></span>':'')+
+          '<span class="own-chip">gagné <b>$'+(k.revenu||0)+'</b></span>'+
+          '<span class="own-camp-b">'+
+            '<button class="pri" onclick="ownCopier(\''+genEsc(lien)+'\',this)">Copier le lien</button>'+
+            '<button onclick="ownEditerCampagne(\''+k.id+'\')">Modifier</button>'+
+          '</span>'+
+        '</div></div>';
+    }).join('');
+  }
+  function ownCopier(lien, btn){
+    try { navigator.clipboard.writeText(lien); } catch(e){}
+    var av = btn.textContent; btn.textContent = 'Copié ✓';
+    setTimeout(function(){ btn.textContent = av; }, 1400);
+  }
+
+  async function ownNouvelleCampagne(){
+    var nom = prompt('Nom de la publicité (pour toi) :\n\nex. « Meta · Copy any video · août »'); if (!nom) return;
+    var plat = prompt('Plateforme ?\n\nmeta · google · tiktok · youtube · x · other', 'meta'); if (!plat) return;
+    var code = prompt('Code du lien (lettres, chiffres, tirets) :\n\nIl apparaîtra dans skillora.me/?src=…',
+      (plat.toLowerCase()+'-'+Date.now().toString(36).slice(-4)));
+    if (!code) return;
+    var dep = prompt('Budget prévu en $ (tu pourras le modifier) :', '0');
+    var r = await ownAppel({ action:'pub_creer', nom:nom, plateforme:plat.toLowerCase().trim(),
+                             code:code.toLowerCase().trim(), depense:Number(dep)||0 });
+    if (!r.success) { skModal({icon:'⚠️',title:'Impossible',message:r.error||'Erreur',cancelText:'OK'}); return; }
+    var lien = 'https://www.skillora.me/?src=' + r.campagne.code;
+    try { navigator.clipboard.writeText(lien); } catch(e){}
+    skModal({ icon:'🔗', title:'Lien créé et copié',
+      message:'<b>'+genEsc(lien)+'</b><br><br>Colle-le dans le champ « URL du site web » de ta publicité. Chaque clic, inscription et abonnement sera rattaché à ce lien.',
+      cancelText:'Parfait' });
+    ownCharger();
+  }
+  async function ownEditerCampagne(id){
+    var c = (OWN.data.campagnes||[]).filter(function(x){ return x.id===id; })[0]; if (!c) return;
+    var dep = prompt('Combien as-tu dépensé sur « '+c.nom+' » ? (en $)\n\nC\'est ce chiffre qui calcule ton retour sur investissement.', String(c.depense||0));
+    if (dep === null) return;
+    var r = await ownAppel({ action:'pub_maj', id:id, depense:Number(dep)||0 });
+    if (!r.success) { skModal({icon:'⚠️',title:'Impossible',message:r.error||'Erreur',cancelText:'OK'}); return; }
+    ownCharger();
+  }
+
+  function ownMembresDiffere(){ clearTimeout(OWN.memTimer); OWN.memTimer = setTimeout(function(){ OWN.memPage=0; ownMembres(); }, 320); }
+  async function ownMembres(suite){
+    var box = document.getElementById('ownMembres'); if (!box) return;
+    if (suite) OWN.memPage++; else { OWN.memPage = 0; box.innerHTML = '<div class="own-vide">Chargement…</div>'; }
+    var q = (document.getElementById('ownMemQ')||{}).value || '';
+    var pl = (document.getElementById('ownMemPlan')||{}).value || 'tous';
+    var r = await ownAppel({ action:'membres', recherche:q, plan:pl, limite:25, decalage:OWN.memPage*25 });
+    if (!r.success) { box.innerHTML = '<div class="own-vide">'+genEsc(r.error||'Erreur')+'</div>'; return; }
+    var x = document.getElementById('ownMemX');
+    if (x) x.textContent = r.total + ' · ' + r.pro + ' Pro · ' + r.gratuit + ' gratuit';
+    var html = (r.lignes||[]).map(function(m){
+      var d = new Date(m.cree);
+      var ini = (m.nom || m.email || '?').trim().charAt(0).toUpperCase();
+      return '<div class="own-mem"><span class="own-mem-a">'+genEsc(ini)+'</span>'+
+        '<span class="own-mem-m"><b>'+genEsc(m.email||'—')+'</b>'+
+        '<small>'+(m.pays?(OWN_PAYS[m.pays]||'🌍')+' '+genEsc(m.pays)+' · ':'')+
+        (m.source?'via '+genEsc(m.source):'direct')+' · '+d.toLocaleDateString('fr-FR')+'</small></span>'+
+        '<span class="own-tag '+(m.pro?'pro':'free')+'">'+(m.pro?'Pro':'Gratuit')+'</span></div>';
+    }).join('');
+    if (suite) box.innerHTML += html; else box.innerHTML = html || '<div class="own-vide">Personne pour l\'instant.</div>';
+    var plus = document.getElementById('ownMemPlus');
+    if (plus) plus.style.display = ((OWN.memPage+1)*25 < r.total) ? '' : 'none';
   }
 
   // Comptes propriétaires : accès ILLIMITÉ à tout (aucune limite de plan). Les autres gardent leurs limites.
@@ -6430,7 +6852,12 @@
     if (name === 'home') { try { hv2Load(); } catch(e){} }
     if (name === 'niches') { try { nichesLoad(); } catch(e){} }
     if (name === 'ideas') { try { idzRender(); } catch(e){} }
-    if (name === 'owner') { try { loadHomeDashboard(); } catch(e){} }
+    if (name === 'owner') {
+      try { loadHomeDashboard(); } catch(e){}
+      // La vue complete se charge des l'ouverture : le proprietaire doit voir
+      // ses chiffres tout de suite, sans un clic de plus.
+      try { ownTab(OWN.onglet || 'vue'); if (OWN.onglet === 'vue') ownCharger(); } catch(e){}
+    }
     if (name === 'library') applyBookLocks();
     if (name === 'ia') {
       try { redrawWorkflowSoon(); } catch(e){}
@@ -6997,7 +7424,11 @@
   // Le bouton central lance directement la COPIE (le cœur de Skillora).
   function goCopier(){ switchView('ia', null); try { if (typeof studioTab === 'function') studioTab('copie'); } catch(e){} }
   // Publier n'est accessible qu'au propriétaire (depuis l'Espace propriétaire).
-  function goPublishOwner(){ if (window._unlimited) switchView('publish', null); }
+  function goPublishOwner(){
+    if (!window._unlimited) return;
+    switchView('owner', null);
+    try { ownTab('pub'); } catch(e){}
+  }
 
   // Lance les agents éclaireurs À LA DEMANDE (propriétaire) : remplit la file de vidéos
   // virales par style (TikTok Shop inclus). Consomme des crédits SociaVault -> uniquement au clic.

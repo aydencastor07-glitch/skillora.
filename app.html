@@ -623,6 +623,37 @@
   .pub-textentry .pte-txt b { font-family:'Sora',sans-serif; font-weight:700; font-size:.92rem; }
   .pub-textentry .pte-txt small { color:var(--muted); font-size:.75rem; margin-top:2px; }
   .pub-textentry svg { color:var(--muted); flex:none; }
+  /* ── CARROUSELS ─────────────────────────────────────────────────────────
+     On apprend UN style depuis un carrousel fait à la main, puis on le rejoue.
+     Le style vit dans la recette, jamais ici : cet écran ne fait que le piloter. */
+  .car-tabs { display:flex; gap:8px; margin-bottom:16px; }
+  .car-tab { flex:1; background:rgba(255,255,255,0.035); border:1px solid var(--border); border-radius:12px; padding:10px 8px; color:var(--muted); font-family:'Sora',sans-serif; font-weight:600; font-size:.84rem; cursor:pointer; transition:border-color .18s, color .18s, background .18s; }
+  .car-tab.on { border-color:var(--blue); color:var(--white); background:rgba(47,123,255,0.09); }
+  .car-drop { display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; border:1.5px dashed var(--border2); border-radius:14px; padding:26px 14px; cursor:pointer; background:rgba(47,123,255,0.04); transition:border-color .18s, background .18s; }
+  .car-drop:hover { border-color:var(--blue); background:rgba(47,123,255,0.07); }
+  .car-drop .cd-ic { font-size:1.8rem; }
+  .car-drop .cd-t { font-family:'Sora',sans-serif; font-weight:700; font-size:.94rem; color:var(--white); }
+  .car-drop .cd-s { font-size:.76rem; color:var(--muted); line-height:1.45; max-width:34ch; }
+  .car-vign { display:flex; gap:8px; overflow-x:auto; padding:12px 2px 4px; scrollbar-width:none; }
+  .car-vign::-webkit-scrollbar { display:none; }
+  .car-vign figure { position:relative; flex:none; margin:0; width:88px; }
+  .car-vign img { width:88px; height:110px; object-fit:cover; border-radius:9px; border:1px solid var(--border2); display:block; }
+  .car-vign .n { position:absolute; top:5px; left:5px; background:rgba(0,0,0,.62); color:#fff; font-size:.66rem; font-weight:700; border-radius:5px; padding:1px 5px; }
+  .car-vign .x { position:absolute; top:4px; right:4px; width:19px; height:19px; border-radius:50%; border:none; background:rgba(0,0,0,.66); color:#fff; font-size:.72rem; line-height:1; cursor:pointer; }
+  /* La recette apprise, en clair : le créateur doit VOIR ce que le système a compris. */
+  .car-recette { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+  .car-recette span { font-size:.74rem; color:var(--muted); background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:999px; padding:4px 10px; }
+  .car-recette span b { color:var(--white); font-weight:700; }
+  .car-pastille { width:13px; height:13px; border-radius:4px; display:inline-block; vertical-align:-2px; margin-right:5px; border:1px solid rgba(255,255,255,.22); }
+  .car-liste { display:flex; flex-direction:column; gap:9px; }
+  .car-item { display:flex; align-items:center; gap:11px; width:100%; text-align:left; background:rgba(255,255,255,0.035); border:1px solid var(--border); border-radius:13px; padding:12px 14px; color:var(--white); cursor:pointer; transition:border-color .18s; }
+  .car-item.on { border-color:var(--blue); background:rgba(47,123,255,0.08); }
+  .car-item .ci-t { flex:1; display:flex; flex-direction:column; line-height:1.3; min-width:0; }
+  .car-item .ci-t b { font-family:'Sora',sans-serif; font-weight:700; font-size:.9rem; }
+  .car-item .ci-t small { color:var(--muted); font-size:.74rem; }
+  .car-etat { display:flex; align-items:center; gap:10px; font-size:.86rem; color:var(--muted); margin-top:14px; }
+  .car-etat i { width:15px; height:15px; border-radius:50%; border:2px solid rgba(47,123,255,.22); border-top-color:var(--blue); animation:cxSpin .9s linear infinite; flex:none; }
+
   /* Composer post : zone image au premier plan + carte de note */
   .pub-imgzone { display:flex; flex-direction:column; align-items:center; gap:3px; text-align:center; border:1.5px dashed var(--border2); border-radius:14px; padding:22px 14px; margin-bottom:12px; cursor:pointer; background:rgba(47,123,255,0.04); transition:border-color .18s, background .18s; }
   .pub-imgzone:hover { border-color:var(--blue); background:rgba(47,123,255,0.07); }
@@ -3520,6 +3551,68 @@
         <span class="pte-txt"><b>Écrire un post texte</b><small>X · Threads · Facebook</small></span>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
       </button>
+      <button class="pub-textentry" onclick="carOuvrir()" style="margin-top:10px;">
+        <span class="pte-ic">🖼️</span>
+        <span class="pte-txt"><b>Créer un carrousel</b><small>TikTok · Instagram — dans ton style</small></span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+
+    <!-- ÉTAT CARROUSEL : apprendre un style, puis le rejouer sur d'autres sujets -->
+    <div id="pubCarrousel" style="display:none;">
+      <div class="car-tabs">
+        <button class="car-tab on" id="carTabStyle" onclick="carOnglet('style')">1 · Mon style</button>
+        <button class="car-tab" id="carTabCreer" onclick="carOnglet('creer')">2 · Créer</button>
+      </div>
+
+      <!-- APPRENDRE ------------------------------------------------------- -->
+      <div id="carPanStyle">
+        <div class="pub-card">
+          <div class="pub-ey">Apprendre ton style</div>
+          <p class="pub-hint2">Fabrique <b>un</b> carrousel à la main, comme tu le veux. Envoie ses images <b>dans l'ordre</b> : Skillora en tire la recette — format, couleurs, polices, marges, rôle de chaque slide — puis la rejoue sur n'importe quel sujet.</p>
+          <input type="file" id="carFichiers" accept="image/*" multiple style="display:none" onchange="carChoisir(this)">
+          <div class="car-drop" onclick="document.getElementById('carFichiers').click()">
+            <div class="cd-ic">🖼️</div>
+            <div class="cd-t">Choisis les slides de ton carrousel</div>
+            <div class="cd-s">De 2 à 12 images, dans l'ordre de lecture. JPG ou PNG.</div>
+          </div>
+          <div class="car-vign" id="carVignettes"></div>
+          <input class="email-field" id="carNom" placeholder="Nom de ce style (ex. « Fond sombre citation »)" style="margin:12px 0 0;">
+          <textarea class="email-field" id="carNotes" rows="2" placeholder="Une précision ? (ex. « le titre est toujours une question », « garde le @pseudo en bas »)" style="resize:none;margin:10px 0 0;"></textarea>
+          <button class="pub-publish" id="carBtnAnalyser" onclick="carAnalyser()" style="margin-top:14px;">
+            <span class="pl">Apprendre ce style</span>
+          </button>
+          <div id="carEtatStyle"></div>
+        </div>
+
+        <div class="pub-card" id="carMesStyles" style="display:none;margin-top:14px;">
+          <div class="pub-ey">Mes styles</div>
+          <div class="car-liste" id="carListe"></div>
+        </div>
+      </div>
+
+      <!-- CRÉER ----------------------------------------------------------- -->
+      <div id="carPanCreer" style="display:none;">
+        <div class="pub-card">
+          <div class="pub-ey">Nouveau carrousel</div>
+          <p class="pub-hint2">Choisis un style, donne un sujet. Skillora écrit les textes, fabrique les images et assemble les slides — dans <b>ton</b> style.</p>
+          <div class="car-liste" id="carChoixStyle" style="margin-bottom:14px;"></div>
+          <textarea class="email-field" id="carSujet" rows="2" placeholder="Le sujet du carrousel (ex. « les 5 erreurs qui tuent tes vues sur TikTok »)" style="resize:none;margin:0;"></textarea>
+          <div class="pub-when" style="margin-top:12px;">
+            <button class="pub-opt on" id="carN1" onclick="carCombien(1)">1 carrousel</button>
+            <button class="pub-opt" id="carN3" onclick="carCombien(3)">3 variantes</button>
+            <button class="pub-opt" id="carN6" onclick="carCombien(6)">6 variantes</button>
+          </div>
+          <button class="pub-publish" id="carBtnCreer" onclick="carCreer()" style="margin-top:14px;">
+            <span class="pl">Créer le carrousel</span>
+          </button>
+          <div id="carEtatCreer"></div>
+        </div>
+
+        <div id="carResultats" style="margin-top:14px;"></div>
+      </div>
+
+      <button class="pub-mini" onclick="pubReset()" style="margin-top:16px;">← Retour</button>
     </div>
 
     <!-- ÉTAT POST TEXTE (X / Threads / Facebook) -->
@@ -12150,7 +12243,296 @@
     document.getElementById('pubLoading').style.display = 'none';
     document.getElementById('pubResult').style.display = 'none';
     var pt = document.getElementById('pubText'); if (pt) pt.style.display = 'none';
+    var pc = document.getElementById('pubCarrousel'); if (pc) pc.style.display = 'none';
     document.getElementById('pubZero').style.display = 'block';
+  }
+
+  /* ── CARROUSELS ────────────────────────────────────────────────────────────
+     Le créateur fabrique UN carrousel à la main. On en apprend la recette, et
+     c'est elle — pas ce fichier — qui contient le style. Cet écran ne fait que
+     l'apprendre, la montrer, puis la rejouer sur d'autres sujets. */
+  var carFichiers = [];        // les slides du carrousel de référence
+  var carStyles = [];          // les recettes déjà apprises
+  var carStyleActif = null;
+  var carNb = 1;
+  var carSuivi = null;         // minuteur de suivi des jobs en cours
+
+  function carOuvrir() {
+    document.getElementById('pubZero').style.display = 'none';
+    document.getElementById('pubLoading').style.display = 'none';
+    document.getElementById('pubResult').style.display = 'none';
+    var t = document.getElementById('pubText'); if (t) t.style.display = 'none';
+    document.getElementById('pubCarrousel').style.display = 'block';
+    carCharger();
+    window.scrollTo(0, 0);
+  }
+
+  function carOnglet(n) {
+    var style = n === 'style';
+    document.getElementById('carTabStyle').classList.toggle('on', style);
+    document.getElementById('carTabCreer').classList.toggle('on', !style);
+    document.getElementById('carPanStyle').style.display = style ? 'block' : 'none';
+    document.getElementById('carPanCreer').style.display = style ? 'none' : 'block';
+    if (!style) carRendreChoix();
+  }
+
+  function carChoisir(input) {
+    var f = Array.prototype.slice.call(input.files || []);
+    carFichiers = carFichiers.concat(f).slice(0, 12);
+    input.value = '';
+    carRendreVignettes();
+  }
+  function carRetirer(i) { carFichiers.splice(i, 1); carRendreVignettes(); }
+  function carRendreVignettes() {
+    var box = document.getElementById('carVignettes'); if (!box) return;
+    box.innerHTML = carFichiers.map(function (f, i) {
+      return '<figure><img src="' + URL.createObjectURL(f) + '" alt="">'
+        + '<span class="n">' + (i + 1) + '</span>'
+        + '<button class="x" onclick="carRetirer(' + i + ')" aria-label="Retirer">✕</button></figure>';
+    }).join('');
+  }
+
+  function carEtat(cible, texte, encours) {
+    var el = document.getElementById(cible); if (!el) return;
+    el.innerHTML = texte
+      ? '<div class="car-etat">' + (encours ? '<i></i>' : '') + '<span>' + texte + '</span></div>'
+      : '';
+  }
+
+  async function carAnalyser() {
+    if (carFichiers.length < 2) {
+      skModal({ icon: '🖼️', title: 'Il en faut au moins deux', message: 'Envoie les slides de ton carrousel <b>dans l\'ordre</b> — c\'est l\'ordre qui apprend le rôle de chaque slide.', cancelText: 'OK' });
+      return;
+    }
+    var btn = document.getElementById('carBtnAnalyser'), lbl = btn.querySelector('.pl');
+    btn.disabled = true; lbl.textContent = 'Lecture de ton carrousel…';
+    carEtat('carEtatStyle', 'Envoi des ' + carFichiers.length + ' slides…', true);
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'signup.html'; return; }
+      var uid = session.user.id, base = 'carrousels/modeles/' + uid + '/' + Date.now();
+      var urls = [];
+      for (var i = 0; i < carFichiers.length; i++) {
+        var f = carFichiers[i];
+        var ext = (f.name || 'slide.jpg').split('.').pop().replace(/[^a-zA-Z0-9]/g, '') || 'jpg';
+        var chemin = base + '/' + String(i + 1).padStart(2, '0') + '.' + ext;
+        var up = await sb.storage.from('post-media').upload(chemin, f, { contentType: f.type || 'image/jpeg', upsert: true });
+        if (up.error) throw new Error(up.error.message);
+        urls.push(sb.storage.from('post-media').getPublicUrl(chemin).data.publicUrl);
+        carEtat('carEtatStyle', 'Envoi des slides… ' + (i + 1) + '/' + carFichiers.length, true);
+      }
+      carEtat('carEtatStyle', 'Skillora décortique ton carrousel — couleurs, polices, marges, rôle de chaque slide…', true);
+      var res = await fetch(SB_URL + '/functions/v1/carousel-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token, 'apikey': SB_KEY },
+        body: JSON.stringify({
+          slides: urls,
+          nom: (document.getElementById('carNom').value || '').trim(),
+          notes: (document.getElementById('carNotes').value || '').trim()
+        })
+      });
+      var d = await res.json().catch(function () { return {}; });
+      if (!d || !d.success) throw new Error((d && d.error) || 'Analyse impossible.');
+      carEtat('carEtatStyle', '');
+      carFichiers = []; carRendreVignettes();
+      document.getElementById('carNom').value = ''; document.getElementById('carNotes').value = '';
+      await carCharger();
+      carStyleActif = d.template.id;
+      skModal({
+        icon: '🎯', title: 'Style appris',
+        message: 'Skillora a compris ton carrousel : <b>' + carResume(d.template.recette) + '</b>.<br><br>Passe à l\'onglet <b>Créer</b> et donne-lui un sujet.',
+        cancelText: 'Super'
+      });
+      carOnglet('creer');
+    } catch (e) {
+      carEtat('carEtatStyle', '');
+      skModal({ icon: '⚠️', title: 'Analyse impossible', message: String(e.message || e), cancelText: 'OK' });
+    } finally {
+      btn.disabled = false; lbl.textContent = 'Apprendre ce style';
+    }
+  }
+
+  function carResume(r) {
+    r = r || {};
+    var f = r.format || {}, s = (r.slides || []).length;
+    return (s ? s + ' slides · ' : '') + (f.largeur && f.hauteur ? f.largeur + '×' + f.hauteur : 'format inconnu');
+  }
+  // Ce que le système a compris, en clair. Sans ça, la recette est une boîte noire
+  // et le créateur ne peut pas juger si l'analyse est juste AVANT de dépenser des images.
+  function carRecetteHTML(r) {
+    r = r || {};
+    var c = r.couleurs || {}, p = (r.polices || {}).titre || {}, im = r.image || {}, ca = r.cadre || {};
+    var pastille = function (v) { return v ? '<span class="car-pastille" style="background:' + v + '"></span>' : ''; };
+    var t = [];
+    if (r.format) t.push('<span><b>' + r.format.largeur + '×' + r.format.hauteur + '</b></span>');
+    t.push('<span><b>' + (r.slides || []).length + '</b> slides</span>');
+    if (c.fond) t.push('<span>' + pastille(c.fond) + 'fond</span>');
+    if (c.texte) t.push('<span>' + pastille(c.texte) + 'texte</span>');
+    if (c.accent) t.push('<span>' + pastille(c.accent) + 'accent</span>');
+    if (p.famille) t.push('<span>titre <b>' + p.famille + ' ' + (p.graisse || '') + '</b></span>');
+    if (im.presence) t.push('<span>image : <b>' + im.presence + '</b></span>');
+    if (ca.position_texte) t.push('<span>texte en <b>' + ca.position_texte + '</b></span>');
+    if ((r.ecriture || {}).langue) t.push('<span>langue <b>' + r.ecriture.langue + '</b></span>');
+    return '<div class="car-recette">' + t.join('') + '</div>';
+  }
+
+  async function carCharger() {
+    try {
+      var r = await sb.from('carousel_templates').select('id,nom,recette,created_at')
+        .order('created_at', { ascending: false }).limit(20);
+      carStyles = r.data || [];
+    } catch (e) { carStyles = []; }
+    if (!carStyleActif && carStyles.length) carStyleActif = carStyles[0].id;
+    var boite = document.getElementById('carMesStyles');
+    var liste = document.getElementById('carListe');
+    if (boite) boite.style.display = carStyles.length ? 'block' : 'none';
+    if (liste) {
+      liste.innerHTML = carStyles.map(function (s) {
+        return '<div class="car-item"><div class="ci-t"><b>' + escapeHtml(s.nom || 'Sans nom') + '</b>'
+          + '<small>' + carResume(s.recette) + '</small></div></div>'
+          + carRecetteHTML(s.recette);
+      }).join('');
+    }
+    carRendreChoix();
+  }
+
+  function carRendreChoix() {
+    var box = document.getElementById('carChoixStyle'); if (!box) return;
+    if (!carStyles.length) {
+      box.innerHTML = '<div class="pub-noconn"><p>Apprends d\'abord un style : envoie un carrousel que tu as fait à la main.</p>'
+        + '<button class="pub-connect-cta" onclick="carOnglet(\'style\')">← Apprendre mon style</button></div>';
+      return;
+    }
+    box.innerHTML = carStyles.map(function (s) {
+      return '<button class="car-item' + (s.id === carStyleActif ? ' on' : '') + '" onclick="carChoisirStyle(\'' + s.id + '\')">'
+        + '<div class="ci-t"><b>' + escapeHtml(s.nom || 'Sans nom') + '</b><small>' + carResume(s.recette) + '</small></div>'
+        + (s.id === carStyleActif ? '<span style="color:var(--blue-light);font-size:1rem;">✓</span>' : '') + '</button>';
+    }).join('');
+  }
+  function carChoisirStyle(id) { carStyleActif = id; carRendreChoix(); }
+  function carCombien(n) {
+    carNb = n;
+    [1, 3, 6].forEach(function (k) {
+      var b = document.getElementById('carN' + k); if (b) b.classList.toggle('on', k === n);
+    });
+  }
+
+  async function carCreer() {
+    var sujet = (document.getElementById('carSujet').value || '').trim();
+    if (!carStyleActif) { skModal({ icon: '🎨', title: 'Choisis un style', message: 'Sélectionne le style à rejouer.', cancelText: 'OK' }); return; }
+    if (!sujet) { skModal({ icon: '💡', title: 'Donne un sujet', message: 'Dis à Skillora de quoi parle ce carrousel.', cancelText: 'OK' }); return; }
+    var btn = document.getElementById('carBtnCreer'), lbl = btn.querySelector('.pl');
+    btn.disabled = true; lbl.textContent = 'Écriture…';
+    carEtat('carEtatCreer', 'Skillora écrit les slides dans ton style…', true);
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'signup.html'; return; }
+      var res = await fetch(SB_URL + '/functions/v1/carousel-generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token, 'apikey': SB_KEY },
+        body: JSON.stringify({ template_id: carStyleActif, sujet: sujet, combien: carNb })
+      });
+      var d = await res.json().catch(function () { return {}; });
+      if (!d || !d.success) throw new Error((d && d.error) || 'Création impossible.');
+      carEtat('carEtatCreer', 'Fabrication des images et assemblage des slides — ça prend une à deux minutes.', true);
+      carSuivre((d.jobs || []).map(function (j) { return j.id; }));
+    } catch (e) {
+      carEtat('carEtatCreer', '');
+      skModal({ icon: '⚠️', title: 'Création impossible', message: String(e.message || e), cancelText: 'OK' });
+    } finally {
+      btn.disabled = false; lbl.textContent = 'Créer le carrousel';
+    }
+  }
+
+  // On suit les jobs jusqu'au bout : le worker fabrique les images une par une,
+  // donc l'écran doit vivre pendant une à deux minutes sans que rien ne bouge.
+  function carSuivre(ids) {
+    if (carSuivi) clearInterval(carSuivi);
+    if (!ids || !ids.length) return;
+    var tour = 0;
+    var verifier = async function () {
+      tour++;
+      var r = await sb.from('video_jobs').select('id,status,plan,result_url,error,steps').in('id', ids);
+      var jobs = r.data || [];
+      carRendreResultats(jobs);
+      var restants = jobs.filter(function (j) { return j.status !== 'done' && j.status !== 'failed'; });
+      if (!restants.length || tour > 150) {
+        clearInterval(carSuivi); carSuivi = null;
+        carEtat('carEtatCreer', restants.length ? 'Ça prend plus longtemps que prévu — les carrousels apparaîtront ici dès qu\'ils sont prêts.' : '');
+      }
+    };
+    verifier();
+    carSuivi = setInterval(verifier, 4000);
+  }
+
+  function carRendreResultats(jobs) {
+    var box = document.getElementById('carResultats'); if (!box) return;
+    box.innerHTML = (jobs || []).map(function (j) {
+      var car = ((j.plan || {}).carrousel) || {};
+      var contenu = car.contenu || {};
+      var urls = car.slides_urls || [];
+      var titre = escapeHtml(contenu.titre_interne || 'Carrousel');
+      if (j.status === 'failed') {
+        return '<div class="pub-card" style="margin-bottom:12px;"><div class="pub-ey">' + titre + '</div>'
+          + '<p class="pub-hint2" style="color:#ff8a6a;">Échec : ' + escapeHtml(j.error || 'raison inconnue') + '</p></div>';
+      }
+      if (j.status !== 'done') {
+        var etape = ((j.steps || []).filter(function (s) { return s.state === 'running'; })[0] || {}).label || 'En file d\'attente…';
+        return '<div class="pub-card" style="margin-bottom:12px;"><div class="pub-ey">' + titre + '</div>'
+          + '<div class="car-etat"><i></i><span>' + escapeHtml(etape) + '</span></div></div>';
+      }
+      return '<div class="pub-card" style="margin-bottom:12px;">'
+        + '<div class="pub-ey">' + titre + '</div>'
+        + '<div class="car-vign">' + urls.map(function (u, i) {
+            return '<figure><img src="' + u + '" alt=""><span class="n">' + (i + 1) + '</span></figure>';
+          }).join('') + '</div>'
+        + '<p class="pub-hint2" style="white-space:pre-wrap;margin-top:10px;">' + escapeHtml(contenu.legende || '') + '</p>'
+        + ((contenu.hashtags || []).length
+            ? '<div class="ptg-tags">' + contenu.hashtags.map(function (h) { return '<span>#' + escapeHtml(h) + '</span>'; }).join('') + '</div>'
+            : '')
+        + '<button class="pub-publish" onclick="carPublier(\'' + j.id + '\')" style="margin-top:14px;">'
+        + '<span class="pl">Publier ce carrousel</span></button></div>';
+    }).join('');
+  }
+
+  // Publication : TikTok reçoit la musique automatique (sans elle un post photo
+  // n'existe pas dans l'algo), Instagram le carrousel, YouTube le diaporama vidéo.
+  async function carPublier(jobId) {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'signup.html'; return; }
+      var r = await sb.from('video_jobs').select('plan').eq('id', jobId).single();
+      var car = (((r.data || {}).plan || {}).carrousel) || {};
+      var urls = car.slides_urls || [];
+      if (urls.length < 2) { skModal({ icon: '⚠️', title: 'Carrousel incomplet', message: 'Ce carrousel n\'a pas assez de slides.', cancelText: 'OK' }); return; }
+      var conn = ['tiktok', 'instagram'].filter(function (k) { return !!(window.__connectedPlats && window.__connectedPlats[k]); });
+      if (car.video_url && window.__connectedPlats && window.__connectedPlats.youtube) conn.push('youtube');
+      if (!conn.length) {
+        skModal({ icon: '🔗', title: 'Aucun compte connecté', message: 'Connecte TikTok ou Instagram pour publier un carrousel.', confirmText: 'Connecter', cancelText: 'Plus tard', onConfirm: pubOpenConnect });
+        return;
+      }
+      var contenu = car.contenu || {};
+      var legende = (contenu.legende || '') + ((contenu.hashtags || []).length ? '\n\n' + contenu.hashtags.map(function (h) { return '#' + h; }).join(' ') : '');
+      var res = await fetch(SB_URL + '/functions/v1/pfm-publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token, 'apikey': SB_KEY },
+        body: JSON.stringify({ platforms: conn, media_urls: urls, video_url: car.video_url || null, caption: legende })
+      });
+      var d = await res.json().catch(function () { return {}; });
+      if (d && d.limit_reached) { pubShowLimitModal(d.used, d.max); return; }
+      if (d && d.success) {
+        skModal({
+          icon: '🎉', title: 'Carrousel publié !',
+          message: '<b>' + urls.length + ' slides</b> partent sur <b>' + conn.map(function (k) { return pubPlatLabel(k); }).join(', ') + '</b>.'
+            + ((d.ignores || []).length ? '<br><br><small>' + d.ignores.map(function (k) { return pubPlatLabel(k); }).join(', ') + ' n\'accepte pas les carrousels — écarté.</small>' : ''),
+          cancelText: 'Super'
+        });
+      } else {
+        skModal({ icon: '⚠️', title: 'Échec', message: (d && d.error) || 'La publication a échoué.', cancelText: 'OK' });
+      }
+    } catch (e) {
+      skModal({ icon: '⚠️', title: 'Erreur', message: String(e.message || e), cancelText: 'OK' });
+    }
   }
 
   /* ── POST TEXTE (X / Threads / Facebook) — détection auto par le contenu ── */

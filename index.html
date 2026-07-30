@@ -977,20 +977,30 @@
     background:#3ddc84; margin-right:9px; vertical-align:middle;
     box-shadow:0 0 0 4px rgba(61,220,132,.14); animation:qtP 2.4s ease-in-out infinite; }
   @keyframes qtP { 0%,100%{opacity:1} 50%{opacity:.3} }
-  /* Le compteur avance : un tres court flash sur le chiffre, jamais plus. */
-  .qt-v.up { animation:qtUp .6s ease; }
-  @keyframes qtUp { 0%{transform:translateY(-3px);opacity:.35} 100%{transform:none;opacity:1} }
+  /* Le compteur avance : le nouveau chiffre TOMBE en place, plus gros une
+     fraction de seconde, avec une lueur. L'ancienne version se contentait de
+     3 pixels et d'un fondu — on pouvait la rater en clignant des yeux. */
+  .qt-v.up { animation:qtUp 1s cubic-bezier(.16,1,.3,1); }
+  @keyframes qtUp {
+    0%   { transform:translateY(-26px) scale(1.2); opacity:0; filter:blur(5px); }
+    35%  { transform:translateY(0) scale(1.2); opacity:1; filter:blur(0); }
+    55%  { transform:scale(1.2); }
+    100% { transform:scale(1); }
+  }
+  /* Les places restantes s'embrasent au moment du changement. */
+  .qt-c.left .qt-v.up { animation:qtUpChaud 1s cubic-bezier(.16,1,.3,1); }
+  @keyframes qtUpChaud {
+    0%   { transform:translateY(-26px) scale(1.2); opacity:0; filter:blur(5px); color:#fff; }
+    35%  { transform:translateY(0) scale(1.2); opacity:1; filter:blur(0); color:#fff;
+           text-shadow:0 0 46px rgba(255,176,32,.95); }
+    55%  { transform:scale(1.2); color:#ffd27a; }
+    100% { transform:scale(1); color:#ffb020; }
+  }
   /* « 988 / 1 000 » : le total suit le chiffre, en plus petit. Seul, « 988 »
      ne veut rien dire ; avec le total a cote, on voit que c'est presque plein. */
   .qt-v b { font-weight:800; }
   .qt-v em { font-style:normal; font-size:.4em; font-weight:700; letter-spacing:0;
     color:var(--muted2); margin-left:6px; }
-  /* Jauge : trois pixels, aucune boite autour. */
-  .qt-g { max-width:430px; height:3px; margin:22px auto 0; border-radius:99px;
-    background:rgba(255,255,255,.08); overflow:hidden; }
-  .qt-g i { display:block; height:100%; width:0; border-radius:99px;
-    background:linear-gradient(90deg,#ff8a3d,#ffb020);
-    transition:width .9s cubic-bezier(.2,.8,.3,1); }
   @media (max-width:360px){ .qt-row { gap:20px; } .qt-k { font-size:.55rem; letter-spacing:.12em; } }
 
   /* Prix barre : l'ancien tarif reste visible a cote du nouveau.
@@ -1122,9 +1132,6 @@
             <span class="qt-k" data-t="qt_in">Déjà inscrits</span>
           </div>
         </div>
-        <!-- Jauge : un cheveu, pas une boite. Elle rend le « presque plein »
-             lisible d'un coup d'oeil, sans ajouter un seul mot. -->
-        <div class="qt-g"><i id="qtG"></i></div>
       </div>
     </div>
 
@@ -1979,7 +1986,6 @@
   var KEY = 'sb_publishable_u8BiBh7ciFGr13GPQHLnGQ_f17a_5aA';
   var boite = document.getElementById('qt'); if (!boite) return;
   var elIn = document.getElementById('qtIn'), elLeft = document.getElementById('qtLeft');
-  var elJauge = document.getElementById('qtG');
   var cfg = { quota:1000, depart:588, par_heure:12, actif:true };
   var moisCle = new Date().toISOString().slice(0,7);       // « 2026-07 »
   var valeur = 0, minuteur = null, plafondVisite = 0;
@@ -2033,25 +2039,38 @@
        presque plein. Le point vert vit dans le meme element, il faut donc le
        reecrire a chaque fois. */
     elIn.innerHTML = '<i class="qt-d"></i><b>' + mille(v) + '</b><em>/ ' + mille(cfg.quota) + '</em>';
-    elJauge.style.width = Math.min(100, (v / cfg.quota) * 100) + '%';
     if (anime) [elLeft, elIn].forEach(function(el){
       el.classList.remove('up'); void el.offsetWidth; el.classList.add('up');
     });
   }
   function afficher(anime){ afficherValeur(valeur, anime); }
 
-  /* MONTEE D'ARRIVEE : le compteur demarre trois crans en dessous et grimpe
-     sous les yeux du visiteur — 985, 986, 987, 988 — puis s'arrete.
-     C'est un effet d'AFFICHAGE : la valeur retenue reste celle du haut, donc
-     rien ne redescend et un rechargement rejoue simplement la montee. */
-  var PAS_ARRIVEE = 3, ARRIVEE_MS = 780;
+  /* MONTEE D'ARRIVEE — UNE SEULE FOIS DANS LA VIE DU VISITEUR.
+     A la toute premiere visite, le compteur part trois crans plus bas et
+     grimpe devant la personne, a un rythme IRREGULIER (2 a 5 secondes entre
+     chaque pas, jamais deux fois le meme delai). Puis il s'arrete la, et la
+     valeur atteinte est enregistree.
+
+     Rejouer cette montee a chaque rechargement etait une erreur : on voyait
+     « 15 places » redevenir « 12 places » en deux secondes, encore et encore.
+     Un chiffre qui remonte a chaque F5 se demasque tout seul. Le drapeau
+     ci-dessous garantit que ca n'arrive qu'une fois par appareil et par mois. */
+  var PAS_ARRIVEE = 3;
+  function dejaVu(){
+    try { return localStorage.getItem('sk_qt_vu') === moisCle; } catch(e){ return true; }
+  }
+  function marquerVu(){
+    try { localStorage.setItem('sk_qt_vu', moisCle); } catch(e){}
+  }
   function monteeArrivee(fini){
-    var v = Math.max(0, valeur - PAS_ARRIVEE);
+    var cible = valeur, v = Math.max(0, cible - PAS_ARRIVEE);
+    afficherValeur(v, false);
     (function pas(){
-      afficherValeur(v, v !== valeur - PAS_ARRIVEE);
-      if (v >= valeur){ if (fini) fini(); return; }
-      v++;
-      setTimeout(pas, ARRIVEE_MS);
+      if (v >= cible){ ecrire(cible); marquerVu(); if (fini) fini(); return; }
+      // 2 a 5 secondes, tire a chaque pas : le rythme ne doit jamais etre regulier.
+      setTimeout(function(){
+        v++; afficherValeur(v, true); pas();
+      }, 2000 + Math.random() * 3000);
     })();
   }
 
@@ -2082,8 +2101,11 @@
     plafondVisite = Math.min(plafond(), base() + 12);
     ecrire(valeur);
     boite.style.display = '';
-    // On grimpe sous les yeux du visiteur, PUIS on passe au rythme lent.
-    monteeArrivee(planifier);
+    /* Premiere visite du mois : on grimpe devant la personne, puis on passe au
+       rythme lent. Toutes les visites suivantes affichent directement le
+       chiffre atteint — il ne remonte jamais. */
+    if (dejaVu()) { afficher(false); planifier(); }
+    else monteeArrivee(planifier);
     /* L'onglet passe en arriere-plan : on arrete. Il revient : on repart. */
     document.addEventListener('visibilitychange', function(){
       if (document.hidden){ if (minuteur) clearTimeout(minuteur); minuteur = null; }

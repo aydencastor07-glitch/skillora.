@@ -980,6 +980,17 @@
   /* Le compteur avance : un tres court flash sur le chiffre, jamais plus. */
   .qt-v.up { animation:qtUp .6s ease; }
   @keyframes qtUp { 0%{transform:translateY(-3px);opacity:.35} 100%{transform:none;opacity:1} }
+  /* « 988 / 1 000 » : le total suit le chiffre, en plus petit. Seul, « 988 »
+     ne veut rien dire ; avec le total a cote, on voit que c'est presque plein. */
+  .qt-v b { font-weight:800; }
+  .qt-v em { font-style:normal; font-size:.4em; font-weight:700; letter-spacing:0;
+    color:var(--muted2); margin-left:6px; }
+  /* Jauge : trois pixels, aucune boite autour. */
+  .qt-g { max-width:430px; height:3px; margin:22px auto 0; border-radius:99px;
+    background:rgba(255,255,255,.08); overflow:hidden; }
+  .qt-g i { display:block; height:100%; width:0; border-radius:99px;
+    background:linear-gradient(90deg,#ff8a3d,#ffb020);
+    transition:width .9s cubic-bezier(.2,.8,.3,1); }
   @media (max-width:360px){ .qt-row { gap:20px; } .qt-k { font-size:.55rem; letter-spacing:.12em; } }
 
   /* Prix barre : l'ancien tarif reste visible a cote du nouveau.
@@ -1107,10 +1118,13 @@
           </div>
           <div class="qt-sep"></div>
           <div class="qt-c">
-            <span class="qt-v" id="qtIn"><i class="qt-d"></i>—</span>
-            <span class="qt-k" data-t="qt_in">Inscrits ce mois-ci</span>
+            <span class="qt-v" id="qtIn"><i class="qt-d"></i><b>—</b></span>
+            <span class="qt-k" data-t="qt_in">Déjà inscrits</span>
           </div>
         </div>
+        <!-- Jauge : un cheveu, pas une boite. Elle rend le « presque plein »
+             lisible d'un coup d'oeil, sans ajouter un seul mot. -->
+        <div class="qt-g"><i id="qtG"></i></div>
       </div>
     </div>
 
@@ -1965,6 +1979,7 @@
   var KEY = 'sb_publishable_u8BiBh7ciFGr13GPQHLnGQ_f17a_5aA';
   var boite = document.getElementById('qt'); if (!boite) return;
   var elIn = document.getElementById('qtIn'), elLeft = document.getElementById('qtLeft');
+  var elJauge = document.getElementById('qtG');
   var cfg = { quota:1000, depart:588, par_heure:12, actif:true };
   var moisCle = new Date().toISOString().slice(0,7);       // « 2026-07 »
   var valeur = 0, minuteur = null, plafondVisite = 0;
@@ -2003,28 +2018,56 @@
     return Math.round(cfg.depart + (haut - cfg.depart) * Math.pow(p, COURBE));
   }
 
-  function afficher(anime){
-    var reste = Math.max(0, cfg.quota - valeur);
-    elLeft.textContent = String(reste);
-    // Le point vert vit dans le chiffre des inscrits : il doit survivre a
-    // chaque mise a jour, donc on le reecrit avec.
-    elIn.innerHTML = '<i class="qt-d"></i>' + valeur;
+  /* Un espace fin insecable entre les milliers : « 1 000 » et non « 1000 ».
+     En anglais on garde la virgule, c'est ce que le lecteur attend. */
+  function mille(n){
+    var lg = (window.skLangue && window.skLangue()) || 'en';
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, lg === 'en' ? ',' : ' ');
+  }
+
+  function afficherValeur(v, anime){
+    var reste = Math.max(0, cfg.quota - v);
+    elLeft.textContent = mille(reste);
+    /* Le nombre d'inscrits est suivi de « / 1 000 » : seul, « 988 » ne dit
+       rien. Avec le total a cote, on comprend d'un coup d'oeil que c'est
+       presque plein. Le point vert vit dans le meme element, il faut donc le
+       reecrire a chaque fois. */
+    elIn.innerHTML = '<i class="qt-d"></i><b>' + mille(v) + '</b><em>/ ' + mille(cfg.quota) + '</em>';
+    elJauge.style.width = Math.min(100, (v / cfg.quota) * 100) + '%';
     if (anime) [elLeft, elIn].forEach(function(el){
       el.classList.remove('up'); void el.offsetWidth; el.classList.add('up');
     });
   }
+  function afficher(anime){ afficherValeur(valeur, anime); }
 
-  /* Montee lente et irreguliere pendant la visite : par defaut un pas toutes
-     les 3 a 7 minutes (par_heure = 12). Un rythme regulier se remarquerait
-     immediatement.
+  /* MONTEE D'ARRIVEE : le compteur demarre trois crans en dessous et grimpe
+     sous les yeux du visiteur — 985, 986, 987, 988 — puis s'arrete.
+     C'est un effet d'AFFICHAGE : la valeur retenue reste celle du haut, donc
+     rien ne redescend et un rechargement rejoue simplement la montee. */
+  var PAS_ARRIVEE = 3, ARRIVEE_MS = 780;
+  function monteeArrivee(fini){
+    var v = Math.max(0, valeur - PAS_ARRIVEE);
+    (function pas(){
+      afficherValeur(v, v !== valeur - PAS_ARRIVEE);
+      if (v >= valeur){ if (fini) fini(); return; }
+      v++;
+      setTimeout(pas, ARRIVEE_MS);
+    })();
+  }
+
+  /* Montee irreguliere pendant la visite : par defaut un pas toutes les 1 a
+     3 minutes (par_heure = 24). Quelqu'un qui reste cinq minutes sur la page
+     voit donc le chiffre bouger au moins une fois — c'est tout l'interet, un
+     compteur qui ne bouge jamais ne prouve rien. Un rythme REGULIER, lui, se
+     remarquerait immediatement : d'ou le tirage au hasard.
 
      plafondVisite BORNE la montee : sans lui, un onglet laisse ouvert toute
      une journee finirait a 996 alors que le reste du monde en est a 970 —
      et cette personne verrait ensuite un chiffre qui ne bouge plus jamais. */
   function planifier(){
     if (minuteur) clearTimeout(minuteur);
-    var pas = 3600 / Math.max(4, cfg.par_heure);              // 300 s par defaut
-    var attente = pas * (0.6 + Math.random() * 0.8) * 1000;   // 180 – 420 s
+    var pas = 3600 / Math.max(4, cfg.par_heure);              // 150 s par defaut
+    var attente = pas * (0.6 + Math.random() * 0.8) * 1000;   // 90 – 210 s
     minuteur = setTimeout(function(){
       if (!document.hidden && valeur < plafondVisite){
         valeur += 1; ecrire(valeur); afficher(true);
@@ -2039,8 +2082,8 @@
     plafondVisite = Math.min(plafond(), base() + 12);
     ecrire(valeur);
     boite.style.display = '';
-    afficher(false);
-    planifier();
+    // On grimpe sous les yeux du visiteur, PUIS on passe au rythme lent.
+    monteeArrivee(planifier);
     /* L'onglet passe en arriere-plan : on arrete. Il revient : on repart. */
     document.addEventListener('visibilitychange', function(){
       if (document.hidden){ if (minuteur) clearTimeout(minuteur); minuteur = null; }

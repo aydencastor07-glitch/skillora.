@@ -2194,10 +2194,11 @@
   try {
     var h = String(window.location.hash || '');
     if (h.indexOf('access_token') >= 0 || h.indexOf('refresh_token') >= 0 || h.indexOf('type=') >= 0) return;
-    // Rechargement : on repart de l'accueil, jamais de l'ecran ou on etait.
-    // Sans ca, recharger sur #ia rouvrait « Creer un script ».
+    /* Rechargement : on RESTE sur l'ecran ou on etait. On se contente de
+       reinscrire l'ecran dans l'etat d'historique — la restauration elle-meme
+       se fait plus bas, une fois switchView defini et le DOM pret. */
     if (h && h.length > 1) {
-      try { history.replaceState({ skview: 'home' }, '', location.pathname + location.search); } catch (e) {}
+      try { history.replaceState({ skview: h.replace('#', '') }, '', location.pathname + location.search + h); } catch (e) {}
     }
     var hasToken = false;
     for (var i = 0; i < localStorage.length; i++) {
@@ -4059,7 +4060,29 @@
      depense sur Meta ou Google. Inventer un « retour sur investissement »
      donnerait un chiffre faux — pire que pas de chiffre. On s'en tient a ce
      qu'on MESURE : vues, clics, inscrits, payants, gratuits, revenu. */
-  var OWN = { onglet:'vue', periode:'30j', mois:null, data:null, metrique:'revenu', memPage:0, memTimer:null };
+  /* On ouvre sur AUJOURD'HUI. C'est la question qu'on se pose en arrivant —
+     « qu'est-ce qui s'est passe depuis ce matin ? » — pas « qu'est-ce qui
+     s'est passe le mois dernier ». Les autres periodes restent a un clic.
+
+     Le choix est retenu sur l'appareil : revenir sur la page ou l'actualiser
+     ne le remet pas a zero. */
+  var OWN = { onglet:'vue', periode:'auj', mois:null, data:null, metrique:'revenu', memPage:0, memTimer:null };
+  (function(){
+    try {
+      var m = JSON.parse(localStorage.getItem('sk_own') || 'null');
+      if (m) {
+        if (m.periode) OWN.periode = m.periode;
+        if (m.mois)    OWN.mois    = m.mois;
+        if (m.onglet)  OWN.onglet  = m.onglet;
+        if (m.metrique) OWN.metrique = m.metrique;
+      }
+    } catch(e){}
+  })();
+  function ownRetenir(){
+    try { localStorage.setItem('sk_own', JSON.stringify({
+      periode: OWN.periode, mois: OWN.mois, onglet: OWN.onglet, metrique: OWN.metrique
+    })); } catch(e){}
+  }
 
   /* Vrais logos des regies publicitaires — dessines, jamais charges. */
   var OWN_LOGOS = {
@@ -4090,7 +4113,7 @@
   }
 
   function ownTab(nom){
-    OWN.onglet = nom;
+    OWN.onglet = nom; ownRetenir();
     document.querySelectorAll('#ownTabs button').forEach(function(b){
       b.classList.toggle('on', b.getAttribute('data-o') === nom);
     });
@@ -4104,7 +4127,9 @@
       var src  = document.getElementById('view-publish');
       if (hote && src && !hote.children.length) { while (src.firstChild) hote.appendChild(src.firstChild); }
     }
-    if (nom === 'vue' && !OWN.data) ownCharger();
+    /* Pas de chargement ici : l'ouverture de l'espace dev s'en charge (voir
+       switchView, cas 'owner'). Le faire aux deux endroits declenchait deux
+       appels a la suite au premier affichage. */
   }
 
   var OWN_PER = [['auj',"Aujourd'hui"],['7j','7 jours'],['30j','30 jours'],['90j','90 jours'],['365j','1 an'],['tout','Tout']];
@@ -4114,8 +4139,8 @@
       return '<button class="'+(OWN.periode===p[0]?'on':'')+'" onclick="ownSetPer(\''+p[0]+'\')">'+p[1]+'</button>';
     }).join('') + '<input type="month" id="ownMois" onchange="ownSetMois(this.value)" title="Un mois précis">';
   }
-  function ownSetPer(p){ OWN.periode = p; OWN.mois = null; ownPeriodes(); ownCharger(); }
-  function ownSetMois(v){ if(!v) return; OWN.periode='mois'; OWN.mois=v; ownPeriodes(); ownCharger(); }
+  function ownSetPer(p){ OWN.periode = p; OWN.mois = null; ownRetenir(); ownPeriodes(); ownCharger(); }
+  function ownSetMois(v){ if(!v) return; OWN.periode='mois'; OWN.mois=v; ownRetenir(); ownPeriodes(); ownCharger(); }
 
   function ownNb(n){
     n = Number(n) || 0;
@@ -4170,7 +4195,7 @@
       var el = document.createElement('button');
       el.className = 'own-k' + (OWN.metrique === t[0] ? ' on' : '');
       el.style.setProperty('--kc', t[5]);
-      el.onclick = function(){ OWN.metrique = t[0]; ownKpis(OWN.data); ownGraphique(); };
+      el.onclick = function(){ OWN.metrique = t[0]; ownRetenir(); ownKpis(OWN.data); ownGraphique(); };
       el.innerHTML = '<span class="own-k-l">'+t[1]+'</span><span class="own-k-v">0</span><span class="own-k-s">'+t[3]+'</span>';
       kp.appendChild(el);
       ownAnime(el.querySelector('.own-k-v'), t[2], t[4]);
@@ -4407,6 +4432,9 @@
       if (!session) return;
       window._userEmail = String(session.user.email || '').toLowerCase();
       window._unlimited = UNLIMITED_EMAILS.indexOf(window._userEmail) >= 0;
+      // On sait enfin si le compte est proprietaire : c'est le moment de
+      // rouvrir #owner / #publish si c'est de la qu'on venait.
+      try { if (window.skRestaurerVue) window.skRestaurerVue(); } catch(_e){}
       try { devShowCardIfOwner(); } catch(_e){}
       try { var _oi = document.getElementById('skmOwnerItem'); if (_oi) _oi.style.display = window._unlimited ? '' : 'none'; } catch(_e){}
       const { data, error } = await sb
@@ -7177,7 +7205,8 @@
       try { loadHomeDashboard(); } catch(e){}
       // La vue complete se charge des l'ouverture : le proprietaire doit voir
       // ses chiffres tout de suite, sans un clic de plus.
-      try { ownTab(OWN.onglet || 'vue'); if (OWN.onglet === 'vue') ownCharger(); } catch(e){}
+      // L'onglet Publication n'a pas besoin des statistiques ; les deux autres si.
+      try { ownTab(OWN.onglet || 'vue'); if (OWN.onglet !== 'pub') ownCharger(); } catch(e){}
     }
     if (name === 'library') applyBookLocks();
     if (name === 'ia') {
@@ -7213,6 +7242,41 @@
     if (!document.getElementById('view-' + name)) name = 'home';
     try { switchView(name, null, { fromHistory: true }); } catch(err){}
   });
+
+  /* RESTER SUR L'ECRAN APRES UN RECHARGEMENT.
+     L'adresse porte deja l'ecran (#owner, #publish…) : on le rouvre au
+     demarrage au lieu de renvoyer tout le monde a l'accueil. On passe par
+     fromHistory pour ne pas empiler une etape d'historique de plus — sinon
+     le bouton Retour du telephone demanderait deux appuis. */
+  (function(){
+    var fait = false;
+    /* Appelee DEUX fois : une fois des que le DOM est pret, une seconde fois
+       quand on sait enfin si le compte est proprietaire. Sans le second appel,
+       recharger sur #owner renvoyait a l'accueil : switchView refuse cet ecran
+       tant que _unlimited est inconnu, et il ne l'est qu'apres la reponse du
+       serveur. Le drapeau « fait » garantit qu'on ne deplace la personne
+       qu'une seule fois, et jamais si elle a deja navigue ailleurs. */
+    window.skRestaurerVue = function(){
+      if (fait) return;
+      // L'adresse fait foi ; sinon le dernier ecran retenu sur l'appareil.
+      var n = String(location.hash || '').replace('#', '');
+      if (n.indexOf('access_token') >= 0 || n.indexOf('=') >= 0) return;
+      if (!n) { try { n = localStorage.getItem('skillora_view') || ''; } catch(e){} }
+      // « Copier avec l'IA » ne se restaure jamais : on doit revenir au champ
+      // vide, pas rouvrir un plan perime. L'ancienne bibliotheque non plus.
+      if (!n || n === 'home' || n === 'ia' || n === 'library') return;
+      if (!document.getElementById('view-' + n)) return;
+      var reserve = (n === 'owner' || n === 'publish');
+      if (reserve && !window._unlimited) return;      // on retentera plus tard
+      var actif = document.querySelector('.view.active');
+      if (actif && actif.id !== 'view-home' && actif.id !== 'view-' + n) return;
+      fait = true;
+      try { switchView(n, null, { fromHistory: true }); } catch(e){}
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.skRestaurerVue);
+    else window.skRestaurerVue();
+  })();
+
   // ── Accueil v2 : héros Copie + feed de vidéos virales ──────────────────
   function hv2Go(){
     var v = (document.getElementById('hv2Link')||{}).value || '';
@@ -7799,16 +7863,12 @@
     }
   }
 
-  // Restaure la dernière vue ouverte après un refresh
+  /* Restauration apres un rechargement — un seul point d'entree.
+     Avant, cette fonction appelait switchView sans savoir si le compte etait
+     proprietaire : #owner etait alors renvoye sur l'accueil, et l'adresse
+     reecrite en #home. On delegue donc a skRestaurerVue, qui sait attendre. */
   function restoreLastView() {
-    try {
-      var v = localStorage.getItem('skillora_view');
-      if (v === 'library') return; // ancien système ebook retiré
-      if (v === 'ia') return;      // voir plus haut : on ne restaure jamais la copie
-      if (v && v !== 'home' && document.getElementById('view-' + v)) {
-        switchView(v, null);
-      }
-    } catch(e) {}
+    try { if (window.skRestaurerVue) window.skRestaurerVue(); } catch(e) {}
   }
 
   /* ===== Email activation state & popup ===== */

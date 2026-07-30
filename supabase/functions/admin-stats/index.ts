@@ -28,12 +28,17 @@ function json(o: unknown, s = 200) {
    sur un mois precis. */
 function periode(p: Record<string, unknown>) {
   const now = new Date();
-  const t = String(p.periode || "30j");
+  const t = String(p.periode || "auj");
   if (t === "mois" && /^\d{4}-\d{2}$/.test(String(p.mois || ""))) {
     const [a, m] = String(p.mois).split("-").map(Number);
     return { from: new Date(Date.UTC(a, m - 1, 1)), to: new Date(Date.UTC(a, m, 1)) };
   }
-  const fin = new Date(now.getTime() + 86400000);
+  /* La borne haute est la FIN DU JOUR EN COURS, pas « maintenant + 24 h ».
+     Avec l'ancien calcul, « Aujourd'hui » allait jusqu'a demain a la meme
+     heure : la courbe affichait deux points au lieu d'un, et le second etait
+     toujours vide. */
+  const fin = new Date(now); fin.setUTCHours(0, 0, 0, 0);
+  fin.setUTCDate(fin.getUTCDate() + 1);
   if (t === "tout") return { from: new Date("2020-01-01"), to: fin };
   const jours: Record<string, number> = { "auj": 1, "7j": 7, "30j": 30, "90j": 90, "365j": 365 };
   const n = jours[t] ?? 30;
@@ -146,7 +151,7 @@ serve(async (req) => {
 
     return json({
       success: true,
-      periode: { debut: from.toISOString(), fin: to.toISOString(), type: String(body.periode || "30j") },
+      periode: { debut: from.toISOString(), fin: to.toISOString(), type: String(body.periode || "auj") },
       apercu: apercu.data,
       campagnes,
       derniers: (membres.data as Record<string, unknown>)?.lignes || [],

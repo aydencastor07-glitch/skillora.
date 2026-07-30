@@ -1,7 +1,18 @@
-// SKILLORA — pfm-publish : publie/programme une vidéo sur les réseaux via Post for Me.
-// Reçoit { platforms:[..], media_url, caption, scheduled_at? } du front, résout les
-// comptes connectés de l'utilisateur (social_connections) et appelle l'API Post for Me.
+// SKILLORA — pfm-publish : publie/programme une vidéo OU un carrousel via Post for Me.
+// Reçoit { platforms:[..], media_url | media_urls:[..], video_url?, caption, scheduled_at? }
+// du front, résout les comptes connectés (social_connections) et appelle l'API Post for Me.
+//
+// CARROUSEL : plusieurs images dans media_urls. Chaque réseau a ses propres limites, donc
+// on ne peut pas envoyer la même chose à tout le monde — on surcharge par plateforme :
+//   • TikTok    : 2 à 35 images + musique ajoutée automatiquement (auto_add_music)
+//   • Instagram : 2 à 10 images  (au-delà, on coupe — sinon le post entier échoue)
+//   • YouTube   : pas de carrousel du tout -> il lui faut la version diaporama (video_url)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const MAX_TIKTOK = 35;
+const MAX_INSTAGRAM = 10;
+// Ces réseaux ne savent pas afficher un carrousel d'images : sans vidéo, on les écarte.
+const SANS_CARROUSEL = ["youtube"];
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -41,12 +52,23 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const platforms: string[] = Array.isArray(body.platforms) ? body.platforms.map((p: string) => String(p).toLowerCase()) : [];
-    const mediaUrl: string = (body.media_url || "").toString();
+    // Un post porte UNE vidéo (media_url) ou PLUSIEURS images (media_urls = carrousel).
+    // media_url seul reste accepté : tout l'existant continue de marcher sans changement.
+    const medias: string[] = [
+      ...(Array.isArray(body.media_urls) ? body.media_urls : []),
+      ...(body.media_url ? [body.media_url] : []),
+    ].map((m: unknown) => String(m || "").trim()).filter(Boolean)
+      .filter((m, i, t) => t.indexOf(m) === i)
+      .slice(0, MAX_TIKTOK);
+    const mediaUrl: string = medias[0] || "";
+    const videoUrl: string = (body.video_url || "").toString().trim(); // diaporama, pour YouTube
+    const carrousel = medias.length > 1;
     const caption: string = (body.caption || "").toString();
     const scheduledAt: string | null = body.scheduled_at ? String(body.scheduled_at) : null;
+    const templateId: string | null = body.template_id ? String(body.template_id) : null;
 
     if (!platforms.length) return json({ success: false, error: "Aucune plateforme sélectionnée." }, 400);
-    // Vidéo OU post texte : il faut au moins une vidéo/image, ou du texte (pour X/Threads/Facebook).
+    // Vidéo, carrousel OU post texte : au moins un média, ou du texte (pour X/Threads/Facebook).
     if (!mediaUrl && !caption.trim()) return json({ success: false, error: "Post vide : ajoute une vidéo/image ou écris un texte." }, 400);
     // Clé de comptage : l'URL média si présente, sinon le texte (un post = une publication).
     const pubKey = mediaUrl || ("text:" + caption.trim());
@@ -80,7 +102,22 @@ Deno.serve(async (req) => {
     if (wanted.has("tiktok_business")) wanted.add("tiktok");
     const { data: conns } = await admin.from("social_connections")
       .select("provider_account_id, platform").eq("user_id", userId).in("platform", [...wanted]);
-    const accountIds = [...new Set((conns || []).map((c: any) => c.provider_account_id).filter(Boolean))];
+    let comptes = (conns || []).filter((c: any) => c.provider_account_id);
+
+    // Un carrousel sans diaporama ne peut pas partir sur YouTube : on retire ces comptes
+    // au lieu de laisser Post for Me refuser TOUT le post (les autres réseaux passeraient à la trappe).
+    let ecartes: string[] = [];
+    if (carrousel && !videoUrl) {
+      const avant = comptes.length;
+      ecartes = [...new Set(comptes.filter((c: any) => SANS_CARROUSEL.includes(String(c.platform)))
+        .map((c: any) => String(c.platform)))];
+      comptes = comptes.filter((c: any) => !SANS_CARROUSEL.includes(String(c.platform)));
+      if (!comptes.length && avant) {
+        return json({ success: false, error: "YouTube n'accepte pas les carrousels d'images. Ajoute une version vidéo (diaporama) ou choisis TikTok / Instagram." }, 400);
+      }
+    }
+
+    const accountIds = [...new Set(comptes.map((c: any) => c.provider_account_id))];
     if (!accountIds.length) {
       return json({ success: false, error: "Aucun compte connecté pour ces plateformes. Connecte-les d'abord." }, 400);
     }
@@ -89,8 +126,23 @@ Deno.serve(async (req) => {
       caption,
       social_accounts: accountIds,
     };
-    if (mediaUrl) payload.media = [{ url: mediaUrl }]; // post texte = pas de média
+    if (mediaUrl) payload.media = medias.map((url) => ({ url })); // post texte = pas de média
     if (scheduledAt) payload.scheduled_at = scheduledAt;
+
+    // ── SURCHARGES PAR PLATEFORME ────────────────────────────────────────────────
+    // Sans elles, un carrousel de 12 images fait échouer Instagram (max 10) et part
+    // sur TikTok en silence, sans musique — donc invisible dans l'algo photo.
+    if (carrousel) {
+      const conf: Record<string, unknown> = {};
+      // TikTok : la musique est ce qui fait exister un post photo. auto_add_music est
+      // INCOMPATIBLE avec is_draft : on ne met jamais les deux.
+      const tiktok = { auto_add_music: true, media: medias.slice(0, MAX_TIKTOK).map((url) => ({ url })) };
+      conf.tiktok = tiktok;
+      conf.tiktok_business = tiktok;
+      conf.instagram = { media: medias.slice(0, MAX_INSTAGRAM).map((url) => ({ url })) };
+      if (videoUrl) conf.youtube = { media: [{ url: videoUrl }] }; // YouTube reçoit le diaporama
+      payload.platform_configurations = conf;
+    }
 
     const r = await pfmFetch("/v1/social-posts", KEY, { method: "POST", body: JSON.stringify(payload) });
     const d = await r.json().catch(() => ({}));
@@ -98,7 +150,7 @@ Deno.serve(async (req) => {
     if (!r.ok) {
       const err = (d && (d.error || d.message)) || ("Post for Me " + r.status);
       await admin.from("scheduled_posts").insert({
-        user_id: userId, caption, media_url: mediaUrl, platforms,
+        user_id: userId, caption, media_url: mediaUrl, media_urls: medias, template_id: templateId, platforms,
         status: "failed", scheduled_at: scheduledAt, error: JSON.stringify(d).slice(0, 500),
       });
       return json({ success: false, error: err }, 200);
@@ -106,11 +158,15 @@ Deno.serve(async (req) => {
 
     const postId = (d && (d.id || d.data?.id)) || null;
     await admin.from("scheduled_posts").insert({
-      user_id: userId, caption, media_url: mediaUrl, platforms,
+      user_id: userId, caption, media_url: mediaUrl, media_urls: medias, template_id: templateId, platforms,
       pfm_post_id: postId, status: scheduledAt ? "scheduled" : "publishing", scheduled_at: scheduledAt,
     });
 
-    return json({ success: true, id: postId, scheduled: !!scheduledAt });
+    return json({
+      success: true, id: postId, scheduled: !!scheduledAt,
+      slides: carrousel ? medias.length : 0,
+      ignores: ecartes,   // réseaux volontairement écartés (ex. YouTube sur un carrousel)
+    });
   } catch (e) {
     return json({ success: false, error: "Erreur serveur: " + (e?.message ?? String(e)) }, 500);
   }

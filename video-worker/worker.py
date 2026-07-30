@@ -3327,6 +3327,11 @@ def process(job):
         if context.get("mode") == "blueprint":
             generate_blueprint_job(job, steps)
             return
+        # CARROUSEL : pas de vidéo à télécharger — on fabrique des images et on
+        # les assemble selon la recette apprise d'un carrousel fait à la main.
+        if context.get("mode") == "carrousel":
+            generate_carousel_job(job, work, steps)
+            return
 
         steps.start("dl", "Téléchargement de ta vidéo…")
         src = os.path.join(work, "src.mp4")
@@ -6553,6 +6558,546 @@ def generate_blueprint_job(job, steps):
                 os.remove(local)
             except Exception:
                 pass
+
+
+# ==========================================================================
+#  CARROUSELS — « donne-moi un carrousel fait à la main, je t'en fais dix »
+#
+#  Le style ne vit PAS ici. Il vit dans la RECETTE (table carousel_templates),
+#  apprise par carousel-analyze depuis un carrousel fabriqué à la main. Ce
+#  module ne fait que l'exécuter : il pose l'image, le voile, le texte et les
+#  décors aux dimensions, couleurs et polices de la recette.
+#  Conséquence directe : changer de style = renvoyer un nouveau carrousel,
+#  jamais toucher à ce fichier.
+# ==========================================================================
+
+CAR_FONT_DIR = "/opt/skillora-worker/polices"
+_CAR_FONTS = {}      # (famille, graisse) -> chemin TTF (ou None si introuvable)
+_CAR_PIL = None      # None = pas encore vérifié, True/False ensuite
+
+# Secours si l'API Google Fonts ne répond pas : la police VARIABLE du dépôt
+# officiel, dont on règle ensuite la graisse à la volée.
+CAR_POLICES_VAR = {
+    "sora": "ofl/sora/Sora[wght].ttf",
+    "inter": "ofl/inter/Inter[opsz,wght].ttf",
+    "fraunces": "ofl/fraunces/Fraunces[SOFT,WONK,opsz,wght].ttf",
+    "archivo": "ofl/archivo/Archivo[wdth,wght].ttf",
+    "dmsans": "ofl/dmsans/DMSans[opsz,wght].ttf",
+    "playfairdisplay": "ofl/playfairdisplay/PlayfairDisplay[wght].ttf",
+    "montserrat": "ofl/montserrat/Montserrat[wght].ttf",
+    "anton": "ofl/anton/Anton-Regular.ttf",
+    "bebasneue": "ofl/bebasneue/BebasNeue-Regular.ttf",
+    "poppins": "ofl/poppins/Poppins-Bold.ttf",
+}
+
+
+def _car_pillow():
+    """Pillow n'est pas dans l'installation de base et la mise à jour
+    automatique ne transporte que worker.py : on l'installe donc à la
+    demande, une seule fois. Sans lui, aucun carrousel n'est possible."""
+    global _CAR_PIL
+    if _CAR_PIL is not None:
+        return _CAR_PIL
+    try:
+        from PIL import Image  # noqa: F401
+        _CAR_PIL = True
+        return True
+    except Exception:
+        pass
+    print("carrousel: installation de Pillow…")
+    try:
+        subprocess.run([sys.executable, "-m", "pip", "install",
+                        "--break-system-packages", "-q", "Pillow"],
+                       timeout=420, check=True)
+        from PIL import Image  # noqa: F401
+        _CAR_PIL = True
+    except Exception as e:
+        print("carrousel: Pillow indisponible:", e, file=sys.stderr)
+        _CAR_PIL = False
+    return _CAR_PIL
+
+
+def _car_fichier_police(famille, poids):
+    """Télécharge la police une fois pour toutes (cache disque). Renvoie un
+    chemin TTF, ou None."""
+    try:
+        os.makedirs(CAR_FONT_DIR, exist_ok=True)
+    except Exception:
+        return None
+    plat = re.sub(r"[^a-z0-9]", "", str(famille).lower())
+    cible = os.path.join(CAR_FONT_DIR, "%s-%d.ttf" % (plat or "police", poids))
+    if os.path.exists(cible) and os.path.getsize(cible) > 20000:
+        return cible
+
+    # 1) L'API CSS de Google. Avec un vieux User-Agent elle sert du TTF ; avec
+    #    un navigateur moderne elle sert du woff2, que Pillow ne sait pas lire.
+    fam = urllib.parse.quote(str(famille))
+    for css_url in ("https://fonts.googleapis.com/css2?family=%s:wght@%d" % (fam, poids),
+                    "https://fonts.googleapis.com/css2?family=%s" % fam):
+        try:
+            req = urllib.request.Request(css_url, headers={"User-Agent": "Mozilla/4.0"})
+            with urllib.request.urlopen(req, timeout=40) as r:
+                css = r.read().decode("utf-8", "ignore")
+            m = re.search(r"url\((https://[^)]+\.ttf)\)", css)
+            if not m:
+                continue
+            urllib.request.urlretrieve(m.group(1), cible)
+            if os.path.getsize(cible) > 20000:
+                return cible
+        except Exception:
+            continue
+
+    # 2) Secours : le dépôt officiel google/fonts (police variable).
+    chemin = CAR_POLICES_VAR.get(plat)
+    if chemin:
+        try:
+            url = "https://raw.githubusercontent.com/google/fonts/main/" + urllib.parse.quote(chemin)
+            urllib.request.urlretrieve(url, cible)
+            if os.path.getsize(cible) > 20000:
+                return cible
+        except Exception as e:
+            print("carrousel police (dépôt):", famille, e, file=sys.stderr)
+    try:
+        if os.path.exists(cible):
+            os.remove(cible)
+    except Exception:
+        pass
+    return None
+
+
+def car_police(famille, poids=700, taille=48):
+    """Police PIL à la bonne famille ET à la bonne graisse. Retombe sur DejaVu
+    plutôt que d'échouer : un carrousel dans la mauvaise police vaut mieux que
+    pas de carrousel."""
+    from PIL import ImageFont
+    fam = str(famille or "Inter").strip() or "Inter"
+    poids = int(poids or 700)
+    poids = max(100, min(900, poids))
+    cle = (fam.lower(), poids)
+    if cle not in _CAR_FONTS:
+        _CAR_FONTS[cle] = _car_fichier_police(fam, poids)
+    chemin = _CAR_FONTS[cle]
+    if chemin:
+        try:
+            f = ImageFont.truetype(chemin, int(max(8, taille)))
+            # Police variable : on règle l'axe de graisse, on laisse les autres
+            # à leur valeur d'origine (Fraunces en a quatre).
+            try:
+                axes = f.get_variation_axes()
+                if axes:
+                    vals = []
+                    for ax in axes:
+                        nom = ax.get("name")
+                        nom = nom.decode("utf-8", "ignore") if isinstance(nom, bytes) else str(nom or "")
+                        if "wght" in nom.lower() or "weight" in nom.lower():
+                            vals.append(max(ax["minimum"], min(ax["maximum"], poids)))
+                        else:
+                            vals.append(ax["default"])
+                    f.set_variation_by_axes(vals)
+            except Exception:
+                pass
+            return f
+        except Exception as e:
+            print("carrousel police (ouverture):", fam, e, file=sys.stderr)
+    for secours in ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"):
+        if os.path.exists(secours):
+            try:
+                return ImageFont.truetype(secours, int(max(8, taille)))
+            except Exception:
+                pass
+    return ImageFont.load_default()
+
+
+def _car_hex(valeur, defaut=(255, 255, 255)):
+    s = str(valeur or "").strip().lstrip("#")
+    if len(s) == 3:
+        s = "".join(c * 2 for c in s)
+    if len(s) != 6:
+        return defaut
+    try:
+        return (int(s[0:2], 16), int(s[2:4], 16), int(s[4:6], 16))
+    except Exception:
+        return defaut
+
+
+def _car_largeur(draw, texte, font, tracking=0.0):
+    if not texte:
+        return 0.0
+    return draw.textlength(texte, font=font) + tracking * max(0, len(texte) - 1)
+
+
+def _car_couper(draw, texte, font, maxw, tracking=0.0):
+    """Découpe en lignes qui tiennent dans maxw, en respectant les retours à la
+    ligne voulus. Un mot plus long que la ligne n'est pas coupé : il déborde,
+    et c'est le rétrécissement automatique qui règlera le problème."""
+    lignes = []
+    for para in str(texte or "").split("\n"):
+        courante = ""
+        for mot in para.split():
+            essai = (courante + " " + mot).strip()
+            if courante and _car_largeur(draw, essai, font, tracking) > maxw:
+                lignes.append(courante)
+                courante = mot
+            else:
+                courante = essai
+        lignes.append(courante)
+    return lignes or [""]
+
+
+def _car_ecrire(draw, x, y, ligne, font, couleur, tracking=0.0, align="gauche", maxw=0):
+    larg = _car_largeur(draw, ligne, font, tracking)
+    if align == "centre":
+        x += (maxw - larg) / 2.0
+    elif align == "droite":
+        x += (maxw - larg)
+    if not tracking:
+        draw.text((x, y), ligne, font=font, fill=couleur)
+        return
+    for ch in ligne:
+        draw.text((x, y), ch, font=font, fill=couleur)
+        x += draw.textlength(ch, font=font) + tracking
+
+
+def _car_bloc(draw, texte, style, maxw, couleur, hauteur_max=None):
+    """Prépare un bloc de texte : lignes coupées + police, en RÉTRÉCISSANT
+    jusqu'à ce que ça tienne. L'IA n'écrit jamais deux fois la même longueur :
+    sans ce rétrécissement, un titre sur trois déborderait de la slide."""
+    if not str(texte or "").strip():
+        return None
+    fam = style.get("famille") or "Inter"
+    poids = int(style.get("graisse") or 700)
+    taille = float(style.get("taille") or 48)
+    interligne = float(style.get("interligne") or 1.15)
+    em = float(style.get("interlettre") or 0.0)
+    casse = str(style.get("casse") or "aucune")
+    align = str(style.get("align") or "gauche")
+    txt = str(texte)
+    if casse == "majuscules":
+        txt = txt.upper()
+
+    for essai in range(14):
+        font = car_police(fam, poids, int(round(taille)))
+        tracking = em * taille
+        lignes = _car_couper(draw, txt, font, maxw, tracking)
+        hl = taille * interligne
+        haut = hl * len(lignes)
+        trop_large = any(_car_largeur(draw, l, font, tracking) > maxw + 1 for l in lignes)
+        if (hauteur_max is None or haut <= hauteur_max) and not trop_large:
+            break
+        taille *= 0.92
+        if taille < 12:
+            break
+    return {"lignes": lignes, "font": font, "tracking": tracking,
+            "hauteur_ligne": hl, "hauteur": haut, "couleur": couleur, "align": align}
+
+
+def _car_poser(draw, bloc, x, y, maxw):
+    if not bloc:
+        return y
+    for ligne in bloc["lignes"]:
+        _car_ecrire(draw, x, y, ligne, bloc["font"], bloc["couleur"],
+                    bloc["tracking"], bloc["align"], maxw)
+        y += bloc["hauteur_ligne"]
+    return y
+
+
+def _car_couvrir(img, L, H):
+    """Redimensionne en couvrant tout le cadre puis recadre au centre (cover)."""
+    from PIL import Image
+    l, h = img.size
+    if not l or not h:
+        return Image.new("RGB", (L, H), (0, 0, 0))
+    k = max(L / float(l), H / float(h))
+    img = img.resize((max(1, int(l * k + 0.5)), max(1, int(h * k + 0.5))), Image.LANCZOS)
+    l, h = img.size
+    g, t = (l - L) // 2, (h - H) // 2
+    return img.crop((g, t, g + L, t + H))
+
+
+def _car_filtre(img, nom):
+    from PIL import ImageEnhance, ImageOps
+    n = str(nom or "aucun")
+    if n == "noir_et_blanc":
+        return ImageOps.grayscale(img).convert("RGB")
+    if n == "desature":
+        return ImageEnhance.Color(img).enhance(0.35)
+    if n in ("chaud", "froid"):
+        r, v, b = img.split()
+        from PIL import Image as _I
+        if n == "chaud":
+            r = r.point(lambda p: min(255, int(p * 1.10)))
+            b = b.point(lambda p: int(p * 0.92))
+        else:
+            b = b.point(lambda p: min(255, int(p * 1.10)))
+            r = r.point(lambda p: int(p * 0.92))
+        return _I.merge("RGB", (r, v, b))
+    return img
+
+
+def _car_masque_coins(taille, rayon):
+    """Masque de collage aux coins arrondis (None si coins droits)."""
+    from PIL import Image, ImageDraw as _D
+    if rayon <= 0:
+        return None
+    masque = Image.new("L", taille, 0)
+    _D.Draw(masque).rounded_rectangle([0, 0, taille[0] - 1, taille[1] - 1],
+                                      radius=int(rayon), fill=255)
+    return masque
+
+
+def car_rendre_slide(recette, slide, image_path, sortie, rang, total):
+    """Fabrique UNE slide, exactement selon la recette. Renvoie le chemin."""
+    from PIL import Image, ImageDraw
+
+    fmt = recette.get("format") or {}
+    L = int(fmt.get("largeur") or 1080)
+    H = int(fmt.get("hauteur") or 1350)
+    coul = recette.get("couleurs") or {}
+    fond_c = _car_hex(coul.get("fond"), (10, 10, 14))
+    texte_c = _car_hex(coul.get("texte"), (255, 255, 255))
+    accent_c = _car_hex(coul.get("accent"), (245, 181, 68))
+    second_c = _car_hex(coul.get("secondaire"), (161, 161, 170))
+    voile = max(0.0, min(0.95, float(coul.get("voile_opacite") or 0)))
+
+    img_r = recette.get("image") or {}
+    presence = str(img_r.get("presence") or "fond")
+    cadre = recette.get("cadre") or {}
+    mx = int(cadre.get("marge_x") or int(L * 0.075))
+    my = int(cadre.get("marge_y") or int(H * 0.07))
+    polices = recette.get("polices") or {}
+    decor = recette.get("decor") or {}
+
+    toile = Image.new("RGB", (L, H), fond_c)
+    haut_texte = my                      # sommet de la zone de texte disponible
+    bas_texte = H - my
+
+    source = None
+    if image_path and os.path.exists(image_path):
+        try:
+            source = _car_filtre(Image.open(image_path).convert("RGB"), img_r.get("filtre"))
+        except Exception as e:
+            print("carrousel image:", e, file=sys.stderr)
+
+    vignette_posee = False
+    if source is not None and presence == "fond":
+        toile.paste(_car_couvrir(source, L, H), (0, 0))
+        if voile > 0:
+            noir = Image.new("RGB", (L, H), (0, 0, 0))
+            toile = Image.blend(toile, noir, voile)
+    elif source is not None and presence == "vignette":
+        part = max(0.15, min(0.85, float(img_r.get("part_hauteur") or 0.55)))
+        vh = int((H - 2 * my) * part)
+        vign = _car_couvrir(source, L - 2 * mx, vh)
+        toile.paste(vign, (mx, my), _car_masque_coins(vign.size, int(img_r.get("coins") or 0)))
+        haut_texte = my + vh + int(cadre.get("espace_titre_corps") or 40)
+        vignette_posee = True
+
+    draw = ImageDraw.Draw(toile)
+    maxw = L - 2 * mx
+    dispo = max(80, bas_texte - haut_texte)
+
+    # Un bandeau/carte derrière le texte : lisible même sur une photo chargée.
+    fond_bloc = str(cadre.get("fond_bloc") or "aucun")
+
+    ecart = int(cadre.get("espace_titre_corps") or 28)
+
+    # ── TENIR DANS LA SLIDE, TOUJOURS ───────────────────────────────────────
+    # Chaque bloc sait déjà se rétrécir tout seul, mais TROIS blocs qui tiennent
+    # séparément peuvent déborder ENSEMBLE. On rétrécit donc l'ensemble tant que
+    # la pile dépasse la hauteur disponible. Sans ça, un texte d'IA un peu long
+    # sort par le bas de l'image — et on ne le voit qu'une fois publié.
+    def _pile(facteur):
+        def ech(style):
+            s = dict(style or {})
+            s["taille"] = float(s.get("taille") or 48) * facteur
+            return s
+        bt = _car_bloc(draw, slide.get("titre"), ech(polices.get("titre")), maxw, texte_c, dispo)
+        bc = _car_bloc(draw, slide.get("corps"), ech(polices.get("corps")), maxw, texte_c, dispo)
+        bn = _car_bloc(draw, slide.get("note"), ech(polices.get("note")), maxw, accent_c, dispo)
+        blocs = [b for b in (bt, bc, bn) if b]
+        haut = sum(b["hauteur"] for b in blocs) + ecart * max(0, len(blocs) - 1)
+        return bt, bc, bn, haut
+
+    facteur = 1.0
+    for _ in range(18):
+        b_titre, b_corps, b_note, total_h = _pile(facteur)
+        if total_h <= dispo:
+            break
+        facteur *= 0.93
+
+    position = str(cadre.get("position_texte") or "bas")
+    if vignette_posee:
+        y = haut_texte
+    elif position == "haut":
+        y = haut_texte
+    elif position == "centre":
+        y = haut_texte + max(0, (dispo - total_h) / 2.0)
+    else:
+        y = max(haut_texte, bas_texte - total_h)
+
+    if fond_bloc in ("carte", "bandeau") and total_h > 0:
+        marge = int(min(mx, 56) * 0.75)
+        x0 = 0 if fond_bloc == "bandeau" else max(0, mx - marge)
+        x1 = L if fond_bloc == "bandeau" else min(L, L - mx + marge)
+        y0, y1 = max(0, y - marge), min(H, y + total_h + marge)
+        plaque = Image.new("RGBA", (L, H), (0, 0, 0, 0))
+        ImageDraw.Draw(plaque).rounded_rectangle(
+            [int(x0), int(y0), int(x1), int(y1)],
+            radius=0 if fond_bloc == "bandeau" else int(min(28, marge)),
+            fill=fond_c + (215,))
+        toile = Image.alpha_composite(toile.convert("RGBA"), plaque).convert("RGB")
+        draw = ImageDraw.Draw(toile)
+
+    for bloc in (b_titre, b_corps, b_note):
+        if not bloc:
+            continue
+        y = _car_poser(draw, bloc, mx, y, maxw)
+        y += ecart
+
+    # ── DÉCORS : numéro de slide, pseudo, flèche « suivant » ────────────────
+    petite = car_police((polices.get("note") or {}).get("famille") or "Inter", 600, max(18, int(H * 0.022)))
+    fleche_font = car_police("Inter", 700, max(26, int(H * 0.034)))
+    montrer_fleche = bool(decor.get("fleche_suivant")) and rang < total
+
+    # La flèche occupe le coin bas-droit. Tout autre décor placé là doit se
+    # décaler, sinon les deux se superposent (le pseudo passe SOUS la flèche).
+    reserve = (draw.textlength("→", font=fleche_font) + mx * 0.4) if montrer_fleche else 0
+    coins = {
+        "haut-gauche": (mx, int(my * 0.45), 0),
+        "haut-droite": (L - mx, int(my * 0.45), 0),
+        "bas-gauche": (mx, H - int(my * 0.62), 0),
+        "bas-droite": (L - mx, H - int(my * 0.62), reserve),
+    }
+
+    def _coin(pos, texte, font, couleur):
+        x, yy, marge = coins.get(str(pos), coins["haut-droite"])
+        if str(pos).endswith("droite"):
+            x -= draw.textlength(texte, font=font) + marge
+        draw.text((x, yy), texte, font=font, fill=couleur)
+
+    if decor.get("numero_slide"):
+        _coin(decor.get("position_numero") or "haut-droite", "%d/%d" % (rang, total), petite, second_c)
+    if decor.get("pseudo"):
+        _coin(decor.get("position_pseudo") or "bas-gauche", str(decor["pseudo"]), petite, second_c)
+    if montrer_fleche:
+        t = "→"
+        draw.text((L - mx - draw.textlength(t, font=fleche_font), H - int(my * 0.95)),
+                  t, font=fleche_font, fill=accent_c)
+
+    toile.save(sortie, "JPEG", quality=92, optimize=True)
+    return sortie
+
+
+def car_diaporama(images, sortie, secondes=2.8, musique=None):
+    """YouTube n'affiche pas de carrousel : on lui fabrique la même chose en
+    vidéo verticale, une image après l'autre."""
+    liste = sortie + ".txt"
+    with open(liste, "w") as f:
+        for p in images:
+            f.write("file '%s'\nduration %.2f\n" % (p.replace("'", "'\\''"), secondes))
+        f.write("file '%s'\n" % images[-1].replace("'", "'\\''"))
+    cmd = ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", liste]
+    if musique and os.path.exists(musique):
+        cmd += ["-i", musique]
+    else:
+        cmd += ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo"]
+    cmd += ["-vf", ("scale=1080:1920:force_original_aspect_ratio=decrease,"
+                    "pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=black,format=yuv420p"),
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-r", "30",
+            "-c:a", "aac", "-b:a", "128k", "-shortest", sortie]
+    run(cmd)
+    try:
+        os.remove(liste)
+    except Exception:
+        pass
+    return sortie
+
+
+def generate_carousel_job(job, work, steps):
+    """Job « carrousel » : images générées, slides assemblées selon la recette,
+    tout envoyé dans le stockage public — prêt à publier."""
+    jid, uid = job["id"], job["user_id"]
+    ctx = job.get("context") or {}
+    bloc = ((job.get("plan") or {}).get("carrousel") or {})
+    recette = bloc.get("recette") or {}
+    contenu = bloc.get("contenu") or {}
+    slides = contenu.get("slides") or []
+    if not slides:
+        raise RuntimeError("Carrousel vide : rien à fabriquer.")
+    if not _car_pillow():
+        raise RuntimeError("Pillow n'a pas pu être installé sur le serveur — assemblage impossible.")
+
+    presence = str((recette.get("image") or {}).get("presence") or "fond")
+    prompts = [s.get("image_prompt") for s in slides]
+    images = {}
+
+    if presence != "aucune" and any(prompts):
+        steps.start("img", "Fabrication des images…")
+        style = str(recette.get("style_images") or "")
+
+        def _une(i):
+            p = prompts[i]
+            if not p:
+                return i, None
+            prompt = ("%s. Style: %s. Aucun texte, aucune lettre, aucun logo dans l'image. "
+                      "Cadrage vertical, image nette, éclairage soigné." % (p, style))
+            out = os.path.join(work, "src_%02d.png" % (i + 1))
+            return i, or_generate_image(prompt, out_path=out)
+
+        pool = ThreadPoolExecutor(max_workers=3)
+        try:
+            for i, chemin in pool.map(_une, range(len(slides))):
+                if chemin:
+                    images[i] = chemin
+        finally:
+            pool.shutdown(wait=False)
+        steps.done("img", "%d/%d images" % (len(images), len(slides)))
+    else:
+        steps.skip("img", "Images", "ce style n'en utilise pas")
+
+    steps.start("compo", "Assemblage des slides…")
+    fichiers, urls = [], []
+    for i, s in enumerate(slides):
+        out = os.path.join(work, "slide_%02d.jpg" % (i + 1))
+        try:
+            car_rendre_slide(recette, s, images.get(i), out, i + 1, len(slides))
+        except Exception as e:
+            print("carrousel slide %d:" % (i + 1), e, file=sys.stderr)
+            continue
+        fichiers.append(out)
+        u = sb_upload_public(out, "carrousels/%s/%s/%02d.jpg" % (uid, jid, i + 1),
+                             content_type="image/jpeg")
+        if u:
+            urls.append(u)
+    if not urls:
+        raise RuntimeError("Aucune slide n'a pu être assemblée.")
+    steps.done("compo", "%d slides" % len(urls))
+
+    # Version vidéo : YouTube (et les Reels) n'acceptent pas un carrousel d'images.
+    video_url = None
+    if ctx.get("diaporama", True) and len(fichiers) >= 2:
+        steps.start("video", "Version vidéo pour YouTube…")
+        try:
+            mp4 = os.path.join(work, "diaporama.mp4")
+            car_diaporama(fichiers, mp4, secondes=float(ctx.get("secondes_par_slide") or 2.8))
+            video_url = sb_upload_public(mp4, "carrousels/%s/%s/diaporama.mp4" % (uid, jid),
+                                         content_type="video/mp4")
+            steps.done("video", "prête")
+        except Exception as e:
+            print("carrousel diaporama:", e, file=sys.stderr)
+            steps.done("video", "indisponible")
+
+    update_job(jid, {
+        "status": "done",
+        "result_url": urls[0],
+        "plan": {"carrousel": dict(bloc, slides_urls=urls, video_url=video_url)},
+        "finished_at": "now()",
+        "steps": steps.items,
+    })
+    print("Carrousel", jid, "terminé —", len(urls), "slides.")
+    return urls
+
 
 
 def main():

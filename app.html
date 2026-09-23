@@ -1945,6 +1945,13 @@
   .own-tabs button svg{width:15px;height:15px;flex:none;}
   .own-tabs button.on{background:linear-gradient(135deg,#2f7bff,#1a5fd8);color:#fff;
     box-shadow:0 6px 16px -6px rgba(47,123,255,.8);}
+  /* 4 onglets sur petit écran : largeur selon le texte, icônes plus petites */
+  @media (max-width:480px){
+    .own-tabs{gap:2px;padding:4px;}
+    .own-tabs button{flex:1 1 auto;padding:10px 5px;gap:4px;font-size:.72rem;letter-spacing:-.03em;}
+    .own-tabs button svg{width:13px;height:13px;}
+  }
+  @media (max-width:375px){ .own-tabs button svg{display:none;} }
   .own-pan{display:none;} .own-pan.on{display:block;animation:ownIn .26s ease;}
   @keyframes ownIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
@@ -2407,7 +2414,7 @@
       <span class="own-live"><i></i>en direct</span>
     </div>
 
-    <!-- Trois onglets : ce qui se passe, avec qui, et quoi publier. -->
+    <!-- Quatre onglets : ce qui se passe, avec qui, quoi publier, et le jeu 3D. -->
     <div class="own-tabs" id="ownTabs">
       <button class="on" data-o="vue" onclick="ownTab('vue')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3.5-4 3 2.5L21 6"/></svg>Vue complète</button>
@@ -2415,6 +2422,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>Comptes</button>
       <button data-o="pub" onclick="ownTab('pub')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>Publication</button>
+      <button data-o="jeu" onclick="ownTab('jeu')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4"/><circle cx="15.5" cy="11" r=".6" fill="currentColor"/><circle cx="17.5" cy="13" r=".6" fill="currentColor"/></svg>Jeu</button>
     </div>
 
     <!-- ════ ONGLET 1 : VUE COMPLETE ════════════════════════════════════ -->
@@ -2477,6 +2486,18 @@
          (voir ownTab) : aucun code duplique, la publication continue de
          fonctionner exactement comme avant. -->
     <div class="own-pan" id="ownPanPub"></div>
+
+    <!-- ════ ONGLET 4 : JEU 3D (cinématique « La Chasse aux Loups », dossier /jeu) ════
+         Chargé seulement quand l'onglet est ouvert, déchargé en le quittant
+         (le rendu 3D ne tourne pas en arrière-plan). -->
+    <div class="own-pan" id="ownPanJeu">
+      <div class="own-card-h" style="margin-bottom:10px;">
+        <span class="own-card-t">La Chasse aux Loups — 3D</span>
+        <a class="own-card-x" href="jeu/" target="_blank" rel="noopener" style="color:#9ec2ff;text-decoration:none;">Plein écran ↗</a>
+      </div>
+      <iframe id="ownJeuFrame" title="Jeu 3D" allow="fullscreen; autoplay"
+        style="display:block;width:100%;height:calc(100vh - 170px);min-height:520px;border:1px solid var(--border);border-radius:14px;background:#14120f;"></iframe>
+    </div>
   </div>
 
   <div class="view" id="view-library">
@@ -4210,10 +4231,16 @@
     document.querySelectorAll('#ownTabs button').forEach(function(b){
       b.classList.toggle('on', b.getAttribute('data-o') === nom);
     });
-    ['vue','comptes','pub'].forEach(function(k){
+    ['vue','comptes','pub','jeu'].forEach(function(k){
       var el = document.getElementById('ownPan' + k.charAt(0).toUpperCase() + k.slice(1));
       if (el) el.classList.toggle('on', k === nom);
     });
+    // Jeu 3D : chargé à l'ouverture de l'onglet, vidé en le quittant.
+    var jeu = document.getElementById('ownJeuFrame');
+    if (jeu) {
+      if (nom === 'jeu') { if (!jeu.getAttribute('src') || jeu.getAttribute('src') === 'about:blank') jeu.setAttribute('src', 'jeu/'); }
+      else if (jeu.getAttribute('src') && jeu.getAttribute('src') !== 'about:blank') jeu.setAttribute('src', 'about:blank');
+    }
     // Publication : on DEPLACE l'ecran existant dans l'onglet, une seule fois.
     if (nom === 'pub') {
       var hote = document.getElementById('ownPanPub');
@@ -7270,6 +7297,8 @@
     // Toute navigation ferme les pop-ups flottants (cloche, choix de lecture) -> ils ne bloquent jamais une autre page.
     if (typeof closeNotifPanel === 'function') closeNotifPanel();
     if (typeof closeWatchChooser === 'function') closeWatchChooser();
+    // Quitter l'espace dev coupe le jeu 3D (il se recharge au retour sur l'onglet).
+    if (name !== 'owner') { var _jf = document.getElementById('ownJeuFrame'); if (_jf && _jf.getAttribute('src') && _jf.getAttribute('src') !== 'about:blank') _jf.setAttribute('src', 'about:blank'); }
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + name).classList.add('active');
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));

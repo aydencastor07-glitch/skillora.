@@ -64,6 +64,7 @@ const EX = [];
   };
   const main = [['dad', 'dad', { look: LOOK.dad }], ['kid', 'kid', { look: LOOK.kid }], ['plaintiff', 'plaintiff', { look: LOOK.plaintiff }], ['lawyer', 'lawyer', {}], ['judge', 'judge', { glasses: true }]];
   const gal = ['g_Female_Adult_02', 'g_Male_Adult_01', 'g_Female_Adult_05', 'g_Male_Adult_09', 'g_Female_Adult_08', 'g_Male_Adult_04', 'g_Male_Adult_01', 'g_Female_Adult_02', 'g_Male_Adult_09', 'g_Female_Adult_05'];
+  await RealHuman.loadClips(['seat', 'cry', 'facepalm', 'pound', 'angry', 'explain', 'idle', 'walk'], './mocap/');
   let done = 0; const total = main.length + gal.length + 2;
   const tick = () => { done++; if (loadingEl) loadingEl.textContent = `Chargement des personnages… ${Math.round((done / total) * 100)} %`; };
   const jobs = main.map(([k, f, o], i) => RealHuman.create(M(f), { seed: i + 1, ...o }).then((h) => { P[k] = h; tick(); }));
@@ -203,6 +204,7 @@ function frame(t) {
     const base = h.kind === 'sit'
       ? { sit: 1, hipY: e.jump * 0.07, lHip: -1.52, rHip: -1.52, lKnee: 1.5, rKnee: 1.5, spineX: 0.05 - e.jump * 0.2, lX: -0.3 - e.jump * 1.2, rX: -0.3 - e.jump * 1.2, lEl: -1.3, rEl: -1.3, lZ: 0.15, rZ: -0.15 }
       : { hipY: e.jump * 0.06, spineX: -e.jump * 0.15, lX: -0.1 - e.jump * 1.0, rX: -0.1 - e.jump * 1.0, lEl: -0.5 - e.jump, rEl: -0.5 - e.jump, lZ: 0.15, rZ: -0.15 };
+    base.mo = e.mo;
     h.setPose(base, e.f, S.head(e.lookAt), t + i * 1.7);
   });
 
@@ -260,12 +262,31 @@ function frame(t) {
   const sh = SHOTS[i];
   const t1 = i < SHOTS.length - 1 ? SHOTS[i + 1].t : T_END;
   const u = Math.min(1, Math.max(0, (t - sh.t) / (t1 - sh.t)));
-  const cm = sh.cam(u, S);
+  let cm = sh.cam(u, S);
+  // plans rapprochés : la caméra glisse d'un plan à l'autre (pas de coupe) ; plans larges : coupe franche
+  const TR = 0.9;
+  if (i > 0 && !sh.wide && !SHOTS[i - 1].wide && t - sh.t < TR) {
+    const pv = SHOTS[i - 1].cam(1, S);
+    const c0 = sh.cam(0, S);
+    const gap = Math.hypot(pv.look.x - c0.look.x, pv.look.y - c0.look.y, pv.look.z - c0.look.z);
+    if (gap < 2.2) {
+      const k = (t - sh.t) / TR, e = k * k * (3 - 2 * k);
+      const L = (a, b) => ({ x: a.x + (b.x - a.x) * e, y: a.y + (b.y - a.y) * e, z: a.z + (b.z - a.z) * e });
+      // la caméra tourne autour du sujet (arc) au lieu de le traverser
+      const look = L(pv.look, cm.look);
+      const v0 = new THREE.Vector3(pv.pos.x - pv.look.x, pv.pos.y - pv.look.y, pv.pos.z - pv.look.z);
+      const v1 = new THREE.Vector3(cm.pos.x - cm.look.x, cm.pos.y - cm.look.y, cm.pos.z - cm.look.z);
+      const d = v0.length() + (v1.length() - v0.length()) * e;
+      const q = new THREE.Quaternion().setFromUnitVectors(v0.clone().normalize(), v1.clone().normalize());
+      const dir = v0.normalize().applyQuaternion(new THREE.Quaternion().slerp(q, e));
+      cm = { pos: { x: look.x + dir.x * d, y: look.y + dir.y * d, z: look.z + dir.z * d }, look, fov: SHOTS[i - 1].fov + (sh.fov - SHOTS[i - 1].fov) * e };
+    }
+  }
   const shakeA = (sh.shake || 0) * (0.012 + 0.05 * Math.exp(-(t - sh.t) * 2.2)) + 0.0025;
   camera.position.set(cm.pos.x + Math.sin(t * 13.1) * shakeA, cm.pos.y + Math.sin(t * 17.7 + 1) * shakeA, cm.pos.z + Math.sin(t * 11.3 + 2) * shakeA * 0.5);
   camera.lookAt(cm.look.x + Math.sin(t * 0.7) * 0.004, cm.look.y + Math.sin(t * 0.9) * 0.004, cm.look.z);
   const k = camera.aspect > 1.2 ? 0.78 : camera.aspect > 0.8 ? 0.9 : 1;
-  camera.fov = sh.fov * k;
+  camera.fov = (cm.fov || sh.fov) * k;
   camera.updateProjectionMatrix();
   const fd = camera.position.distanceTo(tmp.set(cm.look.x, cm.look.y, cm.look.z));
   bokeh.uniforms.focus.value = fd;

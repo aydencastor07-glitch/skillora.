@@ -100,6 +100,8 @@ export class RealHuman {
       this.tears.push(t);
     }
     if (this.o.glasses) this.buildGlasses();
+    // Apparence : recoloration des textures + volume de cheveux
+    if (this.o.look) this.applyLook(this.o.look);
   }
 
   buildGlasses() {
@@ -114,6 +116,70 @@ export class RealHuman {
     }
     add(new THREE.CylinderGeometry(0.0014, 0.0014, 0.02), m, [0, 0.006, 0], [0, 0, Math.PI / 2]);
     this.root.add(g);
+  }
+
+  applyLook(L) {
+    for (const m of this.meshes) {
+      const ms = Array.isArray(m.material) ? m.material : [m.material];
+      for (const mat of ms) {
+        if (!mat.map) continue;
+        const part = /head/.test(mat.name) ? 'head' : /body/.test(mat.name) ? 'body' : null;
+        const rules = part === 'head' ? L.hair && [{ kind: 'hair', ...L.hair }] : part === 'body' ? L.clothes : null;
+        if (rules && rules.length) mat.map = recolorTexture(mat.map, rules);
+      }
+    }
+    if (L.volume) this.buildHairVolume(L.volume);
+  }
+
+  // Boucles / chignon ajoutés sur la tête (suivent la tête à chaque image)
+  buildHairVolume(V) {
+    const g = (this.hairVol = new THREE.Group());
+    this.root.add(g);
+    const k = this.k * (V.scale || 1);
+    const col = new THREE.Color(V.color);
+    const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.75 });
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    if (V.type === 'curls') {
+      const n = 3400;
+      const im = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), mat, n);
+      const m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
+      let c = 0;
+      for (let i = 0; i < n * 4 && c < n; i++) {
+        const th = rnd() * 1.75, ph = rnd() * Math.PI * 2;
+        const x = Math.sin(th) * Math.cos(ph), y = Math.cos(th), z = Math.sin(th) * Math.sin(ph);
+        if (z > 0.2 && y < 0.5 + 0.2 * Math.abs(x)) continue; // visage dégagé
+        if (y < -0.15) continue;
+        const r = (0.1 + rnd() * 0.028) * (V.puff || 1);
+        const s = (0.0068 + rnd() * 0.0058) * k;
+        m4.compose(new THREE.Vector3(x * r * 0.95, y * r * 1.05 - 0.005, z * r * 1.05 - 0.01).multiplyScalar(k), q.random(), new THREE.Vector3(s, s, s));
+        im.setMatrixAt(c, m4);
+        im.setColorAt(c, col.clone().multiplyScalar(0.7 + rnd() * 0.5));
+        c++;
+      }
+      im.count = c;
+      im.castShadow = true;
+      g.add(im);
+    }
+    if (V.type === 'bun') {
+      // chignon fait de petites mèches torsadées
+      const n = 420;
+      const im = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), mat, n);
+      const m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
+      for (let i = 0; i < n; i++) {
+        const th = rnd() * Math.PI, ph = rnd() * Math.PI * 2;
+        const rr = 0.036 * Math.cbrt(0.55 + rnd() * 0.45);
+        const p = new THREE.Vector3(Math.sin(th) * Math.cos(ph) * rr, Math.cos(th) * rr * 1.1 + 0.122, Math.sin(th) * Math.sin(ph) * rr - 0.022);
+        const s = (0.006 + rnd() * 0.005) * k;
+        m4.compose(p.multiplyScalar(k), q.random(), new THREE.Vector3(s, s * 1.6, s));
+        im.setMatrixAt(i, m4);
+        im.setColorAt(i, col.clone().multiplyScalar(0.75 + rnd() * 0.45));
+      }
+      im.castShadow = true;
+      g.add(im);
+      const tie = new THREE.Mesh(new THREE.TorusGeometry(0.03 * k, 0.006 * k, 6, 16), new THREE.MeshStandardMaterial({ color: '#1b1b1b' }));
+      tie.position.set(0, 0.09 * k, -0.02 * k); tie.rotation.x = Math.PI / 2 - 0.2; g.add(tie);
+    }
   }
 
   // Applique une rotation "alignée personnage" E à un os
@@ -263,6 +329,11 @@ export class RealHuman {
       tr.position.copy(eye).add(off);
       tr.quaternion.copy(Ah);
     });
+    if (this.hairVol) {
+      const hb = this.charPos(B.head, new THREE.Vector3());
+      this.hairVol.position.copy(hb).add(new THREE.Vector3(0, 0.1, 0.012).multiplyScalar(this.k).applyQuaternion(Ah));
+      this.hairVol.quaternion.copy(Ah);
+    }
     if (this.glasses) {
       const gp = f.glasses === undefined ? 1 : f.glasses;
       this.glasses.visible = gp > 0.001;
@@ -296,4 +367,75 @@ export class RealHuman {
     hb.getWorldQuaternion(out);
     return out.multiply(_q.copy(this.R[B[s + 'Hand']]).invert()).multiply(this.adj[s].clone().invert());
   }
+}
+
+// ---------- Recoloration des textures (cheveux, vêtements) ----------
+const hex = (h) => { const c = new THREE.Color(h); return [c.r, c.g, c.b].map((v) => Math.pow(v, 1 / 2.2)); };
+const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const WAX = ['#e46b2a', '#2c6f86', '#f1d9b0', '#8a3b1c', '#1f3e52'].map(hex);
+function waxAt(x, y) {
+  const cell = ((Math.floor(x / 40) + Math.floor(y / 40)) % 5 + 5) % 5;
+  const cx = (x % 40) - 20, cy = (y % 40) - 20, r = Math.hypot(cx, cy);
+  if (Math.abs(cx) + Math.abs(cy) < 6) return WAX[(cell + 3) % 5];
+  if (r < 9) return WAX[(cell + 2) % 5];
+  if (r > 12 && r < 15) return hex('#f5e6c8');
+  return WAX[cell];
+}
+function recolorTexture(tex, rules) {
+  const img = tex.image, W = img.width, H = img.height;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0);
+  const id = g.getImageData(0, 0, W, H), d = id.data;
+  const L = (i) => (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) / 255;
+  for (const r of rules) {
+    const w = new Float32Array(W * H);
+    let sumL = 0, n = 0;
+    let ref = null, refL = 0;
+    if (r.kind === 'hair') {
+      const sx = Math.floor(r.sample[0] * W), sy = Math.floor(r.sample[1] * H);
+      ref = [0, 0, 0]; let c = 0;
+      for (let y = sy - 6; y <= sy + 6; y++) for (let x = sx - 6; x <= sx + 6; x++) { const i = (y * W + x) * 4; ref[0] += d[i] / 255; ref[1] += d[i + 1] / 255; ref[2] += d[i + 2] / 255; c++; }
+      ref = ref.map((v) => v / c);
+      refL = ref[0] * 0.299 + ref[1] * 0.587 + ref[2] * 0.114;
+    }
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const p = y * W + x, i = p * 4, u = x / W, v = y / H;
+      let m = 0;
+      if (r.kind === 'hue') {
+        const R = d[i] / 255, G = d[i + 1] / 255, Bc = d[i + 2] / 255;
+        const mx = Math.max(R, G, Bc), mn = Math.min(R, G, Bc), dd = mx - mn + 1e-6;
+        let h = mx === R ? ((G - Bc) / dd) % 6 : mx === G ? (Bc - R) / dd + 2 : (R - G) / dd + 4;
+        h = (h * 60 + 360) % 360;
+        const sat = dd / (mx + 1e-6);
+        const inRegion = (u > 0.33 && u < 0.67) || v < (r.maxV || 0.6);
+        if (inRegion) m = smooth(r.h[0] - 12, r.h[0], h) * (1 - smooth(r.h[1], r.h[1] + 12, h)) * smooth(r.s * 0.5, r.s, sat);
+      } else {
+        const l = L(i);
+        const ch = Math.hypot(d[i] / 255 / (l + 0.08) - ref[0] / (refL + 0.08), d[i + 1] / 255 / (l + 0.08) - ref[1] / (refL + 0.08), d[i + 2] / 255 / (l + 0.08) - ref[2] / (refL + 0.08));
+        const dist = ch * 0.35 + Math.abs(l - refL) * 1.2;
+        m = 1 - smooth(r.t0 ?? 0.15, r.t1 ?? 0.35, dist);
+        if (r.loose) m = Math.max(m, 0.9);
+        // visage et oreilles protégés, cheveux seulement dans le bas de la texture
+        const fe = ((u - 0.5) / 0.27) ** 2 + ((v - 0.64) / (r.faceRy || 0.21)) ** 2;
+        m *= smooth(0.85, 1.15, fe) * smooth(0.5, 0.6, v);
+        for (const ex of [0.25, 0.75]) m *= smooth(0.03, 0.06, Math.hypot(u - ex, v - 0.72));
+      }
+      w[p] = m;
+      if (m > 0.5) { sumL += L(i); n++; }
+    }
+    const baseL = r.kind === 'hair' ? Math.max(0.05, refL) : Math.max(0.05, (sumL / Math.max(1, n)) * 1.05);
+    const tgt = r.color ? hex(r.color) : null;
+    for (let p = 0; p < W * H; p++) {
+      const m = w[p]; if (m <= 0.001) continue;
+      const i = p * 4, k = Math.min(1.6, L(i) / baseL);
+      const c = r.pattern === 'wax' ? waxAt(p % W, Math.floor(p / W)) : tgt;
+      for (let j = 0; j < 3; j++) d[i + j] = d[i + j] * (1 - m) + Math.min(255, c[j] * k * 255) * m;
+    }
+  }
+  g.putImageData(id, 0, 0);
+  const t = new THREE.CanvasTexture(cv);
+  t.flipY = tex.flipY; t.colorSpace = tex.colorSpace; t.wrapS = tex.wrapS; t.wrapT = tex.wrapT; t.anisotropy = 8;
+  return t;
 }

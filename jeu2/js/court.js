@@ -1,5 +1,6 @@
 // La salle d'audience + les accessoires (téléphone, enceinte, marteau, sac…)
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 function mulberry(a) {
   return () => {
     a |= 0; a = (a + 0x6d2b79f5) | 0;
@@ -340,23 +341,37 @@ export function buildCourt(scene) {
   }
 
   // ---------- Accessoires ----------
-  // Téléphone (coque orange)
+  // Téléphone : smartphone moderne, coque orange, écran noir brillant
   const phone = (out.phone = new THREE.Group());
-  add(new THREE.BoxGeometry(0.16, 0.078, 0.011), std('#e2682c', 0.45), [0, 0, 0], null, phone);
+  const caseMat = new THREE.MeshPhysicalMaterial({ color: '#e8672a', roughness: 0.4, clearcoat: 0.5, clearcoatRoughness: 0.3 });
+  const screenGlass = new THREE.MeshPhysicalMaterial({ color: "#050505", roughness: 0.05, metalness: 0.2, clearcoat: 1 });
+  add(new RoundedBoxGeometry(0.156, 0.075, 0.0095, 4, 0.009), caseMat, [0, 0, 0], null, phone);
+  add(new RoundedBoxGeometry(0.15, 0.069, 0.002, 3, 0.007), screenGlass, [0, 0, 0.0046], null, phone, false);
   out.screen = new PhoneScreen();
-  const scr = add(new THREE.PlaneGeometry(0.146, 0.068), new THREE.MeshBasicMaterial({ map: out.screen.tex }), [0, 0, 0.0058], null, phone, false);
+  const scr = add(new THREE.PlaneGeometry(0.139, 0.063), new THREE.MeshBasicMaterial({ map: out.screen.tex }), [0, 0, 0.0058], null, phone, false);
   scr.material.toneMapped = false;
-  add(new THREE.BoxGeometry(0.03, 0.03, 0.004), std('#222', 0.3), [0.05, 0.02, -0.0065], null, phone);
+  // bloc photo au dos
+  const camMat = new THREE.MeshPhysicalMaterial({ color: '#1a1a1a', roughness: 0.2, clearcoat: 1 });
+  add(new RoundedBoxGeometry(0.034, 0.034, 0.003, 3, 0.006), camMat, [0.052, 0.014, -0.0058], null, phone, false);
+  for (const [x, y] of [[0.045, 0.021], [0.059, 0.021], [0.045, 0.007]]) {
+    add(new THREE.CylinderGeometry(0.0055, 0.0055, 0.002, 20), new THREE.MeshPhysicalMaterial({ color: '#0b0b12', roughness: 0.05, metalness: 0.6, clearcoat: 1 }), [x, y, -0.0075], [Math.PI / 2, 0, 0], phone, false);
+  }
+  add(new THREE.BoxGeometry(0.02, 0.0015, 0.004), caseMat, [-0.02, 0.0381, 0], null, phone, false);
   scene.add(phone);
 
-  // Mini enceinte
+  // Mini enceinte type « Go » : bloc arrondi, grille en tissu, boucle en caoutchouc
   const spk = (out.speaker = new THREE.Group());
-  const fab = std('#ffffff', 0.9, { map: tex(128, 128, (g) => { g.fillStyle = '#1b1c1e'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#2d2f33'; for (let y = 0; y < 128; y += 4) for (let x = (y / 4) % 2 ? 2 : 0; x < 128; x += 4) g.fillRect(x, y, 2, 2); }, [3, 2]) });
-  add(new THREE.CylinderGeometry(0.036, 0.036, 0.1, 28), fab, [0, 0, 0], null, spk);
-  add(new THREE.SphereGeometry(0.036, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), std('#141414', 0.5), [0, 0.05, 0], null, spk);
-  add(new THREE.SphereGeometry(0.036, 20, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), std('#141414', 0.5), [0, -0.05, 0], null, spk);
-  add(new THREE.TorusGeometry(0.018, 0.005, 6, 16), std('#141414', 0.5), [0, 0.1, 0], null, spk);
-  out.led = add(new THREE.SphereGeometry(0.005, 8, 6), new THREE.MeshStandardMaterial({ color: '#111', emissive: '#2a7bff', emissiveIntensity: 0 }), [0, 0.02, 0.036], null, spk, false);
+  const rubber = new THREE.MeshPhysicalMaterial({ color: '#141416', roughness: 0.55, clearcoat: 0.2 });
+  const fab = std('#ffffff', 0.95, { map: tex(128, 128, (g) => { g.fillStyle = '#26282c'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#50535a'; for (let y = 0; y < 128; y += 3) for (let x = (y / 3) % 2 ? 1 : 0; x < 128; x += 3) g.fillRect(x, y, 1.6, 1.6); }, [2, 2]) });
+  add(new RoundedBoxGeometry(0.087, 0.075, 0.04, 5, 0.014), rubber, [0, 0, 0], null, spk);
+  for (const s of [1, -1]) {
+    const fr = add(new RoundedBoxGeometry(0.076, 0.064, 0.002, 4, 0.01), fab, [0, 0, s * 0.0198], null, spk, false);
+    if (s < 0) fr.rotation.y = Math.PI;
+  }
+  const badge = add(new RoundedBoxGeometry(0.036, 0.016, 0.002, 3, 0.005), new THREE.MeshPhysicalMaterial({ color: '#f04a1c', roughness: 0.3, clearcoat: 1 }), [0, 0, 0.0212], null, spk, false);
+  add(new THREE.TorusGeometry(0.011, 0.0038, 8, 20), rubber, [0.036, 0.042, 0], [0, 0, -0.6], spk);
+  out.led = add(new THREE.BoxGeometry(0.006, 0.0015, 0.004), new THREE.MeshStandardMaterial({ color: '#111', emissive: '#2a7bff', emissiveIntensity: 0 }), [-0.02, 0.0376, 0.008], null, spk, false);
+  spk.userData.badge = badge;
   scene.add(spk);
 
   // Sac à dos de l'enfant (au pied de sa chaise)

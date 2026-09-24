@@ -165,7 +165,8 @@ window.addEventListener('resize', fit);
 
 // ---------- Une image ----------
 const heads = {};
-const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
+const tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3(), tmp3 = new THREE.Vector3(), tmp4 = new THREE.Vector3(), tmp5 = new THREE.Vector3(), tmp6 = new THREE.Vector3();
+const mat4 = new THREE.Matrix4();
 const S = {
   head: (k) => heads[k] || P[k].headWorld(new THREE.Vector3()),
   phonePos: new THREE.Vector3(), speakerPos: new THREE.Vector3(),
@@ -208,24 +209,29 @@ function frame(t) {
     phone.rotation.set(-Math.PI / 2, 0, 0.3);
     lost = t > 41.25 ? 1 : 0;
   } else if (t >= 58.3) {
+    // tenu d'une main, écran tourné vers le père
     handPt(kid, 'r', phone.position);
-    phone.position.y += 0.03;
+    phone.position.y += 0.035;
     phone.lookAt(S.head('dad'));
-    phone.rotateZ(Math.PI / 2 * 0.15);
     lost = 1;
   } else {
+    // tenu à deux mains, en paysage, écran vers son visage
     handPt(kid, 'r', tmp); handPt(kid, 'l', tmp2);
-    phone.position.copy(tmp).add(tmp2).multiplyScalar(0.5);
-    phone.position.y += 0.02;
-    phone.lookAt(S.head('kid'));
+    const mid = tmp3.copy(tmp).add(tmp2).multiplyScalar(0.5);
+    const X = tmp4.copy(tmp).sub(tmp2).normalize();
+    const Z = tmp5.copy(S.head('kid')).sub(mid);
+    Z.addScaledVector(X, -Z.dot(X)).normalize();
+    const Y = tmp6.crossVectors(Z, X).normalize();
+    phone.quaternion.setFromRotationMatrix(mat4.makeBasis(X, Y, Z));
+    phone.position.copy(mid).addScaledVector(Z, 0.012).addScaledVector(Y, 0.012);
   }
   court.screen.draw(t, lost);
   S.phonePos.copy(phone.position);
 
   const spk = court.speaker;
   spk.visible = t > 28.6;
-  if (t < 29.95) { handPt(kid, 'r', spk.position); spk.rotation.set(0.3, 0, 0.4); }
-  else { spk.position.copy(TABLE_SPK); spk.rotation.set(0, 0.6, 0); }
+  if (t < 29.95) { handPt(kid, 'r', spk.position); spk.position.y += 0.02; spk.rotation.set(0.15, 0.4, 0.1); }
+  else { spk.position.copy(TABLE_SPK); spk.position.y -= 0.008; spk.rotation.set(0, Math.PI - 0.35, 0); }
   S.speakerPos.copy(spk.position);
   const ledOn = t > 30.9 ? (t < 31.8 ? (Math.floor(t * 6) % 2) : 1) : 0;
   court.led.material.emissiveIntensity = ledOn * 4;

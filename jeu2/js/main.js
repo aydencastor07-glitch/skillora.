@@ -56,7 +56,13 @@ const P = {};
 const EX = [];
 {
   const M = (n) => `./models/${n}.glb`;
-  const main = [['dad', 'dad', {}], ['kid', 'kid', {}], ['plaintiff', 'plaintiff', {}], ['lawyer', 'lawyer', {}], ['judge', 'judge', { glasses: true }]];
+  // Apparence calée sur la vidéo de référence (cheveux, vêtements)
+  const LOOK = {
+    dad: { hair: { sample: [0.2, 0.88], color: '#d4581c', loose: true }, clothes: [{ kind: 'hue', h: [185, 250], s: 0.25, color: '#c4c6c4' }], volume: { type: 'curls', color: '#e0621f', puff: 1.12 } },
+    kid: { hair: { sample: [0.2, 0.88], color: '#c98a52' }, clothes: [{ kind: 'hue', h: [185, 250], s: 0.25, color: '#cfcfca' }] },
+    plaintiff: { hair: { sample: [0.2, 0.88], color: '#d9b27c' }, clothes: [{ kind: 'hue', h: [185, 250], s: 0.1, pattern: 'wax' }], volume: { type: 'bun', color: '#d9b27c' } },
+  };
+  const main = [['dad', 'dad', { look: LOOK.dad }], ['kid', 'kid', { look: LOOK.kid }], ['plaintiff', 'plaintiff', { look: LOOK.plaintiff }], ['lawyer', 'lawyer', {}], ['judge', 'judge', { glasses: true }]];
   const gal = ['g_Female_Adult_02', 'g_Male_Adult_01', 'g_Female_Adult_05', 'g_Male_Adult_09', 'g_Female_Adult_08', 'g_Male_Adult_04', 'g_Male_Adult_01', 'g_Female_Adult_02', 'g_Male_Adult_09', 'g_Female_Adult_05'];
   let done = 0; const total = main.length + gal.length + 2;
   const tick = () => { done++; if (loadingEl) loadingEl.textContent = `Chargement des personnages… ${Math.round((done / total) * 100)} %`; };

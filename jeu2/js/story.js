@@ -76,6 +76,17 @@ export const JUDGE_ROOT = [0, 0.55, -9.3];
 export const BAG_TOP = [-1.45, 0.42, -3.85];
 export const TABLE_SPK = [-1.52, 0.86, -4.62];
 
+// ---------- Mouvements réels (motion capture CMU) ----------
+// durées des clips (s) pour boucler
+const CLIP = { seat: 26, cry: 6.5, facepalm: 5.5, pound: 2.4, angry: 11, explain: 8, idle: 18, walk: 0.93 };
+const loopT = (c, x) => ((x % CLIP[c]) + CLIP[c]) % CLIP[c];
+// couche additive « assis » : petits mouvements naturels du buste et de la tête
+const SEATED = (t, off, sp = 0.6, hd = 0.6, k = 1) => ({ clip: 'seat', mode: 'add', t: loopT('seat', t + off), ref: 0, k, w: { spine: sp, head: hd } });
+// couche absolue : le mouvement réel remplace la pose (parties choisies)
+const ABS = (clip, tc, k, w) => ({ clip, mode: 'abs', t: tc, k, w });
+const FULL = { pelvis: 1, spineAbs: 1, legs: 1, arms: 1, root: 1 };
+const UPPER = { spineAbs: 0.9, arms: 1 };
+
 // ---------- Personnages : placement + pose + visage + regard ----------
 export function cast(t, H) {
   const out = {};
@@ -116,6 +127,14 @@ export function cast(t, H) {
       open: talk(t, [[53.4, 56.0]]) + bump(33.6, 33.8, 35, 36, t) * 0.25,
     };
     if (t > 64.9 && t < 66.6) p.headY = (p.headY || 0) + 0.18 * Math.sin((t - 64.9) * 9);
+    const standIdle = (t < 8.4 ? 1 - sstep(7.9, 8.3, t) : sstep(53.2, 54, t));
+    p.mo = [
+      SEATED(t, 3, 0.55, 0.5, 1 - standIdle),
+      ABS('idle', loopT('idle', t + 2), standIdle * (1 - bump(53.3, 53.7, 55.8, 56.4, t)), FULL),
+      ABS('explain', loopT('explain', t - 53.3 + 1.2), bump(53.3, 53.7, 55.8, 56.4, t), { ...FULL }),
+      ABS('facepalm', Math.min(5.4, t - 32.1 + 0.9), bump(32.0, 32.3, 33.5, 33.8, t), { spineAbs: 1, arms: 1, headAbs: 0.8 }),
+    ];
+    if (t > 53.3 && t < 56.4) p.rIK = 0;
     out.dad = { pos, yaw, p, f, look };
   }
 
@@ -154,6 +173,7 @@ export function cast(t, H) {
       browUp: bump(43.9, 44.1, 47.5, 48.5, t) + bump(17.2, 17.5, 19.8, 20.3, t) * 0.4,
     };
     if (t < 17.2 || (t > 22.6 && t < 27.9) || (t > 30.6 && t < 41.2)) { f.eyeX = 0.25; }
+    p.mo = [SEATED(t, 9, 0.4, 0.35)];
     out.kid = { pos, yaw: PI, p, f, look, lost };
   }
 
@@ -168,7 +188,7 @@ export function cast(t, H) {
     const W0 = 56.1;
     if (t > W0) {
       const path = [[2.1, -4.3], [0.8, -3.4], [0.0, -2.2], [0.0, 4], [0.0, 10.6]];
-      const dist = Math.max(0, (t - W0 - 0.3) * 1.35);
+      const dist = Math.max(0, (t - W0 - 0.3) * 0.78); // vitesse de la vraie marche
       let d = dist, i = 0;
       let seg = Math.hypot(path[1][0] - path[0][0], path[1][1] - path[0][1]);
       while (i < path.length - 2 && d > seg) { d -= seg; i++; seg = Math.hypot(path[i + 1][0] - path[i][0], path[i + 1][1] - path[i][1]); }
@@ -183,7 +203,7 @@ export function cast(t, H) {
       }, 1);
     }
     const sob = (u) => ({ spineX: 0.2 + 0.03 * Math.sin(u * 11), neckX: 0.25 + 0.02 * Math.sin(u * 11), lookW: 0.3, ...HL(0.1, 0.22, 0.38), ...HR(-0.1, 0.22, 0.38) });
-    const wipe = { ...HR(-0.02, 0.72, 0.16, 0.1), rWrX: 0.8, neckX: 0.35 };
+    const wipe = { ...HR(-0.02, 0.72, 0.16, 0.1), rWrX: 0.8, neckX: 0.15 };
     const p = layer(t, base, [
       [0, 43.8, sob, 0.2],
       [9.0, 10.6, wipe, 0.25],
@@ -211,7 +231,17 @@ export function cast(t, H) {
       eyeY: bump(49, 49.3, 52, 52.5, t) * 0.3 * Math.sin(t * 2.2),
       eyeX: bump(52.7, 53.2, 60, 61, t) * 0.25,
     };
-    out.plaintiff = { pos, yaw, p, f, look, visible: t < 68.5 };
+    const walkK = sstep(W0 + 0.1, W0 + 0.5, t);
+    p.mo = [
+      SEATED(t, 14, 0.5, 0.4, 1 - stand),
+      { clip: 'cry', mode: 'add', t: loopT('cry', t), ref: 0, k: (1 - sstep(43.6, 43.9, t)) * 0.6, w: { spine: 0.35, head: 0.3 } },
+      ABS('angry', loopT('angry', t - 44.6 + 2), bump(44.6, 45.0, 47.1, 47.5, t), UPPER),
+      ABS('idle', loopT('idle', t + 6), bump(47.2, 47.8, 56.0, 56.5, t), FULL),
+      ABS('walk', t - W0, walkK, FULL),
+    ];
+    if (t > 44.6 && t < 47.5) { p.lIK = 0; p.lW = 0; }
+    if (t > W0) { p.lIK = 0; p.rIK = 0; }
+    out.plaintiff = { pos, yaw, p, f, look };
   }
 
   // ===== AVOCAT du plaignant =====
@@ -225,6 +255,7 @@ export function cast(t, H) {
     let look = t < 33.5 ? head('judge') : head('kid');
     if (t > 44 && t < 49) look = head('plaintiff');
     const f = { wide: bump(33.6, 33.8, 35, 36, t) + bump(44, 44.3, 49, 49.3, t), sad: bump(49, 49.3, 60, 61, t) * 0.7, closed: bump(49.3, 49.6, 58, 58.5, t) * 0.8 };
+    p.mo = [SEATED(t, 21, 0.6, 0.5)];
     out.lawyer = { pos: [SEAT.lawyer[0], 0, SEAT.lawyer[1]], yaw: PI, p, f, look };
   }
 
@@ -263,6 +294,7 @@ export function cast(t, H) {
       glasses: sstep(24.0, 24.9, t),
       smile: bump(55.5, 56, 75, 76, t) * 0.25,
     };
+    p.mo = [SEATED(t, 5, 0.5, 0.4)];
     out.judge = { pos: JUDGE_ROOT, yaw: 0, p, f, look, gavel: bump(24.9, 25.1, 27.6, 27.9, t) + bump(56.9, 57.1, 58.2, 58.5, t) };
   }
   return out;
@@ -274,6 +306,7 @@ export function extras(t, i) {
   const jump = bump(jumpT, jumpT + 0.1, jumpT + 0.35, jumpT + 0.8, t);
   return {
     jump,
+    mo: i >= 10 ? [ABS('idle', loopT('idle', t + i * 5.3), 1, FULL)] : [SEATED(t, i * 2.7, 0.8, 0.7), ABS('seat', loopT('seat', t + i * 2.7), 0.8, { arms: 1 })],
     f: { wide: jump + bump(44, 44.3, 49, 50, t) * 0.8 + bump(41.3, 41.5, 43, 44, t) * 0.5, open: jump * 0.4 + bump(47.3, 47.5, 49, 50, t) * 0.25, browUp: jump + bump(44, 44.3, 49, 50, t) },
     lookAt: t < 33.6 ? 'judge' : t < 41.3 ? 'kid' : t < 44 ? 'kid' : t < 56 ? 'plaintiff' : t < 60 ? 'plaintiff' : 'kid',
   };
@@ -299,10 +332,11 @@ function dolly(p0, p1, l0, l1) {
   };
 }
 const HD = (k, oy = 0) => (S) => { const h = S.head(k); return V(h.x, h.y + oy, h.z); };
+const MIDW = (a, b, w, oy = 0) => (S) => { const h = S.head(a), g = S.head(b); return V(h.x + (g.x - h.x) * w, h.y + (g.y - h.y) * w + oy, h.z + (g.z - h.z) * w); };
 const MID = (a, b, oy = 0) => (S) => { const h = S.head(a), g = S.head(b); return V((h.x + g.x) / 2, (h.y + g.y) / 2 + oy, (h.z + g.z) / 2); };
 
 export const SHOTS = [
-  { t: 0, fov: 48, ap: 0.4, cam: dolly([0.4, 3.3, 9.5], [0.1, 2.2, 2.8], [0, 1.2, -6], [-0.4, 1.3, -6]), label: 'Plan large : la salle d’audience' },
+  { t: 0, fov: 42, ap: 0.7, cam: orbit(MIDW('dad', 'kid', 0.5, 0.05), 172, 184, 6, 5, 3.3, 2.95), label: 'Le père et son fils au tribunal' },
   { t: 4.5, fov: 32, ap: 1, cam: orbit(HD('dad'), 125, 112, 2, 0, 1.7, 1.25), label: 'Le père, debout face à l’homme qui l’accuse' },
   { t: 8.0, fov: 30, ap: 1, cam: orbit(HD('plaintiff'), 200, 193, 0, 0, 0.95, 0.75), label: 'Il pleure' },
   { t: 9.5, fov: 34, ap: 1, cam: orbit(HD('judge'), 12, 2, -12, -7, 1.7, 1.2), label: 'Le juge le regarde comme un monstre' },
@@ -315,16 +349,16 @@ export const SHOTS = [
   { t: 27.8, fov: 40, ap: 1, cam: (u, S) => { const e = ease(u); const sp = S.speakerPos; return { pos: V(-0.45 - 0.2 * e, 0.95 + 0.1 * e, -3.05 - 0.35 * e), look: V(lerp(-1.6, sp.x, e), lerp(0.55, sp.y, e), lerp(-3.9, sp.z, e)) }; }, focus: 'speaker', label: 'Il sort une mini enceinte de son sac' },
   { t: 30.5, fov: 30, ap: 1.1, cam: (u, S) => { const sp = S.speakerPos; const e = ease(u); return { pos: V(sp.x + 0.2 - 0.08 * e, sp.y + 0.12, sp.z - 0.75 + 0.12 * e), look: V(sp.x - 0.05, sp.y + 0.05, sp.z) }; }, focus: 'speaker', label: '… et la connecte' },
   { t: 32.1, fov: 32, ap: 1, cam: orbit(HD('dad'), 205, 198, 4, 3, 0.9, 0.8), label: 'J’avais envie de mourir' },
-  { t: 33.6, fov: 44, ap: 0.3, shake: 1, cam: dolly([3.2, 3.5, -8.4], [2.9, 3.1, -8.0], [-1.4, 0.8, -4.0], [-1.2, 0.9, -3.8]), label: 'Le son explose dans le tribunal. Tout le monde sursaute' },
+  { t: 33.6, wide: true, fov: 44, ap: 0.3, shake: 1, cam: dolly([3.2, 3.5, -8.4], [2.9, 3.1, -8.0], [-1.4, 0.8, -4.0], [-1.2, 0.9, -3.8]), label: 'Le son explose dans le tribunal. Tout le monde sursaute' },
   { t: 37.1, fov: 34, ap: 1, cam: orbit(HD('plaintiff'), 168, 178, 2, 1, 1.5, 0.72), label: 'Le « sourd » ne bronche pas. Il pleure toujours' },
   { t: 41.3, fov: 38, ap: 1, cam: orbit(HD('kid'), 172, 182, -16, -12, 0.95, 0.78), label: '« NO! I LOST! »' },
   { t: 43.9, fov: 40, ap: 0.8, shake: 0.6, cam: (u, S) => { const h = S.head('plaintiff'); const e = ease(u); return { pos: V(1.2 - 0.1 * e, 1.0 + 0.2 * e, -5.6 - 0.35 * e), look: V(h.x, h.y - 0.12, h.z) }; }, focus: 'plaintiff', label: 'Il frappe la table : « TURN THAT THING OFF! »' },
-  { t: 47.3, fov: 46, ap: 0.5, cam: dolly([3.7, 1.75, -5.7], [3.45, 1.6, -5.35], [-1.6, 1.15, -4.1], [-1.4, 1.15, -4.1]), focus: 'kid', label: 'Toute la salle se fige' },
+  { t: 47.3, wide: true, fov: 46, ap: 0.5, cam: dolly([3.7, 1.75, -5.7], [3.45, 1.6, -5.35], [-1.6, 1.15, -4.1], [-1.4, 1.15, -4.1]), focus: 'kid', label: 'Toute la salle se fige' },
   { t: 48.9, fov: 30, ap: 1.1, cam: orbit(HD('plaintiff'), 202, 166, 3, 2, 0.85, 0.72), label: 'Il devient rouge… trop tard' },
   { t: 52.7, fov: 34, ap: 1, cam: orbit(HD('dad'), 160, 178, -10, -6, 1.35, 1.05), label: '« Your Honor, he can hear perfectly fine. »' },
   { t: 56.1, fov: 38, ap: 0.8, cam: (u, S) => { const h = S.head('plaintiff'); const e = ease(u); return { pos: V(0.55 - 0.2 * e, 1.6, 2.4 - 0.2 * e), look: V(h.x, h.y - 0.05, h.z) }; }, focus: 'plaintiff', label: 'Il repart les mains vides' },
   { t: 58.3, fov: 30, ap: 1.1, cam: (u, S) => { const d = S.head('dad'), k = S.head('kid'); const e = ease(u); return { pos: V(d.x - 0.3 + 0.05 * e, d.y + 0.08, d.z + 0.42 - 0.08 * e), look: V(k.x + 0.05, k.y + 0.02, k.z) }; }, focus: 'kid', label: '« Told you I had this, Dad. »' },
   { t: 62.0, fov: 30, ap: 1.1, cam: orbit(HD('kid'), 186, 178, 0, 1, 0.9, 0.78), label: '« Can we sue him for making me lose my level? »' },
   { t: 64.9, fov: 30, ap: 1, cam: orbit(HD('dad'), 158, 166, 2, 2, 0.85, 0.75), label: 'Il avait dix ans' },
-  { t: 66.6, fov: 40, ap: 0.5, cam: (u, S) => { const m = MID('dad', 'kid')(S); const e = ease(u); return { pos: V(lerp(m.x + 0.2, 0.5, e), lerp(1.45, 4.1, e), lerp(m.z - 2.1, -9.6, e)), look: V(lerp(m.x, -0.5, e), lerp(m.y - 0.1, 0.9, e), lerp(m.z, -2.5, e)) }; }, label: 'Question au public — la caméra s’élève. FIN' },
+  { t: 66.6, wide: true, fov: 40, ap: 0.5, cam: (u, S) => { const m = MID('dad', 'kid')(S); const e = ease(u); return { pos: V(lerp(m.x + 0.2, 0.5, e), lerp(1.45, 4.1, e), lerp(m.z - 2.1, -9.6, e)), look: V(lerp(m.x, -0.5, e), lerp(m.y - 0.1, 0.9, e), lerp(m.z, -2.5, e)) }; }, label: 'Question au public — la caméra s’élève. FIN' },
 ];

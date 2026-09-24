@@ -22,9 +22,32 @@ export function loadModel(url) {
 
 const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _v = new THREE.Vector3(), _v2 = new THREE.Vector3(), _m = new THREE.Matrix4();
 const _e = new THREE.Euler();
+const _I = new THREE.Quaternion();
+const MOPARENT = { sp0: 'pelvis', sp1: 'sp0', sp2: 'sp1', neck: 'sp2', head: 'neck', lClav: 'sp2', rClav: 'sp2', lUp: 'lClav', rUp: 'rClav', lFore: 'lUp', rFore: 'rUp', lHand: 'lFore', rHand: 'rFore', lThigh: 'pelvis', rThigh: 'pelvis', lCalf: 'lThigh', rCalf: 'rThigh', lFoot: 'lCalf', rFoot: 'rCalf' };
 const eq = (x, y, z, order = 'XYZ', out = new THREE.Quaternion()) => out.setFromEuler(_e.set(x, y, z, order));
 
+// Échantillon d'un clip (interpolé entre deux images)
+function sampleClip(c, t) {
+  let f = t * c.fps;
+  if (c.loop) f = ((f % c.frames) + c.frames) % c.frames; else f = Math.max(0, Math.min(c.frames - 1.001, f));
+  const i = Math.floor(f), j = c.loop ? (i + 1) % c.frames : Math.min(c.frames - 1, i + 1), u = f - i;
+  const B = c.names.length, q = {};
+  c.names.forEach((n, b) => {
+    const a = (i * B + b) * 4, d = (j * B + b) * 4;
+    const qa = new THREE.Quaternion(c.q[a], c.q[a + 1], c.q[a + 2], c.q[a + 3]);
+    const qb = new THREE.Quaternion(c.q[d], c.q[d + 1], c.q[d + 2], c.q[d + 3]);
+    q[n] = qa.slerp(qb, u);
+  });
+  const p = new THREE.Vector3(c.p[i * 3], c.p[i * 3 + 1], c.p[i * 3 + 2]).lerp(new THREE.Vector3(c.p[j * 3], c.p[j * 3 + 1], c.p[j * 3 + 2]), u);
+  return { q, p };
+}
+
 export class RealHuman {
+  static clips = {};
+  static async loadClips(names, base) {
+    await Promise.all(names.map(async (n) => { RealHuman.clips[n] = await (await fetch(`${base}${n}.json`)).json(); }));
+  }
+
   static async create(url, o = {}) {
     const src = await loadModel(url);
     return new RealHuman(skClone(src), o);
@@ -200,27 +223,39 @@ export class RealHuman {
     const sit = g('sit');
     this.holder.position.set(0, sit * (g('sitH', 0.56) - this.pelvisY) + g('hipY'), g('hipZ'));
 
-    const Ep = eq(g('hipX'), g('hipYaw'), g('hipRoll'));
-    this.setBone(B.pelvis, Ep);
+    // ---- Orientation « alignée » absolue de chaque os (repère du personnage) ----
+    // Mouvements réels (motion capture) : couches absolues ou additives
+    const MO = this.sampleMocap(p.mo);
+    const W = MO.w;
+    const addQ = (n, w) => (MO.add[n] && w > 0 ? _I.clone().slerp(MO.add[n], Math.min(1, w)) : _I);
+    const blend = (q, n, w) => (MO.abs[n] && w > 0 ? q.slerp(MO.abs[n], Math.min(1, w)) : q);
+    const A = {};
     const breath = Math.sin(t * 1.7 + (this.o.seed || 0) * 3) * 0.01;
+    A.pelvis = blend(eq(g('hipX'), g('hipYaw'), g('hipRoll')).multiply(addQ('pelvis', W.spine)), 'pelvis', W.pelvis);
     const Es = eq((g('spineX') + breath) / 3, g('spineY') / 3, g('spineZ') / 3);
-    for (const n of [B.sp0, B.sp1, B.sp2]) this.setBone(n, Es);
-    const As2 = Ep.clone().multiply(Es).multiply(Es).multiply(Es);
+    A.sp0 = blend(A.pelvis.clone().multiply(Es).multiply(addQ('sp0', W.spine)), 'sp0', W.spineAbs);
+    A.sp1 = blend(A.sp0.clone().multiply(Es).multiply(addQ('sp1', W.spine)), 'sp1', W.spineAbs);
+    A.sp2 = blend(A.sp1.clone().multiply(Es).multiply(addQ('sp2', W.spine)), 'sp2', W.spineAbs);
     const En = eq(g('neckX'), g('neckY'), 0);
-    this.setBone(B.neck, En);
-    for (const n of [B.lClav, B.rClav]) this.setBone(n, _q2.identity());
-
-    // Jambes
+    A.neck = blend(A.sp2.clone().multiply(En).multiply(addQ('neck', W.head)), 'neck', W.headAbs);
     for (const s of ['l', 'r']) {
-      this.setBone(B[s + 'Thigh'], eq(g(s + 'Hip'), g(s + 'HipY'), g(s + 'HipZ')));
-      this.setBone(B[s + 'Calf'], eq(g(s + 'Knee'), 0, 0));
-      this.setBone(B[s + 'Foot'], eq(g(s + 'Ank'), 0, 0));
+      A[s + 'Clav'] = blend(A.sp2.clone(), s + 'Clav', W.arms);
+      A[s + 'Thigh'] = blend(A.pelvis.clone().multiply(eq(g(s + 'Hip'), g(s + 'HipY'), g(s + 'HipZ'))), s + 'Thigh', W.legs);
+      A[s + 'Calf'] = blend(A[s + 'Thigh'].clone().multiply(eq(g(s + 'Knee'), 0, 0)), s + 'Calf', W.legs);
+      A[s + 'Foot'] = blend(A[s + 'Calf'].clone().multiply(eq(g(s + 'Ank'), 0, 0)), s + 'Foot', W.legs);
     }
+    const PARENT = { sp0: 'pelvis', sp1: 'sp0', sp2: 'sp1', neck: 'sp2', head: 'neck', lClav: 'neck', rClav: 'neck', lUp: 'lClav', rUp: 'rClav', lFore: 'lUp', rFore: 'rUp', lHand: 'lFore', rHand: 'rFore', lThigh: 'sp0', rThigh: 'sp0', lCalf: 'lThigh', rCalf: 'rThigh', lFoot: 'lCalf', rFoot: 'rCalf' };
+    const apply = (n) => {
+      const pa = PARENT[n];
+      this.setBone(B[n], pa ? A[pa].clone().invert().multiply(A[n]) : A[n]);
+    };
+    for (const n of ['pelvis', 'sp0', 'sp1', 'sp2', 'neck', 'lClav', 'rClav', 'lThigh', 'lCalf', 'lFoot', 'rThigh', 'rCalf', 'rFoot']) apply(n);
+    if (MO.hip && W.root > 0) this.holder.position.y += MO.hip.y * this.pelvisY * W.root;
+    const As2 = A.sp2;
 
-    // Bras : cinématique directe puis inverse
+    // Bras : pose calculée / mouvement réel, puis cinématique inverse (mains sur un objet)
     this.root.updateMatrixWorld(true);
     const spineBase = this.charPos(B.sp0, new THREE.Vector3());
-    // cibles monde -> repère du buste
     for (const s of ['l', 'r']) {
       const w = g(s + 'W');
       if (w > 0) {
@@ -233,18 +268,24 @@ export class RealHuman {
     for (const s of ['l', 'r']) {
       const side = s === 'l' ? 1 : -1;
       const P = s;
+      const adj = this.adj[s], adjI = adj.clone().invert();
       let Eu = eq(g(P + 'X', 0.05), g(P + 'Y'), g(P + 'Z', side * 0.1), 'ZXY');
       let el = g(P + 'El', -0.18);
+      A[s + 'Up'] = As2.clone().multiply(Eu).multiply(adj);
+      A[s + 'Fore'] = A[s + 'Up'].clone().multiply(adjI).multiply(eq(el, g(P + 'ElY'), 0)).multiply(adj);
+      A[s + 'Hand'] = A[s + 'Fore'].clone().multiply(adjI).multiply(eq(g(P + 'WrX'), g(P + 'WrY'), g(P + 'WrZ'))).multiply(adj);
+      const wa = Math.min(1, W.arms * (1 - Math.min(1, g(P + 'IK'))));
+      for (const n of ['Up', 'Fore', 'Hand']) blend(A[s + n], s + n, wa);
       const w = Math.min(1, g(P + 'IK'));
       if (w > 0.001) {
         const S = this.charPos(B[s + 'Up'], new THREE.Vector3());
         const T = new THREE.Vector3(g(P + 'hx'), g(P + 'hy'), g(P + 'hz')).multiplyScalar(k).applyQuaternion(As2).add(spineBase);
-        const [A, Bl] = this.len[s];
+        const [La, Bl] = this.len[s];
         const d = T.clone().sub(S);
-        let L = Math.min(A + Bl - 0.002, Math.max(Math.abs(A - Bl) + 0.01, d.length()));
+        let L = Math.min(La + Bl - 0.002, Math.max(Math.abs(La - Bl) + 0.01, d.length()));
         const dn = d.normalize();
-        const alpha = Math.acos(THREE.MathUtils.clamp((A * A + L * L - Bl * Bl) / (2 * A * L), -1, 1));
-        const bend = Math.acos(THREE.MathUtils.clamp((A * A + Bl * Bl - L * L) / (2 * A * Bl), -1, 1));
+        const alpha = Math.acos(THREE.MathUtils.clamp((La * La + L * L - Bl * Bl) / (2 * La * L), -1, 1));
+        const bend = Math.acos(THREE.MathUtils.clamp((La * La + Bl * Bl - L * L) / (2 * La * Bl), -1, 1));
         const pole = g(P + 'Pole', 0);
         const pv = new THREE.Vector3(side * (0.45 + pole), -1, -0.5 + pole * 0.5).normalize().applyQuaternion(As2);
         const axis = new THREE.Vector3().crossVectors(dn, pv);
@@ -254,29 +295,26 @@ export class RealHuman {
         const wv = dn.clone().sub(u.clone().multiplyScalar(dn.dot(u))).normalize();
         const Y = u.clone().negate(), X = new THREE.Vector3().crossVectors(Y, wv).normalize();
         const Wh = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, wv));
-        const Eik = As2.clone().invert().multiply(Wh);
-        Eu = Eu.slerp(Eik, w);
-        el = el + (-(Math.PI - bend) - el) * w;
+        const upIK = Wh.clone().multiply(adj);
+        const foreIK = upIK.clone().multiply(adjI).multiply(eq(-(Math.PI - bend), 0, 0)).multiply(adj);
+        const handIK = foreIK.clone().multiply(adjI).multiply(eq(g(P + 'WrX'), g(P + 'WrY'), g(P + 'WrZ'))).multiply(adj);
+        A[s + 'Up'].slerp(upIK, w); A[s + 'Fore'].slerp(foreIK, w); A[s + 'Hand'].slerp(handIK, w);
       }
-      const adj = this.adj[s], adjI = adj.clone().invert();
-      this.setBone(B[s + 'Up'], Eu.clone().multiply(adj));
-      this.setBone(B[s + 'Fore'], adjI.clone().multiply(eq(el, g(P + 'ElY'), 0)).multiply(adj));
-      this.setBone(B[s + 'Hand'], adjI.clone().multiply(eq(g(P + 'WrX'), g(P + 'WrY'), g(P + 'WrZ'))).multiply(adj));
-      // doigts : légèrement repliés (poing / tenir un objet)
+      for (const n of ['Up', 'Fore', 'Hand']) apply(s + n);
+      // doigts : repliés (poing / tenir un objet)
       const curl = g(P + 'Curl', 0.35);
       const Ec = adjI.clone().multiply(eq(0, 0, -side * curl)).multiply(adj);
       for (const fn of this.fingers[s]) this.setBone(fn, Ec);
     }
 
-    // Tête + regard
+    // Tête + regard (+ petits mouvements réels additifs)
     let hx = g('headX'), hy = g('headY'), hz = g('headZ');
     let ex = 0, ey = 0;
     if (look) {
       this.root.updateMatrixWorld(true);
       const np = this.charPos(B.neck, new THREE.Vector3());
-      const An = As2.clone().multiply(En);
       const lp = this.root.worldToLocal(new THREE.Vector3(look.x, look.y, look.z));
-      const d = lp.sub(np).applyQuaternion(An.invert());
+      const d = lp.sub(np).applyQuaternion(A.neck.clone().invert());
       const yaw = Math.atan2(d.x, d.z);
       const pitch = -Math.atan2(d.y - 0.12, Math.hypot(d.x, d.z));
       const w = g('lookW', 0.75);
@@ -285,7 +323,8 @@ export class RealHuman {
       ey = THREE.MathUtils.clamp(yaw - cy * w, -0.45, 0.45);
       ex = THREE.MathUtils.clamp(pitch - pitch * w, -0.3, 0.3);
     }
-    this.setBone(B.head, eq(hx, hy, hz, 'YXZ'));
+    A.head = blend(A.neck.clone().multiply(eq(hx, hy, hz, 'YXZ')).multiply(addQ('head', W.head)), 'head', W.headAbs);
+    apply('head');
     ey += f.eyeY || 0; ex += f.eyeX || 0;
     for (const n of [B.lEye, B.rEye]) this.setBone(n, eq(ex, ey, 0, 'YXZ'));
     this.root.updateMatrixWorld(true);
@@ -319,7 +358,7 @@ export class RealHuman {
 
     // Larmes qui coulent
     const tears = f.tears || 0;
-    const Ah = As2.clone().multiply(En).multiply(eq(hx, hy, hz, 'YXZ'));
+    const Ah = A.head.clone();
     this.tears.forEach((tr, i) => {
       tr.visible = tears > 0.05;
       if (!tr.visible) return;
@@ -343,6 +382,34 @@ export class RealHuman {
       this.glasses.position.copy(c).add(off);
       this.glasses.quaternion.copy(Ah).multiply(eq((1 - gp) * 0.5, 0, 0));
     }
+  }
+
+  // Échantillonne les couches de motion capture demandées par le scénario.
+  // layer = { clip, t (s), w: { spine, spineAbs, pelvis, arms, legs, head, headAbs, root }, mode: 'add' | 'abs' }
+  sampleMocap(layers) {
+    const out = { abs: {}, add: {}, w: { spine: 0, spineAbs: 0, pelvis: 0, arms: 0, legs: 0, head: 0, headAbs: 0, root: 0 }, hip: null };
+    if (!layers) return out;
+    for (const L of Array.isArray(layers) ? layers : [layers]) {
+      const c = RealHuman.clips[L.clip];
+      if (!c || !(L.k > 0)) continue;
+      const fr = sampleClip(c, L.t);
+      const ref = L.mode === 'add' ? sampleClip(c, L.ref ?? 0) : null;
+      for (const [part, w] of Object.entries(L.w || {})) out.w[part] = Math.max(out.w[part], w * L.k);
+      for (const n in fr.q) {
+        if (L.mode === 'add') {
+          // mouvement local relatif à la première image : s'ajoute à la pose calculée
+          const pa = MOPARENT[n];
+          const loc = pa ? fr.q[pa].clone().invert().multiply(fr.q[n]) : fr.q[n].clone();
+          const loc0 = pa ? ref.q[pa].clone().invert().multiply(ref.q[n]) : ref.q[n].clone();
+          const d = loc0.invert().multiply(loc);
+          out.add[n] = out.add[n] ? out.add[n].multiply(d) : d;
+        } else {
+          out.abs[n] = out.abs[n] ? out.abs[n].slerp(fr.q[n], L.k) : fr.q[n];
+        }
+      }
+      if (L.mode !== 'add') out.hip = fr.p;
+    }
+    return out;
   }
 
   // position d'un os dans le repère du personnage (mètres)

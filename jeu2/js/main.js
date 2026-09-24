@@ -4,7 +4,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { Human, patternTex, mulberry } from './human.js';
+import { RealHuman } from './rig.js';
 import { buildCourt } from './court.js';
 import { cast, extras, SHOTS, BEATS, T_END, sstep, TABLE_SPK as TSPK } from './story.js';
 
@@ -51,36 +51,27 @@ const camera = new THREE.PerspectiveCamera(40, 9 / 16, 0.03, 80);
 // ---------- Décor + personnages ----------
 const court = buildCourt(scene);
 
+const loadingEl = document.getElementById('loading');
 const P = {};
-P.dad = new Human({ seed: 1, skin: '#8a5a3c', eyes: '#3b2616', hair: 'bun', hairColor: '#d8b27c', brows: '#2b1a10', shirt: '#ffffff', shirtTex: patternTex('wax', '#1f3e52'), shirtRep: [3, 3], sleeves: 'short', collar: true, pants: '#3a4a66', pantsTex: patternTex('denim', '#3a4a66') });
-P.kid = new Human({ seed: 2, scale: 0.74, headScale: 1.16, skin: '#f0c6a8', eyes: '#4a6a3a', hair: 'wavy', hairColor: '#c98a52', brows: '#9a6a40', shirt: '#d2d2cd', shirtTex: patternTex('knit', '#d2d2cd'), sleeves: 'short', collar: true, pants: '#2d3a52', shoes: '#e8e8e8' });
-P.plaintiff = new Human({ seed: 3, skin: '#e9b99a', eyes: '#3f7fa0', hair: 'curly', hairColor: '#d8672f', brows: '#b0501c', shirt: '#c3c6c6', shirtTex: patternTex('knit', '#c3c6c6'), sleeves: 'short', pants: '#3c4a66', pantsTex: patternTex('denim', '#3c4a66') });
-P.lawyer = new Human({ seed: 4, skin: '#d9a582', eyes: '#3a2a1a', hair: 'short', hairColor: '#2b2118', shirt: '#f1f1ef', jacket: '#2b3446', tie: '#3b5a8a', pants: '#2b3446', width: 1.02 });
-P.judge = new Human({ seed: 5, scale: 1.02, skin: '#e2b095', eyes: '#5b4a3a', hair: 'grey', hairColor: '#c9c7c2', brows: '#9d9a94', shirt: '#f2f2f0', jacket: '#1b1c1f', tie: '#8e1c22', pants: '#1b1c1f', glasses: true, width: 1.06, belly: 0.02 });
-for (const k in P) scene.add(P[k].root);
-
-// Figurants
-const rnd = mulberry(77);
-const skins = ['#f1c7a8', '#c68c64', '#8d5a3b', '#e8b995', '#5f3b28', '#d9a27d'];
-const hairs = ['#2b2118', '#6b4a2a', '#c9a06a', '#111111', '#8a8a86', '#4a2f1b'];
-const shirts = ['#6d8fb3', '#b35c4a', '#e0d6c2', '#4b6b4f', '#8a6fa8', '#d9c36a', '#39424f', '#a8b8c0'];
 const EX = [];
-const galleryPos = [[-5.6, 0], [-3.0, 0], [3.1, 0], [5.4, 1], [-4.6, 1], [2.3, 2], [-2.4, 2], [4.9, 3], [-5.9, 3], [1.8, 4]];
-galleryPos.forEach(([x, row], i) => {
-  const h = new Human({ seed: 10 + i, skin: skins[i % skins.length], hair: i % 5 === 3 ? 'curly' : 'short', hairColor: hairs[(i * 3) % hairs.length], shirt: shirts[i % shirts.length], shirtTex: patternTex('fabric', '#888'), sleeves: i % 2 ? 'short' : 'long', pants: ['#2c3444', '#4a4036', '#1f1f22'][i % 3], width: 0.95 + rnd() * 0.12, belly: rnd() * 0.03 });
-  h.root.position.set(x, 0, court.benchRows[row] + 0.05);
-  h.root.rotation.y = Math.PI;
-  h.kind = 'sit';
-  scene.add(h.root);
-  EX.push(h);
-});
-for (const [x, z, yaw] of [[5.6, -6.4, -1.15], [6.25, -5.9, -1.25]]) {
-  const h = new Human({ seed: 30 + x, skin: x > 6 ? '#b37a54' : '#e3b494', hair: 'short', hairColor: '#221a14', shirt: '#26344f', pants: '#1f2536', hat: '#1d2433', badge: true, belt: true, width: 1.08 });
-  h.root.position.set(x, 0, z);
-  h.root.rotation.y = yaw;
-  h.kind = 'stand';
-  scene.add(h.root);
-  EX.push(h);
+{
+  const M = (n) => `./models/${n}.glb`;
+  const main = [['dad', 'dad', {}], ['kid', 'kid', {}], ['plaintiff', 'plaintiff', {}], ['lawyer', 'lawyer', {}], ['judge', 'judge', { glasses: true }]];
+  const gal = ['g_Female_Adult_02', 'g_Male_Adult_01', 'g_Female_Adult_05', 'g_Male_Adult_09', 'g_Female_Adult_08', 'g_Male_Adult_04', 'g_Male_Adult_01', 'g_Female_Adult_02', 'g_Male_Adult_09', 'g_Female_Adult_05'];
+  let done = 0; const total = main.length + gal.length + 2;
+  const tick = () => { done++; if (loadingEl) loadingEl.textContent = `Chargement des personnages… ${Math.round((done / total) * 100)} %`; };
+  const jobs = main.map(([k, f, o], i) => RealHuman.create(M(f), { seed: i + 1, ...o }).then((h) => { P[k] = h; tick(); }));
+  const galleryPos = [[-5.6, 0], [-3.0, 0], [3.1, 0], [5.4, 1], [-4.6, 1], [2.3, 2], [-2.4, 2], [4.9, 3], [-5.9, 3], [1.8, 4]];
+  gal.forEach((f, i) => jobs.push(RealHuman.create(M(f), { seed: 10 + i }).then((h) => {
+    const [x, row] = galleryPos[i];
+    h.pos = [x, 0, -0.6 + row * 1.45 + 0.05]; h.yaw = Math.PI; h.kind = 'sit'; EX[i] = h; tick();
+  })));
+  [[5.6, -6.4, -1.15], [6.25, -5.9, -1.25]].forEach(([x, z, yaw], i) => jobs.push(RealHuman.create(M('police'), { seed: 30 + i }).then((h) => {
+    h.pos = [x, 0, z]; h.yaw = yaw; h.kind = 'stand'; EX[gal.length + i] = h; tick();
+  })));
+  await Promise.all(jobs);
+  for (const k in P) scene.add(P[k].root);
+  for (const h of EX) { h.root.position.set(...h.pos); h.root.rotation.y = h.yaw; scene.add(h.root); }
 }
 
 // ---------- Post-traitement : profondeur de champ ----------
@@ -179,7 +170,7 @@ const S = {
   head: (k) => heads[k] || P[k].headWorld(new THREE.Vector3()),
   phonePos: new THREE.Vector3(), speakerPos: new THREE.Vector3(),
 };
-const handPt = (h, side, out) => (side === 'r' ? h.rArm : h.lArm).hand.localToWorld(out.set(0, -0.075, 0.015));
+const handPt = (h, side, out) => h.handPoint(side, out);
 const TABLE_PHONE = new THREE.Vector3(-1.85, 0.8, -4.62);
 const TABLE_SPK = new THREE.Vector3(TSPK[0], TSPK[1] - 0.025, TSPK[2]);
 
@@ -203,7 +194,7 @@ function frame(t) {
   EX.forEach((h, i) => {
     const e = extras(t, i);
     const base = h.kind === 'sit'
-      ? { hipY: 0.56 - 0.95 + e.jump * 0.07, lHip: -1.52, rHip: -1.52, lKnee: 1.5, rKnee: 1.5, spineX: 0.05 - e.jump * 0.2, lX: -0.3 - e.jump * 1.2, rX: -0.3 - e.jump * 1.2, lEl: -1.3, rEl: -1.3, lZ: 0.15, rZ: -0.15 }
+      ? { sit: 1, hipY: e.jump * 0.07, lHip: -1.52, rHip: -1.52, lKnee: 1.5, rKnee: 1.5, spineX: 0.05 - e.jump * 0.2, lX: -0.3 - e.jump * 1.2, rX: -0.3 - e.jump * 1.2, lEl: -1.3, rEl: -1.3, lZ: 0.15, rZ: -0.15 }
       : { hipY: e.jump * 0.06, spineX: -e.jump * 0.15, lX: -0.1 - e.jump * 1.0, rX: -0.1 - e.jump * 1.0, lEl: -0.5 - e.jump, rEl: -0.5 - e.jump, lZ: 0.15, rZ: -0.15 };
     h.setPose(base, e.f, S.head(e.lookAt), t + i * 1.7);
   });
@@ -243,7 +234,7 @@ function frame(t) {
   const gv = court.gavel;
   if (C.judge.gavel > 0.5) {
     handPt(P.judge, 'r', gv.position);
-    P.judge.rArm.hand.getWorldQuaternion(gv.quaternion);
+    P.judge.handQuat('r', gv.quaternion);
     gv.rotateX(Math.PI / 2);
     gv.translateY(0.1);
   } else {

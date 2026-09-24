@@ -59,14 +59,14 @@ const talk = (t, spans, amp = 0.35) => {
 };
 
 // Assis : hanches à 0.56 m du sol, quelle que soit la taille
-const sitY = (s) => 0.56 / s - 0.95;
 // Mains : cible dans le repère du buste (x = gauche du perso, y = haut, z = devant)
 const HL = (x, y, z, pole = 0, w = 1) => ({ lIK: w, lhx: x, lhy: y, lhz: z, lPole: pole });
 const HR = (x, y, z, pole = 0, w = 1) => ({ rIK: w, rhx: x, rhy: y, rhz: z, rPole: pole });
 const WR = (x, y, z, w = 1) => ({ rW: w, rwx: x, rwy: y, rwz: z });
-const LEGS_SIT = (s) => ({ hipY: sitY(s), lHip: -1.52, rHip: -1.52, lKnee: 1.5, rKnee: 1.5, lHipZ: 0.06, rHipZ: -0.06, spineX: 0.06 });
+const WL = (x, y, z, w = 1) => ({ lW: w, lwx: x, lwy: y, lwz: z });
+const LEGS_SIT = (s) => ({ sit: 1, lHip: -1.52, rHip: -1.52, lKnee: 1.5, rKnee: 1.5, lHipZ: 0.06, rHipZ: -0.06, spineX: 0.06 });
 const SIT = (s, ty = 0.2, tz = 0.42) => ({ ...LEGS_SIT(s), ...HL(0.16, ty, tz), ...HR(-0.16, ty, tz), lWrX: 0.3, rWrX: 0.3 });
-const STAND = { hipY: 0, lHip: 0, rHip: 0, lKnee: 0, rKnee: 0, spineX: 0, lHipZ: 0.04, rHipZ: -0.04, lIK: 0, rIK: 0, lWrX: 0, rWrX: 0 };
+const STAND = { sit: 0, hipY: 0, lHip: 0, rHip: 0, lKnee: 0, rKnee: 0, spineX: 0, lHipZ: 0.04, rHipZ: -0.04, lIK: 0, rIK: 0, lWrX: 0, rWrX: 0 };
 
 // Positions (monde)
 export const SEAT = {
@@ -189,7 +189,7 @@ export function cast(t, H) {
       [9.0, 10.6, wipe, 0.25],
       [43.85, 44.35, { ...HL(0.15, 0.62, 0.33), ...HR(-0.15, 0.62, 0.33), spineX: 0.0 }, 0.1],
       [44.35, 44.6, { ...HL(0.15, 0.18, 0.42), ...HR(-0.15, 0.18, 0.42), spineX: 0.3 }, 0.06],
-      [44.6, 47.3, { spineX: 0.2, ...HL(0.5, 0.55, 0.38), rIK: 0, rX: -0.3, rEl: -0.9, lWrX: -0.2 }, 0.3],
+      [44.6, 47.3, { spineX: 0.15, ...WL(-1.9, 1.3, -4.3), lCurl: 0.9, rIK: 0, rX: 0.0, rEl: -0.3, lWrX: -0.2 }, 0.3],
       [47.3, 52.7, (u) => ({ spineX: 0.05, lIK: 0, rIK: 0, lX: -0.25, lEl: -0.7, rX: -0.25, rEl: -0.7, headY: 0.25 * Math.sin((u - 47.3) * 1.6) }), 0.3],
       [52.7, 56.2, { spineX: 0.25, neckX: 0.4, lIK: 0, rIK: 0, lX: 0.1, rX: 0.1 }, 0.4],
     ]);
@@ -230,7 +230,7 @@ export function cast(t, H) {
 
   // ===== JUGE =====
   {
-    const base = { hipY: 0.62 - 0.95, lHip: -1.5, rHip: -1.5, lKnee: 1.45, rKnee: 1.45, spineX: 0.1, ...HL(0.2, 0.4, 0.46), ...HR(-0.2, 0.4, 0.46), lWrX: 0.3, rWrX: 0.3 };
+    const base = { sit: 1, sitH: 0.62, lHip: -1.5, rHip: -1.5, lKnee: 1.45, rKnee: 1.45, spineX: 0.12, ...HL(0.18, 0.3, 0.46), ...HR(-0.18, 0.3, 0.46), lWrX: 0.3, rWrX: 0.3 };
     // coups de marteau : lever puis frapper
     const strike = (u) => {
       let up = 0, hit = 0;
@@ -243,7 +243,7 @@ export function cast(t, H) {
     const p = layer(t, base, [
       [23.7, 25.0, { ...HL(0.085, 0.76, 0.14, 0.6), ...HR(-0.085, 0.76, 0.14, 0.6), spineX: 0.02 }, 0.25],
       [25.0, 27.7, (u) => ({ ...strike(u), spineX: 0.28, neckX: -0.05 }), 0.2],
-      [33.6, 34.5, { hipY: 0.62 - 0.95 + 0.05, spineX: -0.25, ...HL(0.28, 0.6, 0.35), ...HR(-0.28, 0.6, 0.35) }, 0.1],
+      [33.6, 34.5, { hipY: 0.05, spineX: -0.25, ...HL(0.28, 0.6, 0.35), ...HR(-0.28, 0.6, 0.35) }, 0.1],
       [34.5, 37.1, { ...HL(0.105, 0.76, 0.0, 0.9), ...HR(-0.105, 0.76, 0.0, 0.9), spineX: 0.1 }, 0.3],
       [57.1, 58.4, (u) => ({ ...strike(u), spineX: 0.15 }), 0.2],
     ]);

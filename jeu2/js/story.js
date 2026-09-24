@@ -86,6 +86,8 @@ const SEATED = (t, off, sp = 0.6, hd = 0.6, k = 1) => ({ clip: 'seat', mode: 'ad
 const ABS = (clip, tc, k, w) => ({ clip, mode: 'abs', t: tc, k, w });
 const FULL = { pelvis: 1, spineAbs: 1, legs: 1, arms: 1, root: 1 };
 const UPPER = { spineAbs: 0.9, arms: 1 };
+// debout sans les bras du clip (l'acteur avait les mains dans les poches)
+const BODY = { pelvis: 1, spineAbs: 1, legs: 1, root: 1 };
 
 // ---------- Personnages : placement + pose + visage + regard ----------
 export function cast(t, H) {
@@ -130,7 +132,7 @@ export function cast(t, H) {
     const standIdle = (t < 8.4 ? 1 - sstep(7.9, 8.3, t) : sstep(53.2, 54, t));
     p.mo = [
       SEATED(t, 3, 0.55, 0.5, 1 - standIdle),
-      ABS('idle', loopT('idle', t + 2), standIdle * (1 - bump(53.3, 53.7, 55.8, 56.4, t)), FULL),
+      ABS('idle', loopT('idle', t + 2), standIdle * (1 - bump(53.3, 53.7, 55.8, 56.4, t)), BODY),
       ABS('explain', loopT('explain', t - 53.3 + 1.2), bump(53.3, 53.7, 55.8, 56.4, t), { ...FULL }),
       ABS('facepalm', Math.min(5.4, t - 32.1 + 0.9), bump(32.0, 32.3, 33.5, 33.8, t), { spineAbs: 1, arms: 1, headAbs: 0.8 }),
     ];
@@ -141,9 +143,10 @@ export function cast(t, H) {
   // ===== ENFANT =====
   {
     const s = sc.kid;
-    const pos = [SEAT.kid[0], 0, SEAT.kid[1]];
+    const kStand = bump(41.1, 41.45, 48.6, 49.4, t);
+    const pos = [SEAT.kid[0], 0, lerp(SEAT.kid[1], -4.3, kStand)];
     const PLAY = (u, k = 1) => ({ ...HL(0.105, 0.34, 0.3, 0.2), ...HR(-0.105, 0.34 + 0.006 * Math.sin(u * 13) * k, 0.3, 0.2), neckX: 0.32, lookW: 0.9, lWrX: -0.35, rWrX: -0.35, lWrZ: -0.9, rWrZ: 0.9, lCurl: 0.8, rCurl: 0.8 });
-    const p = layer(t, SIT(s, 0.28, 0.5), [
+    const p = layer(t, mix(SIT(s, 0.28, 0.5), { ...STAND, lX: 0.05, rX: 0.05 }, kStand), [
       [0, 17.2, (u) => PLAY(u)],
       [17.2, 20.2, (u) => ({ ...PLAY(u, 0), neckX: 0, ...HL(0.105, 0.28, 0.28, 0.2), ...HR(-0.105, 0.28, 0.28, 0.2) })],
       [20.2, 22.6, { ...PLAY(0, 0), spineZ: 0.36, spineY: 0.3, ...HL(-0.12, 0.34, 0.22), ...HR(-0.3, 0.36, 0.16, 0.3), neckX: 0.1 }, 0.2],
@@ -236,7 +239,7 @@ export function cast(t, H) {
       SEATED(t, 14, 0.5, 0.4, 1 - stand),
       { clip: 'cry', mode: 'add', t: loopT('cry', t), ref: 0, k: (1 - sstep(43.6, 43.9, t)) * 0.6, w: { spine: 0.35, head: 0.3 } },
       ABS('angry', loopT('angry', t - 44.6 + 2), bump(44.6, 45.0, 47.1, 47.5, t), UPPER),
-      ABS('idle', loopT('idle', t + 6), bump(47.2, 47.8, 56.0, 56.5, t), FULL),
+      ABS('idle', loopT('idle', t + 6), bump(47.2, 47.8, 56.0, 56.5, t), BODY),
       ABS('walk', t - W0, walkK, FULL),
     ];
     if (t > 44.6 && t < 47.5) { p.lIK = 0; p.lW = 0; }
@@ -273,7 +276,8 @@ export function cast(t, H) {
     };
     const p = layer(t, base, [
       [23.7, 25.0, { ...HL(0.085, 0.76, 0.14, 0.6), ...HR(-0.085, 0.76, 0.14, 0.6), spineX: 0.02 }, 0.25],
-      [25.0, 27.7, (u) => ({ ...strike(u), spineX: 0.28, neckX: -0.05 }), 0.2],
+      [25.0, 27.3, (u) => ({ ...strike(u), spineX: 0.28, neckX: -0.05 }), 0.2],
+      [27.35, 28.4, { ...WR(-1.95, 1.25, -4.0), rPoint: 1, spineX: 0.25, spineY: -0.15 }, 0.15],
       [33.6, 34.5, { hipY: 0.05, spineX: -0.25, ...HL(0.28, 0.6, 0.35), ...HR(-0.28, 0.6, 0.35) }, 0.1],
       [34.5, 37.1, { ...HL(0.105, 0.76, 0.0, 0.9), ...HR(-0.105, 0.76, 0.0, 0.9), spineX: 0.1 }, 0.3],
       [57.1, 58.4, (u) => ({ ...strike(u), spineX: 0.15 }), 0.2],
@@ -286,7 +290,7 @@ export function cast(t, H) {
     if (t > 56.1 && t < 58) look = head('plaintiff');
     const f = {
       angry: 0.55 + bump(24.8, 25, 27.8, 28.5, t) * 0.6 - bump(47, 47.3, 53, 53.5, t) * 0.5 - bump(55, 55.5, 75, 76, t) * 0.4,
-      open: Math.max(talk(t, [[25.0, 27.6, 1.4]]), bump(33.6, 33.7, 34.4, 35, t) * 0.4),
+      open: Math.max(talk(t, [[25.0, 28.2, 1.4]]), bump(33.6, 33.7, 34.4, 35, t) * 0.4),
       mwide: bump(25, 25.1, 27.6, 27.8, t) * 0.5,
       wide: bump(33.6, 33.7, 35, 36, t) + bump(47.3, 47.5, 49, 50, t) * 0.5,
       squint: bump(49, 49.5, 52.5, 53, t) * 0.8 + bump(9.5, 10, 12.8, 13, t) * 0.4,
@@ -295,7 +299,7 @@ export function cast(t, H) {
       smile: bump(55.5, 56, 75, 76, t) * 0.25,
     };
     p.mo = [SEATED(t, 5, 0.5, 0.4)];
-    out.judge = { pos: JUDGE_ROOT, yaw: 0, p, f, look, gavel: bump(24.9, 25.1, 27.6, 27.9, t) + bump(56.9, 57.1, 58.2, 58.5, t) };
+    out.judge = { pos: JUDGE_ROOT, yaw: 0, p, f, look, gavel: bump(24.9, 25.1, 27.25, 27.35, t) + bump(56.9, 57.1, 58.2, 58.5, t) };
   }
   return out;
 }
@@ -304,6 +308,27 @@ export function cast(t, H) {
 export function extras(t, i) {
   const jumpT = 33.65 + (i % 4) * 0.06;
   const jump = bump(jumpT, jumpT + 0.1, jumpT + 0.35, jumpT + 0.8, t);
+  if (i >= 10) {
+    const j = i - 10;
+    const A0 = [[5.6, -6.4], [6.25, -5.9]][j], A1 = [[1.0, -6.05], [1.75, -6.6]][j];
+    const t0 = 27.4 + j * 0.3, D = Math.hypot(A1[0] - A0[0], A1[1] - A0[1]), dur = D / 0.78;
+    const u = clamp((t - t0) / dur, 0, 1);
+    const pos = [lerp(A0[0], A1[0], u), 0, lerp(A0[1], A1[1], u)];
+    const walking = t > t0 && u < 1;
+    const kid = [-1.95, -4.0];
+    const faceKid = Math.atan2(kid[0] - pos[0], kid[1] - pos[2]);
+    const walkYaw = Math.atan2(A1[0] - A0[0], A1[1] - A0[1]);
+    let yaw = [-1.15, -1.25][j];
+    yaw = lerp(yaw, walkYaw, sstep(t0 - 0.2, t0 + 0.4, t));
+    if (u >= 1) yaw = lerp(walkYaw, faceKid, sstep(t0 + dur, t0 + dur + 0.8, t));
+    const wk = bump(t0, t0 + 0.35, t0 + dur - 0.2, t0 + dur + 0.2, t);
+    return {
+      jump, pos, yaw,
+      f: { wide: jump + bump(44, 44.3, 49, 50, t) * 0.8, open: jump * 0.3, browUp: jump, angry: sstep(27, 28, t) * 0.4 },
+      lookAt: t < 27.2 ? 'judge' : t < 44 ? 'kid' : t < 58 ? 'plaintiff' : 'kid',
+      mo: [ABS('idle', loopT('idle', t + i * 5.3), 1 - wk, BODY), ABS('walk', t - t0, wk, { ...FULL, arms: 0.8 })],
+    };
+  }
   return {
     jump,
     mo: i >= 10 ? [ABS('idle', loopT('idle', t + i * 5.3), 1, FULL)] : [SEATED(t, i * 2.7, 0.8, 0.7), ABS('seat', loopT('seat', t + i * 2.7), 0.8, { arms: 1 })],
@@ -347,6 +372,7 @@ export const SHOTS = [
   { t: 23.6, fov: 30, ap: 1, cam: orbit(HD('judge'), 22, 10, 0, 1, 0.95, 0.75), label: 'Le juge met ses lunettes' },
   { t: 25.4, fov: 38, ap: 0.8, cam: orbit(HD('judge', -0.2), -28, -10, -8, -5, 1.9, 1.35), label: '« Silence ! Coupez ce son ! »' },
   { t: 27.8, fov: 40, ap: 1, cam: (u, S) => { const e = ease(u); const sp = S.speakerPos; return { pos: V(-0.45 - 0.2 * e, 0.95 + 0.1 * e, -3.05 - 0.35 * e), look: V(lerp(-1.6, sp.x, e), lerp(0.55, sp.y, e), lerp(-3.9, sp.z, e)) }; }, focus: 'speaker', label: 'Il sort une mini enceinte de son sac' },
+  { t: 29.0, wide: true, fov: 40, ap: 0.5, cam: orbit(MID('police0', 'police1', -0.25), 258, 246, 7, 5, 3.6, 3.1), label: 'Les deux policiers avancent' },
   { t: 30.5, fov: 30, ap: 1.1, cam: (u, S) => { const sp = S.speakerPos; const e = ease(u); return { pos: V(sp.x + 0.2 - 0.08 * e, sp.y + 0.12, sp.z - 0.75 + 0.12 * e), look: V(sp.x - 0.05, sp.y + 0.05, sp.z) }; }, focus: 'speaker', label: '… et la connecte' },
   { t: 32.1, fov: 32, ap: 1, cam: orbit(HD('dad'), 205, 198, 4, 3, 0.9, 0.8), label: 'J’avais envie de mourir' },
   { t: 33.6, wide: true, fov: 44, ap: 0.3, shake: 1, cam: dolly([3.2, 3.5, -8.4], [2.9, 3.1, -8.0], [-1.4, 0.8, -4.0], [-1.2, 0.9, -3.8]), label: 'Le son explose dans le tribunal. Tout le monde sursaute' },

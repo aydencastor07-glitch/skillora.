@@ -304,7 +304,9 @@ export class RealHuman {
       // doigts : repliés (poing / tenir un objet)
       const curl = g(P + 'Curl', 0.35);
       const Ec = adjI.clone().multiply(eq(0, 0, -side * curl)).multiply(adj);
-      for (const fn of this.fingers[s]) this.setBone(fn, Ec);
+      const point = g(P + 'Point', 0) > 0.5;
+      const Ep = adjI.clone().multiply(eq(0, 0, -side * 1.25)).multiply(adj);
+      for (const fn of this.fingers[s]) this.setBone(fn, point ? (/Finger1\d?$/.test(fn) ? _I : Ep) : Ec);
     }
 
     // Tête + regard (+ petits mouvements réels additifs)

@@ -205,7 +205,9 @@ function frame(t) {
       ? { sit: 1, hipY: e.jump * 0.07, lHip: -1.52, rHip: -1.52, lKnee: 1.5, rKnee: 1.5, spineX: 0.05 - e.jump * 0.2, lX: -0.3 - e.jump * 1.2, rX: -0.3 - e.jump * 1.2, lEl: -1.3, rEl: -1.3, lZ: 0.15, rZ: -0.15 }
       : { hipY: e.jump * 0.06, spineX: -e.jump * 0.15, lX: -0.1 - e.jump * 1.0, rX: -0.1 - e.jump * 1.0, lEl: -0.5 - e.jump, rEl: -0.5 - e.jump, lZ: 0.15, rZ: -0.15 };
     base.mo = e.mo;
+    if (e.pos) { h.root.position.set(...e.pos); h.root.rotation.y = e.yaw; }
     h.setPose(base, e.f, S.head(e.lookAt), t + i * 1.7);
+    if (i >= 10) heads['police' + (i - 10)] = h.headWorld(new THREE.Vector3());
   });
 
   // 2) accessoires
@@ -263,6 +265,7 @@ function frame(t) {
   const t1 = i < SHOTS.length - 1 ? SHOTS[i + 1].t : T_END;
   const u = Math.min(1, Math.max(0, (t - sh.t) / (t1 - sh.t)));
   let cm = sh.cam(u, S);
+  if (window.CAM_OVERRIDE) cm = window.CAM_OVERRIDE(S);
   // plans rapprochés : la caméra glisse d'un plan à l'autre (pas de coupe) ; plans larges : coupe franche
   const TR = 0.9;
   if (i > 0 && !sh.wide && !SHOTS[i - 1].wide && t - sh.t < TR) {

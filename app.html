@@ -1952,6 +1952,10 @@
     .own-tabs button svg{width:13px;height:13px;}
   }
   @media (max-width:375px){ .own-tabs button svg{display:none;} }
+  .own-jeux{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+  .own-jeux button{padding:8px 13px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-weight:700;font-size:.8rem;cursor:pointer;}
+  .own-jeux button.on{background:rgba(47,123,255,.18);border-color:rgba(47,123,255,.6);color:#fff;}
+  .own-jeux a{margin-left:auto;color:#9ec2ff;text-decoration:none;font-size:.8rem;font-weight:600;}
   .own-pan{display:none;} .own-pan.on{display:block;animation:ownIn .26s ease;}
   @keyframes ownIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
@@ -2491,9 +2495,10 @@
          Chargé seulement quand l'onglet est ouvert, déchargé en le quittant
          (le rendu 3D ne tourne pas en arrière-plan). -->
     <div class="own-pan" id="ownPanJeu">
-      <div class="own-card-h" style="margin-bottom:10px;">
-        <span class="own-card-t">La Chasse aux Loups — 3D</span>
-        <a class="own-card-x" href="jeu/" target="_blank" rel="noopener" style="color:#9ec2ff;text-decoration:none;">Plein écran ↗</a>
+      <div class="own-jeux" id="ownJeux">
+        <button class="on" data-j="jeu2/" onclick="ownJeu('jeu2/')">⚖️ Le Procès</button>
+        <button data-j="jeu/" onclick="ownJeu('jeu/')">🐺 La Chasse aux Loups</button>
+        <a id="ownJeuFull" href="jeu2/" target="_blank" rel="noopener">Plein écran ↗</a>
       </div>
       <iframe id="ownJeuFrame" title="Jeu 3D" allow="fullscreen; autoplay"
         style="display:block;width:100%;height:calc(100vh - 170px);min-height:520px;border:1px solid var(--border);border-radius:14px;background:#14120f;"></iframe>
@@ -4238,7 +4243,7 @@
     // Jeu 3D : chargé à l'ouverture de l'onglet, vidé en le quittant.
     var jeu = document.getElementById('ownJeuFrame');
     if (jeu) {
-      if (nom === 'jeu') { if (!jeu.getAttribute('src') || jeu.getAttribute('src') === 'about:blank') jeu.setAttribute('src', 'jeu/'); }
+      if (nom === 'jeu') { if (!jeu.getAttribute('src') || jeu.getAttribute('src') === 'about:blank') jeu.setAttribute('src', OWN_JEU); }
       else if (jeu.getAttribute('src') && jeu.getAttribute('src') !== 'about:blank') jeu.setAttribute('src', 'about:blank');
     }
     // Publication : on DEPLACE l'ecran existant dans l'onglet, une seule fois.
@@ -4250,6 +4255,15 @@
     /* Pas de chargement ici : l'ouverture de l'espace dev s'en charge (voir
        switchView, cas 'owner'). Le faire aux deux endroits declenchait deux
        appels a la suite au premier affichage. */
+  }
+
+  // Choix du jeu dans l'onglet « Jeu »
+  var OWN_JEU = 'jeu2/';
+  function ownJeu(src){
+    OWN_JEU = src;
+    document.querySelectorAll('#ownJeux button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-j') === src); });
+    var f = document.getElementById('ownJeuFrame'); if (f) f.setAttribute('src', src);
+    var a = document.getElementById('ownJeuFull'); if (a) a.setAttribute('href', src);
   }
 
   var OWN_PER = [['auj',"Aujourd'hui"],['7j','7 jours'],['30j','30 jours'],['90j','90 jours'],['365j','1 an'],['tout','Tout']];

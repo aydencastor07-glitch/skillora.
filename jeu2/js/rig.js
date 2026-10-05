@@ -5,12 +5,19 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as skClone } from 'three/addons/utils/SkeletonUtils.js';
 
-const B = {
+const BIP = {
   pelvis: 'Bip01_Pelvis', sp0: 'Bip01_Spine', sp1: 'Bip01_Spine1', sp2: 'Bip01_Spine2', neck: 'Bip01_Neck', head: 'Bip01_Head',
   lClav: 'Bip01_L_Clavicle', lUp: 'Bip01_L_UpperArm', lFore: 'Bip01_L_Forearm', lHand: 'Bip01_L_Hand',
   rClav: 'Bip01_R_Clavicle', rUp: 'Bip01_R_UpperArm', rFore: 'Bip01_R_Forearm', rHand: 'Bip01_R_Hand',
   lThigh: 'Bip01_L_Thigh', lCalf: 'Bip01_L_Calf', lFoot: 'Bip01_L_Foot', rThigh: 'Bip01_R_Thigh', rCalf: 'Bip01_R_Calf', rFoot: 'Bip01_R_Foot',
   lEye: 'Bip01_LEye', rEye: 'Bip01_REye',
+};
+// Squelette Mixamo (personnages Tripo3D, Mixamo…)
+const MIXAMO = {
+  pelvis: 'Hips', sp0: 'Spine', sp1: 'Spine1', sp2: 'Spine2', neck: 'Neck', head: 'Head',
+  lClav: 'LeftShoulder', lUp: 'LeftArm', lFore: 'LeftForeArm', lHand: 'LeftHand',
+  rClav: 'RightShoulder', rUp: 'RightArm', rFore: 'RightForeArm', rHand: 'RightHand',
+  lThigh: 'LeftUpLeg', lCalf: 'LeftLeg', lFoot: 'LeftFoot', rThigh: 'RightUpLeg', rCalf: 'RightLeg', rFoot: 'RightFoot',
 };
 
 const cache = new Map();
@@ -57,9 +64,12 @@ export class RealHuman {
     this.o = { seed: 0, ...o };
     this.root = new THREE.Group();
     this.holder = new THREE.Group();
-    this.holder.scale.setScalar(0.01);
     this.root.add(this.holder);
     this.holder.add(model);
+    // unité du modèle : centimètres (Rocketbox) ou taille réelle voulue (Tripo)
+    let unit = this.o.unit ?? 0.01;
+    if (this.o.heightM) { model.updateMatrixWorld(true); unit = this.o.heightM / new THREE.Box3().setFromObject(model).getSize(_v).y; }
+    this.holder.scale.setScalar(unit);
     this.meshes = [];
     this.bones = {};
     model.traverse((n) => {
@@ -68,7 +78,7 @@ export class RealHuman {
         const ms = Array.isArray(n.material) ? n.material : [n.material];
         const nm = ms.map((m) => {
           const c = m.clone();
-          c.roughness = /head/.test(c.name) ? 0.55 : 0.8;
+          if (!c.roughnessMap) c.roughness = /head/.test(c.name) ? 0.55 : 0.8;
           c.envMapIntensity = 0.6;
           if (c.map) c.map.anisotropy = 8;
           if (/pistol/.test(c.name)) c.visible = false;
@@ -80,6 +90,19 @@ export class RealHuman {
       }
       if (n.isBone || n.type === 'Bone' || /^Bip01/.test(n.name)) this.bones[n.name] = n;
     });
+    // correspondance des os (Rocketbox ou Mixamo)
+    const mx = Object.keys(this.bones).find((n) => /^mixamorig.?Hips$/.test(n));
+    const pre = mx ? mx.slice(0, -4) : '';
+    const B = (this.B = mx ? Object.fromEntries(Object.entries(MIXAMO).map(([k, v]) => [k, pre + v])) : { ...BIP });
+    if (mx) for (const m of this.meshes) if (m.isSkinnedMesh) fixArmWeights(m, pre);
+    // parent réel de chaque os du système
+    const key = Object.fromEntries(Object.entries(B).map(([k, v]) => [v, k]));
+    this.PK = {};
+    for (const k in B) {
+      let b = this.bones[B[k]] && this.bones[B[k]].parent;
+      while (b && !key[b.name]) b = b.parent;
+      if (b) this.PK[k] = key[b.name];
+    }
     // Repos : rotations "monde" de chaque os dans le repère du personnage
     this.root.updateMatrixWorld(true);
     const inv = new THREE.Matrix4().copy(this.holder.matrixWorld).invert();
@@ -89,25 +112,37 @@ export class RealHuman {
       const p = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
       _m.decompose(p, q, s);
       this.R[name] = q; this.L0[name] = b.quaternion.clone();
-      this.P0[name] = p.multiplyScalar(0.01);
+      this.P0[name] = p.multiplyScalar(unit);
+    }
+    // repère du parent des os racines (ex. « Armature » de Mixamo)
+    for (const b of Object.values(this.bones)) {
+      const pa = b.parent;
+      if (pa && !this.R[pa.name]) { _m.multiplyMatrices(inv, pa.matrixWorld); const q = new THREE.Quaternion(); _m.decompose(_v, q, _v2); this.R[pa.name] = q; }
     }
     const P0 = this.P0;
     this.height = P0[B.head].y + 0.12;
     this.k = this.height / 1.78;
     this.pelvisY = P0[B.pelvis].y;
-    // Bras en T -> bras le long du corps
+    // Bras en T -> bras le long du corps. Si le modèle est au repos en A,
+    // tfix ramène d'abord le bras en T (les mouvements réels sont exprimés depuis le T).
     this.adj = {};
+    this.tfix = {};
     this.len = {};
     for (const s of ['l', 'r']) {
       const up = P0[B[s + 'Up']], fo = P0[B[s + 'Fore']], ha = P0[B[s + 'Hand']];
       const d = fo.clone().sub(up).normalize();
-      this.adj[s] = new THREE.Quaternion().setFromUnitVectors(d, new THREE.Vector3(0, -1, 0));
+      const T = new THREE.Vector3(Math.sign(d.x) || 1, 0, 0);
+      this.tfix[s] = new THREE.Quaternion().setFromUnitVectors(d, T);
+      this.adj[s] = new THREE.Quaternion().setFromUnitVectors(T, new THREE.Vector3(0, -1, 0)).multiply(this.tfix[s]);
       this.len[s] = [fo.distanceTo(up), ha.distanceTo(fo) + 0.075 * this.k];
     }
     this.fingers = { l: [], r: [] };
+    this.pointer = {};
     for (const [name, b] of Object.entries(this.bones)) {
-      const m = /^Bip01_([LR])_Finger([1-4])\d?$/.exec(name);
-      if (m) this.fingers[m[1].toLowerCase()].push(name);
+      const m = /^Bip01_([LR])_Finger([1-4])\d?$/.exec(name) || /(Left|Right)Hand(Index|Middle|Ring|Pinky)[1-3]$/.exec(name);
+      if (!m) continue;
+      this.fingers[m[1][0].toLowerCase()].push(name);
+      this.pointer[name] = m[2] === '1' || m[2] === 'Index';
     }
     // Morphs du visage
     this.face = [];
@@ -218,7 +253,7 @@ export class RealHuman {
   // Repère aligné (personnage) cumulé d'une chaîne de rotations
   setPose(p = {}, f = {}, look = null, t = 0) {
     const g = (k, d = 0) => (p[k] === undefined ? d : p[k]);
-    const k = this.k;
+    const k = this.k, B = this.B;
     // assis / debout : hauteur du bassin
     const sit = g('sit');
     this.holder.position.set(0, sit * (g('sitH', 0.56) - this.pelvisY) + g('hipY'), g('hipZ'));
@@ -228,7 +263,11 @@ export class RealHuman {
     const MO = this.sampleMocap(p.mo);
     const W = MO.w;
     const addQ = (n, w) => (MO.add[n] && w > 0 ? _I.clone().slerp(MO.add[n], Math.min(1, w)) : _I);
-    const blend = (q, n, w) => (MO.abs[n] && w > 0 ? q.slerp(MO.abs[n], Math.min(1, w)) : q);
+    const moAbs = (n) => {
+      const s = n[0], m = MO.abs[n];
+      return m && /^[lr](Up|Fore|Hand)$/.test(n) ? m.clone().multiply(this.tfix[s]) : m;
+    };
+    const blend = (q, n, w) => (MO.abs[n] && w > 0 ? q.slerp(moAbs(n), Math.min(1, w)) : q);
     const A = {};
     const breath = Math.sin(t * 1.7 + (this.o.seed || 0) * 3) * 0.01;
     A.pelvis = blend(eq(g('hipX'), g('hipYaw'), g('hipRoll')).multiply(addQ('pelvis', W.spine)), 'pelvis', W.pelvis);
@@ -244,7 +283,7 @@ export class RealHuman {
       A[s + 'Calf'] = blend(A[s + 'Thigh'].clone().multiply(eq(g(s + 'Knee'), 0, 0)), s + 'Calf', W.legs);
       A[s + 'Foot'] = blend(A[s + 'Calf'].clone().multiply(eq(g(s + 'Ank'), 0, 0)), s + 'Foot', W.legs);
     }
-    const PARENT = { sp0: 'pelvis', sp1: 'sp0', sp2: 'sp1', neck: 'sp2', head: 'neck', lClav: 'neck', rClav: 'neck', lUp: 'lClav', rUp: 'rClav', lFore: 'lUp', rFore: 'rUp', lHand: 'lFore', rHand: 'rFore', lThigh: 'sp0', rThigh: 'sp0', lCalf: 'lThigh', rCalf: 'rThigh', lFoot: 'lCalf', rFoot: 'rCalf' };
+    const PARENT = this.PK;
     const apply = (n) => {
       const pa = PARENT[n];
       this.setBone(B[n], pa ? A[pa].clone().invert().multiply(A[n]) : A[n]);
@@ -306,7 +345,7 @@ export class RealHuman {
       const Ec = adjI.clone().multiply(eq(0, 0, -side * curl)).multiply(adj);
       const point = g(P + 'Point', 0) > 0.5;
       const Ep = adjI.clone().multiply(eq(0, 0, -side * 1.25)).multiply(adj);
-      for (const fn of this.fingers[s]) this.setBone(fn, point ? (/Finger1\d?$/.test(fn) ? _I : Ep) : Ec);
+      for (const fn of this.fingers[s]) this.setBone(fn, point ? (this.pointer[fn] ? _I : Ep) : Ec);
     }
 
     // Tête + regard (+ petits mouvements réels additifs)
@@ -359,7 +398,7 @@ export class RealHuman {
     if (this.headMat) this.headMat.color.copy(this.baseHead).lerp(new THREE.Color('#ff2f22'), (f.red || 0) * 0.62);
 
     // Larmes qui coulent
-    const tears = f.tears || 0;
+    const tears = this.bones[B.lEye] ? f.tears || 0 : 0;
     const Ah = A.head.clone();
     this.tears.forEach((tr, i) => {
       tr.visible = tears > 0.05;
@@ -375,7 +414,7 @@ export class RealHuman {
       this.hairVol.position.copy(hb).add(new THREE.Vector3(0, 0.1, 0.012).multiplyScalar(this.k).applyQuaternion(Ah));
       this.hairVol.quaternion.copy(Ah);
     }
-    if (this.glasses) {
+    if (this.glasses && this.bones[B.lEye]) {
       const gp = f.glasses === undefined ? 1 : f.glasses;
       this.glasses.visible = gp > 0.001;
       const l = this.charPos(B.lEye, new THREE.Vector3()), r = this.charPos(B.rEye, new THREE.Vector3());
@@ -420,11 +459,18 @@ export class RealHuman {
     return this.root.worldToLocal(out);
   }
   headWorld(out = new THREE.Vector3()) {
+    const B = this.B;
+    if (!this.bones[B.lEye]) {
+      const h = this.bones[B.head];
+      h.getWorldQuaternion(_q).multiply(_q2.copy(this.R[B.head]).invert());
+      return h.getWorldPosition(out).add(_v.set(0, 0.09, 0.07).multiplyScalar(this.k).applyQuaternion(_q));
+    }
     const l = this.bones[B.lEye].getWorldPosition(new THREE.Vector3());
     const r = this.bones[B.rEye].getWorldPosition(out);
     return out.copy(l).add(r).multiplyScalar(0.5);
   }
   handPoint(s, out) {
+    const B = this.B;
     const hb = this.bones[B[s + 'Hand']], fb = this.bones[B[s + 'Fore']];
     const h = hb.getWorldPosition(out), f = fb.getWorldPosition(_v2);
     const dir = _v.copy(h).sub(f).normalize();
@@ -432,10 +478,111 @@ export class RealHuman {
   }
   handQuat(s, out) {
     // repère "aligné" de la main dans le monde
+    const B = this.B;
     const hb = this.bones[B[s + 'Hand']];
     hb.getWorldQuaternion(out);
     return out.multiply(_q.copy(this.R[B[s + 'Hand']]).invert()).multiply(this.adj[s].clone().invert());
   }
+}
+
+// ---------- Correction du squelette automatique (Tripo / Mixamo) ----------
+// Au repos les mains touchent les cuisses : le rig automatique attache une partie
+// du pantalon aux mains, qui s'étire quand les bras bougent. On rend ces points
+// à la jambe la plus proche (distance rapportée à l'épaisseur de chaque membre).
+function fixArmWeights(mesh, pre) {
+  const sk = mesh.skeleton, geo = mesh.geometry;
+  if (geo.userData.armFixed || !geo.index) return;
+  geo.userData.armFixed = true;
+  const idx = (n) => sk.bones.findIndex((b) => b.name === pre + n);
+  const P = sk.boneInverses.map((m) => new THREE.Vector3().setFromMatrixPosition(m.clone().invert()));
+  const pos = geo.attributes.position, J = geo.attributes.skinIndex, W = geo.attributes.skinWeight, N = pos.count;
+  // voisins (arêtes des triangles)
+  const nb = Array.from({ length: N }, () => []);
+  const I = geo.index.array;
+  for (let t = 0; t < I.length; t += 3) for (let e = 0; e < 3; e++) { const a = I[t + e], b = I[t + (e + 1) % 3]; nb[a].push(b); nb[b].push(a); }
+  // points dupliqués aux coutures de texture : on les relie
+  const same = new Map();
+  for (let i = 0; i < N; i++) {
+    const h = `${Math.round(pos.getX(i) * 1e4)},${Math.round(pos.getY(i) * 1e4)},${Math.round(pos.getZ(i) * 1e4)}`;
+    const j = same.get(h);
+    if (j === undefined) same.set(h, i); else { nb[i].push(j); nb[j].push(i); }
+  }
+  const Y = (i) => pos.getY(i);
+  // couleur de la texture sous chaque point : la surface « coupe » aux changements de couleur
+  const col = new Float32Array(N * 3);
+  const img = mesh.material.map && mesh.material.map.image, uv = geo.attributes.uv;
+  if (img && uv) {
+    const S = 512, cv = document.createElement('canvas');
+    cv.width = cv.height = S;
+    const g = cv.getContext('2d', { willReadFrequently: true });
+    g.drawImage(img, 0, 0, S, S);
+    const px = g.getImageData(0, 0, S, S).data;
+    for (let i = 0; i < N; i++) {
+      const x = Math.min(S - 1, Math.max(0, Math.floor(uv.getX(i) * S))), y = Math.min(S - 1, Math.max(0, Math.floor(uv.getY(i) * S)));
+      const o = (y * S + x) * 4;
+      col[i * 3] = px[o] / 255; col[i * 3 + 1] = px[o + 1] / 255; col[i * 3 + 2] = px[o + 2] / 255;
+    }
+  }
+  const cdiff = (a, b) => Math.abs(col[a * 3] - col[b * 3]) + Math.abs(col[a * 3 + 1] - col[b * 3 + 1]) + Math.abs(col[a * 3 + 2] - col[b * 3 + 2]);
+  const wOf = (i, set) => { let w = 0; for (let c = 0; c < 4; c++) if (set.has(J.getComponent(i, c))) w += W.getComponent(i, c); return w; };
+  // distance le long de la surface depuis des points de départ (Dijkstra)
+  const geodesic = (seeds) => {
+    const d = new Float64Array(N).fill(Infinity), heap = [];
+    const push = (i, v) => { heap.push([v, i]); let k = heap.length - 1; while (k) { const p = (k - 1) >> 1; if (heap[p][0] <= heap[k][0]) break; [heap[p], heap[k]] = [heap[k], heap[p]]; k = p; } };
+    const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let k = 0; for (;;) { const l = 2 * k + 1, r = l + 1; let m = k; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === k) break; [heap[m], heap[k]] = [heap[k], heap[m]]; k = m; } } return top; };
+    for (const i of seeds) { d[i] = 0; push(i, 0); }
+    const va = new THREE.Vector3(), vb = new THREE.Vector3();
+    while (heap.length) {
+      const [dv, i] = pop();
+      if (dv > d[i]) continue;
+      va.fromBufferAttribute(pos, i);
+      for (const j of nb[i]) { const nd = dv + va.distanceTo(vb.fromBufferAttribute(pos, j)) * (1 + 25 * cdiff(i, j)); if (nd < d[j]) { d[j] = nd; push(j, nd); } }
+    }
+    return d;
+  };
+  const moved = new Uint8Array(N), handLow = new Uint8Array(N);
+  for (const S of ['Left', 'Right']) {
+    const iF = idx(S + 'ForeArm'), iH = idx(S + 'Hand'), iU = idx(S + 'UpLeg'), iL = idx(S + 'Leg');
+    if ([iF, iH, iU, iL].some((i) => i < 0)) continue;
+    const wrist = P[iH].y, unit = P[idx('Head')].y || 1;
+    const arm = new Set(sk.bones.map((b, i) => (b.name.startsWith(pre + S + 'Hand') || i === iF || i === idx(S + 'Arm') ? i : -1)).filter((i) => i >= 0));
+    const legs = new Set([iU, iL]), fore = new Set([iF]);
+    const sHand = [], sLeg = [];
+    for (let i = 0; i < N; i++) {
+      if (Y(i) > wrist + 0.06 * unit && wOf(i, fore) > 0.6) sHand.push(i);
+      else if (Y(i) < wrist - 0.12 * unit && wOf(i, legs) > 0.6 && wOf(i, arm) < 0.01) sLeg.push(i);
+    }
+    if (!sHand.length || !sLeg.length) continue;
+    const dH = geodesic(sHand), dLg = geodesic(sLeg);
+    // couleur de peau du poignet : ce qui lui ressemble reste sur la main
+    const ref = [0, 0, 0];
+    let nr = 0;
+    for (let i = 0; i < N; i++) if (Y(i) > wrist && Y(i) < wrist + 0.06 * unit && wOf(i, fore) > 0.5) { for (let c = 0; c < 3; c++) ref[c] += col[i * 3 + c]; nr++; }
+    const skin = (i) => nr && Math.abs(col[i * 3] - ref[0] / nr) + Math.abs(col[i * 3 + 1] - ref[1] / nr) + Math.abs(col[i * 3 + 2] - ref[2] / nr) < 0.35;
+    for (let i = 0; i < N; i++) {
+      if (Y(i) > wrist || wOf(i, arm) < 0.01) continue;
+      handLow[i] = 1;
+      if (!(dLg[i] < dH[i]) || skin(i)) continue;
+      moved[i] = 1;
+      const v = new THREE.Vector3().fromBufferAttribute(pos, i);
+      const _a = new THREE.Vector3(), ab = P[iL].clone().sub(P[iU]);
+      const t = THREE.MathUtils.clamp(_a.copy(v).sub(P[iU]).dot(ab) / ab.lengthSq(), 0, 1);
+      const leg = t < 0.85 ? iU : iL;
+      const m = new Map();
+      for (let c = 0; c < 4; c++) { const j = arm.has(J.getComponent(i, c)) ? leg : J.getComponent(i, c); m.set(j, (m.get(j) || 0) + W.getComponent(i, c)); }
+      const e = [...m.entries()];
+      for (let c = 0; c < 4; c++) { J.setComponent(i, c, e[c] ? e[c][0] : 0); W.setComponent(i, c, e[c] ? e[c][1] : 0); }
+    }
+  }
+  // triangles soudés entre la main et la cuisse : supprimés (sinon ils s'étirent)
+  const I2 = Array.from(I);
+  for (let t = 0; t < I2.length; t += 3) {
+    let m = 0, h = 0;
+    for (let e = 0; e < 3; e++) { const v = I2[t + e]; if (moved[v]) m++; else if (handLow[v]) h++; }
+    if (m && h) I2[t + 1] = I2[t + 2] = I2[t];
+  }
+  geo.setIndex(I2);
+  J.needsUpdate = W.needsUpdate = true;
 }
 
 // ---------- Recoloration des textures (cheveux, vêtements) ----------

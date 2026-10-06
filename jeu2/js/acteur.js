@@ -70,9 +70,72 @@ window.setAct = (i, at) => { act = i; t0 = at; [...ui.children].forEach((x, j) =
 document.body.classList.add('ready');
 
 const clock = new THREE.Clock();
+// ?demo : petite scène — il marche vers la caméra, se retourne, revient, gestes, gros plan
+const DEMO = new URLSearchParams(location.search).has('demo');
+const ss = (a, b, x) => { const u = Math.min(1, Math.max(0, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
+const lerp = (a, b, u) => a + (b - a) * u;
+export const DEMO_END = 24;
+const Z0 = -7, WALK_END = 6.2, SPEED = 0.78;
+const headV = new THREE.Vector3(), camTgt = new THREE.Vector3(0, 1.2, -4), camPos = new THREE.Vector3(0, 1.55, 1.6);
+if (DEMO) {
+  ui.style.display = 'none';
+  const key = new THREE.SpotLight('#fff3e6', 18, 12, 0.5, 0.8, 1.5);
+  key.position.set(1.2, 2.6, 1.8); key.target.position.set(0, 1.4, -2.3);
+  scene.add(key, key.target);
+}
+function demoFrame(T) {
+  // position : marche à vitesse réelle puis ralentit et s'arrête
+  const z = Z0 + SPEED * Math.min(T, WALK_END) + SPEED * 0.3 * ss(WALK_END, WALK_END + 0.6, T);
+  const wk = 1 - ss(WALK_END - 0.1, WALK_END + 0.6, T);
+  // se retourne (vers le juge), puis revient face à la caméra
+  const yaw = Math.PI * (ss(7.0, 8.4, T) - ss(9.4, 10.8, T));
+  H.root.position.set(0, 0, z);
+  H.root.rotation.y = yaw;
+  const mo = [{ clip: 'walk', mode: 'abs', t: loopT('walk', T), k: wk, w: { ...FULL, arms: 0.85 } }];
+  const g1 = ss(10.6, 11.2, T) * (1 - ss(15.0, 15.5, T)), g2 = ss(15.2, 15.8, T) * (1 - ss(19.5, 20.0, T));
+  // au repos : jambes et respiration du vrai mouvement, buste qui reste face à la caméra
+  const calm = ss(19.6, 20.2, T);
+  const idleW = { legs: 1, root: 1, pelvis: lerp(1, 0.2, calm), spineAbs: lerp(1, 0.3, calm) };
+  mo.push({ clip: 'idle', mode: 'abs', t: loopT('idle', T), k: (1 - wk) * (1 - g1 - g2), w: idleW });
+  if (g1 > 0) mo.push({ clip: 'explain', mode: 'abs', t: loopT('explain', T - 10.6), k: g1, w: FULL });
+  if (g2 > 0) mo.push({ clip: 'angry', mode: 'abs', t: loopT('angry', T - 15.2 + 2), k: g2, w: FULL });
+  // regarde la caméra (sauf quand il est retourné)
+  const back = ss(7.0, 7.6, T) * (1 - ss(10.2, 10.8, T));
+  H.setPose({ mo, lookW: lerp(0.7, 0.9, calm) * (1 - back) }, {}, back > 0.5 ? null : camera.position, T);
+  H.headWorld(headV);
+  // caméra : recule devant lui pendant la marche, plan taille pour les gestes, puis gros plan visage
+  let pos, tgt;
+  if (T < 10.8) {
+    const d = lerp(4.2, 2.4, ss(0, 10.8, T));
+    tgt = new THREE.Vector3(0, lerp(1.15, 1.35, ss(0, 10.8, T)), z);
+    pos = new THREE.Vector3(0.35, 1.5, z + d);
+  } else if (T < 19.8) {
+    const u = ss(10.8, 19.8, T);
+    tgt = new THREE.Vector3(0, headV.y - 0.28, z);
+    pos = new THREE.Vector3(lerp(0.5, -0.45, u), headV.y - 0.05, z + lerp(1.9, 1.6, u));
+  } else {
+    const u = ss(19.8, 24, T);
+    tgt = headV.clone();
+    pos = new THREE.Vector3(lerp(0.25, 0.08, u), headV.y + 0.02, headV.z + lerp(0.95, 0.55, u));
+  }
+  // caméra portée : suit en douceur, légère respiration
+  const k = T < 0.05 || Math.abs(T - 10.8) < 0.03 || Math.abs(T - 19.8) < 0.03 ? 1 : 0.25;
+  camPos.lerp(pos, k); camTgt.lerp(tgt, k);
+  camera.position.copy(camPos).add(new THREE.Vector3(Math.sin(T * 1.3) * 0.006, Math.sin(T * 1.7) * 0.005, 0));
+  camera.lookAt(camTgt);
+}
 const C = new THREE.Vector3(0, 0, -1.6);
 function frame() {
   const T = window.T_OVERRIDE ?? clock.getElapsedTime(), t = T - t0;
+  if (DEMO) {
+    demoFrame(DEMO_END ? T % DEMO_END : T);
+    const w2 = innerWidth, h2 = innerHeight;
+    if (canvas.width !== Math.floor(w2 * renderer.getPixelRatio())) renderer.setSize(w2, h2, false);
+    camera.aspect = w2 / h2; camera.fov = w2 < h2 ? 40 : 30; camera.updateProjectionMatrix();
+    renderer.render(scene, camera);
+    if (!MANUAL) requestAnimationFrame(frame);
+    return;
+  }
   const [, clip, w] = ACTS[act];
   let x = C.x, z = C.z, yaw = 0.25 * Math.sin(T * 0.2);
   if (clip === 'walk') {

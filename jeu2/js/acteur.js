@@ -65,6 +65,8 @@ await RealHuman.loadClips(['idle', 'explain', 'angry', 'facepalm', 'cry', 'walk'
 const H = await RealHuman.create('./models/acteur1.glb', { heightM: 1.8 });
 scene.add(H.root);
 window.ACTEUR = H;
+// pilotage externe (rendu vidéo image par image)
+window.setAct = (i, at) => { act = i; t0 = at; [...ui.children].forEach((x, j) => x.classList.toggle('on', j === i)); };
 document.body.classList.add('ready');
 
 const clock = new THREE.Clock();
@@ -93,6 +95,9 @@ function frame() {
   camera.fov = w2 < h2 ? 46 : 32;
   camera.updateProjectionMatrix();
   renderer.render(scene, camera);
-  requestAnimationFrame(frame);
+  if (!MANUAL) requestAnimationFrame(frame);
 }
+// ?manual : une image à la demande (rendu vidéo)
+const MANUAL = new URLSearchParams(location.search).has('manual');
+window.renderAt = (T) => { window.T_OVERRIDE = T; frame(); };
 frame();

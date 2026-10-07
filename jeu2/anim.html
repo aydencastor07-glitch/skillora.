@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animation Tripo — Le Procès</title>
+<link rel="icon" href="../favicon-32.png">
+<style>
+  html, body { margin:0; height:100%; background:#14120f; color:#efe8da; font-family:Inter, system-ui, sans-serif; overflow:hidden; }
+  canvas { display:block; width:100%; height:100%; }
+  #ui { position:fixed; left:0; right:0; bottom:0; display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:10px 12px 14px; background:linear-gradient(transparent, #000a); }
+  button { background:#2a261fdd; color:#efe8da; border:1px solid #4a4236; border-radius:8px; padding:8px 11px; font:600 14px Inter, sans-serif; cursor:pointer; }
+  button.on { background:#e7b25a; color:#14120f; border-color:#e7b25a; }
+  #loading { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; font:700 22px Inter, sans-serif; color:#e7b25a; background:#14120f; z-index:9; }
+  body.ready #loading { display:none; }
+</style>
+<script type="importmap">
+  { "imports": { "three": "../jeu/vendor/three.module.min.js", "three/addons/": "./vendor/addons/" } }
+</script>
+</head>
+<body>
+<div id="loading">Chargement de l'animation…</div>
+<canvas id="c"></canvas>
+<div id="ui"></div>
+<script type="module" src="./js/anim.js"></script>
+</body>
+</html>

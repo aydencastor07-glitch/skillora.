@@ -1,0 +1,247 @@
+{
+ "pseudo": "@exxtory",
+ "voice": "voix.mp3",
+ "bg": "fond",
+ "colors": [
+  "#9b59d0",
+  "#d56bc4"
+ ],
+ "scenes": [
+  {
+   "type": "open",
+   "title": "Do you *really* know your boyfriend?",
+   "d": 2.6,
+   "img": "ouverture",
+   "tag": "Difficulty: IMPOSSIBLE",
+   "fx": 0.55,
+   "fy": 0.62,
+   "t": 0.0
+  },
+  {
+   "type": "say",
+   "d": 3.87,
+   "img": "pipe",
+   "t": 2.6
+  },
+  {
+   "type": "q",
+   "q": "Tight *or* loose clothes?",
+   "qv": [
+    0.55,
+    1.7699999999999998
+   ],
+   "cd": 2.0199999999999996,
+   "d": 5.369999999999999,
+   "a": {
+    "img": "q1a",
+    "label": "Tight"
+   },
+   "b": {
+    "img": "q1b",
+    "label": "Loose"
+   },
+   "t": 6.47
+  },
+  {
+   "type": "q",
+   "q": "Star Wars *or* Harry Potter?",
+   "qv": [
+    0.55,
+    2.0299999999999994
+   ],
+   "cd": 2.2799999999999994,
+   "d": 5.629999999999999,
+   "a": {
+    "img": "q2a",
+    "label": "Star Wars",
+    "logo": "starwars_logo"
+   },
+   "b": {
+    "img": "q2b",
+    "label": "Harry Potter"
+   },
+   "t": 11.84
+  },
+  {
+   "type": "q",
+   "q": "Beer *or* Whiskey?",
+   "qv": [
+    0.55,
+    1.6499999999999997
+   ],
+   "cd": 1.8999999999999997,
+   "d": 5.25,
+   "a": {
+    "img": "q3a",
+    "label": "Beer"
+   },
+   "b": {
+    "img": "q3b",
+    "label": "Whiskey"
+   },
+   "t": 17.47
+  },
+  {
+   "type": "q",
+   "q": "Burger King *or* McDonald's?",
+   "qv": [
+    0.55,
+    1.8600000000000005
+   ],
+   "cd": 2.1100000000000003,
+   "d": 5.460000000000001,
+   "a": {
+    "img": "q4a",
+    "label": "Burger King"
+   },
+   "b": {
+    "img": "q4b",
+    "label": "McDonald's"
+   },
+   "t": 22.72
+  },
+  {
+   "type": "q",
+   "q": "Going out *or* gaming?",
+   "qv": [
+    0.55,
+    1.7700000000000007
+   ],
+   "cd": 2.0200000000000005,
+   "d": 5.370000000000001,
+   "a": {
+    "img": "q5a",
+    "label": "Going out"
+   },
+   "b": {
+    "img": "q5b",
+    "label": "Gaming"
+   },
+   "t": 28.18
+  },
+  {
+   "type": "q",
+   "q": "Who is his *future wife?*",
+   "qv": [
+    0.55,
+    2.0600000000000014
+   ],
+   "cd": 2.3100000000000014,
+   "d": 5.660000000000002,
+   "a": {
+    "img": "mariage"
+   },
+   "t": 33.55
+  },
+  {
+   "type": "say",
+   "d": 2.0799999999999996,
+   "emoji": "👇",
+   "t": 39.21
+  },
+  {
+   "type": "say",
+   "d": 1.8399999999999976,
+   "emoji": "🔔",
+   "t": 41.29
+  }
+ ],
+ "captions": [
+  {
+   "t0": 0.25,
+   "t1": 1.97,
+   "text": "Do you *really* know your boyfriend?",
+   "scene": "open"
+  },
+  {
+   "t0": 2.8,
+   "t1": 6.02,
+   "text": "If she makes more than *2 mistakes,* she owes you a *bl*wjob!* 🤭",
+   "scene": "say"
+  },
+  {
+   "t0": 39.41,
+   "t1": 40.84,
+   "text": "*Tag* your partner to test her.",
+   "scene": "say"
+  },
+  {
+   "t0": 41.49,
+   "t1": 42.68,
+   "text": "*Subscribe* for more quizzes!",
+   "scene": "say"
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.09,
+    1.81
+   ],
+   "at": 0.25
+  },
+  {
+   "src": [
+    2.25,
+    5.47
+   ],
+   "at": 2.8
+  },
+  {
+   "src": [
+    5.95,
+    7.17
+   ],
+   "at": 7.02
+  },
+  {
+   "src": [
+    7.7,
+    9.18
+   ],
+   "at": 12.39
+  },
+  {
+   "src": [
+    11.47,
+    12.57
+   ],
+   "at": 18.02
+  },
+  {
+   "src": [
+    12.91,
+    14.22
+   ],
+   "at": 23.27
+  },
+  {
+   "src": [
+    14.66,
+    15.88
+   ],
+   "at": 28.73
+  },
+  {
+   "src": [
+    16.34,
+    17.85
+   ],
+   "at": 34.1
+  },
+  {
+   "src": [
+    18.25,
+    19.68
+   ],
+   "at": 39.41
+  },
+  {
+   "src": [
+    20.05,
+    21.24
+   ],
+   "at": 41.49
+  }
+ ]
+}

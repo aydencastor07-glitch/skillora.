@@ -2,6 +2,7 @@
  "pseudo": "@exxtory",
  "voice": "voix.mp3",
  "bg": "fond",
+ "music": "musique.mp3",
  "colors": [
   "#9b59d0",
   "#d56bc4"
@@ -19,8 +20,9 @@
   },
   {
    "type": "say",
-   "d": 3.87,
+   "d": 4.32,
    "img": "pipe",
+   "imgAt": 2.808,
    "t": 2.6
   },
   {
@@ -34,13 +36,15 @@
    "d": 5.369999999999999,
    "a": {
     "img": "q1a",
-    "label": "Tight"
+    "label": "Tight",
+    "fy": 1.0
    },
    "b": {
     "img": "q1b",
-    "label": "Loose"
+    "label": "Loose",
+    "fy": 1.0
    },
-   "t": 6.47
+   "t": 6.92
   },
   {
    "type": "q",
@@ -60,7 +64,7 @@
     "img": "q2b",
     "label": "Harry Potter"
    },
-   "t": 11.84
+   "t": 12.29
   },
   {
    "type": "q",
@@ -79,7 +83,7 @@
     "img": "q3b",
     "label": "Whiskey"
    },
-   "t": 17.47
+   "t": 17.92
   },
   {
    "type": "q",
@@ -98,7 +102,7 @@
     "img": "q4b",
     "label": "McDonald's"
    },
-   "t": 22.72
+   "t": 23.17
   },
   {
    "type": "q",
@@ -117,7 +121,7 @@
     "img": "q5b",
     "label": "Gaming"
    },
-   "t": 28.18
+   "t": 28.63
   },
   {
    "type": "q",
@@ -131,19 +135,19 @@
    "a": {
     "img": "mariage"
    },
-   "t": 33.55
+   "t": 34.0
   },
   {
    "type": "say",
    "d": 2.0799999999999996,
    "emoji": "👇",
-   "t": 39.21
+   "t": 39.66
   },
   {
    "type": "say",
    "d": 1.8399999999999976,
    "emoji": "🔔",
-   "t": 41.29
+   "t": 41.74
   }
  ],
  "captions": [
@@ -156,18 +160,18 @@
   {
    "t0": 2.8,
    "t1": 6.02,
-   "text": "If she makes more than *2 mistakes,* she owes you a *bl*wjob!* 🤭",
+   "text": "If she makes more than *2 mistakes,* she owes you a *bl•wjob!* 🤭",
    "scene": "say"
   },
   {
-   "t0": 39.41,
-   "t1": 40.84,
+   "t0": 39.86,
+   "t1": 41.29,
    "text": "*Tag* your partner to test her.",
    "scene": "say"
   },
   {
-   "t0": 41.49,
-   "t1": 42.68,
+   "t0": 41.94,
+   "t1": 43.13,
    "text": "*Subscribe* for more quizzes!",
    "scene": "say"
   }
@@ -192,56 +196,56 @@
     5.95,
     7.17
    ],
-   "at": 7.02
+   "at": 7.47
   },
   {
    "src": [
     7.7,
     9.18
    ],
-   "at": 12.39
+   "at": 12.84
   },
   {
    "src": [
     11.47,
     12.57
    ],
-   "at": 18.02
+   "at": 18.47
   },
   {
    "src": [
     12.91,
     14.22
    ],
-   "at": 23.27
+   "at": 23.72
   },
   {
    "src": [
     14.66,
     15.88
    ],
-   "at": 28.73
+   "at": 29.18
   },
   {
    "src": [
     16.34,
     17.85
    ],
-   "at": 34.1
+   "at": 34.55
   },
   {
    "src": [
     18.25,
     19.68
    ],
-   "at": 39.41
+   "at": 39.86
   },
   {
    "src": [
     20.05,
     21.24
    ],
-   "at": 41.49
+   "at": 41.94
   }
  ]
 }

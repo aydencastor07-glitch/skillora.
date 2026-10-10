@@ -1,4 +1,4 @@
-import json,sys,wave
+import json,sys,wave,os
 import numpy as np
 ev=json.load(open(sys.argv[1])); out=sys.argv[2]
 SR=44100; dur=ev['dur']; N=int(SR*dur)+SR
@@ -19,7 +19,7 @@ def saw_pad(f,n):
     for k in range(1,8): s+=np.sin(2*np.pi*f*k*tt*(1+0.002*(k%2)))/k
     return s
 b=0; pos=0.0
-while pos<dur:
+while pos<dur and not os.environ.get('NOMUSIC'):
     ch=chords[b%4]; n=int(bar*SR)
     pad=sum(saw_pad(midi(m),n) for m in ch)/3
     e=np.minimum(1,np.arange(n)/(0.3*SR))*np.minimum(1,(n-np.arange(n))/(0.3*SR))
@@ -52,7 +52,11 @@ def tick():
 def ding():
     n=int(0.9*SR); tt=np.arange(n)/SR
     return (np.sin(2*np.pi*1318*tt)+0.5*np.sin(2*np.pi*1975*tt)+0.25*np.sin(2*np.pi*2637*tt))*np.exp(-tt*4)
-FX={'whoosh':(whoosh,0.35),'pop':(pop,0.35),'tick':(tick,0.5),'ding':(ding,0.25)}
+def boom():  # gros « boom » grave et saturé (révélation)
+    n=int(1.1*SR); tt=np.arange(n)/SR
+    x=np.sin(2*np.pi*(38+120*np.exp(-tt*9))*tt)*np.exp(-tt*3.2)+0.35*rng.normal(0,1,n)*np.exp(-tt*25)
+    return np.tanh(x*2.2)
+FX={'boom':(boom,0.9),'whoosh':(whoosh,0.35),'pop':(pop,0.35),'tick':(tick,0.5),'ding':(ding,0.25)}
 cache={}
 for e in ev['events']:
     f,gn=FX[e['type']]

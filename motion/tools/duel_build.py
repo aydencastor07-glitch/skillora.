@@ -5,8 +5,8 @@ SEG = json.loads(sys.argv[1])  # [[début, fin], ...] dans le MP3
 out = sys.argv[2]
 P = [  # (type, texte affiché, options)
     ('open', 'Do you *really* know your boyfriend?', {'img': 'ouverture', 'tag': 'Difficulty: IMPOSSIBLE', 'fx': 0.55, 'fy': 0.62}),
-    ('say', 'If she makes more than *2 mistakes,* she owes you a *bl*wjob!* 🤭', {'img': 'pipe'}),
-    ('q', 'Tight *or* loose clothes?', {'a': {'img': 'q1a', 'label': 'Tight'}, 'b': {'img': 'q1b', 'label': 'Loose'}}),
+    ('say', 'If she makes more than *2 mistakes,* she owes you a *bl•wjob!* 🤭', {'img': 'pipe', 'reveal': 0.81}),
+    ('q', 'Tight *or* loose clothes?', {'a': {'img': 'q1a', 'label': 'Tight', 'fy': 1.0}, 'b': {'img': 'q1b', 'label': 'Loose', 'fy': 1.0}}),
     ('q', 'Star Wars *or* Harry Potter?', {'a': {'img': 'q2a', 'label': 'Star Wars', 'logo': 'starwars_logo'}, 'b': {'img': 'q2b', 'label': 'Harry Potter'}}),
     ('skip', 'Lamborghini or Ferrari?', {}),  # pas d'images reçues : phrase retirée
     ('q', 'Beer *or* Whiskey?', {'a': {'img': 'q3a', 'label': 'Beer'}, 'b': {'img': 'q3b', 'label': 'Whiskey'}}),
@@ -27,8 +27,9 @@ for (typ, text, o), (a, b) in zip(P, SEG):
         at, d = 0.25, max(2.6, 0.25 + L + 0.6)
         s = {'type': 'open', 'title': text, 'd': d, **o}
     elif typ == 'say':
-        at, d = 0.2, 0.2 + L + 0.45
+        at, d = 0.2, 0.2 + L + (0.9 if 'reveal' in o else 0.45)
         s = {'type': 'say', 'd': d, **o}
+        if 'reveal' in o: s['imgAt'] = round(at + L * o.pop('reveal'), 3); s.pop('reveal', None)
     else:
         at = 0.55
         cd = at + L + 0.25
@@ -38,6 +39,6 @@ for (typ, text, o), (a, b) in zip(P, SEG):
     caps.append({'t0': round(t + at, 3), 't1': round(t + at + L, 3), 'text': text, 'scene': typ})
     clips.append({'src': [a, b], 'at': round(t + at, 3)})
     t += s['d']
-json.dump({'pseudo': '@exxtory', 'voice': 'voix.mp3', 'bg': 'fond', 'colors': ['#9b59d0', '#d56bc4'], 'scenes': scenes,
+json.dump({'pseudo': '@exxtory', 'voice': 'voix.mp3', 'bg': 'fond', 'music': 'musique.mp3', 'colors': ['#9b59d0', '#d56bc4'], 'scenes': scenes,
            'captions': [c for c in caps if c['scene'] != 'q'], 'clips': clips}, open(out, 'w'), indent=1, ensure_ascii=False)
 print('durée', round(t, 2), 's,', len(scenes), 'scènes')

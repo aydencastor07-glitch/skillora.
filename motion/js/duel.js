@@ -29,7 +29,7 @@ const EVENTS = [];
 for (const s of CFG.scenes) {
   EVENTS.push({ t: s.t0, type: 'whoosh' });
   if (s.type === 'q') { EVENTS.push({ t: s.t0 + 0.1, type: 'pop' }, { t: s.t0 + 0.35, type: 'pop' }); for (let k = 0; k < 3; k++) EVENTS.push({ t: s.t0 + s.cd + k, type: 'tick' }); EVENTS.push({ t: s.t0 + s.cd + 3, type: 'ding' }); }
-  if (s.type === 'say' && s.img) EVENTS.push({ t: s.t0 + 0.05, type: 'pop' });
+  if (s.type === 'say' && s.img) EVENTS.push({ t: s.t0 + (s.imgAt ?? 0.05), type: s.imgAt ? 'boom' : 'pop' });
 }
 Object.assign(window, { DUR, EVENTS, CFG });
 
@@ -93,13 +93,13 @@ function rich(str, cx, cy, size, maxW, n = 1e9, alpha = 1, popLast = 0) {
   });
   return lines.length * lh;
 }
-function card(img, cx, cy, w, h, u, rot = 0, label, logo) {
+function card(img, cx, cy, w, h, u, rot = 0, label, logo, fy = 0.5) {
   if (u <= 0.001) return;
   g.save(); g.translate(cx, cy); g.rotate(rot); g.scale(u, u);
   g.shadowColor = 'rgba(30,0,40,0.45)'; g.shadowBlur = 40; g.shadowOffsetY = 18;
   rr(-w / 2, -h / 2, w, h, 44); g.fillStyle = '#fff'; g.fill();
   g.shadowColor = 'transparent';
-  g.save(); rr(-w / 2 + 8, -h / 2 + 8, w - 16, h - 16, 38); g.clip(); cover(img, -w / 2, -h / 2, w, h, 1.02);
+  g.save(); rr(-w / 2 + 8, -h / 2 + 8, w - 16, h - 16, 38); g.clip(); cover(img, -w / 2, -h / 2, w, h, 1.02, 0.5, fy);
   if (logo) { const lw = w * 0.5; g.globalCompositeOperation = 'screen'; g.drawImage(logo, -lw / 2, -h / 2 + 16, lw, lw * logo.height / logo.width); g.globalCompositeOperation = 'source-over'; }
   g.restore();
   if (label) {
@@ -151,11 +151,15 @@ function sceneOpen(s, L) {
   g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(s.tag, 0, 4); g.restore();
 }
 function sceneSay(s, L, T) {
-  if (s.img) {
-    const u = back(L / 0.45), bob = Math.sin(L * 2.4) * 10;
+  if (s.img) { // surprise : l'image surgit d'un coup (avec secousse) au mot clé
+    const ia = s.imgAt ?? 0, k = L - ia;
+    const u = k < 0 ? 0 : s.imgAt ? Math.min(1.25, back(k / 0.22) * 1.0) * (1 + 0.12 * Math.exp(-k * 6)) : back(L / 0.45);
+    const shake = s.imgAt && k > 0 ? Math.exp(-k * 7) * 26 : 0, bob = Math.sin(L * 2.4) * 10;
+    if (shake) g.translate(Math.sin(L * 90) * shake, Math.cos(L * 70) * shake);
+    if (s.imgAt && k > 0 && k < 0.25) { g.save(); g.globalAlpha = (1 - k / 0.25) * 0.55; g.fillStyle = '#fff'; g.fillRect(-50, -50, W + 100, H + 100); g.restore(); }
     card(IMG[s.img], W / 2, 620 + bob, s.w || 560, s.h || 700, u, Math.sin(L * 1.3) * 0.03);
   }
-  caption(T, s.img ? 1180 : 900);
+  caption(T, s.img ? 1270 : 900);
   if (s.emoji) { const u = back((L - 0.3) / 0.5); g.save(); g.translate(W / 2, 1420); g.scale(u, u); g.font = FONT(400, 170); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(s.emoji, 0, 0); g.restore(); }
 }
 function sceneQ(s, L) {
@@ -171,8 +175,8 @@ function sceneQ(s, L) {
     if (cd > -0.1 && cd < 3.3) { g.save(); g.globalAlpha = ss(-0.1, 0.1, cd) * (1 - ss(3.0, 3.3, cd)); countdown(W / 2, 1580, clamp(cd, 0, 3)); g.restore(); }
     return;
   }
-  card(IMG[s.a.img], W / 2 - (1 - ss(0, 0.5, L)) * 500, 450, cw, ch, ua, -0.015, s.a.label, IMG[s.a.logo]);
-  card(IMG[s.b.img], W / 2 + (1 - ss(0.25, 0.75, L)) * 500, 1400, cw, ch, ub, 0.015, s.b.label, IMG[s.b.logo]);
+  card(IMG[s.a.img], W / 2 - (1 - ss(0, 0.5, L)) * 500, 450, cw, ch, ua, -0.015, s.a.label, IMG[s.a.logo], s.a.fy ?? 0.5);
+  card(IMG[s.b.img], W / 2 + (1 - ss(0.25, 0.75, L)) * 500, 1400, cw, ch, ub, 0.015, s.b.label, IMG[s.b.logo], s.b.fy ?? 0.5);
   const qa = 1 - ss(-0.15, 0.1, cd);
   if (qa > 0 && nq > 0) rich(s.q, W / 2, 925, 72, 980, nq, qa, pq);
   if (cd > -0.1 && cd < 3.3) { g.save(); g.globalAlpha = ss(-0.1, 0.1, cd) * (1 - ss(3.0, 3.3, cd)); countdown(W / 2, 925, clamp(cd, 0, 3)); g.restore(); }

@@ -1,0 +1,260 @@
+{
+ "pseudo": "@exxtory",
+ "bg": "fond",
+ "hookImg": "c_hook",
+ "img": {
+  "5": "p_q5",
+  "4": "c_q4",
+  "3": "c_q3",
+  "2": "c_q2",
+  "1": "c_q1"
+ },
+ "dur": 27.07,
+ "lines": [
+  {
+   "t0": 0.15,
+   "t1": 1.47,
+   "text": "Send this to your *girlfriend*…",
+   "role": "hook",
+   "n": null
+  },
+  {
+   "t0": 1.69,
+   "t1": 2.55,
+   "text": "if you *dare.*",
+   "role": "hook",
+   "n": null
+  },
+  {
+   "t0": 2.77,
+   "t1": 3.57,
+   "text": "*5* questions.",
+   "role": "intro",
+   "n": null
+  },
+  {
+   "t0": 3.79,
+   "t1": 4.49,
+   "text": "Count her *YES.*",
+   "role": "intro",
+   "n": null
+  },
+  {
+   "t0": 4.71,
+   "t1": 5.35,
+   "text": "Number five.",
+   "role": "num",
+   "n": 5
+  },
+  {
+   "t0": 5.57,
+   "t1": 6.83,
+   "text": "Would she go through your *phone?*",
+   "role": "q",
+   "n": 5,
+   "yn": 6.88
+  },
+  {
+   "t0": 7.95,
+   "t1": 8.63,
+   "text": "Number four.",
+   "role": "num",
+   "n": 4
+  },
+  {
+   "t0": 8.85,
+   "t1": 10.8,
+   "text": "Text her *ex* \"happy birthday\"?",
+   "role": "q",
+   "n": 4,
+   "yn": 10.85
+  },
+  {
+   "t0": 11.92,
+   "t1": 12.58,
+   "text": "Number three.",
+   "role": "num",
+   "n": 3
+  },
+  {
+   "t0": 12.8,
+   "t1": 14.45,
+   "text": "Go on *vacation* without you?",
+   "role": "q",
+   "n": 3,
+   "yn": 14.5
+  },
+  {
+   "t0": 15.57,
+   "t1": 16.23,
+   "text": "Number two.",
+   "role": "num",
+   "n": 2
+  },
+  {
+   "t0": 16.45,
+   "t1": 17.72,
+   "text": "*Lie* about where she is?",
+   "role": "q",
+   "n": 2,
+   "yn": 17.77
+  },
+  {
+   "t0": 18.84,
+   "t1": 19.52,
+   "text": "Number one…",
+   "role": "num",
+   "n": 1
+  },
+  {
+   "t0": 19.74,
+   "t1": 21.66,
+   "text": "Would she still love you if you were *broke?*",
+   "role": "q",
+   "n": 1,
+   "yn": 21.71
+  },
+  {
+   "t0": 22.78,
+   "t1": 23.59,
+   "text": "*3 YES* or more?",
+   "role": "end",
+   "n": null
+  },
+  {
+   "t0": 23.81,
+   "t1": 24.71,
+   "text": "Comment your *score…*",
+   "role": "end",
+   "n": null
+  },
+  {
+   "t0": 24.93,
+   "t1": 26.25,
+   "text": "and watch it *again* with her.",
+   "role": "end",
+   "n": null
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.16,
+    1.48
+   ],
+   "at": 0.15
+  },
+  {
+   "src": [
+    1.92,
+    2.78
+   ],
+   "at": 1.69
+  },
+  {
+   "src": [
+    3.36,
+    4.16
+   ],
+   "at": 2.77
+  },
+  {
+   "src": [
+    4.58,
+    5.28
+   ],
+   "at": 3.79
+  },
+  {
+   "src": [
+    5.97,
+    6.61
+   ],
+   "at": 4.71
+  },
+  {
+   "src": [
+    7.18,
+    8.44
+   ],
+   "at": 5.57
+  },
+  {
+   "src": [
+    8.93,
+    9.61
+   ],
+   "at": 7.95
+  },
+  {
+   "src": [
+    10.03,
+    11.98
+   ],
+   "at": 8.85
+  },
+  {
+   "src": [
+    12.45,
+    13.11
+   ],
+   "at": 11.92
+  },
+  {
+   "src": [
+    13.54,
+    15.19
+   ],
+   "at": 12.8
+  },
+  {
+   "src": [
+    15.69,
+    16.35
+   ],
+   "at": 15.57
+  },
+  {
+   "src": [
+    16.78,
+    18.05
+   ],
+   "at": 16.45
+  },
+  {
+   "src": [
+    18.63,
+    19.31
+   ],
+   "at": 18.84
+  },
+  {
+   "src": [
+    19.78,
+    21.7
+   ],
+   "at": 19.74
+  },
+  {
+   "src": [
+    22.24,
+    23.05
+   ],
+   "at": 22.78
+  },
+  {
+   "src": [
+    23.46,
+    24.36
+   ],
+   "at": 23.81
+  },
+  {
+   "src": [
+    24.75,
+    26.07
+   ],
+   "at": 24.93
+  }
+ ]
+}

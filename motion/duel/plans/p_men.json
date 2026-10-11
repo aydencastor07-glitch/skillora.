@@ -1,0 +1,125 @@
+{
+ "pseudo": "@exxtory",
+ "bg": "fond",
+ "style": "pct",
+ "hookImg": "x_m_hook",
+ "banner": "WHAT MEN THINK 🧠",
+ "lines": [
+  {
+   "segs": [
+    0
+   ],
+   "text": "What do men *really* think?",
+   "role": "hook",
+   "newScene": true
+  },
+  {
+   "segs": [
+    1
+   ],
+   "text": "Number four will *shock* you.",
+   "role": "hook"
+  },
+  {
+   "segs": [
+    2
+   ],
+   "text": "Should the man always *pay* on the first date?",
+   "role": "ask",
+   "img": "x_m1",
+   "src": "Source: NerdWallet survey, 2016",
+   "newScene": true
+  },
+  {
+   "segs": [
+    3
+   ],
+   "text": "*82%* of men said…",
+   "role": "reveal",
+   "value": 82,
+   "label": "of men said YES"
+  },
+  {
+   "segs": [
+    4
+   ],
+   "text": "YES!",
+   "role": "punch"
+  },
+  {
+   "segs": [
+    5
+   ],
+   "text": "Would men only date *shorter* women?",
+   "role": "ask",
+   "img": "x_m2",
+   "src": "Source: Rice University study, 2014",
+   "newScene": true
+  },
+  {
+   "segs": [
+    6
+   ],
+   "text": "Only *37%* said yes.",
+   "role": "reveal",
+   "value": 37,
+   "label": "said YES",
+   "punchAtEnd": true
+  },
+  {
+   "segs": [
+    7
+   ],
+   "text": "Long hair or *short* hair?",
+   "role": "ask",
+   "img": "x_m3",
+   "src": "Source: Daily Mail poll of 3,000 men, 2008",
+   "newScene": true
+  },
+  {
+   "segs": [
+    8
+   ],
+   "text": "Long, wavy hair won… with *43%.*",
+   "role": "reveal",
+   "value": 43,
+   "label": "picked LONG & WAVY",
+   "punchAtEnd": true
+  },
+  {
+   "segs": [
+    9
+   ],
+   "text": "Does a girl with a *dog* look more attractive?",
+   "role": "ask",
+   "img": "x_m4",
+   "src": "Source: YouGov US poll, 2019",
+   "newScene": true
+  },
+  {
+   "segs": [
+    10
+   ],
+   "text": "*46%* of men said… *yes.*",
+   "role": "reveal",
+   "value": 46,
+   "label": "of men said YES",
+   "punchAtEnd": true
+  },
+  {
+   "segs": [
+    11
+   ],
+   "text": "Did you guess *right?*",
+   "role": "end",
+   "newScene": true
+  },
+  {
+   "segs": [
+    12
+   ],
+   "text": "Comment your *score.*",
+   "role": "end"
+  }
+ ]
+}

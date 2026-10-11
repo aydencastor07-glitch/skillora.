@@ -1,0 +1,152 @@
+{
+ "pseudo": "@exxtory",
+ "bg": "fond",
+ "style": "count",
+ "banner": "COUNT HIS YES 👀",
+ "hookImg": "x_b_hook",
+ "lines": [
+  {
+   "segs": [
+    0
+   ],
+   "text": "Send this to your *boyfriend*…",
+   "role": "hook",
+   "newScene": true
+  },
+  {
+   "segs": [
+    1
+   ],
+   "text": "if you *dare.*",
+   "role": "hook",
+   "newScene": false
+  },
+  {
+   "segs": [
+    2
+   ],
+   "text": "*5* questions.",
+   "role": "intro",
+   "newScene": true
+  },
+  {
+   "segs": [
+    3
+   ],
+   "text": "Count his *YES.*",
+   "role": "intro"
+  },
+  {
+   "segs": [
+    4
+   ],
+   "text": "Number five.",
+   "role": "num",
+   "n": 5,
+   "newScene": true
+  },
+  {
+   "segs": [
+    5
+   ],
+   "text": "Would he check your *phone?*",
+   "role": "q",
+   "n": 5,
+   "img": "x_b5"
+  },
+  {
+   "segs": [
+    6
+   ],
+   "text": "Number four.",
+   "role": "num",
+   "n": 4,
+   "newScene": true
+  },
+  {
+   "segs": [
+    7
+   ],
+   "text": "Keep his *ex's* number?",
+   "role": "q",
+   "n": 4,
+   "img": "x_b4"
+  },
+  {
+   "segs": [
+    8
+   ],
+   "text": "Number three.",
+   "role": "num",
+   "n": 3,
+   "newScene": true
+  },
+  {
+   "segs": [
+    9
+   ],
+   "text": "Go to a *party* without telling you?",
+   "role": "q",
+   "n": 3,
+   "img": "x_b3"
+  },
+  {
+   "segs": [
+    10
+   ],
+   "text": "Number two.",
+   "role": "num",
+   "n": 2,
+   "newScene": true
+  },
+  {
+   "segs": [
+    11
+   ],
+   "text": "*Hide* his phone when you walk in?",
+   "role": "q",
+   "n": 2,
+   "img": "x_b2"
+  },
+  {
+   "segs": [
+    12
+   ],
+   "text": "Number one.",
+   "role": "num",
+   "n": 1,
+   "newScene": true
+  },
+  {
+   "segs": [
+    13
+   ],
+   "text": "Would he choose his *friends* over you?",
+   "role": "q",
+   "n": 1,
+   "img": "x_b1"
+  },
+  {
+   "segs": [
+    14
+   ],
+   "text": "*3 YES* or more?",
+   "role": "end",
+   "newScene": true
+  },
+  {
+   "segs": [
+    15
+   ],
+   "text": "Comment his *score…*",
+   "role": "end"
+  },
+  {
+   "segs": [
+    16
+   ],
+   "text": "and watch it *again* with him.",
+   "role": "end"
+  }
+ ]
+}

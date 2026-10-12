@@ -103,7 +103,11 @@ function charRect(s, T, im) {
   const br = 1 + 0.004 * Math.sin(T * 2.2);
   return { x: x + size * (1 - br) / 2, y: y + size * (1 - br), w: size * br, h: size * br, a };
 }
-function drawChar(im, r, a = 1) { if (!im) return; g.save(); g.globalAlpha = a * r.a; g.drawImage(im, r.x, r.y, r.w, r.h); g.restore(); }
+function drawChar(im, r, a = 1, rim = true) { // rim : léger halo blanc (cheveux noirs visibles sur fond noir)
+  if (!im) return; g.save(); g.globalAlpha = a * r.a;
+  if (rim) { g.shadowColor = '#fff'; g.shadowBlur = 7; g.drawImage(im, r.x, r.y, r.w, r.h); }
+  g.drawImage(im, r.x, r.y, r.w, r.h); g.restore();
+}
 
 function tag(r, t, T, t0) { // étiquette muscle : point coloré + trait + nom (comme la référence)
   const k = T - t0; if (k < 0) return;
@@ -160,7 +164,7 @@ function draw(T) {
     } else drawChar(im, r);
     if (cur.hl) { // le muscle s'allume puis pulse doucement
       const k = T - at(s, cur.hlAt); const a = clamp(k / 0.5) * (0.82 + 0.18 * Math.sin(T * 4));
-      if (k > 0) drawChar(IMG[cur.hl], r, a);
+      if (k > 0) drawChar(IMG[cur.hl], r, a, false);
     }
     for (const t of s.tags || []) if (t.until === undefined || T < at(s, t.until)) tag(r, t, T, at(s, t.at ?? 0.2));
     if (s.guide !== undefined && T > at(s, 0.15)) { // ligne pointillée « hauteur des épaules »

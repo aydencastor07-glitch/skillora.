@@ -16,6 +16,7 @@ vo = vo[:N]
 # musique + effets (réutilise le générateur du quiz), puis baisse sous la voix
 BG = out + '.bg.wav'; OUT = out
 MUSIC = sys.argv[5] if len(sys.argv) > 5 else None
+NOMUS = bool(os.environ.get('NOMUSIC'))
 if MUSIC: os.environ['NOMUSIC'] = '1'
 sys.argv = ['', sys.argv[2], BG]
 exec(open(__file__.replace('duel_audio.py', 'sound.py')).read())
@@ -31,6 +32,8 @@ if MUSIC:  # musique fournie : en boucle sur toute la durée, plus basse sous la
     m = np.tile(m, N // len(m) + 1)[:N]; m = m / max(1e-6, np.abs(m).max())
     fade = np.clip((N - np.arange(N)) / (1.0 * SR), 0, 1)
     mix = vo * 1.0 + fx * 0.45 + m * 0.30 * duck * fade
+elif NOMUS:  # sans musique : effets seuls, non baissés
+    mix = vo * 1.0 + fx * 0.45
 else:
     mix = vo * 1.0 + bg * 0.32 * duck
 mix = mix / max(1e-6, np.abs(mix).max()) * 0.92

@@ -56,11 +56,28 @@ def boom():  # gros « boom » grave et saturé (révélation)
     n=int(1.1*SR); tt=np.arange(n)/SR
     x=np.sin(2*np.pi*(38+120*np.exp(-tt*9))*tt)*np.exp(-tt*3.2)+0.35*rng.normal(0,1,n)*np.exp(-tt*25)
     return np.tanh(x*2.2)
-FX={'boom':(boom,0.9),'whoosh':(whoosh,0.35),'pop':(pop,0.35),'tick':(tick,0.5),'ding':(ding,0.25)}
+def clank():  # haltère qui se pose / s'entrechoque (métal)
+    n=int(0.5*SR); tt=np.arange(n)/SR
+    x=sum(np.sin(2*np.pi*f*tt)*np.exp(-tt*d)*a for f,d,a in ((523,9,1),(1307,14,0.6),(2153,20,0.45),(3390,28,0.3)))
+    return x+0.4*rng.normal(0,1,n)*np.exp(-tt*160)
+def swish():  # mouvement rapide du personnage (souffle court)
+    n=int(0.22*SR); x=rng.normal(0,1,n); y=np.zeros(n); a=0.0
+    for i in range(n): a+=0.12*(x[i]-a); y[i]=x[i]-a
+    return y*np.sin(np.linspace(0,np.pi,n))**3*0.9
+def shine():  # le muscle s'allume (scintillement)
+    n=int(0.7*SR); tt=np.arange(n)/SR
+    return sum(np.sin(2*np.pi*f*tt)*np.exp(-np.maximum(0,tt-k*0.06)*7)*(tt>=k*0.06) for k,f in enumerate((1568,2093,2637,3136)))*0.5
+def thud():  # coup sourd (trop lourd)
+    n=int(0.6*SR); tt=np.arange(n)/SR
+    return np.tanh(2*(np.sin(2*np.pi*(45+60*np.exp(-tt*14))*tt)*np.exp(-tt*6)+0.3*rng.normal(0,1,n)*np.exp(-tt*40)))
+def tap():  # mot qui apparaît
+    n=int(0.05*SR); tt=np.arange(n)/SR
+    return np.sin(2*np.pi*(900+500*np.exp(-tt*80))*tt)*np.exp(-tt*90)
+FX={'clank':(clank,0.22),'swish':(swish,0.3),'shine':(shine,0.18),'thud':(thud,0.7),'tap':(tap,0.2),'boom':(boom,0.9),'whoosh':(whoosh,0.35),'pop':(pop,0.35),'tick':(tick,0.5),'ding':(ding,0.25)}
 cache={}
 for e in ev['events']:
     f,gn=FX[e['type']]
-    if e['type'] not in cache or e['type']=='whoosh': cache[e['type']]=f()
+    if e['type'] not in cache or e['type'] in ('whoosh','swish'): cache[e['type']]=f()
     add(cache[e['type']],e['t'],gn)
 mix=mix[:int(SR*dur)]
 mix=mix/max(1e-6,np.abs(mix).max())*0.89

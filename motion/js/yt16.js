@@ -25,11 +25,61 @@ for (const s of SC) {
 await Promise.all([...names].map((n) => new Promise((res) => { const im = new Image(); im.onload = () => { IMG[n] = im; res(); }; im.onerror = res; im.src = `${BASE}png/${n}.png`; })));
 
 const at = (s, f) => s.t0 + f * (s.t1 - s.t0);
+// ---------- gros texte derrière le personnage ----------
+// say : mot par mot, calé sur la voix (les mots de « spoken » répartis sur les phrases de la scène)
+// big : toute la ligne d'un coup. *mot* = mot en couleur.
+function wordTimes(s) {
+  const spoken = (s.spoken || s.say).replace(/\*/g, '').split(/\s+/), parts = s.parts || [[s.t0, s.t1]];
+  const tot = parts.reduce((a, p) => a + p[1] - p[0], 0), chars = spoken.reduce((a, w) => a + w.length + 1, 0);
+  let c = 0; const ts = spoken.map((w) => { const f = c / chars; c += w.length + 1; let x = f * tot;
+    for (const p of parts) { if (x <= p[1] - p[0]) return p[0] + x; x -= p[1] - p[0]; } return parts.at(-1)[1]; });
+  const n = s.say.split(/\s+/).length, a = s.sayFrom ?? ts.length - n; return ts.slice(a, a + n);
+}
+function layout(s, txt) { // une ligne si possible (taille réduite jusqu'à 110 px), sinon plusieurs ; mémorisé
+  const key = '_lay' + txt; if (s[key]) return s[key];
+  let BIG = 150; g.save(); g.font = FONT(800, BIG, 'italic');
+  const full = g.measureText(txt.replace(/\*/g, '').toUpperCase()).width;
+  if (full > 1760) { BIG = Math.max(110, Math.floor(BIG * 1760 / full)); g.font = FONT(800, BIG, 'italic'); }
+  const sp = g.measureText(' ').width;
+  const words = txt.split(/\s+/).map((w) => ({ hot: /^\*.*\*[.,!?]*$/.test(w), w: w.replace(/\*/g, '').toUpperCase() }));
+  const lines = [[]]; let lw = 0;
+  for (const w of words) { w.wd = g.measureText(w.w).width; if (lw && lw + sp + w.wd > 1760) { lines.push([]); lw = 0; } lines.at(-1).push(w); lw += (lw ? sp : 0) + w.wd; }
+  lines.forEach((l, i) => { const tw = l.reduce((a, w) => a + w.wd, 0) + sp * (l.length - 1); let x = (s.sayX ?? 0.5) * W - tw / 2;
+    for (const w of l) { w.x = x + w.wd / 2; w.line = i; x += w.wd + sp; } });
+  g.restore(); return (s[key] = { words, n: lines.length, BIG });
+}
+function bigText(s, T) {
+  const txt = s.say || s.big; if (!txt) return;
+  const L = layout(s, txt), BIG = L.BIG, ts = s.say ? wordTimes(s) : null, y0 = (s.sayY ?? 0.24) * H - (L.n - 1) * BIG * 0.55;
+  g.save(); g.font = FONT(800, BIG, 'italic'); g.textAlign = 'center'; g.textBaseline = 'middle';
+  L.words.forEach((w, i) => {
+    const t = ts ? ts[i] : at(s, s.bigAt ?? 0.15), k = (T - t) / 0.18; if (k <= 0) return;
+    g.save(); g.translate(w.x, y0 + w.line * BIG * 1.1); const sc = 0.6 + 0.4 * back(k); g.scale(sc, sc); g.globalAlpha = clamp(k * 1.5);
+    g.fillStyle = w.hot ? COL.yellow : '#fff'; g.fillText(w.w, 0, 0); g.restore();
+  });
+  g.restore();
+}
+
 const EVENTS = [];
+const ev = (t, type) => EVENTS.push({ t, type });
 SC.forEach((s, i) => {
-  if (i) EVENTS.push({ t: s.t0 - 0.15, type: 'whoosh' });
-  if (s.label) EVENTS.push({ t: s.t0 + 0.05, type: 'pop' });
-  (s.icons || []).forEach((ic) => EVENTS.push({ t: at(s, ic.at), type: ic.kind === 'x' ? 'tick' : 'ding' }));
+  if (s.card || (SC[i - 1] && SC[i - 1].card)) ev(s.t0 - 0.15, 'whoosh'); // passage vers/depuis un écran noir
+  if (s.enter && s.enter !== 'fade') ev(s.t0 - 0.05, 'swish');           // le personnage entre
+  if (s.label) ev(s.t0 + 0.05, 'pop');
+  (s.icons || []).forEach((ic) => ev(at(s, ic.at), ic.kind === 'x' ? 'tick' : 'ding'));
+  if (s.hl) ev(at(s, s.hlAt ?? 0.15), 'shine');
+  (s.seq || []).forEach((q) => { ev(at(s, q.at), 'swish'); if (q.hl) ev(at(s, q.at) + 0.1, 'shine'); });
+  if (s.alt) { // répétitions : souffle à chaque mouvement, haltère qui « claque » en bas
+    const per = s.period || 0.8;
+    for (let t = s.t0; t < s.t1 - 0.2; t += 2 * per) {
+      if (t + per * 0.65 < s.t1) ev(t + per * 0.65, 'swish');
+      if (t + per * 1.65 < s.t1) ev(t + per * 1.65, 'swish');
+      if (t + per * 2 < s.t1 + 0.1) ev(t + per * 2, 'clank');
+    }
+  }
+  if (s.say) wordTimes(s).forEach((t) => ev(t, 'tap'));
+  if (s.big) ev(at(s, s.bigAt ?? 0.15), 'pop');
+  (s.sfx || []).forEach((x) => ev(at(s, x.at), x.type));
 });
 Object.assign(window, { DUR, EVENTS, CFG });
 
@@ -101,6 +151,7 @@ function draw(T) {
     // image courante (séquence éventuelle), répétitions en boucle, version coloriée
     let cur = { img: s.img, hl: s.hl, hlAt: s.hlAt ?? 0.15 };
     for (const q of s.seq || []) if (T >= at(s, q.at)) cur = { ...q, hlAt: q.at };
+    bigText(s, T); // derrière le personnage
     const im = IMG[cur.img];
     const r = charRect(s, T, im);
     if (s.alt) {

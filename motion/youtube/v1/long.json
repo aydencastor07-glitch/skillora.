@@ -12,6 +12,9 @@
     0.5,
     0.3
    ],
+   "say": "shoulders look *small*",
+   "spoken": "Your shoulders look small for one simple reason.",
+   "sayFrom": 1,
    "t0": 0.2,
    "t1": 2.79,
    "parts": [
@@ -43,6 +46,7 @@
      "at": 0.35
     }
    ],
+   "say": "you only train the *front*",
    "t0": 3.09,
    "t1": 4.36,
    "parts": [
@@ -187,8 +191,8 @@
      "at": 0.2
     }
    ],
-   "text": "the side delt = width",
-   "textAt": 0.65,
+   "say": "makes you look *wide*",
+   "spoken": "The side delt is what makes you look wide.",
    "t0": 12.37,
    "t1": 14.39,
    "parts": [
@@ -263,8 +267,6 @@
    "alt": "lat_up",
    "period": 1.5,
    "label": "#1. Lateral Raise",
-   "text": "slow on the way down",
-   "textAt": 0.15,
    "cam": [
     1.05,
     0.5,
@@ -273,6 +275,7 @@
     0.5,
     0.42
    ],
+   "say": "slow on the way *down*",
    "t0": 19.14,
    "t1": 20.2,
    "parts": [
@@ -377,8 +380,10 @@
     0.45,
     0.35
    ],
-   "text": "squeeze",
-   "textAt": 0.8,
+   "say": "*squeeze*",
+   "spoken": "Lean forward, pull wide, and squeeze.",
+   "sayX": 0.68,
+   "sayY": 0.3,
    "t0": 27.11,
    "t1": 29.68,
    "parts": [
@@ -420,6 +425,14 @@
      "at": 0.45
     }
    ],
+   "say": "going too *heavy*",
+   "sfx": [
+    {
+     "at": 0.35,
+     "type": "thud"
+    }
+   ],
+   "sayY": 0.1,
    "t0": 31.95,
    "t1": 33.04,
    "parts": [
@@ -508,6 +521,8 @@
     0.5,
     0.38
    ],
+   "say": "people will *notice*",
+   "spoken": "and in a few months, people will notice.",
    "t0": 39.1,
    "t1": 41.16,
    "parts": [

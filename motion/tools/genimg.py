@@ -6,7 +6,7 @@ seed = int(sys.argv[4]) if len(sys.argv) > 4 else 1
 w = int(sys.argv[5]) if len(sys.argv) > 5 else 1024
 h = int(sys.argv[6]) if len(sys.argv) > 6 else 1024
 ACC = os.environ.get('CF_ACCOUNT_ID') or '8d0aa08785afc373cdec8e7d28508576'
-for attempt in range(4):
+for attempt in range(6):
     try:
         if eng == 'cf':
             req = urllib.request.Request(f'https://api.cloudflare.com/client/v4/accounts/{ACC}/ai/run/@cf/black-forest-labs/flux-1-schnell',
@@ -18,4 +18,5 @@ for attempt in range(4):
             open(out, 'wb').write(urllib.request.urlopen(urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'}), timeout=180).read())
         print('ok', out); break
     except Exception as e:
-        print('retry', attempt, e); time.sleep(4 + attempt * 4)
+        body = e.read()[:200] if hasattr(e, 'read') else ''
+        print('retry', attempt, e, body); time.sleep(6 + attempt * 8)

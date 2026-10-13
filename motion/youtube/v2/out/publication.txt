@@ -1,23 +1,69 @@
-TITRE
-How To Build a Bigger Chest (Gym & Home)
+=====================================================================
+LINEWORK FIT – VIDÉO 1 : TORSE  (tout ce qu'il faut pour publier)
+=====================================================================
 
-DESCRIPTION
-Your chest looks flat no matter how much you train? Here's why, and exactly how to fix it.
+FICHIERS (dans motion/youtube/v2/out/)
+- Vidéo : chest_final.mp4 (pleine qualité, avec musique + effets)
+- Miniature A : miniature2.jpg  (avant → après, maigrichon → torse rouge)
+- Miniature B : miniature.jpg   (FLAT CHEST? FIX IT)
+- Sous-titres : chest.srt
 
-Your chest has three parts: upper, middle and lower. Miss one, and it will never look complete. In this video you'll learn the best exercise for each part, at the gym AND at home, plus the 3 mistakes that kill your progress.
+---------------------------------------------------------------------
+TITRE (choisis-en un — le 1er est mon préféré)
+---------------------------------------------------------------------
+1. Why Your Chest Is Still Flat (Fix It at Home or Gym)
+2. How Skinny Guys Build a Chest (3 Parts Most Ignore)
+3. Your Chest Has 3 Parts. You're Only Training One.
+
+---------------------------------------------------------------------
+DESCRIPTION (copier-coller tout le bloc)
+---------------------------------------------------------------------
+Your chest looks flat no matter how much you train? Here's why — and exactly how to fix it, at the gym or at home.
+
+Your chest has three parts: upper, middle and lower. Miss one, and it will never look complete. In this video you'll learn the best exercise for each part (with a no-equipment version for each), the 3 mistakes that kill your progress, and a simple weekly plan.
 
 ⏱️ Chapters
 0:00 Why your chest looks flat
 0:27 Lower chest – Dips / Incline push-ups
-1:26 Middle chest – Dumbbell bench press / Deep push-ups
-2:12 Upper chest – Incline dumbbell press / Decline push-ups
-2:50 3 mistakes that kill your progress
-3:04 Your weekly plan
+1:22 Middle chest – Dumbbell bench press / Deep push-ups
+2:08 Upper chest – Incline dumbbell press / Decline push-ups
+2:41 3 mistakes that kill your progress
+3:01 Your weekly plan
 
-💪 Subscribe to Linework Fit for simple, science-based training explained in a hand-drawn style.
+📋 The plan (2x per week, 3 sets each)
+• Dips or incline push-ups
+• Dumbbell bench press or deep push-ups
+• Incline dumbbell press or decline push-ups
+
+💪 Linework Fit explains how to build muscle, simply — made for skinny guys and beginners. Hand-drawn, science-based, no fluff.
 📅 New videos every Tuesday & Saturday.
 
-#chestworkout #fitness #gym #homeworkout #workout
+🎵 Music: Dark Tranquility – Anno Domini Beats
 
-TAGS
-chest workout, bigger chest, how to build chest, chest exercises, upper chest, lower chest, middle chest, home chest workout, push ups, dips, dumbbell bench press, incline dumbbell press, decline push ups, deep push ups, flat chest, chest at home, gym tips, fitness, workout, muscle building, animated fitness, linework fit
+#chestworkout #skinnyguys #homeworkout #fitness #gym
+
+---------------------------------------------------------------------
+TAGS (Studio → Plus d'options → Tags)
+---------------------------------------------------------------------
+chest workout, flat chest, how to build a bigger chest, skinny guys, upper chest, lower chest, middle chest, chest at home, home chest workout, no equipment chest workout, push ups, dips, incline push ups, decline push ups, deep push ups, dumbbell bench press, incline dumbbell press, chest mistakes, beginner workout, calisthenics, gym tips, build muscle, linework fit
+
+---------------------------------------------------------------------
+COMMENTAIRE À ÉPINGLER (à publier toi-même juste après la mise en ligne, puis « Épingler »)
+---------------------------------------------------------------------
+Which muscle should I break down next? 👇
+Back, arms, shoulders or abs?
+
+---------------------------------------------------------------------
+RÉGLAGES DANS YOUTUBE STUDIO
+---------------------------------------------------------------------
+- Miniature : importe miniature2.jpg, puis « Tester et comparer » → ajoute miniature.jpg
+- Playlist : crée « Chest Workouts » et ajoute la vidéo
+- Audience : « Non, elle n'est pas conçue pour les enfants »
+- Contenu modifié / synthétique : Non (dessin, pas de personne réelle)
+- Langue de la vidéo : Anglais ; Catégorie : Sport
+- Sous-titres : Éléments vidéo → Sous-titres → Importer un fichier → chest.srt (Anglais, « Avec horodatage »)
+- Écran de fin (20 dernières secondes) : « Vidéo la plus récente » + « S'abonner »
+- Visibilité : Planifier → 21:00 heure de Paris (après-midi aux USA)
+
+MUSIQUE : la ligne 🎵 de la description crédite le morceau (obligatoire si la bibliothèque
+audio YouTube indique « Attribution requise », sans risque de la laisser sinon).

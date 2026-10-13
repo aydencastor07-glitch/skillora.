@@ -60,6 +60,36 @@ function bigText(s, T) {
   g.restore();
 }
 
+// ---------- texte qui s'écrit pendant que la voix parle ----------
+const NUM = { 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 30: 'thirty', 45: 'forty-five' };
+const norm = (w) => { w = w.toLowerCase().replace(/[^a-z0-9'-]/g, ''); return NUM[w] || w; };
+function voiceWords(s) { // mots prononcés dans la scène, avec leur instant (∝ lettres, sur les morceaux de voix)
+  const words = (s.voice || s.spoken || '').split(/\s+/).filter(Boolean), parts = s.parts || [[s.t0, s.t1]];
+  const tot = parts.reduce((a, p) => a + p[1] - p[0], 0), chars = words.reduce((a, w) => a + w.length + 1, 0) || 1;
+  let c = 0; return words.map((w) => { const f = c / chars; c += w.length + 1; let x = f * tot;
+    for (const p of parts) { if (x <= p[1] - p[0]) return { w: norm(w), t: p[0] + x }; x -= p[1] - p[0]; } return { w: norm(w), t: parts.at(-1)[1] }; });
+}
+function typeTimes(s, txt) { // chaque mot du texte → instant où la voix le dit (sinon interpolé)
+  const key = '_tt' + txt; if (s[key]) return s[key];
+  const vw = voiceWords(s), tw = txt.split(/\s+/).filter(Boolean); let j = 0;
+  const ts = tw.map((w) => { const n = norm(w); for (let k = j; k < vw.length; k++) if (vw[k].w === n || (n.length > 3 && vw[k].w.startsWith(n.slice(0, 4)))) { j = k + 1; return vw[k].t; } return null; });
+  const t0 = s.t0 + 0.05, t1 = Math.max(t0 + 0.3, (s.parts ? s.parts.at(-1)[1] : s.t1) - 0.2);
+  for (let i = 0; i < ts.length; i++) if (ts[i] === null) { // pas trouvé : entre ses voisins
+    let a = i - 1; while (a >= 0 && ts[a] === null) a--; let b = i + 1; while (b < ts.length && ts[b] === null) b++;
+    const ta = a >= 0 ? ts[a] : t0, tb = b < ts.length ? ts[b] : t1; ts[i] = ta + (tb - ta) * (i - a) / (b - a); }
+  for (let i = 1; i < ts.length; i++) ts[i] = Math.max(ts[i], ts[i - 1] + 0.06);
+  return (s[key] = ts);
+}
+function typed(s, txt, x, y, size, T, fade = 1) { // texte italique qui s'écrit mot à mot (aligné à gauche, ne bouge pas)
+  const ts = typeTimes(s, txt), words = txt.split(/\s+/).filter(Boolean);
+  g.save(); g.font = FONT(500, size, 'italic'); g.textBaseline = 'middle'; g.textAlign = 'left';
+  const sp = g.measureText(' ').width, ws = words.map((w) => g.measureText(w).width), fw = ws.reduce((a, b) => a + b, 0) + sp * (ws.length - 1);
+  let cx = clamp(x - fw / 2, 60, W - 60 - fw);
+  g.lineWidth = 10; g.lineJoin = 'round'; g.strokeStyle = '#000'; g.fillStyle = '#fff';
+  words.forEach((w, i) => { const a = clamp((T - ts[i]) / 0.12) * fade; if (a > 0) { g.globalAlpha = a; g.strokeText(w, cx, y); g.fillText(w, cx, y); } cx += ws[i] + sp; });
+  g.restore();
+}
+
 const EVENTS = [];
 const ev = (t, type) => EVENTS.push({ t, type });
 SC.forEach((s, i) => {
@@ -69,7 +99,9 @@ SC.forEach((s, i) => {
   if (s.card) ev(s.t0 + 0.02, 'glitch');                                  // écran noir + phrase
   if (s.medal) ev(s.t0 + 0.05, 'hit');                                    // médaillon d'exercice
   if (s.label || s.reps) ev(s.t0 + 0.05, 'pop');
-  if (s.text) ev(at(s, s.textAt ?? 0.2), 'click');                        // petit texte qui apparaît
+  if (s.text) (s.instant ? [at(s, s.textAt ?? 0.2)] : typeTimes(s, s.text)).forEach((t, k) => ev(t, k ? 'tap' : 'click')); // texte qui s'écrit
+  if (s.card && !s.instant) typeTimes(s, s.card).slice(1).forEach((t) => ev(t, 'tap'));
+  if (s.slide) ev(at(s, s.slide.at ?? 0.1), 'swish');
   (s.icons || []).forEach((ic) => ev(at(s, ic.at), ic.kind === 'x' ? 'tick' : 'ding'));
   if (s.hl) ev(at(s, s.hlAt ?? 0.15), 'shine');
   (s.seq || []).forEach((q) => { ev(at(s, q.at) - 0.05, 'cut'); if (q.hl) ev(at(s, q.at) + 0.1, 'shine'); });
@@ -95,7 +127,8 @@ function charRect(s, T, im) {
   const cam = s.cam || [1, 0.5, 0.5, 1.08, 0.5, 0.45];
   const z = lerp(cam[0], cam[3], u), fx = lerp(cam[1], cam[4], u), fy = lerp(cam[2], cam[5], u);
   const size = 1000 * z * (s.scale || 1);
-  const px = (s.x ?? 0.5) * W, py = 540;
+  let sx = s.x ?? 0.5; if (s.slide) sx = lerp(sx, s.slide.to, eio((T - at(s, s.slide.at ?? 0.1)) / 0.7)); // glisse sur le côté
+  const px = sx * W, py = 540;
   // le point (fx,fy) de l'image va vers le centre de l'emplacement du personnage
   let x = px - fx * size, y = py - fy * size + (0.5 - 0.5) * size;
   // entrée animée
@@ -195,7 +228,7 @@ function draw(T) {
   const out = SC[i + 1] ? ss(SC[i + 1].t0 - 0.35, SC[i + 1].t0 - 0.15, T) : ss(DUR - 0.8, DUR, T);
   g.save(); g.globalAlpha = 1 - out;
   if (s.card) { // écran noir avec juste une phrase en italique
-    italic(s.card, W / 2, H / 2, 54, clamp((T - s.t0 + 0.1) / 0.4));
+    if (s.instant) italic(s.card, W / 2, H / 2, 54, clamp((T - s.t0 + 0.1) / 0.4)); else typed(s, s.card, W / 2, H / 2, 54, T);
   } else if (s.medal) { medal(s, T);
   } else if (s.reps) { repsCard(s, T);
   } else {
@@ -220,7 +253,8 @@ function draw(T) {
       const y = r.y + s.guide * r.h; g.beginPath(); g.moveTo(r.x + r.w * 0.05, y); g.lineTo(r.x + r.w * 0.95, y); g.stroke(); g.restore();
     }
     if (s.line) dashLine(r, s.line, T, at(s, s.lineAt ?? 0.2));
-    if (s.text) italic(s.text, (s.textX ?? 0.79) * W, (s.textY ?? 0.5) * H, 46, clamp((T - at(s, s.textAt ?? 0.2)) / 0.4));
+    if (s.text) { const tx = s.slide ? (s.slide.textX ?? (s.slide.to < 0.5 ? 0.7 : 0.3)) : (s.textX ?? 0.79), sz = s.slide ? 64 : 46;
+      if (s.instant) italic(s.text, tx * W, (s.textY ?? 0.5) * H, sz, clamp((T - at(s, s.textAt ?? 0.2)) / 0.4)); else typed(s, s.text, tx * W, (s.textY ?? 0.5) * H, sz, T); }
   }
   for (const ic of s.icons || []) icon(ic.kind, (ic.x ?? 0.21) * W, (ic.y ?? 0.5) * H, (T - at(s, ic.at)) / 0.3);
   if (s.label) label(s.label, (T - s.t0 + 0.1) / 0.35);

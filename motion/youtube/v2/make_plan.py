@@ -9,7 +9,7 @@ def rep(a, b, per, cam=None, **k): return dict(img=a, alt=b, period=per, cam=cam
 S = [
  ([0], dict(img='skinny', enter='up', cam=[1.5, 0.5, 0.38, 1.95, 0.5, 0.32], say='your chest looks *flat*', spoken=LINES[0]['text'], sayFrom=1)),
  ([1], dict(card="here's the thing")),
- ([2], dict(img='skinny2', enter='fade', cam=[1.3, 0.5, 0.4, 1.7, 0.5, 0.33], text='not one muscle', textAt=0.5)),
+ ([2], dict(img='skinny2', enter='fade', cam=[1.15, 0.5, 0.45, 1.2, 0.5, 0.45], slide={'to': 0.3, 'at': 0.05}, text='not one big muscle')),
  ([3], dict(img='base', hl='hl_all', hlAt=0.3, cam=[1.6, 0.5, 0.3, 2.0, 0.5, 0.28], say='three *parts*', spoken=LINES[3]['text'])),
  ([4], dict(img='base', hl='hl_upper', hlAt=0.15, cam=CH, tags=[tg('Upper', UP, 'blue')])),
  ([5], dict(img='base', hl='hl_um', hlAt=0.1, cam=[2.3, 0.5, 0.27, 2.4, 0.5, 0.27], tags=[tg('Upper', UP, 'blue', 0), tg('Middle', MID, 'green', 0.15)])),
@@ -22,7 +22,7 @@ S = [
  ([13], dict(medal='p_bars', name='Dips', medalZoom=1.15)),
  ([14], dict(img='p_bars', enter='fade', cam=[1.0, 0.5, 0.6, 1.15, 0.5, 0.62])),
  ([15], dict(img='dip_up', enter='up', cam=[1.05, 0.5, 0.5, 1.2, 0.55, 0.42], text='lean forward', textAt=0.4)),
- ([16], dict(img='dip_up', cam=[1.6, 0.6, 0.35, 1.8, 0.62, 0.33], say='chest, not *arms*', spoken=LINES[16]['text'])),
+ ([16], dict(img='dip_up', cam=[1.05, 0.5, 0.5, 1.1, 0.5, 0.5], slide={'to': 0.3, 'at': 0.05}, text='chest instead of arms')),
  ([17], rep('dip_up', 'dip_down', 1.3, cam=[1.05, 0.5, 0.5, 1.12, 0.5, 0.5])),
  ([18], dict(img='dip_down', cam=[1.4, 0.55, 0.38, 1.5, 0.55, 0.38], text='shoulders = elbows', textAt=0.3)),
  ([19, 20], rep('dip_up', 'dip_down', 0.7, cam=[1.05, 0.5, 0.5, 1.1, 0.5, 0.5], icons=[{'kind': 'v', 'at': 0.75}])),
@@ -78,13 +78,14 @@ S = [
  ([70], dict(img='skinny2', enter='fade', cam=[1.2, 0.5, 0.42, 1.4, 0.5, 0.36], text='one thing…', textAt=0.5)),
  ([71], dict(card='consistency.')),
  ([72, 73], dict(img='skinny2', enter='fade', cam=[1.0, 0.5, 0.5, 1.2, 0.5, 0.4], seq=[{'at': 0.55, 'img': 'base'}], say='months of *showing up*', spoken=LINES[73]['text'])),
- ([74], dict(img='flex', hl=None, enter='up', cam=[0.95, 0.5, 0.5, 1.2, 0.5, 0.42], say='your chest will *grow*', spoken=LINES[74]['text'])),
+ ([74], dict(img='flex', enter='fade', cam=[1.0, 0.5, 0.48, 1.05, 0.5, 0.48], slide={'to': 0.3, 'at': 0.05}, text='your chest will grow')),
  ([75], dict(img='flex', cam=[1.2, 0.5, 0.42, 1.25, 0.5, 0.42], text='subscribe →', textAt=0.4, hold=1.2)),
 ]
 scenes = []
 for lines, d in S:
     d = {k: v for k, v in d.items() if v is not None}
     d['segs'] = [sg for l in lines for sg in LINES[l]['segs']]
+    d['voice'] = ' '.join(LINES[l]['text'] for l in lines)   # texte dit dans la scène (pour l'écriture calée sur la voix)
     scenes.append(d)
 json.dump({'png': 'png_kai', 'scenes': scenes}, open(sys.argv[2], 'w'), indent=1, ensure_ascii=False)
 print(len(scenes), 'scènes')

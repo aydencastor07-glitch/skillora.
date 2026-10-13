@@ -18,30 +18,36 @@
    "segs": [
     0,
     1
-   ]
+   ],
+   "voice": "If your chest looks flat no matter how much you train, this video is for you."
   },
   {
    "card": "here's the thing",
    "segs": [
     2
-   ]
+   ],
+   "voice": "Here's the thing."
   },
   {
    "img": "skinny2",
    "enter": "fade",
    "cam": [
-    1.3,
+    1.15,
     0.5,
-    0.4,
-    1.7,
+    0.45,
+    1.2,
     0.5,
-    0.33
+    0.45
    ],
-   "text": "not one muscle",
-   "textAt": 0.5,
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "not one big muscle",
    "segs": [
     3
-   ]
+   ],
+   "voice": "Your chest isn't one big muscle you can just push harder."
   },
   {
    "img": "base",
@@ -59,7 +65,8 @@
    "spoken": "It has three parts.",
    "segs": [
     4
-   ]
+   ],
+   "voice": "It has three parts."
   },
   {
    "img": "base",
@@ -86,7 +93,8 @@
    ],
    "segs": [
     5
-   ]
+   ],
+   "voice": "The upper chest, which gives you that full, lifted look."
   },
   {
    "img": "base",
@@ -122,7 +130,8 @@
    ],
    "segs": [
     6
-   ]
+   ],
+   "voice": "The middle chest, which builds thickness and size."
   },
   {
    "img": "base",
@@ -168,7 +177,8 @@
    "segs": [
     7,
     8
-   ]
+   ],
+   "voice": "And the lower chest, which draws that sharp line at the bottom."
   },
   {
    "img": "skinny2",
@@ -188,7 +198,8 @@
    ],
    "segs": [
     9
-   ]
+   ],
+   "voice": "Miss one of them, and your chest will never look complete."
   },
   {
    "img": "flex",
@@ -203,7 +214,8 @@
    ],
    "segs": [
     10
-   ]
+   ],
+   "voice": "So let's train all three."
   },
   {
    "img": "base",
@@ -231,7 +243,8 @@
    "segs": [
     11,
     12
-   ]
+   ],
+   "voice": "Let's start at the bottom. The lower chest."
   },
   {
    "img": "skinny_side",
@@ -248,7 +261,8 @@
    "textAt": 0.3,
    "segs": [
     13
-   ]
+   ],
+   "voice": "Almost nobody trains it on purpose."
   },
   {
    "img": "skinny_side",
@@ -267,7 +281,8 @@
    "segs": [
     14,
     15
-   ]
+   ],
+   "voice": "And without it, your chest just fades out with no clear edge."
   },
   {
    "medal": "p_bars",
@@ -275,7 +290,8 @@
    "medalZoom": 1.15,
    "segs": [
     16
-   ]
+   ],
+   "voice": "The best exercise for it is dips."
   },
   {
    "img": "p_bars",
@@ -290,7 +306,8 @@
    ],
    "segs": [
     17
-   ]
+   ],
+   "voice": "Find two parallel bars and grab them firmly."
   },
   {
    "img": "dip_up",
@@ -307,23 +324,28 @@
    "textAt": 0.4,
    "segs": [
     18
-   ]
+   ],
+   "voice": "Lean your upper body slightly forward."
   },
   {
    "img": "dip_up",
    "cam": [
-    1.6,
-    0.6,
-    0.35,
-    1.8,
-    0.62,
-    0.33
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
    ],
-   "say": "chest, not *arms*",
-   "spoken": "That small lean is what puts the work on your chest instead of your arms.",
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "chest instead of arms",
    "segs": [
     19
-   ]
+   ],
+   "voice": "That small lean is what puts the work on your chest instead of your arms."
   },
   {
    "img": "dip_up",
@@ -339,7 +361,8 @@
    ],
    "segs": [
     20
-   ]
+   ],
+   "voice": "Bend your elbows and lower yourself slowly."
   },
   {
    "img": "dip_down",
@@ -355,7 +378,8 @@
    "textAt": 0.3,
    "segs": [
     21
-   ]
+   ],
+   "voice": "Stop when your shoulders reach the height of your elbows."
   },
   {
    "img": "dip_up",
@@ -378,13 +402,15 @@
    "segs": [
     22,
     23
-   ]
+   ],
+   "voice": "Then push back up. That's one rep."
   },
   {
    "reps": "8-12 reps",
    "segs": [
     24
-   ]
+   ],
+   "voice": "Do three sets of eight to twelve."
   },
   {
    "img": "dip_up",
@@ -403,13 +429,15 @@
    "segs": [
     25,
     26
-   ]
+   ],
+   "voice": "If that feels easy, slow the reps down or add weight."
   },
   {
    "card": "no bars at home?",
    "segs": [
     27
-   ]
+   ],
+   "voice": "No bars at home?"
   },
   {
    "medal": "p_chair",
@@ -417,7 +445,8 @@
    "medalZoom": 1.2,
    "segs": [
     28
-   ]
+   ],
+   "voice": "Do incline push-ups."
   },
   {
    "img": "inc_push_up",
@@ -432,7 +461,8 @@
    ],
    "segs": [
     29
-   ]
+   ],
+   "voice": "Put your hands on a chair or a bed, shoulder-width apart."
   },
   {
    "img": "inc_push_up",
@@ -456,7 +486,8 @@
    "textX": 0.5,
    "segs": [
     30
-   ]
+   ],
+   "voice": "Squeeze your core and your glutes so your body forms one straight line."
   },
   {
    "img": "inc_push_up",
@@ -476,7 +507,8 @@
    "textX": 0.5,
    "segs": [
     31
-   ]
+   ],
+   "voice": "Lower yourself over two to three seconds."
   },
   {
    "img": "inc_push_up",
@@ -492,14 +524,16 @@
    ],
    "segs": [
     32
-   ]
+   ],
+   "voice": "Then push back up."
   },
   {
    "reps": "max reps",
    "segs": [
     33,
     34
-   ]
+   ],
+   "voice": "Three sets, as many reps as you can."
   },
   {
    "img": "base",
@@ -527,13 +561,15 @@
    "segs": [
     35,
     36
-   ]
+   ],
+   "voice": "Next, the middle chest."
   },
   {
    "card": "the foundation",
    "segs": [
     37
-   ]
+   ],
+   "voice": "This is your foundation."
   },
   {
    "medal": "p_dumbbell",
@@ -541,7 +577,8 @@
    "medalZoom": 1.05,
    "segs": [
     38
-   ]
+   ],
+   "voice": "And the king here is the dumbbell bench press."
   },
   {
    "img": "bench_up",
@@ -556,7 +593,8 @@
    ],
    "segs": [
     39
-   ]
+   ],
+   "voice": "Lie down on a flat bench with a dumbbell in each hand."
   },
   {
    "img": "bench_down",
@@ -574,7 +612,8 @@
    "textY": 0.18,
    "segs": [
     40
-   ]
+   ],
+   "voice": "Keep your elbows at about forty-five degrees from your body."
   },
   {
    "img": "bench_down",
@@ -598,7 +637,8 @@
    ],
    "segs": [
     41
-   ]
+   ],
+   "voice": "Too wide, and your shoulders take the stress."
   },
   {
    "img": "bench_down",
@@ -622,7 +662,8 @@
    ],
    "segs": [
     42
-   ]
+   ],
+   "voice": "Too close, and your triceps do the work."
   },
   {
    "img": "bench_up",
@@ -639,7 +680,8 @@
    "segs": [
     43,
     44
-   ]
+   ],
+   "voice": "Plant your feet, push your chest up, and press the weights over your chest."
   },
   {
    "img": "bench_up",
@@ -659,13 +701,15 @@
    "segs": [
     45,
     46
-   ]
+   ],
+   "voice": "Then lower them slowly, until you feel a deep stretch."
   },
   {
    "reps": "8-12 reps",
    "segs": [
     47
-   ]
+   ],
+   "voice": "Three sets of eight to twelve."
   },
   {
    "medal": "p_books",
@@ -673,7 +717,8 @@
    "medalZoom": 1.25,
    "segs": [
     48
-   ]
+   ],
+   "voice": "At home, do deep push-ups."
   },
   {
    "img": "p_books",
@@ -694,7 +739,8 @@
    ],
    "segs": [
     49
-   ]
+   ],
+   "voice": "Put your hands on two stacks of books, or on push-up handles."
   },
   {
    "img": "deep_up",
@@ -710,7 +756,8 @@
    ],
    "segs": [
     50
-   ]
+   ],
+   "voice": "This lets your chest go lower than the floor would allow."
   },
   {
    "img": "deep_up",
@@ -729,7 +776,8 @@
    "sayY": 0.15,
    "segs": [
     51
-   ]
+   ],
+   "voice": "More stretch means more growth."
   },
   {
    "img": "deep_up",
@@ -746,20 +794,23 @@
    "segs": [
     52,
     53
-   ]
+   ],
+   "voice": "Go all the way down, then all the way up."
   },
   {
    "reps": "close to failure",
    "segs": [
     54,
     55
-   ]
+   ],
+   "voice": "Three sets, close to failure."
   },
   {
    "card": "the most important one",
    "segs": [
     56
-   ]
+   ],
+   "voice": "And finally, the most important one for looks."
   },
   {
    "img": "base",
@@ -786,7 +837,8 @@
    ],
    "segs": [
     57
-   ]
+   ],
+   "voice": "The upper chest."
   },
   {
    "img": "skinny2",
@@ -808,7 +860,8 @@
    "spoken": "This is what makes your chest look full in a t-shirt.",
    "segs": [
     58
-   ]
+   ],
+   "voice": "This is what makes your chest look full in a t-shirt."
   },
   {
    "medal": "p_bench",
@@ -816,7 +869,8 @@
    "medalZoom": 1.1,
    "segs": [
     59
-   ]
+   ],
+   "voice": "Use the incline dumbbell press."
   },
   {
    "img": "p_bench",
@@ -835,7 +889,8 @@
    "textY": 0.2,
    "segs": [
     60
-   ]
+   ],
+   "voice": "Set the bench to about thirty degrees."
   },
   {
    "img": "p_bench",
@@ -859,7 +914,8 @@
    ],
    "segs": [
     61
-   ]
+   ],
+   "voice": "Not higher, or your shoulders take over."
   },
   {
    "img": "incl_up",
@@ -876,7 +932,8 @@
    "segs": [
     62,
     63
-   ]
+   ],
+   "voice": "Press up, then lower slowly."
   },
   {
    "img": "base",
@@ -896,19 +953,22 @@
    "segs": [
     64,
     65
-   ]
+   ],
+   "voice": "If you feel the top of your chest burning, you're doing it right."
   },
   {
    "reps": "8-12 reps",
    "segs": [
     66
-   ]
+   ],
+   "voice": "Three sets of eight to twelve."
   },
   {
    "card": "no equipment?",
    "segs": [
     67
-   ]
+   ],
+   "voice": "No equipment?"
   },
   {
    "medal": "p_chair",
@@ -916,7 +976,8 @@
    "medalZoom": 1.2,
    "segs": [
     68
-   ]
+   ],
+   "voice": "Decline push-ups."
   },
   {
    "img": "dec_push_up",
@@ -931,7 +992,8 @@
    ],
    "segs": [
     69
-   ]
+   ],
+   "voice": "Put your feet on a chair and your hands on the floor."
   },
   {
    "img": "dec_push_up",
@@ -947,21 +1009,24 @@
    ],
    "segs": [
     70
-   ]
+   ],
+   "voice": "Now your body angle shifts the work to your upper chest."
   },
   {
    "reps": "close to failure",
    "segs": [
     71,
     72
-   ]
+   ],
+   "voice": "Three sets, close to failure."
   },
   {
    "card": "3 mistakes that kill your progress",
    "segs": [
     73,
     74
-   ]
+   ],
+   "voice": "Now, three mistakes that will kill your progress."
   },
   {
    "img": "bench_up",
@@ -990,7 +1055,8 @@
     75,
     76,
     77
-   ]
+   ],
+   "voice": "One. Bouncing the weight. Control every rep, especially on the way down."
   },
   {
    "img": "bench_down",
@@ -1017,7 +1083,8 @@
     78,
     79,
     80
-   ]
+   ],
+   "voice": "Two. Flaring your elbows. Keep them at forty-five degrees to protect your shoulders."
   },
   {
    "img": "incl_up",
@@ -1046,13 +1113,15 @@
     82,
     83,
     84
-   ]
+   ],
+   "voice": "Three. Doing the same reps forever. Every week, add one rep, or a little weight."
   },
   {
    "card": "your plan",
    "segs": [
     85
-   ]
+   ],
+   "voice": "Here's your plan."
   },
   {
    "img": "flex",
@@ -1069,7 +1138,8 @@
    "spoken": "Train your chest twice a week.",
    "segs": [
     86
-   ]
+   ],
+   "voice": "Train your chest twice a week."
   },
   {
    "img": "dip_up",
@@ -1089,7 +1159,8 @@
    ],
    "segs": [
     87
-   ]
+   ],
+   "voice": "Dips or incline push-ups."
   },
   {
    "img": "bench_up",
@@ -1109,7 +1180,8 @@
    ],
    "segs": [
     88
-   ]
+   ],
+   "voice": "Dumbbell press or deep push-ups."
   },
   {
    "img": "incl_up",
@@ -1129,13 +1201,15 @@
    ],
    "segs": [
     89
-   ]
+   ],
+   "voice": "Incline press or decline push-ups."
   },
   {
    "reps": "each",
    "segs": [
     90
-   ]
+   ],
+   "voice": "Three sets each."
   },
   {
    "img": "skinny2",
@@ -1152,13 +1226,15 @@
    "textAt": 0.5,
    "segs": [
     91
-   ]
+   ],
+   "voice": "But none of this works without one thing."
   },
   {
    "card": "consistency.",
    "segs": [
     92
-   ]
+   ],
+   "voice": "Consistency."
   },
   {
    "img": "skinny2",
@@ -1182,25 +1258,30 @@
    "segs": [
     93,
     94
-   ]
+   ],
+   "voice": "Not one perfect week. Months of showing up."
   },
   {
    "img": "flex",
-   "enter": "up",
+   "enter": "fade",
    "cam": [
-    0.95,
+    1.0,
     0.5,
+    0.48,
+    1.05,
     0.5,
-    1.2,
-    0.5,
-    0.42
+    0.48
    ],
-   "say": "your chest will *grow*",
-   "spoken": "Do that, and your chest will grow.",
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "your chest will grow",
    "segs": [
     95,
     96
-   ]
+   ],
+   "voice": "Do that, and your chest will grow."
   },
   {
    "img": "flex",
@@ -1217,7 +1298,8 @@
    "hold": 1.2,
    "segs": [
     97
-   ]
+   ],
+   "voice": "Subscribe to Linework Fit, and I'll see you in the next one."
   }
  ]
 }

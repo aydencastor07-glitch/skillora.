@@ -72,6 +72,10 @@ function voiceWords(s) { // mots prononcés dans la scène, avec leur instant (�
 }
 function typeTimes(s, txt) { // chaque mot du texte → instant où la voix le dit (sinon interpolé)
   const key = '_tt' + txt; if (s[key]) return s[key];
+  if (s.slide && txt === s.text) { // glissement : le texte s'écrit pendant que le personnage se déplace (un seul mot : d'un coup)
+    const t0 = at(s, s.slide.at ?? 0.1) + 0.18, n = txt.split(/\s+/).filter(Boolean).length;
+    return (s[key] = Array.from({ length: n }, (_, k) => n === 1 ? t0 : t0 + k * Math.min(0.75, 0.16 * n) / (n - 1)));
+  }
   const vw = voiceWords(s), tw = txt.split(/\s+/).filter(Boolean); let j = 0;
   const ts = tw.map((w) => { const n = norm(w); for (let k = j; k < vw.length; k++) if (vw[k].w === n || (n.length > 3 && vw[k].w.startsWith(n.slice(0, 4)))) { j = k + 1; return vw[k].t; } return null; });
   const t0 = s.t0 + 0.05, t1 = Math.max(t0 + 0.3, (s.parts ? s.parts.at(-1)[1] : s.t1) - 0.2);
@@ -93,6 +97,7 @@ function typed(s, txt, x, y, size, T, fade = 1) { // texte italique qui s'écrit
 
 // règle : phrase longue (≥ 4 mots) → s'écrit ; phrase courte → déjà écrite une fois sur deux
 { let short = 0; for (const s of SC) { const t = s.card || s.text; if (!t || s.instant !== undefined) continue;
+  if (s.slide && !s.card) { s.instant = false; continue; }
   const n = t.split(/\s+/).filter(Boolean).length; s.instant = n <= 3 ? (short++ % 2 === 0) : false; } }
 
 const EVENTS = [];
@@ -297,7 +302,8 @@ function draw(T) {
     }
     if (s.line) dashLine(r, s.line, T, at(s, s.lineAt ?? 0.2));
     if (s.text) { const tx = s.slide ? (s.slide.textX ?? (s.slide.to < 0.5 ? 0.7 : 0.3)) : (s.textX ?? 0.79), sz = s.slide ? 64 : 46;
-      if (s.instant) italic(s.text, tx * W, (s.textY ?? 0.5) * H, sz, clamp((T - at(s, s.textAt ?? 0.2)) / 0.4)); else typed(s, s.text, tx * W, (s.textY ?? 0.5) * H, sz, T); }
+      const txx = s.slide ? lerp(lerp(0.5, tx, 0.4), tx, eio((T - at(s, s.slide.at ?? 0.1)) / 0.7)) : tx; // part du centre et file de l'autre côté
+      if (s.instant) italic(s.text, txx * W, (s.textY ?? 0.5) * H, sz, clamp((T - at(s, s.textAt ?? 0.2)) / 0.4)); else typed(s, s.text, txx * W, (s.textY ?? 0.5) * H, sz, T); }
   }
   for (const ic of s.icons || []) icon(ic.kind, (ic.x ?? 0.21) * W, (ic.y ?? 0.5) * H, (T - at(s, ic.at)) / 0.3);
   if (s.label) label(s.label, (T - s.t0 + 0.1) / 0.35);

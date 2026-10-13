@@ -84,10 +84,18 @@ def _load(n):
     return x/max(1e-6,np.abs(x).max())
 for k,(n,gn) in REAL.items():
     if os.path.exists(os.path.join(SFXD,n+'.wav')): FX[k]=((lambda x=_load(n): x),gn)
+# sons à variantes (alternées à chaque utilisation) : cut1..3, zoom1..2
+VAR={'cut':(['cut1','cut2','cut3'],0.30),'zoom':(['zoom1','zoom2'],0.26)}
+for k,(ns,gn) in VAR.items():
+    ns=[n for n in ns if os.path.exists(os.path.join(SFXD,n+'.wav'))]
+    if ns:
+        xs=[_load(n) for n in ns]; c=[0]
+        def f(xs=xs,c=c): c[0]+=1; return xs[(c[0]-1)%len(xs)]
+        FX[k]=(f,gn)
 cache={}
 for e in ev['events']:
     f,gn=FX[e['type']]
-    if e['type'] not in cache: cache[e['type']]=f()
+    if e['type'] not in cache or e['type'] in VAR: cache[e['type']]=f()
     add(cache[e['type']],e['t'],gn)
 mix=mix[:int(SR*dur)]
 mix=mix/max(1e-6,np.abs(mix).max())*0.89

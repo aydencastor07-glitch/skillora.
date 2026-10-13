@@ -15,6 +15,11 @@ SFX = {
  'pop':     ('soft bubbly pop for an icon appearing, short', 0.5),
  'clank':   ('metal dumbbell plates clank gently, single short hit', 0.6),
  'shine':   ('magical sparkle shimmer highlight, short and subtle', 0.9),
+ 'cut1':    ('soft subtle camera cut click, clean and short, modern editing transition', 0.5),
+ 'cut2':    ('soft subtle camera cut click, clean and short, modern editing transition, slightly deeper', 0.5),
+ 'cut3':    ('soft subtle camera cut click, clean and short, modern editing transition, slightly brighter', 0.5),
+ 'zoom1':   ('quick smooth camera zoom in sound, short airy rising swoosh, subtle, cinematic', 1.0),
+ 'zoom2':   ('fast subtle zoom in sound effect, soft rising air, modern video editing', 1.0),
  'thud':    ('heavy dull body thud, dropping something too heavy, short', 0.8),
 }
 out = sys.argv[1]; names = sys.argv[2:] or list(SFX); FF = imageio_ffmpeg.get_ffmpeg_exe()

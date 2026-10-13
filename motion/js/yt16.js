@@ -90,6 +90,10 @@ function typed(s, txt, x, y, size, T, fade = 1) { // texte italique qui s'écrit
   g.restore();
 }
 
+// règle : phrase longue (≥ 4 mots) → s'écrit ; phrase courte → déjà écrite une fois sur deux
+{ let short = 0; for (const s of SC) { const t = s.card || s.text; if (!t || s.instant !== undefined) continue;
+  const n = t.split(/\s+/).filter(Boolean).length; s.instant = n <= 3 ? (short++ % 2 === 0) : false; } }
+
 const EVENTS = [];
 const ev = (t, type) => EVENTS.push({ t, type });
 SC.forEach((s, i) => {

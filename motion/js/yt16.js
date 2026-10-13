@@ -20,6 +20,7 @@ const IMG = {};
 const names = new Set();
 for (const s of SC) {
   for (const k of ['img', 'alt', 'hl', 'medal']) if (s[k]) names.add(s[k]);
+  if (s.next) names.add(s.next.img);
   (s.seq || []).forEach((q) => { names.add(q.img); if (q.hl) names.add(q.hl); });
 }
 await Promise.all([...names].map((n) => new Promise((res) => { const im = new Image(); im.onload = () => { IMG[n] = im; res(); }; im.onerror = res; im.src = `${BASE}${CFG.png || 'png'}/${n}.png`; })));
@@ -101,7 +102,9 @@ SC.forEach((s, i) => {
   if (s.cam && s.cam[3] / s.cam[0] >= 1.25) ev(s.t0 + 0.05, 'zoom');      // la caméra zoome sur le personnage
   if (s.enter && s.enter !== 'fade') ev(s.t0 - 0.05, 'swish');           // le personnage entre
   if (s.card) ev(s.t0 + 0.02, 'glitch');                                  // écran noir + phrase
-  if (s.medal) ev(s.t0 + 0.05, 'hit');                                    // médaillon d'exercice
+  if (s.medal) ev(s.t0 + 0.05, 'hit');
+  if (s.next) { ev(s.t0 + 0.05, 'swish'); typeTimes(s, s.next.title).forEach((t) => ev(t, 'tap')); }
+  if (s.subscribe) { ev(at(s, s.clickAt ?? 0.35), 'click'); ev(at(s, s.clickAt ?? 0.35) + 0.12, 'ding'); }                                    // médaillon d'exercice
   if (s.label || s.reps) ev(s.t0 + 0.05, 'pop');
   if (s.text) (s.instant ? [at(s, s.textAt ?? 0.2)] : typeTimes(s, s.text)).forEach((t, k) => ev(t, k ? 'tap' : 'click')); // texte qui s'écrit
   if (s.card && !s.instant) typeTimes(s, s.card).slice(1).forEach((t) => ev(t, 'tap'));
@@ -224,6 +227,40 @@ function dashLine(r, l, T, t0) { // ligne pointillée verte (corps bien droit), 
   g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 + (x1 - x0) * k, y0 + (y1 - y0) * k); g.stroke(); g.restore();
 }
 
+function rrect(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function nextVideo(s, T) { // fin de vidéo : « à regarder ensuite » = miniature + titre d'une autre vidéo de la chaîne
+  const u = eio((T - s.t0 + 0.1) / 0.7), im = IMG[s.next.img]; if (u <= 0) return;
+  const w = 880, h = 495, x = lerp(W + 40, W * 0.62 - w / 2, u), y = H * 0.44 - h / 2 + Math.sin(T * 1.4) * 5;
+  g.save(); g.shadowColor = 'rgba(255,255,255,0.25)'; g.shadowBlur = 40; rrect(x, y, w, h, 22); g.fillStyle = '#111'; g.fill(); g.restore();
+  if (im) { g.save(); rrect(x, y, w, h, 22); g.clip(); g.drawImage(im, x, y, w, h); g.restore(); }
+  g.save(); rrect(x, y, w, h, 22); g.lineWidth = 5; g.strokeStyle = '#fff'; g.stroke(); g.restore();
+  // bouton lecture
+  g.save(); g.globalAlpha = 0.85 * u; g.translate(x + w - 70, y + h - 62); g.scale(0.7, 0.7); g.beginPath(); g.arc(0, 0, 52, 0, Math.PI * 2); g.fillStyle = 'rgba(220,30,40,0.92)'; g.fill();
+  g.beginPath(); g.moveTo(-16, -24); g.lineTo(28, 0); g.lineTo(-16, 24); g.closePath(); g.fillStyle = '#fff'; g.fill(); g.restore();
+  // étiquette « WATCH NEXT » + titre qui s'écrit
+  const a = clamp((T - s.t0 - 0.4) / 0.3);
+  g.save(); g.globalAlpha = a; g.font = FONT(800, 40, 'italic'); g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillStyle = '#e8283a'; g.fillText('WATCH NEXT ▶', x, y - 46); g.restore();
+  typed(s, s.next.title, x + w / 2, y + h + 58, 40, T);
+}
+function subscribe(s, T) { // bouton « S'abonner » : apparaît, le curseur clique, il devient « Subscribed » + cloche
+  const u = (T - s.t0 + 0.1) / 0.4; if (u <= 0) return;
+  const click = at(s, s.clickAt ?? 0.35), done = T >= click, k = clamp((T - click) / 0.25);
+  const cx = W / 2, cy = H * 0.42, sc = (0.6 + 0.4 * back(clamp(u))) * (1 - 0.08 * Math.sin(Math.PI * k));
+  g.save(); g.translate(cx, cy); g.scale(sc, sc);
+  rrect(-260, -62, 520, 124, 62); g.fillStyle = done ? '#2b2b2b' : '#e8283a'; g.fill();
+  g.font = FONT(800, 54); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff'; g.fillText(done ? 'SUBSCRIBED' : 'SUBSCRIBE', done ? -20 : 0, 3);
+  if (done) { g.save(); g.translate(205, 0); g.rotate(Math.sin((T - click) * 18) * 0.35 * Math.exp(-(T - click) * 2.5)); // cloche qui sonne
+    g.beginPath(); g.moveTo(-20, 16); g.quadraticCurveTo(-20, -26, 0, -26); g.quadraticCurveTo(20, -26, 20, 16); g.closePath(); g.fillStyle = '#fff'; g.fill();
+    g.fillRect(-26, 14, 52, 7); g.beginPath(); g.arc(0, 26, 7, 0, Math.PI * 2); g.fill(); g.restore(); }
+  g.restore();
+  // curseur qui vient cliquer
+  const m = eio((T - at(s, 0.12)) / Math.max(0.3, click - at(s, 0.12))), px = lerp(W * 0.8, cx + 40, m), py = lerp(H * 0.85, cy + 20, m);
+  if (T > at(s, 0.1) && T < click + 0.8) { g.save(); g.globalAlpha = clamp(1 - (T - click - 0.4) / 0.4); g.translate(px, py); const cs = done && T < click + 0.15 ? 0.85 : 1; g.scale(cs, cs);
+    g.beginPath(); g.moveTo(0, 0); g.lineTo(0, 46); g.lineTo(12, 35); g.lineTo(21, 54); g.lineTo(29, 50); g.lineTo(20, 32); g.lineTo(36, 32); g.closePath();
+    g.fillStyle = '#fff'; g.fill(); g.lineWidth = 3; g.strokeStyle = '#000'; g.stroke(); g.restore(); }
+  if (s.text) typed(s, s.text, W / 2, H * 0.68, 46, T);
+}
+
 function draw(T) {
   T = clamp(T, 0, DUR - 1e-4);
   g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
@@ -233,6 +270,8 @@ function draw(T) {
   g.save(); g.globalAlpha = 1 - out;
   if (s.card) { // écran noir avec juste une phrase en italique
     if (s.instant) italic(s.card, W / 2, H / 2, 54, clamp((T - s.t0 + 0.1) / 0.4)); else typed(s, s.card, W / 2, H / 2, 54, T);
+  } else if (s.next) { nextVideo(s, T); if (s.img) { const r = charRect(s, T, IMG[s.img]); drawChar(IMG[s.img], r); }
+  } else if (s.subscribe) { subscribe(s, T);
   } else if (s.medal) { medal(s, T);
   } else if (s.reps) { repsCard(s, T);
   } else {

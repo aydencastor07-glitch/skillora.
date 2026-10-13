@@ -10,7 +10,18 @@ w = wave.open(mw); x = np.frombuffer(w.readframes(w.getnframes()), '<i2').astype
 if x.shape[1] == 1: x = np.repeat(x, 2, 1)
 cfg = json.load(open(cfgp)); DUR = cfg['dur']; N = int(DUR * SR)
 D = opt['break_v'] - opt['break_m']                       # retard à ajouter avant le creux
-if D < 1.0:   # la vidéo arrive au creux plus tôt que la musique : on démarre la musique plus loin, sans boucle
+if opt.get('repeat'):   # répète k fois un passage [a, b] qui boucle bien (raccord identique à chaque fois)
+    a_, b_, k_ = opt['repeat']; XF = int(0.25 * SR)
+    parts = [x[:int(b_ * SR)]] + [x[int(a_ * SR):int(b_ * SR)]] * k_ + [x[int(a_ * SR):]]
+    y = np.zeros((sum(len(p) for p in parts) + SR, 2)); pos = 0
+    for k, p in enumerate(parts):
+        p = p.copy()
+        if k: r = np.linspace(0, 1, XF)[:, None]; p[:XF] *= r; y[pos - XF:pos] *= (1 - r)
+        y[pos - (XF if k else 0):pos - (XF if k else 0) + len(p)] += p; pos += len(p) - (XF if k else 0)
+    y = y[:N]; y = np.pad(y, ((0, max(0, N - len(y))), (0, 0))); sh = (k_ + 1) * (b_ - a_) - (k_ + 1) * 0.25
+    print('répétition', k_, '×', round(b_ - a_, 2), 's ; creux → vidéo', round(opt['break_m'] + sh, 2), '; outro → vidéo', round(opt['outro_m'] + sh, 2))
+    D = -1e9; P = L = None
+if D < 1.0 and not opt.get('repeat'):   # la vidéo arrive au creux plus tôt que la musique : on démarre la musique plus loin, sans boucle
     off = -D; y = x[int(off * SR):int(off * SR) + N]; y = np.pad(y, ((0, max(0, N - len(y))), (0, 0)))
     print('musique démarrée à', round(off, 2), 's ; creux → vidéo', opt['break_v'], '; outro → vidéo', round(opt['outro_m'] - off, 2))
     P = L = None
@@ -19,7 +30,7 @@ hop = 441; mono = x.mean(1); env = np.array([np.abs(mono[i:i + hop]).mean() for 
 on = np.maximum(0, np.diff(env)); fps = SR / hop
 best = (-1, 0, 0)
 for P in ([] if D < 1.0 else np.arange(opt.get('loop_from', 60), opt.get('loop_to', opt['break_m'] - 12), 0.5)):     # P en temps musique (fin de la 1re lecture)
-    Ls = [round(D / opt['phrase']) * opt['phrase']] if opt.get('phrase') else np.arange(D - 0.6, D + 0.6, 0.01)  # saut = nombre entier de phrases musicales
+    Ls = [opt['L']] if opt.get('L') else [round(D / opt['phrase']) * opt['phrase']] if opt.get('phrase') else np.arange(D - 0.6, D + 0.6, 0.01)  # saut = nombre entier de phrases musicales
     for L in Ls:
         a, b = int(P * fps), int((P - L) * fps); n = int(6 * fps)
         if b < 0: continue

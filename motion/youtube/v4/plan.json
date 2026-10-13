@@ -1,0 +1,1385 @@
+{
+ "png": "png_kai",
+ "scenes": [
+  {
+   "img": "big_strain",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.15,
+    0.5,
+    0.53
+   ],
+   "seq": [
+    {
+     "at": 0.62,
+     "img": "lean_lift"
+    }
+   ],
+   "say": "a big guy *couldn't*",
+   "spoken": "Have you ever seen a skinny guy lift something a big guy couldn't?",
+   "sayFrom": 9,
+   "sayY": 0.9,
+   "segs": [
+    0
+   ],
+   "voice": "Have you ever seen a skinny guy lift something a big guy couldn't?"
+  },
+  {
+   "img": "lean_lift",
+   "cam": [
+    1.15,
+    0.48,
+    0.45,
+    1.5,
+    0.48,
+    0.35
+   ],
+   "text": "impossible?",
+   "textAt": 0.3,
+   "segs": [
+    1
+   ],
+   "voice": "It looks impossible."
+  },
+  {
+   "card": "it happens all the time",
+   "segs": [
+    2
+   ],
+   "voice": "But it happens all the time."
+  },
+  {
+   "img": "lean",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "you'll train differently",
+   "segs": [
+    3,
+    4
+   ],
+   "voice": "And once you understand why, you'll never train the same way again."
+  },
+  {
+   "card": "here's the truth",
+   "segs": [
+    5
+   ],
+   "voice": "Here's the truth."
+  },
+  {
+   "img": "big",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "lean"
+    }
+   ],
+   "text": "size ≠ strength",
+   "textAt": 0.55,
+   "segs": [
+    6,
+    7
+   ],
+   "voice": "Big muscles and real strength are not the same thing."
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.5,
+    0.42
+   ],
+   "say": "*size*",
+   "spoken": "Size is how much muscle you have.",
+   "sayY": 0.18,
+   "segs": [
+    8
+   ],
+   "voice": "Size is how much muscle you have."
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.5,
+    0.42
+   ],
+   "say": "*strength*",
+   "spoken": "Strength is how well your body can use it.",
+   "sayY": 0.18,
+   "segs": [
+    9,
+    10
+   ],
+   "voice": "Strength is how well your body can use it."
+  },
+  {
+   "card": "4 reasons",
+   "segs": [
+    11
+   ],
+   "voice": "And there are four reasons why a skinny guy can be stronger than a man twice his size."
+  },
+  {
+   "img": "lean_nerves",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "label": "#1. Your nervous system",
+   "segs": [
+    12,
+    13
+   ],
+   "voice": "Reason number one. Your nervous system."
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.2,
+    0.5,
+    0.35,
+    1.7,
+    0.5,
+    0.25
+   ],
+   "text": "brain → nerves → muscle",
+   "textAt": 0.35,
+   "segs": [
+    14,
+    15
+   ],
+   "voice": "Every muscle is controlled by your brain, through your nerves."
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.7,
+    0.4,
+    0.4,
+    1.9,
+    0.35,
+    0.45
+   ],
+   "text": "the signal",
+   "textAt": 0.5,
+   "segs": [
+    16,
+    17
+   ],
+   "voice": "When you lift something heavy, your brain sends a signal to your muscle fibers."
+  },
+  {
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "only part of the fibers",
+   "textAt": 0.4,
+   "segs": [
+    18
+   ],
+   "voice": "An untrained person can only switch on part of them."
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.45
+   ],
+   "say": "almost *all* of them",
+   "spoken": "A trained lifter can switch on almost all of them, at the same time, and much faster.",
+   "sayFrom": 6,
+   "segs": [
+    19,
+    20,
+    21
+   ],
+   "voice": "A trained lifter can switch on almost all of them, at the same time, and much faster."
+  },
+  {
+   "img": "lean_pu_down",
+   "alt": "lean_pu_up",
+   "period": 1.0,
+   "cam": [
+    1.0,
+    0.5,
+    0.52,
+    1.08,
+    0.5,
+    0.52
+   ],
+   "text": "stronger before bigger",
+   "textAt": 0.5,
+   "textX": 0.85,
+   "segs": [
+    22,
+    23
+   ],
+   "voice": "That's why strength can go up in the first weeks of training, before your muscles even get bigger."
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.6,
+    0.5,
+    0.25,
+    1.8,
+    0.5,
+    0.22
+   ],
+   "text": "your brain is learning",
+   "textAt": 0.3,
+   "segs": [
+    24
+   ],
+   "voice": "Your brain is learning to use what you already have."
+  },
+  {
+   "card": "think of it like an engine",
+   "segs": [
+    25
+   ],
+   "voice": "Think of it like an engine."
+  },
+  {
+   "card": "the better driver wins",
+   "segs": [
+    26,
+    27
+   ],
+   "voice": "Two cars can have the same engine, but the one with the better driver wins the race."
+  },
+  {
+   "img": "lean_nerves",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "the *driver*",
+   "spoken": "Your nervous system is the driver.",
+   "segs": [
+    28
+   ],
+   "voice": "Your nervous system is the driver."
+  },
+  {
+   "medal": "p_barbell",
+   "name": "Reason #2 · Technique",
+   "medalZoom": 1.0,
+   "segs": [
+    29,
+    30
+   ],
+   "voice": "Reason number two. Technique."
+  },
+  {
+   "img": "lean_dl_down",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.53,
+    0.5,
+    1.08,
+    0.53,
+    0.5
+   ],
+   "text": "lifting is a skill",
+   "textAt": 0.5,
+   "textX": 0.2,
+   "segs": [
+    31,
+    32
+   ],
+   "voice": "Lifting is a skill, just like throwing a punch or kicking a ball."
+  },
+  {
+   "img": "big_deadlift",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.08,
+    0.5,
+    0.53
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.55
+    }
+   ],
+   "segs": [
+    33
+   ],
+   "voice": "A big guy with bad form leaks power everywhere."
+  },
+  {
+   "img": "big_deadlift",
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.35,
+    0.45,
+    0.45
+   ],
+   "text": "back rounds · knees cave",
+   "textAt": 0.15,
+   "textY": 0.12,
+   "textX": 0.5,
+   "segs": [
+    34,
+    35
+   ],
+   "voice": "His back rounds, his knees cave in, and the weight drifts away from his body."
+  },
+  {
+   "img": "lean_dl_down",
+   "cam": [
+    1.0,
+    0.53,
+    0.5,
+    1.08,
+    0.53,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "lean_dl_up"
+    }
+   ],
+   "icons": [
+    {
+     "kind": "v",
+     "at": 0.7
+    }
+   ],
+   "segs": [
+    36
+   ],
+   "voice": "A skinny guy with perfect form puts all his force in one direction."
+  },
+  {
+   "img": "lean_dl_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.5
+   ],
+   "say": "less *effort*",
+   "spoken": "Same weight, less effort.",
+   "sayY": 0.12,
+   "segs": [
+    37,
+    38
+   ],
+   "voice": "Same weight, less effort."
+  },
+  {
+   "img": "lean_dl_up",
+   "cam": [
+    1.15,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.5
+   ],
+   "text": "smaller can out-lift bigger",
+   "textAt": 0.4,
+   "textY": 0.12,
+   "textX": 0.5,
+   "segs": [
+    39
+   ],
+   "voice": "This is also why a smaller lifter can out-lift a bigger one in competition."
+  },
+  {
+   "img": "lean_dl_down",
+   "cam": [
+    1.0,
+    0.53,
+    0.5,
+    1.08,
+    0.53,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "lean_dl_up"
+    }
+   ],
+   "text": "efficient",
+   "textAt": 0.6,
+   "textX": 0.2,
+   "segs": [
+    40
+   ],
+   "voice": "Every inch of the movement is efficient."
+  },
+  {
+   "img": "big",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "label": "#3. Body weight",
+   "segs": [
+    41,
+    42
+   ],
+   "voice": "Reason number three. Body weight."
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.47
+   ],
+   "text": "he carries himself first",
+   "textAt": 0.3,
+   "segs": [
+    43
+   ],
+   "voice": "A big guy has to carry his own body before he lifts anything."
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.15,
+    0.5,
+    0.47,
+    1.8,
+    0.5,
+    0.5
+   ],
+   "text": "not muscle",
+   "textAt": 0.5,
+   "segs": [
+    44
+   ],
+   "voice": "And a lot of that weight is not muscle."
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.8,
+    0.5,
+    0.5,
+    2.0,
+    0.5,
+    0.52
+   ],
+   "say": "*fat*",
+   "spoken": "It's fat.",
+   "sayY": 0.15,
+   "segs": [
+    45
+   ],
+   "voice": "It's fat."
+  },
+  {
+   "img": "big_strain",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.08,
+    0.5,
+    0.53
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "segs": [
+    46
+   ],
+   "voice": "Fat doesn't lift anything."
+  },
+  {
+   "img": "lean",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "everything works for him",
+   "segs": [
+    47,
+    48
+   ],
+   "voice": "A lean guy has less dead weight, so almost everything he carries is working for him."
+  },
+  {
+   "img": "lean_pu_down",
+   "alt": "lean_pu_up",
+   "period": 0.8,
+   "cam": [
+    1.0,
+    0.5,
+    0.52,
+    1.08,
+    0.5,
+    0.52
+   ],
+   "segs": [
+    49
+   ],
+   "voice": "That's why skinny guys are often amazing at pull-ups, dips and push-ups."
+  },
+  {
+   "img": "lean",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "pound for *pound*",
+   "spoken": "Pound for pound, they're stronger.",
+   "segs": [
+    50
+   ],
+   "voice": "Pound for pound, they're stronger."
+  },
+  {
+   "img": "big_pullup",
+   "cam": [
+    1.0,
+    0.5,
+    0.51,
+    1.08,
+    0.5,
+    0.51
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "lean_pu_up"
+    }
+   ],
+   "text": "x2 reps",
+   "textAt": 0.6,
+   "textX": 0.85,
+   "segs": [
+    51,
+    52
+   ],
+   "voice": "Put a big guy and a lean guy on a pull-up bar, and the lean guy will often do twice as many reps."
+  },
+  {
+   "img": "lean_climb",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.55,
+    0.5,
+    1.08,
+    0.55,
+    0.5
+   ],
+   "label": "#4. Tendons & muscle quality",
+   "segs": [
+    53,
+    54
+   ],
+   "voice": "Reason number four. Tendons and muscle quality."
+  },
+  {
+   "img": "lean_climb",
+   "cam": [
+    1.1,
+    0.55,
+    0.45,
+    1.3,
+    0.6,
+    0.35
+   ],
+   "segs": [
+    55
+   ],
+   "voice": "Strength doesn't only come from muscle."
+  },
+  {
+   "img": "lean",
+   "cam": [
+    1.6,
+    0.38,
+    0.45,
+    2.0,
+    0.36,
+    0.5
+   ],
+   "text": "tendons = cables",
+   "textAt": 0.5,
+   "segs": [
+    56,
+    57
+   ],
+   "voice": "It also comes from your tendons, the cables that connect your muscles to your bones."
+  },
+  {
+   "img": "lean_climb",
+   "cam": [
+    1.3,
+    0.6,
+    0.35,
+    1.5,
+    0.62,
+    0.3
+   ],
+   "text": "like steel",
+   "textAt": 0.6,
+   "textX": 0.2,
+   "segs": [
+    58,
+    59
+   ],
+   "voice": "Years of heavy, controlled training make them thick and stiff, like steel."
+  },
+  {
+   "img": "lean_pistol",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.56,
+    0.52,
+    1.08,
+    0.56,
+    0.52
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "lean_climb"
+    }
+   ],
+   "segs": [
+    60,
+    61
+   ],
+   "voice": "That's how some lean athletes, like climbers or gymnasts, can do things that look unreal."
+  },
+  {
+   "img": "lean",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "their muscles aren't huge",
+   "textAt": 0.2,
+   "segs": [
+    62
+   ],
+   "voice": "Their muscles aren't huge."
+  },
+  {
+   "img": "lean_lift",
+   "cam": [
+    1.0,
+    0.48,
+    0.5,
+    1.15,
+    0.48,
+    0.45
+   ],
+   "say": "transfer *force*",
+   "spoken": "But every part of their body is built to transfer force.",
+   "sayY": 0.9,
+   "segs": [
+    63
+   ],
+   "voice": "But every part of their body is built to transfer force."
+  },
+  {
+   "card": "how do you train for this?",
+   "segs": [
+    64
+   ],
+   "voice": "So how do you train to become this kind of strong?"
+  },
+  {
+   "card": "4 rules",
+   "segs": [
+    65
+   ],
+   "voice": "Here are the four rules."
+  },
+  {
+   "medal": "p_barbell",
+   "name": "Rule #1 · Heavy, low reps",
+   "medalZoom": 1.0,
+   "segs": [
+    66,
+    67
+   ],
+   "voice": "Rule number one. Lift heavy, with low reps."
+  },
+  {
+   "reps": "3 – 6 reps",
+   "sets": 0,
+   "segs": [
+    68
+   ],
+   "voice": "For strength, work in the range of three to six reps."
+  },
+  {
+   "img": "lean_nerves",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.5
+   ],
+   "text": "more fibers switched on",
+   "textAt": 0.4,
+   "segs": [
+    69
+   ],
+   "voice": "Heavy weights teach your nervous system to switch on more muscle fibers."
+  },
+  {
+   "img": "lean_squat_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.25,
+     "img": "lean_dl_down"
+    },
+    {
+     "at": 0.5,
+     "img": "bench_up"
+    },
+    {
+     "at": 0.72,
+     "img": "lean_squat_up"
+    }
+   ],
+   "text": "squat · deadlift · bench · press",
+   "textAt": 0.1,
+   "textY": 0.08,
+   "textX": 0.5,
+   "segs": [
+    70,
+    71,
+    72,
+    73
+   ],
+   "voice": "Use the big lifts. Squats, deadlifts, bench press, overhead press."
+  },
+  {
+   "img": "lean_pistol",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.56,
+    0.52,
+    1.08,
+    0.56,
+    0.52
+   ],
+   "seq": [
+    {
+     "at": 0.35,
+     "img": "lean_pu_up"
+    },
+    {
+     "at": 0.6,
+     "img": "dip_down"
+    },
+    {
+     "at": 0.8,
+     "img": "deep_down"
+    }
+   ],
+   "text": "at home: hard variations",
+   "textAt": 0.1,
+   "textY": 0.08,
+   "textX": 0.5,
+   "segs": [
+    74,
+    75,
+    76
+   ],
+   "voice": "At home, use hard variations. Pistol squats, pull-ups, dips and one-arm push-up progressions."
+  },
+  {
+   "medal": "p_phone",
+   "name": "Rule #2 · Practice the skill",
+   "medalZoom": 1.05,
+   "segs": [
+    77,
+    78
+   ],
+   "voice": "Rule number two. Practice your lifts like a skill."
+  },
+  {
+   "card": "don't just do exercises. master them",
+   "segs": [
+    79,
+    80
+   ],
+   "voice": "Don't just do exercises. Master them."
+  },
+  {
+   "img": "lean_squat_down",
+   "alt": "lean_squat_up",
+   "period": 1.3,
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "text": "film your sets",
+   "textAt": 0.2,
+   "textX": 0.82,
+   "segs": [
+    81,
+    82
+   ],
+   "voice": "Film your sets. Keep the same perfect form on every single rep."
+  },
+  {
+   "img": "lean_squat_down",
+   "alt": "lean_squat_up",
+   "period": 1.3,
+   "cam": [
+    1.05,
+    0.45,
+    0.5,
+    1.1340000000000001,
+    0.45,
+    0.5
+   ],
+   "text": "clean form = more weight",
+   "textAt": 0.3,
+   "textX": 0.82,
+   "segs": [
+    83,
+    84
+   ],
+   "voice": "The cleaner your technique, the more weight you can move safely."
+  },
+  {
+   "medal": "p_bolt",
+   "name": "Rule #3 · Move with intent",
+   "medalZoom": 1.0,
+   "segs": [
+    85,
+    86
+   ],
+   "voice": "Rule number three. Move with intent."
+  },
+  {
+   "img": "lean_squat_down",
+   "alt": "lean_squat_up",
+   "period": 0.55,
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.2,
+    0.45,
+    0.5
+   ],
+   "text": "explode up",
+   "textAt": 0.4,
+   "textX": 0.82,
+   "segs": [
+    87,
+    88
+   ],
+   "voice": "On every rep, push as fast and as hard as you can, even when the weight moves slowly."
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "recruit *everything*",
+   "spoken": "That tells your brain to recruit everything.",
+   "segs": [
+    89
+   ],
+   "voice": "That tells your brain to recruit everything."
+  },
+  {
+   "medal": "p_timer",
+   "name": "Rule #4 · Rest longer",
+   "medalZoom": 1.05,
+   "segs": [
+    90,
+    91
+   ],
+   "voice": "Rule number four. Rest longer."
+  },
+  {
+   "card": "strength training is not cardio",
+   "segs": [
+    92
+   ],
+   "voice": "Strength training is not cardio."
+  },
+  {
+   "img": "lean_rest",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.08,
+    0.5,
+    0.48
+   ],
+   "text": "2 – 3 minutes",
+   "textAt": 0.4,
+   "textY": 0.08,
+   "textX": 0.5,
+   "segs": [
+    93
+   ],
+   "voice": "Take two to three minutes between heavy sets, so your muscles and your nerves can recover."
+  },
+  {
+   "img": "lean_rest",
+   "cam": [
+    1.05,
+    0.5,
+    0.48,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "text": "don't rush",
+   "textAt": 0.3,
+   "textY": 0.08,
+   "textX": 0.5,
+   "segs": [
+    94
+   ],
+   "voice": "If you rush, you lift less, and you get weaker results."
+  },
+  {
+   "img": "lean_rest",
+   "cam": [
+    1.2,
+    0.5,
+    0.4,
+    1.7,
+    0.5,
+    0.3
+   ],
+   "text": "breathe · focus · prepare",
+   "textAt": 0.15,
+   "textY": 0.08,
+   "textX": 0.5,
+   "segs": [
+    95,
+    96
+   ],
+   "voice": "Use that time to breathe, focus, and prepare for the next set."
+  },
+  {
+   "card": "3 mistakes that keep you weak",
+   "segs": [
+    97
+   ],
+   "voice": "Now, the mistakes that keep you weak."
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 0.5,
+   "cam": [
+    1.15,
+    0.5,
+    0.56,
+    1.242,
+    0.5,
+    0.56
+   ],
+   "label": "#1. Light weights to failure",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "size, not max strength",
+   "textAt": 0.6,
+   "textY": 0.2,
+   "textX": 0.5,
+   "segs": [
+    98,
+    99,
+    100
+   ],
+   "voice": "One. Always training to failure with light weights. That builds size and endurance, but not maximum strength."
+  },
+  {
+   "img": "lean",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "label": "#2. A new program every week",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "repeat + add weight",
+   "textAt": 0.6,
+   "segs": [
+    101,
+    102,
+    103
+   ],
+   "voice": "Two. Changing your program every week. Strength comes from repeating the same lifts and slowly adding weight."
+  },
+  {
+   "img": "lean_sleep",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.6,
+     "img": "p_food"
+    }
+   ],
+   "label": "#3. No sleep, no food",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "sleep + protein",
+   "textAt": 0.7,
+   "textY": 0.12,
+   "textX": 0.5,
+   "segs": [
+    104,
+    105,
+    106,
+    107
+   ],
+   "voice": "Three. Ignoring sleep and food. Your nervous system and your tendons recover while you sleep, and they need protein to rebuild."
+  },
+  {
+   "card": "a simple plan",
+   "segs": [
+    108
+   ],
+   "voice": "Here's a simple plan."
+  },
+  {
+   "reps": "3 days a week",
+   "sets": 0,
+   "segs": [
+    109
+   ],
+   "voice": "Three days a week."
+  },
+  {
+   "img": "lean_squat_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.38,
+     "img": "bench_up"
+    },
+    {
+     "at": 0.7,
+     "img": "lean_pu_up"
+    }
+   ],
+   "text": "legs · push · pull",
+   "textAt": 0.1,
+   "textY": 0.08,
+   "textX": 0.5,
+   "segs": [
+    110
+   ],
+   "voice": "Pick one lower body lift and one upper body push and pull."
+  },
+  {
+   "reps": "3 – 6 reps",
+   "sets": 4,
+   "segs": [
+    111
+   ],
+   "voice": "Do four sets of three to six reps."
+  },
+  {
+   "img": "p_timer",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.49,
+    1.08,
+    0.5,
+    0.49
+   ],
+   "text": "2 – 3 min",
+   "textAt": 0.3,
+   "textX": 0.82,
+   "segs": [
+    112
+   ],
+   "voice": "Rest two to three minutes."
+  },
+  {
+   "img": "lean_dl_down",
+   "cam": [
+    1.0,
+    0.53,
+    0.5,
+    1.08,
+    0.53,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "lean_dl_up"
+    }
+   ],
+   "text": "+1 rep every week",
+   "textAt": 0.4,
+   "textX": 0.2,
+   "segs": [
+    113
+   ],
+   "voice": "And add a little weight, or one more rep, every week."
+  },
+  {
+   "img": "lean_lift",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.48,
+    0.5,
+    1.12,
+    0.48,
+    0.45
+   ],
+   "say": "the big guys *can't*",
+   "spoken": "Do this for a few months, and you'll be the skinny guy who lifts what the big guys can't.",
+   "sayY": 0.9,
+   "segs": [
+    114
+   ],
+   "voice": "Do this for a few months, and you'll be the skinny guy who lifts what the big guys can't."
+  },
+  {
+   "card": "and the best part?",
+   "segs": [
+    115
+   ],
+   "voice": "And the best part?"
+  },
+  {
+   "img": "lean",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.4,
+     "img": "flex"
+    }
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.45
+   },
+   "text": "your muscles grow too",
+   "segs": [
+    116
+   ],
+   "voice": "Your muscles will grow too."
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.4,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.2,
+    0.5,
+    0.27
+   ],
+   "say": "your *chest*",
+   "spoken": "Now, if you want that strength to show on your body, start with your chest.",
+   "sayY": 0.12,
+   "segs": [
+    117,
+    118
+   ],
+   "voice": "Now, if you want that strength to show on your body, start with your chest."
+  },
+  {
+   "img": "flex",
+   "x": 0.2,
+   "cam": [
+    0.85,
+    0.5,
+    0.5,
+    0.9,
+    0.5,
+    0.5
+   ],
+   "next": {
+    "img": "thumb_chest",
+    "title": "How Skinny Guys Build a Chest (3 Parts Most Ignore)"
+   },
+   "segs": [
+    119,
+    120
+   ],
+   "voice": "Watch this video next. It shows you the three parts of your chest, and how to build each one, at the gym or at home."
+  },
+  {
+   "subscribe": true,
+   "clickAt": 0.25,
+   "text": "new videos every Tuesday & Saturday",
+   "hold": 1.5,
+   "segs": [
+    121,
+    122
+   ],
+   "voice": "And subscribe to Linework Fit. A new video comes out every Tuesday and Saturday."
+  }
+ ]
+}

@@ -63,19 +63,22 @@ function bigText(s, T) {
 const EVENTS = [];
 const ev = (t, type) => EVENTS.push({ t, type });
 SC.forEach((s, i) => {
-  if (s.card || (SC[i - 1] && SC[i - 1].card)) ev(s.t0 - 0.15, 'whoosh'); // passage vers/depuis un écran noir
+  if (i && !(s.enter && s.enter !== 'fade')) ev(s.t0 - 0.15, 'whoosh');  // changement de plan
   if (s.enter && s.enter !== 'fade') ev(s.t0 - 0.05, 'swish');           // le personnage entre
-  if (s.label || s.medal || s.reps) ev(s.t0 + 0.05, 'pop');
+  if (s.card) ev(s.t0 + 0.02, 'glitch');                                  // écran noir + phrase
+  if (s.medal) ev(s.t0 + 0.05, 'hit');                                    // médaillon d'exercice
+  if (s.label || s.reps) ev(s.t0 + 0.05, 'pop');
+  if (s.text) ev(at(s, s.textAt ?? 0.2), 'click');                        // petit texte qui apparaît
   (s.icons || []).forEach((ic) => ev(at(s, ic.at), ic.kind === 'x' ? 'tick' : 'ding'));
   if (s.hl) ev(at(s, s.hlAt ?? 0.15), 'shine');
-  (s.seq || []).forEach((q) => { ev(at(s, q.at), 'swish'); if (q.hl) ev(at(s, q.at) + 0.1, 'shine'); });
+  (s.seq || []).forEach((q) => { ev(at(s, q.at) - 0.1, 'whoosh'); if (q.hl) ev(at(s, q.at) + 0.1, 'shine'); });
   if (s.alt) { // répétitions : souffle à chaque mouvement, haltère qui « claque » en bas
     const per = s.period || 0.8;
     for (let t = s.t0; t < s.t1 - 0.2; t += 2 * per) {
       const f = Math.min(0.35, 0.12 / per);
       if (t + per * (1 - f) < s.t1) ev(t + per * (1 - f), 'swish');
       if (t + per * (2 - f) < s.t1) ev(t + per * (2 - f), 'swish');
-      if (t + per * 2 < s.t1 + 0.1) ev(t + per * 2, 'clank');
+      if (/bench|incl|lat|ohp|rdf/.test(s.img) && t + per * 2 < s.t1 + 0.1) ev(t + per * 2, 'clank'); // haltères seulement
     }
   }
   if (s.say) wordTimes(s).forEach((t) => ev(t, 'tap'));

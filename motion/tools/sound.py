@@ -74,10 +74,20 @@ def tap():  # mot qui apparaît
     n=int(0.05*SR); tt=np.arange(n)/SR
     return np.sin(2*np.pi*(900+500*np.exp(-tt*80))*tt)*np.exp(-tt*90)
 FX={'clank':(clank,0.22),'swish':(swish,0.3),'shine':(shine,0.18),'thud':(thud,0.7),'tap':(tap,0.2),'boom':(boom,0.9),'whoosh':(whoosh,0.35),'pop':(pop,0.35),'tick':(tick,0.5),'ding':(ding,0.25)}
+# effets réels (ElevenLabs) s'ils existent dans motion/sfx/ : remplacent les sons synthétiques
+SFXD=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','sfx')
+REAL={'whoosh':('whoosh',0.30),'swish':('swish',0.22),'click':('click',0.30),'tap':('tap',0.16),'hit':('hit',0.60),
+      'glitch':('glitch',0.28),'snap':('snap',0.35),'ding':('ding',0.30),'tick':('buzz',0.32),'buzz':('buzz',0.32),
+      'pop':('pop',0.30),'clank':('clank',0.22),'shine':('shine',0.22),'thud':('thud',0.60)}
+def _load(n):
+    w=wave.open(os.path.join(SFXD,n+'.wav')); x=np.frombuffer(w.readframes(w.getnframes()),'<i2').astype(float)/32768
+    return x/max(1e-6,np.abs(x).max())
+for k,(n,gn) in REAL.items():
+    if os.path.exists(os.path.join(SFXD,n+'.wav')): FX[k]=((lambda x=_load(n): x),gn)
 cache={}
 for e in ev['events']:
     f,gn=FX[e['type']]
-    if e['type'] not in cache or e['type'] in ('whoosh','swish'): cache[e['type']]=f()
+    if e['type'] not in cache: cache[e['type']]=f()
     add(cache[e['type']],e['t'],gn)
 mix=mix[:int(SR*dur)]
 mix=mix/max(1e-6,np.abs(mix).max())*0.89

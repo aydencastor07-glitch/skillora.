@@ -83,7 +83,7 @@
    "tags": [
     {
      "name": "Upper",
-     "color": "blue",
+     "color": "red",
      "x": 0.44,
      "y": 0.238,
      "style": "dash",
@@ -111,7 +111,7 @@
    "tags": [
     {
      "name": "Upper",
-     "color": "blue",
+     "color": "red",
      "x": 0.44,
      "y": 0.238,
      "style": "dash",
@@ -120,7 +120,7 @@
     },
     {
      "name": "Middle",
-     "color": "green",
+     "color": "red",
      "x": 0.44,
      "y": 0.262,
      "style": "dash",
@@ -148,7 +148,7 @@
    "tags": [
     {
      "name": "Upper",
-     "color": "blue",
+     "color": "red",
      "x": 0.44,
      "y": 0.238,
      "style": "dash",
@@ -157,7 +157,7 @@
     },
     {
      "name": "Middle",
-     "color": "green",
+     "color": "red",
      "x": 0.44,
      "y": 0.262,
      "style": "dash",
@@ -550,7 +550,7 @@
    "tags": [
     {
      "name": "Middle",
-     "color": "green",
+     "color": "red",
      "x": 0.44,
      "y": 0.262,
      "style": "dash",
@@ -827,7 +827,7 @@
    "tags": [
     {
      "name": "Upper",
-     "color": "blue",
+     "color": "red",
      "x": 0.44,
      "y": 0.238,
      "style": "dash",

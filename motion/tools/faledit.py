@@ -8,7 +8,7 @@ model = sys.argv[4] if len(sys.argv) > 4 else 'fal-ai/nano-banana/edit'
 def data_uri(p):
     buf = io.BytesIO(); im = Image.open(p).convert('RGB'); im.thumbnail((1536, 1536)); im.save(buf, 'JPEG', quality=92)
     return 'data:image/jpeg;base64,' + base64.b64encode(buf.getvalue()).decode()
-body = {'prompt': prompt, 'image_urls': [data_uri(r) for r in refs], 'num_images': 1, 'output_format': 'png'}
+body = {'prompt': prompt, 'image_urls': [data_uri(r) for r in refs], 'num_images': 1, 'output_format': 'png', 'sync_mode': True}  # image renvoyée directement (pas de téléchargement)
 UA = {'User-Agent': 'Mozilla/5.0'}
 for attempt in range(4):
     try:

@@ -2,15 +2,15 @@
  "png": "png_kai",
  "scenes": [
   {
-   "img": "flat",
+   "img": "skinny",
    "enter": "up",
    "cam": [
-    0.95,
+    1.5,
     0.5,
+    0.38,
+    1.95,
     0.5,
-    1.6,
-    0.5,
-    0.33
+    0.32
    ],
    "say": "your chest looks *flat*",
    "spoken": "If your chest looks flat no matter how much you train, this video is for you.",
@@ -27,14 +27,15 @@
    ]
   },
   {
-   "img": "base",
+   "img": "skinny2",
+   "enter": "fade",
    "cam": [
-    1.0,
+    1.3,
     0.5,
+    0.4,
+    1.7,
     0.5,
-    1.5,
-    0.5,
-    0.3
+    0.33
    ],
    "text": "not one muscle",
    "textAt": 0.5,
@@ -170,14 +171,14 @@
    ]
   },
   {
-   "img": "flat",
+   "img": "skinny2",
    "cam": [
-    0.98,
+    1.5,
     0.5,
+    0.38,
+    1.7,
     0.5,
-    1.06,
-    0.5,
-    0.47
+    0.34
    ],
    "icons": [
     {
@@ -233,23 +234,36 @@
    ]
   },
   {
-   "card": "almost nobody trains it",
+   "img": "skinny_side",
+   "enter": "fade",
+   "cam": [
+    1.3,
+    0.5,
+    0.42,
+    1.5,
+    0.5,
+    0.38
+   ],
+   "text": "almost nobody trains it",
+   "textAt": 0.3,
    "segs": [
     13
    ]
   },
   {
-   "img": "base",
+   "img": "skinny_side",
    "cam": [
-    2.4,
-    0.5,
-    0.28,
-    2.6,
-    0.5,
-    0.29
+    1.9,
+    0.53,
+    0.3,
+    2.3,
+    0.54,
+    0.3
    ],
+   "x": 0.5,
    "say": "no clear *edge*",
    "spoken": "And without it, your chest just fades out with no clear edge.",
+   "sayY": 0.12,
    "segs": [
     14,
     15
@@ -775,15 +789,20 @@
    ]
   },
   {
-   "img": "flex",
-   "enter": "up",
+   "img": "skinny2",
    "cam": [
-    1.0,
+    1.1,
     0.5,
-    0.5,
-    1.3,
+    0.45,
+    1.25,
     0.5,
     0.4
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "flex"
+    }
    ],
    "say": "full *chest*",
    "spoken": "This is what makes your chest look full in a t-shirt.",
@@ -1119,7 +1138,18 @@
    ]
   },
   {
-   "card": "none of this works without one thing",
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.2,
+    0.5,
+    0.42,
+    1.4,
+    0.5,
+    0.36
+   ],
+   "text": "one thing…",
+   "textAt": 0.5,
    "segs": [
     91
    ]
@@ -1131,7 +1161,7 @@
    ]
   },
   {
-   "img": "base",
+   "img": "skinny2",
    "enter": "fade",
    "cam": [
     1.0,
@@ -1140,6 +1170,12 @@
     1.2,
     0.5,
     0.4
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "base"
+    }
    ],
    "say": "months of *showing up*",
    "spoken": "Months of showing up.",

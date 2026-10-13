@@ -72,8 +72,9 @@ SC.forEach((s, i) => {
   if (s.alt) { // répétitions : souffle à chaque mouvement, haltère qui « claque » en bas
     const per = s.period || 0.8;
     for (let t = s.t0; t < s.t1 - 0.2; t += 2 * per) {
-      if (t + per * 0.65 < s.t1) ev(t + per * 0.65, 'swish');
-      if (t + per * 1.65 < s.t1) ev(t + per * 1.65, 'swish');
+      const f = Math.min(0.35, 0.12 / per);
+      if (t + per * (1 - f) < s.t1) ev(t + per * (1 - f), 'swish');
+      if (t + per * (2 - f) < s.t1) ev(t + per * (2 - f), 'swish');
       if (t + per * 2 < s.t1 + 0.1) ev(t + per * 2, 'clank');
     }
   }
@@ -201,7 +202,8 @@ function draw(T) {
     const im = IMG[cur.img];
     const r = charRect(s, T, im);
     if (s.alt) {
-      const per = s.period || 0.8, ph = ((T - s.t0) / per) % 2, mix = ph < 1 ? ss(0.65, 1, ph) : 1 - ss(1.65, 2, ph);
+      // passage rapide d'une pose à l'autre (≈0,12 s) : pas d'« ombre » visible
+      const per = s.period || 0.8, f = Math.min(0.35, 0.12 / per), ph = ((T - s.t0) / per) % 2, mix = ph < 1 ? ss(1 - f, 1, ph) : 1 - ss(2 - f, 2, ph);
       drawChar(im, r, 1 - mix); drawChar(IMG[s.alt], r, mix);
     } else drawChar(im, r);
     if (cur.hl) { // le muscle s'allume puis pulse doucement

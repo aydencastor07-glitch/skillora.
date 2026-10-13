@@ -4,7 +4,7 @@ LINEWORK FIT – VIDÉO 3 : FORCE  (tout ce qu'il faut pour publier)
 
 FICHIERS (dans motion/youtube/v4/out/)
 - Vidéo : strength_final.mp4 (pleine qualité, avec musique + effets)
-- Miniature : miniature.jpg (le gros costaud galère → Kai soulève à une main)
+- Miniature : miniature.jpg (le costaud n'arrive pas à décoller le kettlebell → Kai fin le lève à une main)
 - Sous-titres : strength.srt
 
 ---------------------------------------------------------------------

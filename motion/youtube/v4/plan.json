@@ -2,7 +2,7 @@
  "png": "png_kai",
  "scenes": [
   {
-   "img": "big_strain",
+   "img": "big_kb",
    "enter": "up",
    "cam": [
     1.0,
@@ -15,7 +15,7 @@
    "seq": [
     {
      "at": 0.62,
-     "img": "lean_lift"
+     "img": "kb_up"
     }
    ],
    "say": "a big guy *couldn't*",
@@ -28,7 +28,7 @@
    "voice": "Have you ever seen a skinny guy lift something a big guy couldn't?"
   },
   {
-   "img": "lean_lift",
+   "img": "kb_up",
    "cam": [
     1.15,
     0.48,
@@ -52,7 +52,7 @@
    "voice": "But it happens all the time."
   },
   {
-   "img": "lean",
+   "img": "kb_hold",
    "enter": "fade",
    "cam": [
     1.0,
@@ -94,7 +94,7 @@
    "seq": [
     {
      "at": 0.5,
-     "img": "lean"
+     "img": "kb_hold"
     }
    ],
    "text": "size ≠ strength",
@@ -143,7 +143,21 @@
    "voice": "Strength is how well your body can use it."
   },
   {
-   "card": "4 reasons",
+   "img": "kb_up3",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.12,
+    0.5,
+    0.5
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.1
+   },
+   "text": "4 reasons",
    "segs": [
     11
    ],
@@ -544,7 +558,7 @@
    "voice": "It's fat."
   },
   {
-   "img": "big_strain",
+   "img": "big_kb2",
    "cam": [
     1.0,
     0.5,
@@ -565,7 +579,7 @@
    "voice": "Fat doesn't lift anything."
   },
   {
-   "img": "lean",
+   "img": "kb_hold",
    "enter": "fade",
    "cam": [
     1.0,
@@ -739,7 +753,7 @@
    "voice": "That's how some lean athletes, like climbers or gymnasts, can do things that look unreal."
   },
   {
-   "img": "lean",
+   "img": "kb_up3",
    "enter": "fade",
    "cam": [
     1.0,
@@ -757,7 +771,7 @@
    "voice": "Their muscles aren't huge."
   },
   {
-   "img": "lean_lift",
+   "img": "kb_up2",
    "cam": [
     1.0,
     0.48,
@@ -1276,7 +1290,7 @@
    "voice": "And add a little weight, or one more rep, every week."
   },
   {
-   "img": "lean_lift",
+   "img": "kb_up",
    "enter": "up",
    "cam": [
     1.0,

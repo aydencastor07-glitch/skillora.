@@ -3,7 +3,7 @@
  "dur": 293.35,
  "scenes": [
   {
-   "img": "big_strain",
+   "img": "big_kb",
    "enter": "up",
    "cam": [
     1.0,
@@ -16,7 +16,7 @@
    "seq": [
     {
      "at": 0.62,
-     "img": "lean_lift"
+     "img": "kb_up"
     }
    ],
    "say": "a big guy *couldn't*",
@@ -34,7 +34,7 @@
    ]
   },
   {
-   "img": "lean_lift",
+   "img": "kb_up",
    "cam": [
     1.15,
     0.48,
@@ -68,7 +68,7 @@
    ]
   },
   {
-   "img": "lean",
+   "img": "kb_hold",
    "enter": "fade",
    "cam": [
     1.0,
@@ -123,7 +123,7 @@
    "seq": [
     {
      "at": 0.5,
-     "img": "lean"
+     "img": "kb_hold"
     }
    ],
    "text": "size ≠ strength",
@@ -193,7 +193,21 @@
    ]
   },
   {
-   "card": "4 reasons",
+   "img": "kb_up3",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.12,
+    0.5,
+    0.5
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.1
+   },
+   "text": "4 reasons",
    "voice": "And there are four reasons why a skinny guy can be stronger than a man twice his size.",
    "t0": 23.03,
    "t1": 28.42,
@@ -745,7 +759,7 @@
    ]
   },
   {
-   "img": "big_strain",
+   "img": "big_kb2",
    "cam": [
     1.0,
     0.5,
@@ -771,7 +785,7 @@
    ]
   },
   {
-   "img": "lean",
+   "img": "kb_hold",
    "enter": "fade",
    "cam": [
     1.0,
@@ -1008,7 +1022,7 @@
    ]
   },
   {
-   "img": "lean",
+   "img": "kb_up3",
    "enter": "fade",
    "cam": [
     1.0,
@@ -1031,7 +1045,7 @@
    ]
   },
   {
-   "img": "lean_lift",
+   "img": "kb_up2",
    "cam": [
     1.0,
     0.48,
@@ -1763,7 +1777,7 @@
    ]
   },
   {
-   "img": "lean_lift",
+   "img": "kb_up",
    "enter": "up",
    "cam": [
     1.0,

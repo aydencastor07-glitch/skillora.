@@ -66,7 +66,10 @@ S = [
  ([56], dict(card='three months')),
  ([57], dict(img='fat_neutral', enter='fade', cam=[1.0, 0.5, 0.48, 1.15, 0.5, 0.45])),
  ([58, 59], dict(img='fat_neutral', cam=[1.0, 0.5, 0.48, 1.0, 0.5, 0.48], seq=[{'at': 0.3, 'img': 'base', 'hl': 'hl_abs'}], slide={'to': 0.3, 'at': 0.45}, text='your abs will show')),
- ([60], dict(img='flex', enter='up', cam=[1.0, 0.5, 0.48, 1.15, 0.5, 0.45], text='subscribe →', textAt=0.4, hold=1.2)),
+ ([60], dict(img='base', hl='hl_abs', hlAt=0.0, enter='fade', cam=[1.0, 0.5, 0.48, 1.1, 0.5, 0.45], text='your whole body looks complete', textAt=0.5)),
+ ([61], dict(img='base', hl='hl_all', hlAt=0.2, cam=[1.3, 0.5, 0.4, 2.3, 0.5, 0.27], say='a strong *chest*', spoken=LINES[61]['text'])),
+ ([62, 63], dict(img='flex', x=0.2, cam=[0.85, 0.5, 0.5, 0.9, 0.5, 0.5], next={'img': 'thumb_chest', 'title': 'How Skinny Guys Build a Chest (3 Parts Most Ignore)'})),
+ ([64, 65], dict(subscribe=True, clickAt=0.25, text='new videos every Tuesday & Saturday', hold=1.5)),
 ]
 scenes = []
 for lines, d in S:

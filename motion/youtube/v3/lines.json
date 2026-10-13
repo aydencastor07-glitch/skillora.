@@ -680,14 +680,45 @@
  },
  {
   "line": 60,
-  "text": "Subscribe to Linework Fit, and I'll see you in the next one.",
+  "text": "Now, once your belly is flat, there's one thing that makes your whole body look complete.",
   "segs": [
    80,
    81
-  ],
-  "t": [
-   170.25,
-   173.63
+  ]
+ },
+ {
+  "line": 61,
+  "text": "A strong chest.",
+  "segs": [
+   82
+  ]
+ },
+ {
+  "line": 62,
+  "text": "So watch this video next.",
+  "segs": [
+   83
+  ]
+ },
+ {
+  "line": 63,
+  "text": "It shows you the three parts of your chest, and how to build each one, at the gym or at home.",
+  "segs": [
+   84
+  ]
+ },
+ {
+  "line": 64,
+  "text": "And subscribe to Linework Fit.",
+  "segs": [
+   85
+  ]
+ },
+ {
+  "line": 65,
+  "text": "A new video comes out every Tuesday and Saturday.",
+  "segs": [
+   86
   ]
  }
 ]

@@ -28,6 +28,7 @@ You can't crunch your belly away. Your abs are already there — they're just hi
 1:51 The plank
 2:07 3 mistakes that keep your belly big
 2:28 Your plan
+2:52 Watch next
 
 📋 The plan
 • Every day: walk 8,000–10,000 steps, eat a little less, more protein
@@ -58,5 +59,6 @@ RÉGLAGES DANS YOUTUBE STUDIO (comme la vidéo 1)
 - Audience : « Non, elle n'est pas conçue pour les enfants »
 - Show more → Langue de la vidéo : English
 - Video elements → Subtitles → Upload file → With timing → abs.srt
-- End screen : « Vidéo la plus récente » (la vidéo torse) + « S'abonner »
+- End screen (les 15 dernières s) : « Choisir une vidéo » → la vidéo torse, placée à droite
+  par-dessus la miniature affichée dans la vidéo + « S'abonner » au centre
 - Visibility : Schedule → 21:00 heure de Paris

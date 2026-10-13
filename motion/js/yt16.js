@@ -215,7 +215,7 @@ function repsCard(s, T) { // « (3) 8-12 reps » avec flèche circulaire derriè
     g.beginPath(); g.moveTo(ex + Math.cos(d - 2.4) * 34, ey + Math.sin(d - 2.4) * 34); g.lineTo(ex, ey); g.lineTo(ex + Math.cos(d + 2.4) * 34, ey + Math.sin(d + 2.4) * 34); g.stroke(); }
   g.restore();
   g.save(); g.globalAlpha = u; g.font = FONT(700, 74, 'italic'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff';
-  const sc = 0.85 + 0.15 * back(u); g.translate(W / 2, H / 2); g.scale(sc, sc); g.fillText(`(${s.sets ?? 3})  ${s.reps}`, 0, 0); g.restore();
+  const sc = 0.85 + 0.15 * back(u); g.translate(W / 2, H / 2); g.scale(sc, sc); g.fillText(s.sets === 0 ? s.reps : `(${s.sets ?? 3})  ${s.reps}`, 0, 0); g.restore();
 }
 function dashLine(r, l, T, t0) { // ligne pointillée verte (corps bien droit), coordonnées image
   const k = clamp((T - t0) / 0.6); if (k <= 0) return;

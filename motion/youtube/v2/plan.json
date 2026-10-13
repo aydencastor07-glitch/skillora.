@@ -1,0 +1,1187 @@
+{
+ "png": "png_kai",
+ "scenes": [
+  {
+   "img": "flat",
+   "enter": "up",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.6,
+    0.5,
+    0.33
+   ],
+   "say": "your chest looks *flat*",
+   "spoken": "If your chest looks flat no matter how much you train, this video is for you.",
+   "sayFrom": 1,
+   "segs": [
+    0,
+    1
+   ]
+  },
+  {
+   "card": "here's the thing",
+   "segs": [
+    2
+   ]
+  },
+  {
+   "img": "base",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.5,
+    0.5,
+    0.3
+   ],
+   "text": "not one muscle",
+   "textAt": 0.5,
+   "segs": [
+    3
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.3,
+   "cam": [
+    1.6,
+    0.5,
+    0.3,
+    2.0,
+    0.5,
+    0.28
+   ],
+   "say": "three *parts*",
+   "spoken": "It has three parts.",
+   "segs": [
+    4
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.15,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.3,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "blue",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0.25,
+     "len": 300
+    }
+   ],
+   "segs": [
+    5
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_um",
+   "hlAt": 0.1,
+   "cam": [
+    2.3,
+    0.5,
+    0.27,
+    2.4,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "blue",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Middle",
+     "color": "green",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0.15,
+     "len": 300
+    }
+   ],
+   "segs": [
+    6
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.1,
+   "cam": [
+    2.4,
+    0.5,
+    0.27,
+    2.5,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "blue",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Middle",
+     "color": "green",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Lower",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.282,
+     "style": "dash",
+     "at": 0.15,
+     "len": 300
+    }
+   ],
+   "segs": [
+    7,
+    8
+   ]
+  },
+  {
+   "img": "flat",
+   "cam": [
+    0.98,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.47
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.45
+    }
+   ],
+   "segs": [
+    9
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "up",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.45
+   ],
+   "segs": [
+    10
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_low",
+   "hlAt": 0.45,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.28
+   ],
+   "tags": [
+    {
+     "name": "Lower",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.282,
+     "style": "dash",
+     "at": 0.5,
+     "len": 300
+    }
+   ],
+   "segs": [
+    11,
+    12
+   ]
+  },
+  {
+   "card": "almost nobody trains it",
+   "segs": [
+    13
+   ]
+  },
+  {
+   "img": "base",
+   "cam": [
+    2.4,
+    0.5,
+    0.28,
+    2.6,
+    0.5,
+    0.29
+   ],
+   "say": "no clear *edge*",
+   "spoken": "And without it, your chest just fades out with no clear edge.",
+   "segs": [
+    14,
+    15
+   ]
+  },
+  {
+   "medal": "p_bars",
+   "name": "Dips",
+   "medalZoom": 1.15,
+   "segs": [
+    16
+   ]
+  },
+  {
+   "img": "p_bars",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.15,
+    0.5,
+    0.62
+   ],
+   "segs": [
+    17
+   ]
+  },
+  {
+   "img": "dip_up",
+   "enter": "up",
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.2,
+    0.55,
+    0.42
+   ],
+   "text": "lean forward",
+   "textAt": 0.4,
+   "segs": [
+    18
+   ]
+  },
+  {
+   "img": "dip_up",
+   "cam": [
+    1.6,
+    0.6,
+    0.35,
+    1.8,
+    0.62,
+    0.33
+   ],
+   "say": "chest, not *arms*",
+   "spoken": "That small lean is what puts the work on your chest instead of your arms.",
+   "segs": [
+    19
+   ]
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 1.3,
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.12,
+    0.5,
+    0.5
+   ],
+   "segs": [
+    20
+   ]
+  },
+  {
+   "img": "dip_down",
+   "cam": [
+    1.4,
+    0.55,
+    0.38,
+    1.5,
+    0.55,
+    0.38
+   ],
+   "text": "shoulders = elbows",
+   "textAt": 0.3,
+   "segs": [
+    21
+   ]
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 0.7,
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "icons": [
+    {
+     "kind": "v",
+     "at": 0.75
+    }
+   ],
+   "segs": [
+    22,
+    23
+   ]
+  },
+  {
+   "reps": "8-12 reps",
+   "segs": [
+    24
+   ]
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 1.6,
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "text": "slower · or add weight",
+   "textAt": 0.45,
+   "segs": [
+    25,
+    26
+   ]
+  },
+  {
+   "card": "no bars at home?",
+   "segs": [
+    27
+   ]
+  },
+  {
+   "medal": "p_chair",
+   "name": "Incline Push-Ups",
+   "medalZoom": 1.2,
+   "segs": [
+    28
+   ]
+  },
+  {
+   "img": "inc_push_up",
+   "enter": "right",
+   "cam": [
+    1.15,
+    0.5,
+    0.6,
+    1.25,
+    0.5,
+    0.58
+   ],
+   "segs": [
+    29
+   ]
+  },
+  {
+   "img": "inc_push_up",
+   "cam": [
+    1.25,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "line": [
+    0.3,
+    0.34,
+    0.88,
+    0.8
+   ],
+   "lineAt": 0.2,
+   "text": "one straight line",
+   "textY": 0.18,
+   "textX": 0.5,
+   "segs": [
+    30
+   ]
+  },
+  {
+   "img": "inc_push_up",
+   "alt": "inc_push_down",
+   "period": 1.5,
+   "cam": [
+    1.25,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "text": "2-3s",
+   "textAt": 0.3,
+   "textY": 0.2,
+   "textX": 0.5,
+   "segs": [
+    31
+   ]
+  },
+  {
+   "img": "inc_push_up",
+   "alt": "inc_push_down",
+   "period": 0.8,
+   "cam": [
+    1.3,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "segs": [
+    32
+   ]
+  },
+  {
+   "reps": "max reps",
+   "segs": [
+    33,
+    34
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_mid",
+   "hlAt": 0.3,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Middle",
+     "color": "green",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0.4,
+     "len": 300
+    }
+   ],
+   "segs": [
+    35,
+    36
+   ]
+  },
+  {
+   "card": "the foundation",
+   "segs": [
+    37
+   ]
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Dumbbell Bench Press",
+   "medalZoom": 1.05,
+   "segs": [
+    38
+   ]
+  },
+  {
+   "img": "bench_up",
+   "enter": "left",
+   "cam": [
+    1.1,
+    0.5,
+    0.58,
+    1.2,
+    0.5,
+    0.56
+   ],
+   "segs": [
+    39
+   ]
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.2,
+    0.5,
+    0.56,
+    1.5,
+    0.55,
+    0.5
+   ],
+   "text": "45°",
+   "textAt": 0.35,
+   "textX": 0.5,
+   "textY": 0.18,
+   "segs": [
+    40
+   ]
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.5,
+    0.55,
+    0.5,
+    1.6,
+    0.55,
+    0.5
+   ],
+   "text": "too wide → shoulders",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.18,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "segs": [
+    41
+   ]
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.6,
+    0.55,
+    0.5,
+    1.7,
+    0.55,
+    0.5
+   ],
+   "text": "too close → triceps",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.18,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "segs": [
+    42
+   ]
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 0.9,
+   "cam": [
+    1.15,
+    0.5,
+    0.56,
+    1.25,
+    0.5,
+    0.55
+   ],
+   "segs": [
+    43,
+    44
+   ]
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 1.7,
+   "cam": [
+    1.25,
+    0.5,
+    0.55,
+    1.35,
+    0.52,
+    0.53
+   ],
+   "say": "deep *stretch*",
+   "spoken": "Then lower them slowly, until you feel a deep stretch.",
+   "sayY": 0.15,
+   "segs": [
+    45,
+    46
+   ]
+  },
+  {
+   "reps": "8-12 reps",
+   "segs": [
+    47
+   ]
+  },
+  {
+   "medal": "p_books",
+   "name": "Deep Push-Ups",
+   "medalZoom": 1.25,
+   "segs": [
+    48
+   ]
+  },
+  {
+   "img": "p_books",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.1,
+    0.5,
+    0.6
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "deep_up"
+    }
+   ],
+   "segs": [
+    49
+   ]
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 1.4,
+   "cam": [
+    1.3,
+    0.55,
+    0.55,
+    1.45,
+    0.58,
+    0.55
+   ],
+   "segs": [
+    50
+   ]
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 1.0,
+   "cam": [
+    1.45,
+    0.58,
+    0.55,
+    1.5,
+    0.58,
+    0.55
+   ],
+   "say": "more stretch, more *growth*",
+   "spoken": "More stretch means more growth.",
+   "sayY": 0.15,
+   "segs": [
+    51
+   ]
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 0.7,
+   "cam": [
+    1.3,
+    0.55,
+    0.55,
+    1.3,
+    0.55,
+    0.55
+   ],
+   "segs": [
+    52,
+    53
+   ]
+  },
+  {
+   "reps": "close to failure",
+   "segs": [
+    54,
+    55
+   ]
+  },
+  {
+   "card": "the most important one",
+   "segs": [
+    56
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.26
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "blue",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0.3,
+     "len": 300
+    }
+   ],
+   "segs": [
+    57
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.5,
+    0.4
+   ],
+   "say": "full *chest*",
+   "spoken": "This is what makes your chest look full in a t-shirt.",
+   "segs": [
+    58
+   ]
+  },
+  {
+   "medal": "p_bench",
+   "name": "Incline Dumbbell Press",
+   "medalZoom": 1.1,
+   "segs": [
+    59
+   ]
+  },
+  {
+   "img": "p_bench",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.1,
+    0.45,
+    0.62
+   ],
+   "text": "30°",
+   "textAt": 0.35,
+   "textX": 0.5,
+   "textY": 0.2,
+   "segs": [
+    60
+   ]
+  },
+  {
+   "img": "p_bench",
+   "cam": [
+    1.1,
+    0.45,
+    0.62,
+    1.15,
+    0.45,
+    0.62
+   ],
+   "text": "not higher",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.2,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.45
+    }
+   ],
+   "segs": [
+    61
+   ]
+  },
+  {
+   "img": "incl_up",
+   "alt": "incl_down",
+   "period": 1.0,
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "segs": [
+    62,
+    63
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.1,
+   "cam": [
+    2.3,
+    0.5,
+    0.27,
+    2.6,
+    0.5,
+    0.26
+   ],
+   "say": "top of your chest *burning*",
+   "spoken": "If you feel the top of your chest burning, you're doing it right.",
+   "sayY": 0.12,
+   "segs": [
+    64,
+    65
+   ]
+  },
+  {
+   "reps": "8-12 reps",
+   "segs": [
+    66
+   ]
+  },
+  {
+   "card": "no equipment?",
+   "segs": [
+    67
+   ]
+  },
+  {
+   "medal": "p_chair",
+   "name": "Decline Push-Ups",
+   "medalZoom": 1.2,
+   "segs": [
+    68
+   ]
+  },
+  {
+   "img": "dec_push_up",
+   "enter": "right",
+   "cam": [
+    1.2,
+    0.5,
+    0.55,
+    1.3,
+    0.5,
+    0.55
+   ],
+   "segs": [
+    69
+   ]
+  },
+  {
+   "img": "dec_push_up",
+   "alt": "dec_push_down",
+   "period": 1.2,
+   "cam": [
+    1.3,
+    0.5,
+    0.55,
+    1.35,
+    0.5,
+    0.55
+   ],
+   "segs": [
+    70
+   ]
+  },
+  {
+   "reps": "close to failure",
+   "segs": [
+    71,
+    72
+   ]
+  },
+  {
+   "card": "3 mistakes that kill your progress",
+   "segs": [
+    73,
+    74
+   ]
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 0.35,
+   "cam": [
+    1.2,
+    0.5,
+    0.56,
+    1.25,
+    0.5,
+    0.56
+   ],
+   "label": "#1. Bouncing",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "control every rep",
+   "textAt": 0.55,
+   "textX": 0.5,
+   "textY": 0.18,
+   "segs": [
+    75,
+    76,
+    77
+   ]
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.4,
+    0.55,
+    0.5,
+    1.5,
+    0.55,
+    0.5
+   ],
+   "label": "#2. Flaring elbows",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "keep them at 45°",
+   "textAt": 0.55,
+   "textX": 0.5,
+   "textY": 0.18,
+   "segs": [
+    78,
+    79,
+    80
+   ]
+  },
+  {
+   "img": "incl_up",
+   "alt": "incl_down",
+   "period": 1.0,
+   "cam": [
+    1.15,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.5
+   ],
+   "label": "#3. Same reps forever",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "+1 rep every week",
+   "textAt": 0.6,
+   "textX": 0.79,
+   "segs": [
+    81,
+    82,
+    83,
+    84
+   ]
+  },
+  {
+   "card": "your plan",
+   "segs": [
+    85
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "say": "*twice* a week",
+   "spoken": "Train your chest twice a week.",
+   "segs": [
+    86
+   ]
+  },
+  {
+   "img": "dip_up",
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "inc_push_up"
+    }
+   ],
+   "segs": [
+    87
+   ]
+  },
+  {
+   "img": "bench_up",
+   "cam": [
+    1.15,
+    0.5,
+    0.56,
+    1.2,
+    0.5,
+    0.56
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "deep_up"
+    }
+   ],
+   "segs": [
+    88
+   ]
+  },
+  {
+   "img": "incl_up",
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "dec_push_up"
+    }
+   ],
+   "segs": [
+    89
+   ]
+  },
+  {
+   "reps": "each",
+   "segs": [
+    90
+   ]
+  },
+  {
+   "card": "none of this works without one thing",
+   "segs": [
+    91
+   ]
+  },
+  {
+   "card": "consistency.",
+   "segs": [
+    92
+   ]
+  },
+  {
+   "img": "base",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.4
+   ],
+   "say": "months of *showing up*",
+   "spoken": "Months of showing up.",
+   "segs": [
+    93,
+    94
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "up",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "your chest will *grow*",
+   "spoken": "Do that, and your chest will grow.",
+   "segs": [
+    95,
+    96
+   ]
+  },
+  {
+   "img": "flex",
+   "cam": [
+    1.2,
+    0.5,
+    0.42,
+    1.25,
+    0.5,
+    0.42
+   ],
+   "text": "subscribe →",
+   "textAt": 0.4,
+   "hold": 1.2,
+   "segs": [
+    97
+   ]
+  }
+ ]
+}

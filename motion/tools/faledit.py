@@ -9,6 +9,9 @@ def data_uri(p):
     buf = io.BytesIO(); im = Image.open(p).convert('RGB'); im.thumbnail((1536, 1536)); im.save(buf, 'JPEG', quality=92)
     return 'data:image/jpeg;base64,' + base64.b64encode(buf.getvalue()).decode()
 body = {'prompt': prompt, 'image_urls': [data_uri(r) for r in refs], 'num_images': 1, 'output_format': 'png', 'sync_mode': True}  # image renvoyée directement (pas de téléchargement)
+import os
+if 'seedream' in model: body['image_size'] = 'square_hd'
+elif os.environ.get('ASPECT'): body['aspect_ratio'] = os.environ['ASPECT']  # ex. 1:1
 UA = {'User-Agent': 'Mozilla/5.0'}
 for attempt in range(4):
     try:

@@ -19,10 +19,10 @@ const COL = { red: '#ff3b4f', green: '#36d27a', orange: '#ff9b3d', yellow: '#ffd
 const IMG = {};
 const names = new Set();
 for (const s of SC) {
-  for (const k of ['img', 'alt', 'hl']) if (s[k]) names.add(s[k]);
+  for (const k of ['img', 'alt', 'hl', 'medal']) if (s[k]) names.add(s[k]);
   (s.seq || []).forEach((q) => { names.add(q.img); if (q.hl) names.add(q.hl); });
 }
-await Promise.all([...names].map((n) => new Promise((res) => { const im = new Image(); im.onload = () => { IMG[n] = im; res(); }; im.onerror = res; im.src = `${BASE}png/${n}.png`; })));
+await Promise.all([...names].map((n) => new Promise((res) => { const im = new Image(); im.onload = () => { IMG[n] = im; res(); }; im.onerror = res; im.src = `${BASE}${CFG.png || 'png'}/${n}.png`; })));
 
 const at = (s, f) => s.t0 + f * (s.t1 - s.t0);
 // ---------- gros texte derrière le personnage ----------
@@ -65,7 +65,7 @@ const ev = (t, type) => EVENTS.push({ t, type });
 SC.forEach((s, i) => {
   if (s.card || (SC[i - 1] && SC[i - 1].card)) ev(s.t0 - 0.15, 'whoosh'); // passage vers/depuis un écran noir
   if (s.enter && s.enter !== 'fade') ev(s.t0 - 0.05, 'swish');           // le personnage entre
-  if (s.label) ev(s.t0 + 0.05, 'pop');
+  if (s.label || s.medal || s.reps) ev(s.t0 + 0.05, 'pop');
   (s.icons || []).forEach((ic) => ev(at(s, ic.at), ic.kind === 'x' ? 'tick' : 'ding'));
   if (s.hl) ev(at(s, s.hlAt ?? 0.15), 'shine');
   (s.seq || []).forEach((q) => { ev(at(s, q.at), 'swish'); if (q.hl) ev(at(s, q.at) + 0.1, 'shine'); });
@@ -109,7 +109,16 @@ function drawChar(im, r, a = 1, rim = true) { // rim : léger halo blanc (cheveu
   g.drawImage(im, r.x, r.y, r.w, r.h); g.restore();
 }
 
-function tag(r, t, T, t0) { // étiquette muscle : point coloré + trait + nom (comme la référence)
+function dashTag(r, t, T, t0) { // « Upper - - - - - • » (texte à gauche, pointillés jusqu'au muscle)
+  const k = T - t0; if (k < 0) return;
+  const a = clamp(k / 0.3), cx = r.x + t.x * r.w, cy = r.y + t.y * r.h, lx = cx - (t.len ?? 360) * clamp(k / 0.45);
+  g.save(); g.globalAlpha = a; g.strokeStyle = '#fff'; g.lineWidth = 3; g.setLineDash([14, 10]);
+  g.beginPath(); g.moveTo(lx, cy); g.lineTo(cx - 14, cy); g.stroke(); g.setLineDash([]);
+  g.beginPath(); g.arc(cx, cy, 9, 0, Math.PI * 2); g.fillStyle = COL[t.color] || '#fff'; g.fill(); g.lineWidth = 2; g.stroke();
+  g.font = FONT(600, 38, 'italic'); g.textAlign = 'right'; g.textBaseline = 'middle'; g.fillStyle = '#fff'; g.fillText(t.name, lx - 16, cy + 2); g.restore();
+}
+function tag(r, t, T, t0) {
+  if (t.style === 'dash') return dashTag(r, t, T, t0); // étiquette muscle : point coloré + trait + nom (comme la référence)
   const k = T - t0; if (k < 0) return;
   const a = clamp(k / 0.3), cx = r.x + t.x * r.w, cy = r.y + t.y * r.h, dir = t.side === 'left' ? -1 : 1;
   const lx = cx + dir * 170, ly = cy - 70;
@@ -142,6 +151,37 @@ function icon(kind, x, y, u) { // rond rouge barré / rond vert validé
   g.stroke(); g.restore();
 }
 
+function medal(s, T) { // médaillon rond « gravé » avec l'objet + nom de l'exercice au-dessus
+  const u = (T - s.t0 + 0.1) / 0.45; if (u <= 0) return;
+  const im = IMG[s.medal], R = 230, cx = W / 2, cy = H / 2 + 40, sc = 0.5 + 0.5 * back(u);
+  g.save(); g.translate(cx, cy + Math.sin(T * 1.6) * 6); g.scale(sc, sc); g.globalAlpha = clamp(u * 2);
+  const gr = g.createRadialGradient(-50, -60, 20, 0, 0, R); gr.addColorStop(0, '#f4f4f4'); gr.addColorStop(0.7, '#bdbdbd'); gr.addColorStop(1, '#7a7a7a');
+  g.beginPath(); for (let i = 0; i <= 48; i++) { const t = i / 48 * Math.PI * 2, rr = R + (i % 2 ? 0 : 7); g.lineTo(Math.cos(t) * rr, Math.sin(t) * rr); }
+  g.fillStyle = gr; g.fill(); g.lineWidth = 4; g.strokeStyle = '#555'; g.stroke();
+  g.beginPath(); g.arc(0, 0, R - 26, 0, Math.PI * 2); g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,0.35)'; g.stroke();
+  if (im) { g.save(); g.beginPath(); g.arc(0, 0, R - 30, 0, Math.PI * 2); g.clip(); g.globalCompositeOperation = 'multiply';
+    const z = (s.medalZoom || 1.25) * 2 * (R - 30); g.drawImage(im, -z / 2, -z / 2 + (s.medalDy || 0), z, z); g.restore(); }
+  g.restore();
+  if (s.name) { g.save(); g.globalAlpha = clamp((T - s.t0 - 0.15) / 0.35); g.font = FONT(700, 58, 'italic'); g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#fff'; g.fillText(s.name, W / 2, cy - R - 90); g.restore(); }
+}
+function repsCard(s, T) { // « (3) 8-12 reps » avec flèche circulaire derrière
+  const u = clamp((T - s.t0 + 0.1) / 0.4); if (u <= 0) return;
+  g.save(); g.translate(W / 2, H / 2); g.globalAlpha = u * 0.35; g.rotate(T * 1.2); g.strokeStyle = '#fff'; g.lineWidth = 16; g.lineCap = 'round';
+  for (const a0 of [0, Math.PI]) { g.beginPath(); g.arc(0, 0, 120, a0 + 0.25, a0 + Math.PI - 0.35); g.stroke();
+    const ex = Math.cos(a0 + Math.PI - 0.35) * 120, ey = Math.sin(a0 + Math.PI - 0.35) * 120, d = a0 + Math.PI - 0.35 + Math.PI / 2;
+    g.beginPath(); g.moveTo(ex + Math.cos(d - 2.4) * 34, ey + Math.sin(d - 2.4) * 34); g.lineTo(ex, ey); g.lineTo(ex + Math.cos(d + 2.4) * 34, ey + Math.sin(d + 2.4) * 34); g.stroke(); }
+  g.restore();
+  g.save(); g.globalAlpha = u; g.font = FONT(700, 74, 'italic'); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff';
+  const sc = 0.85 + 0.15 * back(u); g.translate(W / 2, H / 2); g.scale(sc, sc); g.fillText(`(${s.sets ?? 3})  ${s.reps}`, 0, 0); g.restore();
+}
+function dashLine(r, l, T, t0) { // ligne pointillée verte (corps bien droit), coordonnées image
+  const k = clamp((T - t0) / 0.6); if (k <= 0) return;
+  const x0 = r.x + l[0] * r.w, y0 = r.y + l[1] * r.h, x1 = r.x + l[2] * r.w, y1 = r.y + l[3] * r.h;
+  g.save(); g.setLineDash([20, 14]); g.strokeStyle = '#36d27a'; g.lineWidth = 6; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 + (x1 - x0) * k, y0 + (y1 - y0) * k); g.stroke(); g.restore();
+}
+
 function draw(T) {
   T = clamp(T, 0, DUR - 1e-4);
   g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
@@ -151,6 +191,8 @@ function draw(T) {
   g.save(); g.globalAlpha = 1 - out;
   if (s.card) { // écran noir avec juste une phrase en italique
     italic(s.card, W / 2, H / 2, 54, clamp((T - s.t0 + 0.1) / 0.4));
+  } else if (s.medal) { medal(s, T);
+  } else if (s.reps) { repsCard(s, T);
   } else {
     // image courante (séquence éventuelle), répétitions en boucle, version coloriée
     let cur = { img: s.img, hl: s.hl, hlAt: s.hlAt ?? 0.15 };
@@ -171,6 +213,7 @@ function draw(T) {
       g.save(); g.globalAlpha = clamp((T - at(s, 0.15)) / 0.4) * 0.9; g.setLineDash([18, 14]); g.strokeStyle = '#36d27a'; g.lineWidth = 4;
       const y = r.y + s.guide * r.h; g.beginPath(); g.moveTo(r.x + r.w * 0.05, y); g.lineTo(r.x + r.w * 0.95, y); g.stroke(); g.restore();
     }
+    if (s.line) dashLine(r, s.line, T, at(s, s.lineAt ?? 0.2));
     if (s.text) italic(s.text, (s.textX ?? 0.79) * W, (s.textY ?? 0.5) * H, 46, clamp((T - at(s, s.textAt ?? 0.2)) / 0.4));
   }
   for (const ic of s.icons || []) icon(ic.kind, (ic.x ?? 0.21) * W, (ic.y ?? 0.5) * H, (T - at(s, ic.at)) / 0.3);

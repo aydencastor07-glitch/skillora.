@@ -1,0 +1,90 @@
+# Plan de la vidéo « torse » : chaque scène = une ou plusieurs lignes du script (lignes → morceaux de voix via lines.json).
+import json, sys
+LINES = json.load(open(sys.argv[1]))
+UP, MID, LOW, PX = 0.238, 0.262, 0.282, 0.44          # zones des pectoraux (coord. image de base.png)
+CH = [1.0, 0.5, 0.5, 2.3, 0.5, 0.27]                    # zoom sur le torse
+FULL = [0.98, 0.5, 0.5, 1.06, 0.5, 0.47]
+def tg(name, y, color, at=0.25): return {'name': name, 'color': color, 'x': PX, 'y': y, 'style': 'dash', 'at': at, 'len': 300}
+def rep(a, b, per, cam=None, **k): return dict(img=a, alt=b, period=per, cam=cam or [1.2, 0.5, 0.58, 1.3, 0.5, 0.56], **k)
+S = [
+ ([0], dict(img='flat', enter='up', cam=[0.95, 0.5, 0.5, 1.6, 0.5, 0.33], say='your chest looks *flat*', spoken=LINES[0]['text'], sayFrom=1)),
+ ([1], dict(card="here's the thing")),
+ ([2], dict(img='base', cam=[1.0, 0.5, 0.5, 1.5, 0.5, 0.3], text='not one muscle', textAt=0.5)),
+ ([3], dict(img='base', hl='hl_all', hlAt=0.3, cam=[1.6, 0.5, 0.3, 2.0, 0.5, 0.28], say='three *parts*', spoken=LINES[3]['text'])),
+ ([4], dict(img='base', hl='hl_upper', hlAt=0.15, cam=CH, tags=[tg('Upper', UP, 'blue')])),
+ ([5], dict(img='base', hl='hl_um', hlAt=0.1, cam=[2.3, 0.5, 0.27, 2.4, 0.5, 0.27], tags=[tg('Upper', UP, 'blue', 0), tg('Middle', MID, 'green', 0.15)])),
+ ([6], dict(img='base', hl='hl_all', hlAt=0.1, cam=[2.4, 0.5, 0.27, 2.5, 0.5, 0.27], tags=[tg('Upper', UP, 'blue', 0), tg('Middle', MID, 'green', 0), tg('Lower', LOW, 'red', 0.15)])),
+ ([7], dict(img='flat', cam=FULL, icons=[{'kind': 'x', 'at': 0.45}])),
+ ([8], dict(img='flex', enter='up', cam=[0.95, 0.5, 0.5, 1.1, 0.5, 0.45])),
+ ([9, 10], dict(img='base', hl='hl_low', hlAt=0.45, cam=[1.0, 0.5, 0.5, 2.4, 0.5, 0.28], tags=[tg('Lower', LOW, 'red', 0.5)])),
+ ([11], dict(card='almost nobody trains it')),
+ ([12], dict(img='base', cam=[2.4, 0.5, 0.28, 2.6, 0.5, 0.29], say='no clear *edge*', spoken=LINES[12]['text'])),
+ ([13], dict(medal='p_bars', name='Dips', medalZoom=1.15)),
+ ([14], dict(img='p_bars', enter='fade', cam=[1.0, 0.5, 0.6, 1.15, 0.5, 0.62])),
+ ([15], dict(img='dip_up', enter='up', cam=[1.05, 0.5, 0.5, 1.2, 0.55, 0.42], text='lean forward', textAt=0.4)),
+ ([16], dict(img='dip_up', cam=[1.6, 0.6, 0.35, 1.8, 0.62, 0.33], say='chest, not *arms*', spoken=LINES[16]['text'])),
+ ([17], rep('dip_up', 'dip_down', 1.3, cam=[1.05, 0.5, 0.5, 1.12, 0.5, 0.5])),
+ ([18], dict(img='dip_down', cam=[1.4, 0.55, 0.38, 1.5, 0.55, 0.38], text='shoulders = elbows', textAt=0.3)),
+ ([19, 20], rep('dip_up', 'dip_down', 0.7, cam=[1.05, 0.5, 0.5, 1.1, 0.5, 0.5], icons=[{'kind': 'v', 'at': 0.75}])),
+ ([21], dict(reps='8-12 reps')),
+ ([22], rep('dip_up', 'dip_down', 1.6, cam=[1.1, 0.5, 0.5, 1.2, 0.5, 0.48], text='slower · or add weight', textAt=0.45)),
+ ([23], dict(card='no bars at home?')),
+ ([24], dict(medal='p_chair', name='Incline Push-Ups', medalZoom=1.2)),
+ ([25], dict(img='inc_push_up', enter='right', cam=[1.15, 0.5, 0.6, 1.25, 0.5, 0.58])),
+ ([26], dict(img='inc_push_up', cam=[1.25, 0.5, 0.58, 1.3, 0.5, 0.58], line=[0.3, 0.34, 0.88, 0.8], lineAt=0.2, text='one straight line', textY=0.18, textX=0.5)),
+ ([27], rep('inc_push_up', 'inc_push_down', 1.5, cam=[1.25, 0.5, 0.58, 1.3, 0.5, 0.58], text='2-3s', textAt=0.3, textY=0.2, textX=0.5)),
+ ([28], rep('inc_push_up', 'inc_push_down', 0.8, cam=[1.3, 0.5, 0.58, 1.3, 0.5, 0.58])),
+ ([29], dict(reps='max reps')),
+ ([30], dict(img='base', hl='hl_mid', hlAt=0.3, cam=[1.0, 0.5, 0.5, 2.4, 0.5, 0.27], tags=[tg('Middle', MID, 'green', 0.4)])),
+ ([31], dict(card='the foundation')),
+ ([32], dict(medal='p_dumbbell', name='Dumbbell Bench Press', medalZoom=1.05)),
+ ([33], dict(img='bench_up', enter='left', cam=[1.1, 0.5, 0.58, 1.2, 0.5, 0.56])),
+ ([34], dict(img='bench_down', cam=[1.2, 0.5, 0.56, 1.5, 0.55, 0.5], text='45°', textAt=0.35, textX=0.5, textY=0.18)),
+ ([35], dict(img='bench_down', cam=[1.5, 0.55, 0.5, 1.6, 0.55, 0.5], text='too wide → shoulders', textAt=0.2, textX=0.5, textY=0.18, icons=[{'kind': 'x', 'at': 0.4}])),
+ ([36], dict(img='bench_down', cam=[1.6, 0.55, 0.5, 1.7, 0.55, 0.5], text='too close → triceps', textAt=0.2, textX=0.5, textY=0.18, icons=[{'kind': 'x', 'at': 0.4}])),
+ ([37], rep('bench_up', 'bench_down', 0.9, cam=[1.15, 0.5, 0.56, 1.25, 0.5, 0.55])),
+ ([38], rep('bench_up', 'bench_down', 1.7, cam=[1.25, 0.5, 0.55, 1.35, 0.52, 0.53], say='deep *stretch*', spoken=LINES[38]['text'], sayY=0.15)),
+ ([39], dict(reps='8-12 reps')),
+ ([40], dict(medal='p_books', name='Deep Push-Ups', medalZoom=1.25)),
+ ([41], dict(img='p_books', enter='fade', cam=[1.0, 0.5, 0.6, 1.1, 0.5, 0.6], seq=[{'at': 0.55, 'img': 'deep_up'}])),
+ ([42], rep('deep_up', 'deep_down', 1.4, cam=[1.3, 0.55, 0.55, 1.45, 0.58, 0.55])),
+ ([43], rep('deep_up', 'deep_down', 1.0, cam=[1.45, 0.58, 0.55, 1.5, 0.58, 0.55], say='more stretch, more *growth*', spoken=LINES[43]['text'], sayY=0.15)),
+ ([44], rep('deep_up', 'deep_down', 0.7, cam=[1.3, 0.55, 0.55, 1.3, 0.55, 0.55])),
+ ([45], dict(reps='close to failure')),
+ ([46], dict(card='the most important one')),
+ ([47], dict(img='base', hl='hl_upper', hlAt=0.2, cam=[1.0, 0.5, 0.5, 2.4, 0.5, 0.26], tags=[tg('Upper', UP, 'blue', 0.3)])),
+ ([48], dict(img='flex', enter='up', cam=[1.0, 0.5, 0.5, 1.3, 0.5, 0.4], say='full *chest*', spoken=LINES[48]['text'])),
+ ([49], dict(medal='p_bench', name='Incline Dumbbell Press', medalZoom=1.1)),
+ ([50], dict(img='p_bench', enter='fade', cam=[1.0, 0.5, 0.6, 1.1, 0.45, 0.62], text='30°', textAt=0.35, textX=0.5, textY=0.2)),
+ ([51], dict(img='p_bench', cam=[1.1, 0.45, 0.62, 1.15, 0.45, 0.62], text='not higher', textAt=0.2, textX=0.5, textY=0.2, icons=[{'kind': 'x', 'at': 0.45}])),
+ ([52], rep('incl_up', 'incl_down', 1.0, cam=[1.1, 0.5, 0.5, 1.2, 0.5, 0.48])),
+ ([53], dict(img='base', hl='hl_upper', hlAt=0.1, cam=[2.3, 0.5, 0.27, 2.6, 0.5, 0.26], say='top of your chest *burning*', spoken=LINES[53]['text'], sayY=0.12)),
+ ([54], dict(reps='8-12 reps')),
+ ([55], dict(card='no equipment?')),
+ ([56], dict(medal='p_chair', name='Decline Push-Ups', medalZoom=1.2)),
+ ([57], dict(img='dec_push_up', enter='right', cam=[1.2, 0.5, 0.55, 1.3, 0.5, 0.55])),
+ ([58], rep('dec_push_up', 'dec_push_down', 1.2, cam=[1.3, 0.5, 0.55, 1.35, 0.5, 0.55])),
+ ([59], dict(reps='close to failure')),
+ ([60], dict(card='3 mistakes that kill your progress')),
+ ([61], rep('bench_up', 'bench_down', 0.35, cam=[1.2, 0.5, 0.56, 1.25, 0.5, 0.56], label='#1. Bouncing', icons=[{'kind': 'x', 'at': 0.3}], text='control every rep', textAt=0.55, textX=0.5, textY=0.18)),
+ ([62], dict(img='bench_down', cam=[1.4, 0.55, 0.5, 1.5, 0.55, 0.5], label='#2. Flaring elbows', icons=[{'kind': 'x', 'at': 0.25}], text='keep them at 45°', textAt=0.55, textX=0.5, textY=0.18)),
+ ([63], rep('incl_up', 'incl_down', 1.0, cam=[1.15, 0.5, 0.5, 1.2, 0.5, 0.5], label='#3. Same reps forever', icons=[{'kind': 'x', 'at': 0.25}], text='+1 rep every week', textAt=0.6, textX=0.79)),
+ ([64], dict(card='your plan')),
+ ([65], dict(img='flex', enter='up', cam=[1.0, 0.5, 0.5, 1.15, 0.5, 0.45], say='*twice* a week', spoken=LINES[65]['text'])),
+ ([66], dict(img='dip_up', cam=[1.05, 0.5, 0.5, 1.1, 0.5, 0.5], seq=[{'at': 0.5, 'img': 'inc_push_up'}])),
+ ([67], dict(img='bench_up', cam=[1.15, 0.5, 0.56, 1.2, 0.5, 0.56], seq=[{'at': 0.5, 'img': 'deep_up'}])),
+ ([68], dict(img='incl_up', cam=[1.1, 0.5, 0.5, 1.15, 0.5, 0.5], seq=[{'at': 0.5, 'img': 'dec_push_up'}])),
+ ([69], dict(reps='each')),
+ ([70], dict(card='none of this works without one thing')),
+ ([71], dict(card='consistency.')),
+ ([72, 73], dict(img='base', enter='fade', cam=[1.0, 0.5, 0.5, 1.2, 0.5, 0.4], say='months of *showing up*', spoken=LINES[73]['text'])),
+ ([74], dict(img='flex', hl=None, enter='up', cam=[0.95, 0.5, 0.5, 1.2, 0.5, 0.42], say='your chest will *grow*', spoken=LINES[74]['text'])),
+ ([75], dict(img='flex', cam=[1.2, 0.5, 0.42, 1.25, 0.5, 0.42], text='subscribe →', textAt=0.4, hold=1.2)),
+]
+scenes = []
+for lines, d in S:
+    d = {k: v for k, v in d.items() if v is not None}
+    d['segs'] = [sg for l in lines for sg in LINES[l]['segs']]
+    scenes.append(d)
+json.dump({'png': 'png_kai', 'scenes': scenes}, open(sys.argv[2], 'w'), indent=1, ensure_ascii=False)
+print(len(scenes), 'scènes')

@@ -59,21 +59,32 @@ def stars(img, val, n_rev, cx, cy, u):
     f = font(56, 900); d.text((380, 200), f'{val}  ·  {n_rev} reviews', font=f, fill=(30, 30, 30), anchor='mm')
     s = 0.5 + 0.5 * back(u); lay = lay.resize((int(760 * s), int(250 * s)), Image.LANCZOS); lay.putalpha(lay.getchannel('A').point(lambda v: v * a))
     img.alpha_composite(lay, (int(cx - lay.width / 2), int(cy - lay.height / 2)))
+LOGO = Image.open(C.get('logo', '/home/user/skillora./temu/temu_logo.png')).convert('RGBA').resize((110, 110), Image.LANCZOS)
 def logo(img):
-    s = 112; lay = Image.new('RGBA', (s, s), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
-    d.rounded_rectangle([0, 0, s - 1, s - 1], 24, fill=ORANGE + (255,)); f = font(30, 900)
-    d.text((s / 2, s / 2), 'TEMU', font=f, fill=(255, 255, 255), anchor='mm'); img.alpha_composite(lay, (48, 150))
+    x = 48 if C.get('logo_pos', 'tl') == 'tl' else W - 158
+    img.alpha_composite(LOGO, (x, 150))
+CODE_Y = {'top': 0.2, 'middle': 0.56, 'bottom': 0.84}[C.get('code_pos', 'bottom')]
 def codebar(img, u, big):
+    # texte obligatoire du programme (exact), coupé en 2 lignes, + étiquette « MY CODE » qui pointe dessus
     if u <= 0: return
-    txt1 = C['code_line1']; txt2 = C['code_line2']
-    f1 = font(46 if not big else 50, 700); f2 = font(70 if not big else 92, 900)
-    w = max(f1.getbbox(txt1)[2], f2.getbbox(txt2)[2]) + 90; h = 210 if not big else 250
-    lay = Image.new('RGBA', (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
-    d.rounded_rectangle([0, 0, w - 1, h - 1], 34, fill=(255, 255, 255, 240), outline=ORANGE + (255,), width=8)
-    d.text((w / 2, h * 0.3), txt1, font=f1, fill=(40, 40, 40), anchor='mm'); d.text((w / 2, h * 0.68), txt2, font=f2, fill=ORANGE, anchor='mm')
-    s = (0.6 + 0.4 * back(u)) * (1 + (0.04 * math.sin(T * 6) if big else 0)); lay = lay.resize((int(w * s), int(h * s)), Image.LANCZOS)
-    if lay.width > W - 60: r = (W - 60) / lay.width; lay = lay.resize((W - 60, int(lay.height * r)), Image.LANCZOS)
-    img.alpha_composite(lay, (int(W / 2 - lay.width / 2), int(H * (0.83 if not big else 0.78) - lay.height / 2)))
+    full = C['code_text']; code = C['code']; i = full.index(code) + len(code)
+    l1, l2 = full[:i].strip(), full[i:].strip()
+    f1 = font(64, 900); f2 = font(44, 700)
+    w = max(f1.getbbox(l1)[2], f2.getbbox(l2)[2]) + 80; h = 190
+    lay = Image.new('RGBA', (w, h + 90), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle([0, 90, w - 1, 90 + h - 1], 32, fill=(255, 255, 255, 245), outline=ORANGE + (255,), width=8)
+    pre = l1[:l1.index(code)]; xx = w / 2 - f1.getbbox(l1)[2] / 2
+    d.text((xx, 90 + 62), pre, font=f1, fill=(30, 30, 30), anchor='lm'); d.text((xx + f1.getbbox(pre)[2], 90 + 62), code, font=f1, fill=ORANGE, anchor='lm')
+    d.text((w / 2, 90 + 140), l2, font=f2, fill=(50, 50, 50), anchor='mm')
+    # étiquette « USE MY CODE » au-dessus de l'encadré
+    tag = C.get('code_tag', 'USE MY CODE'); ft = font(40, 900); tw = ft.getbbox(tag)[2] + 50
+    d.rounded_rectangle([w / 2 - tw / 2, 8, w / 2 + tw / 2, 74], 22, fill=ORANGE + (255,))
+    d.polygon([(w / 2 - 18, 72), (w / 2 + 18, 72), (w / 2, 92)], fill=ORANGE + (255,))
+    d.text((w / 2, 41), tag, font=ft, fill=(255, 255, 255), anchor='mm')
+    s = (0.6 + 0.4 * back(u)) * ((1.12 + 0.03 * math.sin(T * 6)) if big else 0.82)
+    lay = lay.resize((int(lay.width * s), int(lay.height * s)), Image.LANCZOS)
+    if lay.width > W - 50: r = (W - 50) / lay.width; lay = lay.resize((W - 50, int(lay.height * r)), Image.LANCZOS)
+    img.alpha_composite(lay, (int(W / 2 - lay.width / 2), int(H * CODE_Y - lay.height / 2)))
 def caption(img, T):
     # groupe de 2-3 mots en cours, mot actif en orange
     cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
@@ -83,7 +94,7 @@ def caption(img, T):
     g0 = i - (i % 3); grp = words[g0:g0 + 3]; f = font(84, 900)
     txts = [w[0].upper().replace('TIMU', 'TEMU') for w in grp]; ws = [f.getbbox(x)[2] for x in txts]; sp = 24; tot = sum(ws) + sp * (len(ws) - 1)
     if tot > W - 80: f = font(int(84 * (W - 80) / tot), 900); ws = [f.getbbox(x)[2] for x in txts]; tot = sum(ws) + sp * (len(ws) - 1)
-    x = W / 2 - tot / 2; y = H * 0.66; d = ImageDraw.Draw(img)
+    x = W / 2 - tot / 2; y = H * C.get('cap_y', 0.66); d = ImageDraw.Draw(img)
     for k, (tx, wd) in enumerate(zip(txts, ws)):
         if grp[k][1] > T + 0.05: break
         act = (g0 + k) == i; pop = 1 + 0.12 * max(0, 1 - (T - grp[k][1]) / 0.15) if act else 1

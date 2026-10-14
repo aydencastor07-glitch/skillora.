@@ -155,15 +155,23 @@ def bubble(img, txt, cx, cy, u, emo=None):
     lay = lay.resize((max(1, int(lay.width * s2)), max(1, int(lay.height * s2))), Image.LANCZOS)
     img.alpha_composite(lay, (int(cx - lay.width / 2), int(cy - lay.height / 2)))
 PRODS = {}
-def product(img, path, cx, cy, size, u, T):
+def product(img, path, cx, cy, size, u, T, spin=0, card=None, label=None):
     # vrai produit détouré : arrive en grand avec contour blanc + ombre, flotte doucement
     if u <= 0: return
     if path not in PRODS:
         im = Image.open(os.path.join(D, path)).convert('RGBA'); a = im.getchannel('A')
         o = Image.new('RGBA', im.size, (255, 255, 255, 0)); o.putalpha(a.filter(ImageFilter.MaxFilter(15)))
         pad = Image.new('RGBA', im.size, (0, 0, 0, 0)); pad.alpha_composite(o); pad.alpha_composite(im); PRODS[path] = pad
+    if card:   # carte blanche derrière (cache le produit déformé de la vidéo)
+        cw, ch = card; k = 0.5 + 0.5 * back(u); cw, ch = int(cw * k), int(ch * k)
+        cl = Image.new('RGBA', (cw + 40, ch + 40), (0, 0, 0, 0)); dc = ImageDraw.Draw(cl)
+        dc.rounded_rectangle([20, 20, cw + 20, ch + 20], 44, fill=(0, 0, 0, 90)); cl = cl.filter(ImageFilter.GaussianBlur(12))
+        ImageDraw.Draw(cl).rounded_rectangle([10, 10, cw + 10, ch + 10], 44, fill=(255, 255, 255, 250), outline=ACC + (255,), width=10)
+        img.alpha_composite(cl, (int(cx - cw / 2 - 10), int(cy - ch / 2 - 10)))
+        if label:
+            f = font(56, path=FD + 'Bangers-Regular.ttf'); ImageDraw.Draw(img).text((cx, cy + ch / 2 - 60), label, font=f, fill=(20, 20, 20), anchor='mm')
     im = PRODS[path]; s2 = size * (0.4 + 0.6 * back(u)) / max(im.size)
-    lay = im.resize((max(1, int(im.width * s2)), max(1, int(im.height * s2))), Image.LANCZOS).rotate(4 * math.sin(T * 2), expand=True, resample=Image.BICUBIC)
+    lay = im.resize((max(1, int(im.width * s2)), max(1, int(im.height * s2))), Image.LANCZOS).rotate(-T * 360 * spin if spin else 4 * math.sin(T * 2), expand=True, resample=Image.BICUBIC)
     sh = Image.new('RGBA', lay.size, (0, 0, 0, 0)); sh.putalpha(lay.getchannel('A').point(lambda v: v * 0.5)); sh = sh.filter(ImageFilter.GaussianBlur(18))
     y = cy + 12 * math.sin(T * 2.5)
     img.alpha_composite(sh, (int(cx - lay.width / 2) + 14, int(y - lay.height / 2) + 22)); img.alpha_composite(lay, (int(cx - lay.width / 2), int(y - lay.height / 2)))
@@ -198,7 +206,12 @@ for k, fn in enumerate(frames):
     # petit flash blanc à chaque coupe
     for p in parts[1:]:
         dt = T - p['t']
-        if ST.get('cut') == 'zoom':
+        if ST.get('cut') == 'shake':
+            if 0 <= dt < 0.2:
+                k = 1 - dt / 0.2; ox, oy = int(28 * k * math.sin(dt * 90)), int(18 * k * math.cos(dt * 70))
+                z = 1.06; cw, ch = int(W / z), int(H / z); x0, y0 = (W - cw) // 2 + ox, (H - ch) // 2 + oy
+                img = img.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.BILINEAR)
+        elif ST.get('cut') == 'zoom':
             if 0 <= dt < 0.22:
                 z = 1 + 0.09 * (1 - ease(dt / 0.22)); cw, ch = int(W / z), int(H / z)
                 img = img.crop(((W - cw) // 2, (H - ch) // 2, (W - cw) // 2 + cw, (H - ch) // 2 + ch)).resize((W, H), Image.BILINEAR)
@@ -211,7 +224,7 @@ for k, fn in enumerate(frames):
         lay = Image.new('RGBA', img.size, (0, 0, 0, 0))
         if o['type'] == 'stars': stars(lay, o['val'], o['reviews'], W / 2, H * o.get('y', 0.2), u)
         elif o['type'] == 'sticker' and ST.get('sticker') == 'bubble': bubble(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))
-        elif o['type'] == 'product': product(lay, o['img'], W * o.get('x', 0.5), H * o.get('y', 0.5), o.get('size', 600), u, T)
+        elif o['type'] == 'product': product(lay, o['img'], W * o.get('x', 0.5), H * o.get('y', 0.5), o.get('size', 600), u, T, o.get('spin', 0), o.get('card'), o.get('label'))
         elif o['type'] == 'sticker' and ST.get('sticker') == 'card': card(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))
         elif o['type'] == 'sticker': sticker(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, rot=o.get('rot', -4), bg=tuple(o.get('bg', ORANGE)))
         elif o['type'] == 'arrow_up':

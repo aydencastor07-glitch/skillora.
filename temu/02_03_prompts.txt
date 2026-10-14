@@ -1,5 +1,4 @@
 TEMU #2 (40 s, 4 parties) et #3 (30 s, 3 parties) – PROMPTS D'ANIMATION
-Avant de générer : remplace [X reviews] et [4.X] par les VRAIS chiffres du produit.
 Chaque partie a ~26–29 mots : elle parle en continu du début à la fin des 10 s.
 Partie 1 = ton image. Parties suivantes = la même image (je raccorde au montage), ou la dernière image de la partie d'avant si ton outil le permet.
 
@@ -29,7 +28,7 @@ Same vertical UGC style, same home office, sharp background, same woman, same po
 0–3 s: she picks the lunch box up from the desk with BOTH hands; from now on she holds it with both hands until the end of the clip.
 3–7 s: she brings it close to the camera so the clear lid and the big food compartment fill part of the frame, eyebrows raised, impressed.
 7–10 s: she moves it back to chest height and gives a confident smile.
-She starts talking immediately at 0.0 s and speaks continuously until about 9.5 s, without pauses. She says, convinced: "And look, it's actually big, there's room for a full meal. It has [X reviews] reviews on Temu, rated [4.X] stars, and in stores it costs way more."
+She starts talking immediately at 0.0 s and speaks continuously until about 9.5 s, without pauses. She says, convinced: "And look, it's actually big, there's room for a full meal. Pasta, rice, leftovers, anything, and honestly, it's way cheaper than buying lunch every day."
 Lip-sync perfectly matched. Natural hands with five fingers, the lunch box stays identical. No music, no subtitles, no text, no logo on screen.
 
 === V2 – PARTIE 4 (30–40 s) ===
@@ -69,5 +68,5 @@ Same vertical UGC style, same kitchen, sharp background, same woman, same bun, s
 2–5 s: with both hands free she counts on her fingers, enthusiastic.
 5–7 s: she points up with her right index finger toward the top of the screen.
 7–10 s: she points down with her right index finger toward the bottom of the screen, then winks at the camera.
-She starts talking immediately at 0.0 s and speaks continuously until about 9.5 s, without pauses. She says, warm and upbeat: "It's rated [4.X] stars with [X reviews] reviews, and way cheaper than in stores. Tap the link in my bio, or use my promo code on screen in the Temu app."
+She starts talking immediately at 0.0 s and speaks continuously until about 9.5 s, without pauses. She says, warm and upbeat: "Bathroom, kitchen, floors, car wheels, it cleans everything. And way cheaper than in stores. Tap the link in my bio, or use my Temu promo code on screen."
 Lip-sync perfectly matched. Natural hands with five fingers, the scrubber stays against the counter and never disappears. No music, no subtitles, no text, no logo on screen.

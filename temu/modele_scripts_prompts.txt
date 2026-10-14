@@ -1,0 +1,94 @@
+=====================================================================
+TEMU – MODÈLE : SCRIPT + PROMPTS D'ANIMATION (vidéo UGC en 3 parties de 10 s)
+=====================================================================
+
+COMMENT ÇA MARCHE
+- Une vidéo de 30 s = 3 clips de 10 s (Partie 1, 2, 3).
+- Partie 1 : tu pars de TON image (personnage + produit en main).
+- Partie 2 : tu pars de la DERNIÈRE IMAGE de la partie 1 (capture de la fin du clip).
+- Partie 3 : tu pars de la dernière image de la partie 2.
+  → Même personne, même tenue, même décor, aucun « saut » entre les clips.
+- Maximum ~20 mots de dialogue par partie de 10 s (sinon la voix parle trop vite ou est coupée).
+- Le dialogue est TOUJOURS entre guillemets dans le prompt.
+- Je fais ensuite le montage : raccords, sous-titres, texte obligatoire du programme, petit logo.
+
+RÈGLES DU SCRIPT (pour être approuvé et ne pas paraître copié)
+- Jamais de prix exact, jamais « gratuit / $0 ».
+- On compare au magasin : « in stores it's around $40… here, half the price / three times cheaper ».
+  (La comparaison doit rester vraie : vérifie à peu près le prix en magasin.)
+- On parle de livraison rapide, de qualité, d'usage concret.
+- La personne PRÉSENTE ce qu'elle a trouvé ; pas de faux avis du genre « je l'utilise depuis 6 mois ».
+- Chaque vidéo : accroche différente, mots différents, gestes différents, décor différent
+  (voir la BANQUE DE VARIATIONS en bas).
+
+---------------------------------------------------------------------
+EXEMPLE COMPLET – produit : mini blender portable (à remplacer par tes produits)
+---------------------------------------------------------------------
+
+SCRIPT (≈ 55 mots, 25–28 s)
+P1 : "Okay, stop scrolling. Look at this — a blender that fits in my bag. In stores this is like forty bucks."
+P2 : "I got it on Temu for less than half that. And look — it charges with USB, and it's actually strong."
+P3 : "Delivery was super fast, like a few days. Honestly? Best deal I found this month. Go check it out."
+
+PROMPT – PARTIE 1 (0–10 s)
+Vertical 9:16 UGC selfie-style video, handheld phone camera, natural daylight from a window, cozy modern
+kitchen in the background, slightly blurred. A young woman (same person as the image: long dark wavy hair,
+beige hoodie, natural makeup) holds a small pink portable blender in her right hand.
+0–2 s: she quickly leans toward the camera, eyebrows raised, excited, and lifts the blender next to her face.
+2–6 s: she turns the blender slowly to show it from all sides, looking at it with a surprised smile, then
+looks back into the lens.
+6–10 s: she taps the bottle twice with her finger and gives a small knowing laugh.
+She says, in a friendly, energetic, natural American voice: "Okay, stop scrolling. Look at this — a blender
+that fits in my bag. In stores this is like forty bucks."
+Realistic skin, natural hand movements, five fingers on each hand, the product keeps the same shape and
+color. Light kitchen ambience sound. No music, no subtitles, no text on screen.
+
+PROMPT – PARTIE 2 (10–20 s) – image de départ = dernière image de la partie 1
+Same woman, same beige hoodie, same kitchen, same lighting, same handheld vertical UGC style.
+0–3 s: she brings the blender close to the lens so the button and the USB port are clearly visible.
+3–7 s: she pulls it back, points at the USB port with her other hand, nods with a confident smile.
+7–10 s: she presses the button, the blades spin briefly, she reacts with an impressed "wow" face.
+She says, convinced and a bit amazed: "I got it on Temu for less than half that. And look — it charges with
+USB, and it's actually strong."
+Natural motion, five fingers per hand, the product stays identical. Soft blender motor sound when it spins.
+No music, no subtitles, no text on screen.
+
+PROMPT – PARTIE 3 (20–30 s) – image de départ = dernière image de la partie 2
+Same woman, same outfit, same kitchen, same lighting, same handheld vertical UGC style.
+0–4 s: she holds the blender against her chest, relaxed, talking directly to the camera like to a friend.
+4–8 s: she leans slightly toward the lens, lowers her voice a little as if sharing a secret, smiles.
+8–10 s: she points at the camera with her free hand and gives a quick wink.
+She says, warm and convincing: "Delivery was super fast, like a few days. Honestly? Best deal I found this
+month. Go check it out."
+Natural motion, five fingers per hand, the product stays identical. Room ambience only.
+No music, no subtitles, no text on screen.
+
+---------------------------------------------------------------------
+BANQUE DE VARIATIONS (une combinaison différente par vidéo)
+---------------------------------------------------------------------
+ACCROCHES (P1)
+- "Okay, stop scrolling." / "Wait — you need to see this." / "Why did nobody tell me about this?"
+- "This might be the smartest thing I bought this year." / "Guess how much I paid for this."
+- "I didn't believe it either, but look." / "If you have a [kitchen/car/desk], watch this."
+
+COMPARAISON DE PRIX (P1 ou P2)
+- "In stores it's around $X… here, half the price." / "Easily three times cheaper than the mall."
+- "I saw the same thing for $X at the store. Here? Way less." / "For the price, it's honestly crazy."
+
+ARGUMENTS (P2)
+- livraison rapide / bonne qualité / facile à utiliser / petit et pratique / parfait en cadeau
+
+FINS (P3)
+- "Go check it out." / "Thank me later." / "Run before it's gone." / "Save this for later."
+- "Tell me in the comments if you want the link." / "You're welcome."
+
+GESTES (à changer d'une vidéo à l'autre)
+- s'approche de la caméra / recule pour montrer tout le produit / tourne le produit lentement
+- tape sur le produit / le met près du visage / le tend vers la caméra / clin d'œil
+- rit en le regardant / hausse les sourcils / hoche la tête / pointe la caméra / fait « chut »
+
+DÉCORS (un par vidéo)
+- cuisine, salon, chambre, bureau, voiture garée, balcon, salle de bain, dressing, entrée, terrasse
+
+EMOTIONS / VOIX
+- excitée, surprise, complice (comme un secret), convaincue, amusée, calme et sûre d'elle

@@ -1,0 +1,162 @@
+{
+ "png": "png_kai",
+ "vertical": true,
+ "scenes": [
+  {
+   "img": "big",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.47
+   ],
+   "text": "he carries himself first",
+   "textAt": 0.3,
+   "segs": [
+    43
+   ],
+   "voice": "A big guy has to carry his own body before he lifts anything."
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.15,
+    0.5,
+    0.47,
+    1.8,
+    0.5,
+    0.5
+   ],
+   "text": "not muscle",
+   "textAt": 0.5,
+   "segs": [
+    44
+   ],
+   "voice": "And a lot of that weight is not muscle."
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.8,
+    0.5,
+    0.5,
+    2.0,
+    0.5,
+    0.52
+   ],
+   "say": "*fat*",
+   "spoken": "It's fat.",
+   "sayY": 0.15,
+   "segs": [
+    45
+   ],
+   "voice": "It's fat."
+  },
+  {
+   "img": "big_kb2",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.08,
+    0.5,
+    0.53
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "segs": [
+    46
+   ],
+   "voice": "Fat doesn't lift anything."
+  },
+  {
+   "img": "kb_hold",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "everything works for him",
+   "segs": [
+    47,
+    48
+   ],
+   "voice": "A lean guy has less dead weight, so almost everything he carries is working for him."
+  },
+  {
+   "img": "lean_pu_down",
+   "alt": "lean_pu_up",
+   "period": 0.8,
+   "cam": [
+    1.0,
+    0.5,
+    0.52,
+    1.08,
+    0.5,
+    0.52
+   ],
+   "segs": [
+    49
+   ],
+   "voice": "That's why skinny guys are often amazing at pull-ups, dips and push-ups."
+  },
+  {
+   "img": "lean",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "pound for *pound*",
+   "spoken": "Pound for pound, they're stronger.",
+   "segs": [
+    50
+   ],
+   "voice": "Pound for pound, they're stronger."
+  },
+  {
+   "img": "big_pullup",
+   "cam": [
+    1.0,
+    0.5,
+    0.51,
+    1.08,
+    0.5,
+    0.51
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "lean_pu_up"
+    }
+   ],
+   "text": "x2 reps",
+   "textAt": 0.6,
+   "textX": 0.85,
+   "segs": [
+    51,
+    52
+   ],
+   "voice": "Put a big guy and a lean guy on a pull-up bar, and the lean guy will often do twice as many reps."
+  },
+  {
+   "card": "full video on my channel",
+   "segs": [],
+   "dur": 2.2,
+   "instant": false
+  }
+ ]
+}

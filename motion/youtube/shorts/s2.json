@@ -1,0 +1,177 @@
+{
+ "png": "png_kai",
+ "vertical": true,
+ "scenes": [
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.4,
+   "text": "hiding under your biceps",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    59
+   ],
+   "voice": "There's a muscle hiding under your biceps."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.5,
+    0.4,
+    0.68
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.0,
+   "say": "the *brachialis*",
+   "spoken": "It's called the brachialis.",
+   "sayY": 0.12,
+   "segs": [
+    60
+   ],
+   "voice": "It's called the brachialis."
+  },
+  {
+   "card": "most people never heard of it",
+   "segs": [
+    61
+   ],
+   "voice": "Most people have never even heard of it."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.0,
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "arm",
+     "hl": "arm_bi"
+    }
+   ],
+   "text": "pushes your biceps up",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    62,
+    63,
+    64
+   ],
+   "voice": "But when it grows, it pushes your biceps up, and makes your whole arm look wider."
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Bonus · Hammer curls",
+   "medalZoom": 1.0,
+   "segs": [
+    65,
+    66
+   ],
+   "voice": "To train it, do hammer curls."
+  },
+  {
+   "img": "hc_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "palms facing each other",
+   "textX": 0.8,
+   "segs": [
+    67,
+    68
+   ],
+   "voice": "Hold the dumbbells with your palms facing each other, like you're holding a hammer."
+  },
+  {
+   "img": "hc_down",
+   "alt": "hc_up",
+   "period": 1.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "up · slowly down",
+   "textX": 0.8,
+   "segs": [
+    69,
+    70
+   ],
+   "voice": "Curl them up, and lower them slowly."
+  },
+  {
+   "img": "hc_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "2 backpacks · 2 water jugs",
+   "textX": 0.8,
+   "segs": [
+    71
+   ],
+   "voice": "At home, you can do the same thing with two backpacks, or two water jugs."
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.3,
+   "text": "thicker from every angle",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    72,
+    73
+   ],
+   "voice": "Add two or three sets of hammer curls, and your arms will look thicker from every angle."
+  },
+  {
+   "card": "full video on my channel",
+   "segs": [],
+   "dur": 2.2,
+   "instant": false
+  }
+ ]
+}

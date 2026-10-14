@@ -1,0 +1,261 @@
+{
+ "png": "png_kai",
+ "vertical": true,
+ "scenes": [
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.3,
+   "text": "not the biggest",
+   "textX": 0.82,
+   "segs": [
+    9
+   ],
+   "voice": "Your biceps is not the biggest muscle in your arm."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.25,
+    0.55,
+    0.7
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.1,
+   "say": "your *triceps*",
+   "spoken": "It's your triceps.",
+   "sayY": 0.12,
+   "segs": [
+    10
+   ],
+   "voice": "It's your triceps."
+  },
+  {
+   "reps": "2/3 of your upper arm",
+   "sets": 0,
+   "segs": [
+    11
+   ],
+   "voice": "Your triceps makes up about two thirds of your upper arm."
+  },
+  {
+   "img": "sk_curl",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "text": "only curls",
+   "textAt": 0.3,
+   "segs": [
+    12
+   ],
+   "voice": "So if you only do curls, you're ignoring most of your arm."
+  },
+  {
+   "img": "arm_thin",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "text": "small arms",
+   "textX": 0.82,
+   "segs": [
+    13,
+    14
+   ],
+   "voice": "That's why so many skinny guys have small arms, even after months of training."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.05,
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "arm",
+     "hl": "arm_tri"
+    }
+   ],
+   "text": "small muscle ✓ big muscle ✗",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    15
+   ],
+   "voice": "They train the small muscle, and forget the big one."
+  },
+  {
+   "card": "a second problem",
+   "segs": [
+    16
+   ],
+   "voice": "And there's a second problem."
+  },
+  {
+   "img": "pushdown",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "the wrong position",
+   "textX": 0.25,
+   "segs": [
+    17
+   ],
+   "voice": "Most people train their arms in the wrong position."
+  },
+  {
+   "card": "what science found",
+   "segs": [
+    18
+   ],
+   "voice": "Here's what science found."
+  },
+  {
+   "img": "oh_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "stretched = more growth",
+   "segs": [
+    19
+   ],
+   "voice": "A muscle grows more when you train it in a stretched position."
+  },
+  {
+   "img": "pushdown",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "oh_down"
+    }
+   ],
+   "text": "arms overhead vs pushdowns",
+   "textAt": 0.2,
+   "textX": 0.78,
+   "segs": [
+    20,
+    21,
+    22
+   ],
+   "voice": "In one study, people who trained their triceps with their arms overhead grew about forty percent more than people who did normal pushdowns."
+  },
+  {
+   "reps": "+40% growth",
+   "sets": 0,
+   "segs": [
+    23,
+    24,
+    25
+   ],
+   "voice": "Same muscle. Same effort. Way more growth."
+  },
+  {
+   "img": "oh_down",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.35,
+    0.5,
+    0.3
+   ],
+   "say": "the *position*",
+   "spoken": "Just because of the position.",
+   "sayY": 0.88,
+   "segs": [
+    26
+   ],
+   "voice": "Just because of the position."
+  },
+  {
+   "card": "the secret is simple",
+   "segs": [
+    27
+   ],
+   "voice": "So the secret is simple."
+  },
+  {
+   "img": "oh_down",
+   "alt": "oh_up",
+   "period": 1.1,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "stretch → then work",
+   "textX": 0.78,
+   "segs": [
+    28,
+    29
+   ],
+   "voice": "Stretch the muscle, then make it work."
+  },
+  {
+   "card": "full video on my channel",
+   "segs": [],
+   "dur": 2.2,
+   "instant": false
+  }
+ ]
+}

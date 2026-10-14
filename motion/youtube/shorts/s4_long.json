@@ -1,0 +1,288 @@
+{
+ "png": "png_kai",
+ "vertical": true,
+ "dur": 31.12,
+ "scenes": [
+  {
+   "img": "big",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.47
+   ],
+   "text": "he carries himself first",
+   "textAt": 0.3,
+   "voice": "A big guy has to carry his own body before he lifts anything.",
+   "t0": 0.2,
+   "t1": 3.89,
+   "parts": [
+    [
+     0.2,
+     3.89
+    ]
+   ]
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.15,
+    0.5,
+    0.47,
+    1.8,
+    0.5,
+    0.5
+   ],
+   "text": "not muscle",
+   "textAt": 0.5,
+   "voice": "And a lot of that weight is not muscle.",
+   "t0": 4.19,
+   "t1": 6.3,
+   "parts": [
+    [
+     4.19,
+     6.3
+    ]
+   ]
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.8,
+    0.5,
+    0.5,
+    2.0,
+    0.5,
+    0.52
+   ],
+   "say": "*fat*",
+   "spoken": "It's fat.",
+   "sayY": 0.15,
+   "voice": "It's fat.",
+   "t0": 6.6,
+   "t1": 7.25,
+   "parts": [
+    [
+     6.6,
+     7.25
+    ]
+   ]
+  },
+  {
+   "img": "big_kb2",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.08,
+    0.5,
+    0.53
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "voice": "Fat doesn't lift anything.",
+   "t0": 7.55,
+   "t1": 9.18,
+   "parts": [
+    [
+     7.55,
+     9.18
+    ]
+   ]
+  },
+  {
+   "img": "kb_hold",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "everything works for him",
+   "voice": "A lean guy has less dead weight, so almost everything he carries is working for him.",
+   "t0": 9.48,
+   "t1": 14.69,
+   "parts": [
+    [
+     9.48,
+     11.58
+    ],
+    [
+     11.88,
+     14.69
+    ]
+   ]
+  },
+  {
+   "img": "lean_pu_down",
+   "alt": "lean_pu_up",
+   "period": 0.8,
+   "cam": [
+    1.0,
+    0.5,
+    0.52,
+    1.08,
+    0.5,
+    0.52
+   ],
+   "voice": "That's why skinny guys are often amazing at pull-ups, dips and push-ups.",
+   "t0": 14.99,
+   "t1": 19.43,
+   "parts": [
+    [
+     14.99,
+     19.43
+    ]
+   ]
+  },
+  {
+   "img": "lean",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "pound for *pound*",
+   "spoken": "Pound for pound, they're stronger.",
+   "voice": "Pound for pound, they're stronger.",
+   "t0": 19.73,
+   "t1": 21.64,
+   "parts": [
+    [
+     19.73,
+     21.64
+    ]
+   ]
+  },
+  {
+   "img": "big_pullup",
+   "cam": [
+    1.0,
+    0.5,
+    0.51,
+    1.08,
+    0.5,
+    0.51
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "lean_pu_up"
+    }
+   ],
+   "text": "x2 reps",
+   "textAt": 0.6,
+   "textX": 0.85,
+   "voice": "Put a big guy and a lean guy on a pull-up bar, and the lean guy will often do twice as many reps.",
+   "t0": 21.94,
+   "t1": 28.02,
+   "parts": [
+    [
+     21.94,
+     24.7
+    ],
+    [
+     25.0,
+     28.02
+    ]
+   ]
+  },
+  {
+   "card": "full video on my channel",
+   "dur": 2.2,
+   "instant": false,
+   "t0": 28.32,
+   "t1": 30.52,
+   "parts": [
+    [
+     28.32,
+     30.52
+    ]
+   ]
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    109.93,
+    113.62
+   ],
+   "at": 0.2
+  },
+  {
+   "src": [
+    114.16,
+    116.27
+   ],
+   "at": 4.19
+  },
+  {
+   "src": [
+    116.71,
+    117.36
+   ],
+   "at": 6.6
+  },
+  {
+   "src": [
+    117.99,
+    119.62
+   ],
+   "at": 7.55
+  },
+  {
+   "src": [
+    120.19,
+    122.29
+   ],
+   "at": 9.48
+  },
+  {
+   "src": [
+    122.57,
+    125.38
+   ],
+   "at": 11.88
+  },
+  {
+   "src": [
+    126.1,
+    130.54
+   ],
+   "at": 14.99
+  },
+  {
+   "src": [
+    131.12,
+    133.03
+   ],
+   "at": 19.73
+  },
+  {
+   "src": [
+    133.59,
+    136.35
+   ],
+   "at": 21.94
+  },
+  {
+   "src": [
+    136.67,
+    139.69
+   ],
+   "at": 25.0
+  }
+ ]
+}

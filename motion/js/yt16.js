@@ -6,7 +6,9 @@ const Q = new URLSearchParams(location.search);
 const BASE = './youtube/';
 const CFG = await (await fetch(`${BASE}${Q.get('v') || 'v1/long'}.json`)).json();
 const cv = document.getElementById('c'), g = cv.getContext('2d');
-const W = 1920, H = 1080, DUR = CFG.dur, SC = CFG.scenes;
+const V = !!CFG.vertical; // Short 9:16 : personnage centré, textes en haut, rien sur les côtés
+const W = V ? 1080 : 1920, H = V ? 1920 : 1080, DUR = CFG.dur, SC = CFG.scenes;
+const TW = W - 160; // largeur max d'une ligne de texte
 cv.width = W; cv.height = H;
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const ss = (a, b, x) => { const u = clamp((x - a) / (b - a)); return u * u * (3 - 2 * u); };
@@ -40,18 +42,18 @@ function layout(s, txt) { // une ligne si possible (taille réduite jusqu'à 110
   const key = '_lay' + txt; if (s[key]) return s[key];
   let BIG = 150; g.save(); g.font = FONT(800, BIG, 'italic');
   const full = g.measureText(txt.replace(/\*/g, '').toUpperCase()).width;
-  if (full > 1760) { BIG = Math.max(110, Math.floor(BIG * 1760 / full)); g.font = FONT(800, BIG, 'italic'); }
+  if (full > TW) { BIG = Math.max(V ? 96 : 110, Math.floor(BIG * TW / full)); g.font = FONT(800, BIG, 'italic'); }
   const sp = g.measureText(' ').width;
   const words = txt.split(/\s+/).map((w) => ({ hot: /^\*.*\*[.,!?]*$/.test(w), w: w.replace(/\*/g, '').toUpperCase() }));
   const lines = [[]]; let lw = 0;
-  for (const w of words) { w.wd = g.measureText(w.w).width; if (lw && lw + sp + w.wd > 1760) { lines.push([]); lw = 0; } lines.at(-1).push(w); lw += (lw ? sp : 0) + w.wd; }
+  for (const w of words) { w.wd = g.measureText(w.w).width; if (lw && lw + sp + w.wd > TW) { lines.push([]); lw = 0; } lines.at(-1).push(w); lw += (lw ? sp : 0) + w.wd; }
   lines.forEach((l, i) => { const tw = l.reduce((a, w) => a + w.wd, 0) + sp * (l.length - 1); let x = (s.sayX ?? 0.5) * W - tw / 2;
     for (const w of l) { w.x = x + w.wd / 2; w.line = i; x += w.wd + sp; } });
   g.restore(); return (s[key] = { words, n: lines.length, BIG });
 }
 function bigText(s, T) {
   const txt = s.say || s.big; if (!txt) return;
-  const L = layout(s, txt), BIG = L.BIG, ts = s.say ? wordTimes(s) : null, y0 = (s.sayY ?? 0.24) * H - (L.n - 1) * BIG * 0.55;
+  const L = layout(s, txt), BIG = L.BIG, ts = s.say ? wordTimes(s) : null, y0 = (V ? 0.1 : (s.sayY ?? 0.24)) * H - (L.n - 1) * BIG * 0.55;
   g.save(); g.font = FONT(800, BIG, 'italic'); g.textAlign = 'center'; g.textBaseline = 'middle';
   L.words.forEach((w, i) => {
     const t = ts ? ts[i] : at(s, s.bigAt ?? 0.15), k = (T - t) / 0.18; if (k <= 0) return;
@@ -88,10 +90,13 @@ function typeTimes(s, txt) { // chaque mot du texte → instant où la voix le d
 function typed(s, txt, x, y, size, T, fade = 1) { // texte italique qui s'écrit mot à mot (aligné à gauche, ne bouge pas)
   const ts = typeTimes(s, txt), words = txt.split(/\s+/).filter(Boolean);
   g.save(); g.font = FONT(500, size, 'italic'); g.textBaseline = 'middle'; g.textAlign = 'left';
-  const sp = g.measureText(' ').width, ws = words.map((w) => g.measureText(w).width), fw = ws.reduce((a, b) => a + b, 0) + sp * (ws.length - 1);
-  let cx = clamp(x - fw / 2, 60, W - 60 - fw);
+  const sp = g.measureText(' ').width, ws = words.map((w) => g.measureText(w).width);
+  const lines = [[]]; let lw = 0; // coupe en plusieurs lignes si ça dépasse
+  ws.forEach((wd, i) => { if (lw && lw + sp + wd > TW) { lines.push([]); lw = 0; } lines.at(-1).push(i); lw += (lw ? sp : 0) + wd; });
   g.lineWidth = 10; g.lineJoin = 'round'; g.strokeStyle = '#000'; g.fillStyle = '#fff';
-  words.forEach((w, i) => { const a = clamp((T - ts[i]) / 0.12) * fade; if (a > 0) { g.globalAlpha = a; g.strokeText(w, cx, y); g.fillText(w, cx, y); } cx += ws[i] + sp; });
+  lines.forEach((l, li) => { const fw = l.reduce((a, i) => a + ws[i], 0) + sp * (l.length - 1), ly = y + (li - (lines.length - 1) / 2) * size * 1.25;
+    let cx = clamp(x - fw / 2, 60, W - 60 - fw);
+    l.forEach((i) => { const a = clamp((T - ts[i]) / 0.12) * fade; if (a > 0) { g.globalAlpha = a; g.strokeText(words[i], cx, ly); g.fillText(words[i], cx, ly); } cx += ws[i] + sp; }); });
   g.restore();
 }
 
@@ -138,9 +143,9 @@ function charRect(s, T, im) {
   const u = eio((T - s.t0 + 0.15) / Math.max(0.4, s.t1 - s.t0 + 0.6));
   const cam = s.cam || [1, 0.5, 0.5, 1.08, 0.5, 0.45];
   const z = lerp(cam[0], cam[3], u), fx = lerp(cam[1], cam[4], u), fy = lerp(cam[2], cam[5], u);
-  const size = 1000 * z * (s.scale || 1);
-  let sx = s.x ?? 0.5; if (s.slide) sx = lerp(sx, s.slide.to, eio((T - at(s, s.slide.at ?? 0.1)) / 0.7)); // glisse sur le côté
-  const px = sx * W, py = 540;
+  const size = 1000 * z * (s.scale || 1) * (V ? (String(s.img).startsWith('arm') ? 1.05 : 1.55) : 1);
+  let sx = V ? 0.5 : s.x ?? 0.5; if (s.slide && !V) sx = lerp(sx, s.slide.to, eio((T - at(s, s.slide.at ?? 0.1)) / 0.7)); // glisse sur le côté
+  const px = sx * W, py = V ? H * 0.53 : 540;
   // le point (fx,fy) de l'image va vers le centre de l'emplacement du personnage
   let x = px - fx * size, y = py - fy * size + (0.5 - 0.5) * size;
   // entrée animée
@@ -180,7 +185,7 @@ function tag(r, t, T, t0) {
 }
 function label(txt, u) { // « #1. Lateral Raise » : petit cadre blanc, texte noir
   if (u <= 0) return;
-  g.save(); g.globalAlpha = clamp(u * 2); g.translate(W / 2, 90); const s = 0.9 + 0.1 * back(u); g.scale(s, s);
+  g.save(); g.globalAlpha = clamp(u * 2); g.translate(W / 2, V ? 300 : 90); const s = 0.9 + 0.1 * back(u); g.scale(s, s);
   g.font = FONT(700, 40); const tw = g.measureText(txt).width + 50;
   g.fillStyle = '#fff'; g.fillRect(-tw / 2, -34, tw, 68); g.strokeStyle = '#000'; g.lineWidth = 3; g.strokeRect(-tw / 2 + 6, -28, tw - 12, 56);
   g.fillStyle = '#000'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, 0, 2); g.restore();
@@ -213,6 +218,7 @@ function medal(s, T) { // médaillon rond « gravé » avec l'objet + nom de l'e
     const z = (s.medalZoom || 1.25) * 2 * (R - 30); g.drawImage(im, -z / 2, -z / 2 + (s.medalDy || 0), z, z); g.restore(); }
   g.restore();
   if (s.name) { g.save(); g.globalAlpha = clamp((T - s.t0 - 0.15) / 0.35); g.font = FONT(700, 58, 'italic'); g.textAlign = 'center'; g.textBaseline = 'middle';
+    const nw = g.measureText(s.name).width; if (nw > TW) g.font = FONT(700, Math.floor(58 * TW / nw), 'italic');
     g.fillStyle = '#fff'; g.fillText(s.name, W / 2, cy - R - 90); g.restore(); }
 }
 function repsCard(s, T) { // « (3) 8-12 reps » avec flèche circulaire derrière
@@ -274,7 +280,7 @@ function draw(T) {
   const out = SC[i + 1] ? ss(SC[i + 1].t0 - 0.35, SC[i + 1].t0 - 0.15, T) : ss(DUR - 0.8, DUR, T);
   g.save(); g.globalAlpha = 1 - out;
   if (s.card) { // écran noir avec juste une phrase en italique
-    if (s.instant) italic(s.card, W / 2, H / 2, 54, clamp((T - s.t0 + 0.1) / 0.4)); else typed(s, s.card, W / 2, H / 2, 54, T);
+    const cs = V ? 72 : 54; if (s.instant) italic(s.card, W / 2, H / 2, cs, clamp((T - s.t0 + 0.1) / 0.4)); else typed(s, s.card, W / 2, H / 2, cs, T);
   } else if (s.next) { nextVideo(s, T); if (s.img) { const r = charRect(s, T, IMG[s.img]); drawChar(IMG[s.img], r); }
   } else if (s.subscribe) { subscribe(s, T);
   } else if (s.medal) { medal(s, T);
@@ -301,11 +307,12 @@ function draw(T) {
       const y = r.y + s.guide * r.h; g.beginPath(); g.moveTo(r.x + r.w * 0.05, y); g.lineTo(r.x + r.w * 0.95, y); g.stroke(); g.restore();
     }
     if (s.line) dashLine(r, s.line, T, at(s, s.lineAt ?? 0.2));
-    if (s.text) { const tx = s.slide ? (s.slide.textX ?? (s.slide.to < 0.5 ? 0.7 : 0.3)) : (s.textX ?? 0.79), sz = s.slide ? 64 : 46;
+    if (s.text && V) { const y = 0.095; if (s.instant) italic(s.text, W / 2, y * H, 74, clamp((T - at(s, s.textAt ?? 0.2)) / 0.4)); else typed(s, s.text, W / 2, y * H, 74, T); }
+    else if (s.text) { const tx = s.slide ? (s.slide.textX ?? (s.slide.to < 0.5 ? 0.7 : 0.3)) : (s.textX ?? 0.79), sz = s.slide ? 64 : 46;
       const txx = s.slide ? lerp(lerp(0.5, tx, 0.4), tx, eio((T - at(s, s.slide.at ?? 0.1)) / 0.7)) : tx; // part du centre et file de l'autre côté
       if (s.instant) italic(s.text, txx * W, (s.textY ?? 0.5) * H, sz, clamp((T - at(s, s.textAt ?? 0.2)) / 0.4)); else typed(s, s.text, txx * W, (s.textY ?? 0.5) * H, sz, T); }
   }
-  for (const ic of s.icons || []) icon(ic.kind, (ic.x ?? 0.21) * W, (ic.y ?? 0.5) * H, (T - at(s, ic.at)) / 0.3);
+  for (const ic of s.icons || []) icon(ic.kind, (V ? 0.8 : ic.x ?? 0.21) * W, (V ? 0.3 : ic.y ?? 0.5) * H, (T - at(s, ic.at)) / 0.3);
   if (s.label) label(s.label, (T - s.t0 + 0.1) / 0.35);
   g.restore();
 }

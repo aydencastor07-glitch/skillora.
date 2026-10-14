@@ -1,0 +1,355 @@
+{
+ "png": "png_kai",
+ "vertical": true,
+ "dur": 34.83,
+ "scenes": [
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.4,
+   "text": "hiding under your biceps",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "There's a muscle hiding under your biceps.",
+   "t0": 0.2,
+   "t1": 2.68,
+   "parts": [
+    [
+     0.2,
+     2.68
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.5,
+    0.4,
+    0.68
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.0,
+   "say": "the *brachialis*",
+   "spoken": "It's called the brachialis.",
+   "sayY": 0.12,
+   "voice": "It's called the brachialis.",
+   "t0": 2.98,
+   "t1": 4.68,
+   "parts": [
+    [
+     2.98,
+     4.68
+    ]
+   ]
+  },
+  {
+   "card": "most people never heard of it",
+   "voice": "Most people have never even heard of it.",
+   "t0": 4.98,
+   "t1": 6.83,
+   "parts": [
+    [
+     4.98,
+     6.83
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.0,
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "arm",
+     "hl": "arm_bi"
+    }
+   ],
+   "text": "pushes your biceps up",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "But when it grows, it pushes your biceps up, and makes your whole arm look wider.",
+   "t0": 7.13,
+   "t1": 12.63,
+   "parts": [
+    [
+     7.13,
+     8.21
+    ],
+    [
+     8.51,
+     10.21
+    ],
+    [
+     10.51,
+     12.63
+    ]
+   ]
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Bonus · Hammer curls",
+   "medalZoom": 1.0,
+   "voice": "To train it, do hammer curls.",
+   "t0": 12.93,
+   "t1": 14.91,
+   "parts": [
+    [
+     12.93,
+     13.52
+    ],
+    [
+     13.82,
+     14.91
+    ]
+   ]
+  },
+  {
+   "img": "hc_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "palms facing each other",
+   "textX": 0.8,
+   "voice": "Hold the dumbbells with your palms facing each other, like you're holding a hammer.",
+   "t0": 15.21,
+   "t1": 19.15,
+   "parts": [
+    [
+     15.21,
+     17.85
+    ],
+    [
+     18.15,
+     19.15
+    ]
+   ]
+  },
+  {
+   "img": "hc_down",
+   "alt": "hc_up",
+   "period": 1.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "up · slowly down",
+   "textX": 0.8,
+   "voice": "Curl them up, and lower them slowly.",
+   "t0": 19.45,
+   "t1": 21.52,
+   "parts": [
+    [
+     19.45,
+     20.03
+    ],
+    [
+     20.33,
+     21.52
+    ]
+   ]
+  },
+  {
+   "img": "hc_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "2 backpacks · 2 water jugs",
+   "textX": 0.8,
+   "voice": "At home, you can do the same thing with two backpacks, or two water jugs.",
+   "t0": 21.82,
+   "t1": 26.29,
+   "parts": [
+    [
+     21.82,
+     26.29
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.3,
+   "text": "thicker from every angle",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "Add two or three sets of hammer curls, and your arms will look thicker from every angle.",
+   "t0": 26.59,
+   "t1": 31.73,
+   "parts": [
+    [
+     26.59,
+     28.83
+    ],
+    [
+     29.13,
+     31.73
+    ]
+   ]
+  },
+  {
+   "card": "full video on my channel",
+   "dur": 2.2,
+   "instant": false,
+   "t0": 32.03,
+   "t1": 34.23,
+   "parts": [
+    [
+     32.03,
+     34.23
+    ]
+   ]
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    159.71,
+    162.19
+   ],
+   "at": 0.2
+  },
+  {
+   "src": [
+    162.52,
+    164.22
+   ],
+   "at": 2.98
+  },
+  {
+   "src": [
+    164.71,
+    166.56
+   ],
+   "at": 4.98
+  },
+  {
+   "src": [
+    166.9,
+    167.98
+   ],
+   "at": 7.13
+  },
+  {
+   "src": [
+    168.28,
+    169.98
+   ],
+   "at": 8.51
+  },
+  {
+   "src": [
+    170.28,
+    172.4
+   ],
+   "at": 10.51
+  },
+  {
+   "src": [
+    172.87,
+    173.46
+   ],
+   "at": 12.93
+  },
+  {
+   "src": [
+    173.8,
+    174.89
+   ],
+   "at": 13.82
+  },
+  {
+   "src": [
+    175.3,
+    177.94
+   ],
+   "at": 15.21
+  },
+  {
+   "src": [
+    178.24,
+    179.24
+   ],
+   "at": 18.15
+  },
+  {
+   "src": [
+    179.64,
+    180.22
+   ],
+   "at": 19.45
+  },
+  {
+   "src": [
+    180.58,
+    181.77
+   ],
+   "at": 20.33
+  },
+  {
+   "src": [
+    182.21,
+    186.68
+   ],
+   "at": 21.82
+  },
+  {
+   "src": [
+    187.03,
+    189.27
+   ],
+   "at": 26.59
+  },
+  {
+   "src": [
+    189.57,
+    192.17
+   ],
+   "at": 29.13
+  }
+ ]
+}

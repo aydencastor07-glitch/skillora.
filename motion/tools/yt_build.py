@@ -11,6 +11,7 @@ for sc in plan['scenes']:
         clips.append({'src': [a, b], 'at': round(t, 3)})
         parts.append([round(t, 3), round(t + b - a, 3)])
         t += b - a + GAP
+    if not parts: parts = [[round(t, 3), round(t + sc.get('dur', 2.0), 3)]]; t += sc.get('dur', 2.0)   # scène sans voix (carte de fin)
     s = {k: v for k, v in sc.items() if k != 'segs'}
     s.update({'t0': parts[0][0], 't1': parts[-1][1], 'parts': parts})
     t += sc.get('hold', 0)

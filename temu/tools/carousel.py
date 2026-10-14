@@ -33,7 +33,7 @@ for k, s in enumerate(C['slides'], 1):
         a = int(200 * (1 - y / 760) ** 1.4); yy = y if pos == 'top' else H - 1 - y
         gd.line([(0, yy), (W, yy)], fill=DARK + (a,))
     im.alpha_composite(grad)
-    y0 = 190 if pos == 'top' else H - 700
+    y0 = 190 if pos == 'top' else H - 800
     # titre
     tf = F(C.get('title_font', 'Bangers-Regular.ttf'), s.get('title_size', 120)); lines = wrap(s['title'], tf, W - 140)
     y = y0
@@ -58,6 +58,10 @@ for k, s in enumerate(C['slides'], 1):
         sub = F('Poppins-ExtraBold.ttf', 46); y += 10
         for ln in wrap(s['sub'], sub, W - 160):
             d.text((W / 2, y), ln, font=sub, fill=(255, 255, 255), anchor='mt', stroke_width=5, stroke_fill=(0, 0, 0)); y += 62
+    if s.get('disclaimer'):
+        df = F('Poppins-ExtraBold.ttf', 30); y += 20
+        for ln in wrap(s['disclaimer'], df, W - 140):
+            d.text((W / 2, y), ln, font=df, fill=(235, 235, 235), anchor='mt', stroke_width=4, stroke_fill=(0, 0, 0)); y += 40
     lx, ly = (W - 170, 70) if pos == 'bottom' else (W - 170, H - 230)
     im.alpha_composite(LOGO, (lx, ly))
     if s.get('swipe'):

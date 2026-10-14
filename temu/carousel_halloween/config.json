@@ -13,38 +13,38 @@
   {
    "img": "s1.jpg",
    "pos": "bottom",
-   "title": "Latest Temu codes for Halloween",
+   "title": "My Temu code for Halloween",
    "emoji": "🎃",
-   "sub": "",
-   "swipe": "SWIPE FOR THE CODES  >>",
+   "swipe": "SWIPE FOR THE CODE  >>",
    "title_size": 118
   },
   {
    "img": "s2.jpg",
    "pos": "bottom",
-   "title": "Affordable Price for Halloween",
-   "code": "alq250380",
-   "sub": "Search this code in the Temu app for Affordable Price.",
-   "title_size": 104,
-   "emoji": "✨"
+   "title": "$100 Coupon Bundle",
+   "emoji": "💰",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "title_size": 112
   },
   {
    "img": "s3.jpg",
    "pos": "bottom",
-   "title": "$100 Coupon Bundle",
+   "title": "Halloween party ready?",
+   "emoji": "🦇",
    "code": "alm148018",
-   "sub": "Search this code in the Temu app for a $100 Coupon Bundle.",
-   "title_size": 110,
-   "emoji": "💰"
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "title_size": 110
   },
   {
    "img": "s4.jpg",
    "pos": "top",
-   "title": "Gifts at $0 with qualifying orders",
-   "code": "alq393258",
-   "sub": "Search this code in the Temu app for Gifts at $0 with qualifying orders.",
-   "title_size": 96,
-   "emoji": "🎁"
+   "title": "Don't forget my code",
+   "emoji": "👻",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+   "title_size": 110
   }
  ]
 }

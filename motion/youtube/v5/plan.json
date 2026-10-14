@@ -1,0 +1,1375 @@
+{
+ "png": "png_kai",
+ "scenes": [
+  {
+   "img": "sk_curl",
+   "cam": [
+    1.6,
+    0.5,
+    0.36,
+    1.85,
+    0.5,
+    0.33
+   ],
+   "say": "hundreds of *curls*",
+   "spoken": "You've done hundreds of curls. And your arms still look the same.",
+   "sayY": 0.88,
+   "segs": [
+    0,
+    1
+   ],
+   "voice": "You've done hundreds of curls. And your arms still look the same."
+  },
+  {
+   "card": "it's not your genetics",
+   "segs": [
+    2
+   ],
+   "voice": "It's not your genetics."
+  },
+  {
+   "img": "sk_curl",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.45
+   ],
+   "say": "the *exercises*",
+   "spoken": "It's the exercises.",
+   "sayY": 0.12,
+   "segs": [
+    3
+   ],
+   "voice": "It's the exercises."
+  },
+  {
+   "img": "tshirt",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "the 2 exercises that build big arms",
+   "textAt": 0.2,
+   "segs": [
+    4,
+    5
+   ],
+   "voice": "Today, I'll show you the two exercises that actually build big arms."
+  },
+  {
+   "card": "why most guys never do them",
+   "segs": [
+    6
+   ],
+   "voice": "And why most guys never do them."
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.5,
+   "text": "+ a bonus muscle",
+   "textX": 0.82,
+   "x": 0.4,
+   "segs": [
+    7
+   ],
+   "voice": "Stay until the end, because there's also a bonus muscle that almost nobody trains."
+  },
+  {
+   "card": "but first, one thing",
+   "segs": [
+    8
+   ],
+   "voice": "But first, you need to understand one thing."
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.3,
+   "text": "not the biggest",
+   "textX": 0.82,
+   "x": 0.4,
+   "segs": [
+    9
+   ],
+   "voice": "Your biceps is not the biggest muscle in your arm."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.25,
+    0.55,
+    0.7
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.1,
+   "say": "your *triceps*",
+   "spoken": "It's your triceps.",
+   "sayY": 0.12,
+   "x": 0.4,
+   "segs": [
+    10
+   ],
+   "voice": "It's your triceps."
+  },
+  {
+   "reps": "2/3 of your upper arm",
+   "sets": 0,
+   "segs": [
+    11
+   ],
+   "voice": "Your triceps makes up about two thirds of your upper arm."
+  },
+  {
+   "img": "sk_curl",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "text": "only curls",
+   "textAt": 0.3,
+   "segs": [
+    12
+   ],
+   "voice": "So if you only do curls, you're ignoring most of your arm."
+  },
+  {
+   "img": "arm_thin",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "text": "small arms",
+   "textX": 0.82,
+   "x": 0.4,
+   "segs": [
+    13,
+    14
+   ],
+   "voice": "That's why so many skinny guys have small arms, even after months of training."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.05,
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "arm",
+     "hl": "arm_tri"
+    }
+   ],
+   "text": "small muscle ✓ big muscle ✗",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "segs": [
+    15
+   ],
+   "voice": "They train the small muscle, and forget the big one."
+  },
+  {
+   "card": "a second problem",
+   "segs": [
+    16
+   ],
+   "voice": "And there's a second problem."
+  },
+  {
+   "img": "pushdown",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "the wrong position",
+   "textX": 0.25,
+   "segs": [
+    17
+   ],
+   "voice": "Most people train their arms in the wrong position."
+  },
+  {
+   "card": "what science found",
+   "segs": [
+    18
+   ],
+   "voice": "Here's what science found."
+  },
+  {
+   "img": "oh_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.08
+   },
+   "text": "stretched = more growth",
+   "segs": [
+    19
+   ],
+   "voice": "A muscle grows more when you train it in a stretched position."
+  },
+  {
+   "img": "pushdown",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "oh_down"
+    }
+   ],
+   "text": "arms overhead vs pushdowns",
+   "textAt": 0.2,
+   "textX": 0.78,
+   "segs": [
+    20,
+    21,
+    22
+   ],
+   "voice": "In one study, people who trained their triceps with their arms overhead grew about forty percent more than people who did normal pushdowns."
+  },
+  {
+   "reps": "+40% growth",
+   "sets": 0,
+   "segs": [
+    23,
+    24,
+    25
+   ],
+   "voice": "Same muscle. Same effort. Way more growth."
+  },
+  {
+   "img": "oh_down",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.35,
+    0.5,
+    0.3
+   ],
+   "say": "the *position*",
+   "spoken": "Just because of the position.",
+   "sayY": 0.88,
+   "segs": [
+    26
+   ],
+   "voice": "Just because of the position."
+  },
+  {
+   "card": "the secret is simple",
+   "segs": [
+    27
+   ],
+   "voice": "So the secret is simple."
+  },
+  {
+   "img": "oh_down",
+   "alt": "oh_up",
+   "period": 1.1,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "stretch → then work",
+   "textX": 0.78,
+   "segs": [
+    28,
+    29
+   ],
+   "voice": "Stretch the muscle, then make it work."
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Exercise #1 · Overhead triceps extension",
+   "medalZoom": 1.0,
+   "segs": [
+    30,
+    31
+   ],
+   "voice": "And that brings us to exercise number one. The overhead triceps extension."
+  },
+  {
+   "img": "oh_up",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "both hands, above your head",
+   "textX": 0.78,
+   "segs": [
+    32
+   ],
+   "voice": "Hold one dumbbell with both hands, above your head."
+  },
+  {
+   "img": "oh_up",
+   "cam": [
+    1.6,
+    0.5,
+    0.2,
+    1.8,
+    0.5,
+    0.18
+   ],
+   "text": "elbows close, pointing forward",
+   "textX": 0.78,
+   "textY": 0.5,
+   "segs": [
+    33
+   ],
+   "voice": "Keep your elbows close, pointing forward."
+  },
+  {
+   "img": "oh_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.35,
+     "img": "oh_down"
+    }
+   ],
+   "text": "lower slowly… deep stretch",
+   "textX": 0.78,
+   "segs": [
+    34
+   ],
+   "voice": "Slowly lower the weight behind your head, until you feel a deep stretch."
+  },
+  {
+   "img": "oh_down",
+   "alt": "oh_up",
+   "period": 1.0,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "push up · squeeze",
+   "textX": 0.78,
+   "segs": [
+    35,
+    36
+   ],
+   "voice": "Then push it back up, and squeeze at the top."
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.2,
+   "text": "long head = full stretch",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "segs": [
+    37
+   ],
+   "voice": "This puts the long head of your triceps in a full stretch."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.55,
+    0.75
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.0,
+   "say": "the *biggest* part",
+   "spoken": "And the long head is the biggest part of the triceps.",
+   "sayY": 0.12,
+   "x": 0.4,
+   "segs": [
+    38
+   ],
+   "voice": "And the long head is the biggest part of the triceps."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.3,
+    0.55,
+    0.7,
+    1.0,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.0,
+   "text": "thick from the side",
+   "textX": 0.82,
+   "x": 0.4,
+   "segs": [
+    39,
+    40
+   ],
+   "voice": "This is the part that makes your arm look thick from the side."
+  },
+  {
+   "card": "no dumbbell at home?",
+   "segs": [
+    41
+   ],
+   "voice": "No dumbbell at home?"
+  },
+  {
+   "img": "bp_up",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.32,
+    "at": 0.08
+   },
+   "text": "backpack + books · water bottle",
+   "segs": [
+    42
+   ],
+   "voice": "Use a backpack filled with books, or a water bottle."
+  },
+  {
+   "img": "bp_down",
+   "alt": "bp_up",
+   "period": 1.1,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "same stretch",
+   "textX": 0.78,
+   "segs": [
+    43
+   ],
+   "voice": "Same movement, same stretch."
+  },
+  {
+   "medal": "p_bench",
+   "name": "Exercise #2 · Incline dumbbell curl",
+   "medalZoom": 1.0,
+   "segs": [
+    44,
+    45
+   ],
+   "voice": "Exercise number two. The incline dumbbell curl."
+  },
+  {
+   "img": "ic_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "text": "arms hang behind your body",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    46
+   ],
+   "voice": "Sit on a bench tilted back, and let your arms hang straight down behind your body."
+  },
+  {
+   "img": "ic_down",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.35,
+    0.4,
+    0.5
+   ],
+   "say": "already *stretched*",
+   "spoken": "Now your biceps is stretched before you even start.",
+   "sayY": 0.12,
+   "segs": [
+    47
+   ],
+   "voice": "Now your biceps is stretched before you even start."
+  },
+  {
+   "img": "ic_down",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.4,
+     "img": "ic_up"
+    }
+   ],
+   "text": "elbows don't move",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    48
+   ],
+   "voice": "Curl the weights up slowly, without moving your elbows."
+  },
+  {
+   "img": "ic_up",
+   "alt": "ic_down",
+   "period": 1.3,
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "text": "all the way down",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    49
+   ],
+   "voice": "Then lower them all the way down, until your arms are completely straight."
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.2,
+   "text": "long head of the biceps",
+   "textX": 0.82,
+   "textY": 0.18,
+   "x": 0.4,
+   "segs": [
+    50
+   ],
+   "voice": "This hits the long head of your biceps."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.4,
+    0.55,
+    0.62
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.0,
+   "say": "the *peak*",
+   "spoken": "That's the part that creates the peak.",
+   "sayY": 0.12,
+   "x": 0.4,
+   "segs": [
+    51
+   ],
+   "voice": "That's the part that creates the peak."
+  },
+  {
+   "img": "flex",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.5,
+    0.5,
+    0.3
+   ],
+   "text": "the ball on top",
+   "textX": 0.8,
+   "textY": 0.3,
+   "segs": [
+    52
+   ],
+   "voice": "The ball on top of your arm when you flex."
+  },
+  {
+   "card": "no bench at home?",
+   "segs": [
+    53
+   ],
+   "voice": "No bench at home?"
+  },
+  {
+   "img": "chin_down",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "palms facing you",
+   "textX": 0.84,
+   "segs": [
+    54
+   ],
+   "voice": "Do chin-ups with your palms facing you."
+  },
+  {
+   "img": "chin_down",
+   "alt": "chin_up",
+   "period": 1.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "all the way down → chest to the bar",
+   "textX": 0.5,
+   "textY": 0.08,
+   "segs": [
+    55
+   ],
+   "voice": "Hang all the way down at the bottom, then pull your chest to the bar."
+  },
+  {
+   "img": "chin_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.1
+   },
+   "text": "you only need a bar",
+   "segs": [
+    56,
+    57
+   ],
+   "voice": "It's one of the best biceps builders in the world, and you only need a bar."
+  },
+  {
+   "card": "the bonus",
+   "segs": [
+    58
+   ],
+   "voice": "And now, the bonus."
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.4,
+   "text": "hiding under your biceps",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "segs": [
+    59
+   ],
+   "voice": "There's a muscle hiding under your biceps."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.5,
+    0.4,
+    0.68
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.0,
+   "say": "the *brachialis*",
+   "spoken": "It's called the brachialis.",
+   "sayY": 0.12,
+   "x": 0.4,
+   "segs": [
+    60
+   ],
+   "voice": "It's called the brachialis."
+  },
+  {
+   "card": "most people never heard of it",
+   "segs": [
+    61
+   ],
+   "voice": "Most people have never even heard of it."
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.0,
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "arm",
+     "hl": "arm_bi"
+    }
+   ],
+   "text": "pushes your biceps up",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "segs": [
+    62,
+    63,
+    64
+   ],
+   "voice": "But when it grows, it pushes your biceps up, and makes your whole arm look wider."
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Bonus · Hammer curls",
+   "medalZoom": 1.0,
+   "segs": [
+    65,
+    66
+   ],
+   "voice": "To train it, do hammer curls."
+  },
+  {
+   "img": "hc_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "palms facing each other",
+   "textX": 0.8,
+   "segs": [
+    67,
+    68
+   ],
+   "voice": "Hold the dumbbells with your palms facing each other, like you're holding a hammer."
+  },
+  {
+   "img": "hc_down",
+   "alt": "hc_up",
+   "period": 1.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "up · slowly down",
+   "textX": 0.8,
+   "segs": [
+    69,
+    70
+   ],
+   "voice": "Curl them up, and lower them slowly."
+  },
+  {
+   "img": "hc_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "2 backpacks · 2 water jugs",
+   "textX": 0.8,
+   "segs": [
+    71
+   ],
+   "voice": "At home, you can do the same thing with two backpacks, or two water jugs."
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.3,
+   "text": "thicker from every angle",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "segs": [
+    72,
+    73
+   ],
+   "voice": "Add two or three sets of hammer curls, and your arms will look thicker from every angle."
+  },
+  {
+   "card": "3 mistakes that keep your arms small",
+   "segs": [
+    74,
+    75
+   ],
+   "voice": "Now, three mistakes that keep your arms small."
+  },
+  {
+   "img": "swing",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.5
+   ],
+   "label": "#1. Swinging the weight",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "segs": [
+    76,
+    77
+   ],
+   "voice": "Mistake number one. Swinging the weight."
+  },
+  {
+   "img": "swing",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.25,
+    0.5,
+    0.5
+   ],
+   "text": "your arms do nothing",
+   "textX": 0.8,
+   "segs": [
+    78,
+    79
+   ],
+   "voice": "If your whole body moves, your arms are not doing the work."
+  },
+  {
+   "img": "ic_down",
+   "alt": "ic_up",
+   "period": 1.4,
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "text": "lighter · control every rep",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    80
+   ],
+   "voice": "Use a lighter weight, and control every rep."
+  },
+  {
+   "img": "ic_up",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "label": "#2. Half reps",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "segs": [
+    81,
+    82
+   ],
+   "voice": "Mistake number two. Half reps."
+  },
+  {
+   "img": "ic_down",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.3,
+    0.4,
+    0.55
+   ],
+   "text": "growth happens here",
+   "textX": 0.8,
+   "textY": 0.18,
+   "segs": [
+    83
+   ],
+   "voice": "The stretch at the bottom is where the growth happens."
+  },
+  {
+   "card": "skip it, skip the results",
+   "segs": [
+    84,
+    85
+   ],
+   "voice": "If you skip it, you skip the results."
+  },
+  {
+   "img": "sk_curl",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "label": "#3. Arms every single day",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "segs": [
+    86,
+    87
+   ],
+   "voice": "Mistake number three. Training arms every single day."
+  },
+  {
+   "card": "muscles don't grow during the workout",
+   "segs": [
+    88
+   ],
+   "voice": "Your muscles don't grow during the workout."
+  },
+  {
+   "img": "kai_sleep",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "text": "they grow when you rest",
+   "textX": 0.5,
+   "textY": 0.1,
+   "segs": [
+    89
+   ],
+   "voice": "They grow when you rest."
+  },
+  {
+   "img": "kai_sleep",
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.5
+   ],
+   "text": "2 – 3 times a week is enough",
+   "textX": 0.5,
+   "textY": 0.1,
+   "segs": [
+    90
+   ],
+   "voice": "Two or three times a week is enough."
+  },
+  {
+   "card": "your plan",
+   "segs": [
+    91
+   ],
+   "voice": "So here's your plan."
+  },
+  {
+   "reps": "2 – 3 times a week",
+   "sets": 0,
+   "segs": [
+    92
+   ],
+   "voice": "Two or three times a week."
+  },
+  {
+   "img": "oh_up",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.33,
+     "img": "ic_up"
+    },
+    {
+     "at": 0.66,
+     "img": "hc_up"
+    }
+   ],
+   "text": "triceps · biceps · hammer",
+   "textX": 0.5,
+   "textY": 0.08,
+   "segs": [
+    93
+   ],
+   "voice": "Three sets of each exercise, plus the hammer curls."
+  },
+  {
+   "reps": "8 – 12 reps",
+   "sets": 3,
+   "segs": [
+    94
+   ],
+   "voice": "Eight to twelve reps."
+  },
+  {
+   "img": "oh_up",
+   "alt": "oh_down",
+   "period": 1.6,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "3 seconds down",
+   "textX": 0.78,
+   "segs": [
+    95
+   ],
+   "voice": "Take three seconds to lower the weight on every rep."
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "text": "+1 rep every week",
+   "textX": 0.82,
+   "x": 0.4,
+   "segs": [
+    96
+   ],
+   "voice": "And try to add one rep, or a little weight, every week."
+  },
+  {
+   "card": "so what happens after 30 days?",
+   "segs": [
+    97
+   ],
+   "voice": "So what happens after thirty days?"
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.1,
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "arm",
+     "hl": "arm_tri"
+    }
+   ],
+   "text": "stronger · crazy pump",
+   "textX": 0.82,
+   "textY": 0.18,
+   "x": 0.4,
+   "segs": [
+    98
+   ],
+   "voice": "In the first two weeks, your arms will feel stronger, and the pump will be crazy."
+  },
+  {
+   "img": "tshirt",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.6,
+    0.5,
+    0.3
+   ],
+   "say": "sleeves feel *tighter*",
+   "spoken": "By day thirty, your sleeves start to feel tighter.",
+   "sayY": 0.88,
+   "segs": [
+    99
+   ],
+   "voice": "By day thirty, your sleeves start to feel tighter."
+  },
+  {
+   "img": "arm_thin",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "arm"
+    }
+   ],
+   "text": "a few months later",
+   "textX": 0.82,
+   "x": 0.4,
+   "segs": [
+    100,
+    101
+   ],
+   "voice": "And after a few months of doing this consistently, your arms will look completely different."
+  },
+  {
+   "card": "no magic. just the right exercises",
+   "segs": [
+    102,
+    103
+   ],
+   "voice": "No magic. Just the right exercises, in the right position."
+  },
+  {
+   "img": "flex",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.1
+   },
+   "text": "only one part of the picture",
+   "segs": [
+    104
+   ],
+   "voice": "Your arms are only one part of the picture."
+  },
+  {
+   "img": "flex",
+   "x": 0.2,
+   "cam": [
+    0.85,
+    0.5,
+    0.5,
+    0.9,
+    0.5,
+    0.5
+   ],
+   "next": {
+    "img": "thumb_strength",
+    "title": "Why Some Skinny Guys Are Stronger Than Big Guys"
+   },
+   "segs": [
+    105,
+    106,
+    107
+   ],
+   "voice": "If you want to know why some skinny guys are stronger than big guys, watch this video next. It will change the way you train every muscle, not just your arms."
+  },
+  {
+   "subscribe": true,
+   "clickAt": 0.25,
+   "text": "new videos every Tuesday & Saturday",
+   "hold": 1.5,
+   "segs": [
+    108,
+    109
+   ],
+   "voice": "And if you want more videos like this, subscribe. New videos every Tuesday and Saturday."
+  }
+ ]
+}

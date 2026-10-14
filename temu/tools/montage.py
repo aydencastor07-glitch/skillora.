@@ -9,8 +9,11 @@ C = json.load(open(sys.argv[1])); OUT = sys.argv[2]; D = os.path.dirname(os.path
 W, H, FPS, SR = 1080, 1920, 30, 44100
 TMP = os.path.join(D, 'tmp'); os.makedirs(TMP, exist_ok=True)
 FONT = '/home/user/skillora./motion/fonts/Montserrat.ttf'
-def font(sz, wt=800):
-    f = ImageFont.truetype(FONT, sz); f.set_variation_by_axes([wt]); return f
+def font(sz, wt=800, path=None):
+    f = ImageFont.truetype(path or FONT, sz)
+    if not path: f.set_variation_by_axes([wt])
+    return f
+FD = '/home/user/skillora./temu/fonts/'
 # ---- 1. morceaux gardés (clip, début, fin, zoom) → base vidéo + nouvelle timeline des mots
 parts = C['parts']; words = []; t = 0; flt = []; ins = []
 for k, p in enumerate(parts):
@@ -105,6 +108,7 @@ def codebar(img, u, big):
     img.alpha_composite(lay, (int(W / 2 - lay.width / 2), int(H * CODE_Y - lay.height / 2)))
 def caption(img, T):
     if ST.get('caption') == 'pill': return caption_pill(img, T)
+    if ST.get('caption') == 'pop': return caption_pop(img, T)
     return caption_stroke(img, T)
 def caption_pill(img, T):
     # 3-4 mots en minuscules sur une bulle blanche, le mot dit est surligné (couleur d'accent)
@@ -123,6 +127,46 @@ def caption_pill(img, T):
         if act: d.rounded_rectangle([x - 12, y - 46, x + wd + 12, y + 46], 18, fill=ACC + (255,))
         d.text((x, y), tx, font=f, fill=(255, 255, 255) if act else ((25, 25, 35) if said else (170, 170, 180)), anchor='lm')
         x += wd + sp
+def caption_pop(img, T):
+    # un seul mot à la fois, énorme, qui rebondit (police Anton), mots-clés en couleur
+    cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
+    if not cur: return
+    i = cur[-1]; w = words[i]
+    if T > w[2] + 0.5: return
+    tx = w[0].replace('Timu', 'Temu').upper().strip('.,!?')
+    k = (T - w[1]) / 0.14; sc = 0.7 + 0.3 * back(k)
+    f = font(int(150 * sc), path=FD + ST.get('cap_font', 'Anton-Regular.ttf'))
+    if f.getbbox(tx)[2] > W - 120: f = font(int(150 * sc * (W - 120) / f.getbbox(tx)[2]), path=FD + ST.get('cap_font', 'Anton-Regular.ttf'))
+    hot = any(h in tx for h in ST.get('hot', [])) or i % 4 == 0
+    d = ImageDraw.Draw(img); y = H * C.get('cap_y', 0.66)
+    d.text((W / 2 + 8, y + 10), tx, font=f, fill=(0, 0, 0), anchor='mm')
+    d.text((W / 2, y), tx, font=f, fill=ACC if hot else (255, 255, 255), anchor='mm', stroke_width=7, stroke_fill=(0, 0, 0))
+def bubble(img, txt, cx, cy, u, emo=None):
+    # bulle de BD jaune, police Bangers, petite queue, apparaît en tournant
+    if u <= 0: return
+    f = font(70, path=FD + 'Bangers-Regular.ttf'); tw = f.getbbox(txt)[2]; ew = 84 if emo else 0; w = tw + ew + 80; h = 130
+    lay = Image.new('RGBA', (w + 20, h + 60), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    bg = tuple(ST.get('bubble_bg', (255, 221, 0)))
+    d.rounded_rectangle([4, 4, w + 4, h + 4], 60, fill=(0, 0, 0, 255)); d.rounded_rectangle([0, 0, w, h], 60, fill=bg + (255,), outline=(0, 0, 0), width=6)
+    d.polygon([(w * 0.25, h - 4), (w * 0.25 + 50, h - 4), (w * 0.22, h + 50)], fill=bg + (255,), outline=(0, 0, 0))
+    if emo: lay.alpha_composite(emoji(emo, 66), (34, (h - 66) // 2))
+    d.text((34 + ew, h / 2 + 4), txt, font=f, fill=(0, 0, 0), anchor='lm')
+    s2 = 0.3 + 0.7 * back(u); lay = lay.rotate((1 - ease(u)) * 25 - 3, expand=True, resample=Image.BICUBIC)
+    lay = lay.resize((max(1, int(lay.width * s2)), max(1, int(lay.height * s2))), Image.LANCZOS)
+    img.alpha_composite(lay, (int(cx - lay.width / 2), int(cy - lay.height / 2)))
+PRODS = {}
+def product(img, path, cx, cy, size, u, T):
+    # vrai produit détouré : arrive en grand avec contour blanc + ombre, flotte doucement
+    if u <= 0: return
+    if path not in PRODS:
+        im = Image.open(os.path.join(D, path)).convert('RGBA'); a = im.getchannel('A')
+        o = Image.new('RGBA', im.size, (255, 255, 255, 0)); o.putalpha(a.filter(ImageFilter.MaxFilter(15)))
+        pad = Image.new('RGBA', im.size, (0, 0, 0, 0)); pad.alpha_composite(o); pad.alpha_composite(im); PRODS[path] = pad
+    im = PRODS[path]; s2 = size * (0.4 + 0.6 * back(u)) / max(im.size)
+    lay = im.resize((max(1, int(im.width * s2)), max(1, int(im.height * s2))), Image.LANCZOS).rotate(4 * math.sin(T * 2), expand=True, resample=Image.BICUBIC)
+    sh = Image.new('RGBA', lay.size, (0, 0, 0, 0)); sh.putalpha(lay.getchannel('A').point(lambda v: v * 0.5)); sh = sh.filter(ImageFilter.GaussianBlur(18))
+    y = cy + 12 * math.sin(T * 2.5)
+    img.alpha_composite(sh, (int(cx - lay.width / 2) + 14, int(y - lay.height / 2) + 22)); img.alpha_composite(lay, (int(cx - lay.width / 2), int(y - lay.height / 2)))
 def caption_stroke(img, T):
     # groupe de 2-3 mots en cours, mot actif en orange
     cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
@@ -166,6 +210,8 @@ for k, fn in enumerate(frames):
         u = (T - o['t0']) / 0.35; out = 1 - max(0, (T - o['t1']) / 0.25)
         lay = Image.new('RGBA', img.size, (0, 0, 0, 0))
         if o['type'] == 'stars': stars(lay, o['val'], o['reviews'], W / 2, H * o.get('y', 0.2), u)
+        elif o['type'] == 'sticker' and ST.get('sticker') == 'bubble': bubble(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))
+        elif o['type'] == 'product': product(lay, o['img'], W * o.get('x', 0.5), H * o.get('y', 0.5), o.get('size', 600), u, T)
         elif o['type'] == 'sticker' and ST.get('sticker') == 'card': card(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))
         elif o['type'] == 'sticker': sticker(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, rot=o.get('rot', -4), bg=tuple(o.get('bg', ORANGE)))
         elif o['type'] == 'arrow_up':

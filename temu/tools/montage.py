@@ -121,6 +121,7 @@ def caption(img, T):
     if ST.get('caption') == 'pill': return caption_pill(img, T)
     if ST.get('caption') == 'pop': return caption_pop(img, T)
     if ST.get('caption') == 'line': return caption_line(img, T)
+    if ST.get('caption') == 'box': return caption_box(img, T)
     return caption_stroke(img, T)
 def caption_pill(img, T):
     # 3-4 mots en minuscules sur une bulle blanche, le mot dit est surligné (couleur d'accent)
@@ -171,6 +172,34 @@ def chip(img, txt, cx, cy, u, emo=None, out=1.0):
     e = ease(u * 1.1); y = cy + (1 - e) * 260; cx = min(max(cx, w / 2 + 30), W - w / 2 - 30)
     lay.putalpha(lay.getchannel('A').point(lambda v: int(v * min(1, u * 2))))
     img.alpha_composite(lay, (int(cx - w / 2), int(y - h / 2)))
+def caption_box(img, T):
+    # chaque mot dans sa boîte noire (Archivo Black), mot dit en couleur, 3 mots empilés en escalier
+    cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
+    if not cur: return
+    i = cur[-1]
+    if T > words[i][2] + 0.6: return
+    n = 3; g0 = i - (i % n); grp = words[g0:g0 + n]; f = font(68, path=FD + 'ArchivoBlack-Regular.ttf')
+    y = H * C.get('cap_y', 0.66); d = ImageDraw.Draw(img)
+    for k, w in enumerate(grp):
+        if w[1] > T + 0.05: break
+        tx = w[0].replace('Timu', 'Temu').upper(); tw = f.getbbox(tx)[2]; act = (g0 + k) == i
+        x = W / 2 - tw / 2 + (k - 1) * 60; yy = y + k * 96
+        bump = 1 + 0.1 * max(0, 1 - (T - w[1]) / 0.15) if act else 1
+        pad = 22 * bump
+        d.rectangle([x - pad, yy - 46 * bump, x + tw + pad, yy + 46 * bump], fill=(ACC if act else (15, 15, 15)) + (255,))
+        d.text((x, yy), tx, font=f, fill=(15, 15, 15) if act else (255, 255, 255), anchor='lm')
+def ribbon(img, txt, cy, u, emo=None, side=1):
+    # bandeau incliné qui traverse l'écran depuis le côté
+    if u <= 0: return
+    f = font(58, path=FD + 'ArchivoBlack-Regular.ttf'); tw = f.getbbox(txt.upper())[2]; ew = 80 if emo else 0
+    w = tw + ew + 120; h = 120; lay = Image.new('RGBA', (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rectangle([0, 0, w, h], fill=ACC + (255,)); d.rectangle([0, h - 12, w, h], fill=(15, 15, 15, 255))
+    if emo: lay.alpha_composite(emoji(emo, 64), (40, 24))
+    d.text((44 + ew, h / 2 - 4), txt.upper(), font=f, fill=(15, 15, 15), anchor='lm')
+    if w > W - 40: lay = lay.resize((W - 40, int(h * (W - 40) / w)), Image.LANCZOS)
+    lay = lay.rotate(4 * side, expand=True, resample=Image.BICUBIC)
+    e = ease(u * 1.15); x = (W - lay.width) / 2 + side * (1 - e) * (W + lay.width)
+    img.alpha_composite(lay, (int(x), int(cy - lay.height / 2)))
 def caption_pop(img, T):
     # un seul mot à la fois, énorme, qui rebondit (police Anton), mots-clés en couleur
     cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
@@ -251,7 +280,9 @@ for k, fn in enumerate(frames):
     # petit flash blanc à chaque coupe
     for p in parts[1:]:
         dt = T - p['t']
-        if ST.get('cut') == 'whip':
+        if ST.get('cut') == 'flashc':
+            if 0 <= dt < 0.16: fl = Image.new('RGBA', img.size, ACC + (int(150 * (1 - dt / 0.16)),)); img.alpha_composite(fl)
+        elif ST.get('cut') == 'whip':
             if 0 <= dt < 0.2:
                 k = 1 - ease(dt / 0.2); off = int(k * 420)
                 sh = img.crop((off, 0, W, H)); sh = sh.resize((W - off, H)); c = Image.new('RGBA', (W, H)); c.paste(sh, (0, 0)); c.paste(img.crop((0, 0, off, H)) if off else sh.crop((0, 0, 1, 1)), (W - off, 0))
@@ -273,6 +304,7 @@ for k, fn in enumerate(frames):
         u = (T - o['t0']) / 0.35; out = 1 - max(0, (T - o['t1']) / 0.25)
         lay = Image.new('RGBA', img.size, (0, 0, 0, 0))
         if o['type'] == 'stars': stars(lay, o['val'], o['reviews'], W / 2, H * o.get('y', 0.2), u)
+        elif o['type'] == 'sticker' and ST.get('sticker') == 'ribbon': ribbon(lay, o['text'], H * o.get('y', 0.25), u, o.get('emoji'), o.get('side', 1))
         elif o['type'] == 'sticker' and ST.get('sticker') == 'chip': chip(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))
         elif o['type'] == 'sticker' and ST.get('sticker') == 'bubble': bubble(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))
         elif o['type'] == 'product': product(lay, o['img'], W * o.get('x', 0.5), H * o.get('y', 0.5), o.get('size', 600), u, T, o.get('spin', 0), o.get('card'), o.get('label'))

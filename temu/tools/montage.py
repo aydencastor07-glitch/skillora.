@@ -81,6 +81,17 @@ def stars(img, val, n_rev, cx, cy, u):
     img.alpha_composite(lay, (int(cx - lay.width / 2), int(cy - lay.height / 2)))
 LOGO = Image.open(C.get('logo', '/home/user/skillora./temu/temu_logo.png')).convert('RGBA').resize((110, 110), Image.LANCZOS)
 def logo(img):
+    if C.get('logo_mode') == 'words':
+        spots = C.get('logo_spots', [(0.82, 0.12), (0.18, 0.2), (0.82, 0.42), (0.18, 0.12)])
+        tw = [w for w in words if 'temu' in w[0].lower() or 'timu' in w[0].lower()]
+        for j, w in enumerate(tw):
+            k = T - w[1] + 0.1
+            if not (0 <= k < 1.4): continue
+            sc = back(k / 0.35) * (1 - ease(max(0, k - 1.1) / 0.3)); rot = (1 - ease(k / 0.4)) * 40 + 4 * math.sin(T * 8) * (k < 1.1)
+            if sc <= 0.02: continue
+            sz = int(190 * sc); lg = LOGO.resize((sz, sz), Image.LANCZOS).rotate(rot, expand=True, resample=Image.BICUBIC)
+            cx, cy = spots[j % len(spots)]; img.alpha_composite(lg, (int(W * cx - lg.width / 2), int(H * cy - lg.height / 2)))
+        return
     lp = C.get('logo_pos', 'tl'); x = 48 if lp[1] == 'l' else W - 158; y = 150 if lp[0] == 't' else H - 330
     img.alpha_composite(LOGO, (x, y))
 CODE_Y = C.get('code_y') or {'top': 0.2, 'middle': 0.56, 'bottom': 0.84}[C.get('code_pos', 'bottom')]
@@ -95,7 +106,7 @@ def codebar(img, u, big):
     BX = tuple(ST.get('box_bg', (255, 255, 255))); TX = tuple(ST.get('box_fg', (30, 30, 30)))
     d.rounded_rectangle([0, 90, w - 1, 90 + h - 1], 32, fill=BX + (245,), outline=ACC + (255,), width=8)
     pre = l1[:l1.index(code)]; xx = w / 2 - f1.getbbox(l1)[2] / 2
-    d.text((xx, 90 + 62), pre, font=f1, fill=TX, anchor='lm'); d.text((xx + f1.getbbox(pre)[2], 90 + 62), code, font=f1, fill=ACC, anchor='lm')
+    d.text((xx, 90 + 62), pre, font=f1, fill=TX, anchor='lm'); d.text((xx + f1.getbbox(pre)[2], 90 + 62), code, font=f1, fill=tuple(ST.get('code_color', ACC)), anchor='lm')
     d.text((w / 2, 90 + 140), l2, font=f2, fill=TX, anchor='mm')
     # étiquette « USE MY CODE » au-dessus de l'encadré
     tag = C.get('code_tag', 'USE MY CODE'); ft = font(40, 900); tw = ft.getbbox(tag)[2] + 50
@@ -109,6 +120,7 @@ def codebar(img, u, big):
 def caption(img, T):
     if ST.get('caption') == 'pill': return caption_pill(img, T)
     if ST.get('caption') == 'pop': return caption_pop(img, T)
+    if ST.get('caption') == 'line': return caption_line(img, T)
     return caption_stroke(img, T)
 def caption_pill(img, T):
     # 3-4 mots en minuscules sur une bulle blanche, le mot dit est surligné (couleur d'accent)
@@ -127,6 +139,38 @@ def caption_pill(img, T):
         if act: d.rounded_rectangle([x - 12, y - 46, x + wd + 12, y + 46], 18, fill=ACC + (255,))
         d.text((x, y), tx, font=f, fill=(255, 255, 255) if act else ((25, 25, 35) if said else (170, 170, 180)), anchor='lm')
         x += wd + sp
+def caption_line(img, T):
+    # bandeau sombre pleine largeur, phrase de 5-6 mots, les mots dits passent en couleur + soulignés
+    cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
+    if not cur: return
+    i = cur[-1]
+    if T > words[i][2] + 0.6: return
+    n = 6; g0 = i - (i % n); grp = words[g0:g0 + n]; f = font(60, path=FD + ST.get('cap_font', 'Poppins-ExtraBold.ttf'))
+    txts = [w[0].replace('Timu', 'Temu') for w in grp]; ws = [f.getbbox(x)[2] for x in txts]; sp = 18
+    lines = [[]]; lw = 0
+    for k, wd in enumerate(ws):
+        if lw and lw + sp + wd > W - 140: lines.append([]); lw = 0
+        lines[-1].append(k); lw += (sp if lw else 0) + wd
+    y0 = H * C.get('cap_y', 0.7); lh = 78; d = ImageDraw.Draw(img)
+    band = Image.new('RGBA', (W, lh * len(lines) + 40), (10, 10, 20, 170)); img.alpha_composite(band, (0, int(y0 - 20)))
+    for li, ln in enumerate(lines):
+        tot = sum(ws[k] for k in ln) + sp * (len(ln) - 1); x = W / 2 - tot / 2; y = y0 + li * lh + lh / 2
+        for k in ln:
+            said = grp[k][1] <= T + 0.05; act = (g0 + k) == i
+            d.text((x, y), txts[k], font=f, fill=ACC if said else (255, 255, 255), anchor='lm')
+            if act: d.rectangle([x, y + 34, x + ws[k], y + 40], fill=ACC + (255,))
+            x += ws[k] + sp
+def chip(img, txt, cx, cy, u, emo=None, out=1.0):
+    # pastille blanche avec bord coloré, monte depuis le bas
+    if u <= 0: return
+    f = font(50, path=FD + 'Poppins-ExtraBold.ttf'); tw = f.getbbox(txt)[2]; ew = 70 if emo else 0; w = tw + ew + 70; h = 100
+    lay = Image.new('RGBA', (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle([0, 0, w - 1, h - 1], 50, fill=(255, 255, 255, 250), outline=ACC + (255,), width=7)
+    if emo: lay.alpha_composite(emoji(emo, 56), (28, (h - 56) // 2))
+    d.text((30 + ew, h / 2 + 2), txt, font=f, fill=(15, 15, 25), anchor='lm')
+    e = ease(u * 1.1); y = cy + (1 - e) * 260; cx = min(max(cx, w / 2 + 30), W - w / 2 - 30)
+    lay.putalpha(lay.getchannel('A').point(lambda v: int(v * min(1, u * 2))))
+    img.alpha_composite(lay, (int(cx - w / 2), int(y - h / 2)))
 def caption_pop(img, T):
     # un seul mot à la fois, énorme, qui rebondit (police Anton), mots-clés en couleur
     cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
@@ -200,13 +244,19 @@ for o in C['overlays']:
     o = dict(o); o['t0'] = t0 + o.get('dt', 0); o['t1'] = o['t0'] + o.get('dur', 2.0); OV.append(o)
     EV.append((o['t0'], o.get('sfx', 'pop')))
 for p in parts[1:]: EV.append((p['t'] - 0.02, ST.get('cut_sfx', 'cut1')))
+if C.get('logo_mode') == 'words': EV += [(w[1] - 0.08, 'shine') for w in words if 'temu' in w[0].lower() or 'timu' in w[0].lower()]
 code_big_t = at_word(C.get('code_word', 'code')) or DUR - 2.5
 for k, fn in enumerate(frames):
     T = k / FPS; img = Image.open(os.path.join(fr, fn)).convert('RGBA')
     # petit flash blanc à chaque coupe
     for p in parts[1:]:
         dt = T - p['t']
-        if ST.get('cut') == 'shake':
+        if ST.get('cut') == 'whip':
+            if 0 <= dt < 0.2:
+                k = 1 - ease(dt / 0.2); off = int(k * 420)
+                sh = img.crop((off, 0, W, H)); sh = sh.resize((W - off, H)); c = Image.new('RGBA', (W, H)); c.paste(sh, (0, 0)); c.paste(img.crop((0, 0, off, H)) if off else sh.crop((0, 0, 1, 1)), (W - off, 0))
+                img = c.filter(ImageFilter.BoxBlur(int(12 * k))) if k > 0.05 else c
+        elif ST.get('cut') == 'shake':
             if 0 <= dt < 0.2:
                 k = 1 - dt / 0.2; ox, oy = int(28 * k * math.sin(dt * 90)), int(18 * k * math.cos(dt * 70))
                 z = 1.06; cw, ch = int(W / z), int(H / z); x0, y0 = (W - cw) // 2 + ox, (H - ch) // 2 + oy
@@ -223,6 +273,7 @@ for k, fn in enumerate(frames):
         u = (T - o['t0']) / 0.35; out = 1 - max(0, (T - o['t1']) / 0.25)
         lay = Image.new('RGBA', img.size, (0, 0, 0, 0))
         if o['type'] == 'stars': stars(lay, o['val'], o['reviews'], W / 2, H * o.get('y', 0.2), u)
+        elif o['type'] == 'sticker' and ST.get('sticker') == 'chip': chip(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))
         elif o['type'] == 'sticker' and ST.get('sticker') == 'bubble': bubble(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))
         elif o['type'] == 'product': product(lay, o['img'], W * o.get('x', 0.5), H * o.get('y', 0.5), o.get('size', 600), u, T, o.get('spin', 0), o.get('card'), o.get('label'))
         elif o['type'] == 'sticker' and ST.get('sticker') == 'card': card(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))

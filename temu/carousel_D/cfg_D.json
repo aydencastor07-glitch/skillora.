@@ -1,0 +1,51 @@
+{
+ "accent": [
+  215,
+  35,
+  35
+ ],
+ "dark": [
+  35,
+  10,
+  5
+ ],
+ "title_font": "ArchivoBlack-Regular.ttf",
+ "slides": [
+  {
+   "img": "d1.jpg",
+   "pos": "bottom",
+   "title": "Look what I found for Halloween",
+   "emoji": "👀",
+   "swipe": "SWIPE  >>",
+   "title_size": 86
+  },
+  {
+   "img": "d2.jpg",
+   "pos": "bottom",
+   "title": "$100 Coupon Bundle",
+   "emoji": "🦇",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "title_size": 92
+  },
+  {
+   "img": "d3.jpg",
+   "pos": "bottom",
+   "title": "Porch glow-up",
+   "emoji": "✨",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "title_size": 96
+  },
+  {
+   "img": "d4.jpg",
+   "pos": "top",
+   "title": "Grab my code",
+   "emoji": "🧡",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+   "title_size": 96
+  }
+ ]
+}

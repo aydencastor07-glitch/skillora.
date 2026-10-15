@@ -1,0 +1,51 @@
+{
+ "accent": [
+  40,
+  180,
+  90
+ ],
+ "dark": [
+  4,
+  22,
+  12
+ ],
+ "title_font": "BebasNeue-Regular.ttf",
+ "slides": [
+  {
+   "img": "c1.jpg",
+   "pos": "bottom",
+   "title": "Getting Ready for Spooky Season",
+   "emoji": "🎃",
+   "swipe": "SWIPE FOR MY CODE  >>",
+   "title_size": 130
+  },
+  {
+   "img": "c2.jpg",
+   "pos": "bottom",
+   "title": "$100 Coupon Bundle",
+   "emoji": "🍿",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "title_size": 140
+  },
+  {
+   "img": "c3.jpg",
+   "pos": "bottom",
+   "title": "Cozy Halloween nights",
+   "emoji": "☕",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "title_size": 130
+  },
+  {
+   "img": "c4.jpg",
+   "pos": "top",
+   "title": "Search my code in the Temu app",
+   "emoji": "💀",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+   "title_size": 124
+  }
+ ]
+}

@@ -350,7 +350,7 @@ for k, fn in enumerate(frames):
             sticker(lay, o.get('text', 'LINK IN BIO'), min(cx, W - 230), yy + 170, u, rot=0)
         if out < 1: lay.putalpha(lay.getchannel('A').point(lambda v: int(v * out)))
         img.alpha_composite(lay)
-    codebar(img, (T - min(code_big_t, 1.0)) / 0.4 if T < code_big_t else (T - code_big_t) / 0.4, T >= code_big_t)
+    if not any(p.get('nocode') and p['t'] <= T < p['t'] + p['b'] - p['a'] for p in parts): codebar(img, (T - min(code_big_t, 1.0)) / 0.4 if T < code_big_t else (T - code_big_t) / 0.4, T >= code_big_t)
     caption(img, T)
     img.convert('RGB').save(os.path.join(fr, fn), quality=92)
 # ---- 3. son : voix + effets

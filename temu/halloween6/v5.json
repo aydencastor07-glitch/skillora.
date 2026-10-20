@@ -2,16 +2,20 @@
  "template": "patch",
  "slides": [
   {
-   "img": "img/v5_1.jpg",
-   "title": "Tiny fairy, big pumpkin"
-  },
-  {
    "img": "img/v5_2.jpg",
    "title": "Hero of the patch"
   },
   {
+   "img": "img/v5_1.jpg",
+   "title": "Tiny fairy, big pumpkin"
+  },
+  {
    "img": "img/v5_3.jpg",
    "title": "Pick your pumpkins"
+  },
+  {
+   "img": "img/v5_5.jpg",
+   "title": "Carving time with mom"
   },
   {
    "img": "img/v5_4.jpg",
@@ -21,8 +25,60 @@
  "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
  "code": "alm148018",
  "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
- "music_seed": 55,
- "bpm": 108,
+ "music_seed": 58,
+ "bpm": 112,
  "key": 60,
- "slide_dur": 3.7
+ "slide_dur": 3.0,
+ "promo_slide": 1,
+ "tag_pos": [
+  [
+   "l",
+   1440
+  ],
+  [
+   "r",
+   1440
+  ],
+  [
+   "l",
+   1300
+  ],
+  [
+   "r",
+   1460
+  ],
+  [
+   "l",
+   1440
+  ]
+ ],
+ "logo_path": [
+  [
+   0.9,
+   0.06
+  ],
+  [
+   0.1,
+   0.06
+  ],
+  [
+   0.9,
+   0.6
+  ],
+  [
+   0.1,
+   0.06
+  ],
+  [
+   0.9,
+   0.06
+  ]
+ ],
+ "title_y": [
+  1000,
+  60,
+  1000,
+  60,
+  60
+ ]
 }

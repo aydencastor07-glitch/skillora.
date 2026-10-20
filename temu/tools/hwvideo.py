@@ -20,6 +20,12 @@ def back(u): u = max(0, min(1, u)); c = 1.7; return 1 + (c + 1) * (u - 1) ** 3 +
 LOGO = Image.open('/home/user/skillora./temu/temu_logo.png').convert('RGBA')
 def logo(img, x, y, s=120):
     img.alpha_composite(LOGO.resize((s, s), Image.LANCZOS), (int(x - s / 2), int(y - s / 2)))
+def logo_move(img, i, t, s=110):
+    # logo qui change de place à chaque photo : glisse vers sa nouvelle position, rebondit et tourne un peu
+    P = C['logo_path']; (x1, y1) = P[i % len(P)]; (x0, y0) = P[(i - 1) % len(P)] if i else (x1, y1)
+    e = ease(t / 0.7); x = (x0 + (x1 - x0) * e) * W; y = (y0 + (y1 - y0) * e) * H
+    sc = s * (0.85 + 0.15 * back(t / 0.5)); lg = LOGO.resize((int(sc), int(sc)), Image.LANCZOS).rotate(12 * (1 - e) * (1 if i % 2 else -1) + 3 * math.sin(t * 4), expand=True, resample=Image.BICUBIC)
+    img.alpha_composite(lg, (int(x - lg.width / 2), int(y - lg.height / 2)))
 CODE = C['code']; TXT = C['code_text']; i0 = TXT.index(CODE)
 PRE, POST = TXT[:i0].strip(), TXT[i0 + len(CODE):].strip()          # « Search code » / « for $100 Coupon Bundle in TEMU app »
 SRC = [Image.open(os.path.join(D, s['img'])).convert('RGB') for s in C['slides']]
@@ -74,7 +80,7 @@ def code_lines(d, cx, y, fa, fb, ca, cb, lh):
     d.text((cx, y + lh), POST, font=fa, fill=ca, anchor='mm')
 # ---- les 6 modèles : titre + bloc code + logo + avertissement
 def deco(img, i, t):
-    s = C['slides'][i]; last = i == N - 1; u = (t - (TR if i else 0)) / 0.6; d = ImageDraw.Draw(img)
+    s = C['slides'][i]; last = i == C.get('promo_slide', N - 1); u = (t - (TR if i else 0)) / 0.6; d = ImageDraw.Draw(img)
     if TP == 'vampire':
         g = (232, 192, 112); top = Image.new('RGBA', (W, 520), (0, 0, 0, 0)); a = np.linspace(200, 0, 520).astype('uint8')
         top.putalpha(Image.fromarray(np.repeat(a[:, None], W, 1))); img.alpha_composite(top)
@@ -132,17 +138,17 @@ def deco(img, i, t):
             g2 = Image.new('RGBA', img.size, (0, 0, 0, 0)); ImageDraw.Draw(g2).text((W / 2, 520), '$100', font=F('Righteous.ttf', 240), fill=cy_ + (255,), anchor='mm', stroke_width=14, stroke_fill=cy_ + (255,))
             img.alpha_composite(g2.filter(ImageFilter.GaussianBlur(20))); ImageDraw.Draw(img).text((W / 2, 520), '$100', font=F('Righteous.ttf', 240), fill=(255, 255, 255), anchor='mm')
             shadow_text(img, (W / 2, 690), 'COUPON BUNDLE', F('Righteous.ttf', 90), (255, 255, 255))
-        bx = [70, 1520, W - 70, 1760]; g3 = Image.new('RGBA', img.size, (0, 0, 0, 0)); ImageDraw.Draw(g3).rounded_rectangle(bx, 40, outline=cy_ + (255,), width=14)
+        cy0 = C.get('code_y', [1520] * N)[i]; bx = [70, cy0, W - 70, cy0 + 240]; g3 = Image.new('RGBA', img.size, (0, 0, 0, 0)); ImageDraw.Draw(g3).rounded_rectangle(bx, 40, outline=cy_ + (255,), width=14)
         img.alpha_composite(g3.filter(ImageFilter.GaussianBlur(14))); d = ImageDraw.Draw(img); d.rounded_rectangle(bx, 40, fill=(10, 5, 25, 200), outline=(220, 255, 255), width=4)
-        code_lines(d, W / 2, 1590, F('Righteous.ttf', 54), None, (255, 255, 255), cy_, 82)
-        logo(img, W / 2, 110, 110); disclaimer(img)
+        code_lines(d, W / 2, cy0 + 70, F('Righteous.ttf', 54), None, (255, 255, 255), cy_, 82)
+        (logo_move(img, i, t) if 'logo_path' in C else logo(img, W / 2, 110, 110)); disclaimer(img)
     elif TP == 'patch':
         org = (255, 132, 20)
         f = F('PermanentMarker.ttf', 82); ls = wrap(s['title'], f, W - 260); ph = 70 + len(ls) * 100
         pa = Image.new('RGBA', (W - 160, ph), (0, 0, 0, 0)); pd = ImageDraw.Draw(pa); pd.rectangle([0, 0, W - 161, ph - 1], fill=(255, 252, 244, 250))
         for k, l in enumerate(ls): pd.text(((W - 160) / 2, 40 + k * 100), l, font=f, fill=(25, 25, 25), anchor='mt')
         pd.rectangle([(W - 160) / 2 - 90, -10, (W - 160) / 2 + 90, 30], fill=(250, 220, 150, 200))
-        pa = pa.rotate(3 if i % 2 else -3, expand=True, resample=Image.BICUBIC); y = 230 - (1 - back(u)) * 500
+        pa = pa.rotate(3 if i % 2 else -3, expand=True, resample=Image.BICUBIC); y = C.get('title_y', [230] * N)[i] - (1 - back(u)) * 500
         img.alpha_composite(pa, (int(W / 2 - pa.width / 2), int(y)))
         if last:
             pu = Image.new('RGBA', (600, 600), (0, 0, 0, 0)); qd = ImageDraw.Draw(pu); qd.ellipse([20, 60, 580, 580], fill=org + (255,), outline=(120, 50, 0), width=8); qd.rectangle([275, 10, 325, 80], fill=(70, 110, 30))
@@ -152,8 +158,15 @@ def deco(img, i, t):
         td.polygon([(60, 0), (699, 0), (699, 329), (60, 329), (0, 165)], fill=org + (255,)); td.ellipse([40, 145, 80, 185], fill=(255, 252, 244))
         td.text((390, 55), PRE, font=F('PermanentMarker.ttf', 46), fill=(255, 255, 255), anchor='mm'); td.text((390, 140), CODE, font=F('ArchivoBlack-Regular.ttf', 82), fill=(40, 20, 0), anchor='mm')
         for k, l in enumerate(wrap(POST, F('PermanentMarker.ttf', 40), 560)): td.text((390, 222 + k * 50), l, font=F('PermanentMarker.ttf', 40), fill=(255, 255, 255), anchor='mm')
-        tg = tg.rotate(-6 + 2 * math.sin(t * 3), expand=True, resample=Image.BICUBIC); img.alpha_composite(tg, (W - tg.width - 30, 1440))
-        logo(img, 95, 105, 110); disclaimer(img)
+        side, ty = C.get('tag_pos', [['r', 1440]] * N)[i]
+        if side == 'l':
+            tg = Image.new('RGBA', (700, 330), (0, 0, 0, 0)); td = ImageDraw.Draw(tg)
+            td.polygon([(0, 0), (639, 0), (699, 165), (639, 329), (0, 329)], fill=org + (255,)); td.ellipse([619, 145, 659, 185], fill=(255, 252, 244))
+            td.text((310, 55), PRE, font=F('PermanentMarker.ttf', 46), fill=(255, 255, 255), anchor='mm'); td.text((310, 140), CODE, font=F('ArchivoBlack-Regular.ttf', 82), fill=(40, 20, 0), anchor='mm')
+            for k, l in enumerate(wrap(POST, F('PermanentMarker.ttf', 40), 560)): td.text((310, 222 + k * 50), l, font=F('PermanentMarker.ttf', 40), fill=(255, 255, 255), anchor='mm')
+        tg = tg.rotate((6 if side == 'l' else -6) + 2 * math.sin(t * 3), expand=True, resample=Image.BICUBIC)
+        img.alpha_composite(tg, (30 if side == 'l' else W - tg.width - 30, ty))
+        (logo_move(img, i, t) if 'logo_path' in C else logo(img, 95, 105, 110)); disclaimer(img)
     elif TP == 'mummy':
         nv = (18, 26, 60); ye = (255, 205, 95)
         words = s['title'].upper().split(); f = F('RubikMono.ttf', 66); rows = []; cur = []

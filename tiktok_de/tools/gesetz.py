@@ -25,7 +25,7 @@ while i < len(sp):
         i = j
     else: i += 1
 start = np.argmax(sp) / 100; end = (len(sp) - np.argmax(sp[::-1])) / 100
-SENT = [s.strip().replace('Nr§', 'Nr.') for s in re.split(r'(?<=[.:!?–,])\s+', ' '.join(C['text']).replace('Nr.', 'Nr§')) if s.strip()]
+SENT = [s.strip().replace('Nr§', 'Nr.') for s in re.split(r'(?<=[.:!?–,“])\s+', ' '.join(C['text']).replace('Nr.', 'Nr§')) if s.strip()]
 def syl(w):
     w = re.sub('[^a-zäöüß0-9]', '', w.lower())
     if w.isdigit(): return 2
@@ -36,13 +36,24 @@ for k in range(len(SENT) - 1):
     near = [g for g in gaps if abs(g[0] - t) < 1.0 and g[0] > bounds[-1] + 0.3]
     bounds.append(min(near, key=lambda g: abs(g[0] - t) - g[1])[0] if near else t)
 bounds.append(end); WORDS = []
+SEGT = None
+if C.get('segments'):   # calage manuel : [texte, début, fin] par morceau de phrase
+    SENT = [x[0] for x in C['segments']]; SEGT = [(x[1], x[2]) for x in C['segments']]; bounds = [x[1] for x in C['segments']] + [C['segments'][-1][2]]
 for k, s in enumerate(SENT):
-    t0, t1 = bounds[k] + (0.04 if k else 0), bounds[k + 1] - 0.06; ws = s.split(); ww = [syl(w) + 0.35 for w in ws]; tt = sum(ww); c = 0
+    t0, t1 = SEGT[k] if SEGT else (bounds[k] + (0.04 if k else 0), bounds[k + 1] - 0.06); ws = s.split(); ww = [syl(w) + 0.35 for w in ws]; tt = sum(ww); c = 0
     for w, q in zip(ws, ww): WORDS.append([w, t0 + (t1 - t0) * c / tt, t0 + (t1 - t0) * (c + q) / tt]); c += q
 if C.get('gavel') and C.get('align_voice'):
     cut = C['gavel']['t'] - 0.2; sh = C['gavel']['dur']
     WORDS = [[w, t0 + (sh if t0 >= cut else 0), t1 + (sh if t0 >= cut else 0)] for w, t0, t1 in WORDS]; bounds = [b + (sh if b >= cut else 0) for b in bounds]
 json.dump({'sent': SENT, 'bounds': bounds}, open(os.path.join(DIR, 'timing.json'), 'w'), ensure_ascii=False, indent=0)
+if os.environ.get('ALIGN_ONLY'): sys.exit(0)
+# mots de la citation (entre „ et “) : couleur crème
+QUOTE = set(); inq = False
+for k, (w, _, _) in enumerate(WORDS):
+    if '„' in w: inq = True
+    if inq: QUOTE.add(k)
+    if '“' in w or '"' in w: inq = False
+QC = (242, 204, 150)
 # ---------- groupes de mots (max 4 lignes, retour à la ligne étroit, nouveau groupe à chaque fin de phrase)
 TF = F('Poppins-ExtraBold.ttf', 62); MAXW = 560; LH = 84; TX, TY = 120, 790
 NT = C.get('title_words', 3)          # les premiers mots (« Gesetz Nr. 10: ») = carte titre
@@ -54,7 +65,7 @@ for k in range(NT, len(WORDS)):
     if lines[-1] and wlen(lines[-1] + [k]) > MAXW: lines.append([])
     if len(lines) > 4: groups.append(cur); cur = []; lines = [[]]
     lines[-1].append(k); cur.append(k)
-    if re.search(r'[.:!?]$', w): groups.append(cur); cur = []; lines = [[]]
+    if re.search(r'[.:!?][“"]?$', w): groups.append(cur); cur = []; lines = [[]]
 if cur: groups.append(cur)
 def layout(g):
     ls = [[]]
@@ -119,7 +130,7 @@ def frame(t):
     for k in g:
         w, t0, t1 = WORDS[k]; u = (t - t0 + 0.04) / 0.18
         if u <= 0: continue
-        al = ease(u) * out; x, y = LAY[gi][k]; col = YEL if HOT.search(re.sub(r'[^\wäöüß]', '', w)) else (255, 255, 255)
+        al = ease(u) * out; x, y = LAY[gi][k]; col = YEL if HOT.search(re.sub(r'[^\wäöüß]', '', w)) else (QC if k in QUOTE else (255, 255, 255))
         d.text((x, y + (1 - ease(u)) * 14), w, font=TF, fill=tuple(int(c * al + PANEL[j] * 0.0 * (1 - al)) for j, c in enumerate(col)), anchor='la') if al >= 0.99 else None
         if al < 0.99:
             lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(lay).text((x, y + (1 - ease(u)) * 14), w, font=TF, fill=col + (int(255 * al),), anchor='la'); img.alpha_composite(lay)

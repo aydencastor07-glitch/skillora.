@@ -1,0 +1,90 @@
+{
+ "voice": "voix_gavel.mp3",
+ "portrait": "portrait.png",
+ "title": "GESETZ NR. 2",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "text": [
+  "Gesetz Nr. 2: Sprich nicht über deine Pläne.",
+  "Jedes Mal, wenn du von deinem Ziel erzählst, belohnt dich dein Gehirn schon – als hättest du es bereits geschafft.",
+  "Und genau dieses Gefühl nimmt dir den Hunger, wirklich anzufangen.",
+  "Dazu kommen Menschen, die heimlich hoffen, dass du scheiterst.",
+  "Marc Aurel sagte: „Verschwende keine Zeit mehr mit Reden darüber, wie ein guter Mensch sein sollte. Sei einer.“",
+  "Also arbeite leise. Lass deine Ergebnisse sprechen – nicht deine Worte."
+ ],
+ "hot": "^(pläne|ziel|gehirn|belohnt|geschafft|gefühl|hunger|anfangen|heimlich|scheiterst|marc|aurel|sei|einer|leise|ergebnisse|worte)$",
+ "segments": [
+  [
+   "Gesetz Nr. 2:",
+   0.05,
+   1.11
+  ],
+  [
+   "Sprich nicht über deine Pläne.",
+   1.67,
+   3.26
+  ],
+  [
+   "Jedes Mal, wenn du von deinem Ziel erzählst,",
+   4.04,
+   6.37
+  ],
+  [
+   "belohnt dich dein Gehirn schon –",
+   6.54,
+   7.82
+  ],
+  [
+   "als hättest du es bereits geschafft.",
+   8.18,
+   9.46
+  ],
+  [
+   "Und genau dieses Gefühl nimmt dir den Hunger, wirklich anzufangen.",
+   10.27,
+   13.51
+  ],
+  [
+   "Dazu kommen Menschen, die heimlich hoffen, dass du scheiterst.",
+   14.26,
+   17.07
+  ],
+  [
+   "Marc Aurel sagte:",
+   17.36,
+   18.5
+  ],
+  [
+   "„Verschwende keine Zeit mehr mit Reden darüber, wie ein guter Mensch sein sollte.",
+   18.85,
+   22.87
+  ],
+  [
+   "Sei einer.“",
+   23.32,
+   23.98
+  ],
+  [
+   "Also arbeite leise.",
+   24.48,
+   25.86
+  ],
+  [
+   "Lass deine Ergebnisse sprechen –",
+   26.31,
+   27.72
+  ],
+  [
+   "nicht deine Worte.",
+   28.06,
+   28.87
+  ]
+ ],
+ "align_voice": "voix_clean.mp3",
+ "gavel": {
+  "t": 3.6999999999999997,
+  "dur": 1.3
+ },
+ "gavel_sfx": "gavel/coup.wav"
+}

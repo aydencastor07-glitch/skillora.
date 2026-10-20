@@ -1,0 +1,28 @@
+{
+ "template": "neon",
+ "slides": [
+  {
+   "img": "img/v4_1.jpg",
+   "title": "Bone to party"
+  },
+  {
+   "img": "img/v4_2.jpg",
+   "title": "No body, all fun"
+  },
+  {
+   "img": "img/v4_3.jpg",
+   "title": "Skeleton squad"
+  },
+  {
+   "img": "img/v4_4.jpg",
+   "title": "Grab your treat"
+  }
+ ],
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "code": "alm148018",
+ "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "music_seed": 44,
+ "bpm": 128,
+ "key": 52,
+ "slide_dur": 3.5
+}

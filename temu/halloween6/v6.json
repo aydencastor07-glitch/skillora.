@@ -1,0 +1,28 @@
+{
+ "template": "mummy",
+ "slides": [
+  {
+   "img": "img/v6_1.jpg",
+   "title": "All wrapped up for Halloween"
+  },
+  {
+   "img": "img/v6_2.jpg",
+   "title": "Lantern on, ghosts out"
+  },
+  {
+   "img": "img/v6_3.jpg",
+   "title": "Trick or treat at our door"
+  },
+  {
+   "img": "img/v6_4.jpg",
+   "title": "Spooky night, sweet deal"
+  }
+ ],
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "code": "alm148018",
+ "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "music_seed": 66,
+ "bpm": 92,
+ "key": 58,
+ "slide_dur": 3.3
+}

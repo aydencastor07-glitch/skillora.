@@ -1,0 +1,28 @@
+{
+ "template": "witch",
+ "slides": [
+  {
+   "img": "img/v3_1.jpg",
+   "title": "Bake a little magic"
+  },
+  {
+   "img": "img/v3_2.jpg",
+   "title": "Today's potion: cookie dough"
+  },
+  {
+   "img": "img/v3_3.jpg",
+   "title": "Fresh from the cauldron"
+  },
+  {
+   "img": "img/v3_4.jpg",
+   "title": "A sweet witchy deal"
+  }
+ ],
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "code": "alm148018",
+ "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "music_seed": 33,
+ "bpm": 100,
+ "key": 62,
+ "slide_dur": 3.8
+}

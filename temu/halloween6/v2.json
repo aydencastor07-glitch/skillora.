@@ -1,0 +1,28 @@
+{
+ "template": "zombie",
+ "slides": [
+  {
+   "img": "img/v2_1.jpg",
+   "title": "The zombies are home"
+  },
+  {
+   "img": "img/v2_2.jpg",
+   "title": "Run, kids, run!"
+  },
+  {
+   "img": "img/v2_3.jpg",
+   "title": "Treats for the undead"
+  },
+  {
+   "img": "img/v2_4.jpg",
+   "title": "Undead family goals"
+  }
+ ],
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "code": "alm148018",
+ "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "music_seed": 22,
+ "bpm": 124,
+ "key": 55,
+ "slide_dur": 3.4
+}

@@ -1,0 +1,28 @@
+{
+ "template": "patch",
+ "slides": [
+  {
+   "img": "img/v5_1.jpg",
+   "title": "Tiny fairy, big pumpkin"
+  },
+  {
+   "img": "img/v5_2.jpg",
+   "title": "Hero of the patch"
+  },
+  {
+   "img": "img/v5_3.jpg",
+   "title": "Pick your pumpkins"
+  },
+  {
+   "img": "img/v5_4.jpg",
+   "title": "Costumes, pumpkins, memories"
+  }
+ ],
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "code": "alm148018",
+ "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "music_seed": 55,
+ "bpm": 108,
+ "key": 60,
+ "slide_dur": 3.7
+}

@@ -1,0 +1,17 @@
+=== GESETZ NR. 2 – SCRIPT À LIRE (allemand, ~24 s, même voix que Gesetz Nr. 10) ===
+Gesetz Nr. 2: Sprich nicht über deine Pläne.
+Jedes Mal, wenn du von deinem Ziel erzählst, belohnt dich dein Gehirn schon – als hättest du es bereits geschafft.
+Und genau dieses Gefühl nimmt dir den Hunger, wirklich anzufangen.
+Dazu kommen Menschen, die heimlich hoffen, dass du scheiterst.
+Also arbeite leise. Lass deine Ergebnisse sprechen – nicht deine Worte.
+
+=== TRADUCTION ===
+Loi n°2 : ne parle pas de tes projets.
+Chaque fois que tu racontes ton objectif, ton cerveau te récompense déjà – comme si tu l'avais déjà atteint.
+Et c'est exactement ce sentiment qui t'enlève l'envie de vraiment commencer.
+En plus, il y a des gens qui espèrent en secret que tu échoues.
+Alors travaille en silence. Laisse tes résultats parler – pas tes mots.
+
+=== MONTAGE ===
+- Titre « GESETZ NR. 2 » + glitch, puis le marteau qui frappe après « Sprich nicht über deine Pläne. »
+- Nouveau personnage : portrait ancien en noir et blanc (voir portrait_prompt.txt), pas de pseudo.

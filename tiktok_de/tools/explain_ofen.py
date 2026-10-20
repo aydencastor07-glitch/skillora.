@@ -131,7 +131,7 @@ def atx(word, n=0):   # mot exact (ponctuation ignorée)
     m = [w for w in WORDS if w[0].strip('.,:!?–;"„“').lower() == word.lower()]; return m[n][1] if len(m) > n else None
 T = {k: atx(*v) for k, v in KEYS.items()}
 print({k: round(v, 2) if v else v for k, v in T.items()})
-SC = [0, T['genauso'] - 0.1, T['vorh2'] - 0.1, T['deine'] - 0.1, T['umluft'] - 0.1, T['einzelne'] - 0.2, T['symbol2'] - 0.1, T['sags'] - 0.15, DUR]
+SC = [0, T['genauso'] - 0.1, T['vorh2'] + 0.5, T['deine'] - 0.1, T['umluft'] - 0.1, T['einzelne'] - 0.2, T['symbol2'] - 0.1, T['sags'] - 0.15, DUR]
 def scene_alpha(i, t):
     a0, a1 = SC[i], SC[i + 1]; return clamp((t - a0) / 0.25) * clamp((a1 - t) / 0.25 + (1 if i == len(SC) - 2 else 0))
 def draw(t):

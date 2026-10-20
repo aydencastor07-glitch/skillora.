@@ -22,24 +22,35 @@ for si, (a, b, sp, title) in enumerate(P['segs']):
     srcs = sorted(f for f in os.listdir(tmp + '/src') if f.startswith(f's{si}_'))
     for i in range(N):
         t = i / FPS; f = bg.copy(); dr = ImageDraw.Draw(f)
-        k = ease(t / 0.35) if si == 0 else 1
-        f.alpha_composite(shadow, (PX - 40, PY - 40 + int((1 - k) * 600)))
-        sc = Image.open(f'{tmp}/src/{srcs[min(i, len(srcs) - 1)]}').convert('RGBA'); sc.putalpha(mask)
-        f.alpha_composite(sc, (PX, PY + int((1 - k) * 600)))
-        dr.rounded_rectangle([PX - 6, PY - 6 + int((1 - k) * 600), PX + PW + 6, PY + PH + 6 + int((1 - k) * 600)], 64, outline=(255, 255, 255), width=10)
+        k = ease(t / 0.35) if si == 0 else 1; TL = P.get('tilt', 0)
+        if TL:   # téléphone penché qui se redresse un peu à chaque étape, posé plus haut
+            ph = Image.new('RGBA', (PW + 120, PH + 120), (0, 0, 0, 0)); ph.alpha_composite(shadow, (20, 20))
+            sc = Image.open(f'{tmp}/src/{srcs[min(i, len(srcs) - 1)]}').convert('RGBA'); sc.putalpha(mask); ph.alpha_composite(sc, (60, 60))
+            ImageDraw.Draw(ph).rounded_rectangle([54, 54, PW + 66, PH + 66], 64, outline=(255, 255, 255), width=10)
+            ph = ph.rotate(TL * (1 - 0.5 * ease(t / 0.6)) * (1 if si % 2 == 0 else -1), expand=True, resample=Image.BICUBIC)
+            f.alpha_composite(ph, (int(W / 2 - ph.width / 2), int(P.get('phone_y', 250) - 60 + (1 - k) * 700)))
+        else:
+            f.alpha_composite(shadow, (PX - 40, PY - 40 + int((1 - k) * 600)))
+            sc = Image.open(f'{tmp}/src/{srcs[min(i, len(srcs) - 1)]}').convert('RGBA'); sc.putalpha(mask)
+            f.alpha_composite(sc, (PX, PY + int((1 - k) * 600)))
+            dr.rounded_rectangle([PX - 6, PY - 6 + int((1 - k) * 600), PX + PW + 6, PY + PH + 6 + int((1 - k) * 600)], 64, outline=(255, 255, 255), width=10)
         # titre de l'étape
-        u = ease(t / 0.3); tw = ft.getbbox(title)[2] + 80; x0 = W / 2 - tw / 2; y0 = 120 - (1 - u) * 80
-        dr.rounded_rectangle([x0, y0, x0 + tw, y0 + 120], 60, fill=ACC + (255,)); dr.text((W / 2, y0 + 60), title, font=ft, fill=(255, 255, 255), anchor='mm')
+        u = ease(t / 0.3); tw = ft.getbbox(title)[2] + 80; x0 = W / 2 - tw / 2; TY = P.get('title_y', 120); y0 = TY - (1 - u) * 80
+        if P.get('title_style') == 'dark':
+            dr.rectangle([x0, y0, x0 + tw, y0 + 120], fill=(20, 20, 28, 255)); dr.rectangle([x0, y0 + 108, x0 + tw * u, y0 + 120], fill=ACC + (255,))
+        else: dr.rounded_rectangle([x0, y0, x0 + tw, y0 + 120], 60, fill=ACC + (255,))
+        dr.text((W / 2, y0 + 60), title, font=ft, fill=(255, 255, 255), anchor='mm')
         # logo qui rebondit au début de chaque étape
         if t < 1.0:
-            s = max(0.01, math.sin(min(1, t / 0.5) * math.pi / 2) * (1 - max(0, t - 0.7) / 0.3)); lg = LOGO.resize((int(150 * s) + 1, int(150 * s) + 1)); f.alpha_composite(lg, (int(W - 120 - lg.width / 2), int(PY + 90 - lg.height / 2)))
+            s = max(0.01, math.sin(min(1, t / 0.5) * math.pi / 2) * (1 - max(0, t - 0.7) / 0.3)); lg = LOGO.resize((int(150 * s) + 1, int(150 * s) + 1)); f.alpha_composite(lg, (int(W * P.get('logo_x', 0.89) - lg.width / 2), int(P.get('logo_y', PY + 90) - lg.height / 2)))
         # texte obligatoire en bas
         txt = P['code_text']; i1 = txt.index(P['code']) + len(P['code']); l1, l2 = txt[:i1], txt[i1:].strip()
         bw = max(fcode.getbbox(l1)[2], fc.getbbox(l2)[2]) + 80
-        dr.rounded_rectangle([W / 2 - bw / 2, 1700, W / 2 + bw / 2, 1880], 34, fill=(255, 255, 255, 245), outline=ACC + (255,), width=7)
+        CY = P.get('code_y', 1700)
+        dr.rounded_rectangle([W / 2 - bw / 2, CY, W / 2 + bw / 2, CY + 180], 34, fill=(255, 255, 255, 245), outline=ACC + (255,), width=7)
         pre = l1[:l1.index(P['code'])]; xx = W / 2 - fcode.getbbox(l1)[2] / 2
-        dr.text((xx, 1755), pre, font=fcode, fill=(40, 30, 35), anchor='lm'); dr.text((xx + fcode.getbbox(pre)[2], 1755), P['code'], font=fcode, fill=ACC, anchor='lm')
-        dr.text((W / 2, 1832), l2, font=fc, fill=(60, 50, 55), anchor='mm')
+        dr.text((xx, CY + 55), pre, font=fcode, fill=(40, 30, 35), anchor='lm'); dr.text((xx + fcode.getbbox(pre)[2], CY + 55), P['code'], font=fcode, fill=tuple(P.get('code_color', ACC)), anchor='lm')
+        dr.text((W / 2, CY + 132), l2, font=fc, fill=(60, 50, 55), anchor='mm')
         f.convert('RGB').save(f'{tmp}/fr/f{n:05d}.jpg', quality=92); n += 1
 subprocess.run([FF, '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{tmp}/fr/f%05d.jpg', '-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo', '-shortest', '-c:v', 'libx264', '-crf', '17', '-pix_fmt', 'yuv420p', '-c:a', 'aac', out], check=True)
 shutil.rmtree(tmp); print('ok', out, n / FPS)

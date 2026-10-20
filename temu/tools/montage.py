@@ -96,6 +96,7 @@ def logo(img):
     img.alpha_composite(LOGO, (x, y))
 CODE_Y = C.get('code_y') or {'top': 0.2, 'middle': 0.56, 'bottom': 0.84}[C.get('code_pos', 'bottom')]
 def codebar(img, u, big):
+    if C.get('code_layout') == 'stack': return codestack(img, u, big)
     # texte obligatoire du programme (exact), coupé en 2 lignes, + étiquette « MY CODE » qui pointe dessus
     if u <= 0: return
     full = C['code_text']; code = C['code']; i = full.index(code) + len(code)
@@ -117,12 +118,41 @@ def codebar(img, u, big):
     lay = lay.resize((int(lay.width * s), int(lay.height * s)), Image.LANCZOS)
     if lay.width > W - 50: r = (W - 50) / lay.width; lay = lay.resize((W - 50, int(lay.height * r)), Image.LANCZOS)
     img.alpha_composite(lay, (int(W / 2 - lay.width / 2), int(H * CODE_Y - lay.height / 2)))
+def codestack(img, u, big):
+    # texte du programme (exact) sur 3 lignes dans une carte étroite placée sur le côté (code_x, code_y)
+    if u <= 0: return
+    full = C['code_text']; code = C['code']; i0 = full.index(code); i1 = i0 + len(code)
+    ls = [full[:i0].strip(), code, full[i1:].strip()]
+    fa = font(46, path=FD + 'Poppins-ExtraBold.ttf'); fb = font(84, path=FD + 'ArchivoBlack-Regular.ttf'); fc = font(34, path=FD + 'Poppins-ExtraBold.ttf')
+    w = max(fa.getbbox(ls[0])[2], fb.getbbox(ls[1])[2], fc.getbbox(ls[2])[2]) + 70; h = 270
+    tag = C.get('code_tag', 'MY CODE'); ft = font(36, path=FD + 'Poppins-ExtraBold.ttf'); tw = ft.getbbox(tag)[2] + 44
+    lay = Image.new('RGBA', (w + 30, h + 80), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    BX = tuple(ST.get('box_bg', (255, 255, 255))); TX = tuple(ST.get('box_fg', (30, 30, 30)))
+    d.rounded_rectangle([14, 64, w + 14, 64 + h], 30, fill=(0, 0, 0, 70))
+    d.rounded_rectangle([0, 50, w, 50 + h], 30, fill=BX + (248,))
+    d.rectangle([0, 50 + 28, 14, 50 + h - 28], fill=ACC + (255,))
+    d.text((w / 2, 50 + 58), ls[0], font=fa, fill=TX, anchor='mm')
+    d.rounded_rectangle([24, 50 + 100, w - 24, 50 + 196], 20, outline=ACC + (255,), width=5)
+    d.text((w / 2, 50 + 150), ls[1], font=fb, fill=tuple(ST.get('code_color', ACC)), anchor='mm')
+    d.text((w / 2, 50 + 232), ls[2], font=fc, fill=TX, anchor='mm')
+    d.rounded_rectangle([w / 2 - tw / 2, 0, w / 2 + tw / 2, 62], 31, fill=ACC + (255,)); d.text((w / 2, 31), tag, font=ft, fill=(255, 255, 255), anchor='mm')
+    s = (0.6 + 0.4 * back(u)) * ((C.get('code_big', 1.0) + 0.03 * math.sin(T * 6)) if big else C.get('code_small', 0.85))
+    lay = lay.resize((int(lay.width * s), int(lay.height * s)), Image.LANCZOS)
+    cx = W * C.get('code_x', 0.75); cx = min(max(cx, lay.width / 2 + 20), W - lay.width / 2 - 20)
+    img.alpha_composite(lay, (int(cx - lay.width / 2), int(H * code_y_at(T) - lay.height / 2)))
+def code_y_at(T):
+    # position verticale du code par morceau (clé code_y d'un morceau), glisse en 0.3 s après la coupe
+    y = CODE_Y; prev = CODE_Y
+    for p in parts:
+        if p['t'] <= T: prev, y = y, p.get('code_y', CODE_Y); t0 = p['t']
+    return prev + (y - prev) * ease((T - t0) / 0.3) if prev != y else y
 def caption(img, T):
     if ST.get('caption') == 'pill': return caption_pill(img, T)
     if ST.get('caption') == 'pop': return caption_pop(img, T)
     if ST.get('caption') == 'line': return caption_line(img, T)
     if ST.get('caption') == 'box': return caption_box(img, T)
     if ST.get('caption') == 'outline': return caption_outline(img, T)
+    if ST.get('caption') == 'neon': return caption_neon(img, T)
     return caption_stroke(img, T)
 def caption_pill(img, T):
     # 3-4 mots en minuscules sur une bulle blanche, le mot dit est surligné (couleur d'accent)
@@ -228,6 +258,40 @@ def note(img, txt, cx, cy, u, emo=None, rot=-5):
     e = back(u); lay = lay.rotate(rot * e, expand=True, resample=Image.BICUBIC)
     s2 = 0.5 + 0.5 * e; lay = lay.resize((max(1, int(lay.width * s2)), max(1, int(lay.height * s2))), Image.LANCZOS)
     img.alpha_composite(lay, (int(cx - lay.width / 2), int(cy - lay.height / 2 - (1 - ease(u)) * 80)))
+def caption_neon(img, T):
+    # 3 mots en Bebas Neue, mot dit qui s'allume (halo lumineux couleur), les autres en gris clair transparent
+    cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
+    if not cur: return
+    i = cur[-1]
+    if T > words[i][2] + 0.6: return
+    n = 3; g0 = i - (i % n); grp = words[g0:g0 + n]; f = font(118, path=FD + 'BebasNeue-Regular.ttf')
+    txts = [w[0].replace('Timu', 'Temu').upper().strip(',.:') for w in grp]; ws = [f.getbbox(x)[2] for x in txts]; sp = 30; tot = sum(ws) + sp * (len(ws) - 1)
+    if tot > W - 120: f = font(int(118 * (W - 120) / tot), path=FD + 'BebasNeue-Regular.ttf'); ws = [f.getbbox(x)[2] for x in txts]; tot = sum(ws) + sp * (len(ws) - 1)
+    y = H * C.get('cap_y', 0.66); x = W / 2 - tot / 2
+    glow = Image.new('RGBA', img.size, (0, 0, 0, 0)); gd = ImageDraw.Draw(glow); top = Image.new('RGBA', img.size, (0, 0, 0, 0)); td = ImageDraw.Draw(top)
+    for k, (tx, wd) in enumerate(zip(txts, ws)):
+        said = grp[k][1] <= T + 0.05; act = (g0 + k) == i
+        if said: gd.text((x, y), tx, font=f, fill=ACC + (255,), anchor='lm', stroke_width=14, stroke_fill=ACC + (255,))
+        td.text((x, y), tx, font=f, fill=(255, 255, 255, 255) if said else (255, 255, 255, 110), anchor='lm', stroke_width=3, stroke_fill=(20, 20, 30, 200))
+        if act: td.rectangle([x, y + 54, x + wd * max(0, min(1, (T - grp[k][1]) / max(0.08, grp[k][2] - grp[k][1]))), y + 62], fill=ACC + (255,))
+        x += wd + sp
+    img.alpha_composite(glow.filter(ImageFilter.GaussianBlur(16))); img.alpha_composite(top)
+def badge(img, txt, cx, cy, u, emo=None, rot=-8):
+    # macaron rond (sceau) couleur, bord pointillé blanc, émoji en haut, texte en dessous, arrive en tournant
+    if u <= 0: return
+    lines = txt.split('|'); fs = 46 if max(len(l) for l in lines) < 11 else 38; f = font(fs, path=FD + 'Poppins-ExtraBold.ttf')
+    R = int(max(150, max(f.getbbox(l)[2] for l in lines) / 2 + 50, (len(lines) * fs * 1.1 + (100 if emo else 0)) / 2 + 40))
+    lay = Image.new('RGBA', (2 * R + 40, 2 * R + 40), (0, 0, 0, 0)); d = ImageDraw.Draw(lay); c = R + 20
+    d.ellipse([c - R + 8, c - R + 12, c + R + 8, c + R + 12], fill=(0, 0, 0, 80))
+    d.ellipse([c - R, c - R, c + R, c + R], fill=ACC + (255,))
+    for j in range(36):
+        a = j * math.pi / 18; d.ellipse([c + (R - 16) * math.cos(a) - 4, c + (R - 16) * math.sin(a) - 4, c + (R - 16) * math.cos(a) + 4, c + (R - 16) * math.sin(a) + 4], fill=(255, 255, 255, 230))
+    if emo: lay.alpha_composite(emoji(emo, 84), (c - 42, c - 100))
+    y0 = c + (30 if emo else 0) - (len(lines) - 1) * fs * 0.55
+    for li, l in enumerate(lines): d.text((c, y0 + li * fs * 1.1), l, font=f, fill=(255, 255, 255), anchor='mm')
+    e = back(u); lay = lay.rotate(rot + (1 - ease(u)) * 120, expand=True, resample=Image.BICUBIC)
+    s2 = max(0.05, 0.2 + 0.8 * e); lay = lay.resize((max(1, int(lay.width * s2)), max(1, int(lay.height * s2))), Image.LANCZOS)
+    img.alpha_composite(lay, (int(cx - lay.width / 2), int(cy - lay.height / 2 + 6 * math.sin(T * 4))))
 def caption_pop(img, T):
     # un seul mot à la fois, énorme, qui rebondit (police Anton), mots-clés en couleur
     cur = [i for i, w in enumerate(words) if w[1] <= T + 0.05]
@@ -308,7 +372,15 @@ for k, fn in enumerate(frames):
     # petit flash blanc à chaque coupe
     for p in parts[1:]:
         dt = T - p['t']
-        if ST.get('cut') == 'tilt':
+        if ST.get('cut') == 'glitch':
+            if 0 <= dt < 0.2:
+                k = 1 - dt / 0.2; a = np.asarray(img).copy(); o = int(26 * k)
+                a[..., 0] = np.roll(a[..., 0], o, 1); a[..., 2] = np.roll(a[..., 2], -o, 1)
+                rs = np.random.RandomState(int(T * 100))
+                for _ in range(6):
+                    y1 = rs.randint(0, H - 80); hh = rs.randint(20, 90); a[y1:y1 + hh] = np.roll(a[y1:y1 + hh], int(rs.randint(-80, 80) * k), 1)
+                img = Image.fromarray(a)
+        elif ST.get('cut') == 'tilt':
             if 0 <= dt < 0.25:
                 k = 1 - ease(dt / 0.25); z = 1 + 0.08 * k
                 im2 = img.rotate(5 * k, resample=Image.BILINEAR); cw, ch = int(W / z), int(H / z)
@@ -337,6 +409,7 @@ for k, fn in enumerate(frames):
         u = (T - o['t0']) / 0.35; out = 1 - max(0, (T - o['t1']) / 0.25)
         lay = Image.new('RGBA', img.size, (0, 0, 0, 0))
         if o['type'] == 'stars': stars(lay, o['val'], o['reviews'], W / 2, H * o.get('y', 0.2), u)
+        elif o['type'] == 'sticker' and ST.get('sticker') == 'badge': badge(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'), o.get('rot', -8))
         elif o['type'] == 'sticker' and ST.get('sticker') == 'note': note(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'), o.get('rot', -5))
         elif o['type'] == 'sticker' and ST.get('sticker') == 'ribbon': ribbon(lay, o['text'], H * o.get('y', 0.25), u, o.get('emoji'), o.get('side', 1))
         elif o['type'] == 'sticker' and ST.get('sticker') == 'chip': chip(lay, o['text'], W * o.get('x', 0.5), H * o.get('y', 0.25), u, o.get('emoji'))

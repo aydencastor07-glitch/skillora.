@@ -1,0 +1,33 @@
+=== SCRIPT ORIGINAL (vidéo de référence, 62 s) ===
+Dein Tacho sagt dir genau, wie schnell du fährst, ne? Hab ich auch immer gedacht, ist aber Quatsch.
+Der Tacho misst deine Geschwindigkeit nämlich gar nicht genau. Der zählt nur, wie oft sich deine Reifen drehen, und rechnet dann mit so einer Formel aus, wie schnell du sein müsstest.
+Wichtig für die Formel ist aber der genaue Umfang von deinem Reifen, und den kennt dein Tacho ja gar nicht. Den stellen die Kollegen in der Fabrik vorher schon ein.
+Der Reifenumfang verändert sich ständig, je nachdem, wie viel Luft in dem Ding ist und wie viel Gummi du schon abgefahren hast. Dein Tacho gibt dir eigentlich nur so eine Schätzung von der Geschwindigkeit, und wenn du einen ganz anderen Reifen drauf packst, wird's noch ungenauer.
+Außerdem zeigt er immer so einen Ticken mehr an, als das in echt ist. So ein Tacho darf nämlich niemals zu wenig Geschwindigkeit anzeigen, weil ihr sonst aus Versehen zu schnell fahren könnt. Deswegen zeigt er bis zu 10 % mehr an, als du in echt fährst, und rechnet da nochmal bis zu 4 km/h obendrauf. Bei 100 km/h Geschwindigkeit darf dein Tacho also bis zu 114 km/h auf der Uhr haben.
+Und woher weiß Google Maps dann besser, wie schnell ich unterwegs bin? Dein Handy misst die Geschwindigkeit nicht anhand der Reifenumdrehung. Das berechnet die Geschwindigkeit anhand der tatsächlichen Position und nicht durch so eine voreingestellte Formel. Dein Reifenumfang ist dabei irrelevant, und so ist das in den meisten Fällen also genauer als ein Tacho.
+Sagt einem ja keiner.
+
+=== TRADUCTION FRANÇAISE ===
+Ton compteur te dit exactement à quelle vitesse tu roules, hein ? Moi aussi je l'ai toujours cru, mais c'est faux.
+Le compteur ne mesure pas vraiment ta vitesse avec précision. Il compte seulement combien de fois tes roues tournent, puis il calcule avec une formule à quelle vitesse tu devrais rouler.
+Mais pour cette formule, il faut la circonférence exacte de ton pneu, et ton compteur ne la connaît pas. Ce sont les gars à l'usine qui la règlent à l'avance.
+La circonférence du pneu change tout le temps, selon la quantité d'air dedans et l'usure du caoutchouc. Ton compteur ne te donne en fait qu'une estimation de la vitesse, et si tu mets des pneus complètement différents, c'est encore moins précis.
+En plus, il affiche toujours un peu plus que la réalité. Un compteur n'a jamais le droit d'afficher une vitesse trop basse, sinon tu pourrais rouler trop vite sans le faire exprès. Il affiche donc jusqu'à 10 % de plus que ta vraie vitesse, et ajoute encore jusqu'à 4 km/h. À 100 km/h réels, ton compteur peut donc afficher jusqu'à 114 km/h.
+Et alors comment Google Maps sait mieux à quelle vitesse je roule ? Ton téléphone ne mesure pas la vitesse avec les tours de roue. Il la calcule avec ta position réelle, pas avec une formule réglée à l'avance. La taille de ton pneu ne compte pas, donc dans la plupart des cas c'est plus précis qu'un compteur.
+Personne ne te le dit.
+
+=== NOTRE VERSION 40 s (allemand, réécrite avec nos mots, ~100 mots) ===
+Dein Tacho lügt dich an. Und zwar mit Absicht.
+Er misst deine Geschwindigkeit nämlich gar nicht direkt. Er zählt nur, wie oft sich deine Reifen drehen, und rechnet das mit einem festen Reifenumfang hoch.
+Aber der Umfang ändert sich ständig: weniger Luft, abgefahrenes Profil, andere Reifen – und schon stimmt die Rechnung nicht mehr.
+Dazu kommt: Ein Tacho darf niemals zu wenig anzeigen. Erlaubt sind bis zu zehn Prozent plus vier km/h obendrauf. Bei echten 100 können also bis zu 114 auf der Uhr stehen.
+Dein Handy rechnet dagegen mit GPS, also mit deiner echten Position. Deshalb ist Google Maps meistens genauer.
+Sag's weiter – sagt dir ja sonst keiner.
+
+=== TRADUCTION DE NOTRE VERSION ===
+Ton compteur te ment. Et il le fait exprès.
+En fait, il ne mesure pas directement ta vitesse. Il compte seulement combien de fois tes roues tournent, et il en déduit la vitesse avec une circonférence de pneu fixe.
+Mais cette circonférence change tout le temps : moins d'air, pneu usé, pneus différents… et le calcul n'est déjà plus juste.
+En plus : un compteur n'a jamais le droit d'afficher trop peu. On lui autorise jusqu'à 10 % plus 4 km/h en plus. À 100 réels, il peut donc afficher jusqu'à 114.
+Ton téléphone, lui, calcule avec le GPS, donc avec ta vraie position. C'est pour ça que Google Maps est le plus souvent plus précis.
+Partage-le, sinon personne ne te le dira.

@@ -191,8 +191,8 @@ def draw(t):
     img.alpha_composite(lay)
     if NAME or HANDLE:   # signature fixe (nom manuscrit + @pseudo en rouge), comme sur les vidéos de référence
         sg = Image.new('RGBA', img.size, (0, 0, 0, 0))
-        if NAME: ImageDraw.Draw(sg).text((S(70), S(150)), NAME, font=HAND(S(56)), fill=GREY + (255,), anchor='ls')
-        if HANDLE: ImageDraw.Draw(sg).text((S(70), S(200)), HANDLE, font=HAND(S(44)), fill=RED + (255,), anchor='ls')
+        if NAME: ImageDraw.Draw(sg).text((S(70), S(185)), NAME, font=HAND(S(86)), fill=GREY + (255,), anchor='ls')
+        if HANDLE: ImageDraw.Draw(sg).text((S(72), S(250)), HANDLE, font=HAND(S(62)), fill=RED + (255,), anchor='ls')
         img.alpha_composite(sg)
     img = img.resize((W, H), Image.LANCZOS)
     caption(img, t); return img.convert('RGB')

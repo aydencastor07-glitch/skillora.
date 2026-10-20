@@ -151,6 +151,8 @@ if GV:   # coup de marteau synthétisé : claquement bois + choc grave + petite 
     hit = sum(a_ * np.sin(2 * np.pi * f_ * x) * np.exp(-x / d_) for f_, a_, d_ in ((95, 1.0, 0.09), (190, 0.6, 0.06), (430, 0.55, 0.035), (870, 0.35, 0.02), (1650, 0.2, 0.012)))
     nz = rs.randn(n) * np.exp(-x / 0.006); nz = np.convolve(nz, np.ones(4) / 4, 'same'); hit = hit + 0.9 * nz
     rv = rs.randn(int(0.9 * SR2)) * np.exp(-np.arange(int(0.9 * SR2)) / SR2 / 0.25) * 0.02; hit = np.convolve(hit, np.r_[1, np.zeros(200), rv])[:n]
+    if C.get('gavel_sfx'):   # vrai son de marteau fourni
+        w3 = wave.open(os.path.join(DIR, C['gavel_sfx'])); hit = np.frombuffer(w3.readframes(w3.getnframes()), '<i2').astype(float) / 32768; n = len(hit)
     hit = hit / np.abs(hit).max(); i0 = int(G_IMP * SR2); L = min(n, N - i0); mix[i0:i0 + L] += hit[:L] * 0.9
 fd = int(0.8 * SR2); mix[-fd:] *= np.linspace(1, 0, fd); mix = mix / np.abs(mix).max() * 0.95
 wo = wave.open(f'{tmp}/a.wav', 'wb'); wo.setnchannels(1); wo.setsampwidth(2); wo.setframerate(SR2); wo.writeframes((mix * 32767).astype('<i2').tobytes()); wo.close()

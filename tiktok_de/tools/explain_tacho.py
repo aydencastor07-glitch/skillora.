@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import imageio_ffmpeg
 FF = imageio_ffmpeg.get_ffmpeg_exe(); DIR = sys.argv[1]; OUT = sys.argv[2]
+VOICE = os.environ.get('VOICE', 'voix_clean.mp3'); HANDLE = os.environ.get('HANDLE', ''); NAME = os.environ.get('NAME', '')  # signature en haut à gauche
 W, H, FPS, SS = 1080, 1920, 30, 2          # SS : sur-échantillonnage des dessins (traits lisses)
 BG = (229, 219, 201); INK = (42, 37, 33); RED = (204, 60, 46); GREY = (120, 110, 100); YEL = (255, 226, 40)
 FD = '/home/user/skillora./temu/fonts/'
@@ -12,7 +13,7 @@ def F(n, s): return ImageFont.truetype(FD + n, s)
 HAND = lambda s: F('Caveat.ttf', s)
 # ---------- 1. voix + calage des mots (pauses détectées, phrases ancrées sur les vraies pauses)
 SR = 16000
-a = np.frombuffer(subprocess.run([FF, '-v', 'error', '-i', os.path.join(DIR, 'voix_clean.mp3'), '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True).stdout, np.int16).astype(float)
+a = np.frombuffer(subprocess.run([FF, '-v', 'error', '-i', os.path.join(DIR, VOICE), '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True).stdout, np.int16).astype(float)
 DUR = len(a) / SR + 0.6
 e = np.array([np.sqrt(np.mean(a[i:i + 160] ** 2)) for i in range(0, len(a) - 160, 160)]); db = 20 * np.log10(e + 1); sp = db > db.max() - 33
 gaps = []; i = 0
@@ -187,7 +188,13 @@ def draw(t):
         text(lay, (CX, 1260), 'sagt dir ja sonst keiner.', H2(64), GREY, clamp((t - SC[6] - 0.9) / 0.4))
     al = scene_alpha(sc, t)
     if al < 1: lay.putalpha(lay.getchannel('A').point(lambda v: int(v * al)))
-    img.alpha_composite(lay); img = img.resize((W, H), Image.LANCZOS)
+    img.alpha_composite(lay)
+    if NAME or HANDLE:   # signature fixe (nom manuscrit + @pseudo en rouge), comme sur les vidéos de référence
+        sg = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        if NAME: ImageDraw.Draw(sg).text((S(70), S(150)), NAME, font=HAND(S(56)), fill=GREY + (255,), anchor='ls')
+        if HANDLE: ImageDraw.Draw(sg).text((S(70), S(200)), HANDLE, font=HAND(S(44)), fill=RED + (255,), anchor='ls')
+        img.alpha_composite(sg)
+    img = img.resize((W, H), Image.LANCZOS)
     caption(img, t); return img.convert('RGB')
 # ---------- 5. sous-titres : 3 mots max, majuscules, contour noir, mot clé en jaune
 HOT = re.compile(r'(\d|tacho|reifen|umfang|gps|maps|luft|profil|erlaubt|niemals|prozent|kmh|km/h|rechnung|position|genauer|direkt|witz|handy)', re.I)
@@ -214,7 +221,7 @@ def caption(img, t):
 tmp = OUT + '_fr'; shutil.rmtree(tmp, ignore_errors=True); os.makedirs(tmp)
 NF = int(DUR * FPS)
 for n in range(NF): draw(n / FPS).save(f'{tmp}/f{n:05d}.jpg', quality=92)
-SR2 = 44100; v = np.frombuffer(subprocess.run([FF, '-v', 'error', '-i', os.path.join(DIR, 'voix_clean.mp3'), '-ac', '1', '-ar', str(SR2), '-f', 's16le', '-'], capture_output=True).stdout, np.int16).astype(float) / 32768
+SR2 = 44100; v = np.frombuffer(subprocess.run([FF, '-v', 'error', '-i', os.path.join(DIR, VOICE), '-ac', '1', '-ar', str(SR2), '-f', 's16le', '-'], capture_output=True).stdout, np.int16).astype(float) / 32768
 mix = np.zeros(int(DUR * SR2)); mix[:len(v)] += v
 def sfx(name, t0, g):
     w = wave.open('/home/user/skillora./motion/sfx/' + name + '.wav'); s = np.frombuffer(w.readframes(w.getnframes()), '<i2').astype(float) / 32768

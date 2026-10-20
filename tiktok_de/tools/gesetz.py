@@ -86,7 +86,7 @@ yy, xx = np.mgrid[0:pan.height, 0:pan.width]; v = 1 - 0.55 * (((xx - pan.width /
 ar[..., :3] *= np.clip(v, 0.35, 1)[..., None]; pan = Image.fromarray(ar.astype('uint8'))
 glow = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(glow).rounded_rectangle([PX0, PY0, PX1, PY1], 26, fill=(80, 6, 8, 160)); glow = glow.filter(ImageFilter.GaussianBlur(30))
 base.alpha_composite(glow); m = Image.new('L', pan.size, 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, pan.width - 1, pan.height - 1], 22, fill=255); base.paste(pan, (PX0, PY0), m)
-por = Image.open(os.path.join(DIR, C['portrait'])).convert('RGBA'); ph = 400; por = por.resize((int(por.width * ph / por.height), ph), Image.LANCZOS)
+por = Image.open(os.path.join(DIR, C['portrait'])).convert('RGBA'); ph = C.get('portrait_h', 400); por = por.resize((int(por.width * ph / por.height), ph), Image.LANCZOS)
 base.alpha_composite(por, (PX1 - por.width - 10, PY1 - ph))
 if C.get('handle'): ImageDraw.Draw(base).text((W / 2, PY1 + 50), C['handle'], font=F('Poppins-ExtraBold.ttf', 30), fill=(90, 70, 70), anchor='mm')
 # ---------- marteau de juge (séquence détourée) pendant la pause
@@ -103,10 +103,10 @@ def frame(t):
         lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ttl = C['title']; sz = 150
         while True:
             f = F('Cinzel.ttf', sz); f.set_variation_by_axes([900])
-            if f.getbbox(ttl)[2] < PX1 - PX0 - por.width - 40 or sz < 60: break
+            if f.getbbox(ttl)[2] < PX1 - PX0 - por.width * C.get('title_overlap', 1.0) - 40 or sz < 60: break
             sz -= 6
         d = ImageDraw.Draw(lay); sw = 1 - ease(t / 0.5)
-        d.text(((PX0 + PX1 - por.width) / 2 + sw * 300, (PY0 + PY1) / 2), ttl, font=f, fill=(245, 240, 235, int(255 * ease(t / 0.3))), anchor='mm')
+        d.text(((PX0 + PX1 - por.width * C.get('title_overlap', 1.0)) / 2 + sw * 300, (PY0 + PY1) / 2), ttl, font=f, fill=(245, 240, 235, int(255 * ease(t / 0.3))), anchor='mm')
         k = (t - (T_TITLE_END - 0.35)) / 0.35
         if k > 0:
             arr = np.asarray(lay).copy(); rs = np.random.RandomState(int(t * 90))

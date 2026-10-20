@@ -1,6 +1,6 @@
 {
  "voice": "voix_gavel.mp3",
- "portrait": "portrait.png",
+ "portrait": "portrait_marc.png",
  "title": "GESETZ NR. 2",
  "title_words": 3,
  "music": "../v2_gesetz10/musique.mp3",
@@ -86,5 +86,7 @@
   "t": 3.6999999999999997,
   "dur": 1.3
  },
- "gavel_sfx": "gavel/coup.wav"
+ "gavel_sfx": "gavel/coup.wav",
+ "portrait_h": 470,
+ "title_overlap": 0.55
 }

@@ -190,7 +190,7 @@ def draw(t):
         low = T['unterste'] and t > T['unterste']; ty = 900 + (100 * ease((t - T['unterste']) / 0.5) if low else 0)
         oven(lay, d, CX, 740, 640, 560, u0 / 0.6, heat_top=0.9, heat_bot=0.9, trays=((ty, ease(u0 / 0.6 - 0.3)),), t=t)
         text(lay, (CX, 330), 'Ober- & Unterhitze', H2(60), RED, clamp(u0 / 0.4))
-        if T['saftig'] and t > T['saftig'] - 0.1: text(lay, (CX, 1110), 'Luft steht still → saftig', H2(56), INK, clamp((t - T['saftig']) / 0.3))
+        if T['saftig'] and t > T['saftig'] - 0.1: text(lay, (CX, 1110), 'Luft steht still – saftig', H2(56), INK, clamp((t - T['saftig']) / 0.3))
         if low: text(lay, (CX, 1220), 'unten = knuspriger Boden', H2(56), RED, clamp((t - T['unterste']) / 0.3))
     elif sc == 6:  # retour du symbole : le grill
         if u0 < 1.4:

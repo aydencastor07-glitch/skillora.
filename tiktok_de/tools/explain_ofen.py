@@ -223,19 +223,19 @@ for k, w in enumerate(WORDS):
     cur.append(k)
     if len(cur) == 3 or re.search(r'[.,:!?–]$', w[0]) or w[0] == '–': GROUPS.append(cur); cur = []
 if cur: GROUPS.append(cur)
-CF = F('Poppins-ExtraBold.ttf', 70)
+CF = F('Poppins-ExtraBold.ttf', 56)   # plus petit et plus haut : hors de la zone du texte TikTok
 def caption(img, t):
     g = next((g for g in GROUPS if WORDS[g[0]][1] - 0.05 <= t < (WORDS[g[-1]][2] + 0.25)), None)
     if not g: return
     ws = [WORDS[k][0].strip('.,:!?').upper() for k in g if WORDS[k][0] != '–']; ks = [k for k in g if WORDS[k][0] != '–']
     if not ws: return
     d = ImageDraw.Draw(img); sp = 22; cf = CF; wd = [cf.getbbox(w)[2] for w in ws]; tw = sum(wd) + sp * (len(ws) - 1)
-    if tw > W - 120: cf = F('Poppins-ExtraBold.ttf', int(70 * (W - 120) / tw)); wd = [cf.getbbox(w)[2] for w in ws]; tw = sum(wd) + sp * (len(ws) - 1)
-    x = W / 2 - tw / 2; y = 1640
+    if tw > W - 120: cf = F('Poppins-ExtraBold.ttf', int(56 * (W - 120) / tw)); wd = [cf.getbbox(w)[2] for w in ws]; tw = sum(wd) + sp * (len(ws) - 1)
+    x = W / 2 - tw / 2; y = 1390
     for w, k, ww in zip(ws, ks, wd):
         said = t >= WORDS[k][1] - 0.03
         col = YEL if HOT.search(w) else (255, 255, 255)
-        if said: d.text((x, y), w, font=cf, fill=col, anchor='lm', stroke_width=8, stroke_fill=(0, 0, 0))
+        if said: d.text((x, y), w, font=cf, fill=col, anchor='lm', stroke_width=6, stroke_fill=(0, 0, 0))
         x += ww + sp
 # ---------- 6. rendu + son
 tmp = OUT + '_fr'; shutil.rmtree(tmp, ignore_errors=True); os.makedirs(tmp)

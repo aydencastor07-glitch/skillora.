@@ -102,7 +102,7 @@ def cta_button(img, t):
     if not CTA or t < CTA['t']: return
     u = t - CTA['t']; tc = CTA.get('click', 1.2); clicked = u > tc
     k = min(1, u / 0.35); sc = max(0.05, 1 + 2.7 * (k - 1) ** 3 + 1.7 * (k - 1) ** 2)
-    R = int(125 * sc); cx, cy = W / 2, PY1 + 190
+    R = int(CTA.get('r', 125) * sc); cx, cy = CTA.get('x', W / 2), CTA.get('y', PY1 + 190)
     av = Image.open(os.path.join(DIR, CTA.get('avatar', C['portrait']))).convert('RGBA'); s0 = min(av.size); av = av.crop(((av.width - s0) // 2, 0, (av.width + s0) // 2, s0)).resize((2 * R, 2 * R), Image.LANCZOS)
     bgc = Image.new('RGBA', av.size, (40, 40, 45, 255)); bgc.alpha_composite(av); m = Image.new('L', av.size, 0); ImageDraw.Draw(m).ellipse([0, 0, 2 * R - 1, 2 * R - 1], fill=255)
     lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
@@ -150,6 +150,7 @@ def frame(t):
             img = Image.fromarray(np.roll(np.roll(np.asarray(img), oy, 0), ox, 1)); fl = Image.new('RGBA', (W, H), (255, 240, 220, int(35 * k2))); img.alpha_composite(fl)
         return img.convert('RGB')
     cta_button(img, t)
+    if CTA and CTA.get('hide_text') and t >= CTA['t']: return img.convert('RGB')
     gi = max([i for i, g in enumerate(groups) if WORDS[g[0]][1] - 0.1 <= t] or [0]); g = groups[gi]
     nxt = WORDS[groups[gi + 1][0]][1] - 0.1 if gi + 1 < len(groups) else DUR
     out = ease((nxt - t) / 0.15) if gi + 1 < len(groups) else 1

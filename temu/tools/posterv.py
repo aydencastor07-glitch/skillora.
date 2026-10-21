@@ -34,7 +34,12 @@ def sentence(d, cx, y, f, col, ccol, lh):
     d.text((x, y), CODE, font=f, fill=ccol, anchor='lm'); x += f.getbbox(CODE + ' ')[2]; d.text((x, y), POST.split(' ')[0], font=f, fill=col, anchor='lm')
     d.text((cx, y + lh), rest, font=f, fill=col, anchor='mm')
 def disclaimer(img, y=1868):
-    f = F('Nunito.ttf', 26); d = ImageDraw.Draw(img); d.text((W / 2, y), C['disclaimer'], font=f, fill=(255, 255, 255), anchor='mm', stroke_width=3, stroke_fill=(0, 0, 0))
+    # mention des conditions : coupée en plusieurs lignes si besoin, ancrée en bas
+    f = F('Nunito.ttf', 26); d = ImageDraw.Draw(img); ls = [[]]
+    for w in C['disclaimer'].split():
+        if ls[-1] and f.getbbox(' '.join(ls[-1] + [w]))[2] > W - 110: ls.append([])
+        ls[-1].append(w)
+    for k, l in enumerate(ls): d.text((W / 2, y - (len(ls) - 1 - k) * 32), ' '.join(l), font=f, fill=(255, 255, 255), anchor='mm', stroke_width=3, stroke_fill=(0, 0, 0))
 def badge(img, cx, cy, r, rot=0):
     lay = Image.new('RGBA', (2 * r + 20, 2 * r + 20), (0, 0, 0, 0)); d = ImageDraw.Draw(lay); c = r + 10
     d.ellipse([c - r, c - r, c + r, c + r], fill=ACC + (255,), outline=(255, 255, 255), width=8)

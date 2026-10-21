@@ -1,0 +1,63 @@
+{
+ "font": "Righteous.ttf",
+ "palette": {
+  "c1": [
+   255,
+   215,
+   60
+  ],
+  "c2": [
+   205,
+   150,
+   255
+  ],
+  "dark": [
+   35,
+   15,
+   70
+  ],
+  "acc": [
+   150,
+   60,
+   230
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "iris",
+ "sfx": "zoom1",
+ "music_seed": 404,
+ "bpm": 96,
+ "key": 55,
+ "code": "alm148018",
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "amount": "$100",
+ "disclaimer": "*In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "save_slides": "out/slides/v4",
+ "slides": [
+  {
+   "img": "../compte3/img/v4_1.jpg",
+   "title": "READY|FOR|LIFTOFF",
+   "layout": "D"
+  },
+  {
+   "img": "../compte3/img/v4_2.jpg",
+   "title": "DREAM|BEYOND|THE STARS",
+   "layout": "B"
+  },
+  {
+   "img": "../compte3/img/v4_3.jpg",
+   "title": "CATCH|A STAR",
+   "layout": "A"
+  },
+  {
+   "img": "../compte3/img/v4_4.jpg",
+   "title": "EXPLORE|NEW WORLDS",
+   "layout": "C"
+  },
+  {
+   "img": "../compte3/img/v4_5.jpg",
+   "title": "HOMEMADE ROCKET,|BIG DREAMS",
+   "layout": "D"
+  }
+ ]
+}

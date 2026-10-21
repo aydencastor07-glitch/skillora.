@@ -1,0 +1,69 @@
+{
+ "font": "Bangers-Regular.ttf",
+ "palette": {
+  "c1": [
+   255,
+   255,
+   255
+  ],
+  "c2": [
+   255,
+   110,
+   95
+  ],
+  "dark": [
+   5,
+   60,
+   75
+  ],
+  "acc": [
+   0,
+   170,
+   170
+  ]
+ },
+ "slide_dur": 2.4,
+ "transition": "blinds",
+ "sfx": "swish",
+ "music_seed": 415,
+ "bpm": 118,
+ "key": 60,
+ "code": "alm148018",
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "amount": "$100",
+ "disclaimer": "*In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "save_slides": "out/slides/v5",
+ "slides": [
+  {
+   "img": "../compte3/img/v5_1.jpg",
+   "title": "MAKE|WAVES",
+   "layout": "A"
+  },
+  {
+   "img": "../compte3/img/v5_2.jpg",
+   "title": "DIVE INTO|SUMMER|DREAMS",
+   "layout": "C"
+  },
+  {
+   "img": "../compte3/img/v5_3.jpg",
+   "title": "ADVENTURE|AHOY!",
+   "layout": "B"
+  },
+  {
+   "img": "../compte3/img/v5_4.jpg",
+   "title": "GOLDEN HOUR|HAPPINESS",
+   "layout": "D"
+  },
+  {
+   "img": "../compte3/img/v5_5.jpg",
+   "title": "FIND YOUR|TREASURE",
+   "layout": "A"
+  },
+  {
+   "img": "../compte3/img/v5_6.jpg",
+   "title": "BUILD|YOUR CASTLE",
+   "layout": "B"
+  }
+ ],
+ "code_font": "Poppins-ExtraBold.ttf"
+}

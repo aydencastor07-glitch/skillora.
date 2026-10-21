@@ -1,0 +1,68 @@
+{
+ "font": "ArchivoBlack-Regular.ttf",
+ "palette": {
+  "c1": [
+   40,
+   230,
+   255
+  ],
+  "c2": [
+   255,
+   140,
+   0
+  ],
+  "dark": [
+   12,
+   10,
+   40
+  ],
+  "acc": [
+   255,
+   120,
+   0
+  ]
+ },
+ "slide_dur": 2.3,
+ "transition": "glitch",
+ "sfx": "glitch",
+ "music_seed": 382,
+ "bpm": 128,
+ "key": 50,
+ "code": "alm148018",
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "amount": "$100",
+ "disclaimer": "*In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "save_slides": "out/slides/v2",
+ "slides": [
+  {
+   "img": "../compte3/img/v2_1.jpg",
+   "title": "THE FUTURE|JUST|ARRIVED",
+   "layout": "B"
+  },
+  {
+   "img": "../compte3/img/v2_2.jpg",
+   "title": "LEVEL UP|YOUR WORLD",
+   "layout": "C"
+  },
+  {
+   "img": "../compte3/img/v2_3.jpg",
+   "title": "RIDE|THE NEON",
+   "layout": "D"
+  },
+  {
+   "img": "../compte3/img/v2_4.jpg",
+   "title": "SMART FINDS,|CUTE VIBES",
+   "layout": "B"
+  },
+  {
+   "img": "../compte3/img/v2_5.jpg",
+   "title": "DELIVERED|FROM THE SKY",
+   "layout": "A"
+  },
+  {
+   "img": "../compte3/img/v2_6.jpg",
+   "title": "GAME ON,|SQUAD",
+   "layout": "C"
+  }
+ ]
+}

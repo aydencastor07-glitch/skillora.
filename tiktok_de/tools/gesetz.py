@@ -87,7 +87,16 @@ ar[..., :3] *= np.clip(v, 0.35, 1)[..., None]; pan = Image.fromarray(ar.astype('
 glow = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(glow).rounded_rectangle([PX0, PY0, PX1, PY1], 26, fill=(80, 6, 8, 160)); glow = glow.filter(ImageFilter.GaussianBlur(30))
 base.alpha_composite(glow); m = Image.new('L', pan.size, 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, pan.width - 1, pan.height - 1], 22, fill=255); base.paste(pan, (PX0, PY0), m)
 por = Image.open(os.path.join(DIR, C['portrait'])).convert('RGBA'); ph = C.get('portrait_h', 400); por = por.resize((int(por.width * ph / por.height), ph), Image.LANCZOS)
-base.alpha_composite(por, (PX1 - por.width - 10, PY1 - ph))
+POR_XY = (PX1 - por.width - 10, PY1 - ph)
+SWAP = C.get('cta', {}).get('swap')
+if not SWAP: base.alpha_composite(por, POR_XY)
+PMASK = Image.new('L', (W, H), 0); ImageDraw.Draw(PMASK).rounded_rectangle([PX0, PY0, PX1, PY1], 22, fill=255)   # rien ne dépasse du bandeau
+def draw_portrait(img, t):
+    if not SWAP: return
+    dx = 0
+    if CTA and t > CTA['t']: u = (t - CTA['t']) / 0.6; dx = (W - POR_XY[0]) * (min(1, max(0, u)) ** 2)   # glisse vers la droite et sort
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); lay.alpha_composite(por, (int(POR_XY[0] + dx), POR_XY[1]))
+    lay.putalpha(Image.fromarray(np.minimum(np.asarray(lay.getchannel('A')), np.asarray(PMASK)))); img.alpha_composite(lay)
 if C.get('handle'): ImageDraw.Draw(base).text((W / 2, PY1 + 50), C['handle'], font=F('Poppins-ExtraBold.ttf', 30), fill=(90, 70, 70), anchor='mm')
 # ---------- marteau de juge (séquence détourée) pendant la pause
 GV = C.get('gavel'); GIM = []
@@ -103,6 +112,9 @@ def cta_button(img, t):
     u = t - CTA['t']; tc = CTA.get('click', 1.2); clicked = u > tc
     k = min(1, u / 0.35); sc = max(0.05, 1 + 2.7 * (k - 1) ** 3 + 1.7 * (k - 1) ** 2)
     R = int(CTA.get('r', 125) * sc); cx, cy = CTA.get('x', W / 2), CTA.get('y', PY1 + 190)
+    if CTA.get('swap'):
+        R = CTA.get('r', 125); k2 = min(1, max(0, (u - 0.15) / 0.6)); e2 = 1 + 2.7 * (k2 - 1) ** 3 + 1.7 * (k2 - 1) ** 2
+        cx = (W + R + 20) + (cx - (W + R + 20)) * e2
     av = Image.open(os.path.join(DIR, CTA.get('avatar', C['portrait']))).convert('RGBA'); s0 = min(av.size); av = av.crop(((av.width - s0) // 2, 0, (av.width + s0) // 2, s0)).resize((2 * R, 2 * R), Image.LANCZOS)
     bgc = Image.new('RGBA', av.size, (40, 40, 45, 255)); bgc.alpha_composite(av); m = Image.new('L', av.size, 0); ImageDraw.Draw(m).ellipse([0, 0, 2 * R - 1, 2 * R - 1], fill=255)
     lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
@@ -124,7 +136,7 @@ def cta_button(img, t):
 # ---------- images
 T_TITLE_END = WORDS[NT][1] - 0.15
 def frame(t):
-    img = base.copy()
+    img = base.copy(); draw_portrait(img, t)
     if t < T_TITLE_END:   # carte titre : lettres qui entrent, puis glitch de sortie
         lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ttl = C['title']; sz = 150
         while True:

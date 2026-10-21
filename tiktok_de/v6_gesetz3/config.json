@@ -1,0 +1,103 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_seneca.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 3",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.25,
+  "dur": 1.3
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "segments": [
+  [
+   "Gesetz Nr. 3:",
+   0.05,
+   1.05
+  ],
+  [
+   "Handle nie aus Wut.",
+   1.61,
+   3.03
+  ],
+  [
+   "Wut fühlt sich an wie Stärke.",
+   3.4,
+   5.02
+  ],
+  [
+   "Aber in Wahrheit ist es der Moment, in dem du die Kontrolle abgibst.",
+   5.31,
+   8.6
+  ],
+  [
+   "Ein Satz, den du nicht zurücknehmen kannst.",
+   9.09,
+   11.03
+  ],
+  [
+   "Eine Nachricht, die du nicht mehr löschen kannst.",
+   11.42,
+   13.58
+  ],
+  [
+   "Eine Entscheidung, die du jahrelang bereust.",
+   13.93,
+   16.13
+  ],
+  [
+   "Seneca sagte:",
+   16.71,
+   17.67
+  ],
+  [
+   "„Das größte Heilmittel gegen den Zorn ist der Aufschub.“",
+   18.15,
+   20.86
+  ],
+  [
+   "Also atme. Warte.",
+   21.33,
+   23.05
+  ],
+  [
+   "Und entscheide erst, wenn du wieder du selbst bist – nicht deine Wut.",
+   23.33,
+   26.78
+  ],
+  [
+   "Jeden Tag ein neues Gesetz.",
+   27.2,
+   28.65
+  ],
+  [
+   "Folge mir, damit du keins verpasst.",
+   29.01,
+   30.68
+  ]
+ ],
+ "text": [
+  "Gesetz Nr. 3:",
+  "Handle nie aus Wut.",
+  "Wut fühlt sich an wie Stärke.",
+  "Aber in Wahrheit ist es der Moment, in dem du die Kontrolle abgibst.",
+  "Ein Satz, den du nicht zurücknehmen kannst.",
+  "Eine Nachricht, die du nicht mehr löschen kannst.",
+  "Eine Entscheidung, die du jahrelang bereust.",
+  "Seneca sagte:",
+  "„Das größte Heilmittel gegen den Zorn ist der Aufschub.“",
+  "Also atme. Warte.",
+  "Und entscheide erst, wenn du wieder du selbst bist – nicht deine Wut.",
+  "Jeden Tag ein neues Gesetz.",
+  "Folge mir, damit du keins verpasst."
+ ],
+ "cta": {
+  "t": 30.21,
+  "click": 1.3
+ },
+ "hot": "^(wut|stärke|kontrolle|satz|nachricht|entscheidung|bereust|seneca|zorn|heilmittel|aufschub|atme|warte|gesetz|folge)$"
+}

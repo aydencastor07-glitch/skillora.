@@ -95,6 +95,32 @@ if GV:
     gi_ = json.load(open(os.path.join(DIR, 'gavel', 'info.json'))); GIM = [Image.open(os.path.join(DIR, 'gavel', f'g{k:02d}.png')).convert('RGBA') for k in range(gi_['n'])]
     gs = 520 / GIM[0].height; GIM = [im.resize((int(im.width * gs), int(im.height * gs)), Image.LANCZOS) for im in GIM]; G_IMP = GV['t'] + gi_['impact'] / FPS
 def gavel_on(t): return GV and GV['t'] <= t < GV['t'] + GV['dur']
+# ---------- bouton d'abonnement animé
+CTA = C.get('cta')
+def cta_button(img, t):
+    # style TikTok : avatar rond bord blanc + pastille rose « + » qui devient une coche au clic, onde au toucher
+    if not CTA or t < CTA['t']: return
+    u = t - CTA['t']; tc = CTA.get('click', 1.2); clicked = u > tc
+    k = min(1, u / 0.35); sc = max(0.05, 1 + 2.7 * (k - 1) ** 3 + 1.7 * (k - 1) ** 2)
+    R = int(125 * sc); cx, cy = W / 2, PY1 + 190
+    av = Image.open(os.path.join(DIR, CTA.get('avatar', C['portrait']))).convert('RGBA'); s0 = min(av.size); av = av.crop(((av.width - s0) // 2, 0, (av.width + s0) // 2, s0)).resize((2 * R, 2 * R), Image.LANCZOS)
+    bgc = Image.new('RGBA', av.size, (40, 40, 45, 255)); bgc.alpha_composite(av); m = Image.new('L', av.size, 0); ImageDraw.Draw(m).ellipse([0, 0, 2 * R - 1, 2 * R - 1], fill=255)
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.ellipse([cx - R - 7, cy - R - 7, cx + R + 7, cy + R + 7], fill=(255, 255, 255, 255)); lay.paste(bgc, (int(cx - R), int(cy - R)), m)
+    pr = int(42 * sc); px, py = cx, cy + R
+    if clicked and u - tc < 0.5:   # onde du toucher
+        q = (u - tc) / 0.5; rr = pr + 70 * q; d.ellipse([px - rr, py - rr, px + rr, py + rr], outline=(255, 255, 255, int(200 * (1 - q))), width=5)
+    press = 0.85 if clicked and u - tc < 0.12 else 1.0; pr = int(pr * press)
+    if not clicked:
+        d.ellipse([px - pr, py - pr, px + pr, py + pr], fill=(254, 44, 85, 255))
+        d.line([px - pr * 0.45, py, px + pr * 0.45, py], fill=(255, 255, 255), width=max(2, int(7 * sc))); d.line([px, py - pr * 0.45, px, py + pr * 0.45], fill=(255, 255, 255), width=max(2, int(7 * sc)))
+    else:
+        d.ellipse([px - pr, py - pr, px + pr, py + pr], fill=(255, 255, 255, 255))
+        d.line([px - pr * 0.45, py + 2, px - pr * 0.1, py + pr * 0.35], fill=(254, 44, 85), width=7); d.line([px - pr * 0.1, py + pr * 0.35, px + pr * 0.5, py - pr * 0.35], fill=(254, 44, 85), width=7)
+    if u > 0.3:
+        lab = 'Gefolgt' if clicked else 'Folgen'; al = int(255 * min(1, (u - 0.3) / 0.3))
+        d.text((cx, py + pr + 45), lab, font=F('Poppins-ExtraBold.ttf', 46), fill=(255, 255, 255, al), anchor='mm')
+    img.alpha_composite(lay)
 # ---------- images
 T_TITLE_END = WORDS[NT][1] - 0.15
 def frame(t):
@@ -123,6 +149,7 @@ def frame(t):
             k2 = 1 - dt / 0.25; ox, oy = int(16 * k2 * math.sin(dt * 120)), int(12 * k2 * math.cos(dt * 95))
             img = Image.fromarray(np.roll(np.roll(np.asarray(img), oy, 0), ox, 1)); fl = Image.new('RGBA', (W, H), (255, 240, 220, int(35 * k2))); img.alpha_composite(fl)
         return img.convert('RGB')
+    cta_button(img, t)
     gi = max([i for i, g in enumerate(groups) if WORDS[g[0]][1] - 0.1 <= t] or [0]); g = groups[gi]
     nxt = WORDS[groups[gi + 1][0]][1] - 0.1 if gi + 1 < len(groups) else DUR
     out = ease((nxt - t) / 0.15) if gi + 1 < len(groups) else 1
@@ -165,6 +192,10 @@ if GV:   # coup de marteau synthétisé : claquement bois + choc grave + petite 
     if C.get('gavel_sfx'):   # vrai son de marteau fourni
         w3 = wave.open(os.path.join(DIR, C['gavel_sfx'])); hit = np.frombuffer(w3.readframes(w3.getnframes()), '<i2').astype(float) / 32768; n = len(hit)
     hit = hit / np.abs(hit).max(); i0 = int(G_IMP * SR2); L = min(n, N - i0); mix[i0:i0 + L] += hit[:L] * 0.9
+if CTA:   # petit clic sur le bouton
+    w4 = wave.open('/home/user/skillora./motion/sfx/click.wav'); ck = np.frombuffer(w4.readframes(w4.getnframes()), '<i2').astype(float) / 32768
+    if w4.getnchannels() == 2: ck = ck.reshape(-1, 2).mean(1)
+    i0 = int((CTA['t'] + CTA.get('click', 1.2)) * SR2); L = min(len(ck), N - i0); mix[i0:i0 + L] += ck[:L] * 0.4
 fd = int(0.8 * SR2); mix[-fd:] *= np.linspace(1, 0, fd); mix = mix / np.abs(mix).max() * 0.95
 wo = wave.open(f'{tmp}/a.wav', 'wb'); wo.setnchannels(1); wo.setsampwidth(2); wo.setframerate(SR2); wo.writeframes((mix * 32767).astype('<i2').tobytes()); wo.close()
 subprocess.run([FF, '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{tmp}/f%05d.jpg', '-i', f'{tmp}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ac', '2', '-shortest', '-movflags', '+faststart', OUT], check=True)

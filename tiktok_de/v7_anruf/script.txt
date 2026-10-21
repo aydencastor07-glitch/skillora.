@@ -3,11 +3,11 @@ Stell dir vor, du rufst deine Mutter an – und zwei Sekunden später klingelt i
 Alles beginnt mit deiner Stimme. Dein Handy zerlegt sie in winzige Stücke – fünfzig pro Sekunde – und verwandelt jedes Stück in Zahlen.
 Diese Zahlen fliegen als Funkwellen zum nächsten Sendemast. Mit Lichtgeschwindigkeit.
 Und jetzt kommt der Trick: Der Mast ist gar nicht das Ende. Von dort rasen deine Daten durch Glasfaserkabel unter der Erde bis zum Herz des Netzes – einer riesigen Zentrale.
-Die Zentrale weiß ungefähr, wo deine Mutter gerade ist. Denn ihr Handy meldet sich ständig bei den Masten in der Nähe – auch wenn sie es gar nicht benutzt.
+Die Zentrale weiß ungefähr, wo deine Mutter gerade ist. Denn ihr Handy meldet sich ständig bei den Masten in der Nähe – auch wenn sie es gar nicht benutzt. Das Netz ist aufgeteilt in viele kleine Waben, und die Zentrale merkt sich, in welcher Wabe ihr Handy zuletzt war.
 Also schickt die Zentrale den Anruf zum richtigen Mast, der Mast funkt ihr Handy an – und es klingelt.
 Und wenn du beim Telefonieren im Auto sitzt? Dann übergibt dich ein Mast an den nächsten, in Millisekunden. Du merkst davon nichts.
 Und das alles passiert gleichzeitig in beide Richtungen – für jedes einzelne Wort, das ihr sagt.
-Kleiner Bonus: Deshalb hast du im Keller oder im Aufzug oft kein Netz. Beton und Metall schlucken die Funkwellen, bevor sie den Mast erreichen.
+Kleiner Bonus: Deshalb hast du im Keller oder im Aufzug oft kein Netz. Beton und Metall schlucken die Funkwellen, bevor sie den Mast erreichen. Und dein Akku ist dort schneller leer, weil dein Handy verzweifelt nach einem Mast sucht.
 Sag's weiter – sagt dir ja sonst keiner.
 
 === TRADUCTION ===
@@ -15,9 +15,9 @@ Imagine : tu appelles ta mère – et deux secondes plus tard, son téléphone s
 Tout commence avec ta voix. Ton téléphone la découpe en minuscules morceaux – cinquante par seconde – et transforme chaque morceau en chiffres.
 Ces chiffres partent sous forme d'ondes radio jusqu'à l'antenne relais la plus proche. À la vitesse de la lumière.
 Et voici l'astuce : l'antenne n'est pas la fin du trajet. De là, tes données foncent dans des câbles de fibre optique sous terre jusqu'au cœur du réseau – un immense central.
-Le central sait à peu près où se trouve ta mère. Car son téléphone se signale en permanence aux antennes proches – même quand elle ne l'utilise pas.
+Le central sait à peu près où se trouve ta mère. Car son téléphone se signale en permanence aux antennes proches – même quand elle ne l'utilise pas. Le réseau est découpé en petites alvéoles, et le central retient dans quelle alvéole son téléphone était en dernier.
 Le central envoie donc l'appel à la bonne antenne, l'antenne contacte son téléphone par radio – et il sonne.
 Et si tu es en voiture pendant l'appel ? Une antenne te passe à la suivante, en quelques millisecondes. Tu ne remarques rien.
 Et tout cela se passe en même temps dans les deux sens – pour chaque mot que vous dites.
-Petit bonus : c'est pour ça que tu n'as souvent pas de réseau à la cave ou dans l'ascenseur. Le béton et le métal absorbent les ondes avant qu'elles n'atteignent l'antenne.
+Petit bonus : c'est pour ça que tu n'as souvent pas de réseau à la cave ou dans l'ascenseur. Le béton et le métal absorbent les ondes avant qu'elles n'atteignent l'antenne. Et ta batterie s'y vide plus vite, parce que ton téléphone cherche désespérément une antenne.
 Partage-le – sinon personne ne te le dira.

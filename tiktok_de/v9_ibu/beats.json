@@ -1,0 +1,38 @@
+[
+ {
+  "name": "trash",
+  "t": 5.08,
+  "dur": 0.8,
+  "after": "umsonst."
+ },
+ {
+  "name": "impact",
+  "t": 8.97,
+  "dur": 0.55,
+  "after": "Zeh."
+ },
+ {
+  "name": "heart",
+  "t": 17.94,
+  "dur": 1.1,
+  "after": "Herzens."
+ },
+ {
+  "name": "suspense",
+  "t": 24.535,
+  "dur": 0.45,
+  "after": "Haken:"
+ },
+ {
+  "name": "ceiling",
+  "t": 30.905,
+  "dur": 0.65,
+  "after": "Ceiling-Effekt."
+ },
+ {
+  "name": "reveal",
+  "t": 49.415,
+  "dur": 0.65,
+  "after": "wei\u00df:"
+ }
+]

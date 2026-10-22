@@ -398,7 +398,7 @@ if __name__ == '__main__':
     with Pool(4) as pool:
         for k, _ in enumerate(pool.imap_unordered(render_chunk, [(i, min(NF, i + CH)) for i in range(0, NF, CH)])):
             if k % 8 == 0: print('images', min(NF, (k + 1) * CH), '/', NF, flush=True)
-    # ---------- son : voix + musique discrète + effets synchronisés
+    # ---------- son : voix + effets synchronisés (musique seulement avec MUSIC=1)
     N = int(DUR * SR); mix = np.zeros(N); mix[:len(VOICE)] += VOICE
     def sfx(name, t0, g):
         if t0 is None: return
@@ -419,10 +419,11 @@ if __name__ == '__main__':
     sfx('pop', T['rheuma'], 0.15); sfx('pop', T['x600ern'], 0.12); sfx('ding', T['weniger'], 0.12); sfx('pop', T['magen'], 0.15); sfx('hit', T['preis'], 0.25)
     rv = BT['reveal']; x2 = np.arange(int(rv['dur'] * SR)) / SR; riser = (np.random.RandomState(1).randn(len(x2)) * 0.3 + np.sin(2 * np.pi * (200 + 900 * x2 / rv['dur']) * x2)) * (x2 / rv['dur']) ** 2
     synth(rv['t'], riser, 0.18); sfx('ding', rv['t'] + rv['dur'], 0.3); sfx('shine', T['studien'], 0.15); sfx('ding', T['apotheke'], 0.15); sfx('pop', T['sags'] + 0.3, 0.15)
-    mus = TMP + '/m.wav'; subprocess.run([sys.executable, '/home/user/skillora./temu/tools/popbeat.py', str(DUR), mus, '19', '98', '57'], check=True, capture_output=True)
-    wm = wave.open(mus); m = np.frombuffer(wm.readframes(wm.getnframes()), '<i2').astype(float) / 32768; m = np.pad(m, (0, max(0, N - len(m))))[:N]
-    env = np.convolve(np.abs(np.pad(VOICE, (0, max(0, N - len(VOICE))))[:N]) > 0.02, np.ones(int(0.25 * SR)) / int(0.25 * SR), 'same')
-    mix += m / max(1e-6, np.abs(m).max()) * (0.07 - 0.035 * np.clip(env * 3, 0, 1))
+    if os.environ.get('MUSIC') == '1':          # musique de fond : désactivée par défaut (voix + effets seulement)
+        mus = TMP + '/m.wav'; subprocess.run([sys.executable, '/home/user/skillora./temu/tools/popbeat.py', str(DUR), mus, '19', '98', '57'], check=True, capture_output=True)
+        wm = wave.open(mus); m = np.frombuffer(wm.readframes(wm.getnframes()), '<i2').astype(float) / 32768; m = np.pad(m, (0, max(0, N - len(m))))[:N]
+        env = np.convolve(np.abs(np.pad(VOICE, (0, max(0, N - len(VOICE))))[:N]) > 0.02, np.ones(int(0.25 * SR)) / int(0.25 * SR), 'same')
+        mix += m / max(1e-6, np.abs(m).max()) * (0.07 - 0.035 * np.clip(env * 3, 0, 1))
     fd = int(0.8 * SR); mix[-fd:] *= np.linspace(1, 0, fd); mix = mix / max(1e-6, np.abs(mix).max()) * 0.95
     wo = wave.open(f'{TMP}/a.wav', 'wb'); wo.setnchannels(1); wo.setsampwidth(2); wo.setframerate(SR); wo.writeframes((mix * 32767).astype('<i2').tobytes()); wo.close()
     subprocess.run([FF, '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{TMP}/f%05d.jpg', '-i', f'{TMP}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '15', '-tune', 'animation',

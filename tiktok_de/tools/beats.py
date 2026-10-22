@@ -2,6 +2,7 @@
 # (jamais au milieu d'un son), avec fondus courts, puis décale les temps des mots qui suivent.
 # Le début des mots est la donnée la plus fiable de l'alignement : on prend le dernier creux avant ce début. Chercher le point
 # le plus silencieux d'une large zone peut tomber dans l'occlusion d'un « k » ou d'un « t » au milieu d'un mot (Ha|ken).
+# durée 0 : simple repère pour l'animation, la voix n'est pas touchée
 # usage : beats.py dossier 'mot:durée:nom[:n[:t_coupe]]' ...   (n = n-ième occurrence du mot, t_coupe = point de coupe imposé)
 # lit voix_clean.mp3 + words.json, écrit voix_final.wav, words_final.json, beats.json
 import sys, os, re, json, subprocess, wave
@@ -26,16 +27,19 @@ for spec in sys.argv[2:]:
     t = k * HOP + HOP; ins.append((t, i, dur, name, round(float(envdb[k]), 1), how))
     print(f'{W[i][0]} → {W[i + 1][0] if i + 1 < len(W) else "fin"} : coupe {t:.3f} s ({how}, {envdb[k]:.1f} dB)')
     print('   ', ' '.join(('[' if kk == k else '') + f'{int(sm[kk])}' + (']' if kk == k else '') for kk in range(int((s1 - 0.35) / HOP), int((s1 + 0.15) / HOP))))
-ins.sort(); out = []; prev = 0; shift = 0; beats = []; fd = int(0.01 * SR)
+ins.sort(); out = []; prev = 0; pdur = 0; shift = 0; beats = []; fd = int(0.01 * SR)
 for t, i, dur, name, lvl, how in ins:
     seg = v[int(prev * SR):int(t * SR)].copy()
-    if len(seg) > 2 * fd: seg[-fd:] *= np.linspace(1, 0, fd)
-    if prev > 0 and len(seg) > 2 * fd: seg[:fd] *= np.linspace(0, 1, fd)
+    if dur > 0 and len(seg) > 2 * fd: seg[-fd:] *= np.linspace(1, 0, fd)
+    if prev > 0 and pdur > 0 and len(seg) > 2 * fd: seg[:fd] *= np.linspace(0, 1, fd)
+    pdur = dur
     out += [seg, np.zeros(int(dur * SR))]; beats.append({'name': name, 't': round(t + shift, 3), 'dur': dur, 'after': W[i][0], 'niveau_dB': lvl}); prev = t; shift += dur
     # le mot dure jusqu'au creux, le suivant ne peut pas commencer avant la coupe
     W[i][2] = max(W[i][2], round(t - 0.01, 3))
     if i + 1 < len(W): W[i + 1][1] = max(W[i + 1][1], round(t + 0.01, 3))
-last = v[int(prev * SR):].copy(); last[:fd] *= np.linspace(0, 1, fd); out.append(last)
+last = v[int(prev * SR):].copy()
+if pdur > 0: last[:fd] *= np.linspace(0, 1, fd)
+out.append(last)
 vv = np.concatenate(out)
 def sh(j): return sum(d for t, i, d, *_ in ins if j > i)       # décalage d'un mot = pauses insérées avant lui
 json.dump([[w, round(a + sh(j), 3), round(b + sh(j), 3)] for j, (w, a, b) in enumerate(W)], open(os.path.join(D, 'words_final.json'), 'w'), ensure_ascii=False, indent=0)

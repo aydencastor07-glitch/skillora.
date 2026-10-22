@@ -23,7 +23,7 @@ def BF(s): return F('Poppins-ExtraBold.ttf', S(s))
 # ---------- voix, mots, pauses
 WORDS = json.load(open(os.path.join(DIR, 'words_final.json'))); BEATS = json.load(open(os.path.join(DIR, 'beats.json')))
 SR = 44100; wv = wave.open(os.path.join(DIR, 'voix_final.wav')); VOICE = np.frombuffer(wv.readframes(wv.getnframes()), '<i2').astype(float) / 32768
-DUR = len(VOICE) / SR + 1.0
+DUR = max(len(VOICE) / SR + 1.0, float(os.environ.get('MINDUR', 0)))      # MINDUR : durée minimale (récompenses TikTok > 60 s)
 def cw(w): return re.sub(r"[^\wäöüß'-]", '', w).lower()
 def tw(word, n=0, end=False):
     m = [x for x in WORDS if cw(x[0]) == word.lower()]
@@ -420,7 +420,8 @@ if __name__ == '__main__':
     sfx('swish', T['haken'], 0.18); [sfx('clank', b, 0.32) for b in BONKS]; sfx('hit', T['ceiling'] - 0.1, 0.3)
     sfx('pop', T['rheuma'], 0.15); sfx('pop', T['x600ern'], 0.12); sfx('ding', T['weniger'], 0.12); sfx('pop', T['magen'], 0.15); sfx('hit', T['preis'], 0.25)
     rv = BT['reveal']; x2 = np.arange(int(rv['dur'] * SR)) / SR; riser = (np.random.RandomState(1).randn(len(x2)) * 0.3 + np.sin(2 * np.pi * (200 + 900 * x2 / rv['dur']) * x2)) * (x2 / rv['dur']) ** 2
-    synth(rv['t'], riser, 0.18); sfx('ding', rv['t'] + rv['dur'], 0.3); sfx('shine', T['studien'], 0.15); sfx('ding', T['apotheke'], 0.15); sfx('pop', T['sags'] + 0.3, 0.15)
+    if rv['dur'] > 0: synth(rv['t'], riser, 0.18)
+    sfx('ding', rv['t'] + rv['dur'], 0.3); sfx('shine', T['studien'], 0.15); sfx('ding', T['apotheke'], 0.15); sfx('pop', T['sags'] + 0.3, 0.15)
     if os.environ.get('MUSIC') == '1':          # musique de fond : désactivée par défaut (voix + effets seulement)
         mus = TMP + '/m.wav'; subprocess.run([sys.executable, '/home/user/skillora./temu/tools/popbeat.py', str(DUR), mus, '19', '98', '57'], check=True, capture_output=True)
         wm = wave.open(mus); m = np.frombuffer(wm.readframes(wm.getnframes()), '<i2').astype(float) / 32768; m = np.pad(m, (0, max(0, N - len(m))))[:N]

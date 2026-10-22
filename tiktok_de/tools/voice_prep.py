@@ -1,16 +1,16 @@
 # Préparation de la voix off : assemble les parties dans l'ordre, égalise leur volume, raccourcit les silences trop longs
-# (fondus aux raccords). usage : voice_prep.py sortie.mp3 partie1.mp3 partie2.mp3 ...  [MAXP=0.2 durée max d'une pause]
+# (fondus aux raccords). usage : voice_prep.py sortie.mp3 partie1.mp3 partie2.mp3 ...  [MAXP=0.2 durée max d'une pause, MAXP=99 : aucune coupe] [GAP=0.3 silence entre parties]
 import sys, os, subprocess, wave
 import numpy as np, imageio_ffmpeg
 FF = imageio_ffmpeg.get_ffmpeg_exe(); SR = 44100; out = sys.argv[1]; parts = sys.argv[2:]
-MAXP = float(os.environ.get('MAXP', 0.2)); TARGET = -14.2          # volume moyen visé pendant la parole (dB)
+MAXP = float(os.environ.get('MAXP', 0.2)); GAP = float(os.environ.get('GAP', 0.3)); TARGET = -14.2          # volume moyen visé pendant la parole (dB)
 def load(f): return np.frombuffer(subprocess.run([FF, '-v', 'error', '-i', f, '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True).stdout, np.int16).astype(float) / 32768
 def speech_db(a):
     hop = 441; e = np.array([np.sqrt(np.mean(a[k:k + hop] ** 2)) for k in range(0, len(a) - hop, hop)]); sp = e[e > np.abs(a).max() * 0.03]
     return 20 * np.log10(np.sqrt(np.mean(sp ** 2)))
 seq = []
 for f in parts:
-    a = load(f); g = TARGET - speech_db(a); a = a * 10 ** (g / 20); print(f'{os.path.basename(f)} : gain {g:+.1f} dB'); seq += [a, np.zeros(int(0.3 * SR))]
+    a = load(f); g = TARGET - speech_db(a); a = a * 10 ** (g / 20); print(f'{os.path.basename(f)} : gain {g:+.1f} dB'); seq += [a, np.zeros(int(GAP * SR))]
 a = np.concatenate(seq); a = a / max(1, np.abs(a).max() / 0.98)
 hop = int(SR * 0.01); e = np.array([np.sqrt(np.mean(a[i:i + hop] ** 2)) for i in range(0, len(a) - hop, hop)]); db = 20 * np.log10(e + 1e-6); sp = db > db.max() - 40
 sil = []; i = 0; n = len(sp)

@@ -2,43 +2,43 @@
  {
   "name": "trash",
   "t": 5.255,
-  "dur": 0.8,
+  "dur": 0.0,
   "after": "umsonst.",
   "niveau_dB": -39.9
  },
  {
   "name": "impact",
-  "t": 9.005,
-  "dur": 0.55,
+  "t": 8.205,
+  "dur": 0.0,
   "after": "Zeh.",
   "niveau_dB": -38.6
  },
  {
   "name": "heart",
-  "t": 17.955,
-  "dur": 1.1,
+  "t": 16.845,
+  "dur": 0.0,
   "after": "Herzens.",
   "niveau_dB": -180.0
  },
  {
   "name": "suspense",
-  "t": 24.645,
-  "dur": 0.45,
+  "t": 22.425,
+  "dur": 0.0,
   "after": "Haken:",
-  "niveau_dB": -34.8
+  "niveau_dB": -34.2
  },
  {
   "name": "ceiling",
-  "t": 31.055,
-  "dur": 0.65,
+  "t": 28.385,
+  "dur": 0.0,
   "after": "Ceiling-Effekt.",
-  "niveau_dB": -50.8
+  "niveau_dB": -50.5
  },
  {
   "name": "reveal",
-  "t": 49.615,
-  "dur": 0.65,
+  "t": 46.895,
+  "dur": 0.0,
   "after": "weiß:",
-  "niveau_dB": -52.5
+  "niveau_dB": -51.4
  }
 ]

@@ -1,7 +1,7 @@
 # Vidéo explicative « Ibu 400 / 600 » – version haute qualité : 60 i/s, dessins au trait plus détaillés,
 # caméra (zoom lent, zooms d'impact, secousses), transitions glissées, texture papier, sons synchronisés.
 # Mots calés par align_tts.py (words_final.json) + pauses dramatiques (beats.json).
-# usage : explain_ibu.py dossier sortie.mp4  [PREVIEW=t1,t2,...]
+# usage : explain_ibu.py dossier sortie.mp4  [PREVIEW=t1,t2,...] [AUDIO_ONLY=1 : refait seulement le son] [MUSIC=1]
 import sys, os, re, math, json, subprocess, shutil, wave
 import numpy as np
 from multiprocessing import Pool
@@ -394,10 +394,12 @@ if __name__ == '__main__':
     if os.environ.get('PREVIEW'):
         for ts in os.environ['PREVIEW'].split(','): draw(float(ts)).save(f'{OUT}_{ts}.jpg', quality=88)
         sys.exit(0)
+    AUDIO_ONLY = os.environ.get('AUDIO_ONLY') == '1'      # refait seulement le son d'une vidéo déjà rendue (images gardées)
     shutil.rmtree(TMP, ignore_errors=True); os.makedirs(TMP); NF = int(DUR * FPS); CH = 90
-    with Pool(4) as pool:
-        for k, _ in enumerate(pool.imap_unordered(render_chunk, [(i, min(NF, i + CH)) for i in range(0, NF, CH)])):
-            if k % 8 == 0: print('images', min(NF, (k + 1) * CH), '/', NF, flush=True)
+    if not AUDIO_ONLY:
+        with Pool(4) as pool:
+            for k, _ in enumerate(pool.imap_unordered(render_chunk, [(i, min(NF, i + CH)) for i in range(0, NF, CH)])):
+                if k % 8 == 0: print('images', min(NF, (k + 1) * CH), '/', NF, flush=True)
     # ---------- son : voix + effets synchronisés (musique seulement avec MUSIC=1)
     N = int(DUR * SR); mix = np.zeros(N); mix[:len(VOICE)] += VOICE
     def sfx(name, t0, g):
@@ -424,8 +426,14 @@ if __name__ == '__main__':
         wm = wave.open(mus); m = np.frombuffer(wm.readframes(wm.getnframes()), '<i2').astype(float) / 32768; m = np.pad(m, (0, max(0, N - len(m))))[:N]
         env = np.convolve(np.abs(np.pad(VOICE, (0, max(0, N - len(VOICE))))[:N]) > 0.02, np.ones(int(0.25 * SR)) / int(0.25 * SR), 'same')
         mix += m / max(1e-6, np.abs(m).max()) * (0.07 - 0.035 * np.clip(env * 3, 0, 1))
-    fd = int(0.8 * SR); mix[-fd:] *= np.linspace(1, 0, fd); mix = mix / max(1e-6, np.abs(mix).max()) * 0.95
+    fd = int(0.8 * SR); mix[-fd:] *= np.linspace(1, 0, fd); mix = mix / max(1e-6, np.abs(mix).max()) * 0.92
     wo = wave.open(f'{TMP}/a.wav', 'wb'); wo.setnchannels(1); wo.setsampwidth(2); wo.setframerate(SR); wo.writeframes((mix * 32767).astype('<i2').tobytes()); wo.close()
-    subprocess.run([FF, '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{TMP}/f%05d.jpg', '-i', f'{TMP}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '15', '-tune', 'animation',
-                    '-pix_fmt', 'yuv420p', '-r', str(FPS), '-c:a', 'aac', '-b:a', '256k', '-ac', '2', '-shortest', '-movflags', '+faststart', OUT], check=True)
+    # mono -> stéréo à plein niveau sur les 2 canaux (« -ac 2 » baisse le son de 3 dB)
+    AUD = ['-c:a', 'aac', '-b:a', '256k', '-af', 'pan=stereo|c0=c0|c1=c0', '-shortest', '-movflags', '+faststart']
+    if AUDIO_ONLY:
+        subprocess.run([FF, '-y', '-loglevel', 'error', '-i', OUT, '-i', f'{TMP}/a.wav', '-map', '0:v', '-map', '1:a', '-c:v', 'copy'] + AUD + [f'{TMP}/v.mp4'], check=True)
+        shutil.move(f'{TMP}/v.mp4', OUT)
+    else:
+        subprocess.run([FF, '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{TMP}/f%05d.jpg', '-i', f'{TMP}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '15', '-tune', 'animation',
+                        '-pix_fmt', 'yuv420p', '-r', str(FPS)] + AUD + [OUT], check=True)
     shutil.rmtree(TMP); print('ok', OUT, round(DUR, 2))

@@ -1,0 +1,163 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_nietzsche.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 5",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.21,
+  "dur": 1.3
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "segments": [
+  [
+   "Gesetz Nr. 5:",
+   0.05,
+   1.22
+  ],
+  [
+   "Finde dein Warum.",
+   1.64,
+   2.78
+  ],
+  [
+   "Jeden Morgen klingelt dein Wecker.",
+   3.35,
+   4.89
+  ],
+  [
+   "Du stehst auf.",
+   5.32,
+   6.12
+  ],
+  [
+   "Du gehst zur Arbeit.",
+   6.36,
+   7.12
+  ],
+  [
+   "Aber warum?",
+   7.68,
+   8.61
+  ],
+  [
+   "Für ein Auto.",
+   9.12,
+   9.89
+  ],
+  [
+   "Für ein Haus.",
+   10.14,
+   10.92
+  ],
+  [
+   "Für deine Familie.",
+   11.11,
+   11.95
+  ],
+  [
+   "Genau das ist dein Warum.",
+   12.59,
+   14.08
+  ],
+  [
+   "Der Grund, warum du aufstehst –",
+   14.56,
+   16.03
+  ],
+  [
+   "auch wenn du müde bist.",
+   16.32,
+   17.3
+  ],
+  [
+   "Nietzsche sagte:",
+   17.83,
+   18.69
+  ],
+  [
+   "„Wer ein Warum zum Leben hat,",
+   19.15,
+   20.64
+  ],
+  [
+   "erträgt fast jedes Wie.“",
+   20.84,
+   22.22
+  ],
+  [
+   "Die Arbeit wird nicht leichter.",
+   22.84,
+   24.1
+  ],
+  [
+   "Aber sie bekommt einen Sinn.",
+   24.51,
+   25.8
+  ],
+  [
+   "Also frag dich nicht, wie du es schaffst.",
+   26.38,
+   28.19
+  ],
+  [
+   "Frag dich, wofür.",
+   28.46,
+   29.64
+  ],
+  [
+   "Schreib dein Warum in die Kommentare.",
+   30.16,
+   31.85
+  ],
+  [
+   "Jeden Tag ein neues Gesetz.",
+   32.26,
+   33.79
+  ],
+  [
+   "Folge mir, damit du keins verpasst.",
+   33.98,
+   35.8
+  ]
+ ],
+ "text": [
+  "Gesetz Nr. 5:",
+  "Finde dein Warum.",
+  "Jeden Morgen klingelt dein Wecker.",
+  "Du stehst auf.",
+  "Du gehst zur Arbeit.",
+  "Aber warum?",
+  "Für ein Auto.",
+  "Für ein Haus.",
+  "Für deine Familie.",
+  "Genau das ist dein Warum.",
+  "Der Grund, warum du aufstehst –",
+  "auch wenn du müde bist.",
+  "Nietzsche sagte:",
+  "„Wer ein Warum zum Leben hat,",
+  "erträgt fast jedes Wie.“",
+  "Die Arbeit wird nicht leichter.",
+  "Aber sie bekommt einen Sinn.",
+  "Also frag dich nicht, wie du es schaffst.",
+  "Frag dich, wofür.",
+  "Schreib dein Warum in die Kommentare.",
+  "Jeden Tag ein neues Gesetz.",
+  "Folge mir, damit du keins verpasst."
+ ],
+ "cta": {
+  "t": 35.18,
+  "click": 1.5,
+  "avatar": "avatar_profil.png",
+  "x": 540,
+  "y": 930,
+  "r": 165,
+  "hide_text": true,
+  "swap": true
+ },
+ "hot": "^(warum|wecker|arbeit|auto|haus|familie|grund|müde|nietzsche|leben|wie|sinn|wofür|kommentare|gesetz|folge)$"
+}

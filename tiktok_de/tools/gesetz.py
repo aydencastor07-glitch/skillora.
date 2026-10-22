@@ -13,7 +13,7 @@ PX0, PY0, PX1, PY1 = 48, 680, 1032, 1240
 # ---------- voix + calage
 SR = 16000
 def load16(f): return np.frombuffer(subprocess.run([FF, '-v', 'error', '-i', os.path.join(DIR, f), '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True).stdout, np.int16).astype(float)
-DUR = len(load16(C['voice'])) / SR + 0.8
+DUR = len(load16(C['voice'])) / SR + C.get('tail', 0.8)
 a = load16(C.get('align_voice', C['voice']))   # calage sur la voix sans la pause du marteau, décalé ensuite
 e = np.array([np.sqrt(np.mean(a[i:i + 160] ** 2)) for i in range(0, len(a) - 160, 160)]); db = 20 * np.log10(e + 1); sp = db > db.max() - 33
 gaps = []; i = 0
@@ -54,6 +54,10 @@ for k, (w, _, _) in enumerate(WORDS):
     if inq: QUOTE.add(k)
     if '“' in w or '"' in w: inq = False
 QC = (242, 204, 150)
+if C.get('quote_align') and QUOTE:   # citation : temps de chaque mot pris dans l'alignement (align_tts.py), pour le soulignement
+    AW = json.load(open(os.path.join(DIR, C['quote_align']))); qk = sorted(QUOTE); aw = AW[-len(qk):]
+    for k, (_, a0, a1) in zip(qk, aw):
+        s_ = C['gavel']['dur'] if C.get('gavel') and a0 >= C['gavel']['t'] - 0.2 else 0; WORDS[k][1], WORDS[k][2] = a0 + s_, a1 + s_
 # ---------- groupes de mots (max 4 lignes, retour à la ligne étroit, nouveau groupe à chaque fin de phrase)
 TF = F('Poppins-ExtraBold.ttf', 62); MAXW = 560; LH = 84; TX, TY = 120, 790
 NT = C.get('title_words', 3)          # les premiers mots (« Gesetz Nr. 10: ») = carte titre
@@ -63,7 +67,7 @@ def wlen(ws): return TF.getbbox(' '.join(WORDS[k][0] for k in ws))[2]
 for k in range(NT, len(WORDS)):
     w = WORDS[k][0]
     if lines[-1] and wlen(lines[-1] + [k]) > MAXW: lines.append([])
-    if len(lines) > 4: groups.append(cur); cur = []; lines = [[]]
+    if len(lines) > 4 and not (C.get('quote_poem') and k in QUOTE): groups.append(cur); cur = []; lines = [[]]   # la citation reste entière
     lines[-1].append(k); cur.append(k)
     if re.search(r'[.:!?][“"]?$', w): groups.append(cur); cur = []; lines = [[]]
 if cur: groups.append(cur)
@@ -133,6 +137,25 @@ def cta_button(img, t):
         lab = 'Gefolgt' if clicked else 'Folgen'; al = int(255 * min(1, (u - 0.3) / 0.3))
         d.text((cx, py + pr + 45), lab, font=F('Poppins-ExtraBold.ttf', 46), fill=(255, 255, 255, al), anchor='mm')
     img.alpha_composite(lay)
+# ---------- citation en « poème » : phrase entière en italique, un trait jaune souligne chaque mot pendant qu'il est dit
+QF = F('PlayfairDisplay-Italic.ttf', 66); QF.set_variation_by_axes([500]); QLH = 92
+def quote_poem(img, g, t):
+    ws = [WORDS[k][0] for k in g]; ls = [[]]
+    for k in g:
+        if ls[-1] and QF.getbbox(" ".join(WORDS[j][0] for j in ls[-1] + [k]))[2] > MAXW - 20: ls.append([])
+        ls[-1].append(k)
+    t0 = WORDS[g[0]][1] - 0.25; u = ease((t - t0) / 0.5); y0 = (PY0 + PY1) / 2 - len(ls) * QLH / 2 + (1 - u) * 20
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    for li, l in enumerate(ls):
+        x = TX - 20; y = y0 + li * QLH
+        for k in l:
+            w, a0, a1 = WORDS[k]; ww = QF.getbbox(w)[2]; p = min(1, max(0, (t - a0) / max(0.05, a1 - a0)))
+            d.text((x, y), w, font=QF, fill=QC + (int(255 * u),), anchor='la')
+            if p > 0:   # trait : vif sous le mot dit, plus discret une fois passé
+                bx0 = x + 4; bx1 = bx0 + (ww - 8) * p; by = y + 78; al = 255 if p < 1 or t < a1 + 0.15 else 110
+                d.line([bx0, by, bx1, by], fill=YEL + (al,), width=6); d.ellipse([bx1 - 3, by - 3, bx1 + 3, by + 3], fill=YEL + (al,))
+            x += ww + QF.getbbox(' ')[2] + 4
+    img.alpha_composite(lay)
 # ---------- images
 T_TITLE_END = WORDS[NT][1] - 0.15
 def frame(t):
@@ -164,6 +187,7 @@ def frame(t):
     cta_button(img, t)
     if CTA and CTA.get('hide_text') and t >= CTA['t']: return img.convert('RGB')
     gi = max([i for i, g in enumerate(groups) if WORDS[g[0]][1] - 0.1 <= t] or [0]); g = groups[gi]
+    if C.get('quote_poem') and all(k in QUOTE for k in g): quote_poem(img, g, t); return img.convert('RGB')
     nxt = WORDS[groups[gi + 1][0]][1] - 0.1 if gi + 1 < len(groups) else DUR
     out = ease((nxt - t) / 0.15) if gi + 1 < len(groups) else 1
     d = ImageDraw.Draw(img)

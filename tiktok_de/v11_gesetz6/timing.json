@@ -1,0 +1,31 @@
+{
+"sent": [
+"Gesetz Nr. 6:",
+"Hör auf, dir Sorgen zu machen.",
+"Es ist zwei Uhr nachts.",
+"Du liegst im Bett.",
+"Du denkst an das Gespräch morgen.",
+"An die Rechnung.",
+"An die Nachricht, die nicht beantwortet wurde.",
+"Dein Kopf spielt jedes schlimme Szenario durch.",
+"Und am Ende passiert …",
+"fast nichts davon.",
+"Seneca sagte:",
+"„Wir leiden öfter in der Vorstellung als in der Wirklichkeit.“"
+],
+"bounds": [
+0.05,
+1.65,
+4.69,
+6.41,
+7.69,
+9.61,
+10.91,
+13.44,
+16.4,
+17.83,
+19.72,
+21.12,
+23.81
+]
+}

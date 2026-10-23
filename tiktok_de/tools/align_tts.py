@@ -6,10 +6,11 @@
 # différents (de 0,8 à 1,2) et on garde, pour chaque mot, la médiane. Sans bruit aléatoire : le résultat est reproductible.
 # usage : align_tts.py voix.mp3 texte.txt sortie_words.json [corrections.json]
 #   corrections.json (facultatif) : [["mot", n, début], ...] débuts mesurés à la main (n = n-ième occurrence du mot)
-import sys, re, json, io, wave, subprocess
+import sys, os, re, json, io, wave, subprocess
 import numpy as np, librosa, imageio_ffmpeg
 from piper import PiperVoice, SynthesisConfig
-MODEL = '/tmp/claude-0/-home-user-skillora-/fec401e9-70df-57ee-af23-f64816928711/scratchpad/piper/de-thorsten-low.onnx'
+MODEL = os.environ.get('PIPER_MODEL', '/tmp/claude-0/-home-user-skillora-/fec401e9-70df-57ee-af23-f64816928711/scratchpad/piper/de-thorsten-low.onnx')   # en-us-lessac-low.onnx pour l'anglais
+LANG_DE = 'de-' in os.path.basename(MODEL)
 FF = imageio_ffmpeg.get_ffmpeg_exe(); SR = 16000; HOP = 160          # trames de 10 ms
 voice_path, text_path, out_path = sys.argv[1:4]; FIX = json.load(open(sys.argv[4])) if len(sys.argv) > 4 else []
 UNITS = ['', 'ein', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben', 'acht', 'neun', 'zehn', 'elf', 'zwölf', 'dreizehn', 'vierzehn', 'fünfzehn', 'sechzehn', 'siebzehn', 'achtzehn', 'neunzehn']
@@ -25,6 +26,7 @@ def num_de(n):
 def norm(w):
     # chiffres en toutes lettres pour la synthèse (400er -> vierhunderter) ; le son « ich » (ç) manque
     # dans ce modèle et casse l'alignement : on le remplace par « sch », de durée équivalente
+    if not LANG_DE: return w
     w = re.sub(r'\d+', lambda m: num_de(int(m.group())), w)
     w = re.sub(r'(?i)(?<=[eiäöüylrn])ch', 'sch', w); w = re.sub(r'(?i)ig(?=\W*$)', 'ik', w)
     return w

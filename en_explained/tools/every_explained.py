@@ -1,6 +1,6 @@
 # Vidéo « Every ___ Explained » (compte anglais) – style de la référence @valor.humano3 :
 # fond blanc, bonhomme bâton dessiné, illustrations fournies (prompts) qui apparaissent d'abord en esquisse grise puis se colorent,
-# mots-clés en GROS (police condensée), relances « It gets stranger », pas de sous-titres. Export en vrai 4K, images envoyées à ffmpeg.
+# mots-clés en GROS (police condensée), relances « It gets stranger », beaucoup de motion design, sous-titres, musique. Export en vrai 4K, images envoyées à ffmpeg.
 # usage : every_explained.py dossier sortie.mp4  [PREVIEW=t1,t2,...] [K=2 (4K) | K=1] [TAIL=0.4]
 #   dossier : voix_clean.mp3, words.json (align_tts.py), img/1.png … (illustrations sur fond blanc)
 import sys, os, re, math, json, subprocess, shutil, wave
@@ -112,18 +112,29 @@ def ill(n, w, h):
         grad = (xx / col.width * 0.55 + yy / col.height * 0.45 + rs.uniform(-0.04, 0.04, (col.height, col.width))).astype(np.float32)
         _ill[key] = (col, sk, grad)
     return _ill[key]
-def show(img, n, cx, cy, w, h, t0, t, out=None):
-    # apparition : l'esquisse se trace (balayage en diagonale), puis la couleur se pose ; out = disparition rapide
+def show(img, n, cx, cy, w, h, t0, t, out=None, mode='pop', float_=10, wob=2.0):
+    # illustration toujours en mouvement : entrée (pop = rotation « 3D » sur l'axe vertical + rebond, sketch = esquisse puis couleur),
+    # puis flottement et léger balancement tant qu'elle est à l'écran ; out = sortie rapide (rétrécit)
     if t0 is None or t < t0: return
-    col, sk, grad = ill(n, w, h); p = t - t0; al = 1.0 if out is None else 1 - clamp((t - out + 0.15) / 0.15)
+    col, sk, grad = ill(n, w, h); p = t - t0
+    al = 1.0 if out is None else 1 - clamp((t - out + 0.15) / 0.15)
     if al <= 0: return
-    x, y = S(cx) - col.width // 2, S(cy) - col.height // 2
-    m = Image.fromarray((np.clip((p / 0.45 * 1.15 - grad) * 12, 0, 1) * 255 * al).astype('uint8'))
-    if p < 0.75:
-        s2 = sk.copy(); s2.putalpha(ImageChops.multiply(sk.getchannel('A'), m)); comp(img, s2, x, y)
-    ca = clamp((p - 0.3) / 0.35) * al
-    if ca > 0:
-        c2 = col.copy(); c2.putalpha(col.getchannel('A').point(lambda v: int(v * ca))); comp(img, c2, x, y)
+    if mode == 'sketch':
+        x, y = S(cx) - col.width // 2, S(cy) - col.height // 2
+        m = Image.fromarray((np.clip((p / 0.4 * 1.15 - grad) * 12, 0, 1) * 255 * al).astype('uint8'))
+        if p < 0.7: s2 = sk.copy(); s2.putalpha(ImageChops.multiply(sk.getchannel('A'), m)); comp(img, s2, x, y)
+        ca = clamp((p - 0.25) / 0.3) * al
+        if ca > 0: c2 = col.copy(); c2.putalpha(col.getchannel('A').point(lambda v: int(v * ca))); comp(img, c2, x, y)
+        return
+    k = clamp(p / 0.38); sx = max(0.02, abs(math.cos((1 - ease(k)) * math.pi / 2))) * (back(k) if k < 1 else 1); sy = 0.85 + 0.15 * back(k)
+    if out is not None: q = clamp((t - out + 0.15) / 0.15); sx *= 1 - 0.4 * q; sy *= 1 - 0.4 * q
+    sw, sh_ = max(2, int(col.width * sx)), max(2, int(col.height * sy))
+    im = col.resize((sw, sh_), Image.BILINEAR) if (sw, sh_) != col.size else col
+    rot = wob * math.sin(t * 1.7 + n)
+    if abs(rot) > 0.05: im = im.rotate(rot, resample=Image.BICUBIC, expand=True)
+    if al < 0.99: im = im.copy(); im.putalpha(im.getchannel('A').point(lambda v: int(v * al)))
+    fy = float_ * math.sin(t * 2.1 + n * 0.7) * k
+    comp(img, im, S(cx) - im.width // 2, S(cy + fy) - im.height // 2)
 # ---------- bonhomme bâton
 def stick(d, x, y, s=1.0, pose='stand', mouth='flat', p=1.0, t=0, eyes=INK, look=0):
     # (x, y) = pieds ; tête ronde, yeux, bouche ; poses : stand, think, point, up, shrug
@@ -161,27 +172,70 @@ def sub(img, alpha, fn):
     lay = Image.new('RGBA', img.size, (0, 0, 0, 0)); fn(lay, ImageDraw.Draw(lay))
     if alpha < 0.99: lay.putalpha(lay.getchannel('A').point(lambda v: int(v * alpha)))
     img.alpha_composite(lay)
+# ---------- éléments de motion design (tout bouge en permanence)
+PASTEL = [(150, 200, 250), (250, 200, 140), (170, 230, 190), (220, 190, 245), (255, 220, 120)]
+def confetti(d, t, n=26, seed=3):
+    # petits points pastel qui dérivent lentement en fond
+    rs = np.random.RandomState(seed)
+    for k in range(n):
+        x0, y0, vx, vy, r = rs.uniform(0, W), rs.uniform(300, 1750), rs.uniform(-18, 18), rs.uniform(-30, -10), rs.uniform(6, 14)
+        x = (x0 + vx * t) % W; y = 300 + (y0 - 300 + vy * t) % 1450
+        circ(d, x, y, r * (0.8 + 0.2 * math.sin(t * 3 + k)), None, PASTEL[k % 5] + (150,))
+def eyeicon(d, x, y, r, col=BLUE, look=0.0, blink=0.0):
+    # petit œil : blanc, iris coloré, pupille, reflet ; blink ferme la paupière
+    circ(d, x, y, r, INK, WHITE + (255,), max(2, r * 0.12))
+    if blink > 0.85: line(d, x - r * 0.8, y, x + r * 0.8, y, INK, max(2, r * 0.14)); return
+    ix = x + r * 0.18 * math.sin(look); circ(d, ix, y, r * 0.55, None, col + (255,)); circ(d, ix, y, r * 0.25, None, INK + (255,)); circ(d, ix - r * 0.15, y - r * 0.18, r * 0.1, None, WHITE + (255,))
 def sun(d, cx, cy, r, t, p=1.0):
     if p <= 0: return
-    circ(d, cx, cy, r * back(p), INK, YEL + (255,), 6)
-    for k in range(10): a = k * math.pi / 5 + t * 0.4; line(d, cx + (r + 18) * math.cos(a), cy + (r + 18) * math.sin(a), cx + (r + 18 + 34 * ease(p)) * math.cos(a), cy + (r + 18 + 34 * ease(p)) * math.sin(a), (240, 170, 20), 7)
-def globe(d, cx, cy, r, p=1.0):
+    for k in range(12):
+        a = k * math.pi / 6 + t * 0.8; L = (34 + 14 * math.sin(t * 6 + k)) * ease(p)
+        line(d, cx + (r + 16) * math.cos(a), cy + (r + 16) * math.sin(a), cx + (r + 16 + L) * math.cos(a), cy + (r + 16 + L) * math.sin(a), (240, 170, 20), 8)
+    circ(d, cx, cy, r * back(p) * (1 + 0.04 * math.sin(t * 5)), INK, YEL + (255,), 6)
+def globe(d, cx, cy, r, t, p=1.0):
+    # Terre qui tourne : les continents glissent et sont coupés au bord du disque
     if p <= 0: return
-    rr_ = r * back(p); circ(d, cx, cy, rr_, INK, (90, 170, 235, 255), 7)
-    for (dx, dy, rr) in ((-0.35, -0.3, 0.33), (0.3, 0.1, 0.38), (-0.2, 0.42, 0.22)): circ(d, cx + dx * rr_, cy + dy * rr_, rr * rr_, None, (90, 180, 90, 255))
-    circ(d, cx, cy, rr_, INK, None, 7)
-def drop_(d, cx, cy, r, col):
-    d.polygon([(S(cx - r * 0.9), S(cy - r * 0.4)), (S(cx), S(cy - r * 2.1)), (S(cx + r * 0.9), S(cy - r * 0.4))], fill=col + (255,))
-    d.ellipse([S(cx - r), S(cy - r), S(cx + r), S(cy + r)], fill=col + (255,), outline=INK, width=S(6))
-    d.polygon([(S(cx - r * 0.86), S(cy - r * 0.45)), (S(cx), S(cy - r * 2.05)), (S(cx + r * 0.86), S(cy - r * 0.45))], fill=col + (255,))
-    line(d, cx - r * 0.93, cy - r * 0.38, cx, cy - r * 2.1, INK, 6); line(d, cx + r * 0.93, cy - r * 0.38, cx, cy - r * 2.1, INK, 6)
-def calendar(img, d, cx, cy, l1, l2, p):
+    rr = r * back(p); circ(d, cx, cy, rr, INK, (90, 170, 235, 255), 7)
+    for k, (lon, lat, s) in enumerate(((0.0, -0.3, 0.32), (1.4, 0.15, 0.38), (2.6, 0.45, 0.24), (3.9, -0.1, 0.3), (5.0, 0.35, 0.22))):
+        a = lon + t * 0.9; xx = math.sin(a)
+        if math.cos(a) < 0: continue
+        cx2 = cx + xx * rr * 0.75; sx = max(0.15, math.cos(a)); s2 = s * rr
+        d.ellipse([S(cx2 - s2 * sx), S(cy + lat * rr - s2 * 0.8), S(cx2 + s2 * sx), S(cy + lat * rr + s2 * 0.8)], fill=(90, 180, 90, 255))
+    circ(d, cx, cy, rr, INK, None, 7)
+def helix(d, cx, y0, y1, t, amp=120, glow=0.0, p=1.0):
+    # ADN dessiné en « 3D » : deux brins sinusoïdaux qui tournent, barreaux, épaisseur selon la profondeur
     if p <= 0: return
-    s = back(p); w, h = 440 * s, 270 * s
-    d.rounded_rectangle([S(cx - w / 2), S(cy - h / 2), S(cx + w / 2), S(cy + h / 2)], S(18), fill=WHITE + (255,), outline=INK, width=S(7))
-    d.rectangle([S(cx - w / 2 + 4), S(cy - h / 2 + 4), S(cx + w / 2 - 4), S(cy - h / 2 + 60 * s)], fill=RED + (255,))
-    for k in (-1, 1): line(d, cx + k * 120 * s, cy - h / 2 - 22 * s, cx + k * 120 * s, cy - h / 2 + 22 * s, INK, 10)
-    text(img, (cx, cy + 10 * s), l1, AF(64 * s), INK); text(img, (cx, cy + 85 * s), l2, AF(40 * s), INK)
+    n = 26; yy = [y0 + (y1 - y0) * k / (n - 1) for k in range(int(n * clamp(p)) or 1)]
+    for k, y in enumerate(yy):
+        a = k * 0.55 + t * 2.2; xa, xb = cx + amp * math.sin(a), cx - amp * math.sin(a); depth = math.cos(a)
+        cols = [(70, 150, 235), (245, 140, 50)]; mid = k == n // 2
+        line(d, xa, y, xb, y, (255, 220, 60) if mid and glow > 0 else ((230, 120, 200) if k % 2 else (120, 210, 120)), 7)
+        if mid and glow > 0: circ(d, cx, y, 26 + 10 * math.sin(t * 9), None, (90, 170, 255, int(140 * glow))); circ(d, cx, y, 14, None, BLUE + (255,))
+        for x_, c_, dd in ((xa, cols[0], depth), (xb, cols[1], -depth)):
+            circ(d, x_, y, 15 + 6 * dd, INK, c_ + (255,), 4)
+def counter(img, xy, val, fmt, size, col):
+    text(img, xy, fmt.format(val), AF(size), col)
+def drop_(d, cx, cy, r, col, sq=0.0):
+    # goutte de peinture avec écrasement/étirement (sq > 0 : écrasée)
+    rx, ry = r * (1 + 0.25 * sq), r * (1 - 0.2 * sq)
+    d.polygon([(S(cx - rx * 0.9), S(cy - ry * 0.4)), (S(cx), S(cy - ry * 2.1)), (S(cx + rx * 0.9), S(cy - ry * 0.4))], fill=col + (255,))
+    d.ellipse([S(cx - rx), S(cy - ry), S(cx + rx), S(cy + ry)], fill=col + (255,), outline=INK, width=S(6))
+    d.polygon([(S(cx - rx * 0.86), S(cy - ry * 0.45)), (S(cx), S(cy - ry * 2.05)), (S(cx + rx * 0.86), S(cy - ry * 0.45))], fill=col + (255,))
+    line(d, cx - rx * 0.93, cy - ry * 0.38, cx, cy - ry * 2.1, INK, 6); line(d, cx + rx * 0.93, cy - ry * 0.38, cx, cy - ry * 2.1, INK, 6)
+    circ(d, cx - rx * 0.35, cy - ry * 0.2, r * 0.18, None, (255, 255, 255, 170))
+def wavy(d, x0, y0, ang, L, col, ph, w=7):
+    # rayon ondulé (lumière bleue renvoyée)
+    pts = [(x0 + s * math.cos(ang) - 14 * math.sin(s * 0.09 + ph) * math.sin(ang), y0 + s * math.sin(ang) + 14 * math.sin(s * 0.09 + ph) * math.cos(ang)) for s in np.linspace(0, L, 24)]
+    poly(d, pts, col, w); arrow(d, *pts[-2], *pts[-1], col, w, 1, 26)
+def bar(img, d, x, y, w, h, val, col, label):
+    rect(d, x, y, x + w, y + h, INK, 6, 1, 14, fill=(240, 240, 240, 255))
+    if val > 0.01: d.rounded_rectangle([S(x + 6), S(y + h - (h - 12) * val - 6), S(x + w - 6), S(y + h - 6)], S(10), fill=col + (255,))
+    text(img, (x + w / 2, y + h + 40), label, AF(40), INK)
+def stamp(img, xy, s, size, col, t, t0, rot=-8):
+    # tampon : arrive gros puis s'écrase, avec secousse
+    if t0 is None or t < t0: return
+    k = clamp((t - t0) / 0.16); j = 10 * (1 - clamp((t - t0) / 0.35)) * math.sin(t * 80)
+    text(img, (xy[0] + j, xy[1]), s, AF(size), col, k, rot=rot, scale=2.0 - ease(k))
 # ---------- repères temporels
 T = dict(every=tw('every'), explained=tw('explained'), blue=tw('blue'), heres=tw("here's"), weird=tw('weird'), zero=tw('zero'), pigment=tw('pigment'), none=tw('none'),
          brown=tw('brown'), packed=tw('packed'), melanin=tw('melanin'), dark=tw('dark'), blue3=tw('blue', 2), almost=tw('almost'), so=tw('so'), where=tw('where'),
@@ -191,100 +245,177 @@ T = dict(every=tw('every'), explained=tw('explained'), blue=tw('blue'), heres=tw
          so2=tw('so', 1), what=tw('what'), and_=tw('and'))
 for k, v in T.items():
     if v is None: print('mot introuvable :', k)
-SC = [0, T['blue'] - 0.15, T['heres'] - 0.12, T['brown'] - 0.15, T['so'] - 0.12, T['when'] - 0.12, T['and_'] - 0.1, T['one2'] - 0.12, T['so2'] - 0.12, DUR]
-PUNCH = [(T['zero'], 0.07), (T['none'], 0.05), (T['light'], 0.05), (T['stranger'], 0.06), (T['ancestor'], 0.05), (T['millions'], 0.04)]
+SC = [0, T['blue'] - 0.12, T['heres'] - 0.1, T['brown'] - 0.12, T['so'] - 0.1, T['when'] - 0.1, T['and_'] - 0.08, T['one2'] - 0.1, T['so2'] - 0.1, DUR]
+PUNCH = [(T['zero'], 0.08), (T['none'], 0.06), (T['light'], 0.06), (T['stranger'], 0.07), (T['ancestor'], 0.06), (T['millions'], 0.05), (T['blue'], 0.05)]
+SHAKE = [(T['zero'], 14), (T['none'], 10), (T['stranger'], 16)]
 def camera(t, sc):
-    a0, a1 = SC[sc], SC[sc + 1]; z = 1.0 + 0.03 * eio((t - a0) / max(1, a1 - a0))
+    # zoom lent continu + léger balancement + zooms d'impact et secousses
+    a0, a1 = SC[sc], SC[sc + 1]; z = 1.0 + 0.045 * eio((t - a0) / max(0.5, a1 - a0)); rot = 0.6 * math.sin(t * 0.9)
     for t0, amp in PUNCH:
         if t0 and 0 <= t - t0 < 0.6: z += amp * math.exp(-(t - t0) * 7) * min(1, (t - t0) / 0.05)
-    return z
-# ---------- les scènes (fond blanc, une idée = une image)
+    ox = oy = 0
+    for t0, amp in SHAKE:
+        if t0 and 0 <= t - t0 < 0.35: k = (1 - (t - t0) / 0.35) ** 2; ox += amp * k * math.sin((t - t0) * 95); oy += amp * k * math.cos((t - t0) * 83)
+    return z, rot, ox, oy
+# ---------- les scènes : beaucoup de mouvement, une idée = une image
 def scene(img, d, sc, t):
     CX = W / 2; u0 = t - SC[sc]
-    if sc == 0:   # carte de série
-        word(img, (CX, 470), 'EVERY EYE COLOR', 92, INK, t, SC[0] + 0.05); word(img, (CX, 580), 'EXPLAINED', 92, INK, t, T['explained'] - 0.1)
-        show(img, 1, CX, 1080, 880, 880, 0.1, t)
-        if u0 > 0.8:
-            for k, (lab, x, y) in enumerate((('BLUE', 330, 1095), ('BROWN', 750, 1095), ('GREEN', 330, 1505), ('TWO COLORS', 750, 1505))): word(img, (x, y), lab, 44, INK, t, 0.8 + k * 0.08)
-    elif sc == 1:  # sujet + mascotte
-        word(img, (CX, 470), 'BLUE EYES', 130, BLUE, t, SC[1] + 0.05); show(img, 2, CX, 1000, 860, 760, SC[1], t)
-    elif sc == 2:  # aucun pigment bleu
-        if t < T['zero'] - 0.1: word(img, (CX, 470), "HERE'S THE WEIRD PART", 66, INK, t, T['heres'], font='H')
-        k = since(t, T['weird'], 0.35)
-        if k > 0: drop_(d, CX, 960, 140 * back(k), BLUE)
-        if t > T['zero'] - 0.05:
-            word(img, (CX, 470), 'ZERO', 180, RED, t, T['zero'] - 0.03); word(img, (CX, 1260), 'BLUE PIGMENT', 104, INK, t, T['pigment'] - 0.05)
-        if T['none'] and t > T['none'] - 0.05: cross(d, CX, 880, 210, since(t, T['none'] - 0.05, 0.3), RED, 18); word(img, (CX, 1400), 'NONE.', 96, RED, t, T['none'])
-    elif sc == 3:  # iris marron plein de mélanine, iris bleu presque vide
-        show(img, 3, CX, 1020, 820, 760, T['brown'] - 0.1, t)
-        word(img, (310, 1440), 'BROWN', 80, BROWN, t, T['brown']); word(img, (770, 1440), 'BLUE', 80, BLUE, t, T['blue3'])
-        if T['melanin'] and t > T['melanin'] - 0.15:
-            show(img, 4, 230, 520, 240, 240, T['melanin'] - 0.15, t); word(img, (600, 480), 'MELANIN', 96, BROWN, t, T['melanin']); word(img, (600, 570), 'a dark pigment', 54, GREY, t, T['dark'], font='H')
-        if T['almost'] and t > T['almost'] - 0.05: word(img, (770, 1530), 'ALMOST NONE', 64, RED, t, T['almost'])
-    elif sc == 4:  # d'où vient le bleu ? la lumière
-        stick(d, 380, 1380, 1.25, 'think', 'o', clamp(u0 / 0.4), t)
-        k = since(t, T['where'], 0.3)
-        if k > 0: text(img, (560, 760), '?', AF(200), INK, k, rot=8 * math.sin(t * 6))
-        word(img, (CX, 470), 'WHERE DOES THE BLUE', 76, INK, t, T['where']); word(img, (CX, 570), 'COME FROM?', 76, BLUE, t, T['where'] + 0.3)
-        if T['light'] and t > T['light'] - 0.15: sun(d, 790, 820, 110, t, since(t, T['light'] - 0.15, 0.35)); word(img, (790, 1080), 'LIGHT', 130, (240, 170, 20), t, T['light'])
-    elif sc == 5:  # la lumière se diffuse dans les fibres de l'iris ; comme le ciel
-        A = gone(t, T['same'] - 0.12)
+    if sc == 0:   # carte de série : les 4 tuiles arrivent l'une après l'autre en tournant
+        word(img, (CX, 470), 'EVERY EYE COLOR', 92, INK, t, 0.05); word(img, (CX, 580), 'EXPLAINED', 92, BLUE, t, T['explained'] - 0.15)
+        show(img, 1, CX, 1080, 880, 880, 0.1, t, wob=1.2)
+        for k, (lab, x, y) in enumerate((('BLUE', 330, 1095), ('BROWN', 750, 1095), ('GREEN', 330, 1505), ('TWO COLORS', 750, 1505))): word(img, (x, y), lab, 44, INK, t, 0.55 + k * 0.12)
+    elif sc == 1:  # le sujet : l'œil arrive en tournant, anneaux qui pulsent autour de l'iris
+        word(img, (CX, 470), 'BLUE EYES', 140, BLUE, t, SC[1] + 0.02)
+        for k in range(3):
+            q = ((u0 * 1.4 + k / 3) % 1); circ(d, CX, 1010, 180 + 260 * q, (90, 160, 240), None, 8 * (1 - q)) if u0 > 0.2 else None
+        show(img, 2, CX, 1000, 860, 760, SC[1], t, wob=3)
+    elif sc == 2:  # « here's the weird part » → la goutte bleue rebondit, puis explose : ZERO pigment
+        if t < T['zero'] - 0.08: word(img, (CX, 470), "HERE'S THE WEIRD PART", 70, INK, t, T['heres'], font='H')
+        if t < T['zero']:
+            k = since(t, T['weird'] - 0.1, 0.6); y = 980 - 420 * (1 - k) ** 2 * abs(math.cos(k * 7)) if k < 1 else 980 + 8 * math.sin(t * 4)
+            sq = max(0, math.sin(k * 7)) * (1 - k) if k < 1 else 0
+            if k > 0: drop_(d, CX, y, 140, BLUE, sq)
+        else:   # explosion en particules + compteur qui tombe à 0 %
+            q = since(t, T['zero'], 0.5); rs = np.random.RandomState(5)
+            for j in range(34):
+                a = rs.uniform(0, 6.28); v = rs.uniform(180, 520); x = CX + math.cos(a) * v * ease(q); y = 940 + math.sin(a) * v * ease(q) + 300 * q * q
+                circ(d, x, y, rs.uniform(8, 20) * (1 - 0.7 * q), None, BLUE + (int(255 * (1 - q * 0.8)),))
+            pct = int(round(100 * (1 - since(t, T['zero'] + 0.05, 0.6))))
+            counter(img, (CX, 940), pct, '{}%', 220, RED if pct == 0 else BLUE)
+            stamp(img, (CX, 470), 'ZERO', 190, RED, t, T['zero'] - 0.03, rot=0); word(img, (CX, 1210), 'BLUE PIGMENT', 104, INK, t, T['pigment'] - 0.05)
+        if T['none'] and t > T['none'] - 0.05: stamp(img, (CX, 1350), 'NONE.', 120, RED, t, T['none'], rot=-8)
+    elif sc == 3:  # les deux iris glissent des côtés, la mélanine coule du pot dans l'iris marron, jauges
+        k = since(t, T['brown'] - 0.1, 0.45); show(img, 3, CX - 600 * (1 - ease(k)), 950, 760, 600, T['brown'] - 0.1, t, wob=1.5)
+        word(img, (330, 1310), 'BROWN', 76, BROWN, t, T['brown']); word(img, (750, 1310), 'BLUE', 76, BLUE, t, T['blue3'])
+        if T['melanin'] and t > T['packed'] - 0.15:
+            q = since(t, T['packed'] - 0.15, 0.4); jx, jy = 210, 470 + 20 * math.sin(t * 3)
+            show(img, 4, jx, jy, 220, 220, T['packed'] - 0.15, t, wob=10)
+            for j in range(18):   # grains qui tombent du pot vers l'iris marron
+                ph = ((t - T['packed']) * 1.3 + j / 18) % 1
+                if t > T['packed']: circ(d, jx + 60 + 80 * ph + 10 * math.sin(j), jy + 80 + 520 * ph * ph, 8, None, BROWN + (int(255 * (1 - ph)),))
+            word(img, (620, 450), 'MELANIN', 100, BROWN, t, T['melanin']); word(img, (620, 545), 'a dark pigment', 56, GREY, t, T['dark'], font='H')
+        if T['almost'] and t > T['blue3'] - 0.2:
+            bar(img, d, 280, 1430, 100, 170, since(t, T['blue3'] - 0.2, 0.6), BROWN, ''); bar(img, d, 700, 1430, 100, 170, 0.05 * since(t, T['blue3'], 0.6), BLUE, '')
+            word(img, (750, 1375), 'ALMOST NONE', 54, RED, t, T['almost'])
+    elif sc == 4:  # d'où vient le bleu ? points d'interrogation en orbite, puis la lumière arrive
+        show(img, 2, CX, 1000, 620, 560, SC[4], t, wob=4)
+        for k in range(3):
+            a = t * 2.2 + k * 2.09; x = CX + 360 * math.cos(a); y = 1000 + 150 * math.sin(a); s_ = 1 + 0.25 * math.sin(a)
+            text(img, (x, y), '?', AF(110 * s_), INK, clamp(u0 / 0.3), rot=15 * math.sin(t * 5 + k))
+        if t < T['light'] - 0.1: word(img, (CX, 470), 'WHERE DOES THE BLUE', 76, INK, t, T['where']); word(img, (CX, 570), 'COME FROM?', 80, BLUE, t, T['where'] + 0.3)
+        if T['light'] and t > T['light'] - 0.15:
+            q = since(t, T['light'] - 0.15, 0.4); d.polygon([(S(-100), S(300)), (S(220), S(300)), (S(CX + 200), S(1000)), (S(CX - 120), S(1000))], fill=(255, 235, 140, int(150 * q)))
+            sun(d, 170, 380, 95, t, q); stamp(img, (CX, 1420), 'LIGHT', 150, (240, 170, 20), t, T['light'], rot=0)
+    elif sc == 5:  # la lumière entre dans l'iris, le bleu rebondit (rayons animés) ; comme le ciel
+        A = gone(t, T['same'] - 0.1)
         def iris(lay, dl):
-            show(lay, 5, CX, 1000, 900, 980, SC[5] + 0.05, t)
-            word(lay, (CX, 440), 'LIGHT ENTERS YOUR IRIS', 70, INK, t, T['iris'] - 0.3)
-            if T['fibers'] and t > T['fibers'] - 0.1: word(lay, (800, 1460), 'TINY FIBERS', 64, INK, t, T['fibers']); arrow(dl, 800, 1410, 640, 1180, INK, 7, since(t, T['fibers'], 0.35))
-            if T['scatter'] and t > T['scatter'] - 0.05: word(lay, (300, 540), 'BLUE BOUNCES BACK', 64, BLUE, t, T['scatter'])
+            show(lay, 5, CX, 1000, 900, 980, SC[5], t, wob=1.0, float_=6)
+            word(lay, (CX, 430), 'LIGHT ENTERS YOUR IRIS', 72, INK, t, T['iris'] - 0.3)
+            for k in range(4):   # rayons bleus renvoyés, en boucle
+                q = ((t * 0.9 + k / 4) % 1); a = math.radians(200 + 35 * k)
+                wavy(dl, 330, 900 + 60 * (k - 1.5), a, 60 + 260 * q, (40, 110, 230), t * 8 + k, 7)
+            if T['fibers'] and t > T['fibers'] - 0.1:
+                word(lay, (800, 1500), 'TINY FIBERS', 66, INK, t, T['fibers']); arrow(dl, 790, 1450, 620, 1180, INK, 7, since(t, T['fibers'], 0.35))
+            if T['scatter'] and t > T['scatter'] - 0.05: stamp(lay, (300, 560), 'BLUE BOUNCES BACK', 62, BLUE, t, T['scatter'], rot=-4)
         sub(img, A, iris)
         if T['same'] and t > T['same'] - 0.15:
-            k = since(t, T['same'] - 0.15, 0.35); d.rectangle([S(0), S(360), S(W), S(360 + 900 * ease(k))], fill=SKY + (255,))
+            k = since(t, T['same'] - 0.15, 0.3); d.rectangle([S(0), S(330), S(W), S(330 + 1000 * ease(k))], fill=SKY + (255,))
             if k >= 1:
-                sun(d, 830, 520, 80, t)
-                for x in (220, 280, 340): circ(d, x, 640 + 20 * math.sin(t + x), 46, None, WHITE + (255,))
-                d.rectangle([S(0), S(1240), S(W), S(1300)], fill=(120, 200, 110, 255)); stick(d, CX, 1250, 1.2, 'up', 'smile', 1, t, eyes=BLUE)
+                sun(d, 840, 520, 85, t)
+                for j, y in enumerate((640, 780, 560)):   # nuages qui dérivent
+                    x = (120 + j * 330 + t * 40) % (W + 300) - 150
+                    for dx, r in ((-50, 42), (0, 58), (50, 44)): circ(d, x + dx, y, r, None, WHITE + (255,))
+                for j in range(3):   # oiseaux
+                    x = (t * 120 + j * 260) % (W + 200) - 100; y = 700 + 40 * j; f = 20 * math.sin(t * 9 + j)
+                    poly(d, [(x - 30, y - f), (x, y), (x + 30, y - f)], INK, 5)
+                eyeicon(d, CX, 1080, 120, BLUE, look=math.sin(t * 2), blink=(t % 2.4 > 2.25) * 1.0)
             word(img, (CX, 1420), 'SAME REASON THE SKY IS BLUE', 66, INK, t, T['sky'] - 0.1)
-    elif sc == 6:  # ça devient plus étrange : un seul ancêtre
-        A = gone(t, T['scientists'] - 0.1); B = gone(t, T['one'] - 0.12) if t > T['scientists'] - 0.2 else 0
-        sub(img, A, lambda lay, dl: word(lay, (CX, 900), 'It gets stranger', 120, INK, t, T['and_'] + 0.1, font='H'))
+    elif sc == 6:  # plus étrange : la Terre tourne avec des yeux bleus en orbite → un seul ancêtre
+        A = gone(t, T['scientists'] - 0.08); B = gone(t, T['one'] - 0.1) if t > T['scientists'] - 0.2 else 0
+        def strange(lay, dl):
+            j = 6 * math.sin(t * 40) if t - T['and_'] < 0.4 else 0
+            word(lay, (CX + j, 950), 'It gets stranger', 130, INK, t, T['and_'] + 0.05, font='H')
+            for k in range(5): q = ((t * 0.7 + k / 5) % 1); text(lay, (CX - 300 + 150 * k, 760 - 120 * q), '?', AF(70), GREY, (1 - q) * 0.8)
+        sub(img, A, strange)
         def world(lay, dl):
-            word(lay, (CX, 470), 'SCIENTISTS BELIEVE', 74, INK, t, T['scientists'], font='H')
-            globe(dl, CX, 960, 230, since(t, T['blueeyed'] - 0.3, 0.4) if T['blueeyed'] else 0)
-            for j in range(8):
-                a = j * math.pi / 4 + 0.2; q = since(t, T['blueeyed'] + j * 0.08, 0.3) if T['blueeyed'] else 0
-                if q > 0: stick(dl, CX + 370 * math.cos(a), 960 + 340 * math.sin(a) + 120, 0.42, 'stand', 'smile', q, t, eyes=BLUE)
-            word(lay, (CX, 1440), 'EVERY BLUE-EYED PERSON', 70, BLUE, t, T['blueeyed'])
+            word(lay, (CX, 450), 'SCIENTISTS BELIEVE', 76, INK, t, T['scientists'], font='H')
+            g = since(t, T['blueeyed'] - 0.4, 0.4) if T['blueeyed'] else 0
+            orbit = [(t * 1.3 + k * 0.785) for k in range(8)]
+            for a in orbit:      # yeux derrière la Terre
+                if math.sin(a) < 0 and g > 0: eyeicon(dl, CX + 400 * math.cos(a), 980 + 120 * math.sin(a), 30 * g, BLUE, a)
+            globe(dl, CX, 980, 250, t, g)
+            for a in orbit:      # yeux devant
+                if math.sin(a) >= 0 and g > 0: eyeicon(dl, CX + 400 * math.cos(a), 980 + 120 * math.sin(a), 46 * g, BLUE, a)
+            word(lay, (CX, 1420), 'EVERY BLUE-EYED PERSON', 72, BLUE, t, T['blueeyed'])
         sub(img, B, world)
-        if T['one'] and t > T['one'] - 0.15:
-            show(img, 7, CX, 1000, 780, 780, T['one'] - 0.15, t); word(img, (CX, 470), 'ONE SINGLE', 110, INK, t, T['one']); word(img, (CX, 590), 'ANCESTOR', 110, BLUE, t, T['ancestor'])
-    elif sc == 7:  # une mutation il y a 6 000–10 000 ans, copiée des centaines de millions de fois
-        A = gone(t, T['copied'] - 0.12)
+        if T['one'] and t > T['one'] - 0.12:
+            q = since(t, T['one'], 0.5)
+            for k in range(14): a = k * math.pi / 7 + t * 0.6; line(d, CX + 330 * math.cos(a), 1010 + 330 * math.sin(a), CX + (330 + 120 * q) * math.cos(a), 1010 + (330 + 120 * q) * math.sin(a), (255, 210, 80), 10)
+            show(img, 7, CX, 1010, 760, 760, T['one'] - 0.12, t, wob=2.5)
+            word(img, (CX, 450), 'ONE SINGLE', 112, INK, t, T['one']); stamp(img, (CX, 570), 'ANCESTOR', 120, BLUE, t, T['ancestor'], rot=0)
+    elif sc == 7:  # ADN en 3D qui tourne, compteur d'années, puis l'arbre qui se remplit d'yeux bleus
+        A = gone(t, T['copied'] - 0.1)
         def dna(lay, dl):
-            show(lay, 6, 300, 1000, 380, 980, SC[7] + 0.05, t)
-            word(lay, (740, 600), 'ONE TINY', 96, INK, t, T['tiny2'] or T['one2'] + 0.3); word(lay, (740, 710), 'MUTATION', 96, BLUE, t, T['mutation'])
-            calendar(lay, dl, 740, 1100, '6,000–10,000', 'YEARS AGO', since(t, T['six'] - 0.1, 0.4) if T['six'] else 0)
+            helix(dl, 300, 520, 1500, t, 120, glow=since(t, T['mutation'] - 0.1, 0.3), p=clamp(u0 / 0.5))
+            word(lay, (760, 560), 'ONE TINY', 96, INK, t, T['tiny2']); stamp(lay, (760, 670), 'MUTATION', 100, BLUE, t, T['mutation'], rot=0)
+            if T['six'] and t > T['six'] - 0.1:
+                yrs = int(10000 * ease(since(t, T['six'] - 0.1, 1.0))); counter(lay, (760, 1010), yrs, '{:,}', 120, RED); word(lay, (760, 1120), 'YEARS AGO', 64, INK, t, T['years'])
         sub(img, A, dna)
-        if T['copied'] and t > T['copied'] - 0.15:   # arbre : chaque génération copie la mutation
-            for r in range(6):
-                n = 2 ** r if r < 5 else 24; y = 520 + r * 150; q = since(t, T['copied'] + r * 0.32, 0.3); s = 0.32 if r < 4 else 0.22
+        if T['copied'] and t > T['copied'] - 0.12:   # génération après génération : chaque œil donne deux yeux
+            gens = 6; y0 = 450
+            for r in range(gens):
+                q = since(t, T['copied'] + r * 0.28, 0.25); n = 2 ** r; y = y0 + r * 150
                 for j in range(n):
-                    x = CX + (j - (n - 1) / 2) * min(150, 980 / max(1, n))
-                    if q > 0: stick(d, x, y + 360 * s, s, 'stand', 'smile', q, t, eyes=BLUE)
-            word(img, (CX, 1440), 'HUNDREDS OF MILLIONS', 76, BLUE, t, T['hundreds'])
-    elif sc == 8:  # question finale
-        show(img, 1, CX, 1050, 760, 760, SC[8] + 0.05, t)
-        word(img, (CX, 470), 'WHAT COLOR', 120, INK, t, T['what']); word(img, (CX, 590), 'ARE YOUR EYES?', 104, BLUE, t, T['what'] + 0.5)
-        k = since(t, T['what'] + 0.8, 0.3)
-        if k > 0: d.rounded_rectangle([S(CX - 330), S(1460), S(CX + 330), S(1560)], S(50), fill=(240, 240, 245, int(255 * k)), outline=INK, width=S(5)); text(img, (CX, 1510), 'Tell me in the comments', HF(52), INK, k)
+                    x = CX + (j - (n - 1) / 2) * (900 / n if n > 1 else 0)
+                    if r > 0 and q > 0:
+                        px = CX + (j // 2 - (n // 2 - 1) / 2) * (900 / (n // 2) if n > 2 else 0); line(d, px, y - 150 + 30, px + (x - px) * q, y - 150 + 30 + 100 * q, GREY, 4)
+                    if q > 0: eyeicon(d, x, y + 30, max(6, 44 - r * 6) * back(q), BLUE, t * 2 + j)
+            n_ = int(1 + (300_000_000 - 1) * ease(since(t, T['hundreds'] - 0.2, 1.4))) if T['hundreds'] else 1
+            counter(img, (CX, 1400), n_, '{:,}', 96, BLUE); word(img, (CX, 1500), 'BLUE-EYED PEOPLE TODAY', 50, INK, t, T['millions'])
+    elif sc == 8:  # question finale : les tuiles rebondissent, bulle de commentaire
+        show(img, 1, CX, 1030, 760, 760, SC[8], t, wob=3, float_=14)
+        word(img, (CX, 450), 'WHAT COLOR', 124, INK, t, T['what']); word(img, (CX, 570), 'ARE YOUR EYES?', 108, BLUE, t, T['what'] + 0.45)
+        k = since(t, T['what'] + 0.7, 0.3)
+        if k > 0:
+            bw = 340 * back(k); d.rounded_rectangle([S(CX - bw), S(1440), S(CX + bw), S(1545)], S(50), fill=(240, 240, 245, 255), outline=INK, width=S(5))
+            d.polygon([(S(CX - 40), S(1543)), (S(CX - 10), S(1600)), (S(CX + 10), S(1543))], fill=(240, 240, 245, 255)); text(img, (CX, 1492), 'Tell me in the comments 👇'.replace(' 👇', ''), HF(54), INK, k)
 SOURCE = (T['scientists'] - 0.2, T['so2'] - 0.2)
+# ---------- sous-titres : 3 mots max, mot actif qui « pop » (jaune), contour noir
+HOT = re.compile(r'(blue|zero|none|melanin|light|iris|sky|stranger|ancestor|mutation|millions|thousand|brown|pigment|color)', re.I)
+GROUPS = []; cur = []
+for k, w_ in enumerate(WORDS):
+    cur.append(k)
+    if len(cur) == 3 or re.search(r'[.,:!?…–]$', w_[0]): GROUPS.append(cur); cur = []
+if cur: GROUPS.append(cur)
+def caption(img, t):
+    g = next((g for g in GROUPS if WORDS[g[0]][1] - 0.05 <= t < WORDS[g[-1]][2] + 0.25), None)
+    if not g: return
+    ws = [WORDS[k][0].strip('.,:!?„“"…').upper() for k in g]; base = 60 * K; cf = F('Poppins-ExtraBold.ttf', base)
+    wd = [cf.getbbox(w)[2] for w in ws]; sp = 20 * K; tw_ = sum(wd) + sp * (len(ws) - 1)
+    if tw_ > (W - 140) * K: base = int(base * (W - 140) * K / tw_); cf = F('Poppins-ExtraBold.ttf', base); wd = [cf.getbbox(w)[2] for w in ws]; tw_ = sum(wd) + sp * (len(ws) - 1)
+    d = ImageDraw.Draw(img); x = W * K / 2 - tw_ / 2; y = 1715 * K
+    for w, k, ww in zip(ws, g, wd):
+        t0 = WORDS[k][1]
+        if t >= t0 - 0.03:
+            u = (t - t0) / 0.12; pop = 1 + 0.16 * math.sin(clamp(u) * math.pi) if u < 1 else 1
+            active = t0 <= t < WORDS[k][2] + 0.05
+            f2 = F('Poppins-ExtraBold.ttf', base * pop) if pop != 1 else cf
+            d.text((x + ww / 2, y), w, font=f2, fill=YEL if (active or HOT.search(w)) else (255, 255, 255), anchor='mm', stroke_width=7 * K, stroke_fill=(0, 0, 0))
+        x += ww + sp
 def draw(t):
     sc = max(i for i in range(len(SC) - 1) if t >= SC[i])
     lay = Image.new('RGBA', (W * SS, H * SS), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    confetti(d, t)
     scene(lay, d, sc, t)
-    if SOURCE[0] <= t < SOURCE[1]: text(lay, (W / 2, 1700), 'Source: Eiberg et al., University of Copenhagen (2008)', HF(34), GREY, min(since(t, SOURCE[0], 0.3), 1 - since(t, SOURCE[1] - 0.3, 0.3)))
-    tout = clamp((SC[sc + 1] - t) / 0.12) if sc < len(SC) - 2 else 1      # coupe nette : l'image s'efface sur place
+    if SOURCE[0] <= t < SOURCE[1]: text(lay, (W / 2, 1810), 'Source: Eiberg et al., University of Copenhagen (2008)', HF(32), GREY, min(since(t, SOURCE[0], 0.3), 1 - since(t, SOURCE[1] - 0.3, 0.3)))
+    tout = clamp((SC[sc + 1] - t) / 0.1) if sc < len(SC) - 2 else 1      # sortie très rapide, sur place
     if tout < 1: lay.putalpha(lay.getchannel('A').point(lambda v: int(v * tout)))
     img = Image.new('RGBA', (W * SS, H * SS), BG + (255,)); img.alpha_composite(lay)
-    z = camera(t, sc); cw_, ch_ = W * SS / z, H * SS / z; cx, cy = W * SS / 2, H * SS * 0.5
-    return img.convert('RGB').resize((W * K, H * K), Image.LANCZOS, box=(cx - cw_ / 2, cy - ch_ / 2, cx + cw_ / 2, cy + ch_ / 2))
+    z, rot, ox, oy = camera(t, sc)
+    if abs(rot) > 0.02: img = img.rotate(rot, resample=Image.BILINEAR, fillcolor=BG + (255,))
+    cw_, ch_ = W * SS / z, H * SS / z; cx, cy = W * SS / 2 + S(ox), H * SS * 0.5 + S(oy)
+    out = img.convert('RGB').resize((W * K, H * K), Image.LANCZOS, box=(cx - cw_ / 2, cy - ch_ / 2, cx + cw_ / 2, cy + ch_ / 2))
+    caption(out, t); return out
 def frame_bytes(n): return draw(n / FPS).tobytes()
 if __name__ == '__main__':
     if os.environ.get('PREVIEW'):
@@ -298,15 +429,20 @@ if __name__ == '__main__':
         if w.getnchannels() == 2: s = s.reshape(-1, 2).mean(1)
         if w.getframerate() != SR: s = np.interp(np.arange(0, len(s), w.getframerate() / SR), np.arange(len(s)), s)
         i0 = int(max(0, t0) * SR); L = min(len(s), N - i0); mix_[i0:i0 + L] += s[:L] * g
-    for t0 in SC[1:-1]: sfx('swish', t0, 0.08)
-    sfx('pop', T['explained'], 0.1); sfx('hit', T['zero'] - 0.03, 0.3); sfx('pop', T['none'], 0.15); sfx('pop', T['melanin'], 0.1); sfx('pop', T['almost'], 0.1)
-    sfx('shine', T['light'] - 0.1, 0.15); sfx('swish', T['scatter'], 0.12); sfx('pop', T['sky'], 0.1); sfx('zoom1', T['stranger'] - 0.2, 0.15); sfx('ding', T['ancestor'], 0.12)
-    sfx('pop', T['mutation'], 0.12); sfx('tap', T['six'], 0.1); sfx('shine', T['hundreds'], 0.12); sfx('pop', T['what'], 0.12)
-    fd = int(0.3 * SR); mix_[-fd:] *= np.linspace(1, 0, fd); mix_ = mix_ / max(1e-6, np.abs(mix_).max()) * 0.92
+    for t0 in SC[1:-1]: sfx('whoosh', t0 - 0.05, 0.12)
+    sfx('pop', T['explained'], 0.12); sfx('swish', T['blue'], 0.15); sfx('hit', T['zero'] - 0.03, 0.35); sfx('pop', T['none'], 0.2); sfx('pop', T['melanin'], 0.12); sfx('ding', T['almost'], 0.1)
+    sfx('shine', T['light'] - 0.1, 0.2); sfx('swish', T['scatter'], 0.15); sfx('pop', T['sky'], 0.12); sfx('glitch', T['stranger'] - 0.1, 0.2); sfx('shine', T['ancestor'] - 0.1, 0.15)
+    sfx('pop', T['mutation'], 0.15); sfx('tap', T['six'], 0.12); sfx('zoom1', T['copied'], 0.15); sfx('ding', T['millions'], 0.12); sfx('pop', T['what'], 0.15)
+    # musique fournie : remontée, baissée sous la voix
+    mu = np.frombuffer(subprocess.run([FF, '-v', 'error', '-i', os.path.join(DIR, 'musique.mp3'), '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True).stdout, np.int16).astype(float) / 32768
+    mu = np.pad(mu, (0, max(0, N - len(mu))))[:N]; mu = mu / max(1e-6, np.sqrt(np.mean(mu[:int(20 * SR)] ** 2)))      # même niveau moyen
+    vv = np.zeros(N); vv[:min(N, len(VOICE))] = np.abs(VOICE[:N]) > 0.03; env = np.convolve(vv, np.ones(int(0.25 * SR)) / int(0.25 * SR), 'same')
+    mix_ += mu * 0.075 * (1 - 0.35 * np.clip(env * 3, 0, 1))
+    fd = int(0.4 * SR); mix_[-fd:] *= np.linspace(1, 0, fd); mix_ = mix_ / max(1e-6, np.abs(mix_).max()) * 0.92
     wo = wave.open(f'{TMP}/a.wav', 'wb'); wo.setnchannels(1); wo.setsampwidth(2); wo.setframerate(SR); wo.writeframes((mix_ * 32767).astype('<i2').tobytes()); wo.close()
     enc = subprocess.Popen([FF, '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W * K}x{H * K}', '-r', str(FPS), '-i', '-', '-i', f'{TMP}/a.wav',
                             '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '256k',
-                            '-af', 'pan=stereo|c0=c0|c1=c0', '-shortest', '-movflags', '+faststart', OUT], stdin=subprocess.PIPE)
+                            '-af', 'pan=stereo|c0=c0|c1=c0,loudnorm=I=-14:TP=-1:LRA=11', '-ar', '44100', '-shortest', '-movflags', '+faststart', OUT], stdin=subprocess.PIPE)
     with Pool(4) as pool:
         for n, b in enumerate(pool.imap(frame_bytes, range(NF), chunksize=4)):
             enc.stdin.write(b)

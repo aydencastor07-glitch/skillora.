@@ -1,9 +1,9 @@
 # Épisode « Brown eyes » : repères, scènes, source, mots en jaune, effets sonores (chargé par every_explained.py)
 BROWN2 = (150, 90, 40)
-T = dict(explained=tw('explained'), brown=tw('brown'), thing=tw('thing'), common=tw('common'), seven=tw('seven'), people=tw('people'), and0=tw('and'),
+T = dict(explained=tw('explained'), brown=tw('brown'), thing=tw('thing'), common=tw('common'), seven=tw('seven'), people=tw('people'), and0=tw('and', 1), africa=tw('africa'), everyone=tw('everyone'), truly=tw('truly'), very=tw('very'),
          melanin=tw('melanin'), front=tw('front'), packed=tw('packed'), soaks=tw('soaks'), bouncing=tw('bouncing'), looks=tw('looks'), more=tw('more'),
-         darker=tw('darker'), black=tw('black'), but=tw('but'), learn=tw('learn'), deep=tw('deep'), layer=tw('layer'), even=tw('even'), blue1=tw('blue', 1),
-         and1=tw('and', 1), melanin2=tw('melanin', 1), sunglasses=tw('sunglasses'), strong=tw('strong'), sunny=tw('sunny'), world=tw('world'), and2=tw('and', 2),
+         darker=tw('darker'), black=tw('black'), but=tw('but'), learn=tw('learn'), deep=tw('deep'), layer=tw('layer', 1), even=tw('even'), blue1=tw('blue', 1),
+         and1=tw('and', 2), melanin2=tw('melanin', 1), sunglasses=tw('sunglasses'), strong=tw('strong'), sunny=tw('sunny'), world=tw('world'), and2=tw('and', 3),
          better=tw('better'), history=tw('history'), single=tw('single'), had=tw('had'), blue2=tw('blue', 2), thousand=tw('thousand'), so1=tw('so', 1),
          original=tw('original'), do=tw('do'))
 for k, v in T.items():
@@ -29,11 +29,15 @@ def scene(img, d, sc, t):
         for j in range(10):
             x = 190 + (j % 5) * 175; y = 860 + (j // 5) * 230; q = since(t, SC[2] + 0.1 + j * 0.05, 0.3)
             br = since(t, T['seven'] + j * 0.08, 0.25) if j < 7 and T['seven'] else 0
+            if T['africa'] and t > T['africa'] and j >= 7: br = since(t, T['africa'] + (j - 7) * 0.1, 0.25)
             col = tuple(int(a + (b - a) * br) for a, b in zip((120, 170, 220), BROWN2))
             if q > 0: eyeicon(d, x, y + 8 * math.sin(t * 3 + j), 70 * back(q), col, t * 2 + j, blink=((t + j * 0.37) % 3.1 > 2.95) * 1.0)
         if T['seven'] and t > T['seven'] - 0.05:
-            n = min(7, int(1 + 7 * since(t, T['seven'], 0.6))); counter(img, (CX, 1330), n, '{} OUT OF 10', 110, BROWN2)
-            word(img, (CX, 1440), 'PEOPLE', 70, INK, t, T['people'])
+            if T['africa'] and t > T['africa'] - 0.05:
+                word(img, (CX, 1330), 'AFRICA & ASIA', 100, BROWN2, t, T['africa']); stamp(img, (CX, 1450), 'ALMOST EVERYONE', 80, INK, t, T['everyone'], rot=-3)
+            else:
+                n = min(7, int(1 + 7 * since(t, T['seven'], 0.6))); counter(img, (CX, 1330), n, '{} OUT OF 10', 110, BROWN2)
+                word(img, (CX, 1440), 'PEOPLE', 70, INK, t, T['people'])
     elif sc == 3:  # un mot : la mélanine ; la couche avant absorbe la lumière
         A = gone(t, T['front'] - 0.1)
         def jar(lay, dl):
@@ -46,7 +50,7 @@ def scene(img, d, sc, t):
                 circ(dl, CX + math.cos(a) * 420 * q, 760 + math.sin(a) * 300 * q + 500 * q * q, 9, None, BROWN2 + (int(255 * (1 - q)),))
         sub(img, A, jar)
         if T['front'] and t > T['front'] - 0.15:
-            show(img, 3, 620, 1000, 700, 900, T['front'] - 0.15, t, wob=1, float_=5)
+            show(img, 3, 640, 1060, 660, 800, T['front'] - 0.15, t, wob=1, float_=5)
             word(img, (CX, 450), 'FRONT LAYER', 84, INK, t, T['front']); word(img, (CX, 545), 'PACKED WITH PIGMENT', 66, BROWN2, t, T['packed'])
             for j in range(9):   # photons qui entrent et s'éteignent dans la couche
                 q = ((t * 0.9 + j / 9) % 1); x = 40 + 520 * q; y = 940 + 40 * math.sin(j * 1.7)
@@ -64,6 +68,8 @@ def scene(img, d, sc, t):
         sub(img, A, scale_)
         if T['black'] and t > T['black'] - 0.15:
             show(img, 5, CX, 1000, 860, 700, T['black'] - 0.15, t, wob=2); stamp(img, (CX, 500), 'ALMOST BLACK', 120, INK, t, T['black'], rot=0)
+            if T['truly'] and t > T['truly'] - 0.05: stamp(img, (CX, 1400), 'NO TRULY BLACK EYES', 80, RED, t, T['truly'], rot=-4)
+            if T['very'] and t > T['very'] - 0.05: word(img, (CX, 1510), 'JUST VERY DARK BROWN', 64, BROWN2, t, T['very'])
     elif sc == 5:  # tout au fond, chaque œil a une couche marron foncé, même les yeux bleus
         word(img, (CX, 440), 'DEEP INSIDE', 92, INK, t, T['deep'] - 0.05, font='H')
         show(img, 6, CX, 1000, 860, 820, T['deep'] - 0.2, t, wob=1, float_=6)
@@ -123,6 +129,6 @@ SOURCE = ('Sources: American Academy of Ophthalmology · Eiberg et al. (2008)', 
 HOT = re.compile(r'(brown|melanin|light|black|layer|blue|sunglasses|sunny|history|original|common|seven|pigment|darker)', re.I)
 def SFX(sfx):
     sfx('pop', T['explained'], 0.12); sfx('swish', T['brown'], 0.15); sfx('hit', T['common'] - 0.05, 0.25); sfx('ding', T['seven'] + 0.6, 0.12); sfx('hit', T['melanin'] - 0.03, 0.3)
-    sfx('swish', T['soaks'], 0.12); sfx('zoom1', T['darker'] - 0.2, 0.12); sfx('pop', T['black'], 0.15); sfx('pop', T['layer'], 0.12); sfx('pop', T['even'], 0.15)
+    sfx('swish', T['soaks'], 0.12); sfx('zoom1', T['darker'] - 0.2, 0.12); sfx('pop', T['black'], 0.15); sfx('hit', T['truly'], 0.2); sfx('pop', T['africa'], 0.12); sfx('pop', T['layer'], 0.12); sfx('pop', T['even'], 0.15)
     sfx('shine', T['sunglasses'] - 0.1, 0.15); sfx('swish', T['sunny'], 0.12); sfx('glitch', T['better'] - 0.1, 0.2); sfx('pop', T['single'], 0.12); sfx('ding', T['blue2'] + 0.5, 0.12)
     sfx('shine', T['original'] - 0.1, 0.18); sfx('pop', T['do'], 0.15)

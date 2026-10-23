@@ -413,7 +413,7 @@ def draw(t):
     img = Image.new('RGBA', (W * SS, H * SS), BG + (255,)); img.alpha_composite(lay)
     z, rot, ox, oy = camera(t, sc)
     if abs(rot) > 0.02: img = img.rotate(rot, resample=Image.BILINEAR, fillcolor=BG + (255,))
-    cw_, ch_ = W * SS / z, H * SS / z; cx, cy = W * SS / 2 + S(ox), H * SS * 0.5 + S(oy)
+    cw_, ch_ = W * SS / z, H * SS / z; cx = min(max(W * SS / 2 + S(ox), cw_ / 2), W * SS - cw_ / 2); cy = min(max(H * SS * 0.5 + S(oy), ch_ / 2), H * SS - ch_ / 2)   # le cadre reste dans l'image
     out = img.convert('RGB').resize((W * K, H * K), Image.LANCZOS, box=(cx - cw_ / 2, cy - ch_ / 2, cx + cw_ / 2, cy + ch_ / 2))
     caption(out, t); return out
 def frame_bytes(n): return draw(n / FPS).tobytes()

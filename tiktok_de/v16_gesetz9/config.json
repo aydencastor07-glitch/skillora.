@@ -1,0 +1,128 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_franklin.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 9",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.98,
+  "dur": 1.3
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "segments": [
+  [
+   "Gesetz Nr. 9:",
+   0.06,
+   1.13
+  ],
+  [
+   "Erzähl niemandem von deinen Plänen.",
+   1.67,
+   3.62
+  ],
+  [
+   "Jedes Mal, wenn du darüber redest,",
+   4.28,
+   5.98
+  ],
+  [
+   "gibst du anderen die Chance, sie zu zerstören.",
+   6.11,
+   8.3
+  ],
+  [
+   "Neid.",
+   8.83,
+   9.31
+  ],
+  [
+   "Zweifel.",
+   9.61,
+   10.22
+  ],
+  [
+   "Ratschläge, die du nie wolltest.",
+   10.77,
+   12.35
+  ],
+  [
+   "Und das Schlimmste:",
+   12.8,
+   13.56
+  ],
+  [
+   "Dein Kopf feiert schon,",
+   14.01,
+   15.19
+  ],
+  [
+   "als hättest du es geschafft –",
+   15.3,
+   16.35
+  ],
+  [
+   "und deine Motivation ist weg.",
+   16.78,
+   18.2
+  ],
+  [
+   "Benjamin Franklin sagte:",
+   19.07,
+   20.41
+  ],
+  [
+   "„Drei können ein Geheimnis bewahren,",
+   20.82,
+   22.58
+  ],
+  [
+   "wenn zwei von ihnen tot sind.“",
+   22.7,
+   24.1
+  ],
+  [
+   "Arbeite im Stillen.",
+   24.77,
+   25.77
+  ],
+  [
+   "Lass am Ende nur das Ergebnis sprechen.",
+   26.22,
+   28.05
+  ]
+ ],
+ "text": [
+  "Gesetz Nr. 9:",
+  "Erzähl niemandem von deinen Plänen.",
+  "Jedes Mal, wenn du darüber redest,",
+  "gibst du anderen die Chance, sie zu zerstören.",
+  "Neid.",
+  "Zweifel.",
+  "Ratschläge, die du nie wolltest.",
+  "Und das Schlimmste:",
+  "Dein Kopf feiert schon,",
+  "als hättest du es geschafft –",
+  "und deine Motivation ist weg.",
+  "Benjamin Franklin sagte:",
+  "„Drei können ein Geheimnis bewahren,",
+  "wenn zwei von ihnen tot sind.“",
+  "Arbeite im Stillen.",
+  "Lass am Ende nur das Ergebnis sprechen."
+ ],
+ "cta": {
+  "t": 29.75,
+  "click": 1.5,
+  "avatar": "avatar_profil.png",
+  "x": 540,
+  "y": 930,
+  "r": 165,
+  "hide_text": true,
+  "swap": true
+ },
+ "hot": "^(pläne|plänen|zerstören|neid|zweifel|ratschläge|schlimmste|kopf|geschafft|motivation|franklin|geheimnis|tot|stillen|ergebnis|sprechen|gesetz)$",
+ "tail": 2.0
+}

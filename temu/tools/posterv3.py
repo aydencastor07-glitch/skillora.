@@ -54,8 +54,16 @@ for s in C['slides']:
     pr = ph.convert('RGBA'); pr.putalpha(m); comp(card, pr, (40, 40)); CARDS.append(card)
 N = len(CARDS); DUR = N * SL
 # ---- éléments
+CONF = [(251, 119, 1), (255, 210, 60), (80, 220, 170), (255, 255, 255), (90, 160, 255), (240, 80, 120)]
 def snow(img, T, n=70, front=False):
     rs = np.random.RandomState(9 if front else 3); d = ImageDraw.Draw(img)
+    if C.get('particles') == 'confetti':   # confettis colorés qui tombent en tournant
+        for j in range(n):
+            x0 = rs.uniform(0, W); sp = rs.uniform(90, 200) * (1.4 if front else 1); s_ = rs.uniform(7, 13) * (1.4 if front else 1); ph = rs.uniform(0, 6.3); col = CONF[j % len(CONF)]
+            y = (rs.uniform(0, H) + sp * T) % (H + 40) - 20; x = x0 + 40 * math.sin(T * 1.6 + ph); a = T * 4 + ph; w_ = s_ * abs(math.cos(T * 5 + ph)) + 2
+            pts = [(x + dx * math.cos(a) - dy * math.sin(a), y + dx * math.sin(a) + dy * math.cos(a)) for dx, dy in ((-w_, -s_ / 2), (w_, -s_ / 2), (w_, s_ / 2), (-w_, s_ / 2))]
+            d.polygon(pts, fill=col + (230 if front else 170,))
+        return
     for j in range(n):
         x0 = rs.uniform(0, W); sp = rs.uniform(70, 160) * (1.5 if front else 1); r = rs.uniform(3, 7) * (1.6 if front else 1); ph = rs.uniform(0, 6.3)
         y = (rs.uniform(0, H) + sp * T) % (H + 40) - 20; x = x0 + 30 * math.sin(T * 1.3 + ph)
@@ -99,7 +107,7 @@ def plate(img, T):
     d.text((x0 + 110 + (pw - 110) / 2, y0 + ph / 2 + 4), CODE, font=fit(CODE, CF, 112, pw - 170), fill=(15, 15, 15), anchor='mm')
     f = fit(TXT, CF, 42, W - 100); d.text((W / 2, y0 + ph + 62), TXT, font=f, fill=(255, 255, 255), anchor='mm', stroke_width=3, stroke_fill=DK)
     d.text((W / 2, 1878), DISC, font=fit(DISC, 'Nunito.ttf', 26, W - 100), fill=(255, 255, 255), anchor='mm', stroke_width=3, stroke_fill=(0, 0, 0))
-def comment(img, t):
+def comment(img, t, cy=1060):
     # bulle de commentaire façon TikTok avec la description qui s'écrit
     u = back(t / 0.4)
     if u <= 0.02: return
@@ -117,7 +125,7 @@ def comment(img, t):
         for w in s.split(' '):
             d.text((x, y), w, font=f, fill=ACC if (CODE in w or '$0' in w) else (25, 25, 25), anchor='lm'); x += f.getbbox(w + ' ')[2]
         y += 54
-    put(img, lay, W / 2, 1060, u)
+    put(img, lay, W / 2, cy, u)
 def card_pos(i, t):
     # carte qui arrive de la droite en tournant, se pose, puis repart à gauche (swipe) pendant la transition suivante
     q = ease(t / TR); x = W / 2 + 1150 * (1 - q); rot = -14 * (1 - q) + 1.2 * math.sin(t * 1.6) * q; z = 1 + 0.025 * clamp(t / SL)
@@ -130,9 +138,9 @@ def frame(T):
         q = eio(t / TR); put(img, CARDS[i - 1], W / 2 - 1200 * q, CY - 80 * q, 1.0, 16 * q)
     x, y, rot, z = card_pos(i, t); put(img, CARDS[i], x, y, z, rot); snow(img, T, 22, True)   # neige devant la photo, mais derrière tous les textes
     if t > TR * 0.8:
-        if s.get('comment'): comment(img, t - TR * 0.8)
+        if s.get('comment'): comment(img, t - TR * 0.8, s.get('comment_y', 1060))
         else: label(img, s['label'], 90 + (x - W / 2), 1390, t - TR * 0.8)
-        tag(img, W - 230 + (x - W / 2), 300, T, t - TR * 0.8)
+        if not s.get('no_tag'): tag(img, W - 230 + (x - W / 2), 300, T, t - TR * 0.8)
     header(img, T, i, t); plate(img, T)   # la plaque est dessinée en dernier : ni neige ni reflet sur le code
     return img.convert('RGB')
 if __name__ == '__main__':

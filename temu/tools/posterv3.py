@@ -57,6 +57,13 @@ N = len(CARDS); DUR = N * SL
 CONF = [(251, 119, 1), (255, 210, 60), (80, 220, 170), (255, 255, 255), (90, 160, 255), (240, 80, 120)]
 def snow(img, T, n=70, front=False):
     rs = np.random.RandomState(9 if front else 3); d = ImageDraw.Draw(img)
+    if C.get('particles') == 'gold':   # paillettes dorées qui descendent lentement en scintillant
+        for j in range(n):
+            x0 = rs.uniform(0, W); sp = rs.uniform(30, 80) * (1.4 if front else 1); r = rs.uniform(4, 9) * (1.5 if front else 1); ph = rs.uniform(0, 6.3)
+            y = (rs.uniform(0, H) + sp * T) % (H + 40) - 20; x = x0 + 18 * math.sin(T + ph); k = 0.35 + 0.65 * abs(math.sin(T * 3 + ph)); rr = r * k
+            col = (255, 214, 110, int((220 if front else 160) * k))
+            d.polygon([(x, y - rr * 2.2), (x + rr * 0.5, y - rr * 0.5), (x + rr * 2.2, y), (x + rr * 0.5, y + rr * 0.5), (x, y + rr * 2.2), (x - rr * 0.5, y + rr * 0.5), (x - rr * 2.2, y), (x - rr * 0.5, y - rr * 0.5)], fill=col)
+        return
     if C.get('particles') == 'confetti':   # confettis colorés qui tombent en tournant
         for j in range(n):
             x0 = rs.uniform(0, W); sp = rs.uniform(90, 200) * (1.4 if front else 1); s_ = rs.uniform(7, 13) * (1.4 if front else 1); ph = rs.uniform(0, 6.3); col = CONF[j % len(CONF)]
@@ -139,7 +146,7 @@ def frame(T):
     x, y, rot, z = card_pos(i, t); put(img, CARDS[i], x, y, z, rot); snow(img, T, 22, True)   # neige devant la photo, mais derrière tous les textes
     if t > TR * 0.8:
         if s.get('comment'): comment(img, t - TR * 0.8, s.get('comment_y', 1060))
-        else: label(img, s['label'], 90 + (x - W / 2), 1390, t - TR * 0.8)
+        else: label(img, s['label'], 90 + (x - W / 2), s.get('label_y', 1390), t - TR * 0.8)
         if not s.get('no_tag'): tag(img, W - 230 + (x - W / 2), 300, T, t - TR * 0.8)
     header(img, T, i, t); plate(img, T)   # la plaque est dessinée en dernier : ni neige ni reflet sur le code
     return img.convert('RGB')

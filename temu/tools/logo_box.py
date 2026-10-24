@@ -21,7 +21,7 @@ def labels(im):
         ys, xs = np.nonzero(lab == k); area = len(xs)
         if area < 0.0012 * a.shape[0] * a.shape[1]: continue
         x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max(); fill = area / ((x1 - x0 + 1) * (y1 - y0 + 1))
-        if fill < 0.75: continue
+        if fill < 0.75 or not 0.45 < (x1 - x0 + 1) / (y1 - y0 + 1) < 2.6: continue   # étiquette : à peu près carrée ou rectangulaire, pas une bande
         if x0 <= 2 or y0 <= 2 or x1 >= a.shape[1] - 3 or y1 >= a.shape[0] - 3 or area > 0.05 * a.shape[0] * a.shape[1]: continue   # fenêtres, murs : pas des étiquettes
         m = max(8, int(0.15 * (x1 - x0))); big = orange[max(0, y0 - m):y1 + m, max(0, x0 - m):x1 + m]; inner = orange[y0:y1 + 1, x0:x1 + 1]
         ring = (big.sum() - inner.sum()) / max(1, big.size - inner.size)   # bord autour de l'étiquette : surtout orange

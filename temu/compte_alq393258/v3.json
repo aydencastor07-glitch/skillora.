@@ -1,0 +1,59 @@
+{
+ "font": "BebasNeue-Regular.ttf",
+ "palette": {
+  "c1": [
+   255,
+   248,
+   235
+  ],
+  "c2": [
+   246,
+   196,
+   70
+  ],
+  "dark": [
+   110,
+   12,
+   22
+  ],
+  "acc": [
+   205,
+   32,
+   44
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "iris",
+ "sfx": "whoosh",
+ "music_seed": 405,
+ "bpm": 110,
+ "key": 55,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "V3/V3_1.jpg",
+   "title": "CHRISTMAS|STARTS|EARLY",
+   "layout": "D"
+  },
+  {
+   "img": "V3/V3_2.jpg",
+   "title": "LITTLE|DETAILS,|BIG MAGIC",
+   "layout": "C"
+  },
+  {
+   "img": "V3/V3_3.jpg",
+   "layout": "E"
+  },
+  {
+   "img": "V3/V3_4.jpg",
+   "title": "WINDOW|GLOW-UP",
+   "layout": "B"
+  },
+  {
+   "img": "V3/V3_5.jpg",
+   "title": "READY FOR|THE FAMILY",
+   "layout": "A"
+  }
+ ]
+}

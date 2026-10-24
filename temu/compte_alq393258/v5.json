@@ -1,0 +1,59 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "GIFT IDEAS THEY LOVE",
+ "palette": {
+  "c1": [
+   255,
+   236,
+   240
+  ],
+  "c2": [
+   255,
+   196,
+   80
+  ],
+  "dark": [
+   70,
+   14,
+   30
+  ],
+  "acc": [
+   226,
+   40,
+   70
+  ]
+ },
+ "strip": [
+  178,
+  24,
+  48
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 623,
+ "bpm": 112,
+ "key": 60,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "V5/V5_1.jpg",
+   "label": "CUTE LED NIGHT LIGHT"
+  },
+  {
+   "img": "V5/V5_2.jpg",
+   "label": "GIFT WRAP SET"
+  },
+  {
+   "img": "V5/V5_3.jpg",
+   "label": "KNIT SCARF + GLOVES"
+  },
+  {
+   "img": "V5/V5_4.jpg",
+   "comment": true
+  },
+  {
+   "img": "V5/V5_5.jpg",
+   "label": "COZY FLEECE BLANKET"
+  }
+ ]
+}

@@ -93,7 +93,8 @@ def plate(img, T):
     # plaque d'immatriculation (bande bleue avec logo, code en noir) + phrase officielle dessous ; rien ne passe jamais devant le code
     x0, y0, pw, ph = 110, 1555, W - 220, 150; d = ImageDraw.Draw(img)
     d.rounded_rectangle([x0 - 6, y0 - 6, x0 + pw + 6, y0 + ph + 6], 22, fill=(20, 20, 20, 255)); d.rounded_rectangle([x0, y0, x0 + pw, y0 + ph], 18, fill=(250, 250, 250, 255))
-    d.rounded_rectangle([x0, y0, x0 + 110, y0 + ph], 18, fill=(0, 51, 153, 255)); d.rectangle([x0 + 60, y0, x0 + 110, y0 + ph], fill=(0, 51, 153, 255))
+    st = tuple(C.get('strip', [0, 51, 153])) + (255,)   # bande de gauche (bleu plaque par défaut)
+    d.rounded_rectangle([x0, y0, x0 + 110, y0 + ph], 18, fill=st); d.rectangle([x0 + 60, y0, x0 + 110, y0 + ph], fill=st)
     comp(img, LOGO.resize((76, 76), Image.LANCZOS), (x0 + 17, y0 + 20)); d.text((x0 + 55, y0 + 122), 'CODE', font=F(CF, 26), fill=(255, 220, 0), anchor='mm')
     d.text((x0 + 110 + (pw - 110) / 2, y0 + ph / 2 + 4), CODE, font=fit(CODE, CF, 112, pw - 170), fill=(15, 15, 15), anchor='mm')
     f = fit(TXT, CF, 42, W - 100); d.text((W / 2, y0 + ph + 62), TXT, font=f, fill=(255, 255, 255), anchor='mm', stroke_width=3, stroke_fill=DK)

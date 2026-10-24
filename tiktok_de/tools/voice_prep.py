@@ -1,5 +1,5 @@
 # Préparation de la voix off : assemble les parties dans l'ordre, égalise leur volume, raccourcit les silences trop longs
-# (fondus aux raccords). usage : voice_prep.py sortie.mp3 partie1.mp3 partie2.mp3 ...  [MAXP=0.2 durée max d'une pause, MAXP=99 : aucune coupe] [GAP=0.3 silence entre parties] [EDGE=0.04 : silence gardé au bord de chaque partie]
+# (fondus aux raccords). usage : voice_prep.py sortie.mp3 partie1.mp3 partie2.mp3 ...  [MAXP=0.2 durée max d'une pause, MAXP=99 : aucune coupe] [GAP=0.3 silence entre parties] [EDGE=0.04 : silence gardé au bord de chaque partie] [SILDB=40 : seuil du silence sous le max]
 import sys, os, subprocess, wave
 import numpy as np, imageio_ffmpeg
 FF = imageio_ffmpeg.get_ffmpeg_exe(); SR = 44100; out = sys.argv[1]; parts = sys.argv[2:]
@@ -16,7 +16,7 @@ for f in parts:
         a = a[max(0, int((v_[0] / 100 - EDGE) * SR)):int((v_[-1] / 100 + 0.01 + EDGE) * SR)]
     g = TARGET - speech_db(a); a = a * 10 ** (g / 20); print(f'{os.path.basename(f)} : gain {g:+.1f} dB'); seq += [a, np.zeros(int(GAP * SR))]
 a = np.concatenate(seq); a = a / max(1, np.abs(a).max() / 0.98)
-hop = int(SR * 0.01); e = np.array([np.sqrt(np.mean(a[i:i + hop] ** 2)) for i in range(0, len(a) - hop, hop)]); db = 20 * np.log10(e + 1e-6); sp = db > db.max() - 40
+hop = int(SR * 0.01); e = np.array([np.sqrt(np.mean(a[i:i + hop] ** 2)) for i in range(0, len(a) - hop, hop)]); db = 20 * np.log10(e + 1e-6); sp = db > db.max() - float(os.environ.get('SILDB', 40))   # SILDB=30 : souffles comptés comme silence
 sil = []; i = 0; n = len(sp)
 while i < n:
     if not sp[i]:

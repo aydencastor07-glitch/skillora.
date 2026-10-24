@@ -42,6 +42,11 @@ if C.get('segments'):   # calage manuel : [texte, début, fin] par morceau de ph
 for k, s in enumerate(SENT):
     t0, t1 = SEGT[k] if SEGT else (bounds[k] + (0.04 if k else 0), bounds[k + 1] - 0.06); ws = s.split(); ww = [syl(w) + 0.35 for w in ws]; tt = sum(ww); c = 0
     for w, q in zip(ws, ww): WORDS.append([w, t0 + (t1 - t0) * c / tt, t0 + (t1 - t0) * (c + q) / tt]); c += q
+if C.get('word_align'):   # temps exacts de chaque mot (align_tts.py) au lieu de la répartition par syllabes
+    AW = json.load(open(os.path.join(DIR, C['word_align']))); j = 0
+    for k, (w, _, _) in enumerate(WORDS):
+        if not re.sub(r'[^\wäöüß]', '', w): WORDS[k][1:] = WORDS[k - 1][1:] if k else [0, 0]; continue   # « – » : suit le mot d'avant
+        WORDS[k][1], WORDS[k][2] = AW[j][1], AW[j][2]; j += 1
 if C.get('gavel') and C.get('align_voice'):
     cut = C['gavel']['t'] - 0.2; sh = C['gavel']['dur']
     WORDS = [[w, t0 + (sh if t0 >= cut else 0), t1 + (sh if t0 >= cut else 0)] for w, t0, t1 in WORDS]; bounds = [b + (sh if b >= cut else 0) for b in bounds]
@@ -81,7 +86,47 @@ def layout(g):
         x = TX
         for k in l: pos[k] = (x, TY + li * LH); x += TF.getbbox(WORDS[k][0] + ' ')[2]
     return pos
+SUBS2 = C.get('subs') == 'v2'
+if SUBS2:   # une page = plusieurs phrases tant qu'elles tiennent sur 4 lignes ; la citation commence toujours une nouvelle page
+    TF = F('Poppins-ExtraBold.ttf', C.get('font', 66)); LH = int(TF.size * 1.32); MAXW = C.get('maxw', 480)
+    def wrap(ws):   # lignes d'une page ; une nouvelle phrase commence toujours sur une nouvelle ligne
+        ls = [[]]
+        for k in ws:
+            if ls[-1] and (wlen(ls[-1] + [k]) > MAXW or re.search(r'[.:!?][“"]?$', WORDS[ls[-1][-1]][0])): ls.append([])
+            ls[-1].append(k)
+        return ls
+    def nlines(ws): return len(wrap(ws))
+    def layout(g):
+        pos = {}
+        for li, l in enumerate(wrap(g)):
+            x = TX
+            for k in l: pos[k] = (x, TY + li * LH); x += TF.getbbox(WORDS[k][0] + ' ')[2]
+        return pos
+    MAXL = C.get('max_lines', 4)
+    units = []; cur = []   # morceaux de phrase : coupés aux virgules, deux-points, tirets et fins de phrase
+    for k in range(NT, len(WORDS)):
+        if '„' in WORDS[k][0] and cur: units.append(cur); cur = []
+        cur.append(k)
+        if re.search(r'[.,:;!?–][“"]?$', WORDS[k][0]) or '“' in WORDS[k][0] or (k + 1 < len(WORDS) and WORDS[k + 1][0] == '–'): units.append(cur); cur = []
+    if cur: units.append(cur)
+    split = []
+    for un in units:   # un morceau trop long pour une page : coupé en mots
+        while nlines(un) > MAXL:
+            n = len(un)
+            while nlines(un[:n]) > MAXL: n -= 1
+            split.append(un[:n]); un = un[n:]
+        split.append(un)
+    groups = []; pg = []
+    for un in split:
+        newq = '„' in WORDS[un[0]][0]
+        if pg and (newq or nlines(pg + un) > MAXL or any('“' in WORDS[k][0] for k in pg)): groups.append(pg); pg = []
+        pg = pg + un
+    if pg: groups.append(pg)
 LAY = [layout(g) for g in groups]
+if SUBS2:   # bloc centré verticalement dans le bandeau
+    for gi_, g in enumerate(groups):
+        n = nlines(g); y0 = (PY0 + PY1) / 2 - n * LH / 2 + 4
+        LAY[gi_] = {k: (x, y0 + (y - TY)) for k, (x, y) in LAY[gi_].items()}
 # ---------- décor fixe
 def ease(u): u = max(0, min(1, u)); return 1 - (1 - u) ** 3
 base = Image.new('RGBA', (W, H), (0, 0, 0, 255))
@@ -106,7 +151,8 @@ if C.get('handle'): ImageDraw.Draw(base).text((W / 2, PY1 + 50), C['handle'], fo
 GV = C.get('gavel'); GIM = []
 if GV:
     gi_ = json.load(open(os.path.join(DIR, 'gavel', 'info.json'))); GIM = [Image.open(os.path.join(DIR, 'gavel', f'g{k:02d}.png')).convert('RGBA') for k in range(gi_['n'])]
-    gs = 520 / GIM[0].height; GIM = [im.resize((int(im.width * gs), int(im.height * gs)), Image.LANCZOS) for im in GIM]; G_IMP = GV['t'] + gi_['impact'] / FPS
+    GSPD = max(1.0, (gi_['n'] / FPS) / GV['dur'])     # pause plus courte que l'animation : on la joue plus vite
+    gs = 520 / GIM[0].height; GIM = [im.resize((int(im.width * gs), int(im.height * gs)), Image.LANCZOS) for im in GIM]; G_IMP = GV['t'] + gi_['impact'] / FPS / GSPD
 def gavel_on(t): return GV and GV['t'] <= t < GV['t'] + GV['dur']
 # ---------- bouton d'abonnement animé
 CTA = C.get('cta')
@@ -176,7 +222,7 @@ def frame(t):
             lay = Image.fromarray(arr); lay.putalpha(lay.getchannel('A').point(lambda v: int(v * (1 - k))))
         img.alpha_composite(lay); return img.convert('RGB')
     if gavel_on(t):
-        k = min(len(GIM) - 1, int((t - GV['t']) * FPS)); im = GIM[k]; tl = t - GV['t']
+        k = min(len(GIM) - 1, int((t - GV['t']) * FPS * GSPD)); im = GIM[k]; tl = t - GV['t']
         al = min(1, tl / 0.08) * min(1, (GV['dur'] - tl) / 0.2); lay = im.copy(); lay.putalpha(lay.getchannel('A').point(lambda v: int(v * al)))
         img.alpha_composite(lay, (int((PX0 + PX1 - por.width) / 2 - im.width / 2 + 40), int(PY1 - 40 - im.height)))
         dt = t - G_IMP
@@ -188,6 +234,18 @@ def frame(t):
     if CTA and CTA.get('hide_text') and t >= CTA['t']: return img.convert('RGB')
     gi = max([i for i, g in enumerate(groups) if WORDS[g[0]][1] - 0.1 <= t] or [0]); g = groups[gi]
     if C.get('quote_poem') and all(k in QUOTE for k in g): quote_poem(img, g, t); return img.convert('RGB')
+    if SUBS2:
+        nxt = WORDS[groups[gi + 1][0]][1] - 0.02 if gi + 1 < len(groups) else DUR
+        out = min(1, max(0, (nxt - t) / 0.08)) if gi + 1 < len(groups) else 1
+        lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); dl = ImageDraw.Draw(lay)
+        for k in g:
+            w, t0, t1 = WORDS[k]; u = (t - t0 + 0.03) / 0.12
+            if u <= 0: continue
+            x, y = LAY[gi][k]; col = YEL if HOT.search(re.sub(r'[^\wäöüß]', '', w)) else (QC if k in QUOTE else (255, 255, 255))
+            sc_ = 1 + 0.12 * math.sin(min(1, u) * math.pi) if u < 1 else 1; f_ = TF if sc_ == 1 else F('Poppins-ExtraBold.ttf', int(TF.size * sc_))
+            ww = TF.getbbox(w)[2]; dw = (f_.getbbox(w)[2] - ww) / 2
+            dl.text((x - dw, y - (f_.size - TF.size) / 2), w, font=f_, fill=col + (int(255 * min(1, u) * out),), anchor='la')
+        img.alpha_composite(lay); return img.convert('RGB')
     nxt = WORDS[groups[gi + 1][0]][1] - 0.1 if gi + 1 < len(groups) else DUR
     out = ease((nxt - t) / 0.15) if gi + 1 < len(groups) else 1
     d = ImageDraw.Draw(img)

@@ -353,7 +353,7 @@ def scene(img, d, sc, t):
                 text(lay, (CX, 690), 'Wachstum', H2(54), GREY, kb)
                 for x, col, lab in ((370, BLUE, 'rasiert'), (710, GREEN, 'nie rasiert')):
                     line(dl, x - 110, 1180, x + 110, 1180, INK, 7, kb); text(lay, (x, 1228), lab, H2(48), col, kb)
-                    if h > 2: dl.rounded_rectangle([S(x - 70), S(1180 - h), S(x + 70), S(1176)], S(14), fill=col + (255,), outline=INK, width=S(6))
+                    if h > 8: dl.rounded_rectangle([S(x - 70), S(1180 - h), S(x + 70), S(1176)], S(14), fill=col + (255,), outline=INK, width=S(6))
                 if T['gleich'] and t > T['gleich'] - 0.1:
                     q = sc_(t, 'gleich', -0.1, 0.25); text(lay, (CX, 1020), '=', BF(120), INK, q, scale=1.4 - 0.4 * q)
                     if t < T['kein'] - 0.1: text(lay, (CX, 770), 'gleich schnell', BF(56), INK, q)

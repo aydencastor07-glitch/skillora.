@@ -132,6 +132,17 @@ def tire(d, cx, cy, R, p, rot=0.0, hard=0.0, flake=0.0):
             a = 0.4 + j * 0.9; r0 = R * 0.7; pts = [(cx + (r0 + k * R * 0.045) * math.cos(a + 0.05 * (k % 2)), cy + (r0 + k * R * 0.045) * math.sin(a + 0.05 * (k % 2))) for k in range(6)]
             poly(d, pts, (60, 56, 52), 4, hard)
     if flake > 0: snowflake(d, cx + R * 0.82 * math.cos(-0.7), cy + R * 0.82 * math.sin(-0.7), R * 0.16 * back(flake), WHITE, 5)
+def flag(d, cx, cy, w, h, p, t):
+    # drapeau allemand qui flotte (bandes noir / rouge / or découpées en tranches ondulées) + hampe
+    if p <= 0: return
+    q = back(p); w, h = w * q, h * q; x0 = cx - w / 2; y0 = cy - h / 2; n = 24
+    line(d, x0 - 6, y0 - 20 * q, x0 - 6, y0 + h + 45 * q, INK, 8)
+    for k in range(n):
+        xa, xb = x0 + k * w / n, x0 + (k + 1) * w / n + 1
+        da = 9 * q * math.sin(t * 5 - k * 0.45) * k / n; db = 9 * q * math.sin(t * 5 - (k + 1) * 0.45) * (k + 1) / n
+        for j, col in enumerate(((20, 20, 20), (221, 0, 0), (255, 206, 0))):
+            ya, yb = y0 + j * h / 3, y0 + (j + 1) * h / 3
+            d.polygon([(S(xa), S(ya + da)), (S(xb), S(ya + db)), (S(xb), S(yb + db)), (S(xa), S(yb + da))], fill=col + (255,))
 def snowflake(d, cx, cy, r, col, w=6, p=1.0):
     if r <= 1 or p <= 0: return
     for k in range(6):
@@ -201,7 +212,7 @@ def tread(img, d, x0, y0, depth, p, col, lab, sub_):
     gx = x0 + 170; arrow(d, gx + 20, y0 - 70, gx + 20, y0 + depth - 4, col, 6, 1, 22)
     text(img, (x0 + w / 2, y0 + h + 60), lab, BF(64), col); text(img, (x0 + w / 2, y0 + h + 125), sub_, H2(48), INK)
 # ---------- repères temporels
-T = dict(oktober=tw('oktober'), ostern=tw('ostern'), winterreifen=tw('winterreifen'), bussgeld=tw('bußgeld'), hab=tw('hab'), quatsch=tw('quatsch'), in_=tw('in'),
+T = dict(deutschland=tw('deutschland'), oktober=tw('oktober'), ostern=tw('ostern'), winterreifen=tw('winterreifen'), bussgeld=tw('bußgeld'), hab=tw('hab'), quatsch=tw('quatsch'), in_=tw('in'),
          datum=tw('datum'), o=tw('o'), faustregel=tw('faustregel'), gesetz=tw('gesetz'), paragraf=tw('paragraf'), stvo=tw('straßenverkehrsordnung'), sobald=tw('sobald'),
          glatteis=tw('glatteis'), schnee=tw('schnee'), matsch=tw('schneematsch'), reif=tw('reifglätte'), winter1=tw('winterreifen', 1), egal=tw('egal'), okt2=tw('oktober', 1),
          april=tw('april'), mai=tw('mai'), heisst=tw('heißt'), januar=tw('januar'), sommer=tw('sommerreifen'), aber=tw('aber', 1), nacht=tw('nacht'), friert=tw('friert'),
@@ -266,6 +277,7 @@ def scene(img, d, sc, t):
             k = since(t, T['quatsch'], 0.2); text(img, (CX, 1230), 'Quatsch!', BF(110), RED, k, rot=-6, scale=1.5 - 0.5 * k)
     elif sc == 1:  # pas de date dans la loi ; § 2 StVO ; glace, neige, gadoue, givre → pneus hiver ; même en octobre, avril, mai
         def nodate(lay, dl):
+            flag(dl, CX + 10, 430, 230, 140, sc_(t, 'deutschland', -0.25, 0.45), t)   # « Deutschland » : drapeau
             calendar(lay, dl, CX, 720, '', clamp(u0 / 0.4), RED, 1.6); k = sc_(t, 'datum', -0.3, 0.3)
             text(lay, (CX, 760), '?', BF(150), RED, k, scale=1.5 - 0.5 * k); text(lay, (CX, 1000), 'kein festes Datum', BF(62), INK, sc_(t, 'datum', -0.2, 0.3))
             if T['o'] and t > T['o'] - 0.2:
@@ -417,7 +429,7 @@ if __name__ == '__main__':
         i0 = int(max(0, t0) * SR); L = min(len(s), N - i0); mix_[i0:i0 + L] += s[:L] * g
     for t0 in SC[1:-1]: sfx('swish', t0 + 0.02, 0.1)
     sfx('pop', T['oktober'] - 0.2, 0.1); sfx('pop', T['ostern'] - 0.2, 0.1); sfx('whoosh', T['winterreifen'] - 0.2, 0.12); sfx('pop', T['bussgeld'] - 0.2, 0.12)
-    sfx('hit', T['quatsch'] - 0.03, 0.4); sfx('swish', T['quatsch'] - 0.05, 0.2); sfx('pop', T['datum'] - 0.3, 0.12); sfx('tap', T['faustregel'], 0.1)
+    sfx('hit', T['quatsch'] - 0.03, 0.4); sfx('swish', T['quatsch'] - 0.05, 0.2); sfx('pop', T['deutschland'] - 0.25, 0.12); sfx('pop', T['datum'] - 0.3, 0.12); sfx('tap', T['faustregel'], 0.1)
     sfx('thud', T['gesetz'] - 0.2, 0.2); sfx('pop', T['paragraf'] - 0.2, 0.12)
     for k in ('glatteis', 'schnee', 'matsch', 'reif'): sfx('pop', T[k] - 0.2, 0.12)
     sfx('ding', T['winter1'] + 0.3, 0.1); sfx('hit', T['egal'] - 0.2, 0.15)

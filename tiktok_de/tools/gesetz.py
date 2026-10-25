@@ -105,9 +105,10 @@ if SUBS2:   # une page = plusieurs phrases tant qu'elles tiennent sur 4 lignes ;
     MAXL = C.get('max_lines', 4)
     units = []; cur = []   # morceaux de phrase : coupés aux virgules, deux-points, tirets et fins de phrase
     for k in range(NT, len(WORDS)):
+        if not re.sub(r'[^\wäöüß]', '', WORDS[k][0]): continue   # tiret « – » seul : pas affiché
         if '„' in WORDS[k][0] and cur: units.append(cur); cur = []
         cur.append(k)
-        if re.search(r'[.,:;!?–][“"]?$', WORDS[k][0]) or '“' in WORDS[k][0] or (k + 1 < len(WORDS) and WORDS[k + 1][0] == '–'): units.append(cur); cur = []
+        if re.search(r'[.,:;!?–][“"]?$', WORDS[k][0]) or '“' in WORDS[k][0]: units.append(cur); cur = []   # le tiret « – » reste collé au mot d'avant
     if cur: units.append(cur)
     split = []
     for un in units:   # un morceau trop long pour une page : coupé en mots

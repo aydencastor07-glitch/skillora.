@@ -1,0 +1,8 @@
+{
+  "name": "skillora",
+  "private": true,
+  "description": "Site statique ; seules les fonctions de /api ont des dépendances.",
+  "dependencies": {
+    "pg": "8.13.1"
+  }
+}

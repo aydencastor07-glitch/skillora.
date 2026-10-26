@@ -5,3 +5,6 @@ __pycache__/
 
 # images temporaires des rendus vidéo (dossier <sortie>_fr, supprimé en fin de rendu)
 *_fr/
+
+# dépendances des fonctions /api (installées par Vercel)
+node_modules/

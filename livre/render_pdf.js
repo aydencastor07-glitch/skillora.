@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 (async () => {
-  const b = await chromium.launch(); const p = await b.newPage();
+  const b = await chromium.launch(); const p = await b.newPage({ deviceScaleFactor: 2 });
   await p.goto('file://' + path.join(__dirname, 'livre.html')); await p.evaluate(() => document.fonts.ready);
   const fixed = await p.evaluate(() => {
     const out = [];

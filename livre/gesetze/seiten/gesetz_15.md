@@ -11,6 +11,9 @@ Ohne Warum fühlt sich jeder Tag schwer an. Mit einem Warum erträgst du fast je
 
 Dein Warum muss nicht groß klingen. Es muss nur deins sein.
 
+### Was dir das bringt
+Wer sein Warum kennt, gibt nicht so schnell auf. Er steht morgens leichter auf, hält schwere Zeiten durch und weiß bei jeder Entscheidung, was wirklich zählt.
+
 ### Deine Übung
 1. **Ein Satz:** Schreib auf, wofür du das alles machst.
 2. **Fünfmal warum:** Frag dich fünfmal „Warum?“ – bis du beim echten Grund ankommst.

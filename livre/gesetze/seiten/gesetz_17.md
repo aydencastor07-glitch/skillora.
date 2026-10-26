@@ -11,6 +11,9 @@ Kein Geld? Du lernst, kreativ zu sein. Abgelehnt? Du lernst, was fehlt. Ein schw
 
 Jedes Hindernis trainiert genau die Fähigkeit, die du für den nächsten Schritt brauchst.
 
+### Was dir das bringt
+Wer Hindernisse als Weg sieht, kann nicht mehr dauerhaft gestoppt werden. Jedes Problem macht ihn erfahrener – und während andere aufgeben, wird er besser.
+
 ### Deine Übung
 1. **Benenne es:** Schreib dein größtes Hindernis gerade auf.
 2. **Die Frage:** „Was zwingt mich das zu lernen?“

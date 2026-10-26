@@ -11,6 +11,9 @@ Er ändert seine Meinung, sobald es leise wird.
 
 Mach Dinge, weil sie richtig sind – nicht, weil jemand zusieht.
 
+### Was dir das bringt
+Wer nicht für Applaus lebt, ist wirklich frei. Er entscheidet für sich, nicht fürs Publikum – und ist nicht mehr abhängig von Likes, Lob oder Kritik.
+
 ### Deine Übung
 1. **Unsichtbar gut:** Tu heute eine gute Sache, von der niemand erfährt.
 2. **Ein Tag ohne Bühne:** Poste heute nichts über dein Leben.

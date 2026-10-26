@@ -11,6 +11,9 @@ Amor fati heißt nicht, alles gut zu finden. Es heißt: Alles, was passiert ist,
 
 Wer sein Schicksal annimmt, verschwendet keine Kraft mehr mit „Hätte ich doch nur“.
 
+### Was dir das bringt
+Wer sein Schicksal annimmt, hört auf, gegen seine Vergangenheit zu kämpfen. Er hat seine ganze Kraft für die Zukunft – und macht selbst aus Fehlern einen Vorteil.
+
 ### Deine Übung
 1. **Ein Rückschlag:** Schreib einen auf, über den du dich noch ärgerst.
 2. **Was er dir gab:** Schreib darunter, was er dir gebracht oder beigebracht hat.

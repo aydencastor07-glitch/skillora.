@@ -11,6 +11,9 @@ Vor jedem schwierigen Gespräch – Gehalt, Streit, Trennung – kenne drei Ding
 
 Wer vorbereitet ist, muss nicht laut werden.
 
+### Was dir das bringt
+Wer sich und sein Gegenüber kennt, gewinnt Gespräche, bevor sie beginnen. Er bleibt ruhig, verhandelt besser und bekommt öfter, was er will – ohne laut zu werden.
+
 ### Deine Übung
 1. **Ein Gespräch auswählen:** Denk an ein schwieriges Gespräch, das ansteht.
 2. **Drei Fragen:** Was will ich? Wo ist meine Grenze? Was braucht der andere?

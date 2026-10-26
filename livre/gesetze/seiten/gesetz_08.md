@@ -11,6 +11,9 @@ Wer schweigt, macht andere nervös. Sie füllen die Stille – und verraten mehr
 
 Weniger reden heißt nicht, nichts zu sagen. Es heißt: Jedes Wort hat Gewicht.
 
+### Was dir das bringt
+Wer weniger redet, wird ernster genommen. Er erfährt mehr, als er preisgibt, und jedes seiner Worte hat Gewicht – im Job, in Verhandlungen, in Beziehungen.
+
 ### Deine Übung
 1. **Zwei-Sekunden-Regel:** Lass andere ausreden, warte zwei Sekunden, dann antworte.
 2. **Mehr Fragen als Antworten:** Stell heute in jedem Gespräch mindestens eine echte Frage.

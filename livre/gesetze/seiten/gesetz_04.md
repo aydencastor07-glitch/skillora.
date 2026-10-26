@@ -11,6 +11,9 @@ Sorgen fühlen sich an wie Vorbereitung. Sie sind es nicht. Du leidest zweimal �
 
 Kannst du jetzt etwas tun? Dann tu es. Wenn nicht, ist die Sorge nur Lärm.
 
+### Was dir das bringt
+Wer aufhört, sich Sorgen zu machen, schläft besser, denkt klarer und handelt, statt zu grübeln. Er spart die Kraft, die andere an Szenarien verlieren, die nie passieren.
+
 ### Deine Übung
 1. **Sorgen-Zettel:** Schreib die Sorge auf. Ein Gedanke auf Papier verliert seine Macht.
 2. **Nächster Schritt:** Frag: „Was kann ich jetzt konkret tun?“ Tu es – oder lass los.

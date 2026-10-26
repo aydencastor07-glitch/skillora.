@@ -11,6 +11,9 @@ Dazu kommen Neid, Zweifel und Ratschläge, die du nie wolltest.
 
 Arbeite im Stillen. Lass am Ende nur das Ergebnis sprechen.
 
+### Was dir das bringt
+Wer über seine Pläne schweigt, behält seinen Antrieb. Niemand kann ihm reinreden, ihn bremsen oder beneiden – bis das Ergebnis für sich spricht.
+
 ### Deine Übung
 1. **Ein geheimes Ziel:** Wähle ein Ziel, über das du ab heute mit niemandem sprichst.
 2. **Die Standard-Antwort:** Wenn jemand fragt: „Ich arbeite an etwas.“ Mehr nicht.

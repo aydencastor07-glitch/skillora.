@@ -11,6 +11,9 @@ Menschen glauben nicht, was du sagst. Sie glauben, was du immer wieder tust.
 
 Hör auf, dein neues Ich anzukündigen. Sei es einfach – heute, in einer kleinen Sache.
 
+### Was dir das bringt
+Wer handelt, statt zu reden, bekommt Respekt, ohne ihn einzufordern. Seine Ergebnisse sprechen für ihn – und er wird jeden Tag ein Stück mehr der Mensch, der er sein will.
+
 ### Deine Übung
 1. **Eine Eigenschaft:** Wähle eine, die du haben willst – pünktlich, fit, ruhig.
 2. **Eine Handlung:** Tu heute eine Sache, die so ein Mensch tun würde.

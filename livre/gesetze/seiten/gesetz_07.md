@@ -11,6 +11,9 @@ Selbstvertrauen ist kein Gefühl, das plötzlich kommt. Es ist ein Beweis, den d
 
 Niemand wird an deinen Traum glauben, bevor du es tust.
 
+### Was dir das bringt
+Wer sich selbst vertraut, wartet nicht mehr auf Erlaubnis. Er entscheidet schneller, probiert mehr aus und strahlt eine Ruhe aus, der andere ganz automatisch folgen.
+
 ### Deine Übung
 1. **Beweis-Liste:** Schreib 5 Dinge auf, die du geschafft hast, obwohl es schwer war.
 2. **Entscheide allein:** Triff heute eine kleine Entscheidung, ohne jemanden zu fragen.

@@ -11,6 +11,9 @@ Gleiches Ereignis – anderes Leben. Der Unterschied liegt nicht in dem, was pas
 
 Du kannst nicht immer ändern, was passiert. Aber du entscheidest immer, was es bedeutet.
 
+### Was dir das bringt
+Wer seine Sicht wählen kann, steht nach jedem Rückschlag schneller wieder auf. Er ist nicht weniger betroffen als andere – nur schneller wieder handlungsfähig. Aus Niederlagen werden Wendepunkte.
+
 ### Deine Übung
 1. **Schreib ein Problem auf** – und darunter den Satz, den du dir darüber erzählst.
 2. **Schreib eine zweite Version,** die genauso wahr ist, dich aber stärker macht.

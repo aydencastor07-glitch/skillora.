@@ -11,6 +11,9 @@ Nietzsche meinte nicht: Bleib, wie du bist. Er meinte: Werde die Version, die sc
 
 Die Welt braucht keine weitere Kopie. Sie braucht dich.
 
+### Was dir das bringt
+Wer wird, der er ist, lebt ohne Maske. Er spart die Energie, ständig jemand anderes zu spielen – und zieht genau die Menschen an, die wirklich zu ihm passen.
+
 ### Deine Übung
 1. **Fremde Erwartungen:** Schreib drei Dinge auf, die du nur tust, weil andere es erwarten.
 2. **Dein Wunsch:** Schreib eine Sache auf, die du schon immer tun wolltest.

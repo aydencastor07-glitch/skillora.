@@ -11,6 +11,9 @@ Die Stoiker erinnerten sich jeden Tag daran, dass das Leben endet – nicht, um 
 
 Wenn heute dein letzter Tag wäre: Was würdest du nicht mehr aufschieben?
 
+### Was dir das bringt
+Wer lebt, als könnte er morgen gehen, schiebt nichts Wichtiges mehr auf. Er sagt, was er fühlt, tut, was er will – und hat am Ende nichts zu bereuen.
+
 ### Deine Übung
 1. **Das Aufgeschobene:** Schreib eine Sache auf, die du schon zu lange vor dir herschiebst.
 2. **Heute:** Tu sie – oder mach den ersten Schritt.

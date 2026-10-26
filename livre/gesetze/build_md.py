@@ -1,5 +1,5 @@
 # Génère les pages du livre (une loi = une page) à partir des données ci-dessous.
-# Chaque page : accroche en gras, citation « X sagte », 3–4 paragraphes courts, 3 exercices, « Merke », et une phrase
+# Chaque page : accroche en gras, citation « X sagte », 3–4 paragraphes courts, « Was dir das bringt » (le bénéfice), 3 exercices, « Merke », et une phrase
 # « Morgen: … » qui donne envie de tourner la page.  usage : python3 build_md.py
 import os
 D = os.path.dirname(os.path.abspath(__file__))
@@ -215,6 +215,29 @@ G = [
   "Nicht morgen. Heute.",
   None),
 ]
+NUTZEN = [
+ "Wer seine Wut kontrollieren kann, wird in jedem Streit, jeder Verhandlung und jeder Beziehung ernst genommen. Er sagt nichts, was er später bereut. Und niemand kann ihn mehr provozieren – er entscheidet selbst, wann er reagiert.",
+ "Wer nur kontrolliert, was in seiner Macht steht, hat plötzlich viel mehr Energie für das, was wirklich zählt. Er bleibt ruhig im Chaos, weil er weiß, wo sein Einfluss endet – und genau dort lässt er los.",
+ "Wer seine Sicht wählen kann, steht nach jedem Rückschlag schneller wieder auf. Er ist nicht weniger betroffen als andere – nur schneller wieder handlungsfähig. Aus Niederlagen werden Wendepunkte.",
+ "Wer aufhört, sich Sorgen zu machen, schläft besser, denkt klarer und handelt, statt zu grübeln. Er spart die Kraft, die andere an Szenarien verlieren, die nie passieren.",
+ "Wer allein sein kann, braucht niemanden, um glücklich zu sein – und bleibt deshalb nur bei Menschen, die ihm guttun. Er wird unabhängig, klar im Kopf und schwer zu manipulieren.",
+ "Wer sich selbst beherrscht, hält seine Versprechen – zuerst sich selbst gegenüber, dann gegenüber anderen. Er wird verlässlich, fit und fokussiert. Was er sich vornimmt, passiert auch.",
+ "Wer sich selbst vertraut, wartet nicht mehr auf Erlaubnis. Er entscheidet schneller, probiert mehr aus und strahlt eine Ruhe aus, der andere ganz automatisch folgen.",
+ "Wer weniger redet, wird ernster genommen. Er erfährt mehr, als er preisgibt, und jedes seiner Worte hat Gewicht – im Job, in Verhandlungen, in Beziehungen.",
+ "Wer über seine Pläne schweigt, behält seinen Antrieb. Niemand kann ihm reinreden, ihn bremsen oder beneiden – bis das Ergebnis für sich spricht.",
+ "Wer nicht ständig verfügbar ist, wird respektiert und vermisst. Er schützt seine Zeit, seine Ziele und seinen Wert – und niemand hält ihn mehr für selbstverständlich.",
+ "Wer auf Rache verzichtet, bekommt seinen Frieden zurück. Er verschwendet keine Energie mehr an die Vergangenheit und baut stattdessen ein Leben, das für sich spricht.",
+ "Wer seinen Umgang bewusst wählt, wächst fast automatisch. Seine Umgebung zieht ihn nach oben statt nach unten – und Ziele, die früher unmöglich schienen, werden normal.",
+ "Wer nicht für Applaus lebt, ist wirklich frei. Er entscheidet für sich, nicht fürs Publikum – und ist nicht mehr abhängig von Likes, Lob oder Kritik.",
+ "Wer sich und sein Gegenüber kennt, gewinnt Gespräche, bevor sie beginnen. Er bleibt ruhig, verhandelt besser und bekommt öfter, was er will – ohne laut zu werden.",
+ "Wer sein Warum kennt, gibt nicht so schnell auf. Er steht morgens leichter auf, hält schwere Zeiten durch und weiß bei jeder Entscheidung, was wirklich zählt.",
+ "Wer handelt, statt zu reden, bekommt Respekt, ohne ihn einzufordern. Seine Ergebnisse sprechen für ihn – und er wird jeden Tag ein Stück mehr der Mensch, der er sein will.",
+ "Wer Hindernisse als Weg sieht, kann nicht mehr dauerhaft gestoppt werden. Jedes Problem macht ihn erfahrener – und während andere aufgeben, wird er besser.",
+ "Wer seine Zeit schützt, hat plötzlich Stunden für das, was ihm wichtig ist. Er wird produktiver, ruhiger – und bereut am Ende viel weniger.",
+ "Wer sein Schicksal annimmt, hört auf, gegen seine Vergangenheit zu kämpfen. Er hat seine ganze Kraft für die Zukunft – und macht selbst aus Fehlern einen Vorteil.",
+ "Wer wird, der er ist, lebt ohne Maske. Er spart die Energie, ständig jemand anderes zu spielen – und zieht genau die Menschen an, die wirklich zu ihm passen.",
+ "Wer lebt, als könnte er morgen gehen, schiebt nichts Wichtiges mehr auf. Er sagt, was er fühlt, tut, was er will – und hat am Ende nichts zu bereuen.",
+]
 TEILE = {1: ("Teil I", "Herrschaft über dich selbst", "Bevor du andere führen kannst, musst du dich selbst führen."),
          8: ("Teil II", "Macht im Umgang mit anderen", "Wer sich selbst kennt, lässt sich von niemandem mehr steuern."),
          15: ("Teil III", "Ein Leben nach deinen eigenen Regeln", "Jetzt geht es nicht mehr um Kontrolle. Es geht um dein Leben.")}
@@ -222,8 +245,9 @@ out = os.path.join(D, 'seiten'); os.makedirs(out, exist_ok=True)
 for i, (titel, wer, zitat, hook, absatz, uebung, merke, morgen) in enumerate(G, 1):
     s = [f"# GESETZ NR. {i}", f"## {titel}", "", f"> **{wer} sagte:** „{zitat}“", "", f"**{hook}**", ""]
     for a in absatz: s += [a, ""]
+    s += ["### Was dir das bringt", NUTZEN[i - 1], ""]       # le bénéfice concret, avant les exercices
     s += ["### Deine Übung"] + [f"{k}. {u}" for k, u in enumerate(uebung, 1)] + ["", f"> **Merke:** {merke}", "", f"☐ Tag {i} von 21"]
     if morgen: s += ["", f"*Morgen → {morgen}*"]
     open(os.path.join(out, f'gesetz_{i:02d}.md'), 'w').write('\n'.join(s) + '\n')
     print(i, titel, len(' '.join(s).split()), 'mots')
-import json; json.dump({'gesetze': G, 'teile': {str(k): v for k, v in TEILE.items()}}, open(os.path.join(D, 'gesetze.json'), 'w'), ensure_ascii=False, indent=1)
+import json; json.dump({'gesetze': G, 'nutzen': NUTZEN, 'teile': {str(k): v for k, v in TEILE.items()}}, open(os.path.join(D, 'gesetze.json'), 'w'), ensure_ascii=False, indent=1)

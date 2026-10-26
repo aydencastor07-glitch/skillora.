@@ -11,6 +11,9 @@ Sie kostet dich Zeit, Schlaf und Frieden – und er lebt einfach weiter.
 
 Die stärkste Antwort ist dein Leben: besser, ruhiger, erfolgreicher. Das trifft ihn mehr als jedes Wort.
 
+### Was dir das bringt
+Wer auf Rache verzichtet, bekommt seinen Frieden zurück. Er verschwendet keine Energie mehr an die Vergangenheit und baut stattdessen ein Leben, das für sich spricht.
+
 ### Deine Übung
 1. **Die Rechnung:** Schreib auf, was dich die Wut auf diesen Menschen schon gekostet hat.
 2. **Kein Platz mehr:** Entscheide, dass er ab heute keine Minute deiner Gedanken bekommt.

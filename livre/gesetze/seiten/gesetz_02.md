@@ -11,6 +11,9 @@ In deiner Macht stehen genau drei Dinge: deine Gedanken, deine Worte, deine Tate
 
 Wer seine Kraft in diese drei Dinge steckt, wird stärker. Wer sie in den Rest steckt, wird nur müde.
 
+### Was dir das bringt
+Wer nur kontrolliert, was in seiner Macht steht, hat plötzlich viel mehr Energie für das, was wirklich zählt. Er bleibt ruhig im Chaos, weil er weiß, wo sein Einfluss endet – und genau dort lässt er los.
+
 ### Deine Übung
 1. **Zwei Spalten:** Schreib auf, was dich gerade stresst – links „kann ich ändern“, rechts „kann ich nicht ändern“.
 2. **Streich die rechte Spalte.** Für jeden Punkt links: ein kleiner Schritt heute.

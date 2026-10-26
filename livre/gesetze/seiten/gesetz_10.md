@@ -11,6 +11,9 @@ Seltenheit erzeugt Respekt. Nicht, weil du Spielchen spielst – sondern weil du
 
 Wer immer da ist, wird übersehen. Wer manchmal fehlt, wird vermisst.
 
+### Was dir das bringt
+Wer nicht ständig verfügbar ist, wird respektiert und vermisst. Er schützt seine Zeit, seine Ziele und seinen Wert – und niemand hält ihn mehr für selbstverständlich.
+
 ### Deine Übung
 1. **Kein Sofort-Antworten:** Beantworte heute keine private Nachricht sofort.
 2. **Ein freundliches Nein:** Sag einmal Nein – ohne lange Erklärung.

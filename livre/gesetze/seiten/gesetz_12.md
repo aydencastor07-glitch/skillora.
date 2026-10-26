@@ -11,6 +11,9 @@ Manche ziehen dich hoch. Manche ziehen dich runter und lachen über deine Ziele.
 
 Du musst niemanden hassen. Aber du entscheidest, wem du deine Zeit gibst.
 
+### Was dir das bringt
+Wer seinen Umgang bewusst wählt, wächst fast automatisch. Seine Umgebung zieht ihn nach oben statt nach unten – und Ziele, die früher unmöglich schienen, werden normal.
+
 ### Deine Übung
 1. **Deine fünf:** Schreib die fünf Menschen auf, mit denen du am meisten Zeit verbringst. Daneben: + oder –.
 2. **Mehr Plus:** Verbring diese Woche bewusst mehr Zeit mit einem „+“.

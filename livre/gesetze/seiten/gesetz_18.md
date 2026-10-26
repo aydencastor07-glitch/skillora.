@@ -11,6 +11,9 @@ Geld kannst du zurückverdienen. Zeit nie.
 
 Die Frage ist nicht, ob du genug Zeit hast. Die Frage ist, wohin sie fließt.
 
+### Was dir das bringt
+Wer seine Zeit schützt, hat plötzlich Stunden für das, was ihm wichtig ist. Er wird produktiver, ruhiger – und bereut am Ende viel weniger.
+
 ### Deine Übung
 1. **Die ehrliche Zahl:** Schau in deine Bildschirmzeit und schreib die Zahl auf.
 2. **Eine App weniger:** Lösch oder versteck eine Woche lang die App, die dir am meisten Zeit stiehlt.

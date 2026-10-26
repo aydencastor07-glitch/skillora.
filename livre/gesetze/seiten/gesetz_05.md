@@ -11,6 +11,9 @@ Aber wer immer andere braucht, um sich gut zu fühlen, gibt ihnen die Macht übe
 
 Allein sein heißt nicht einsam sein. Es heißt: Du bist dir selbst genug. Und wer sich selbst genug ist, den kann niemand erpressen.
 
+### Was dir das bringt
+Wer allein sein kann, braucht niemanden, um glücklich zu sein – und bleibt deshalb nur bei Menschen, die ihm guttun. Er wird unabhängig, klar im Kopf und schwer zu manipulieren.
+
 ### Deine Übung
 1. **20 Minuten Stille:** Heute ohne Handy, ohne Musik – nur du. Ein Spaziergang reicht.
 2. **Beobachte den Griff zum Handy.** Das ist Gewohnheit, kein Bedürfnis.

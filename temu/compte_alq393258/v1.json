@@ -1,0 +1,59 @@
+{
+ "font": "ArchivoBlack-Regular.ttf",
+ "palette": {
+  "c1": [
+   255,
+   236,
+   200
+  ],
+  "c2": [
+   255,
+   140,
+   40
+  ],
+  "dark": [
+   48,
+   28,
+   18
+  ],
+  "acc": [
+   226,
+   78,
+   38
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "push",
+ "sfx": "whoosh",
+ "music_seed": 371,
+ "bpm": 104,
+ "key": 57,
+ "slides": [
+  {
+   "img": "V1/V1_1.jpg",
+   "title": "COZY|SEASON|STARTS|HERE",
+   "layout": "A"
+  },
+  {
+   "img": "V1/V1_2.jpg",
+   "title": "WARM FEET|ALL WINTER",
+   "layout": "D"
+  },
+  {
+   "img": "V1/V1_3.jpg",
+   "title": "MY COZY|CORNER",
+   "layout": "C"
+  },
+  {
+   "img": "V1/V1_4.jpg",
+   "layout": "E"
+  },
+  {
+   "img": "V1/V1_5.jpg",
+   "title": "EVEN THE DOG|APPROVES",
+   "layout": "B"
+  }
+ ],
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app"
+}

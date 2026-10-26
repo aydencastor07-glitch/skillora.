@@ -1,0 +1,62 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "SOMETHING FOR EVERYONE",
+ "particles": "confetti",
+ "palette": {
+  "c1": [
+   255,
+   244,
+   232
+  ],
+  "c2": [
+   80,
+   220,
+   170
+  ],
+  "dark": [
+   24,
+   32,
+   64
+  ],
+  "acc": [
+   251,
+   119,
+   1
+  ]
+ },
+ "strip": [
+  251,
+  119,
+  1
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 731,
+ "bpm": 120,
+ "key": 57,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "V6/V6_1.jpg",
+   "label": "THE KIDS (AND THE PUPPY)"
+  },
+  {
+   "img": "V6/V6_2.jpg",
+   "label": "MY LITTLE ONE + BEST BUDDY"
+  },
+  {
+   "img": "V6/V6_3.jpg",
+   "label": "GRANDPA'S DELIVERY"
+  },
+  {
+   "img": "V6/V6_4.jpg",
+   "label": "OUR FIRST HOME HAUL"
+  },
+  {
+   "img": "V6/V6_5.jpg",
+   "comment": true,
+   "comment_y": 450,
+   "no_tag": true
+  }
+ ]
+}

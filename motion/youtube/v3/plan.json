@@ -1,0 +1,1051 @@
+{
+ "png": "png_kai",
+ "scenes": [
+  {
+   "img": "fat",
+   "enter": "up",
+   "cam": [
+    1.3,
+    0.5,
+    0.45,
+    1.75,
+    0.5,
+    0.45
+   ],
+   "say": "a big *belly*",
+   "spoken": "If you have a big belly and you want a flat stomach with visible abs, this video is for you.",
+   "sayFrom": 3,
+   "sayY": 0.82,
+   "segs": [
+    0,
+    1
+   ],
+   "voice": "If you have a big belly and you want a flat stomach with visible abs, this video is for you."
+  },
+  {
+   "card": "here's the truth nobody tells you",
+   "segs": [
+    2
+   ],
+   "voice": "Here's the truth nobody tells you."
+  },
+  {
+   "img": "fat_situp",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.55,
+    1.1,
+    0.5,
+    0.55
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.6
+    }
+   ],
+   "segs": [
+    3
+   ],
+   "voice": "You can't crunch your belly away."
+  },
+  {
+   "img": "fat_situp",
+   "cam": [
+    1.1,
+    0.5,
+    0.55,
+    1.3,
+    0.45,
+    0.5
+   ],
+   "text": "sit-ups won't burn it",
+   "textY": 0.15,
+   "textX": 0.5,
+   "segs": [
+    4
+   ],
+   "voice": "Doing a thousand sit-ups won't burn the fat on your stomach."
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.3,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.3,
+    0.5,
+    0.36
+   ],
+   "tags": [
+    {
+     "name": "Abs",
+     "color": "red",
+     "x": 0.47,
+     "y": 0.345,
+     "style": "dash",
+     "at": 0.4,
+     "len": 300
+    }
+   ],
+   "segs": [
+    5
+   ],
+   "voice": "Your abs are already there."
+  },
+  {
+   "img": "fat_neutral",
+   "enter": "fade",
+   "cam": [
+    1.4,
+    0.5,
+    0.42,
+    1.8,
+    0.5,
+    0.45
+   ],
+   "text": "hidden under fat",
+   "textAt": 0.4,
+   "segs": [
+    6
+   ],
+   "voice": "They're just hiding under a layer of fat."
+  },
+  {
+   "card": "you need two things",
+   "segs": [
+    7,
+    8
+   ],
+   "voice": "So to see them, you need to do two things."
+  },
+  {
+   "img": "fat_neutral",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.05,
+    0.5,
+    0.48
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "lose the fat",
+   "segs": [
+    9
+   ],
+   "voice": "Lose the fat on top."
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.2,
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.05,
+    0.5,
+    0.48
+   ],
+   "slide": {
+    "to": 0.7,
+    "at": 0.05
+   },
+   "text": "build the muscle",
+   "segs": [
+    10
+   ],
+   "voice": "And build the muscle underneath."
+  },
+  {
+   "img": "fat_side",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "segs": [
+    11
+   ],
+   "voice": "Let's start with the fat."
+  },
+  {
+   "img": "fat_neutral",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.1,
+    0.5,
+    0.46
+   ],
+   "label": "#1. Eat a little less",
+   "segs": [
+    12,
+    13
+   ],
+   "voice": "Step one. Eat a little less than you burn."
+  },
+  {
+   "card": "not a crazy diet",
+   "segs": [
+    14
+   ],
+   "voice": "Not a crazy diet."
+  },
+  {
+   "reps": "-300 to -500 calories a day",
+   "sets": 0,
+   "segs": [
+    15
+   ],
+   "voice": "Just remove around three hundred to five hundred calories a day."
+  },
+  {
+   "img": "p_soda",
+   "enter": "fade",
+   "cam": [
+    1.2,
+    0.53,
+    0.52,
+    1.35,
+    0.53,
+    0.52
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.55
+    }
+   ],
+   "segs": [
+    16
+   ],
+   "voice": "Cut the sugary drinks, the snacks and the late night food."
+  },
+  {
+   "img": "fat_side",
+   "cam": [
+    1.05,
+    0.5,
+    0.48,
+    1.2,
+    0.5,
+    0.45
+   ],
+   "text": "that alone changes everything",
+   "textAt": 0.2,
+   "segs": [
+    17
+   ],
+   "voice": "That alone can change your whole body."
+  },
+  {
+   "img": "p_food",
+   "enter": "fade",
+   "cam": [
+    1.15,
+    0.5,
+    0.54,
+    1.3,
+    0.5,
+    0.54
+   ],
+   "label": "#2. More protein",
+   "segs": [
+    18,
+    19
+   ],
+   "voice": "Step two. Eat more protein."
+  },
+  {
+   "img": "p_food",
+   "cam": [
+    1.3,
+    0.5,
+    0.54,
+    1.45,
+    0.5,
+    0.54
+   ],
+   "text": "chicken · eggs · fish · yogurt",
+   "textY": 0.12,
+   "textX": 0.5,
+   "segs": [
+    20,
+    21
+   ],
+   "voice": "Chicken, eggs, fish, greek yogurt."
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.5,
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.4,
+    0.5,
+    0.4
+   ],
+   "text": "keeps you full",
+   "textAt": 0.15,
+   "icons": [
+    {
+     "kind": "v",
+     "at": 0.8
+    }
+   ],
+   "segs": [
+    22,
+    23
+   ],
+   "voice": "Protein keeps you full, and it protects your muscle while you lose fat."
+  },
+  {
+   "img": "fat_walk",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.05,
+    0.45,
+    0.5
+   ],
+   "label": "#3. Walk every day",
+   "segs": [
+    24,
+    25
+   ],
+   "voice": "Step three. Walk every single day."
+  },
+  {
+   "reps": "8,000 – 10,000 steps",
+   "sets": 0,
+   "segs": [
+    26
+   ],
+   "voice": "Eight to ten thousand steps."
+  },
+  {
+   "img": "fat_walk",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.05,
+    0.45,
+    0.5
+   ],
+   "slide": {
+    "to": 0.32,
+    "at": 0.05
+   },
+   "text": "simple, but it works",
+   "segs": [
+    27
+   ],
+   "voice": "It sounds too simple, but walking burns more fat over a week than most people think."
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.3,
+    0.5,
+    0.36
+   ],
+   "tags": [
+    {
+     "name": "Abs",
+     "color": "red",
+     "x": 0.47,
+     "y": 0.345,
+     "style": "dash",
+     "at": 0.35,
+     "len": 300
+    }
+   ],
+   "segs": [
+    28
+   ],
+   "voice": "Now, the abs."
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.0,
+   "cam": [
+    2.3,
+    0.5,
+    0.36,
+    2.5,
+    0.5,
+    0.36
+   ],
+   "say": "a *muscle*",
+   "spoken": "Your abs are a muscle like any other.",
+   "sayY": 0.12,
+   "segs": [
+    29
+   ],
+   "voice": "Your abs are a muscle like any other."
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.0,
+   "cam": [
+    2.5,
+    0.5,
+    0.36,
+    2.6,
+    0.5,
+    0.36
+   ],
+   "text": "thicker = visible",
+   "textAt": 0.4,
+   "segs": [
+    30
+   ],
+   "voice": "To make them show, you need to make them thicker."
+  },
+  {
+   "card": "3 exercises are enough",
+   "segs": [
+    31,
+    32
+   ],
+   "voice": "And for that, three exercises are enough."
+  },
+  {
+   "medal": "p_bar",
+   "name": "Hanging Leg Raises",
+   "medalZoom": 1.1,
+   "segs": [
+    33,
+    34
+   ],
+   "voice": "Number one. Hanging leg raises."
+  },
+  {
+   "img": "hang_down",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.05,
+    0.5,
+    0.5
+   ],
+   "segs": [
+    35
+   ],
+   "voice": "Hang from a bar with your arms straight."
+  },
+  {
+   "img": "hang_down",
+   "alt": "hang_up",
+   "period": 1.4,
+   "cam": [
+    1.0,
+    0.55,
+    0.5,
+    1.05,
+    0.55,
+    0.5
+   ],
+   "text": "no swinging",
+   "textAt": 0.5,
+   "textX": 0.82,
+   "segs": [
+    36
+   ],
+   "voice": "Lift your legs up slowly, without swinging."
+  },
+  {
+   "img": "hang_down",
+   "alt": "hang_up",
+   "period": 1.8,
+   "cam": [
+    1.05,
+    0.55,
+    0.5,
+    1.1,
+    0.55,
+    0.5
+   ],
+   "segs": [
+    37
+   ],
+   "voice": "Then lower them with control."
+  },
+  {
+   "reps": "8-12 reps",
+   "segs": [
+    38
+   ],
+   "voice": "Three sets of eight to twelve."
+  },
+  {
+   "card": "no bar at home?",
+   "segs": [
+    39
+   ],
+   "voice": "No bar at home?"
+  },
+  {
+   "medal": "p_mat",
+   "name": "Lying Leg Raises",
+   "medalZoom": 1.2,
+   "medalDy": -120,
+   "segs": [
+    40
+   ],
+   "voice": "Do lying leg raises."
+  },
+  {
+   "img": "lie_down",
+   "enter": "right",
+   "cam": [
+    1.2,
+    0.5,
+    0.62,
+    1.25,
+    0.5,
+    0.62
+   ],
+   "segs": [
+    41,
+    42
+   ],
+   "voice": "Lie on your back, hands under your hips."
+  },
+  {
+   "img": "lie_down",
+   "alt": "lie_up",
+   "period": 1.5,
+   "cam": [
+    1.1,
+    0.5,
+    0.55,
+    1.15,
+    0.5,
+    0.55
+   ],
+   "text": "don't touch the floor",
+   "textAt": 0.55,
+   "textY": 0.15,
+   "textX": 0.5,
+   "segs": [
+    43,
+    44
+   ],
+   "voice": "Lift your legs up to the ceiling, then lower them slowly, without touching the floor."
+  },
+  {
+   "reps": "12-15 reps",
+   "segs": [
+    45
+   ],
+   "voice": "Three sets of twelve to fifteen."
+  },
+  {
+   "medal": "p_mat",
+   "name": "The Crunch",
+   "medalZoom": 1.2,
+   "medalDy": -120,
+   "segs": [
+    46,
+    47
+   ],
+   "voice": "Number two. The crunch."
+  },
+  {
+   "card": "done right",
+   "segs": [
+    48
+   ],
+   "voice": "But done right."
+  },
+  {
+   "img": "crunch_down",
+   "enter": "right",
+   "cam": [
+    1.15,
+    0.5,
+    0.6,
+    1.25,
+    0.5,
+    0.6
+   ],
+   "segs": [
+    49
+   ],
+   "voice": "Lie on your back with your knees bent."
+  },
+  {
+   "img": "crunch_down",
+   "alt": "crunch_up",
+   "period": 1.4,
+   "cam": [
+    1.25,
+    0.5,
+    0.58,
+    1.35,
+    0.45,
+    0.56
+   ],
+   "text": "squeeze 1s at the top",
+   "textAt": 0.5,
+   "textY": 0.2,
+   "textX": 0.5,
+   "segs": [
+    50
+   ],
+   "voice": "Curl your shoulders up toward your hips, and squeeze your abs for one second at the top."
+  },
+  {
+   "img": "crunch_up",
+   "cam": [
+    2.0,
+    0.25,
+    0.52,
+    2.2,
+    0.25,
+    0.52
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "don't pull your neck",
+   "textAt": 0.2,
+   "segs": [
+    51
+   ],
+   "voice": "Don't pull on your neck."
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.3,
+   "cam": [
+    1.6,
+    0.5,
+    0.36,
+    2.4,
+    0.5,
+    0.36
+   ],
+   "say": "the *six-pack*",
+   "spoken": "It's a small movement, but it's the one that builds the six-pack.",
+   "sayY": 0.12,
+   "segs": [
+    52
+   ],
+   "voice": "It's a small movement, but it's the one that builds the six-pack."
+  },
+  {
+   "reps": "15 reps",
+   "segs": [
+    53
+   ],
+   "voice": "Three sets of fifteen."
+  },
+  {
+   "medal": "p_timer",
+   "name": "Plank",
+   "medalZoom": 1.05,
+   "segs": [
+    54,
+    55
+   ],
+   "voice": "Number three. The plank."
+  },
+  {
+   "img": "plank",
+   "enter": "right",
+   "cam": [
+    1.15,
+    0.5,
+    0.48,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "text": "one straight line",
+   "textAt": 0.6,
+   "textY": 0.18,
+   "textX": 0.5,
+   "segs": [
+    56
+   ],
+   "voice": "Elbows under your shoulders, body in one straight line."
+  },
+  {
+   "img": "plank",
+   "cam": [
+    1.2,
+    0.5,
+    0.48,
+    1.6,
+    0.55,
+    0.45
+   ],
+   "text": "squeeze",
+   "textAt": 0.4,
+   "textY": 0.18,
+   "textX": 0.5,
+   "segs": [
+    57
+   ],
+   "voice": "Squeeze your abs and your glutes."
+  },
+  {
+   "img": "plank",
+   "cam": [
+    1.6,
+    0.55,
+    0.45,
+    1.65,
+    0.55,
+    0.45
+   ],
+   "text": "30-60s",
+   "textAt": 0.3,
+   "textY": 0.18,
+   "textX": 0.5,
+   "segs": [
+    58
+   ],
+   "voice": "Hold for thirty to sixty seconds."
+  },
+  {
+   "img": "fat_side",
+   "cam": [
+    1.05,
+    0.5,
+    0.48,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "base",
+     "hl": "hl_abs"
+    }
+   ],
+   "text": "a flatter stomach",
+   "textAt": 0.6,
+   "segs": [
+    59
+   ],
+   "voice": "This builds the deep muscle that pulls your stomach in and makes it look flat."
+  },
+  {
+   "reps": "30-60s",
+   "segs": [
+    60
+   ],
+   "voice": "Three rounds."
+  },
+  {
+   "card": "3 mistakes that keep your belly big",
+   "segs": [
+    61
+   ],
+   "voice": "Now, three mistakes that keep your belly big."
+  },
+  {
+   "img": "fat_situp",
+   "cam": [
+    1.0,
+    0.5,
+    0.55,
+    1.1,
+    0.5,
+    0.55
+   ],
+   "label": "#1. Only doing abs",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "diet + walking",
+   "textAt": 0.6,
+   "textY": 0.15,
+   "textX": 0.5,
+   "segs": [
+    62,
+    63,
+    64
+   ],
+   "voice": "One. Only doing abs. Without the diet and the walking, the fat stays."
+  },
+  {
+   "img": "crunch_down",
+   "alt": "crunch_up",
+   "period": 0.35,
+   "cam": [
+    1.15,
+    0.5,
+    0.6,
+    1.25,
+    0.5,
+    0.6
+   ],
+   "label": "#2. Abs every day",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "they need rest",
+   "textAt": 0.6,
+   "textY": 0.2,
+   "textX": 0.5,
+   "segs": [
+    65,
+    66,
+    67
+   ],
+   "voice": "Two. Training abs every day. They need rest to grow, like every other muscle."
+  },
+  {
+   "img": "fat_neutral",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.1,
+    0.5,
+    0.45
+   ],
+   "label": "#3. Giving up too soon",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "slow at first, then fast",
+   "textAt": 0.6,
+   "segs": [
+    68,
+    69,
+    70,
+    71
+   ],
+   "voice": "Three. Giving up after two weeks. Fat loss is slow at the start, then everything changes."
+  },
+  {
+   "card": "your plan",
+   "segs": [
+    72
+   ],
+   "voice": "Here's your plan."
+  },
+  {
+   "img": "fat_walk",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.05,
+    0.45,
+    0.5
+   ],
+   "text": "walk · eat less · protein",
+   "textAt": 0.3,
+   "segs": [
+    73
+   ],
+   "voice": "Every day, walk and eat a little less, with more protein."
+  },
+  {
+   "img": "hang_up",
+   "cam": [
+    1.0,
+    0.55,
+    0.5,
+    1.0,
+    0.55,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.38,
+     "img": "lie_up"
+    },
+    {
+     "at": 0.7,
+     "img": "crunch_up"
+    }
+   ],
+   "segs": [
+    74,
+    75
+   ],
+   "voice": "Three times a week, leg raises, crunches and planks."
+  },
+  {
+   "reps": "each",
+   "segs": [
+    76
+   ],
+   "voice": "Three sets each."
+  },
+  {
+   "card": "three months",
+   "segs": [
+    77
+   ],
+   "voice": "Do this for three months."
+  },
+  {
+   "img": "fat_neutral",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "segs": [
+    78
+   ],
+   "voice": "Look in the mirror."
+  },
+  {
+   "img": "fat_neutral",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.0,
+    0.5,
+    0.48
+   ],
+   "seq": [
+    {
+     "at": 0.3,
+     "img": "base",
+     "hl": "hl_abs"
+    }
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.45
+   },
+   "text": "your abs will show",
+   "segs": [
+    79
+   ],
+   "voice": "Your belly will be flatter. And your abs will start to show."
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.0,
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.1,
+    0.5,
+    0.45
+   ],
+   "text": "your whole body looks complete",
+   "textAt": 0.5,
+   "segs": [
+    80,
+    81
+   ],
+   "voice": "Now, once your belly is flat, there's one thing that makes your whole body look complete."
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.2,
+   "cam": [
+    1.3,
+    0.5,
+    0.4,
+    2.3,
+    0.5,
+    0.27
+   ],
+   "say": "a strong *chest*",
+   "spoken": "A strong chest.",
+   "segs": [
+    82
+   ],
+   "voice": "A strong chest."
+  },
+  {
+   "img": "flex",
+   "x": 0.2,
+   "cam": [
+    0.85,
+    0.5,
+    0.5,
+    0.9,
+    0.5,
+    0.5
+   ],
+   "next": {
+    "img": "thumb_chest",
+    "title": "How Skinny Guys Build a Chest (3 Parts Most Ignore)"
+   },
+   "segs": [
+    83,
+    84
+   ],
+   "voice": "So watch this video next. It shows you the three parts of your chest, and how to build each one, at the gym or at home."
+  },
+  {
+   "subscribe": true,
+   "clickAt": 0.25,
+   "text": "new videos every Tuesday & Saturday",
+   "hold": 1.5,
+   "segs": [
+    85,
+    86
+   ],
+   "voice": "And subscribe to Linework Fit. A new video comes out every Tuesday and Saturday."
+  }
+ ]
+}

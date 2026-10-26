@@ -1,0 +1,63 @@
+{
+ "font": "Righteous.ttf",
+ "palette": {
+  "c1": [
+   255,
+   215,
+   60
+  ],
+  "c2": [
+   205,
+   150,
+   255
+  ],
+  "dark": [
+   35,
+   15,
+   70
+  ],
+  "acc": [
+   150,
+   60,
+   230
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "iris",
+ "sfx": "zoom1",
+ "music_seed": 104,
+ "bpm": 96,
+ "key": 55,
+ "code": "alp156872",
+ "code_text": "Search code alp156872 for 100€ Coupon Bundle in TEMU app",
+ "amount": "100€",
+ "disclaimer": "*Conditions apply. See TEMU app for details.",
+ "save_slides": "out/slides/v4",
+ "slides": [
+  {
+   "img": "img/v4_1.jpg",
+   "title": "READY|FOR|LIFTOFF",
+   "layout": "D"
+  },
+  {
+   "img": "img/v4_2.jpg",
+   "title": "DREAM|BEYOND|THE STARS",
+   "layout": "B"
+  },
+  {
+   "img": "img/v4_3.jpg",
+   "title": "CATCH|A STAR",
+   "layout": "A"
+  },
+  {
+   "img": "img/v4_4.jpg",
+   "title": "EXPLORE|NEW WORLDS",
+   "layout": "C"
+  },
+  {
+   "img": "img/v4_5.jpg",
+   "title": "HOMEMADE ROCKET,|BIG DREAMS",
+   "layout": "D"
+  }
+ ]
+}

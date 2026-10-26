@@ -1,0 +1,54 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "WINTER CAR FINDS",
+ "palette": {
+  "c1": [
+   230,
+   246,
+   255
+  ],
+  "c2": [
+   90,
+   200,
+   255
+  ],
+  "dark": [
+   12,
+   28,
+   58
+  ],
+  "acc": [
+   255,
+   84,
+   60
+  ]
+ },
+ "slide_dur": 2.8,
+ "music_seed": 511,
+ "bpm": 116,
+ "key": 52,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "V4/V4_1.jpg",
+   "label": "ICE SCRAPER + BRUSH"
+  },
+  {
+   "img": "V4/V4_2.jpg",
+   "label": "WINDSHIELD FROST COVER"
+  },
+  {
+   "img": "V4/V4_3.jpg",
+   "comment": true
+  },
+  {
+   "img": "V4/V4_4.jpg",
+   "label": "TRUNK ORGANIZER"
+  },
+  {
+   "img": "V4/V4_5.jpg",
+   "label": "SEAT CUSHION + PHONE HOLDER"
+  }
+ ]
+}

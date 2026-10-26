@@ -1,0 +1,1305 @@
+{
+ "png": "png_kai",
+ "scenes": [
+  {
+   "img": "skinny",
+   "enter": "up",
+   "cam": [
+    1.5,
+    0.5,
+    0.38,
+    1.95,
+    0.5,
+    0.32
+   ],
+   "say": "your chest looks *flat*",
+   "spoken": "If your chest looks flat no matter how much you train, this video is for you.",
+   "sayFrom": 1,
+   "segs": [
+    0,
+    1
+   ],
+   "voice": "If your chest looks flat no matter how much you train, this video is for you."
+  },
+  {
+   "card": "here's the thing",
+   "segs": [
+    2
+   ],
+   "voice": "Here's the thing."
+  },
+  {
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.15,
+    0.5,
+    0.45,
+    1.2,
+    0.5,
+    0.45
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "not one big muscle",
+   "segs": [
+    3
+   ],
+   "voice": "Your chest isn't one big muscle you can just push harder."
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.3,
+   "cam": [
+    1.6,
+    0.5,
+    0.3,
+    2.0,
+    0.5,
+    0.28
+   ],
+   "say": "three *parts*",
+   "spoken": "It has three parts.",
+   "segs": [
+    4
+   ],
+   "voice": "It has three parts."
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.15,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.3,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0.25,
+     "len": 300
+    }
+   ],
+   "segs": [
+    5
+   ],
+   "voice": "The upper chest, which gives you that full, lifted look."
+  },
+  {
+   "img": "base",
+   "hl": "hl_um",
+   "hlAt": 0.1,
+   "cam": [
+    2.3,
+    0.5,
+    0.27,
+    2.4,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Middle",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0.15,
+     "len": 300
+    }
+   ],
+   "segs": [
+    6
+   ],
+   "voice": "The middle chest, which builds thickness and size."
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.1,
+   "cam": [
+    2.4,
+    0.5,
+    0.27,
+    2.5,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Middle",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Lower",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.282,
+     "style": "dash",
+     "at": 0.15,
+     "len": 300
+    }
+   ],
+   "segs": [
+    7,
+    8
+   ],
+   "voice": "And the lower chest, which draws that sharp line at the bottom."
+  },
+  {
+   "img": "skinny2",
+   "cam": [
+    1.5,
+    0.5,
+    0.38,
+    1.7,
+    0.5,
+    0.34
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.45
+    }
+   ],
+   "segs": [
+    9
+   ],
+   "voice": "Miss one of them, and your chest will never look complete."
+  },
+  {
+   "img": "flex",
+   "enter": "up",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.45
+   ],
+   "segs": [
+    10
+   ],
+   "voice": "So let's train all three."
+  },
+  {
+   "img": "base",
+   "hl": "hl_low",
+   "hlAt": 0.45,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.28
+   ],
+   "tags": [
+    {
+     "name": "Lower",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.282,
+     "style": "dash",
+     "at": 0.5,
+     "len": 300
+    }
+   ],
+   "segs": [
+    11,
+    12
+   ],
+   "voice": "Let's start at the bottom. The lower chest."
+  },
+  {
+   "img": "skinny_side",
+   "enter": "fade",
+   "cam": [
+    1.3,
+    0.5,
+    0.42,
+    1.5,
+    0.5,
+    0.38
+   ],
+   "text": "almost nobody trains it",
+   "textAt": 0.3,
+   "segs": [
+    13
+   ],
+   "voice": "Almost nobody trains it on purpose."
+  },
+  {
+   "img": "skinny_side",
+   "cam": [
+    1.9,
+    0.53,
+    0.3,
+    2.3,
+    0.54,
+    0.3
+   ],
+   "x": 0.5,
+   "say": "no clear *edge*",
+   "spoken": "And without it, your chest just fades out with no clear edge.",
+   "sayY": 0.12,
+   "segs": [
+    14,
+    15
+   ],
+   "voice": "And without it, your chest just fades out with no clear edge."
+  },
+  {
+   "medal": "p_bars",
+   "name": "Dips",
+   "medalZoom": 1.15,
+   "segs": [
+    16
+   ],
+   "voice": "The best exercise for it is dips."
+  },
+  {
+   "img": "p_bars",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.15,
+    0.5,
+    0.62
+   ],
+   "segs": [
+    17
+   ],
+   "voice": "Find two parallel bars and grab them firmly."
+  },
+  {
+   "img": "dip_up",
+   "enter": "up",
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.2,
+    0.55,
+    0.42
+   ],
+   "text": "lean forward",
+   "textAt": 0.4,
+   "segs": [
+    18
+   ],
+   "voice": "Lean your upper body slightly forward."
+  },
+  {
+   "img": "dip_up",
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "chest instead of arms",
+   "segs": [
+    19
+   ],
+   "voice": "That small lean is what puts the work on your chest instead of your arms."
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 1.3,
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.12,
+    0.5,
+    0.5
+   ],
+   "segs": [
+    20
+   ],
+   "voice": "Bend your elbows and lower yourself slowly."
+  },
+  {
+   "img": "dip_down",
+   "cam": [
+    1.4,
+    0.55,
+    0.38,
+    1.5,
+    0.55,
+    0.38
+   ],
+   "text": "shoulders = elbows",
+   "textAt": 0.3,
+   "segs": [
+    21
+   ],
+   "voice": "Stop when your shoulders reach the height of your elbows."
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 0.7,
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "icons": [
+    {
+     "kind": "v",
+     "at": 0.75
+    }
+   ],
+   "segs": [
+    22,
+    23
+   ],
+   "voice": "Then push back up. That's one rep."
+  },
+  {
+   "reps": "8-12 reps",
+   "segs": [
+    24
+   ],
+   "voice": "Do three sets of eight to twelve."
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 1.6,
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "text": "slower · or add weight",
+   "textAt": 0.45,
+   "segs": [
+    25,
+    26
+   ],
+   "voice": "If that feels easy, slow the reps down or add weight."
+  },
+  {
+   "card": "no bars at home?",
+   "segs": [
+    27
+   ],
+   "voice": "No bars at home?"
+  },
+  {
+   "medal": "p_chair",
+   "name": "Incline Push-Ups",
+   "medalZoom": 1.2,
+   "segs": [
+    28
+   ],
+   "voice": "Do incline push-ups."
+  },
+  {
+   "img": "inc_push_up",
+   "enter": "right",
+   "cam": [
+    1.15,
+    0.5,
+    0.6,
+    1.25,
+    0.5,
+    0.58
+   ],
+   "segs": [
+    29
+   ],
+   "voice": "Put your hands on a chair or a bed, shoulder-width apart."
+  },
+  {
+   "img": "inc_push_up",
+   "cam": [
+    1.25,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "line": [
+    0.3,
+    0.34,
+    0.88,
+    0.8
+   ],
+   "lineAt": 0.2,
+   "text": "one straight line",
+   "textY": 0.18,
+   "textX": 0.5,
+   "segs": [
+    30
+   ],
+   "voice": "Squeeze your core and your glutes so your body forms one straight line."
+  },
+  {
+   "img": "inc_push_up",
+   "alt": "inc_push_down",
+   "period": 1.5,
+   "cam": [
+    1.25,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "text": "2-3s",
+   "textAt": 0.3,
+   "textY": 0.2,
+   "textX": 0.5,
+   "segs": [
+    31
+   ],
+   "voice": "Lower yourself over two to three seconds."
+  },
+  {
+   "img": "inc_push_up",
+   "alt": "inc_push_down",
+   "period": 0.8,
+   "cam": [
+    1.3,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "segs": [
+    32
+   ],
+   "voice": "Then push back up."
+  },
+  {
+   "reps": "max reps",
+   "segs": [
+    33,
+    34
+   ],
+   "voice": "Three sets, as many reps as you can."
+  },
+  {
+   "img": "base",
+   "hl": "hl_mid",
+   "hlAt": 0.3,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Middle",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0.4,
+     "len": 300
+    }
+   ],
+   "segs": [
+    35,
+    36
+   ],
+   "voice": "Next, the middle chest."
+  },
+  {
+   "card": "the foundation",
+   "segs": [
+    37
+   ],
+   "voice": "This is your foundation."
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Dumbbell Bench Press",
+   "medalZoom": 1.05,
+   "segs": [
+    38
+   ],
+   "voice": "And the king here is the dumbbell bench press."
+  },
+  {
+   "img": "bench_up",
+   "enter": "left",
+   "cam": [
+    1.1,
+    0.5,
+    0.58,
+    1.2,
+    0.5,
+    0.56
+   ],
+   "segs": [
+    39
+   ],
+   "voice": "Lie down on a flat bench with a dumbbell in each hand."
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.2,
+    0.5,
+    0.56,
+    1.5,
+    0.55,
+    0.5
+   ],
+   "text": "45°",
+   "textAt": 0.35,
+   "textX": 0.5,
+   "textY": 0.18,
+   "segs": [
+    40
+   ],
+   "voice": "Keep your elbows at about forty-five degrees from your body."
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.5,
+    0.55,
+    0.5,
+    1.6,
+    0.55,
+    0.5
+   ],
+   "text": "too wide → shoulders",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.18,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "segs": [
+    41
+   ],
+   "voice": "Too wide, and your shoulders take the stress."
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.6,
+    0.55,
+    0.5,
+    1.7,
+    0.55,
+    0.5
+   ],
+   "text": "too close → triceps",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.18,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "segs": [
+    42
+   ],
+   "voice": "Too close, and your triceps do the work."
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 0.9,
+   "cam": [
+    1.15,
+    0.5,
+    0.56,
+    1.25,
+    0.5,
+    0.55
+   ],
+   "segs": [
+    43,
+    44
+   ],
+   "voice": "Plant your feet, push your chest up, and press the weights over your chest."
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 1.7,
+   "cam": [
+    1.25,
+    0.5,
+    0.55,
+    1.35,
+    0.52,
+    0.53
+   ],
+   "say": "deep *stretch*",
+   "spoken": "Then lower them slowly, until you feel a deep stretch.",
+   "sayY": 0.15,
+   "segs": [
+    45,
+    46
+   ],
+   "voice": "Then lower them slowly, until you feel a deep stretch."
+  },
+  {
+   "reps": "8-12 reps",
+   "segs": [
+    47
+   ],
+   "voice": "Three sets of eight to twelve."
+  },
+  {
+   "medal": "p_books",
+   "name": "Deep Push-Ups",
+   "medalZoom": 1.25,
+   "segs": [
+    48
+   ],
+   "voice": "At home, do deep push-ups."
+  },
+  {
+   "img": "p_books",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.1,
+    0.5,
+    0.6
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "deep_up"
+    }
+   ],
+   "segs": [
+    49
+   ],
+   "voice": "Put your hands on two stacks of books, or on push-up handles."
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 1.4,
+   "cam": [
+    1.3,
+    0.55,
+    0.55,
+    1.45,
+    0.58,
+    0.55
+   ],
+   "segs": [
+    50
+   ],
+   "voice": "This lets your chest go lower than the floor would allow."
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 1.0,
+   "cam": [
+    1.45,
+    0.58,
+    0.55,
+    1.5,
+    0.58,
+    0.55
+   ],
+   "say": "more stretch, more *growth*",
+   "spoken": "More stretch means more growth.",
+   "sayY": 0.15,
+   "segs": [
+    51
+   ],
+   "voice": "More stretch means more growth."
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 0.7,
+   "cam": [
+    1.3,
+    0.55,
+    0.55,
+    1.3,
+    0.55,
+    0.55
+   ],
+   "segs": [
+    52,
+    53
+   ],
+   "voice": "Go all the way down, then all the way up."
+  },
+  {
+   "reps": "close to failure",
+   "segs": [
+    54,
+    55
+   ],
+   "voice": "Three sets, close to failure."
+  },
+  {
+   "card": "the most important one",
+   "segs": [
+    56
+   ],
+   "voice": "And finally, the most important one for looks."
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.26
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0.3,
+     "len": 300
+    }
+   ],
+   "segs": [
+    57
+   ],
+   "voice": "The upper chest."
+  },
+  {
+   "img": "skinny2",
+   "cam": [
+    1.1,
+    0.5,
+    0.45,
+    1.25,
+    0.5,
+    0.4
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "flex"
+    }
+   ],
+   "say": "full *chest*",
+   "spoken": "This is what makes your chest look full in a t-shirt.",
+   "segs": [
+    58
+   ],
+   "voice": "This is what makes your chest look full in a t-shirt."
+  },
+  {
+   "medal": "p_bench",
+   "name": "Incline Dumbbell Press",
+   "medalZoom": 1.1,
+   "segs": [
+    59
+   ],
+   "voice": "Use the incline dumbbell press."
+  },
+  {
+   "img": "p_bench",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.1,
+    0.45,
+    0.62
+   ],
+   "text": "30°",
+   "textAt": 0.35,
+   "textX": 0.5,
+   "textY": 0.2,
+   "segs": [
+    60
+   ],
+   "voice": "Set the bench to about thirty degrees."
+  },
+  {
+   "img": "p_bench",
+   "cam": [
+    1.1,
+    0.45,
+    0.62,
+    1.15,
+    0.45,
+    0.62
+   ],
+   "text": "not higher",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.2,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.45
+    }
+   ],
+   "segs": [
+    61
+   ],
+   "voice": "Not higher, or your shoulders take over."
+  },
+  {
+   "img": "incl_up",
+   "alt": "incl_down",
+   "period": 1.0,
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "segs": [
+    62,
+    63
+   ],
+   "voice": "Press up, then lower slowly."
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.1,
+   "cam": [
+    2.3,
+    0.5,
+    0.27,
+    2.6,
+    0.5,
+    0.26
+   ],
+   "say": "top of your chest *burning*",
+   "spoken": "If you feel the top of your chest burning, you're doing it right.",
+   "sayY": 0.12,
+   "segs": [
+    64,
+    65
+   ],
+   "voice": "If you feel the top of your chest burning, you're doing it right."
+  },
+  {
+   "reps": "8-12 reps",
+   "segs": [
+    66
+   ],
+   "voice": "Three sets of eight to twelve."
+  },
+  {
+   "card": "no equipment?",
+   "segs": [
+    67
+   ],
+   "voice": "No equipment?"
+  },
+  {
+   "medal": "p_chair",
+   "name": "Decline Push-Ups",
+   "medalZoom": 1.2,
+   "segs": [
+    68
+   ],
+   "voice": "Decline push-ups."
+  },
+  {
+   "img": "dec_push_up",
+   "enter": "right",
+   "cam": [
+    1.2,
+    0.5,
+    0.55,
+    1.3,
+    0.5,
+    0.55
+   ],
+   "segs": [
+    69
+   ],
+   "voice": "Put your feet on a chair and your hands on the floor."
+  },
+  {
+   "img": "dec_push_up",
+   "alt": "dec_push_down",
+   "period": 1.2,
+   "cam": [
+    1.3,
+    0.5,
+    0.55,
+    1.35,
+    0.5,
+    0.55
+   ],
+   "segs": [
+    70
+   ],
+   "voice": "Now your body angle shifts the work to your upper chest."
+  },
+  {
+   "reps": "close to failure",
+   "segs": [
+    71,
+    72
+   ],
+   "voice": "Three sets, close to failure."
+  },
+  {
+   "card": "3 mistakes that kill your progress",
+   "segs": [
+    73,
+    74
+   ],
+   "voice": "Now, three mistakes that will kill your progress."
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 0.35,
+   "cam": [
+    1.2,
+    0.5,
+    0.56,
+    1.25,
+    0.5,
+    0.56
+   ],
+   "label": "#1. Bouncing",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "control every rep",
+   "textAt": 0.55,
+   "textX": 0.5,
+   "textY": 0.18,
+   "segs": [
+    75,
+    76,
+    77
+   ],
+   "voice": "One. Bouncing the weight. Control every rep, especially on the way down."
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.4,
+    0.55,
+    0.5,
+    1.5,
+    0.55,
+    0.5
+   ],
+   "label": "#2. Flaring elbows",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "keep them at 45°",
+   "textAt": 0.55,
+   "textX": 0.5,
+   "textY": 0.18,
+   "segs": [
+    78,
+    79,
+    80
+   ],
+   "voice": "Two. Flaring your elbows. Keep them at forty-five degrees to protect your shoulders."
+  },
+  {
+   "img": "incl_up",
+   "alt": "incl_down",
+   "period": 1.0,
+   "cam": [
+    1.15,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.5
+   ],
+   "label": "#3. Same reps forever",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "+1 rep every week",
+   "textAt": 0.6,
+   "textX": 0.79,
+   "segs": [
+    81,
+    82,
+    83,
+    84
+   ],
+   "voice": "Three. Doing the same reps forever. Every week, add one rep, or a little weight."
+  },
+  {
+   "card": "your plan",
+   "segs": [
+    85
+   ],
+   "voice": "Here's your plan."
+  },
+  {
+   "img": "flex",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "say": "*twice* a week",
+   "spoken": "Train your chest twice a week.",
+   "segs": [
+    86
+   ],
+   "voice": "Train your chest twice a week."
+  },
+  {
+   "img": "dip_up",
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "inc_push_up"
+    }
+   ],
+   "segs": [
+    87
+   ],
+   "voice": "Dips or incline push-ups."
+  },
+  {
+   "img": "bench_up",
+   "cam": [
+    1.15,
+    0.5,
+    0.56,
+    1.2,
+    0.5,
+    0.56
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "deep_up"
+    }
+   ],
+   "segs": [
+    88
+   ],
+   "voice": "Dumbbell press or deep push-ups."
+  },
+  {
+   "img": "incl_up",
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "dec_push_up"
+    }
+   ],
+   "segs": [
+    89
+   ],
+   "voice": "Incline press or decline push-ups."
+  },
+  {
+   "reps": "each",
+   "segs": [
+    90
+   ],
+   "voice": "Three sets each."
+  },
+  {
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.2,
+    0.5,
+    0.42,
+    1.4,
+    0.5,
+    0.36
+   ],
+   "text": "one thing…",
+   "textAt": 0.5,
+   "segs": [
+    91
+   ],
+   "voice": "But none of this works without one thing."
+  },
+  {
+   "card": "consistency.",
+   "segs": [
+    92
+   ],
+   "voice": "Consistency."
+  },
+  {
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.4
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "base"
+    }
+   ],
+   "say": "months of *showing up*",
+   "spoken": "Months of showing up.",
+   "segs": [
+    93,
+    94
+   ],
+   "voice": "Not one perfect week. Months of showing up."
+  },
+  {
+   "img": "flex",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.05,
+    0.5,
+    0.48
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "your chest will grow",
+   "segs": [
+    95,
+    96
+   ],
+   "voice": "Do that, and your chest will grow."
+  },
+  {
+   "img": "flex",
+   "cam": [
+    1.2,
+    0.5,
+    0.42,
+    1.25,
+    0.5,
+    0.42
+   ],
+   "text": "subscribe →",
+   "textAt": 0.4,
+   "hold": 1.2,
+   "segs": [
+    97
+   ],
+   "voice": "Subscribe to Linework Fit, and I'll see you in the next one."
+  }
+ ]
+}

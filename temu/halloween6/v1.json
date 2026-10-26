@@ -1,0 +1,28 @@
+{
+ "template": "vampire",
+ "slides": [
+  {
+   "img": "img/v1_1.jpg",
+   "title": "Dinner with a bite"
+  },
+  {
+   "img": "img/v1_2.jpg",
+   "title": "Raise a glass to spooky season"
+  },
+  {
+   "img": "img/v1_3.jpg",
+   "title": "Date night, vampire style"
+  },
+  {
+   "img": "img/v1_4.jpg",
+   "title": "Your Halloween treat is here"
+  }
+ ],
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "code": "alm148018",
+ "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "music_seed": 11,
+ "bpm": 96,
+ "key": 50,
+ "slide_dur": 3.6
+}

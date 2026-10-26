@@ -1,0 +1,71 @@
+{
+ "template": "neon",
+ "slides": [
+  {
+   "img": "img/v4_1.jpg",
+   "title": "Bone to party"
+  },
+  {
+   "img": "img/v4_5.jpg",
+   "title": "DJ Skull on the decks"
+  },
+  {
+   "img": "img/v4_4.jpg",
+   "title": "Grab your treat"
+  },
+  {
+   "img": "img/v4_2.jpg",
+   "title": "No body, all fun"
+  },
+  {
+   "img": "img/v4_6.jpg",
+   "title": "Carving with my ghouls"
+  },
+  {
+   "img": "img/v4_3.jpg",
+   "title": "Skeleton crew forever"
+  }
+ ],
+ "code_text": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+ "code": "alm148018",
+ "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+ "music_seed": 47,
+ "bpm": 126,
+ "key": 52,
+ "slide_dur": 2.6,
+ "promo_slide": 2,
+ "code_y": [
+  1520,
+  140,
+  1520,
+  140,
+  1520,
+  1520
+ ],
+ "logo_path": [
+  [
+   0.5,
+   0.06
+  ],
+  [
+   0.9,
+   0.42
+  ],
+  [
+   0.12,
+   0.06
+  ],
+  [
+   0.1,
+   0.42
+  ],
+  [
+   0.88,
+   0.06
+  ],
+  [
+   0.9,
+   0.42
+  ]
+ ]
+}

@@ -1,0 +1,15 @@
+=== SCRIPT V2 – hook « Stell dir vor » (~40 s, allemand) ===
+Stell dir vor, du fährst brav 100 – und dein Tacho zeigt dir 114 an. Kein Witz, das ist sogar erlaubt.
+Dein Tacho misst deine Geschwindigkeit nämlich gar nicht direkt. Er zählt nur, wie oft sich deine Reifen drehen, und rechnet das mit einem festen Reifenumfang hoch.
+Aber der Umfang ändert sich ständig: weniger Luft, abgefahrenes Profil, andere Reifen – und schon stimmt die Rechnung nicht mehr.
+Und ein Tacho darf niemals zu wenig anzeigen. Erlaubt sind bis zu zehn Prozent plus vier km/h obendrauf. Genau so kommst du von 100 auf 114.
+Dein Handy rechnet dagegen mit GPS, also mit deiner echten Position. Deshalb ist Google Maps meistens genauer.
+Sag's weiter – sagt dir ja sonst keiner.
+
+=== TRADUCTION ===
+Imagine : tu roules sagement à 100… et ton compteur t'affiche 114. Sans blague, c'est même autorisé.
+En fait, ton compteur ne mesure pas directement ta vitesse. Il compte seulement combien de fois tes roues tournent, et calcule avec une taille de pneu fixe.
+Mais cette taille change tout le temps : moins d'air, pneu usé, autres pneus… et le calcul n'est déjà plus juste.
+Et un compteur n'a jamais le droit d'afficher trop peu. On lui autorise jusqu'à 10 % plus 4 km/h en plus. C'est exactement comme ça qu'on passe de 100 à 114.
+Ton téléphone, lui, calcule avec le GPS, donc avec ta vraie position. C'est pour ça que Google Maps est le plus souvent plus précis.
+Partage-le, sinon personne ne te le dira.

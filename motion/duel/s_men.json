@@ -1,0 +1,213 @@
+{
+ "pseudo": "@exxtory",
+ "bg": "fond",
+ "style": "pct",
+ "hookImg": "x_m_hook",
+ "banner": "WHAT MEN THINK 🧠",
+ "dur": 28.9,
+ "lines": [
+  {
+   "text": "What do men *really* think?",
+   "role": "hook",
+   "t0": 0.15,
+   "t1": 1.79,
+   "scene": 1
+  },
+  {
+   "text": "Number four will *shock* you.",
+   "role": "hook",
+   "t0": 1.99,
+   "t1": 3.67,
+   "scene": 1
+  },
+  {
+   "text": "Should the man always *pay* on the first date?",
+   "role": "ask",
+   "img": "x_m1",
+   "src": "Source: NerdWallet survey, 2016",
+   "t0": 3.87,
+   "t1": 6.08,
+   "scene": 2
+  },
+  {
+   "text": "*82%* of men said…",
+   "role": "reveal",
+   "value": 82,
+   "label": "of men said YES",
+   "t0": 6.58,
+   "t1": 8.26,
+   "scene": 2
+  },
+  {
+   "text": "YES!",
+   "role": "punch",
+   "t0": 9.01,
+   "t1": 9.29,
+   "scene": 2
+  },
+  {
+   "text": "Would men only date *shorter* women?",
+   "role": "ask",
+   "img": "x_m2",
+   "src": "Source: Rice University study, 2014",
+   "t0": 9.84,
+   "t1": 11.72,
+   "scene": 3
+  },
+  {
+   "text": "Only *37%* said yes.",
+   "role": "reveal",
+   "value": 37,
+   "label": "said YES",
+   "punchAtEnd": true,
+   "t0": 12.22,
+   "t1": 14.12,
+   "scene": 3
+  },
+  {
+   "text": "Long hair or *short* hair?",
+   "role": "ask",
+   "img": "x_m3",
+   "src": "Source: Daily Mail poll of 3,000 men, 2008",
+   "t0": 14.87,
+   "t1": 16.37,
+   "scene": 4
+  },
+  {
+   "text": "Long, wavy hair won… with *43%.*",
+   "role": "reveal",
+   "value": 43,
+   "label": "picked LONG & WAVY",
+   "punchAtEnd": true,
+   "t0": 16.87,
+   "t1": 20.07,
+   "scene": 4
+  },
+  {
+   "text": "Does a girl with a *dog* look more attractive?",
+   "role": "ask",
+   "img": "x_m4",
+   "src": "Source: YouGov US poll, 2019",
+   "t0": 20.82,
+   "t1": 22.83,
+   "scene": 5
+  },
+  {
+   "text": "*46%* of men said… *yes.*",
+   "role": "reveal",
+   "value": 46,
+   "label": "of men said YES",
+   "punchAtEnd": true,
+   "t0": 23.33,
+   "t1": 25.64,
+   "scene": 5
+  },
+  {
+   "text": "Did you guess *right?*",
+   "role": "end",
+   "t0": 26.39,
+   "t1": 27.13,
+   "scene": 6
+  },
+  {
+   "text": "Comment your *score.*",
+   "role": "end",
+   "t0": 27.33,
+   "t1": 28.2,
+   "scene": 6
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.09,
+    1.73
+   ],
+   "at": 0.15
+  },
+  {
+   "src": [
+    2.17,
+    3.85
+   ],
+   "at": 1.99
+  },
+  {
+   "src": [
+    4.53,
+    6.74
+   ],
+   "at": 3.87
+  },
+  {
+   "src": [
+    7.25,
+    8.93
+   ],
+   "at": 6.58
+  },
+  {
+   "src": [
+    9.32,
+    9.6
+   ],
+   "at": 9.01
+  },
+  {
+   "src": [
+    10.36,
+    12.24
+   ],
+   "at": 9.84
+  },
+  {
+   "src": [
+    12.77,
+    14.67
+   ],
+   "at": 12.22
+  },
+  {
+   "src": [
+    15.39,
+    16.89
+   ],
+   "at": 14.87
+  },
+  {
+   "src": [
+    17.34,
+    20.54
+   ],
+   "at": 16.87
+  },
+  {
+   "src": [
+    21.12,
+    23.13
+   ],
+   "at": 20.82
+  },
+  {
+   "src": [
+    23.77,
+    26.08
+   ],
+   "at": 23.33
+  },
+  {
+   "src": [
+    26.71,
+    27.45
+   ],
+   "at": 26.39
+  },
+  {
+   "src": [
+    27.86,
+    28.73
+   ],
+   "at": 27.33
+  }
+ ]
+}

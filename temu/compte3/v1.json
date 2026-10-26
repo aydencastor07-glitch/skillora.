@@ -1,0 +1,64 @@
+{
+ "font": "BebasNeue-Regular.ttf",
+ "palette": {
+  "c1": [
+   255,
+   236,
+   200
+  ],
+  "c2": [
+   255,
+   122,
+   20
+  ],
+  "dark": [
+   25,
+   40,
+   35
+  ],
+  "acc": [
+   255,
+   110,
+   10
+  ]
+ },
+ "slide_dur": 2.6,
+ "transition": "push",
+ "sfx": "whoosh",
+ "music_seed": 71,
+ "bpm": 104,
+ "key": 57,
+ "code": "alp156872",
+ "code_text": "Search code alp156872 for 100€ Coupon Bundle in TEMU app",
+ "amount": "100€",
+ "disclaimer": "*Conditions apply. See TEMU app for details.",
+ "save_slides": "out/slides/v1",
+ "slides": [
+  {
+   "img": "img/v1_1.jpg",
+   "title": "COZY|SEASON|STARTS|HERE",
+   "layout": "A"
+  },
+  {
+   "img": "img/v1_2.jpg",
+   "title": "JUMP INTO|AUTUMN",
+   "layout": "D"
+  },
+  {
+   "img": "img/v1_3.jpg",
+   "title": "SLOW|SUNDAYS,|WARM|MUGS",
+   "layout": "C"
+  },
+  {
+   "img": "img/v1_4.jpg",
+   "title": "LET YOUR|DREAMS|FLY HIGH",
+   "layout": "A"
+  },
+  {
+   "img": "img/v1_5.jpg",
+   "title": "LITTLE|LIGHTS,|BIG MAGIC",
+   "layout": "B"
+  }
+ ],
+ "code_font": "Anton-Regular.ttf"
+}

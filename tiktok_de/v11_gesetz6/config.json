@@ -1,0 +1,106 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_seneca.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 6",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.97,
+  "dur": 0.7
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "segments": [
+  [
+   "Gesetz Nr. 6:",
+   0.05,
+   1.18
+  ],
+  [
+   "Hör auf, dir Sorgen zu machen.",
+   1.65,
+   3.27
+  ],
+  [
+   "Es ist zwei Uhr nachts.",
+   3.99,
+   5.3
+  ],
+  [
+   "Du liegst im Bett.",
+   5.71,
+   6.48
+  ],
+  [
+   "Du denkst an das Gespräch morgen.",
+   6.99,
+   8.47
+  ],
+  [
+   "An die Rechnung.",
+   8.91,
+   9.57
+  ],
+  [
+   "An die Nachricht, die nicht beantwortet wurde.",
+   10.21,
+   12.12
+  ],
+  [
+   "Dein Kopf spielt jedes schlimme Szenario durch.",
+   12.74,
+   15.24
+  ],
+  [
+   "Und am Ende passiert …",
+   15.7,
+   16.72
+  ],
+  [
+   "fast nichts davon.",
+   17.13,
+   18.14
+  ],
+  [
+   "Seneca sagte:",
+   19.02,
+   19.92
+  ],
+  [
+   "„Wir leiden öfter in der Vorstellung als in der Wirklichkeit.“",
+   20.42,
+   23.11
+  ]
+ ],
+ "text": [
+  "Gesetz Nr. 6:",
+  "Hör auf, dir Sorgen zu machen.",
+  "Es ist zwei Uhr nachts.",
+  "Du liegst im Bett.",
+  "Du denkst an das Gespräch morgen.",
+  "An die Rechnung.",
+  "An die Nachricht, die nicht beantwortet wurde.",
+  "Dein Kopf spielt jedes schlimme Szenario durch.",
+  "Und am Ende passiert …",
+  "fast nichts davon.",
+  "Seneca sagte:",
+  "„Wir leiden öfter in der Vorstellung als in der Wirklichkeit.“"
+ ],
+ "cta": {
+  "t": 24.31,
+  "click": 1.5,
+  "avatar": "avatar_profil.png",
+  "x": 540,
+  "y": 930,
+  "r": 165,
+  "hide_text": true,
+  "swap": true
+ },
+ "hot": "^(sorgen|nachts|bett|gespräch|rechnung|nachricht|kopf|szenario|nichts|seneca|gesetz)$",
+ "quote_poem": true,
+ "quote_align": "words.json",
+ "tail": 2.6
+}

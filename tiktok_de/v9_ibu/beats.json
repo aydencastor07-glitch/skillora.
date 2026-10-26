@@ -1,0 +1,44 @@
+[
+ {
+  "name": "trash",
+  "t": 5.255,
+  "dur": 0.0,
+  "after": "umsonst.",
+  "niveau_dB": -39.9
+ },
+ {
+  "name": "impact",
+  "t": 8.205,
+  "dur": 0.0,
+  "after": "Zeh.",
+  "niveau_dB": -38.6
+ },
+ {
+  "name": "heart",
+  "t": 16.845,
+  "dur": 0.0,
+  "after": "Herzens.",
+  "niveau_dB": -180.0
+ },
+ {
+  "name": "suspense",
+  "t": 22.425,
+  "dur": 0.0,
+  "after": "Haken:",
+  "niveau_dB": -34.2
+ },
+ {
+  "name": "ceiling",
+  "t": 28.385,
+  "dur": 0.0,
+  "after": "Ceiling-Effekt.",
+  "niveau_dB": -50.5
+ },
+ {
+  "name": "reveal",
+  "t": 46.895,
+  "dur": 0.0,
+  "after": "weiß:",
+  "niveau_dB": -51.4
+ }
+]

@@ -1,0 +1,68 @@
+{
+ "font": "ArchivoBlack-Regular.ttf",
+ "palette": {
+  "c1": [
+   40,
+   230,
+   255
+  ],
+  "c2": [
+   255,
+   140,
+   0
+  ],
+  "dark": [
+   12,
+   10,
+   40
+  ],
+  "acc": [
+   255,
+   120,
+   0
+  ]
+ },
+ "slide_dur": 2.3,
+ "transition": "glitch",
+ "sfx": "glitch",
+ "music_seed": 82,
+ "bpm": 128,
+ "key": 50,
+ "code": "alp156872",
+ "code_text": "Search code alp156872 for 100€ Coupon Bundle in TEMU app",
+ "amount": "100€",
+ "disclaimer": "*Conditions apply. See TEMU app for details.",
+ "save_slides": "out/slides/v2",
+ "slides": [
+  {
+   "img": "img/v2_1.jpg",
+   "title": "THE FUTURE|JUST|ARRIVED",
+   "layout": "B"
+  },
+  {
+   "img": "img/v2_2.jpg",
+   "title": "LEVEL UP|YOUR WORLD",
+   "layout": "C"
+  },
+  {
+   "img": "img/v2_3.jpg",
+   "title": "RIDE|THE NEON",
+   "layout": "D"
+  },
+  {
+   "img": "img/v2_4.jpg",
+   "title": "SMART FINDS,|CUTE VIBES",
+   "layout": "B"
+  },
+  {
+   "img": "img/v2_5.jpg",
+   "title": "DELIVERED|FROM THE SKY",
+   "layout": "A"
+  },
+  {
+   "img": "img/v2_6.jpg",
+   "title": "GAME ON,|SQUAD",
+   "layout": "C"
+  }
+ ]
+}

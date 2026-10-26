@@ -3,14 +3,38 @@
     {
       "source": "/(.*)\\.html",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     },
     {
       "source": "/",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/:path((?!gesetze/).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "gesetze.skillora.me"
+        }
+      ],
+      "destination": "/gesetze/",
+      "permanent": false
+    },
+    {
+      "source": "/gesetze",
+      "destination": "/gesetze/",
+      "permanent": true
     }
   ]
 }

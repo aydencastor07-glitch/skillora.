@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Das Gesetzbuch des Geistes – 21 Gesetze, die dein Leben formen</title>
+<meta name="description" content="21 Gesetze der größten Denker – Seneca, Marc Aurel, Epiktet, Nietzsche, Machiavelli. Eins pro Tag, jedes auf einer Seite, mit Übung. E-Book (PDF) von @magniizz.">
+<meta property="og:title" content="Das Gesetzbuch des Geistes">
+<meta property="og:description" content="21 Gesetze, die dein Leben formen – von @magniizz. Sofortiger Download als PDF.">
+<meta property="og:image" content="og.jpg">
+<meta name="theme-color" content="#17140f">
+<style>
+@font-face { font-family: Cinzel; src: url(fonts/Cinzel-500.ttf); font-weight: 500; font-display: swap; }
+@font-face { font-family: Cinzel; src: url(fonts/Cinzel-700.ttf); font-weight: 700; font-display: swap; }
+@font-face { font-family: Garamond; src: url(fonts/EBGaramond-400.ttf); font-weight: 400; font-display: swap; }
+@font-face { font-family: Garamond; src: url(fonts/EBGaramond-600.ttf); font-weight: 600; font-display: swap; }
+@font-face { font-family: Garamond; src: url(fonts/EBGaramond-400i.ttf); font-style: italic; font-display: swap; }
+:root { --dark: #14110d; --dark2: #1d1913; --ivory: #f3ece0; --muted: #b9ab93; --gold: #c9a25a; --gold2: #a8803a; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--dark); color: var(--ivory); font-family: Garamond, Georgia, serif; font-size: 19px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+.k { font-family: Cinzel, serif; font-weight: 700; letter-spacing: .25em; font-size: 12px; color: var(--gold); text-transform: uppercase; }
+h1, h2 { font-family: Cinzel, serif; font-weight: 500; line-height: 1.15; }
+h2 { font-size: clamp(26px, 5vw, 36px); text-align: center; margin-bottom: 10px; }
+.rule { display: flex; align-items: center; gap: 10px; width: 180px; margin: 14px auto 26px; }
+.rule:before, .rule:after { content: ''; flex: 1; height: 1px; background: var(--gold2); }
+.rule i { width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); }
+section { padding: 64px 0; }
+/* ----- accroche ----- */
+.hero { padding: 36px 0 56px; background: radial-gradient(ellipse at 50% 30%, #2b241a 0%, var(--dark) 65%); }
+.hero .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.hero img { width: 100%; height: auto; max-width: 420px; display: block; margin: 0 auto; filter: drop-shadow(0 30px 40px rgba(0,0,0,.6)); animation: float 6s ease-in-out infinite; }
+@keyframes float { 50% { transform: translateY(-10px); } }
+.hero h1 { font-size: clamp(34px, 6.5vw, 54px); color: var(--gold); margin: 12px 0 10px; }
+.hero .sub { font-size: 21px; color: var(--ivory); margin-bottom: 18px; }
+.hero ul { list-style: none; margin: 0 0 24px; } .hero li { padding-left: 26px; position: relative; margin-bottom: 6px; color: #e6dccb; }
+.hero li:before { content: ''; position: absolute; left: 4px; top: 11px; width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); }
+.buy { background: var(--dark2); border: 1px solid #3a3124; border-radius: 14px; padding: 18px; }
+.price { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.price b { font-family: Cinzel, serif; font-size: 34px; color: var(--ivory); white-space: nowrap; } .price span { color: var(--muted); font-size: 16px; }
+.btn { display: block; width: 100%; text-align: center; background: linear-gradient(180deg, #d8b46c, #a8803a); color: #1a140b; font-family: Cinzel, serif; font-weight: 700; letter-spacing: .08em;
+       font-size: 17px; padding: 17px 18px; border-radius: 10px; text-decoration: none; border: 0; cursor: pointer; transition: transform .15s, filter .15s; }
+.btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+.btn.off { filter: grayscale(.8) brightness(.6); cursor: not-allowed; transform: none; }
+.small { font-size: 14px; color: var(--muted); text-align: center; margin-top: 10px; }
+/* ----- douleur ----- */
+.pain { background: var(--ivory); color: #2a2622; }
+.pain p { max-width: 640px; margin: 0 auto 14px; font-size: 21px; text-align: center; }
+.pain .big { font-family: Cinzel, serif; font-size: 22px; color: var(--gold2); margin-top: 22px; }
+/* ----- contenu ----- */
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.card { background: var(--dark2); border: 1px solid #332b20; border-radius: 14px; padding: 20px 18px; }
+.card b { font-family: Cinzel, serif; color: var(--gold); font-size: 30px; display: block; }
+.card h3 { font-family: Cinzel, serif; font-weight: 700; font-size: 15px; letter-spacing: .05em; margin: 4px 0 6px; } .card p { color: #d8ccb7; font-size: 17px; }
+/* ----- aperçu ----- */
+.peek { background: radial-gradient(ellipse at 50% 40%, #2b241a 0%, var(--dark) 70%); }
+.pages { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.pages img { width: min(330px, 86vw); border-radius: 6px; box-shadow: 0 20px 50px rgba(0,0,0,.6); transform: rotate(-2deg); }
+.pages img + img { transform: rotate(2deg); }
+.center { text-align: center; color: var(--muted); max-width: 620px; margin: 0 auto 30px; }
+/* ----- sommaire ----- */
+.laws { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.laws h3 { font-family: Cinzel, serif; color: var(--gold); font-size: 13px; letter-spacing: .15em; margin-bottom: 10px; }
+.laws ol { list-style: none; counter-reset: n var(--start); } .laws li { counter-increment: n; padding: 7px 0; border-bottom: 1px solid #2c251b; font-size: 18px; }
+.laws li:before { content: counter(n); font-family: Cinzel, serif; color: var(--gold2); width: 30px; display: inline-block; font-size: 14px; }
+/* ----- pour qui / faq ----- */
+.who { background: var(--ivory); color: #2a2622; }
+.who ul { list-style: none; max-width: 640px; margin: 0 auto; } .who li { padding: 12px 0 12px 34px; position: relative; border-bottom: 1px solid #ddd1bd; font-size: 20px; }
+.who li:before { content: '✓'; position: absolute; left: 4px; color: var(--gold2); font-weight: 700; }
+details { max-width: 700px; margin: 0 auto 12px; background: var(--dark2); border: 1px solid #332b20; border-radius: 12px; padding: 16px 20px; }
+summary { cursor: pointer; font-family: Cinzel, serif; font-weight: 700; font-size: 15px; letter-spacing: .03em; list-style: none; } summary::-webkit-details-marker { display: none; }
+summary:after { content: '+'; float: right; color: var(--gold); } details[open] summary:after { content: '–'; }
+details p { margin-top: 10px; color: #d8ccb7; font-size: 18px; }
+.final { text-align: center; background: radial-gradient(ellipse at 50% 40%, #2b241a 0%, var(--dark) 70%); }
+.final img { width: 200px; height: auto; margin: 0 auto 10px; display: block; }
+.final .buy { max-width: 440px; margin: 20px auto 0; text-align: left; }
+footer { text-align: center; color: #7d705c; font-size: 14px; padding: 30px 20px 90px; border-top: 1px solid #241f17; }
+.sticky { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px; background: rgba(20,17,13,.94); border-top: 1px solid #3a3124; display: none; z-index: 9; backdrop-filter: blur(6px); }
+.sticky a { padding: 13px; font-size: 15px; }
+@media (max-width: 820px) {
+  .hero .grid { grid-template-columns: 1fr; gap: 10px; } .hero img { max-width: 230px; } .hero .txt { text-align: center; } .hero ul { display: inline-block; text-align: left; }
+  .cards { grid-template-columns: 1fr 1fr; } .laws { grid-template-columns: 1fr; } body { font-size: 18px; } section { padding: 48px 0; }
+  .sticky.show { display: block; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap grid">
+    <img src="livre.webp" alt="Das Gesetzbuch des Geistes – E-Book von @magniizz" width="900" height="1350">
+    <div class="txt">
+      <div class="k">@magniizz · E-Book</div>
+      <h1>Das Gesetzbuch des Geistes</h1>
+      <p class="sub">21 Gesetze der größten Denker – eins pro Tag, jedes auf einer Seite.</p>
+      <ul>
+        <li>Von Seneca, Marc Aurel, Epiktet, Nietzsche, Machiavelli &amp; Sun Tzu</li>
+        <li>Zu jedem Gesetz: was es dir bringt + eine Übung für heute</li>
+        <li>In 21 Tagen durch – ohne langes Gerede</li>
+      </ul>
+      <div class="buy" id="buy1"></div>
+    </div>
+  </div>
+</header>
+
+<section class="pain">
+  <div class="wrap">
+    <p>Du sagst etwas und bereust es sofort.</p>
+    <p>Eine einzige Nachricht zieht dich den ganzen Tag runter.</p>
+    <p>Du weißt genau, was du tun solltest – und tust es trotzdem nicht.</p>
+    <p class="big">Das liegt nicht an dir. Dir hat nur niemand die Regeln gezeigt.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="k" style="text-align:center">Was du bekommst</div>
+    <h2>Kein Motivationsbuch.<br>Ein Regelwerk.</h2><div class="rule"><i></i></div>
+    <div class="cards">
+      <div class="card"><b>21</b><h3>Gesetze</h3><p>Die stärksten Ideen aus über 2000 Jahren Philosophie – auf das Wesentliche reduziert.</p></div>
+      <div class="card"><b>1</b><h3>Seite pro Gesetz</h3><p>In einer Minute gelesen. Kein Füllstoff, keine Theorie.</p></div>
+      <div class="card"><b>3</b><h3>Übungen pro Gesetz</h3><p>Konkret, für heute – damit du es nicht nur weißt, sondern lebst.</p></div>
+      <div class="card"><b>21</b><h3>Tage</h3><p>Ein Gesetz pro Tag, zum Abhaken. Drei Wochen, ein anderer Kopf.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="peek">
+  <div class="wrap">
+    <div class="k" style="text-align:center">Leseprobe</div>
+    <h2>Ein Blick ins Buch</h2><div class="rule"><i></i></div>
+    <p class="center">Jedes Gesetz: ein Zitat eines großen Denkers, warum es stimmt, was es dir bringt – und was du heute konkret tun kannst.</p>
+    <div class="pages"><img src="leseprobe_1.webp" alt="Gesetz Nr. 1 – Handle nie aus Wut" loading="lazy"><img src="leseprobe_2.webp" alt="Gesetz Nr. 8 – Rede weniger, als du weißt" loading="lazy"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="k" style="text-align:center">Inhalt</div>
+    <h2>Alle 21 Gesetze</h2><div class="rule"><i></i></div>
+    <div class="laws">
+      <div><h3>Teil I · Herrschaft über dich selbst</h3><ol style="--start:0">
+        <li>Handle nie aus Wut</li><li>Kontrolliere nur, was du kontrollieren kannst</li><li>Nicht die Dinge, sondern deine Sicht</li><li>Hör auf, dir Sorgen zu machen</li><li>Lerne, allein zu sein</li><li>Beherrsche dich, bevor es andere tun</li><li>Vertrau dir selbst</li></ol></div>
+      <div><h3>Teil II · Macht im Umgang mit anderen</h3><ol style="--start:7">
+        <li>Rede weniger, als du weißt</li><li>Schweige über deine Pläne</li><li>Sei niemals zu verfügbar</li><li>Räche dich niemals</li><li>Wähle deinen Umgang</li><li>Lebe nicht für Applaus</li><li>Kenne dich und dein Gegenüber</li></ol></div>
+      <div><h3>Teil III · Ein Leben nach deinen Regeln</h3><ol style="--start:14">
+        <li>Finde dein Warum</li><li>Taten statt Worte</li><li>Das Hindernis ist der Weg</li><li>Deine Zeit ist dein größter Besitz</li><li>Liebe dein Schicksal</li><li>Werde, der du bist</li><li>Lebe, als könntest du morgen gehen</li></ol></div>
+    </div>
+  </div>
+</section>
+
+<section class="who">
+  <div class="wrap">
+    <h2>Für dich, wenn du …</h2><div class="rule"><i></i></div>
+    <ul>
+      <li>ruhig bleiben willst, wenn andere dich provozieren</li>
+      <li>dich nicht mehr von fremden Meinungen steuern lassen willst</li>
+      <li>weniger grübeln und mehr handeln willst</li>
+      <li>die Weisheit der großen Denker nutzen willst – ohne 20 Bücher zu lesen</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Fragen</h2><div class="rule"><i></i></div>
+    <details><summary>Wie bekomme ich das Buch?</summary><p>Sofort nach der Zahlung: Der Download-Link erscheint direkt auf der Bestätigungsseite und kommt zusätzlich per E-Mail. Du musst auf nichts warten.</p></details>
+    <details><summary>In welchem Format?</summary><p>PDF (29 Seiten). Lesbar auf Handy, Tablet, E-Reader und Computer – auch zum Ausdrucken.</p></details>
+    <details><summary>Wie kann ich bezahlen?</summary><p>Sicher über Gumroad – mit Karte oder PayPal (je nach Land). Deine Zahlungsdaten sehen wir nie.</p></details>
+    <details><summary>Muss ich Philosophie kennen?</summary><p>Nein. Jedes Gesetz ist in einfacher Sprache erklärt, mit Beispielen aus dem Alltag.</p></details>
+    <details><summary>Wer steckt dahinter?</summary><p>@magniizz – der Kanal mit den „Gesetz Nr. …“-Videos. Dieses Buch sammelt die Gesetze an einem Ort, mit Übungen zu jedem einzelnen.</p></details>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <img src="livre.webp" alt="" loading="lazy">
+    <h2>Drei Wochen. 21 Gesetze.<br>Ein anderer Kopf.</h2>
+    <div class="buy" id="buy2"></div>
+  </div>
+</section>
+
+<footer>© 2026 @magniizz · Zahlungsabwicklung und Auslieferung über Gumroad<br>Dieses Buch ersetzt keine medizinische oder psychologische Beratung.<span id="imp"></span></footer>
+<div class="sticky" id="sticky"><a class="btn" href="#buy1">Jetzt holen – 9,99 €</a></div>
+
+<script>
+// ---- À remplir : lien du produit Gumroad (Gumroad livre le PDF automatiquement après le paiement)
+var GUMROAD_URL = 'https://aydenverse42.gumroad.com/l/gesetzbuch';
+var PRICE = '9,99 €';
+var IMPRESSUM = '';   // mentions légales (nom, adresse, e-mail) : obligatoire pour vendre en Allemagne
+
+function buyBox(id) {
+  var el = document.getElementById(id);
+  el.innerHTML =
+    '<div class="price"><b>' + PRICE + '</b><span>einmalig · sofortiger Download (PDF)</span></div>' +
+    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? GUMROAD_URL + (GUMROAD_URL.indexOf('?') < 0 ? '?' : '&') + 'wanted=true' : '#') + '">' + (GUMROAD_URL ? 'Jetzt holen – ' + PRICE : 'Bald verfügbar') + '</a>' +
+    '<p class="small">Sofort-Download nach der Zahlung · Sichere Zahlung über Gumroad</p>';
+  var btn = el.querySelector('.btn');
+  btn.addEventListener('click', function (e) { if (btn.classList.contains('off')) e.preventDefault(); });
+}
+buyBox('buy1'); buyBox('buy2');
+if (IMPRESSUM) document.getElementById('imp').innerHTML = '<br><br><b>Impressum:</b> ' + IMPRESSUM;
+// bouton collant sur mobile, une fois l'accroche dépassée
+var hero = document.querySelector('.hero'), st = document.getElementById('sticky');
+window.addEventListener('scroll', function () { st.classList.toggle('show', window.scrollY > hero.offsetHeight - 80); }, { passive: true });
+</script>
+</body>
+</html>

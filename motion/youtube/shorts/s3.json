@@ -1,0 +1,166 @@
+{
+ "png": "png_kai",
+ "vertical": true,
+ "scenes": [
+  {
+   "img": "big_kb",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.15,
+    0.5,
+    0.53
+   ],
+   "seq": [
+    {
+     "at": 0.62,
+     "img": "kb_up"
+    }
+   ],
+   "say": "a big guy *couldn't*",
+   "spoken": "Have you ever seen a skinny guy lift something a big guy couldn't?",
+   "sayFrom": 9,
+   "sayY": 0.9,
+   "segs": [
+    0
+   ],
+   "voice": "Have you ever seen a skinny guy lift something a big guy couldn't?"
+  },
+  {
+   "img": "kb_up",
+   "cam": [
+    1.15,
+    0.48,
+    0.45,
+    1.5,
+    0.48,
+    0.35
+   ],
+   "text": "impossible?",
+   "textAt": 0.3,
+   "segs": [
+    1
+   ],
+   "voice": "It looks impossible."
+  },
+  {
+   "card": "it happens all the time",
+   "segs": [
+    2
+   ],
+   "voice": "But it happens all the time."
+  },
+  {
+   "img": "kb_hold",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "you'll train differently",
+   "segs": [
+    3,
+    4
+   ],
+   "voice": "And once you understand why, you'll never train the same way again."
+  },
+  {
+   "card": "here's the truth",
+   "segs": [
+    5
+   ],
+   "voice": "Here's the truth."
+  },
+  {
+   "img": "big",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "kb_hold"
+    }
+   ],
+   "text": "size ≠ strength",
+   "textAt": 0.55,
+   "segs": [
+    6,
+    7
+   ],
+   "voice": "Big muscles and real strength are not the same thing."
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.5,
+    0.42
+   ],
+   "say": "*size*",
+   "spoken": "Size is how much muscle you have.",
+   "sayY": 0.18,
+   "segs": [
+    8
+   ],
+   "voice": "Size is how much muscle you have."
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.5,
+    0.42
+   ],
+   "say": "*strength*",
+   "spoken": "Strength is how well your body can use it.",
+   "sayY": 0.18,
+   "segs": [
+    9,
+    10
+   ],
+   "voice": "Strength is how well your body can use it."
+  },
+  {
+   "img": "kb_up3",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.12,
+    0.5,
+    0.5
+   ],
+   "text": "4 reasons",
+   "segs": [
+    11
+   ],
+   "voice": "And there are four reasons why a skinny guy can be stronger than a man twice his size."
+  },
+  {
+   "card": "the 4 reasons → full video on my channel",
+   "segs": [],
+   "dur": 2.2,
+   "instant": false
+  }
+ ]
+}

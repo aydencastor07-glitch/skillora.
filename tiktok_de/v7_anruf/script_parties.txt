@@ -1,0 +1,12 @@
+--- PARTIE 1 (486 caractères) ---
+Jeden Tag drücken Millionen Menschen auf diesen Knopf. Du wahrscheinlich auch. Und irgendwo auf der anderen Seite klingelt ein Handy. Aber woher weiß das Netz eigentlich, wo genau dieses Handy gerade ist? Alles beginnt mit deiner Stimme. Dein Handy zerlegt sie in winzige Stücke – fünfzig pro Sekunde – und verwandelt jedes Stück in Zahlen. Diese Zahlen fliegen als Funkwellen zum nächsten Sendemast. Mit Lichtgeschwindigkeit. Und jetzt kommt der Trick: Der Mast ist gar nicht das Ende.
+
+--- PARTIE 2 (492 caractères) ---
+Von dort rasen deine Daten durch Glasfaserkabel unter der Erde bis zum Herz des Netzes – einer riesigen Zentrale. Die Zentrale weiß ungefähr, wo die andere Person gerade ist. Denn ihr Handy meldet sich ständig bei den Masten in der Nähe – auch wenn sie es gar nicht benutzt. Das Netz ist aufgeteilt in viele kleine Waben, und die Zentrale merkt sich, in welcher Wabe ihr Handy zuletzt war. Also schickt die Zentrale den Anruf zum richtigen Mast, der Mast funkt ihr Handy an – und es klingelt.
+
+--- PARTIE 3 (462 caractères) ---
+Und wenn du beim Telefonieren im Auto sitzt? Dann übergibt dich ein Mast an den nächsten, in Millisekunden. Du merkst davon nichts. Und das alles passiert gleichzeitig in beide Richtungen – für jedes einzelne Wort, das ihr sagt. Kleiner Bonus: Deshalb hast du im Keller oder im Aufzug oft kein Netz. Beton und Metall schlucken die Funkwellen, bevor sie den Mast erreichen. Und dein Akku ist dort schneller leer, weil dein Handy verzweifelt nach einem Mast sucht.
+
+--- PARTIE 4 (40 caractères) ---
+Sag's weiter – sagt dir ja sonst keiner.
+

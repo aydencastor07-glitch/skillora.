@@ -1,0 +1,5 @@
+{"images": ["V2_1.jpg", "V2_2.jpg", "V2_3.jpg", "V2_4.jpg", "V2_5.jpg"],
+ "dur": [2.5, 2.3, 2.5, 3.6, 3.0],
+ "trans": ["up", "flash", "zoom", "whip"],
+ "pan": ["out", "right", "in", "in", "up"],
+ "music": [41, 104, 57]}

@@ -1,0 +1,137 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_marc.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 12",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.042,
+  "dur": 0.6
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "segments": [
+  [
+   "Gesetz Nr. 12:",
+   0.068,
+   1.262
+  ],
+  [
+   "Räche dich niemals.",
+   1.568,
+   2.81
+  ],
+  [
+   "Jemand hat dich verletzt,",
+   3.068,
+   4.218
+  ],
+  [
+   "belogen,",
+   4.395,
+   4.852
+  ],
+  [
+   "verraten.",
+   5.132,
+   5.64
+  ],
+  [
+   "Und jetzt willst du,",
+   5.8,
+   6.72
+  ],
+  [
+   "dass er dafür bezahlt.",
+   6.866,
+   7.654
+  ],
+  [
+   "Aber Rache macht dich",
+   7.872,
+   9.024
+  ],
+  [
+   "zu genau dem Menschen, den du hasst.",
+   9.056,
+   10.678
+  ],
+  [
+   "Sie kostet dich Zeit, Schlaf und Frieden –",
+   10.938,
+   13.256
+  ],
+  [
+   "und er lebt einfach weiter.",
+   13.385,
+   14.788
+  ],
+  [
+   "Marc Aurel sagte:",
+   14.97,
+   16.03
+  ],
+  [
+   "„Die beste Art, sich zu rächen, ist,",
+   16.305,
+   17.972
+  ],
+  [
+   "nicht so zu werden wie der, der dir Unrecht getan hat.“",
+   17.972,
+   20.78
+  ],
+  [
+   "Werde besser.",
+   21.03,
+   21.624
+  ],
+  [
+   "Werde ruhiger.",
+   21.808,
+   22.498
+  ],
+  [
+   "Das trifft ihn mehr als jede Rache.",
+   22.696,
+   24.412
+  ]
+ ],
+ "text": [
+  "Gesetz Nr. 12:",
+  "Räche dich niemals.",
+  "Jemand hat dich verletzt,",
+  "belogen,",
+  "verraten.",
+  "Und jetzt willst du,",
+  "dass er dafür bezahlt.",
+  "Aber Rache macht dich",
+  "zu genau dem Menschen, den du hasst.",
+  "Sie kostet dich Zeit, Schlaf und Frieden –",
+  "und er lebt einfach weiter.",
+  "Marc Aurel sagte:",
+  "„Die beste Art, sich zu rächen, ist,",
+  "nicht so zu werden wie der, der dir Unrecht getan hat.“",
+  "Werde besser.",
+  "Werde ruhiger.",
+  "Das trifft ihn mehr als jede Rache."
+ ],
+ "cta": {
+  "t": 25.21,
+  "click": 1.5,
+  "avatar": "avatar_profil.png",
+  "x": 540,
+  "y": 930,
+  "r": 165,
+  "hide_text": true,
+  "swap": true
+ },
+ "hot": "^(räche|rache|niemals|verletzt|belogen|verraten|bezahlt|menschen|hasst|zeit|schlaf|frieden|weiter|marc|aurel|rächen|unrecht|besser|ruhiger|trifft|gesetz)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4
+}

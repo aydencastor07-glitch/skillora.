@@ -1,0 +1,2434 @@
+{
+ "png": "png_kai",
+ "dur": 208.16,
+ "scenes": [
+  {
+   "img": "skinny",
+   "enter": "up",
+   "cam": [
+    1.5,
+    0.5,
+    0.38,
+    1.95,
+    0.5,
+    0.32
+   ],
+   "say": "your chest looks *flat*",
+   "spoken": "If your chest looks flat no matter how much you train, this video is for you.",
+   "sayFrom": 1,
+   "voice": "If your chest looks flat no matter how much you train, this video is for you.",
+   "t0": 0.2,
+   "t1": 5.06,
+   "parts": [
+    [
+     0.2,
+     3.34
+    ],
+    [
+     3.64,
+     5.06
+    ]
+   ]
+  },
+  {
+   "card": "here's the thing",
+   "voice": "Here's the thing.",
+   "t0": 5.36,
+   "t1": 5.94,
+   "parts": [
+    [
+     5.36,
+     5.94
+    ]
+   ]
+  },
+  {
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.15,
+    0.5,
+    0.45,
+    1.2,
+    0.5,
+    0.45
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "not one big muscle",
+   "voice": "Your chest isn't one big muscle you can just push harder.",
+   "t0": 6.24,
+   "t1": 9.75,
+   "parts": [
+    [
+     6.24,
+     9.75
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.3,
+   "cam": [
+    1.6,
+    0.5,
+    0.3,
+    2.0,
+    0.5,
+    0.28
+   ],
+   "say": "three *parts*",
+   "spoken": "It has three parts.",
+   "voice": "It has three parts.",
+   "t0": 10.05,
+   "t1": 11.26,
+   "parts": [
+    [
+     10.05,
+     11.26
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.15,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.3,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0.25,
+     "len": 300
+    }
+   ],
+   "voice": "The upper chest, which gives you that full, lifted look.",
+   "t0": 11.56,
+   "t1": 14.81,
+   "parts": [
+    [
+     11.56,
+     14.81
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_um",
+   "hlAt": 0.1,
+   "cam": [
+    2.3,
+    0.5,
+    0.27,
+    2.4,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Middle",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0.15,
+     "len": 300
+    }
+   ],
+   "voice": "The middle chest, which builds thickness and size.",
+   "t0": 15.11,
+   "t1": 18.01,
+   "parts": [
+    [
+     15.11,
+     18.01
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.1,
+   "cam": [
+    2.4,
+    0.5,
+    0.27,
+    2.5,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Middle",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0,
+     "len": 300
+    },
+    {
+     "name": "Lower",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.282,
+     "style": "dash",
+     "at": 0.15,
+     "len": 300
+    }
+   ],
+   "voice": "And the lower chest, which draws that sharp line at the bottom.",
+   "t0": 18.31,
+   "t1": 21.92,
+   "parts": [
+    [
+     18.31,
+     19.38
+    ],
+    [
+     19.68,
+     21.92
+    ]
+   ]
+  },
+  {
+   "img": "skinny2",
+   "cam": [
+    1.5,
+    0.5,
+    0.38,
+    1.7,
+    0.5,
+    0.34
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.45
+    }
+   ],
+   "voice": "Miss one of them, and your chest will never look complete.",
+   "t0": 22.22,
+   "t1": 25.24,
+   "parts": [
+    [
+     22.22,
+     25.24
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "up",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.45
+   ],
+   "voice": "So let's train all three.",
+   "t0": 25.54,
+   "t1": 27.09,
+   "parts": [
+    [
+     25.54,
+     27.09
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_low",
+   "hlAt": 0.45,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.28
+   ],
+   "tags": [
+    {
+     "name": "Lower",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.282,
+     "style": "dash",
+     "at": 0.5,
+     "len": 300
+    }
+   ],
+   "voice": "Let's start at the bottom. The lower chest.",
+   "t0": 27.39,
+   "t1": 29.78,
+   "parts": [
+    [
+     27.39,
+     28.6
+    ],
+    [
+     28.9,
+     29.78
+    ]
+   ]
+  },
+  {
+   "img": "skinny_side",
+   "enter": "fade",
+   "cam": [
+    1.3,
+    0.5,
+    0.42,
+    1.5,
+    0.5,
+    0.38
+   ],
+   "text": "almost nobody trains it",
+   "textAt": 0.3,
+   "voice": "Almost nobody trains it on purpose.",
+   "t0": 30.08,
+   "t1": 32.23,
+   "parts": [
+    [
+     30.08,
+     32.23
+    ]
+   ]
+  },
+  {
+   "img": "skinny_side",
+   "cam": [
+    1.9,
+    0.53,
+    0.3,
+    2.3,
+    0.54,
+    0.3
+   ],
+   "x": 0.5,
+   "say": "no clear *edge*",
+   "spoken": "And without it, your chest just fades out with no clear edge.",
+   "sayY": 0.12,
+   "voice": "And without it, your chest just fades out with no clear edge.",
+   "t0": 32.53,
+   "t1": 36.4,
+   "parts": [
+    [
+     32.53,
+     33.12
+    ],
+    [
+     33.42,
+     36.4
+    ]
+   ]
+  },
+  {
+   "medal": "p_bars",
+   "name": "Dips",
+   "medalZoom": 1.15,
+   "voice": "The best exercise for it is dips.",
+   "t0": 36.7,
+   "t1": 39.13,
+   "parts": [
+    [
+     36.7,
+     39.13
+    ]
+   ]
+  },
+  {
+   "img": "p_bars",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.15,
+    0.5,
+    0.62
+   ],
+   "voice": "Find two parallel bars and grab them firmly.",
+   "t0": 39.43,
+   "t1": 42.3,
+   "parts": [
+    [
+     39.43,
+     42.3
+    ]
+   ]
+  },
+  {
+   "img": "dip_up",
+   "enter": "up",
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.2,
+    0.55,
+    0.42
+   ],
+   "text": "lean forward",
+   "textAt": 0.4,
+   "voice": "Lean your upper body slightly forward.",
+   "t0": 42.6,
+   "t1": 44.73,
+   "parts": [
+    [
+     42.6,
+     44.73
+    ]
+   ]
+  },
+  {
+   "img": "dip_up",
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "chest instead of arms",
+   "voice": "That small lean is what puts the work on your chest instead of your arms.",
+   "t0": 45.03,
+   "t1": 49.16,
+   "parts": [
+    [
+     45.03,
+     49.16
+    ]
+   ]
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 1.3,
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.12,
+    0.5,
+    0.5
+   ],
+   "voice": "Bend your elbows and lower yourself slowly.",
+   "t0": 49.46,
+   "t1": 52.08,
+   "parts": [
+    [
+     49.46,
+     52.08
+    ]
+   ]
+  },
+  {
+   "img": "dip_down",
+   "cam": [
+    1.4,
+    0.55,
+    0.38,
+    1.5,
+    0.55,
+    0.38
+   ],
+   "text": "shoulders = elbows",
+   "textAt": 0.3,
+   "voice": "Stop when your shoulders reach the height of your elbows.",
+   "t0": 52.38,
+   "t1": 55.11,
+   "parts": [
+    [
+     52.38,
+     55.11
+    ]
+   ]
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 0.7,
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "icons": [
+    {
+     "kind": "v",
+     "at": 0.75
+    }
+   ],
+   "voice": "Then push back up. That's one rep.",
+   "t0": 55.41,
+   "t1": 58.0,
+   "parts": [
+    [
+     55.41,
+     56.7
+    ],
+    [
+     57.0,
+     58.0
+    ]
+   ]
+  },
+  {
+   "reps": "8-12 reps",
+   "voice": "Do three sets of eight to twelve.",
+   "t0": 58.3,
+   "t1": 60.32,
+   "parts": [
+    [
+     58.3,
+     60.32
+    ]
+   ]
+  },
+  {
+   "img": "dip_up",
+   "alt": "dip_down",
+   "period": 1.6,
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "text": "slower · or add weight",
+   "textAt": 0.45,
+   "voice": "If that feels easy, slow the reps down or add weight.",
+   "t0": 60.62,
+   "t1": 64.12,
+   "parts": [
+    [
+     60.62,
+     61.56
+    ],
+    [
+     61.86,
+     64.12
+    ]
+   ]
+  },
+  {
+   "card": "no bars at home?",
+   "voice": "No bars at home?",
+   "t0": 64.42,
+   "t1": 65.33,
+   "parts": [
+    [
+     64.42,
+     65.33
+    ]
+   ]
+  },
+  {
+   "medal": "p_chair",
+   "name": "Incline Push-Ups",
+   "medalZoom": 1.2,
+   "voice": "Do incline push-ups.",
+   "t0": 65.63,
+   "t1": 66.99,
+   "parts": [
+    [
+     65.63,
+     66.99
+    ]
+   ]
+  },
+  {
+   "img": "inc_push_up",
+   "enter": "right",
+   "cam": [
+    1.15,
+    0.5,
+    0.6,
+    1.25,
+    0.5,
+    0.58
+   ],
+   "voice": "Put your hands on a chair or a bed, shoulder-width apart.",
+   "t0": 67.29,
+   "t1": 70.59,
+   "parts": [
+    [
+     67.29,
+     70.59
+    ]
+   ]
+  },
+  {
+   "img": "inc_push_up",
+   "cam": [
+    1.25,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "line": [
+    0.3,
+    0.34,
+    0.88,
+    0.8
+   ],
+   "lineAt": 0.2,
+   "text": "one straight line",
+   "textY": 0.18,
+   "textX": 0.5,
+   "voice": "Squeeze your core and your glutes so your body forms one straight line.",
+   "t0": 70.89,
+   "t1": 75.25,
+   "parts": [
+    [
+     70.89,
+     75.25
+    ]
+   ]
+  },
+  {
+   "img": "inc_push_up",
+   "alt": "inc_push_down",
+   "period": 1.5,
+   "cam": [
+    1.25,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "text": "2-3s",
+   "textAt": 0.3,
+   "textY": 0.2,
+   "textX": 0.5,
+   "voice": "Lower yourself over two to three seconds.",
+   "t0": 75.55,
+   "t1": 77.84,
+   "parts": [
+    [
+     75.55,
+     77.84
+    ]
+   ]
+  },
+  {
+   "img": "inc_push_up",
+   "alt": "inc_push_down",
+   "period": 0.8,
+   "cam": [
+    1.3,
+    0.5,
+    0.58,
+    1.3,
+    0.5,
+    0.58
+   ],
+   "voice": "Then push back up.",
+   "t0": 78.14,
+   "t1": 79.33,
+   "parts": [
+    [
+     78.14,
+     79.33
+    ]
+   ]
+  },
+  {
+   "reps": "max reps",
+   "voice": "Three sets, as many reps as you can.",
+   "t0": 79.63,
+   "t1": 82.04,
+   "parts": [
+    [
+     79.63,
+     80.33
+    ],
+    [
+     80.63,
+     82.04
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_mid",
+   "hlAt": 0.3,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.27
+   ],
+   "tags": [
+    {
+     "name": "Middle",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.262,
+     "style": "dash",
+     "at": 0.4,
+     "len": 300
+    }
+   ],
+   "voice": "Next, the middle chest.",
+   "t0": 82.34,
+   "t1": 83.98,
+   "parts": [
+    [
+     82.34,
+     82.78
+    ],
+    [
+     83.08,
+     83.98
+    ]
+   ]
+  },
+  {
+   "card": "the foundation",
+   "voice": "This is your foundation.",
+   "t0": 84.28,
+   "t1": 85.71,
+   "parts": [
+    [
+     84.28,
+     85.71
+    ]
+   ]
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Dumbbell Bench Press",
+   "medalZoom": 1.05,
+   "voice": "And the king here is the dumbbell bench press.",
+   "t0": 86.01,
+   "t1": 88.71,
+   "parts": [
+    [
+     86.01,
+     88.71
+    ]
+   ]
+  },
+  {
+   "img": "bench_up",
+   "enter": "left",
+   "cam": [
+    1.1,
+    0.5,
+    0.58,
+    1.2,
+    0.5,
+    0.56
+   ],
+   "voice": "Lie down on a flat bench with a dumbbell in each hand.",
+   "t0": 89.01,
+   "t1": 92.03,
+   "parts": [
+    [
+     89.01,
+     92.03
+    ]
+   ]
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.2,
+    0.5,
+    0.56,
+    1.5,
+    0.55,
+    0.5
+   ],
+   "text": "45°",
+   "textAt": 0.35,
+   "textX": 0.5,
+   "textY": 0.18,
+   "voice": "Keep your elbows at about forty-five degrees from your body.",
+   "t0": 92.33,
+   "t1": 95.4,
+   "parts": [
+    [
+     92.33,
+     95.4
+    ]
+   ]
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.5,
+    0.55,
+    0.5,
+    1.6,
+    0.55,
+    0.5
+   ],
+   "text": "too wide → shoulders",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.18,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "voice": "Too wide, and your shoulders take the stress.",
+   "t0": 95.7,
+   "t1": 98.13,
+   "parts": [
+    [
+     95.7,
+     98.13
+    ]
+   ]
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.6,
+    0.55,
+    0.5,
+    1.7,
+    0.55,
+    0.5
+   ],
+   "text": "too close → triceps",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.18,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "voice": "Too close, and your triceps do the work.",
+   "t0": 98.43,
+   "t1": 100.64,
+   "parts": [
+    [
+     98.43,
+     100.64
+    ]
+   ]
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 0.9,
+   "cam": [
+    1.15,
+    0.5,
+    0.56,
+    1.25,
+    0.5,
+    0.55
+   ],
+   "voice": "Plant your feet, push your chest up, and press the weights over your chest.",
+   "t0": 100.94,
+   "t1": 105.33,
+   "parts": [
+    [
+     100.94,
+     101.71
+    ],
+    [
+     102.01,
+     105.33
+    ]
+   ]
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 1.7,
+   "cam": [
+    1.25,
+    0.5,
+    0.55,
+    1.35,
+    0.52,
+    0.53
+   ],
+   "say": "deep *stretch*",
+   "spoken": "Then lower them slowly, until you feel a deep stretch.",
+   "sayY": 0.15,
+   "voice": "Then lower them slowly, until you feel a deep stretch.",
+   "t0": 105.63,
+   "t1": 109.16,
+   "parts": [
+    [
+     105.63,
+     106.99
+    ],
+    [
+     107.29,
+     109.16
+    ]
+   ]
+  },
+  {
+   "reps": "8-12 reps",
+   "voice": "Three sets of eight to twelve.",
+   "t0": 109.46,
+   "t1": 111.3,
+   "parts": [
+    [
+     109.46,
+     111.3
+    ]
+   ]
+  },
+  {
+   "medal": "p_books",
+   "name": "Deep Push-Ups",
+   "medalZoom": 1.25,
+   "voice": "At home, do deep push-ups.",
+   "t0": 111.6,
+   "t1": 113.5,
+   "parts": [
+    [
+     111.6,
+     113.5
+    ]
+   ]
+  },
+  {
+   "img": "p_books",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.1,
+    0.5,
+    0.6
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "deep_up"
+    }
+   ],
+   "voice": "Put your hands on two stacks of books, or on push-up handles.",
+   "t0": 113.8,
+   "t1": 117.35,
+   "parts": [
+    [
+     113.8,
+     117.35
+    ]
+   ]
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 1.4,
+   "cam": [
+    1.3,
+    0.55,
+    0.55,
+    1.45,
+    0.58,
+    0.55
+   ],
+   "voice": "This lets your chest go lower than the floor would allow.",
+   "t0": 117.65,
+   "t1": 120.49,
+   "parts": [
+    [
+     117.65,
+     120.49
+    ]
+   ]
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 1.0,
+   "cam": [
+    1.45,
+    0.58,
+    0.55,
+    1.5,
+    0.58,
+    0.55
+   ],
+   "say": "more stretch, more *growth*",
+   "spoken": "More stretch means more growth.",
+   "sayY": 0.15,
+   "voice": "More stretch means more growth.",
+   "t0": 120.79,
+   "t1": 122.68,
+   "parts": [
+    [
+     120.79,
+     122.68
+    ]
+   ]
+  },
+  {
+   "img": "deep_up",
+   "alt": "deep_down",
+   "period": 0.7,
+   "cam": [
+    1.3,
+    0.55,
+    0.55,
+    1.3,
+    0.55,
+    0.55
+   ],
+   "voice": "Go all the way down, then all the way up.",
+   "t0": 122.98,
+   "t1": 125.63,
+   "parts": [
+    [
+     122.98,
+     124.19
+    ],
+    [
+     124.49,
+     125.63
+    ]
+   ]
+  },
+  {
+   "reps": "close to failure",
+   "voice": "Three sets, close to failure.",
+   "t0": 125.93,
+   "t1": 127.76,
+   "parts": [
+    [
+     125.93,
+     126.63
+    ],
+    [
+     126.93,
+     127.76
+    ]
+   ]
+  },
+  {
+   "card": "the most important one",
+   "voice": "And finally, the most important one for looks.",
+   "t0": 128.06,
+   "t1": 130.78,
+   "parts": [
+    [
+     128.06,
+     130.78
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.4,
+    0.5,
+    0.26
+   ],
+   "tags": [
+    {
+     "name": "Upper",
+     "color": "red",
+     "x": 0.44,
+     "y": 0.238,
+     "style": "dash",
+     "at": 0.3,
+     "len": 300
+    }
+   ],
+   "voice": "The upper chest.",
+   "t0": 131.08,
+   "t1": 132.07,
+   "parts": [
+    [
+     131.08,
+     132.07
+    ]
+   ]
+  },
+  {
+   "img": "skinny2",
+   "cam": [
+    1.1,
+    0.5,
+    0.45,
+    1.25,
+    0.5,
+    0.4
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "flex"
+    }
+   ],
+   "say": "full *chest*",
+   "spoken": "This is what makes your chest look full in a t-shirt.",
+   "voice": "This is what makes your chest look full in a t-shirt.",
+   "t0": 132.37,
+   "t1": 135.15,
+   "parts": [
+    [
+     132.37,
+     135.15
+    ]
+   ]
+  },
+  {
+   "medal": "p_bench",
+   "name": "Incline Dumbbell Press",
+   "medalZoom": 1.1,
+   "voice": "Use the incline dumbbell press.",
+   "t0": 135.45,
+   "t1": 137.46,
+   "parts": [
+    [
+     135.45,
+     137.46
+    ]
+   ]
+  },
+  {
+   "img": "p_bench",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.6,
+    1.1,
+    0.45,
+    0.62
+   ],
+   "text": "30°",
+   "textAt": 0.35,
+   "textX": 0.5,
+   "textY": 0.2,
+   "voice": "Set the bench to about thirty degrees.",
+   "t0": 137.76,
+   "t1": 139.91,
+   "parts": [
+    [
+     137.76,
+     139.91
+    ]
+   ]
+  },
+  {
+   "img": "p_bench",
+   "cam": [
+    1.1,
+    0.45,
+    0.62,
+    1.15,
+    0.45,
+    0.62
+   ],
+   "text": "not higher",
+   "textAt": 0.2,
+   "textX": 0.5,
+   "textY": 0.2,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.45
+    }
+   ],
+   "voice": "Not higher, or your shoulders take over.",
+   "t0": 140.21,
+   "t1": 142.31,
+   "parts": [
+    [
+     140.21,
+     142.31
+    ]
+   ]
+  },
+  {
+   "img": "incl_up",
+   "alt": "incl_down",
+   "period": 1.0,
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "voice": "Press up, then lower slowly.",
+   "t0": 142.61,
+   "t1": 144.58,
+   "parts": [
+    [
+     142.61,
+     143.19
+    ],
+    [
+     143.49,
+     144.58
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_upper",
+   "hlAt": 0.1,
+   "cam": [
+    2.3,
+    0.5,
+    0.27,
+    2.6,
+    0.5,
+    0.26
+   ],
+   "say": "top of your chest *burning*",
+   "spoken": "If you feel the top of your chest burning, you're doing it right.",
+   "sayY": 0.12,
+   "voice": "If you feel the top of your chest burning, you're doing it right.",
+   "t0": 144.88,
+   "t1": 148.21,
+   "parts": [
+    [
+     144.88,
+     146.96
+    ],
+    [
+     147.26,
+     148.21
+    ]
+   ]
+  },
+  {
+   "reps": "8-12 reps",
+   "voice": "Three sets of eight to twelve.",
+   "t0": 148.51,
+   "t1": 150.35,
+   "parts": [
+    [
+     148.51,
+     150.35
+    ]
+   ]
+  },
+  {
+   "card": "no equipment?",
+   "voice": "No equipment?",
+   "t0": 150.65,
+   "t1": 151.34,
+   "parts": [
+    [
+     150.65,
+     151.34
+    ]
+   ]
+  },
+  {
+   "medal": "p_chair",
+   "name": "Decline Push-Ups",
+   "medalZoom": 1.2,
+   "voice": "Decline push-ups.",
+   "t0": 151.64,
+   "t1": 152.72,
+   "parts": [
+    [
+     151.64,
+     152.72
+    ]
+   ]
+  },
+  {
+   "img": "dec_push_up",
+   "enter": "right",
+   "cam": [
+    1.2,
+    0.5,
+    0.55,
+    1.3,
+    0.5,
+    0.55
+   ],
+   "voice": "Put your feet on a chair and your hands on the floor.",
+   "t0": 153.02,
+   "t1": 155.62,
+   "parts": [
+    [
+     153.02,
+     155.62
+    ]
+   ]
+  },
+  {
+   "img": "dec_push_up",
+   "alt": "dec_push_down",
+   "period": 1.2,
+   "cam": [
+    1.3,
+    0.5,
+    0.55,
+    1.35,
+    0.5,
+    0.55
+   ],
+   "voice": "Now your body angle shifts the work to your upper chest.",
+   "t0": 155.92,
+   "t1": 159.14,
+   "parts": [
+    [
+     155.92,
+     159.14
+    ]
+   ]
+  },
+  {
+   "reps": "close to failure",
+   "voice": "Three sets, close to failure.",
+   "t0": 159.44,
+   "t1": 161.24,
+   "parts": [
+    [
+     159.44,
+     160.12
+    ],
+    [
+     160.42,
+     161.24
+    ]
+   ]
+  },
+  {
+   "card": "3 mistakes that kill your progress",
+   "voice": "Now, three mistakes that will kill your progress.",
+   "t0": 161.54,
+   "t1": 164.7,
+   "parts": [
+    [
+     161.54,
+     161.86
+    ],
+    [
+     162.16,
+     164.7
+    ]
+   ]
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 0.35,
+   "cam": [
+    1.2,
+    0.5,
+    0.56,
+    1.25,
+    0.5,
+    0.56
+   ],
+   "label": "#1. Bouncing",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "control every rep",
+   "textAt": 0.55,
+   "textX": 0.5,
+   "textY": 0.18,
+   "voice": "One. Bouncing the weight. Control every rep, especially on the way down.",
+   "t0": 165.0,
+   "t1": 170.33,
+   "parts": [
+    [
+     165.0,
+     165.35
+    ],
+    [
+     165.65,
+     166.77
+    ],
+    [
+     167.07,
+     170.33
+    ]
+   ]
+  },
+  {
+   "img": "bench_down",
+   "cam": [
+    1.4,
+    0.55,
+    0.5,
+    1.5,
+    0.55,
+    0.5
+   ],
+   "label": "#2. Flaring elbows",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "keep them at 45°",
+   "textAt": 0.55,
+   "textX": 0.5,
+   "textY": 0.18,
+   "voice": "Two. Flaring your elbows. Keep them at forty-five degrees to protect your shoulders.",
+   "t0": 170.63,
+   "t1": 175.45,
+   "parts": [
+    [
+     170.63,
+     170.92
+    ],
+    [
+     171.22,
+     172.37
+    ],
+    [
+     172.67,
+     175.45
+    ]
+   ]
+  },
+  {
+   "img": "incl_up",
+   "alt": "incl_down",
+   "period": 1.0,
+   "cam": [
+    1.15,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.5
+   ],
+   "label": "#3. Same reps forever",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "+1 rep every week",
+   "textAt": 0.6,
+   "textX": 0.79,
+   "voice": "Three. Doing the same reps forever. Every week, add one rep, or a little weight.",
+   "t0": 175.75,
+   "t1": 181.59,
+   "parts": [
+    [
+     175.75,
+     176.14
+    ],
+    [
+     176.44,
+     178.4
+    ],
+    [
+     178.7,
+     179.23
+    ],
+    [
+     179.53,
+     181.59
+    ]
+   ]
+  },
+  {
+   "card": "your plan",
+   "voice": "Here's your plan.",
+   "t0": 181.89,
+   "t1": 182.61,
+   "parts": [
+    [
+     181.89,
+     182.61
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "say": "*twice* a week",
+   "spoken": "Train your chest twice a week.",
+   "voice": "Train your chest twice a week.",
+   "t0": 182.91,
+   "t1": 184.58,
+   "parts": [
+    [
+     182.91,
+     184.58
+    ]
+   ]
+  },
+  {
+   "img": "dip_up",
+   "cam": [
+    1.05,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "inc_push_up"
+    }
+   ],
+   "voice": "Dips or incline push-ups.",
+   "t0": 184.88,
+   "t1": 186.69,
+   "parts": [
+    [
+     184.88,
+     186.69
+    ]
+   ]
+  },
+  {
+   "img": "bench_up",
+   "cam": [
+    1.15,
+    0.5,
+    0.56,
+    1.2,
+    0.5,
+    0.56
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "deep_up"
+    }
+   ],
+   "voice": "Dumbbell press or deep push-ups.",
+   "t0": 186.99,
+   "t1": 188.98,
+   "parts": [
+    [
+     186.99,
+     188.98
+    ]
+   ]
+  },
+  {
+   "img": "incl_up",
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "dec_push_up"
+    }
+   ],
+   "voice": "Incline press or decline push-ups.",
+   "t0": 189.28,
+   "t1": 191.5,
+   "parts": [
+    [
+     189.28,
+     191.5
+    ]
+   ]
+  },
+  {
+   "reps": "each",
+   "voice": "Three sets each.",
+   "t0": 191.8,
+   "t1": 192.82,
+   "parts": [
+    [
+     191.8,
+     192.82
+    ]
+   ]
+  },
+  {
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.2,
+    0.5,
+    0.42,
+    1.4,
+    0.5,
+    0.36
+   ],
+   "text": "one thing…",
+   "textAt": 0.5,
+   "voice": "But none of this works without one thing.",
+   "t0": 193.12,
+   "t1": 195.26,
+   "parts": [
+    [
+     193.12,
+     195.26
+    ]
+   ]
+  },
+  {
+   "card": "consistency.",
+   "voice": "Consistency.",
+   "t0": 195.56,
+   "t1": 196.44,
+   "parts": [
+    [
+     195.56,
+     196.44
+    ]
+   ]
+  },
+  {
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.4
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "base"
+    }
+   ],
+   "say": "months of *showing up*",
+   "spoken": "Months of showing up.",
+   "voice": "Not one perfect week. Months of showing up.",
+   "t0": 196.74,
+   "t1": 199.65,
+   "parts": [
+    [
+     196.74,
+     197.99
+    ],
+    [
+     198.29,
+     199.65
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.05,
+    0.5,
+    0.48
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "your chest will grow",
+   "voice": "Do that, and your chest will grow.",
+   "t0": 199.95,
+   "t1": 202.25,
+   "parts": [
+    [
+     199.95,
+     200.45
+    ],
+    [
+     200.75,
+     202.25
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "cam": [
+    1.2,
+    0.5,
+    0.42,
+    1.25,
+    0.5,
+    0.42
+   ],
+   "text": "subscribe →",
+   "textAt": 0.4,
+   "hold": 1.2,
+   "voice": "Subscribe to Linework Fit, and I'll see you in the next one.",
+   "t0": 202.55,
+   "t1": 206.06,
+   "parts": [
+    [
+     202.55,
+     206.06
+    ]
+   ]
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.09,
+    3.23
+   ],
+   "at": 0.2
+  },
+  {
+   "src": [
+    3.67,
+    5.09
+   ],
+   "at": 3.64
+  },
+  {
+   "src": [
+    5.83,
+    6.41
+   ],
+   "at": 5.36
+  },
+  {
+   "src": [
+    6.97,
+    10.48
+   ],
+   "at": 6.24
+  },
+  {
+   "src": [
+    11.07,
+    12.28
+   ],
+   "at": 10.05
+  },
+  {
+   "src": [
+    12.84,
+    16.09
+   ],
+   "at": 11.56
+  },
+  {
+   "src": [
+    16.58,
+    19.48
+   ],
+   "at": 15.11
+  },
+  {
+   "src": [
+    19.91,
+    20.98
+   ],
+   "at": 18.31
+  },
+  {
+   "src": [
+    21.28,
+    23.52
+   ],
+   "at": 19.68
+  },
+  {
+   "src": [
+    24.16,
+    27.18
+   ],
+   "at": 22.22
+  },
+  {
+   "src": [
+    27.71,
+    29.26
+   ],
+   "at": 25.54
+  },
+  {
+   "src": [
+    30.05,
+    31.26
+   ],
+   "at": 27.39
+  },
+  {
+   "src": [
+    31.8,
+    32.68
+   ],
+   "at": 28.9
+  },
+  {
+   "src": [
+    33.13,
+    35.28
+   ],
+   "at": 30.08
+  },
+  {
+   "src": [
+    35.67,
+    36.26
+   ],
+   "at": 32.53
+  },
+  {
+   "src": [
+    36.56,
+    39.54
+   ],
+   "at": 33.42
+  },
+  {
+   "src": [
+    40.14,
+    42.57
+   ],
+   "at": 36.7
+  },
+  {
+   "src": [
+    43.23,
+    46.1
+   ],
+   "at": 39.43
+  },
+  {
+   "src": [
+    46.6,
+    48.73
+   ],
+   "at": 42.6
+  },
+  {
+   "src": [
+    49.26,
+    53.39
+   ],
+   "at": 45.03
+  },
+  {
+   "src": [
+    53.89,
+    56.51
+   ],
+   "at": 49.46
+  },
+  {
+   "src": [
+    57.02,
+    59.75
+   ],
+   "at": 52.38
+  },
+  {
+   "src": [
+    60.3,
+    61.59
+   ],
+   "at": 55.41
+  },
+  {
+   "src": [
+    62.06,
+    63.06
+   ],
+   "at": 57.0
+  },
+  {
+   "src": [
+    63.49,
+    65.51
+   ],
+   "at": 58.3
+  },
+  {
+   "src": [
+    66.16,
+    67.1
+   ],
+   "at": 60.62
+  },
+  {
+   "src": [
+    67.45,
+    69.71
+   ],
+   "at": 61.86
+  },
+  {
+   "src": [
+    70.32,
+    71.23
+   ],
+   "at": 64.42
+  },
+  {
+   "src": [
+    71.71,
+    73.07
+   ],
+   "at": 65.63
+  },
+  {
+   "src": [
+    73.52,
+    76.82
+   ],
+   "at": 67.29
+  },
+  {
+   "src": [
+    77.22,
+    81.58
+   ],
+   "at": 70.89
+  },
+  {
+   "src": [
+    82.06,
+    84.35
+   ],
+   "at": 75.55
+  },
+  {
+   "src": [
+    84.79,
+    85.98
+   ],
+   "at": 78.14
+  },
+  {
+   "src": [
+    86.44,
+    87.14
+   ],
+   "at": 79.63
+  },
+  {
+   "src": [
+    87.42,
+    88.83
+   ],
+   "at": 80.63
+  },
+  {
+   "src": [
+    89.57,
+    90.01
+   ],
+   "at": 82.34
+  },
+  {
+   "src": [
+    90.31,
+    91.21
+   ],
+   "at": 83.08
+  },
+  {
+   "src": [
+    91.62,
+    93.05
+   ],
+   "at": 84.28
+  },
+  {
+   "src": [
+    93.5,
+    96.2
+   ],
+   "at": 86.01
+  },
+  {
+   "src": [
+    96.71,
+    99.73
+   ],
+   "at": 89.01
+  },
+  {
+   "src": [
+    100.17,
+    103.24
+   ],
+   "at": 92.33
+  },
+  {
+   "src": [
+    103.72,
+    106.15
+   ],
+   "at": 95.7
+  },
+  {
+   "src": [
+    106.6,
+    108.81
+   ],
+   "at": 98.43
+  },
+  {
+   "src": [
+    109.41,
+    110.18
+   ],
+   "at": 100.94
+  },
+  {
+   "src": [
+    110.55,
+    113.87
+   ],
+   "at": 102.01
+  },
+  {
+   "src": [
+    114.39,
+    115.75
+   ],
+   "at": 105.63
+  },
+  {
+   "src": [
+    116.05,
+    117.92
+   ],
+   "at": 107.29
+  },
+  {
+   "src": [
+    118.43,
+    120.27
+   ],
+   "at": 109.46
+  },
+  {
+   "src": [
+    121.03,
+    122.93
+   ],
+   "at": 111.6
+  },
+  {
+   "src": [
+    123.35,
+    126.9
+   ],
+   "at": 113.8
+  },
+  {
+   "src": [
+    127.37,
+    130.21
+   ],
+   "at": 117.65
+  },
+  {
+   "src": [
+    130.68,
+    132.57
+   ],
+   "at": 120.79
+  },
+  {
+   "src": [
+    133.18,
+    134.39
+   ],
+   "at": 122.98
+  },
+  {
+   "src": [
+    134.7,
+    135.84
+   ],
+   "at": 124.49
+  },
+  {
+   "src": [
+    136.28,
+    136.98
+   ],
+   "at": 125.93
+  },
+  {
+   "src": [
+    137.29,
+    138.12
+   ],
+   "at": 126.93
+  },
+  {
+   "src": [
+    138.86,
+    141.58
+   ],
+   "at": 128.06
+  },
+  {
+   "src": [
+    141.98,
+    142.97
+   ],
+   "at": 131.08
+  },
+  {
+   "src": [
+    143.41,
+    146.19
+   ],
+   "at": 132.37
+  },
+  {
+   "src": [
+    146.65,
+    148.66
+   ],
+   "at": 135.45
+  },
+  {
+   "src": [
+    149.13,
+    151.28
+   ],
+   "at": 137.76
+  },
+  {
+   "src": [
+    151.65,
+    153.75
+   ],
+   "at": 140.21
+  },
+  {
+   "src": [
+    154.24,
+    154.82
+   ],
+   "at": 142.61
+  },
+  {
+   "src": [
+    155.17,
+    156.26
+   ],
+   "at": 143.49
+  },
+  {
+   "src": [
+    156.77,
+    158.85
+   ],
+   "at": 144.88
+  },
+  {
+   "src": [
+    159.2,
+    160.15
+   ],
+   "at": 147.26
+  },
+  {
+   "src": [
+    160.59,
+    162.43
+   ],
+   "at": 148.51
+  },
+  {
+   "src": [
+    163.17,
+    163.86
+   ],
+   "at": 150.65
+  },
+  {
+   "src": [
+    164.29,
+    165.37
+   ],
+   "at": 151.64
+  },
+  {
+   "src": [
+    165.82,
+    168.42
+   ],
+   "at": 153.02
+  },
+  {
+   "src": [
+    168.9,
+    172.12
+   ],
+   "at": 155.92
+  },
+  {
+   "src": [
+    172.57,
+    173.25
+   ],
+   "at": 159.44
+  },
+  {
+   "src": [
+    173.55,
+    174.37
+   ],
+   "at": 160.42
+  },
+  {
+   "src": [
+    174.71,
+    175.03
+   ],
+   "at": 161.54
+  },
+  {
+   "src": [
+    175.33,
+    177.87
+   ],
+   "at": 162.16
+  },
+  {
+   "src": [
+    178.38,
+    178.73
+   ],
+   "at": 165.0
+  },
+  {
+   "src": [
+    179.16,
+    180.28
+   ],
+   "at": 165.65
+  },
+  {
+   "src": [
+    180.77,
+    184.03
+   ],
+   "at": 167.07
+  },
+  {
+   "src": [
+    184.59,
+    184.88
+   ],
+   "at": 170.63
+  },
+  {
+   "src": [
+    185.34,
+    186.49
+   ],
+   "at": 171.22
+  },
+  {
+   "src": [
+    187.05,
+    189.83
+   ],
+   "at": 172.67
+  },
+  {
+   "src": [
+    190.4,
+    190.79
+   ],
+   "at": 175.75
+  },
+  {
+   "src": [
+    191.25,
+    193.21
+   ],
+   "at": 176.44
+  },
+  {
+   "src": [
+    193.76,
+    194.29
+   ],
+   "at": 178.7
+  },
+  {
+   "src": [
+    194.61,
+    196.67
+   ],
+   "at": 179.53
+  },
+  {
+   "src": [
+    197.16,
+    197.88
+   ],
+   "at": 181.89
+  },
+  {
+   "src": [
+    198.35,
+    200.02
+   ],
+   "at": 182.91
+  },
+  {
+   "src": [
+    200.49,
+    202.3
+   ],
+   "at": 184.88
+  },
+  {
+   "src": [
+    202.59,
+    204.58
+   ],
+   "at": 186.99
+  },
+  {
+   "src": [
+    204.92,
+    207.14
+   ],
+   "at": 189.28
+  },
+  {
+   "src": [
+    207.6,
+    208.62
+   ],
+   "at": 191.8
+  },
+  {
+   "src": [
+    209.05,
+    211.19
+   ],
+   "at": 193.12
+  },
+  {
+   "src": [
+    211.69,
+    212.57
+   ],
+   "at": 195.56
+  },
+  {
+   "src": [
+    213.03,
+    214.28
+   ],
+   "at": 196.74
+  },
+  {
+   "src": [
+    214.7,
+    216.06
+   ],
+   "at": 198.29
+  },
+  {
+   "src": [
+    216.54,
+    217.04
+   ],
+   "at": 199.95
+  },
+  {
+   "src": [
+    217.36,
+    218.86
+   ],
+   "at": 200.75
+  },
+  {
+   "src": [
+    219.34,
+    222.85
+   ],
+   "at": 202.55
+  }
+ ]
+}

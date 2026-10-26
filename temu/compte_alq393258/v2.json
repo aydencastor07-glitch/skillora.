@@ -1,0 +1,59 @@
+{
+ "font": "Righteous.ttf",
+ "palette": {
+  "c1": [
+   185,
+   245,
+   210
+  ],
+  "c2": [
+   255,
+   214,
+   50
+  ],
+  "dark": [
+   18,
+   52,
+   42
+  ],
+  "acc": [
+   30,
+   160,
+   100
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "glitch",
+ "sfx": "glitch",
+ "music_seed": 382,
+ "bpm": 122,
+ "key": 50,
+ "slides": [
+  {
+   "img": "V2/V2_1.jpg",
+   "title": "KITCHEN|FINDS|I LOVE",
+   "layout": "C"
+  },
+  {
+   "img": "V2/V2_2.jpg",
+   "title": "CHOPPING|IN SECONDS",
+   "layout": "B"
+  },
+  {
+   "img": "V2/V2_3.jpg",
+   "title": "PANTRY|GLOW-UP",
+   "layout": "A"
+  },
+  {
+   "img": "V2/V2_4.jpg",
+   "title": "SUNDAY|PANCAKES",
+   "layout": "D"
+  },
+  {
+   "img": "V2/V2_5.jpg",
+   "layout": "E"
+  }
+ ],
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app"
+}

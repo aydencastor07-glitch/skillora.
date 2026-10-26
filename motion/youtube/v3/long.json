@@ -1,0 +1,2050 @@
+{
+ "png": "png_kai",
+ "dur": 185.89,
+ "scenes": [
+  {
+   "img": "fat",
+   "enter": "up",
+   "cam": [
+    1.3,
+    0.5,
+    0.45,
+    1.75,
+    0.5,
+    0.45
+   ],
+   "say": "a big *belly*",
+   "spoken": "If you have a big belly and you want a flat stomach with visible abs, this video is for you.",
+   "sayFrom": 3,
+   "sayY": 0.82,
+   "voice": "If you have a big belly and you want a flat stomach with visible abs, this video is for you.",
+   "t0": 0.2,
+   "t1": 6.07,
+   "parts": [
+    [
+     0.2,
+     4.2
+    ],
+    [
+     4.5,
+     6.07
+    ]
+   ]
+  },
+  {
+   "card": "here's the truth nobody tells you",
+   "voice": "Here's the truth nobody tells you.",
+   "t0": 6.37,
+   "t1": 8.37,
+   "parts": [
+    [
+     6.37,
+     8.37
+    ]
+   ]
+  },
+  {
+   "img": "fat_situp",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.55,
+    1.1,
+    0.5,
+    0.55
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.6
+    }
+   ],
+   "voice": "You can't crunch your belly away.",
+   "t0": 8.67,
+   "t1": 10.66,
+   "parts": [
+    [
+     8.67,
+     10.66
+    ]
+   ]
+  },
+  {
+   "img": "fat_situp",
+   "cam": [
+    1.1,
+    0.5,
+    0.55,
+    1.3,
+    0.45,
+    0.5
+   ],
+   "text": "sit-ups won't burn it",
+   "textY": 0.15,
+   "textX": 0.5,
+   "voice": "Doing a thousand sit-ups won't burn the fat on your stomach.",
+   "t0": 10.96,
+   "t1": 14.16,
+   "parts": [
+    [
+     10.96,
+     14.16
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.3,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.3,
+    0.5,
+    0.36
+   ],
+   "tags": [
+    {
+     "name": "Abs",
+     "color": "red",
+     "x": 0.47,
+     "y": 0.345,
+     "style": "dash",
+     "at": 0.4,
+     "len": 300
+    }
+   ],
+   "voice": "Your abs are already there.",
+   "t0": 14.46,
+   "t1": 16.4,
+   "parts": [
+    [
+     14.46,
+     16.4
+    ]
+   ]
+  },
+  {
+   "img": "fat_neutral",
+   "enter": "fade",
+   "cam": [
+    1.4,
+    0.5,
+    0.42,
+    1.8,
+    0.5,
+    0.45
+   ],
+   "text": "hidden under fat",
+   "textAt": 0.4,
+   "voice": "They're just hiding under a layer of fat.",
+   "t0": 16.7,
+   "t1": 18.77,
+   "parts": [
+    [
+     16.7,
+     18.77
+    ]
+   ]
+  },
+  {
+   "card": "you need two things",
+   "voice": "So to see them, you need to do two things.",
+   "t0": 19.07,
+   "t1": 21.67,
+   "parts": [
+    [
+     19.07,
+     19.83
+    ],
+    [
+     20.13,
+     21.67
+    ]
+   ]
+  },
+  {
+   "img": "fat_neutral",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.05,
+    0.5,
+    0.48
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "lose the fat",
+   "voice": "Lose the fat on top.",
+   "t0": 21.97,
+   "t1": 23.33,
+   "parts": [
+    [
+     21.97,
+     23.33
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.2,
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.05,
+    0.5,
+    0.48
+   ],
+   "slide": {
+    "to": 0.7,
+    "at": 0.05
+   },
+   "text": "build the muscle",
+   "voice": "And build the muscle underneath.",
+   "t0": 23.63,
+   "t1": 25.26,
+   "parts": [
+    [
+     23.63,
+     25.26
+    ]
+   ]
+  },
+  {
+   "img": "fat_side",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "voice": "Let's start with the fat.",
+   "t0": 25.56,
+   "t1": 26.76,
+   "parts": [
+    [
+     25.56,
+     26.76
+    ]
+   ]
+  },
+  {
+   "img": "fat_neutral",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.1,
+    0.5,
+    0.46
+   ],
+   "label": "#1. Eat a little less",
+   "voice": "Step one. Eat a little less than you burn.",
+   "t0": 27.06,
+   "t1": 29.7,
+   "parts": [
+    [
+     27.06,
+     27.72
+    ],
+    [
+     28.02,
+     29.7
+    ]
+   ]
+  },
+  {
+   "card": "not a crazy diet",
+   "voice": "Not a crazy diet.",
+   "t0": 30.0,
+   "t1": 31.15,
+   "parts": [
+    [
+     30.0,
+     31.15
+    ]
+   ]
+  },
+  {
+   "reps": "-300 to -500 calories a day",
+   "sets": 0,
+   "voice": "Just remove around three hundred to five hundred calories a day.",
+   "t0": 31.45,
+   "t1": 34.86,
+   "parts": [
+    [
+     31.45,
+     34.86
+    ]
+   ]
+  },
+  {
+   "img": "p_soda",
+   "enter": "fade",
+   "cam": [
+    1.2,
+    0.53,
+    0.52,
+    1.35,
+    0.53,
+    0.52
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.55
+    }
+   ],
+   "voice": "Cut the sugary drinks, the snacks and the late night food.",
+   "t0": 35.16,
+   "t1": 38.47,
+   "parts": [
+    [
+     35.16,
+     38.47
+    ]
+   ]
+  },
+  {
+   "img": "fat_side",
+   "cam": [
+    1.05,
+    0.5,
+    0.48,
+    1.2,
+    0.5,
+    0.45
+   ],
+   "text": "that alone changes everything",
+   "textAt": 0.2,
+   "voice": "That alone can change your whole body.",
+   "t0": 38.77,
+   "t1": 41.03,
+   "parts": [
+    [
+     38.77,
+     41.03
+    ]
+   ]
+  },
+  {
+   "img": "p_food",
+   "enter": "fade",
+   "cam": [
+    1.15,
+    0.5,
+    0.54,
+    1.3,
+    0.5,
+    0.54
+   ],
+   "label": "#2. More protein",
+   "voice": "Step two. Eat more protein.",
+   "t0": 41.33,
+   "t1": 43.47,
+   "parts": [
+    [
+     41.33,
+     41.98
+    ],
+    [
+     42.28,
+     43.47
+    ]
+   ]
+  },
+  {
+   "img": "p_food",
+   "cam": [
+    1.3,
+    0.5,
+    0.54,
+    1.45,
+    0.5,
+    0.54
+   ],
+   "text": "chicken · eggs · fish · yogurt",
+   "textY": 0.12,
+   "textX": 0.5,
+   "voice": "Chicken, eggs, fish, greek yogurt.",
+   "t0": 43.77,
+   "t1": 46.49,
+   "parts": [
+    [
+     43.77,
+     44.21
+    ],
+    [
+     44.51,
+     46.49
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.5,
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.4,
+    0.5,
+    0.4
+   ],
+   "text": "keeps you full",
+   "textAt": 0.15,
+   "icons": [
+    {
+     "kind": "v",
+     "at": 0.8
+    }
+   ],
+   "voice": "Protein keeps you full, and it protects your muscle while you lose fat.",
+   "t0": 46.79,
+   "t1": 50.99,
+   "parts": [
+    [
+     46.79,
+     48.14
+    ],
+    [
+     48.44,
+     50.99
+    ]
+   ]
+  },
+  {
+   "img": "fat_walk",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.05,
+    0.45,
+    0.5
+   ],
+   "label": "#3. Walk every day",
+   "voice": "Step three. Walk every single day.",
+   "t0": 51.29,
+   "t1": 53.99,
+   "parts": [
+    [
+     51.29,
+     52.0
+    ],
+    [
+     52.3,
+     53.99
+    ]
+   ]
+  },
+  {
+   "reps": "8,000 – 10,000 steps",
+   "sets": 0,
+   "voice": "Eight to ten thousand steps.",
+   "t0": 54.29,
+   "t1": 55.93,
+   "parts": [
+    [
+     54.29,
+     55.93
+    ]
+   ]
+  },
+  {
+   "img": "fat_walk",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.05,
+    0.45,
+    0.5
+   ],
+   "slide": {
+    "to": 0.32,
+    "at": 0.05
+   },
+   "text": "simple, but it works",
+   "voice": "It sounds too simple, but walking burns more fat over a week than most people think.",
+   "t0": 56.23,
+   "t1": 61.19,
+   "parts": [
+    [
+     56.23,
+     61.19
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.3,
+    0.5,
+    0.36
+   ],
+   "tags": [
+    {
+     "name": "Abs",
+     "color": "red",
+     "x": 0.47,
+     "y": 0.345,
+     "style": "dash",
+     "at": 0.35,
+     "len": 300
+    }
+   ],
+   "voice": "Now, the abs.",
+   "t0": 61.49,
+   "t1": 62.66,
+   "parts": [
+    [
+     61.49,
+     62.66
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.0,
+   "cam": [
+    2.3,
+    0.5,
+    0.36,
+    2.5,
+    0.5,
+    0.36
+   ],
+   "say": "a *muscle*",
+   "spoken": "Your abs are a muscle like any other.",
+   "sayY": 0.12,
+   "voice": "Your abs are a muscle like any other.",
+   "t0": 62.96,
+   "t1": 65.01,
+   "parts": [
+    [
+     62.96,
+     65.01
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.0,
+   "cam": [
+    2.5,
+    0.5,
+    0.36,
+    2.6,
+    0.5,
+    0.36
+   ],
+   "text": "thicker = visible",
+   "textAt": 0.4,
+   "voice": "To make them show, you need to make them thicker.",
+   "t0": 65.31,
+   "t1": 67.86,
+   "parts": [
+    [
+     65.31,
+     67.86
+    ]
+   ]
+  },
+  {
+   "card": "3 exercises are enough",
+   "voice": "And for that, three exercises are enough.",
+   "t0": 68.16,
+   "t1": 70.58,
+   "parts": [
+    [
+     68.16,
+     68.75
+    ],
+    [
+     69.05,
+     70.58
+    ]
+   ]
+  },
+  {
+   "medal": "p_bar",
+   "name": "Hanging Leg Raises",
+   "medalZoom": 1.1,
+   "voice": "Number one. Hanging leg raises.",
+   "t0": 70.88,
+   "t1": 72.95,
+   "parts": [
+    [
+     70.88,
+     71.45
+    ],
+    [
+     71.75,
+     72.95
+    ]
+   ]
+  },
+  {
+   "img": "hang_down",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.05,
+    0.5,
+    0.5
+   ],
+   "voice": "Hang from a bar with your arms straight.",
+   "t0": 73.25,
+   "t1": 75.16,
+   "parts": [
+    [
+     73.25,
+     75.16
+    ]
+   ]
+  },
+  {
+   "img": "hang_down",
+   "alt": "hang_up",
+   "period": 1.4,
+   "cam": [
+    1.0,
+    0.55,
+    0.5,
+    1.05,
+    0.55,
+    0.5
+   ],
+   "text": "no swinging",
+   "textAt": 0.5,
+   "textX": 0.82,
+   "voice": "Lift your legs up slowly, without swinging.",
+   "t0": 75.46,
+   "t1": 77.88,
+   "parts": [
+    [
+     75.46,
+     77.88
+    ]
+   ]
+  },
+  {
+   "img": "hang_down",
+   "alt": "hang_up",
+   "period": 1.8,
+   "cam": [
+    1.05,
+    0.55,
+    0.5,
+    1.1,
+    0.55,
+    0.5
+   ],
+   "voice": "Then lower them with control.",
+   "t0": 78.18,
+   "t1": 79.88,
+   "parts": [
+    [
+     78.18,
+     79.88
+    ]
+   ]
+  },
+  {
+   "reps": "8-12 reps",
+   "voice": "Three sets of eight to twelve.",
+   "t0": 80.18,
+   "t1": 81.95,
+   "parts": [
+    [
+     80.18,
+     81.95
+    ]
+   ]
+  },
+  {
+   "card": "no bar at home?",
+   "voice": "No bar at home?",
+   "t0": 82.25,
+   "t1": 83.04,
+   "parts": [
+    [
+     82.25,
+     83.04
+    ]
+   ]
+  },
+  {
+   "medal": "p_mat",
+   "name": "Lying Leg Raises",
+   "medalZoom": 1.2,
+   "medalDy": -120,
+   "voice": "Do lying leg raises.",
+   "t0": 83.34,
+   "t1": 84.7,
+   "parts": [
+    [
+     83.34,
+     84.7
+    ]
+   ]
+  },
+  {
+   "img": "lie_down",
+   "enter": "right",
+   "cam": [
+    1.2,
+    0.5,
+    0.62,
+    1.25,
+    0.5,
+    0.62
+   ],
+   "voice": "Lie on your back, hands under your hips.",
+   "t0": 85.0,
+   "t1": 87.11,
+   "parts": [
+    [
+     85.0,
+     85.76
+    ],
+    [
+     86.06,
+     87.11
+    ]
+   ]
+  },
+  {
+   "img": "lie_down",
+   "alt": "lie_up",
+   "period": 1.5,
+   "cam": [
+    1.1,
+    0.5,
+    0.55,
+    1.15,
+    0.5,
+    0.55
+   ],
+   "text": "don't touch the floor",
+   "textAt": 0.55,
+   "textY": 0.15,
+   "textX": 0.5,
+   "voice": "Lift your legs up to the ceiling, then lower them slowly, without touching the floor.",
+   "t0": 87.41,
+   "t1": 92.04,
+   "parts": [
+    [
+     87.41,
+     89.1
+    ],
+    [
+     89.4,
+     92.04
+    ]
+   ]
+  },
+  {
+   "reps": "12-15 reps",
+   "voice": "Three sets of twelve to fifteen.",
+   "t0": 92.34,
+   "t1": 94.36,
+   "parts": [
+    [
+     92.34,
+     94.36
+    ]
+   ]
+  },
+  {
+   "medal": "p_mat",
+   "name": "The Crunch",
+   "medalZoom": 1.2,
+   "medalDy": -120,
+   "voice": "Number two. The crunch.",
+   "t0": 94.66,
+   "t1": 96.23,
+   "parts": [
+    [
+     94.66,
+     95.28
+    ],
+    [
+     95.58,
+     96.23
+    ]
+   ]
+  },
+  {
+   "card": "done right",
+   "voice": "But done right.",
+   "t0": 96.53,
+   "t1": 97.47,
+   "parts": [
+    [
+     96.53,
+     97.47
+    ]
+   ]
+  },
+  {
+   "img": "crunch_down",
+   "enter": "right",
+   "cam": [
+    1.15,
+    0.5,
+    0.6,
+    1.25,
+    0.5,
+    0.6
+   ],
+   "voice": "Lie on your back with your knees bent.",
+   "t0": 97.77,
+   "t1": 99.61,
+   "parts": [
+    [
+     97.77,
+     99.61
+    ]
+   ]
+  },
+  {
+   "img": "crunch_down",
+   "alt": "crunch_up",
+   "period": 1.4,
+   "cam": [
+    1.25,
+    0.5,
+    0.58,
+    1.35,
+    0.45,
+    0.56
+   ],
+   "text": "squeeze 1s at the top",
+   "textAt": 0.5,
+   "textY": 0.2,
+   "textX": 0.5,
+   "voice": "Curl your shoulders up toward your hips, and squeeze your abs for one second at the top.",
+   "t0": 99.91,
+   "t1": 104.79,
+   "parts": [
+    [
+     99.91,
+     104.79
+    ]
+   ]
+  },
+  {
+   "img": "crunch_up",
+   "cam": [
+    2.0,
+    0.25,
+    0.52,
+    2.2,
+    0.25,
+    0.52
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "don't pull your neck",
+   "textAt": 0.2,
+   "voice": "Don't pull on your neck.",
+   "t0": 105.09,
+   "t1": 106.19,
+   "parts": [
+    [
+     105.09,
+     106.19
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.3,
+   "cam": [
+    1.6,
+    0.5,
+    0.36,
+    2.4,
+    0.5,
+    0.36
+   ],
+   "say": "the *six-pack*",
+   "spoken": "It's a small movement, but it's the one that builds the six-pack.",
+   "sayY": 0.12,
+   "voice": "It's a small movement, but it's the one that builds the six-pack.",
+   "t0": 106.49,
+   "t1": 109.8,
+   "parts": [
+    [
+     106.49,
+     109.8
+    ]
+   ]
+  },
+  {
+   "reps": "15 reps",
+   "voice": "Three sets of fifteen.",
+   "t0": 110.1,
+   "t1": 111.56,
+   "parts": [
+    [
+     110.1,
+     111.56
+    ]
+   ]
+  },
+  {
+   "medal": "p_timer",
+   "name": "Plank",
+   "medalZoom": 1.05,
+   "voice": "Number three. The plank.",
+   "t0": 111.86,
+   "t1": 113.38,
+   "parts": [
+    [
+     111.86,
+     112.5
+    ],
+    [
+     112.8,
+     113.38
+    ]
+   ]
+  },
+  {
+   "img": "plank",
+   "enter": "right",
+   "cam": [
+    1.15,
+    0.5,
+    0.48,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "text": "one straight line",
+   "textAt": 0.6,
+   "textY": 0.18,
+   "textX": 0.5,
+   "voice": "Elbows under your shoulders, body in one straight line.",
+   "t0": 113.68,
+   "t1": 116.96,
+   "parts": [
+    [
+     113.68,
+     116.96
+    ]
+   ]
+  },
+  {
+   "img": "plank",
+   "cam": [
+    1.2,
+    0.5,
+    0.48,
+    1.6,
+    0.55,
+    0.45
+   ],
+   "text": "squeeze",
+   "textAt": 0.4,
+   "textY": 0.18,
+   "textX": 0.5,
+   "voice": "Squeeze your abs and your glutes.",
+   "t0": 117.26,
+   "t1": 119.19,
+   "parts": [
+    [
+     117.26,
+     119.19
+    ]
+   ]
+  },
+  {
+   "img": "plank",
+   "cam": [
+    1.6,
+    0.55,
+    0.45,
+    1.65,
+    0.55,
+    0.45
+   ],
+   "text": "30-60s",
+   "textAt": 0.3,
+   "textY": 0.18,
+   "textX": 0.5,
+   "voice": "Hold for thirty to sixty seconds.",
+   "t0": 119.49,
+   "t1": 121.56,
+   "parts": [
+    [
+     119.49,
+     121.56
+    ]
+   ]
+  },
+  {
+   "img": "fat_side",
+   "cam": [
+    1.05,
+    0.5,
+    0.48,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "base",
+     "hl": "hl_abs"
+    }
+   ],
+   "text": "a flatter stomach",
+   "textAt": 0.6,
+   "voice": "This builds the deep muscle that pulls your stomach in and makes it look flat.",
+   "t0": 121.86,
+   "t1": 126.18,
+   "parts": [
+    [
+     121.86,
+     126.18
+    ]
+   ]
+  },
+  {
+   "reps": "30-60s",
+   "voice": "Three rounds.",
+   "t0": 126.48,
+   "t1": 127.22,
+   "parts": [
+    [
+     126.48,
+     127.22
+    ]
+   ]
+  },
+  {
+   "card": "3 mistakes that keep your belly big",
+   "voice": "Now, three mistakes that keep your belly big.",
+   "t0": 127.52,
+   "t1": 130.29,
+   "parts": [
+    [
+     127.52,
+     130.29
+    ]
+   ]
+  },
+  {
+   "img": "fat_situp",
+   "cam": [
+    1.0,
+    0.5,
+    0.55,
+    1.1,
+    0.5,
+    0.55
+   ],
+   "label": "#1. Only doing abs",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "diet + walking",
+   "textAt": 0.6,
+   "textY": 0.15,
+   "textX": 0.5,
+   "voice": "One. Only doing abs. Without the diet and the walking, the fat stays.",
+   "t0": 130.59,
+   "t1": 135.73,
+   "parts": [
+    [
+     130.59,
+     130.9
+    ],
+    [
+     131.2,
+     132.57
+    ],
+    [
+     132.87,
+     135.73
+    ]
+   ]
+  },
+  {
+   "img": "crunch_down",
+   "alt": "crunch_up",
+   "period": 0.35,
+   "cam": [
+    1.15,
+    0.5,
+    0.6,
+    1.25,
+    0.5,
+    0.6
+   ],
+   "label": "#2. Abs every day",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "they need rest",
+   "textAt": 0.6,
+   "textY": 0.2,
+   "textX": 0.5,
+   "voice": "Two. Training abs every day. They need rest to grow, like every other muscle.",
+   "t0": 136.03,
+   "t1": 141.16,
+   "parts": [
+    [
+     136.03,
+     136.31
+    ],
+    [
+     136.61,
+     138.24
+    ],
+    [
+     138.54,
+     141.16
+    ]
+   ]
+  },
+  {
+   "img": "fat_neutral",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.1,
+    0.5,
+    0.45
+   ],
+   "label": "#3. Giving up too soon",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "slow at first, then fast",
+   "textAt": 0.6,
+   "voice": "Three. Giving up after two weeks. Fat loss is slow at the start, then everything changes.",
+   "t0": 141.46,
+   "t1": 147.71,
+   "parts": [
+    [
+     141.46,
+     141.78
+    ],
+    [
+     142.08,
+     143.69
+    ],
+    [
+     143.99,
+     145.78
+    ],
+    [
+     146.08,
+     147.71
+    ]
+   ]
+  },
+  {
+   "card": "your plan",
+   "voice": "Here's your plan.",
+   "t0": 148.01,
+   "t1": 148.73,
+   "parts": [
+    [
+     148.01,
+     148.73
+    ]
+   ]
+  },
+  {
+   "img": "fat_walk",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.05,
+    0.45,
+    0.5
+   ],
+   "text": "walk · eat less · protein",
+   "textAt": 0.3,
+   "voice": "Every day, walk and eat a little less, with more protein.",
+   "t0": 149.03,
+   "t1": 152.59,
+   "parts": [
+    [
+     149.03,
+     152.59
+    ]
+   ]
+  },
+  {
+   "img": "hang_up",
+   "cam": [
+    1.0,
+    0.55,
+    0.5,
+    1.0,
+    0.55,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.38,
+     "img": "lie_up"
+    },
+    {
+     "at": 0.7,
+     "img": "crunch_up"
+    }
+   ],
+   "voice": "Three times a week, leg raises, crunches and planks.",
+   "t0": 152.89,
+   "t1": 156.1,
+   "parts": [
+    [
+     152.89,
+     153.72
+    ],
+    [
+     154.02,
+     156.1
+    ]
+   ]
+  },
+  {
+   "reps": "each",
+   "voice": "Three sets each.",
+   "t0": 156.4,
+   "t1": 157.29,
+   "parts": [
+    [
+     156.4,
+     157.29
+    ]
+   ]
+  },
+  {
+   "card": "three months",
+   "voice": "Do this for three months.",
+   "t0": 157.59,
+   "t1": 158.98,
+   "parts": [
+    [
+     157.59,
+     158.98
+    ]
+   ]
+  },
+  {
+   "img": "fat_neutral",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.15,
+    0.5,
+    0.45
+   ],
+   "voice": "Look in the mirror.",
+   "t0": 159.28,
+   "t1": 159.98,
+   "parts": [
+    [
+     159.28,
+     159.98
+    ]
+   ]
+  },
+  {
+   "img": "fat_neutral",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.0,
+    0.5,
+    0.48
+   ],
+   "seq": [
+    {
+     "at": 0.3,
+     "img": "base",
+     "hl": "hl_abs"
+    }
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.45
+   },
+   "text": "your abs will show",
+   "voice": "Your belly will be flatter. And your abs will start to show.",
+   "t0": 160.28,
+   "t1": 163.53,
+   "parts": [
+    [
+     160.28,
+     163.53
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_abs",
+   "hlAt": 0.0,
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.1,
+    0.5,
+    0.45
+   ],
+   "text": "your whole body looks complete",
+   "textAt": 0.5,
+   "voice": "Now, once your belly is flat, there's one thing that makes your whole body look complete.",
+   "t0": 163.83,
+   "t1": 169.19,
+   "parts": [
+    [
+     163.83,
+     165.82
+    ],
+    [
+     166.12,
+     169.19
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.2,
+   "cam": [
+    1.3,
+    0.5,
+    0.4,
+    2.3,
+    0.5,
+    0.27
+   ],
+   "say": "a strong *chest*",
+   "spoken": "A strong chest.",
+   "voice": "A strong chest.",
+   "t0": 169.49,
+   "t1": 170.94,
+   "parts": [
+    [
+     169.49,
+     170.94
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "x": 0.2,
+   "cam": [
+    0.85,
+    0.5,
+    0.5,
+    0.9,
+    0.5,
+    0.5
+   ],
+   "next": {
+    "img": "thumb_chest",
+    "title": "How Skinny Guys Build a Chest (3 Parts Most Ignore)"
+   },
+   "voice": "So watch this video next. It shows you the three parts of your chest, and how to build each one, at the gym or at home.",
+   "t0": 171.24,
+   "t1": 178.29,
+   "parts": [
+    [
+     171.24,
+     172.64
+    ],
+    [
+     172.94,
+     178.29
+    ]
+   ]
+  },
+  {
+   "subscribe": true,
+   "clickAt": 0.25,
+   "text": "new videos every Tuesday & Saturday",
+   "hold": 1.5,
+   "voice": "And subscribe to Linework Fit. A new video comes out every Tuesday and Saturday.",
+   "t0": 178.59,
+   "t1": 183.49,
+   "parts": [
+    [
+     178.59,
+     180.18
+    ],
+    [
+     180.48,
+     183.49
+    ]
+   ]
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.06,
+    4.06
+   ],
+   "at": 0.2
+  },
+  {
+   "src": [
+    4.36,
+    5.93
+   ],
+   "at": 4.5
+  },
+  {
+   "src": [
+    6.55,
+    8.55
+   ],
+   "at": 6.37
+  },
+  {
+   "src": [
+    9.06,
+    11.05
+   ],
+   "at": 8.67
+  },
+  {
+   "src": [
+    11.5,
+    14.7
+   ],
+   "at": 10.96
+  },
+  {
+   "src": [
+    15.17,
+    17.11
+   ],
+   "at": 14.46
+  },
+  {
+   "src": [
+    17.53,
+    19.6
+   ],
+   "at": 16.7
+  },
+  {
+   "src": [
+    19.93,
+    20.69
+   ],
+   "at": 19.07
+  },
+  {
+   "src": [
+    20.97,
+    22.51
+   ],
+   "at": 20.13
+  },
+  {
+   "src": [
+    22.88,
+    24.24
+   ],
+   "at": 21.97
+  },
+  {
+   "src": [
+    24.55,
+    26.18
+   ],
+   "at": 23.63
+  },
+  {
+   "src": [
+    26.77,
+    27.97
+   ],
+   "at": 25.56
+  },
+  {
+   "src": [
+    28.41,
+    29.07
+   ],
+   "at": 27.06
+  },
+  {
+   "src": [
+    29.49,
+    31.17
+   ],
+   "at": 28.02
+  },
+  {
+   "src": [
+    31.59,
+    32.74
+   ],
+   "at": 30.0
+  },
+  {
+   "src": [
+    33.03,
+    36.44
+   ],
+   "at": 31.45
+  },
+  {
+   "src": [
+    36.84,
+    40.15
+   ],
+   "at": 35.16
+  },
+  {
+   "src": [
+    40.46,
+    42.72
+   ],
+   "at": 38.77
+  },
+  {
+   "src": [
+    43.23,
+    43.88
+   ],
+   "at": 41.33
+  },
+  {
+   "src": [
+    44.29,
+    45.48
+   ],
+   "at": 42.28
+  },
+  {
+   "src": [
+    45.9,
+    46.34
+   ],
+   "at": 43.77
+  },
+  {
+   "src": [
+    46.62,
+    48.6
+   ],
+   "at": 44.51
+  },
+  {
+   "src": [
+    48.99,
+    50.34
+   ],
+   "at": 46.79
+  },
+  {
+   "src": [
+    50.63,
+    53.18
+   ],
+   "at": 48.44
+  },
+  {
+   "src": [
+    53.55,
+    54.26
+   ],
+   "at": 51.29
+  },
+  {
+   "src": [
+    54.63,
+    56.32
+   ],
+   "at": 52.3
+  },
+  {
+   "src": [
+    56.69,
+    58.33
+   ],
+   "at": 54.29
+  },
+  {
+   "src": [
+    58.68,
+    63.64
+   ],
+   "at": 56.23
+  },
+  {
+   "src": [
+    64.07,
+    65.24
+   ],
+   "at": 61.49
+  },
+  {
+   "src": [
+    65.59,
+    67.64
+   ],
+   "at": 62.96
+  },
+  {
+   "src": [
+    68.02,
+    70.57
+   ],
+   "at": 65.31
+  },
+  {
+   "src": [
+    70.96,
+    71.55
+   ],
+   "at": 68.16
+  },
+  {
+   "src": [
+    71.85,
+    73.38
+   ],
+   "at": 69.05
+  },
+  {
+   "src": [
+    73.89,
+    74.46
+   ],
+   "at": 70.88
+  },
+  {
+   "src": [
+    74.88,
+    76.08
+   ],
+   "at": 71.75
+  },
+  {
+   "src": [
+    76.44,
+    78.35
+   ],
+   "at": 73.25
+  },
+  {
+   "src": [
+    78.77,
+    81.19
+   ],
+   "at": 75.46
+  },
+  {
+   "src": [
+    81.55,
+    83.25
+   ],
+   "at": 78.18
+  },
+  {
+   "src": [
+    83.65,
+    85.42
+   ],
+   "at": 80.18
+  },
+  {
+   "src": [
+    85.84,
+    86.63
+   ],
+   "at": 82.25
+  },
+  {
+   "src": [
+    86.93,
+    88.29
+   ],
+   "at": 83.34
+  },
+  {
+   "src": [
+    88.64,
+    89.4
+   ],
+   "at": 85.0
+  },
+  {
+   "src": [
+    89.76,
+    90.81
+   ],
+   "at": 86.06
+  },
+  {
+   "src": [
+    91.13,
+    92.82
+   ],
+   "at": 87.41
+  },
+  {
+   "src": [
+    93.13,
+    95.77
+   ],
+   "at": 89.4
+  },
+  {
+   "src": [
+    96.19,
+    98.21
+   ],
+   "at": 92.34
+  },
+  {
+   "src": [
+    98.64,
+    99.26
+   ],
+   "at": 94.66
+  },
+  {
+   "src": [
+    99.65,
+    100.3
+   ],
+   "at": 95.58
+  },
+  {
+   "src": [
+    100.66,
+    101.6
+   ],
+   "at": 96.53
+  },
+  {
+   "src": [
+    101.93,
+    103.77
+   ],
+   "at": 97.77
+  },
+  {
+   "src": [
+    104.06,
+    108.94
+   ],
+   "at": 99.91
+  },
+  {
+   "src": [
+    109.33,
+    110.43
+   ],
+   "at": 105.09
+  },
+  {
+   "src": [
+    110.75,
+    114.06
+   ],
+   "at": 106.49
+  },
+  {
+   "src": [
+    114.51,
+    115.97
+   ],
+   "at": 110.1
+  },
+  {
+   "src": [
+    116.4,
+    117.04
+   ],
+   "at": 111.86
+  },
+  {
+   "src": [
+    117.45,
+    118.03
+   ],
+   "at": 112.8
+  },
+  {
+   "src": [
+    118.41,
+    121.69
+   ],
+   "at": 113.68
+  },
+  {
+   "src": [
+    122.05,
+    123.98
+   ],
+   "at": 117.26
+  },
+  {
+   "src": [
+    124.31,
+    126.38
+   ],
+   "at": 119.49
+  },
+  {
+   "src": [
+    126.71,
+    131.03
+   ],
+   "at": 121.86
+  },
+  {
+   "src": [
+    131.45,
+    132.19
+   ],
+   "at": 126.48
+  },
+  {
+   "src": [
+    132.59,
+    135.36
+   ],
+   "at": 127.52
+  },
+  {
+   "src": [
+    135.78,
+    136.09
+   ],
+   "at": 130.59
+  },
+  {
+   "src": [
+    136.43,
+    137.8
+   ],
+   "at": 131.2
+  },
+  {
+   "src": [
+    138.12,
+    140.98
+   ],
+   "at": 132.87
+  },
+  {
+   "src": [
+    141.32,
+    141.6
+   ],
+   "at": 136.03
+  },
+  {
+   "src": [
+    141.93,
+    143.56
+   ],
+   "at": 136.61
+  },
+  {
+   "src": [
+    143.94,
+    146.56
+   ],
+   "at": 138.54
+  },
+  {
+   "src": [
+    146.99,
+    147.31
+   ],
+   "at": 141.46
+  },
+  {
+   "src": [
+    147.67,
+    149.28
+   ],
+   "at": 142.08
+  },
+  {
+   "src": [
+    149.69,
+    151.48
+   ],
+   "at": 143.99
+  },
+  {
+   "src": [
+    151.83,
+    153.46
+   ],
+   "at": 146.08
+  },
+  {
+   "src": [
+    153.91,
+    154.63
+   ],
+   "at": 148.01
+  },
+  {
+   "src": [
+    155.01,
+    158.57
+   ],
+   "at": 149.03
+  },
+  {
+   "src": [
+    158.98,
+    159.81
+   ],
+   "at": 152.89
+  },
+  {
+   "src": [
+    160.14,
+    162.22
+   ],
+   "at": 154.02
+  },
+  {
+   "src": [
+    162.55,
+    163.44
+   ],
+   "at": 156.4
+  },
+  {
+   "src": [
+    163.76,
+    165.15
+   ],
+   "at": 157.59
+  },
+  {
+   "src": [
+    165.46,
+    166.16
+   ],
+   "at": 159.28
+  },
+  {
+   "src": [
+    166.51,
+    169.76
+   ],
+   "at": 160.28
+  },
+  {
+   "src": [
+    170.53,
+    172.52
+   ],
+   "at": 163.83
+  },
+  {
+   "src": [
+    172.89,
+    175.96
+   ],
+   "at": 166.12
+  },
+  {
+   "src": [
+    176.66,
+    178.11
+   ],
+   "at": 169.49
+  },
+  {
+   "src": [
+    178.65,
+    180.05
+   ],
+   "at": 171.24
+  },
+  {
+   "src": [
+    180.61,
+    185.96
+   ],
+   "at": 172.94
+  },
+  {
+   "src": [
+    186.5,
+    188.09
+   ],
+   "at": 178.59
+  },
+  {
+   "src": [
+    188.53,
+    191.54
+   ],
+   "at": 180.48
+  }
+ ]
+}

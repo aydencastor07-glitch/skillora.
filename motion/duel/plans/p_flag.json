@@ -1,0 +1,119 @@
+{
+ "pseudo": "@exxtory",
+ "bg": "fond",
+ "style": "flag",
+ "hookImg": "x_f_hook",
+ "banner": "GREEN 🟢 OR RED 🔴",
+ "lines": [
+  {
+   "segs": [
+    0
+   ],
+   "text": "Green flag or *red flag?*",
+   "role": "hook",
+   "newScene": true
+  },
+  {
+   "segs": [
+    1
+   ],
+   "text": "Be *honest.*",
+   "role": "hook"
+  },
+  {
+   "segs": [
+    2
+   ],
+   "text": "He texts you *good morning* every day.",
+   "role": "ask",
+   "img": "x_f1",
+   "newScene": true
+  },
+  {
+   "segs": [
+    3
+   ],
+   "text": "GREEN FLAG",
+   "role": "verdict",
+   "verdict": "green"
+  },
+  {
+   "segs": [
+    4
+   ],
+   "text": "She still follows her *ex.*",
+   "role": "ask",
+   "img": "x_f2",
+   "newScene": true
+  },
+  {
+   "segs": [
+    5
+   ],
+   "text": "RED FLAG",
+   "role": "verdict",
+   "verdict": "red"
+  },
+  {
+   "segs": [
+    6
+   ],
+   "text": "He knows your *coffee* order.",
+   "role": "ask",
+   "img": "x_f3",
+   "newScene": true
+  },
+  {
+   "segs": [
+    7
+   ],
+   "text": "GREEN FLAG",
+   "role": "verdict",
+   "verdict": "green"
+  },
+  {
+   "segs": [
+    8
+   ],
+   "text": "She *hides* her phone screen.",
+   "role": "ask",
+   "img": "x_f4",
+   "newScene": true
+  },
+  {
+   "segs": [
+    9
+   ],
+   "text": "RED FLAG",
+   "role": "verdict",
+   "verdict": "red"
+  },
+  {
+   "segs": [
+    10,
+    11,
+    12
+   ],
+   "text": "He says \"I'm *fine*\"… but he's *not.*",
+   "role": "ask",
+   "img": "x_f5",
+   "newScene": true
+  },
+  {
+   "segs": [
+    13
+   ],
+   "text": "You *decide.*",
+   "role": "verdict",
+   "verdict": "?"
+  },
+  {
+   "segs": [
+    14
+   ],
+   "text": "Comment *green* or *red.*",
+   "role": "end",
+   "newScene": true
+  }
+ ]
+}

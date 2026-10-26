@@ -1,0 +1,219 @@
+{
+ "pseudo": "@exxtory",
+ "voice": "voix2.mp3",
+ "music": "musique.mp3",
+ "bg": "fond",
+ "scenes": [
+  {
+   "type": "open",
+   "title": "Is your girlfriend *allowed* to…?",
+   "d": 2.9699999999999998,
+   "img": "p_open",
+   "tag": "HARD EDITION 🔥",
+   "fx": 0.5,
+   "fy": 0.4,
+   "t": 0.0
+  },
+  {
+   "type": "q",
+   "q": "Go *clubbing* without you?",
+   "qv": [
+    1.236,
+    2.34
+   ],
+   "cd": 2.59,
+   "d": 5.9399999999999995,
+   "a": {
+    "img": "p_q1"
+   },
+   "t": 2.97
+  },
+  {
+   "type": "q",
+   "q": "Stay friends with her *ex* on Instagram?",
+   "qv": [
+    1.25,
+    3.2699999999999996
+   ],
+   "cd": 3.5199999999999996,
+   "d": 6.869999999999999,
+   "a": {
+    "img": "p_q2"
+   },
+   "t": 8.91
+  },
+  {
+   "type": "q",
+   "q": "Like *another guy's* photos?",
+   "qv": [
+    1.25,
+    3.210000000000001
+   ],
+   "cd": 3.460000000000001,
+   "d": 6.8100000000000005,
+   "a": {
+    "img": "p_q3"
+   },
+   "t": 15.78
+  },
+  {
+   "type": "q",
+   "q": "Sleep over at a guy friend's place… *alone?*",
+   "qv": [
+    1.25,
+    5.32
+   ],
+   "cd": 5.57,
+   "d": 8.92,
+   "a": {
+    "img": "p_q4"
+   },
+   "t": 22.59
+  },
+  {
+   "type": "say",
+   "d": 3.039999999999999,
+   "emoji": "⚠️",
+   "t": 31.51
+  },
+  {
+   "type": "q",
+   "q": "Read your *messages* without asking?",
+   "qv": [
+    1.25,
+    3.370000000000001
+   ],
+   "cd": 3.620000000000001,
+   "d": 6.970000000000001,
+   "a": {
+    "img": "p_q5"
+   },
+   "t": 34.55
+  },
+  {
+   "type": "q",
+   "q": "Know your phone *password?*",
+   "qv": [
+    1.25,
+    2.990000000000002
+   ],
+   "cd": 3.240000000000002,
+   "d": 6.590000000000002,
+   "a": {
+    "img": "p_q6"
+   },
+   "t": 41.52
+  },
+  {
+   "type": "say",
+   "d": 3.66,
+   "emoji": "👇",
+   "t": 48.11
+  },
+  {
+   "type": "say",
+   "d": 2.849999999999998,
+   "emoji": "📲",
+   "t": 51.77
+  }
+ ],
+ "captions": [
+  {
+   "t0": 0.25,
+   "t1": 2.27,
+   "text": "Is your girlfriend *allowed* to…?"
+  },
+  {
+   "t0": 31.71,
+   "t1": 34.0,
+   "text": "Wait… the *last question* changes everything."
+  },
+  {
+   "t0": 48.31,
+   "t1": 49.41,
+   "text": "So, how many *yes?*"
+  },
+  {
+   "t0": 49.93,
+   "t1": 51.22,
+   "text": "Drop your *score* in the comments."
+  },
+  {
+   "t0": 51.97,
+   "t1": 54.07,
+   "text": "*Send this* to your girlfriend and see her answers!"
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.11,
+    2.13
+   ],
+   "at": 0.25
+  },
+  {
+   "src": [
+    2.58,
+    4.42
+   ],
+   "at": 3.47
+  },
+  {
+   "src": [
+    4.9,
+    7.67
+   ],
+   "at": 9.41
+  },
+  {
+   "src": [
+    8.1,
+    10.81
+   ],
+   "at": 16.28
+  },
+  {
+   "src": [
+    11.29,
+    16.11
+   ],
+   "at": 23.09
+  },
+  {
+   "src": [
+    16.57,
+    18.86
+   ],
+   "at": 31.71
+  },
+  {
+   "src": [
+    19.24,
+    22.11
+   ],
+   "at": 35.05
+  },
+  {
+   "src": [
+    22.61,
+    25.1
+   ],
+   "at": 42.02
+  },
+  {
+   "src": [
+    25.81,
+    28.72
+   ],
+   "at": 48.31
+  },
+  {
+   "src": [
+    29.23,
+    31.33
+   ],
+   "at": 51.97
+  }
+ ]
+}

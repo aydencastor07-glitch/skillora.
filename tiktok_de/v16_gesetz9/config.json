@@ -1,0 +1,131 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_franklin.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 9",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.247,
+  "dur": 0.6
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "segments": [
+  [
+   "Gesetz Nr. 9:",
+   0.064,
+   0.866
+  ],
+  [
+   "Erzähl niemandem von deinen Plänen.",
+   1.234,
+   3.08
+  ],
+  [
+   "Jedes Mal, wenn du darüber redest,",
+   3.29,
+   4.973
+  ],
+  [
+   "gibst du anderen die Chance, sie zu zerstören.",
+   4.973,
+   7.227
+  ],
+  [
+   "Neid.",
+   7.484,
+   7.834
+  ],
+  [
+   "Zweifel.",
+   8.176,
+   8.732
+  ],
+  [
+   "Ratschläge, die du nie wolltest.",
+   8.938,
+   10.464
+  ],
+  [
+   "Und das Schlimmste:",
+   10.68,
+   11.386
+  ],
+  [
+   "Dein Kopf feiert schon,",
+   11.632,
+   12.776
+  ],
+  [
+   "als hättest du es geschafft –",
+   12.92,
+   13.958
+  ],
+  [
+   "und deine Motivation ist weg.",
+   14.026,
+   15.452
+  ],
+  [
+   "Benjamin Franklin sagte:",
+   15.738,
+   17.0
+  ],
+  [
+   "„Drei können ein Geheimnis bewahren,",
+   17.278,
+   19.048
+  ],
+  [
+   "wenn zwei von ihnen tot sind.“",
+   19.048,
+   20.66
+  ],
+  [
+   "Arbeite im Stillen.",
+   20.66,
+   21.642
+  ],
+  [
+   "Lass am Ende nur das Ergebnis sprechen.",
+   21.86,
+   23.72
+  ]
+ ],
+ "text": [
+  "Gesetz Nr. 9:",
+  "Erzähl niemandem von deinen Plänen.",
+  "Jedes Mal, wenn du darüber redest,",
+  "gibst du anderen die Chance, sie zu zerstören.",
+  "Neid.",
+  "Zweifel.",
+  "Ratschläge, die du nie wolltest.",
+  "Und das Schlimmste:",
+  "Dein Kopf feiert schon,",
+  "als hättest du es geschafft –",
+  "und deine Motivation ist weg.",
+  "Benjamin Franklin sagte:",
+  "„Drei können ein Geheimnis bewahren,",
+  "wenn zwei von ihnen tot sind.“",
+  "Arbeite im Stillen.",
+  "Lass am Ende nur das Ergebnis sprechen."
+ ],
+ "cta": {
+  "t": 24.52,
+  "click": 1.5,
+  "avatar": "avatar_profil.png",
+  "x": 540,
+  "y": 930,
+  "r": 165,
+  "hide_text": true,
+  "swap": true
+ },
+ "hot": "^(pläne|plänen|zerstören|neid|zweifel|ratschläge|schlimmste|kopf|geschafft|motivation|franklin|geheimnis|tot|stillen|ergebnis|sprechen|gesetz)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4
+}

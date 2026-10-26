@@ -1,0 +1,143 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_zenon.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 11",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.262,
+  "dur": 0.6
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "segments": [
+  [
+   "Gesetz Nr. 11:",
+   0.068,
+   1.076
+  ],
+  [
+   "Rede weniger, als du weißt.",
+   1.408,
+   3.1
+  ],
+  [
+   "Wer ständig redet,",
+   3.298,
+   4.258
+  ],
+  [
+   "zeigt allen seine Karten.",
+   4.504,
+   5.82
+  ],
+  [
+   "Seine Schwächen.",
+   5.952,
+   6.666
+  ],
+  [
+   "Seine Pläne.",
+   6.894,
+   7.602
+  ],
+  [
+   "Seine Angst.",
+   7.786,
+   8.344
+  ],
+  [
+   "Der Stillste im Raum ist oft der Gefährlichste –",
+   8.588,
+   11.0
+  ],
+  [
+   "weil niemand weiß, was er denkt.",
+   11.032,
+   12.376
+  ],
+  [
+   "Wenn du schweigst,",
+   12.558,
+   13.332
+  ],
+  [
+   "werden die anderen nervös",
+   13.458,
+   14.716
+  ],
+  [
+   "und verraten mehr, als sie wollten.",
+   14.922,
+   16.598
+  ],
+  [
+   "Zenon von Kition sagte:",
+   16.812,
+   18.232
+  ],
+  [
+   "„Wir haben zwei Ohren und einen Mund,",
+   18.477,
+   20.49
+  ],
+  [
+   "damit wir mehr hören und weniger reden.“",
+   20.68,
+   22.85
+  ],
+  [
+   "Sag weniger.",
+   23.04,
+   23.773
+  ],
+  [
+   "Hör mehr.",
+   24.016,
+   24.556
+  ],
+  [
+   "Und lass sie raten.",
+   24.68,
+   25.518
+  ]
+ ],
+ "text": [
+  "Gesetz Nr. 11:",
+  "Rede weniger, als du weißt.",
+  "Wer ständig redet,",
+  "zeigt allen seine Karten.",
+  "Seine Schwächen.",
+  "Seine Pläne.",
+  "Seine Angst.",
+  "Der Stillste im Raum ist oft der Gefährlichste –",
+  "weil niemand weiß, was er denkt.",
+  "Wenn du schweigst,",
+  "werden die anderen nervös",
+  "und verraten mehr, als sie wollten.",
+  "Zenon von Kition sagte:",
+  "„Wir haben zwei Ohren und einen Mund,",
+  "damit wir mehr hören und weniger reden.“",
+  "Sag weniger.",
+  "Hör mehr.",
+  "Und lass sie raten."
+ ],
+ "cta": {
+  "t": 26.32,
+  "click": 1.5,
+  "avatar": "avatar_profil.png",
+  "x": 540,
+  "y": 930,
+  "r": 165,
+  "hide_text": true,
+  "swap": true
+ },
+ "hot": "^(weniger|weißt|karten|schwächen|pläne|angst|stillste|gefährlichste|denkt|schweigst|nervös|verraten|zenon|kition|ohren|mund|hören|reden|raten|gesetz)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4
+}

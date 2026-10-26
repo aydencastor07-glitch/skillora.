@@ -1,0 +1,62 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "BLACK FRIDAY HAUL",
+ "particles": "gold",
+ "palette": {
+  "c1": [
+   255,
+   226,
+   150
+  ],
+  "c2": [
+   251,
+   119,
+   1
+  ],
+  "dark": [
+   14,
+   14,
+   16
+  ],
+  "acc": [
+   251,
+   119,
+   1
+  ]
+ },
+ "strip": [
+  14,
+  14,
+  16
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 847,
+ "bpm": 124,
+ "key": 50,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "V7/V7_1.jpg",
+   "label": "BLACK FRIDAY DELIVERY"
+  },
+  {
+   "img": "V7/V7_2.jpg",
+   "label": "COZY NEW CARDIGAN"
+  },
+  {
+   "img": "V7/V7_3.jpg",
+   "label": "DAD'S NEW PARKA"
+  },
+  {
+   "img": "V7/V7_4.jpg",
+   "comment": true,
+   "comment_y": 1240
+  },
+  {
+   "img": "V7/V7_5.jpg",
+   "label": "FRESH NEW SNEAKERS",
+   "label_y": 1468
+  }
+ ]
+}

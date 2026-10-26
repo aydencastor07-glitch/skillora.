@@ -1,0 +1,511 @@
+{
+ "png": "png_kai",
+ "vertical": true,
+ "dur": 51.41,
+ "scenes": [
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.3,
+   "text": "not the biggest",
+   "textX": 0.82,
+   "voice": "Your biceps is not the biggest muscle in your arm.",
+   "t0": 0.2,
+   "t1": 3.4,
+   "parts": [
+    [
+     0.2,
+     3.4
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.25,
+    0.55,
+    0.7
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.1,
+   "say": "your *triceps*",
+   "spoken": "It's your triceps.",
+   "sayY": 0.12,
+   "voice": "It's your triceps.",
+   "t0": 3.7,
+   "t1": 4.74,
+   "parts": [
+    [
+     3.7,
+     4.74
+    ]
+   ]
+  },
+  {
+   "reps": "2/3 of your upper arm",
+   "sets": 0,
+   "voice": "Your triceps makes up about two thirds of your upper arm.",
+   "t0": 5.04,
+   "t1": 8.27,
+   "parts": [
+    [
+     5.04,
+     8.27
+    ]
+   ]
+  },
+  {
+   "img": "sk_curl",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "text": "only curls",
+   "textAt": 0.3,
+   "voice": "So if you only do curls, you're ignoring most of your arm.",
+   "t0": 8.57,
+   "t1": 12.33,
+   "parts": [
+    [
+     8.57,
+     12.33
+    ]
+   ]
+  },
+  {
+   "img": "arm_thin",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "text": "small arms",
+   "textX": 0.82,
+   "voice": "That's why so many skinny guys have small arms, even after months of training.",
+   "t0": 12.63,
+   "t1": 17.37,
+   "parts": [
+    [
+     12.63,
+     15.49
+    ],
+    [
+     15.79,
+     17.37
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.05,
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "arm",
+     "hl": "arm_tri"
+    }
+   ],
+   "text": "small muscle ✓ big muscle ✗",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "They train the small muscle, and forget the big one.",
+   "t0": 17.67,
+   "t1": 20.56,
+   "parts": [
+    [
+     17.67,
+     20.56
+    ]
+   ]
+  },
+  {
+   "card": "a second problem",
+   "voice": "And there's a second problem.",
+   "t0": 20.86,
+   "t1": 22.09,
+   "parts": [
+    [
+     20.86,
+     22.09
+    ]
+   ]
+  },
+  {
+   "img": "pushdown",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "the wrong position",
+   "textX": 0.25,
+   "voice": "Most people train their arms in the wrong position.",
+   "t0": 22.39,
+   "t1": 25.13,
+   "parts": [
+    [
+     22.39,
+     25.13
+    ]
+   ]
+  },
+  {
+   "card": "what science found",
+   "voice": "Here's what science found.",
+   "t0": 25.43,
+   "t1": 26.63,
+   "parts": [
+    [
+     25.43,
+     26.63
+    ]
+   ]
+  },
+  {
+   "img": "oh_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "stretched = more growth",
+   "voice": "A muscle grows more when you train it in a stretched position.",
+   "t0": 26.93,
+   "t1": 30.5,
+   "parts": [
+    [
+     26.93,
+     30.5
+    ]
+   ]
+  },
+  {
+   "img": "pushdown",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "oh_down"
+    }
+   ],
+   "text": "arms overhead vs pushdowns",
+   "textAt": 0.2,
+   "textX": 0.78,
+   "voice": "In one study, people who trained their triceps with their arms overhead grew about forty percent more than people who did normal pushdowns.",
+   "t0": 30.8,
+   "t1": 38.98,
+   "parts": [
+    [
+     30.8,
+     31.54
+    ],
+    [
+     31.84,
+     34.87
+    ],
+    [
+     35.17,
+     38.98
+    ]
+   ]
+  },
+  {
+   "reps": "+40% growth",
+   "sets": 0,
+   "voice": "Same muscle. Same effort. Way more growth.",
+   "t0": 39.28,
+   "t1": 42.3,
+   "parts": [
+    [
+     39.28,
+     40.01
+    ],
+    [
+     40.31,
+     41.03
+    ],
+    [
+     41.33,
+     42.3
+    ]
+   ]
+  },
+  {
+   "img": "oh_down",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.35,
+    0.5,
+    0.3
+   ],
+   "say": "the *position*",
+   "spoken": "Just because of the position.",
+   "sayY": 0.88,
+   "voice": "Just because of the position.",
+   "t0": 42.6,
+   "t1": 44.09,
+   "parts": [
+    [
+     42.6,
+     44.09
+    ]
+   ]
+  },
+  {
+   "card": "the secret is simple",
+   "voice": "So the secret is simple.",
+   "t0": 44.39,
+   "t1": 45.75,
+   "parts": [
+    [
+     44.39,
+     45.75
+    ]
+   ]
+  },
+  {
+   "img": "oh_down",
+   "alt": "oh_up",
+   "period": 1.1,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "stretch → then work",
+   "textX": 0.78,
+   "voice": "Stretch the muscle, then make it work.",
+   "t0": 46.05,
+   "t1": 48.31,
+   "parts": [
+    [
+     46.05,
+     47.04
+    ],
+    [
+     47.34,
+     48.31
+    ]
+   ]
+  },
+  {
+   "card": "full video on my channel",
+   "dur": 2.2,
+   "instant": false,
+   "t0": 48.61,
+   "t1": 50.81,
+   "parts": [
+    [
+     48.61,
+     50.81
+    ]
+   ]
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    24.98,
+    28.18
+   ],
+   "at": 0.2
+  },
+  {
+   "src": [
+    28.68,
+    29.72
+   ],
+   "at": 3.7
+  },
+  {
+   "src": [
+    30.31,
+    33.54
+   ],
+   "at": 5.04
+  },
+  {
+   "src": [
+    34.02,
+    37.78
+   ],
+   "at": 8.57
+  },
+  {
+   "src": [
+    38.39,
+    41.25
+   ],
+   "at": 12.63
+  },
+  {
+   "src": [
+    41.53,
+    43.11
+   ],
+   "at": 15.79
+  },
+  {
+   "src": [
+    43.75,
+    46.64
+   ],
+   "at": 17.67
+  },
+  {
+   "src": [
+    47.08,
+    48.31
+   ],
+   "at": 20.86
+  },
+  {
+   "src": [
+    48.82,
+    51.56
+   ],
+   "at": 22.39
+  },
+  {
+   "src": [
+    52.16,
+    53.36
+   ],
+   "at": 25.43
+  },
+  {
+   "src": [
+    53.9,
+    57.47
+   ],
+   "at": 26.93
+  },
+  {
+   "src": [
+    58.06,
+    58.8
+   ],
+   "at": 30.8
+  },
+  {
+   "src": [
+    59.21,
+    62.24
+   ],
+   "at": 31.84
+  },
+  {
+   "src": [
+    62.63,
+    66.44
+   ],
+   "at": 35.17
+  },
+  {
+   "src": [
+    67.11,
+    67.84
+   ],
+   "at": 39.28
+  },
+  {
+   "src": [
+    68.18,
+    68.9
+   ],
+   "at": 40.31
+  },
+  {
+   "src": [
+    69.23,
+    70.2
+   ],
+   "at": 41.33
+  },
+  {
+   "src": [
+    70.83,
+    72.32
+   ],
+   "at": 42.6
+  },
+  {
+   "src": [
+    72.98,
+    74.34
+   ],
+   "at": 44.39
+  },
+  {
+   "src": [
+    74.83,
+    75.82
+   ],
+   "at": 46.05
+  },
+  {
+   "src": [
+    76.11,
+    77.08
+   ],
+   "at": 47.34
+  }
+ ]
+}

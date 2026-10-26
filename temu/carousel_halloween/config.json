@@ -1,0 +1,50 @@
+{
+ "accent": [
+  255,
+  110,
+  0
+ ],
+ "dark": [
+  30,
+  8,
+  45
+ ],
+ "slides": [
+  {
+   "img": "s1.jpg",
+   "pos": "bottom",
+   "title": "My Temu code for Halloween",
+   "emoji": "🎃",
+   "swipe": "SWIPE FOR THE CODE  >>",
+   "title_size": 118
+  },
+  {
+   "img": "s2.jpg",
+   "pos": "bottom",
+   "title": "$100 Coupon Bundle",
+   "emoji": "💰",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "title_size": 112
+  },
+  {
+   "img": "s3.jpg",
+   "pos": "bottom",
+   "title": "Halloween party ready?",
+   "emoji": "🦇",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "title_size": 110
+  },
+  {
+   "img": "s4.jpg",
+   "pos": "top",
+   "title": "Don't forget my code",
+   "emoji": "👻",
+   "code": "alm148018",
+   "sub": "Search code alm148018 for $100 Coupon Bundle in TEMU app",
+   "disclaimer": "In-app activity. Limited to 1 per user. The coupon bundle of various coupons. Coupons cannot be combined in a single order. T&Cs apply.",
+   "title_size": 110
+  }
+ ]
+}

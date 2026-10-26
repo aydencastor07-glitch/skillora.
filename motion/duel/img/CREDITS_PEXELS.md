@@ -1,0 +1,42 @@
+# Photos Pexels (licence Pexels, usage libre)
+
+- p_open.jpg : RDNE Stock project — https://www.pexels.com/photo/couple-kissing-while-holding-a-red-heart-shaped-balloon-6708953/
+- p_q1.jpg : Marcelo Chagas — https://www.pexels.com/photo/lights-around-posing-woman-17370285/
+- p_q2.jpg : Connor Scott McManus — https://www.pexels.com/photo/hand-holding-smart-phone-12223473/
+- p_q3.jpg : Atlantic Ambience — https://www.pexels.com/photo/a-peron-using-a-smartphone-9822668/
+- p_q4.jpg : mahdi chaghari — https://www.pexels.com/photo/couple-sitting-on-floor-and-eating-pizza-17455523/
+- p_q5.jpg : Anete Lusina — https://www.pexels.com/photo/crop-couple-browsing-internet-on-smartphone-on-balcony-6334558/
+- p_q6.jpg : Prateek Katyal — https://www.pexels.com/photo/person-holding-a-smartphone-4004384/
+- c_hook.jpg : Bethany Ferr — https://www.pexels.com/photo/man-in-black-crew-neck-shirt-beside-woman-5176803/
+- c_q4.jpg : Tarikul Raana — https://www.pexels.com/photo/a-woman-using-her-smartphone-9492158/
+- c_q3.jpg : Zeynep Sude  Emek — https://www.pexels.com/photo/woman-with-suitcase-in-hand-standing-on-promenade-18088823/
+- c_q2.jpg : UMUT   🆁🅰🆆 — https://www.pexels.com/photo/portrait-of-a-pretty-brunette-talking-on-the-phone-19061187/
+- c_q1.jpg : Nicola Barts — https://www.pexels.com/photo/a-person-holding-a-wallet-7927429/
+- x_b_hook.jpg : Katerina Holmes — https://www.pexels.com/photo/calm-woman-at-table-with-anonymous-man-5911302/
+- x_b5.jpg : Anete Lusina — https://www.pexels.com/photo/crop-couple-browsing-internet-on-smartphone-on-balcony-6334558/
+- x_b4.jpg : zeynep uluç — https://www.pexels.com/photo/close-up-of-hand-holding-smartphone-outdoors-28405433/
+- x_b3.jpg : Kevin  Malik — https://www.pexels.com/photo/a-man-in-black-shirt-smiling-while-holding-a-playing-cards-8762326/
+- x_b2.jpg : I'm Zion — https://www.pexels.com/photo/woman-in-black-shirt-holding-silver-iphone-6-4526398/
+- x_b1.jpg : cottonbro studio — https://www.pexels.com/photo/group-of-friends-laughing-while-holding-beer-bottles-and-smoking-cigarette-5531893/
+- x_j_hook.jpg : Liliana Drew — https://www.pexels.com/photo/a-man-and-woman-holding-a-mobile-phone-8554932/
+- x_j5.jpg : Ketut Subiyanto — https://www.pexels.com/photo/woman-in-white-long-sleeve-shirt-holding-smartphone-4473873/
+- x_j4.jpg : Nataliya Vaitkevich — https://www.pexels.com/photo/woman-shouting-on-a-phone-4772178/
+- x_j3.jpg : Caleb Oquendo — https://www.pexels.com/photo/cellphone-on-a-stand-with-navigation-map-application-open-7738879/
+- x_j2.jpg : Hanna Pad — https://www.pexels.com/photo/a-woman-using-her-smartphone-while-lying-in-bed-6598229/
+- x_j1.jpg : RDNE Stock project — https://www.pexels.com/photo/woman-sitting-beside-the-crying-man-6669841/
+- x_m_hook.jpg : Pavel Danilyuk — https://www.pexels.com/photo/man-in-black-crew-neck-shirt-thinking-with-his-hand-on-his-chin-8638760/
+- x_m1.jpg : Jep Gambardella — https://www.pexels.com/photo/a-couple-looking-at-the-menu-5083578/
+- x_m2.jpg : Duilio  Zapoteco — https://www.pexels.com/photo/a-couple-standing-in-the-woods-holding-hands-27945676/
+- x_m3.jpg : Elina Sazonova — https://www.pexels.com/photo/woman-in-blue-denim-jacket-1850585/
+- x_m4.jpg : cottonbro studio — https://www.pexels.com/photo/woman-holding-brown-chiba-inu-dog-3171459/
+- x_w_hook.jpg : Shiny Diamond — https://www.pexels.com/photo/woman-with-red-lipstick-and-red-background-3762786/
+- x_w1.jpg : Kerem Kaplan — https://www.pexels.com/photo/a-couple-hugging-13710512/
+- x_w2.jpg : ravi k — https://www.pexels.com/photo/a-portrait-of-a-bearded-man-11800909/
+- x_w3.jpg : Jep Gambardella — https://www.pexels.com/photo/a-man-and-a-woman-having-a-dinner-while-busy-using-their-cellphones-5086768/
+- x_w4.jpg : Siarhei Nester — https://www.pexels.com/photo/smiling-man-posing-with-dog-18838793/
+- x_f_hook.jpg : Ron Lach — https://www.pexels.com/photo/man-and-woman-looking-at-each-other-10213699/
+- x_f1.jpg : Ron Lach — https://www.pexels.com/photo/a-person-holding-a-cellphone-9898392/
+- x_f2.jpg : Connor Scott McManus — https://www.pexels.com/photo/instagram-on-smartphone-15226554/
+- x_f3.jpg : Yasin Onuş — https://www.pexels.com/photo/barista-serving-latte-in-artisan-cafe-34255748/
+- x_f4.jpg : cottonbro studio — https://www.pexels.com/photo/portrait-of-woman-lying-in-bed-using-phone-6963190/
+- x_f5.jpg : Ron Lach — https://www.pexels.com/photo/man-sitting-in-the-evening-at-home-with-hands-crossed-9902137/

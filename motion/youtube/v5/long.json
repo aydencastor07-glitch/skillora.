@@ -1,0 +1,2638 @@
+{
+ "png": "png_kai",
+ "dur": 266.52,
+ "scenes": [
+  {
+   "img": "sk_curl",
+   "cam": [
+    1.6,
+    0.5,
+    0.36,
+    1.85,
+    0.5,
+    0.33
+   ],
+   "say": "hundreds of *curls*",
+   "spoken": "You've done hundreds of curls. And your arms still look the same.",
+   "sayY": 0.88,
+   "voice": "You've done hundreds of curls. And your arms still look the same.",
+   "t0": 0.2,
+   "t1": 4.28,
+   "parts": [
+    [
+     0.2,
+     2.12
+    ],
+    [
+     2.42,
+     4.28
+    ]
+   ]
+  },
+  {
+   "card": "it's not your genetics",
+   "voice": "It's not your genetics.",
+   "t0": 4.58,
+   "t1": 5.9,
+   "parts": [
+    [
+     4.58,
+     5.9
+    ]
+   ]
+  },
+  {
+   "img": "sk_curl",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.45
+   ],
+   "say": "the *exercises*",
+   "spoken": "It's the exercises.",
+   "sayY": 0.12,
+   "voice": "It's the exercises.",
+   "t0": 6.2,
+   "t1": 7.44,
+   "parts": [
+    [
+     6.2,
+     7.44
+    ]
+   ]
+  },
+  {
+   "img": "tshirt",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "the 2 exercises that build big arms",
+   "textAt": 0.2,
+   "voice": "Today, I'll show you the two exercises that actually build big arms.",
+   "t0": 7.74,
+   "t1": 12.64,
+   "parts": [
+    [
+     7.74,
+     8.22
+    ],
+    [
+     8.52,
+     12.64
+    ]
+   ]
+  },
+  {
+   "card": "why most guys never do them",
+   "voice": "And why most guys never do them.",
+   "t0": 12.94,
+   "t1": 14.97,
+   "parts": [
+    [
+     12.94,
+     14.97
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.5,
+   "text": "+ a bonus muscle",
+   "textX": 0.82,
+   "x": 0.4,
+   "voice": "Stay until the end, because there's also a bonus muscle that almost nobody trains.",
+   "t0": 15.27,
+   "t1": 20.34,
+   "parts": [
+    [
+     15.27,
+     20.34
+    ]
+   ]
+  },
+  {
+   "card": "but first, one thing",
+   "voice": "But first, you need to understand one thing.",
+   "t0": 20.64,
+   "t1": 23.23,
+   "parts": [
+    [
+     20.64,
+     23.23
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.3,
+   "text": "not the biggest",
+   "textX": 0.82,
+   "x": 0.4,
+   "voice": "Your biceps is not the biggest muscle in your arm.",
+   "t0": 23.53,
+   "t1": 26.73,
+   "parts": [
+    [
+     23.53,
+     26.73
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.25,
+    0.55,
+    0.7
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.1,
+   "say": "your *triceps*",
+   "spoken": "It's your triceps.",
+   "sayY": 0.12,
+   "x": 0.4,
+   "voice": "It's your triceps.",
+   "t0": 27.03,
+   "t1": 28.07,
+   "parts": [
+    [
+     27.03,
+     28.07
+    ]
+   ]
+  },
+  {
+   "reps": "2/3 of your upper arm",
+   "sets": 0,
+   "voice": "Your triceps makes up about two thirds of your upper arm.",
+   "t0": 28.37,
+   "t1": 31.6,
+   "parts": [
+    [
+     28.37,
+     31.6
+    ]
+   ]
+  },
+  {
+   "img": "sk_curl",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "text": "only curls",
+   "textAt": 0.3,
+   "voice": "So if you only do curls, you're ignoring most of your arm.",
+   "t0": 31.9,
+   "t1": 35.66,
+   "parts": [
+    [
+     31.9,
+     35.66
+    ]
+   ]
+  },
+  {
+   "img": "arm_thin",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "text": "small arms",
+   "textX": 0.82,
+   "x": 0.4,
+   "voice": "That's why so many skinny guys have small arms, even after months of training.",
+   "t0": 35.96,
+   "t1": 40.7,
+   "parts": [
+    [
+     35.96,
+     38.82
+    ],
+    [
+     39.12,
+     40.7
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.05,
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "arm",
+     "hl": "arm_tri"
+    }
+   ],
+   "text": "small muscle ✓ big muscle ✗",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "voice": "They train the small muscle, and forget the big one.",
+   "t0": 41.0,
+   "t1": 43.89,
+   "parts": [
+    [
+     41.0,
+     43.89
+    ]
+   ]
+  },
+  {
+   "card": "a second problem",
+   "voice": "And there's a second problem.",
+   "t0": 44.19,
+   "t1": 45.42,
+   "parts": [
+    [
+     44.19,
+     45.42
+    ]
+   ]
+  },
+  {
+   "img": "pushdown",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "the wrong position",
+   "textX": 0.25,
+   "voice": "Most people train their arms in the wrong position.",
+   "t0": 45.72,
+   "t1": 48.46,
+   "parts": [
+    [
+     45.72,
+     48.46
+    ]
+   ]
+  },
+  {
+   "card": "what science found",
+   "voice": "Here's what science found.",
+   "t0": 48.76,
+   "t1": 49.96,
+   "parts": [
+    [
+     48.76,
+     49.96
+    ]
+   ]
+  },
+  {
+   "img": "oh_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.08
+   },
+   "text": "stretched = more growth",
+   "voice": "A muscle grows more when you train it in a stretched position.",
+   "t0": 50.26,
+   "t1": 53.83,
+   "parts": [
+    [
+     50.26,
+     53.83
+    ]
+   ]
+  },
+  {
+   "img": "pushdown",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "oh_down"
+    }
+   ],
+   "text": "arms overhead vs pushdowns",
+   "textAt": 0.2,
+   "textX": 0.78,
+   "voice": "In one study, people who trained their triceps with their arms overhead grew about forty percent more than people who did normal pushdowns.",
+   "t0": 54.13,
+   "t1": 62.31,
+   "parts": [
+    [
+     54.13,
+     54.87
+    ],
+    [
+     55.17,
+     58.2
+    ],
+    [
+     58.5,
+     62.31
+    ]
+   ]
+  },
+  {
+   "reps": "+40% growth",
+   "sets": 0,
+   "voice": "Same muscle. Same effort. Way more growth.",
+   "t0": 62.61,
+   "t1": 65.63,
+   "parts": [
+    [
+     62.61,
+     63.34
+    ],
+    [
+     63.64,
+     64.36
+    ],
+    [
+     64.66,
+     65.63
+    ]
+   ]
+  },
+  {
+   "img": "oh_down",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.35,
+    0.5,
+    0.3
+   ],
+   "say": "the *position*",
+   "spoken": "Just because of the position.",
+   "sayY": 0.88,
+   "voice": "Just because of the position.",
+   "t0": 65.93,
+   "t1": 67.42,
+   "parts": [
+    [
+     65.93,
+     67.42
+    ]
+   ]
+  },
+  {
+   "card": "the secret is simple",
+   "voice": "So the secret is simple.",
+   "t0": 67.72,
+   "t1": 69.08,
+   "parts": [
+    [
+     67.72,
+     69.08
+    ]
+   ]
+  },
+  {
+   "img": "oh_down",
+   "alt": "oh_up",
+   "period": 1.1,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "stretch → then work",
+   "textX": 0.78,
+   "voice": "Stretch the muscle, then make it work.",
+   "t0": 69.38,
+   "t1": 71.64,
+   "parts": [
+    [
+     69.38,
+     70.37
+    ],
+    [
+     70.67,
+     71.64
+    ]
+   ]
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Exercise #1 · Overhead triceps extension",
+   "medalZoom": 1.0,
+   "voice": "And that brings us to exercise number one. The overhead triceps extension.",
+   "t0": 71.94,
+   "t1": 76.84,
+   "parts": [
+    [
+     71.94,
+     74.48
+    ],
+    [
+     74.78,
+     76.84
+    ]
+   ]
+  },
+  {
+   "img": "oh_up",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "both hands, above your head",
+   "textX": 0.78,
+   "voice": "Hold one dumbbell with both hands, above your head.",
+   "t0": 77.14,
+   "t1": 80.03,
+   "parts": [
+    [
+     77.14,
+     80.03
+    ]
+   ]
+  },
+  {
+   "img": "oh_up",
+   "cam": [
+    1.6,
+    0.5,
+    0.2,
+    1.8,
+    0.5,
+    0.18
+   ],
+   "text": "elbows close, pointing forward",
+   "textX": 0.78,
+   "textY": 0.5,
+   "voice": "Keep your elbows close, pointing forward.",
+   "t0": 80.33,
+   "t1": 82.64,
+   "parts": [
+    [
+     80.33,
+     82.64
+    ]
+   ]
+  },
+  {
+   "img": "oh_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.35,
+     "img": "oh_down"
+    }
+   ],
+   "text": "lower slowly… deep stretch",
+   "textX": 0.78,
+   "voice": "Slowly lower the weight behind your head, until you feel a deep stretch.",
+   "t0": 82.94,
+   "t1": 87.4,
+   "parts": [
+    [
+     82.94,
+     87.4
+    ]
+   ]
+  },
+  {
+   "img": "oh_down",
+   "alt": "oh_up",
+   "period": 1.0,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "push up · squeeze",
+   "textX": 0.78,
+   "voice": "Then push it back up, and squeeze at the top.",
+   "t0": 87.7,
+   "t1": 90.4,
+   "parts": [
+    [
+     87.7,
+     88.87
+    ],
+    [
+     89.17,
+     90.4
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.2,
+   "text": "long head = full stretch",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "voice": "This puts the long head of your triceps in a full stretch.",
+   "t0": 90.7,
+   "t1": 94.02,
+   "parts": [
+    [
+     90.7,
+     94.02
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.55,
+    0.75
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.0,
+   "say": "the *biggest* part",
+   "spoken": "And the long head is the biggest part of the triceps.",
+   "sayY": 0.12,
+   "x": 0.4,
+   "voice": "And the long head is the biggest part of the triceps.",
+   "t0": 94.32,
+   "t1": 97.17,
+   "parts": [
+    [
+     94.32,
+     97.17
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.3,
+    0.55,
+    0.7,
+    1.0,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_tri",
+   "hlAt": 0.0,
+   "text": "thick from the side",
+   "textX": 0.82,
+   "x": 0.4,
+   "voice": "This is the part that makes your arm look thick from the side.",
+   "t0": 97.47,
+   "t1": 100.49,
+   "parts": [
+    [
+     97.47,
+     99.15
+    ],
+    [
+     99.45,
+     100.49
+    ]
+   ]
+  },
+  {
+   "card": "no dumbbell at home?",
+   "voice": "No dumbbell at home?",
+   "t0": 100.79,
+   "t1": 101.85,
+   "parts": [
+    [
+     100.79,
+     101.85
+    ]
+   ]
+  },
+  {
+   "img": "bp_up",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.32,
+    "at": 0.08
+   },
+   "text": "backpack + books · water bottle",
+   "voice": "Use a backpack filled with books, or a water bottle.",
+   "t0": 102.15,
+   "t1": 104.93,
+   "parts": [
+    [
+     102.15,
+     104.93
+    ]
+   ]
+  },
+  {
+   "img": "bp_down",
+   "alt": "bp_up",
+   "period": 1.1,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "same stretch",
+   "textX": 0.78,
+   "voice": "Same movement, same stretch.",
+   "t0": 105.23,
+   "t1": 107.1,
+   "parts": [
+    [
+     105.23,
+     107.1
+    ]
+   ]
+  },
+  {
+   "medal": "p_bench",
+   "name": "Exercise #2 · Incline dumbbell curl",
+   "medalZoom": 1.0,
+   "voice": "Exercise number two. The incline dumbbell curl.",
+   "t0": 107.4,
+   "t1": 110.75,
+   "parts": [
+    [
+     107.4,
+     108.8
+    ],
+    [
+     109.1,
+     110.75
+    ]
+   ]
+  },
+  {
+   "img": "ic_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "text": "arms hang behind your body",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "Sit on a bench tilted back, and let your arms hang straight down behind your body.",
+   "t0": 111.05,
+   "t1": 115.72,
+   "parts": [
+    [
+     111.05,
+     115.72
+    ]
+   ]
+  },
+  {
+   "img": "ic_down",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.35,
+    0.4,
+    0.5
+   ],
+   "say": "already *stretched*",
+   "spoken": "Now your biceps is stretched before you even start.",
+   "sayY": 0.12,
+   "voice": "Now your biceps is stretched before you even start.",
+   "t0": 116.02,
+   "t1": 119.03,
+   "parts": [
+    [
+     116.02,
+     119.03
+    ]
+   ]
+  },
+  {
+   "img": "ic_down",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.4,
+     "img": "ic_up"
+    }
+   ],
+   "text": "elbows don't move",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "Curl the weights up slowly, without moving your elbows.",
+   "t0": 119.33,
+   "t1": 122.27,
+   "parts": [
+    [
+     119.33,
+     122.27
+    ]
+   ]
+  },
+  {
+   "img": "ic_up",
+   "alt": "ic_down",
+   "period": 1.3,
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "text": "all the way down",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "Then lower them all the way down, until your arms are completely straight.",
+   "t0": 122.57,
+   "t1": 126.42,
+   "parts": [
+    [
+     122.57,
+     126.42
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.2,
+   "text": "long head of the biceps",
+   "textX": 0.82,
+   "textY": 0.18,
+   "x": 0.4,
+   "voice": "This hits the long head of your biceps.",
+   "t0": 126.72,
+   "t1": 128.83,
+   "parts": [
+    [
+     126.72,
+     128.83
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.4,
+    0.55,
+    0.62
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.0,
+   "say": "the *peak*",
+   "spoken": "That's the part that creates the peak.",
+   "sayY": 0.12,
+   "x": 0.4,
+   "voice": "That's the part that creates the peak.",
+   "t0": 129.13,
+   "t1": 130.98,
+   "parts": [
+    [
+     129.13,
+     130.98
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.5,
+    0.5,
+    0.3
+   ],
+   "text": "the ball on top",
+   "textX": 0.8,
+   "textY": 0.3,
+   "voice": "The ball on top of your arm when you flex.",
+   "t0": 131.28,
+   "t1": 133.57,
+   "parts": [
+    [
+     131.28,
+     133.57
+    ]
+   ]
+  },
+  {
+   "card": "no bench at home?",
+   "voice": "No bench at home?",
+   "t0": 133.87,
+   "t1": 134.78,
+   "parts": [
+    [
+     133.87,
+     134.78
+    ]
+   ]
+  },
+  {
+   "img": "chin_down",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "palms facing you",
+   "textX": 0.84,
+   "voice": "Do chin-ups with your palms facing you.",
+   "t0": 135.08,
+   "t1": 137.18,
+   "parts": [
+    [
+     135.08,
+     137.18
+    ]
+   ]
+  },
+  {
+   "img": "chin_down",
+   "alt": "chin_up",
+   "period": 1.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "all the way down → chest to the bar",
+   "textX": 0.5,
+   "textY": 0.08,
+   "voice": "Hang all the way down at the bottom, then pull your chest to the bar.",
+   "t0": 137.48,
+   "t1": 141.19,
+   "parts": [
+    [
+     137.48,
+     141.19
+    ]
+   ]
+  },
+  {
+   "img": "chin_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.1
+   },
+   "text": "you only need a bar",
+   "voice": "It's one of the best biceps builders in the world, and you only need a bar.",
+   "t0": 141.49,
+   "t1": 145.83,
+   "parts": [
+    [
+     141.49,
+     144.22
+    ],
+    [
+     144.52,
+     145.83
+    ]
+   ]
+  },
+  {
+   "card": "the bonus",
+   "voice": "And now, the bonus.",
+   "t0": 146.13,
+   "t1": 147.59,
+   "parts": [
+    [
+     146.13,
+     147.59
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.4,
+   "text": "hiding under your biceps",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "voice": "There's a muscle hiding under your biceps.",
+   "t0": 147.89,
+   "t1": 150.37,
+   "parts": [
+    [
+     147.89,
+     150.37
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.5,
+    0.4,
+    0.68
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.0,
+   "say": "the *brachialis*",
+   "spoken": "It's called the brachialis.",
+   "sayY": 0.12,
+   "x": 0.4,
+   "voice": "It's called the brachialis.",
+   "t0": 150.67,
+   "t1": 152.37,
+   "parts": [
+    [
+     150.67,
+     152.37
+    ]
+   ]
+  },
+  {
+   "card": "most people never heard of it",
+   "voice": "Most people have never even heard of it.",
+   "t0": 152.67,
+   "t1": 154.52,
+   "parts": [
+    [
+     152.67,
+     154.52
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.0,
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "arm",
+     "hl": "arm_bi"
+    }
+   ],
+   "text": "pushes your biceps up",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "voice": "But when it grows, it pushes your biceps up, and makes your whole arm look wider.",
+   "t0": 154.82,
+   "t1": 160.32,
+   "parts": [
+    [
+     154.82,
+     155.9
+    ],
+    [
+     156.2,
+     157.9
+    ],
+    [
+     158.2,
+     160.32
+    ]
+   ]
+  },
+  {
+   "medal": "p_dumbbell",
+   "name": "Bonus · Hammer curls",
+   "medalZoom": 1.0,
+   "voice": "To train it, do hammer curls.",
+   "t0": 160.62,
+   "t1": 162.6,
+   "parts": [
+    [
+     160.62,
+     161.21
+    ],
+    [
+     161.51,
+     162.6
+    ]
+   ]
+  },
+  {
+   "img": "hc_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "palms facing each other",
+   "textX": 0.8,
+   "voice": "Hold the dumbbells with your palms facing each other, like you're holding a hammer.",
+   "t0": 162.9,
+   "t1": 166.84,
+   "parts": [
+    [
+     162.9,
+     165.54
+    ],
+    [
+     165.84,
+     166.84
+    ]
+   ]
+  },
+  {
+   "img": "hc_down",
+   "alt": "hc_up",
+   "period": 1.2,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "up · slowly down",
+   "textX": 0.8,
+   "voice": "Curl them up, and lower them slowly.",
+   "t0": 167.14,
+   "t1": 169.21,
+   "parts": [
+    [
+     167.14,
+     167.72
+    ],
+    [
+     168.02,
+     169.21
+    ]
+   ]
+  },
+  {
+   "img": "hc_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "2 backpacks · 2 water jugs",
+   "textX": 0.8,
+   "voice": "At home, you can do the same thing with two backpacks, or two water jugs.",
+   "t0": 169.51,
+   "t1": 173.98,
+   "parts": [
+    [
+     169.51,
+     173.98
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_br",
+   "hlAt": 0.3,
+   "text": "thicker from every angle",
+   "textX": 0.8,
+   "textY": 0.18,
+   "x": 0.4,
+   "voice": "Add two or three sets of hammer curls, and your arms will look thicker from every angle.",
+   "t0": 174.28,
+   "t1": 179.42,
+   "parts": [
+    [
+     174.28,
+     176.52
+    ],
+    [
+     176.82,
+     179.42
+    ]
+   ]
+  },
+  {
+   "card": "3 mistakes that keep your arms small",
+   "voice": "Now, three mistakes that keep your arms small.",
+   "t0": 179.72,
+   "t1": 182.76,
+   "parts": [
+    [
+     179.72,
+     180.04
+    ],
+    [
+     180.34,
+     182.76
+    ]
+   ]
+  },
+  {
+   "img": "swing",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.5
+   ],
+   "label": "#1. Swinging the weight",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "voice": "Mistake number one. Swinging the weight.",
+   "t0": 183.06,
+   "t1": 185.5,
+   "parts": [
+    [
+     183.06,
+     184.14
+    ],
+    [
+     184.44,
+     185.5
+    ]
+   ]
+  },
+  {
+   "img": "swing",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.25,
+    0.5,
+    0.5
+   ],
+   "text": "your arms do nothing",
+   "textX": 0.8,
+   "voice": "If your whole body moves, your arms are not doing the work.",
+   "t0": 185.8,
+   "t1": 189.53,
+   "parts": [
+    [
+     185.8,
+     187.39
+    ],
+    [
+     187.69,
+     189.53
+    ]
+   ]
+  },
+  {
+   "img": "ic_down",
+   "alt": "ic_up",
+   "period": 1.4,
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "text": "lighter · control every rep",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "Use a lighter weight, and control every rep.",
+   "t0": 189.83,
+   "t1": 192.89,
+   "parts": [
+    [
+     189.83,
+     192.89
+    ]
+   ]
+  },
+  {
+   "img": "ic_up",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "label": "#2. Half reps",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "voice": "Mistake number two. Half reps.",
+   "t0": 193.19,
+   "t1": 195.35,
+   "parts": [
+    [
+     193.19,
+     194.32
+    ],
+    [
+     194.62,
+     195.35
+    ]
+   ]
+  },
+  {
+   "img": "ic_down",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.3,
+    0.4,
+    0.55
+   ],
+   "text": "growth happens here",
+   "textX": 0.8,
+   "textY": 0.18,
+   "voice": "The stretch at the bottom is where the growth happens.",
+   "t0": 195.65,
+   "t1": 198.43,
+   "parts": [
+    [
+     195.65,
+     198.43
+    ]
+   ]
+  },
+  {
+   "card": "skip it, skip the results",
+   "voice": "If you skip it, you skip the results.",
+   "t0": 198.73,
+   "t1": 200.91,
+   "parts": [
+    [
+     198.73,
+     199.45
+    ],
+    [
+     199.75,
+     200.91
+    ]
+   ]
+  },
+  {
+   "img": "sk_curl",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "label": "#3. Arms every single day",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.5
+    }
+   ],
+   "voice": "Mistake number three. Training arms every single day.",
+   "t0": 201.21,
+   "t1": 204.99,
+   "parts": [
+    [
+     201.21,
+     202.38
+    ],
+    [
+     202.68,
+     204.99
+    ]
+   ]
+  },
+  {
+   "card": "muscles don't grow during the workout",
+   "voice": "Your muscles don't grow during the workout.",
+   "t0": 205.29,
+   "t1": 207.46,
+   "parts": [
+    [
+     205.29,
+     207.46
+    ]
+   ]
+  },
+  {
+   "img": "kai_sleep",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.1,
+    0.5,
+    0.5
+   ],
+   "text": "they grow when you rest",
+   "textX": 0.5,
+   "textY": 0.1,
+   "voice": "They grow when you rest.",
+   "t0": 207.76,
+   "t1": 209.32,
+   "parts": [
+    [
+     207.76,
+     209.32
+    ]
+   ]
+  },
+  {
+   "img": "kai_sleep",
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.5
+   ],
+   "text": "2 – 3 times a week is enough",
+   "textX": 0.5,
+   "textY": 0.1,
+   "voice": "Two or three times a week is enough.",
+   "t0": 209.62,
+   "t1": 211.53,
+   "parts": [
+    [
+     209.62,
+     211.53
+    ]
+   ]
+  },
+  {
+   "card": "your plan",
+   "voice": "So here's your plan.",
+   "t0": 211.83,
+   "t1": 212.73,
+   "parts": [
+    [
+     211.83,
+     212.73
+    ]
+   ]
+  },
+  {
+   "reps": "2 – 3 times a week",
+   "sets": 0,
+   "voice": "Two or three times a week.",
+   "t0": 213.03,
+   "t1": 214.42,
+   "parts": [
+    [
+     213.03,
+     214.42
+    ]
+   ]
+  },
+  {
+   "img": "oh_up",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.33,
+     "img": "ic_up"
+    },
+    {
+     "at": 0.66,
+     "img": "hc_up"
+    }
+   ],
+   "text": "triceps · biceps · hammer",
+   "textX": 0.5,
+   "textY": 0.08,
+   "voice": "Three sets of each exercise, plus the hammer curls.",
+   "t0": 214.72,
+   "t1": 217.98,
+   "parts": [
+    [
+     214.72,
+     217.98
+    ]
+   ]
+  },
+  {
+   "reps": "8 – 12 reps",
+   "sets": 3,
+   "voice": "Eight to twelve reps.",
+   "t0": 218.28,
+   "t1": 219.48,
+   "parts": [
+    [
+     218.28,
+     219.48
+    ]
+   ]
+  },
+  {
+   "img": "oh_up",
+   "alt": "oh_down",
+   "period": 1.6,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "3 seconds down",
+   "textX": 0.78,
+   "voice": "Take three seconds to lower the weight on every rep.",
+   "t0": 219.78,
+   "t1": 222.78,
+   "parts": [
+    [
+     219.78,
+     222.78
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "text": "+1 rep every week",
+   "textX": 0.82,
+   "x": 0.4,
+   "voice": "And try to add one rep, or a little weight, every week.",
+   "t0": 223.08,
+   "t1": 226.29,
+   "parts": [
+    [
+     223.08,
+     226.29
+    ]
+   ]
+  },
+  {
+   "card": "so what happens after 30 days?",
+   "voice": "So what happens after thirty days?",
+   "t0": 226.59,
+   "t1": 228.49,
+   "parts": [
+    [
+     226.59,
+     228.49
+    ]
+   ]
+  },
+  {
+   "img": "arm",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "hl": "arm_bi",
+   "hlAt": 0.1,
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "arm",
+     "hl": "arm_tri"
+    }
+   ],
+   "text": "stronger · crazy pump",
+   "textX": 0.82,
+   "textY": 0.18,
+   "x": 0.4,
+   "voice": "In the first two weeks, your arms will feel stronger, and the pump will be crazy.",
+   "t0": 228.79,
+   "t1": 233.66,
+   "parts": [
+    [
+     228.79,
+     233.66
+    ]
+   ]
+  },
+  {
+   "img": "tshirt",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.6,
+    0.5,
+    0.3
+   ],
+   "say": "sleeves feel *tighter*",
+   "spoken": "By day thirty, your sleeves start to feel tighter.",
+   "sayY": 0.88,
+   "voice": "By day thirty, your sleeves start to feel tighter.",
+   "t0": 233.96,
+   "t1": 236.86,
+   "parts": [
+    [
+     233.96,
+     236.86
+    ]
+   ]
+  },
+  {
+   "img": "arm_thin",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.06,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "arm"
+    }
+   ],
+   "text": "a few months later",
+   "textX": 0.82,
+   "x": 0.4,
+   "voice": "And after a few months of doing this consistently, your arms will look completely different.",
+   "t0": 237.16,
+   "t1": 242.12,
+   "parts": [
+    [
+     237.16,
+     239.59
+    ],
+    [
+     239.89,
+     242.12
+    ]
+   ]
+  },
+  {
+   "card": "no magic. just the right exercises",
+   "voice": "No magic. Just the right exercises, in the right position.",
+   "t0": 242.42,
+   "t1": 245.98,
+   "parts": [
+    [
+     242.42,
+     242.97
+    ],
+    [
+     243.27,
+     245.98
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.1
+   },
+   "text": "only one part of the picture",
+   "voice": "Your arms are only one part of the picture.",
+   "t0": 246.28,
+   "t1": 248.7,
+   "parts": [
+    [
+     246.28,
+     248.7
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "x": 0.2,
+   "cam": [
+    0.85,
+    0.5,
+    0.5,
+    0.9,
+    0.5,
+    0.5
+   ],
+   "next": {
+    "img": "thumb_strength",
+    "title": "Why Some Skinny Guys Are Stronger Than Big Guys"
+   },
+   "voice": "If you want to know why some skinny guys are stronger than big guys, watch this video next. It will change the way you train every muscle, not just your arms.",
+   "t0": 249.0,
+   "t1": 258.43,
+   "parts": [
+    [
+     249.0,
+     252.46
+    ],
+    [
+     252.76,
+     257.12
+    ],
+    [
+     257.42,
+     258.43
+    ]
+   ]
+  },
+  {
+   "subscribe": true,
+   "clickAt": 0.25,
+   "text": "new videos every Tuesday & Saturday",
+   "hold": 1.5,
+   "voice": "And if you want more videos like this, subscribe. New videos every Tuesday and Saturday.",
+   "t0": 258.73,
+   "t1": 264.12,
+   "parts": [
+    [
+     258.73,
+     261.31
+    ],
+    [
+     261.61,
+     264.12
+    ]
+   ]
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.1,
+    2.02
+   ],
+   "at": 0.2
+  },
+  {
+   "src": [
+    2.45,
+    4.31
+   ],
+   "at": 2.42
+  },
+  {
+   "src": [
+    4.78,
+    6.1
+   ],
+   "at": 4.58
+  },
+  {
+   "src": [
+    6.45,
+    7.69
+   ],
+   "at": 6.2
+  },
+  {
+   "src": [
+    8.33,
+    8.81
+   ],
+   "at": 7.74
+  },
+  {
+   "src": [
+    9.09,
+    13.21
+   ],
+   "at": 8.52
+  },
+  {
+   "src": [
+    13.66,
+    15.69
+   ],
+   "at": 12.94
+  },
+  {
+   "src": [
+    16.31,
+    21.38
+   ],
+   "at": 15.27
+  },
+  {
+   "src": [
+    21.91,
+    24.5
+   ],
+   "at": 20.64
+  },
+  {
+   "src": [
+    24.98,
+    28.18
+   ],
+   "at": 23.53
+  },
+  {
+   "src": [
+    28.68,
+    29.72
+   ],
+   "at": 27.03
+  },
+  {
+   "src": [
+    30.31,
+    33.54
+   ],
+   "at": 28.37
+  },
+  {
+   "src": [
+    34.02,
+    37.78
+   ],
+   "at": 31.9
+  },
+  {
+   "src": [
+    38.39,
+    41.25
+   ],
+   "at": 35.96
+  },
+  {
+   "src": [
+    41.53,
+    43.11
+   ],
+   "at": 39.12
+  },
+  {
+   "src": [
+    43.75,
+    46.64
+   ],
+   "at": 41.0
+  },
+  {
+   "src": [
+    47.08,
+    48.31
+   ],
+   "at": 44.19
+  },
+  {
+   "src": [
+    48.82,
+    51.56
+   ],
+   "at": 45.72
+  },
+  {
+   "src": [
+    52.16,
+    53.36
+   ],
+   "at": 48.76
+  },
+  {
+   "src": [
+    53.9,
+    57.47
+   ],
+   "at": 50.26
+  },
+  {
+   "src": [
+    58.06,
+    58.8
+   ],
+   "at": 54.13
+  },
+  {
+   "src": [
+    59.21,
+    62.24
+   ],
+   "at": 55.17
+  },
+  {
+   "src": [
+    62.63,
+    66.44
+   ],
+   "at": 58.5
+  },
+  {
+   "src": [
+    67.11,
+    67.84
+   ],
+   "at": 62.61
+  },
+  {
+   "src": [
+    68.18,
+    68.9
+   ],
+   "at": 63.64
+  },
+  {
+   "src": [
+    69.23,
+    70.2
+   ],
+   "at": 64.66
+  },
+  {
+   "src": [
+    70.83,
+    72.32
+   ],
+   "at": 65.93
+  },
+  {
+   "src": [
+    72.98,
+    74.34
+   ],
+   "at": 67.72
+  },
+  {
+   "src": [
+    74.83,
+    75.82
+   ],
+   "at": 69.38
+  },
+  {
+   "src": [
+    76.11,
+    77.08
+   ],
+   "at": 70.67
+  },
+  {
+   "src": [
+    77.64,
+    80.18
+   ],
+   "at": 71.94
+  },
+  {
+   "src": [
+    80.67,
+    82.73
+   ],
+   "at": 74.78
+  },
+  {
+   "src": [
+    83.31,
+    86.2
+   ],
+   "at": 77.14
+  },
+  {
+   "src": [
+    86.77,
+    89.08
+   ],
+   "at": 80.33
+  },
+  {
+   "src": [
+    89.72,
+    94.18
+   ],
+   "at": 82.94
+  },
+  {
+   "src": [
+    94.7,
+    95.87
+   ],
+   "at": 87.7
+  },
+  {
+   "src": [
+    96.16,
+    97.39
+   ],
+   "at": 89.17
+  },
+  {
+   "src": [
+    98.1,
+    101.42
+   ],
+   "at": 90.7
+  },
+  {
+   "src": [
+    101.89,
+    104.74
+   ],
+   "at": 94.32
+  },
+  {
+   "src": [
+    105.28,
+    106.96
+   ],
+   "at": 97.47
+  },
+  {
+   "src": [
+    107.28,
+    108.32
+   ],
+   "at": 99.45
+  },
+  {
+   "src": [
+    108.85,
+    109.91
+   ],
+   "at": 100.79
+  },
+  {
+   "src": [
+    110.42,
+    113.2
+   ],
+   "at": 102.15
+  },
+  {
+   "src": [
+    113.65,
+    115.52
+   ],
+   "at": 105.23
+  },
+  {
+   "src": [
+    116.09,
+    117.49
+   ],
+   "at": 107.4
+  },
+  {
+   "src": [
+    117.96,
+    119.61
+   ],
+   "at": 109.1
+  },
+  {
+   "src": [
+    120.18,
+    124.85
+   ],
+   "at": 111.05
+  },
+  {
+   "src": [
+    125.44,
+    128.45
+   ],
+   "at": 116.02
+  },
+  {
+   "src": [
+    129.03,
+    131.97
+   ],
+   "at": 119.33
+  },
+  {
+   "src": [
+    132.57,
+    136.42
+   ],
+   "at": 122.57
+  },
+  {
+   "src": [
+    137.07,
+    139.18
+   ],
+   "at": 126.72
+  },
+  {
+   "src": [
+    139.62,
+    141.47
+   ],
+   "at": 129.13
+  },
+  {
+   "src": [
+    141.87,
+    144.16
+   ],
+   "at": 131.28
+  },
+  {
+   "src": [
+    144.69,
+    145.6
+   ],
+   "at": 133.87
+  },
+  {
+   "src": [
+    146.08,
+    148.18
+   ],
+   "at": 135.08
+  },
+  {
+   "src": [
+    148.7,
+    152.41
+   ],
+   "at": 137.48
+  },
+  {
+   "src": [
+    152.93,
+    155.66
+   ],
+   "at": 141.49
+  },
+  {
+   "src": [
+    155.97,
+    157.28
+   ],
+   "at": 144.52
+  },
+  {
+   "src": [
+    157.83,
+    159.29
+   ],
+   "at": 146.13
+  },
+  {
+   "src": [
+    159.71,
+    162.19
+   ],
+   "at": 147.89
+  },
+  {
+   "src": [
+    162.52,
+    164.22
+   ],
+   "at": 150.67
+  },
+  {
+   "src": [
+    164.71,
+    166.56
+   ],
+   "at": 152.67
+  },
+  {
+   "src": [
+    166.9,
+    167.98
+   ],
+   "at": 154.82
+  },
+  {
+   "src": [
+    168.28,
+    169.98
+   ],
+   "at": 156.2
+  },
+  {
+   "src": [
+    170.28,
+    172.4
+   ],
+   "at": 158.2
+  },
+  {
+   "src": [
+    172.87,
+    173.46
+   ],
+   "at": 160.62
+  },
+  {
+   "src": [
+    173.8,
+    174.89
+   ],
+   "at": 161.51
+  },
+  {
+   "src": [
+    175.3,
+    177.94
+   ],
+   "at": 162.9
+  },
+  {
+   "src": [
+    178.24,
+    179.24
+   ],
+   "at": 165.84
+  },
+  {
+   "src": [
+    179.64,
+    180.22
+   ],
+   "at": 167.14
+  },
+  {
+   "src": [
+    180.58,
+    181.77
+   ],
+   "at": 168.02
+  },
+  {
+   "src": [
+    182.21,
+    186.68
+   ],
+   "at": 169.51
+  },
+  {
+   "src": [
+    187.03,
+    189.27
+   ],
+   "at": 174.28
+  },
+  {
+   "src": [
+    189.57,
+    192.17
+   ],
+   "at": 176.82
+  },
+  {
+   "src": [
+    192.78,
+    193.1
+   ],
+   "at": 179.72
+  },
+  {
+   "src": [
+    193.52,
+    195.94
+   ],
+   "at": 180.34
+  },
+  {
+   "src": [
+    196.44,
+    197.52
+   ],
+   "at": 183.06
+  },
+  {
+   "src": [
+    198.0,
+    199.06
+   ],
+   "at": 184.44
+  },
+  {
+   "src": [
+    199.47,
+    201.06
+   ],
+   "at": 185.8
+  },
+  {
+   "src": [
+    201.34,
+    203.18
+   ],
+   "at": 187.69
+  },
+  {
+   "src": [
+    203.54,
+    206.6
+   ],
+   "at": 189.83
+  },
+  {
+   "src": [
+    207.08,
+    208.21
+   ],
+   "at": 193.19
+  },
+  {
+   "src": [
+    208.72,
+    209.45
+   ],
+   "at": 194.62
+  },
+  {
+   "src": [
+    209.85,
+    212.63
+   ],
+   "at": 195.65
+  },
+  {
+   "src": [
+    212.99,
+    213.71
+   ],
+   "at": 198.73
+  },
+  {
+   "src": [
+    214.03,
+    215.19
+   ],
+   "at": 199.75
+  },
+  {
+   "src": [
+    215.7,
+    216.87
+   ],
+   "at": 201.21
+  },
+  {
+   "src": [
+    217.28,
+    219.59
+   ],
+   "at": 202.68
+  },
+  {
+   "src": [
+    220.06,
+    222.23
+   ],
+   "at": 205.29
+  },
+  {
+   "src": [
+    222.66,
+    224.22
+   ],
+   "at": 207.76
+  },
+  {
+   "src": [
+    224.55,
+    226.46
+   ],
+   "at": 209.62
+  },
+  {
+   "src": [
+    227.11,
+    228.01
+   ],
+   "at": 211.83
+  },
+  {
+   "src": [
+    228.47,
+    229.86
+   ],
+   "at": 213.03
+  },
+  {
+   "src": [
+    230.31,
+    233.57
+   ],
+   "at": 214.72
+  },
+  {
+   "src": [
+    233.92,
+    235.12
+   ],
+   "at": 218.28
+  },
+  {
+   "src": [
+    235.47,
+    238.47
+   ],
+   "at": 219.78
+  },
+  {
+   "src": [
+    238.91,
+    242.12
+   ],
+   "at": 223.08
+  },
+  {
+   "src": [
+    242.78,
+    244.68
+   ],
+   "at": 226.59
+  },
+  {
+   "src": [
+    245.07,
+    249.94
+   ],
+   "at": 228.79
+  },
+  {
+   "src": [
+    250.37,
+    253.27
+   ],
+   "at": 233.96
+  },
+  {
+   "src": [
+    253.66,
+    256.09
+   ],
+   "at": 237.16
+  },
+  {
+   "src": [
+    256.41,
+    258.64
+   ],
+   "at": 239.89
+  },
+  {
+   "src": [
+    259.02,
+    259.57
+   ],
+   "at": 242.42
+  },
+  {
+   "src": [
+    260.0,
+    262.71
+   ],
+   "at": 243.27
+  },
+  {
+   "src": [
+    263.29,
+    265.71
+   ],
+   "at": 246.28
+  },
+  {
+   "src": [
+    266.1,
+    269.56
+   ],
+   "at": 249.0
+  },
+  {
+   "src": [
+    269.84,
+    274.2
+   ],
+   "at": 252.76
+  },
+  {
+   "src": [
+    274.52,
+    275.53
+   ],
+   "at": 257.42
+  },
+  {
+   "src": [
+    275.91,
+    278.49
+   ],
+   "at": 258.73
+  },
+  {
+   "src": [
+    278.8,
+    281.31
+   ],
+   "at": 261.61
+  }
+ ]
+}

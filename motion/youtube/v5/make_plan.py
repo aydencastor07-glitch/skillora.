@@ -1,0 +1,98 @@
+# Plan de la vidéo « bras » (lignes du script → morceaux de voix via lines.json).
+import json, sys
+LINES = json.load(open(sys.argv[1]))
+F = [1.0, 0.5, 0.5, 1.08, 0.5, 0.47]                   # plein pied, léger zoom
+def cam(z0=1.0, fx=0.5, fy=0.5, z1=None, fx1=None, fy1=None): return [z0, fx, fy, z1 or z0 * 1.08, fx1 if fx1 is not None else fx, fy1 if fy1 is not None else fy]
+def rep(a, b, per, c=None, **k): return dict(img=a, alt=b, period=per, cam=c or F, **k)
+def say(i, s, **k): return dict(say=s, spoken=LINES[i]['text'], **k)
+ARM = cam(1.0, 0.5, 0.5, 1.06)
+S = [
+ ([0], dict(img='sk_curl', cam=cam(1.6, 0.5, 0.36, 1.85, 0.5, 0.33), **say(0, 'hundreds of *curls*', sayY=0.88))),
+ ([1], dict(card="it's not your genetics")),
+ ([2], dict(img='sk_curl', cam=cam(1.0, 0.5, 0.5, 1.2, 0.5, 0.45), **say(2, 'the *exercises*', sayY=0.12))),
+ ([3], dict(img='tshirt', enter='up', cam=F, text='the 2 exercises that build big arms', textAt=0.2)),
+ ([4], dict(card='why most guys never do them')),
+ ([5], dict(img='arm', enter='fade', cam=ARM, hl='arm_br', hlAt=0.5, text='+ a bonus muscle', textX=0.82)),
+ ([6], dict(card='but first, one thing')),
+ ([7], dict(img='arm', enter='fade', cam=ARM, hl='arm_bi', hlAt=0.3, text='not the biggest', textX=0.82)),
+ ([8], dict(img='arm', cam=cam(1.0, 0.5, 0.5, 1.25, 0.55, 0.7), hl='arm_tri', hlAt=0.1, **say(8, 'your *triceps*', sayY=0.12))),
+ ([9], dict(reps='2/3 of your upper arm', sets=0)),
+ ([10], dict(img='sk_curl', enter='fade', cam=F, icons=[{'kind': 'x', 'at': 0.5}], text='only curls', textAt=0.3)),
+ ([11], dict(img='arm_thin', enter='fade', cam=ARM, text='small arms', textX=0.82)),
+ ([12], dict(img='arm', cam=ARM, hl='arm_bi', hlAt=0.05, seq=[{'at': 0.5, 'img': 'arm', 'hl': 'arm_tri'}], text='small muscle ✓ big muscle ✗', textX=0.8, textY=0.18)),
+ ([13], dict(card='a second problem')),
+ ([14], dict(img='pushdown', enter='right', cam=F, text='the wrong position', textX=0.25)),
+ ([15], dict(card='what science found')),
+ ([16], dict(img='oh_down', enter='fade', cam=F, slide={'to': 0.3, 'at': 0.08}, text='stretched = more growth')),
+ ([17], dict(img='pushdown', enter='fade', cam=F, seq=[{'at': 0.45, 'img': 'oh_down'}], text='arms overhead vs pushdowns', textAt=0.2, textX=0.78)),
+ ([18], dict(reps='+40% growth', sets=0)),
+ ([19], dict(img='oh_down', cam=cam(1.0, 0.5, 0.5, 1.35, 0.5, 0.3), **say(19, 'the *position*', sayY=0.88))),
+ ([20], dict(card='the secret is simple')),
+ ([21], rep('oh_down', 'oh_up', 1.1, text='stretch → then work', textX=0.78)),
+ ([22, 23], dict(medal='p_dumbbell', name='Exercise #1 · Overhead triceps extension', medalZoom=1.0)),
+ ([24], dict(img='oh_up', enter='fade', cam=F, text='both hands, above your head', textX=0.78)),
+ ([25], dict(img='oh_up', cam=cam(1.6, 0.5, 0.2, 1.8, 0.5, 0.18), text='elbows close, pointing forward', textX=0.78, textY=0.5)),
+ ([26], dict(img='oh_up', cam=F, seq=[{'at': 0.35, 'img': 'oh_down'}], text='lower slowly… deep stretch', textX=0.78)),
+ ([27], rep('oh_down', 'oh_up', 1.0, text='push up · squeeze', textX=0.78)),
+ ([28], dict(img='arm', enter='fade', cam=ARM, hl='arm_tri', hlAt=0.2, text='long head = full stretch', textX=0.8, textY=0.18)),
+ ([29], dict(img='arm', cam=cam(1.0, 0.5, 0.5, 1.3, 0.55, 0.75), hl='arm_tri', hlAt=0.0, **say(29, 'the *biggest* part', sayY=0.12))),
+ ([30], dict(img='arm', cam=cam(1.3, 0.55, 0.7, 1.0, 0.5, 0.5), hl='arm_tri', hlAt=0.0, text='thick from the side', textX=0.82)),
+ ([31], dict(card='no dumbbell at home?')),
+ ([32], dict(img='bp_up', enter='fade', cam=F, slide={'to': 0.32, 'at': 0.08}, text='backpack + books · water bottle')),
+ ([33], rep('bp_down', 'bp_up', 1.1, text='same stretch', textX=0.78)),
+ ([34, 35], dict(medal='p_bench', name='Exercise #2 · Incline dumbbell curl', medalZoom=1.0)),
+ ([36], dict(img='ic_down', enter='fade', cam=cam(1.0, 0.45, 0.5), text='arms hang behind your body', textX=0.8, textY=0.18)),
+ ([37], dict(img='ic_down', cam=cam(1.0, 0.45, 0.5, 1.35, 0.4, 0.5), **say(37, 'already *stretched*', sayY=0.12))),
+ ([38], dict(img='ic_down', cam=cam(1.0, 0.45, 0.5), seq=[{'at': 0.4, 'img': 'ic_up'}], text="elbows don't move", textX=0.8, textY=0.18)),
+ ([39], rep('ic_up', 'ic_down', 1.3, cam(1.0, 0.45, 0.5), text='all the way down', textX=0.8, textY=0.18)),
+ ([40], dict(img='arm', enter='fade', cam=ARM, hl='arm_bi', hlAt=0.2, text='long head of the biceps', textX=0.82, textY=0.18)),
+ ([41], dict(img='arm', cam=cam(1.0, 0.5, 0.5, 1.4, 0.55, 0.62), hl='arm_bi', hlAt=0.0, **say(41, 'the *peak*', sayY=0.12))),
+ ([42], dict(img='flex', enter='fade', cam=cam(1.0, 0.5, 0.5, 1.5, 0.5, 0.3), text='the ball on top', textX=0.8, textY=0.3)),
+ ([43], dict(card='no bench at home?')),
+ ([44], dict(img='chin_down', enter='up', cam=F, text='palms facing you', textX=0.84)),
+ ([45], rep('chin_down', 'chin_up', 1.2, text='all the way down → chest to the bar', textX=0.5, textY=0.08)),
+ ([46], dict(img='chin_up', cam=F, slide={'to': 0.3, 'at': 0.1}, text='you only need a bar')),
+ ([47], dict(card='the bonus')),
+ ([48], dict(img='arm', enter='fade', cam=ARM, hl='arm_br', hlAt=0.4, text='hiding under your biceps', textX=0.8, textY=0.18)),
+ ([49], dict(img='arm', cam=cam(1.0, 0.5, 0.5, 1.5, 0.4, 0.68), hl='arm_br', hlAt=0.0, **say(49, 'the *brachialis*', sayY=0.12))),
+ ([50], dict(card='most people never heard of it')),
+ ([51], dict(img='arm', cam=ARM, hl='arm_br', hlAt=0.0, seq=[{'at': 0.45, 'img': 'arm', 'hl': 'arm_bi'}], text='pushes your biceps up', textX=0.8, textY=0.18)),
+ ([52], dict(medal='p_dumbbell', name='Bonus · Hammer curls', medalZoom=1.0)),
+ ([53], dict(img='hc_down', enter='fade', cam=F, text='palms facing each other', textX=0.8)),
+ ([54], rep('hc_down', 'hc_up', 1.2, text='up · slowly down', textX=0.8)),
+ ([55], dict(img='hc_up', cam=F, text='2 backpacks · 2 water jugs', textX=0.8)),
+ ([56], dict(img='arm', enter='fade', cam=ARM, hl='arm_br', hlAt=0.3, text='thicker from every angle', textX=0.8, textY=0.18)),
+ ([57], dict(card='3 mistakes that keep your arms small')),
+ ([58, 59], dict(img='swing', enter='up', cam=cam(1.0, 0.5, 0.5), label='#1. Swinging the weight', icons=[{'kind': 'x', 'at': 0.5}])),
+ ([60], dict(img='swing', cam=cam(1.0, 0.5, 0.5, 1.25), text='your arms do nothing', textX=0.8)),
+ ([61], rep('ic_down', 'ic_up', 1.4, cam(1.0, 0.45, 0.5), text='lighter · control every rep', textX=0.8, textY=0.18)),
+ ([62, 63], dict(img='ic_up', enter='up', cam=cam(1.0, 0.45, 0.5), label='#2. Half reps', icons=[{'kind': 'x', 'at': 0.5}])),
+ ([64], dict(img='ic_down', cam=cam(1.0, 0.45, 0.5, 1.3, 0.4, 0.55), text='growth happens here', textX=0.8, textY=0.18)),
+ ([65], dict(card='skip it, skip the results')),
+ ([66, 67], dict(img='sk_curl', enter='up', cam=F, label='#3. Arms every single day', icons=[{'kind': 'x', 'at': 0.5}])),
+ ([68], dict(card="muscles don't grow during the workout")),
+ ([69], dict(img='kai_sleep', enter='fade', cam=cam(1.0, 0.5, 0.5, 1.1), text='they grow when you rest', textX=0.5, textY=0.1)),
+ ([70], dict(img='kai_sleep', cam=cam(1.1, 0.5, 0.5, 1.2), text='2 – 3 times a week is enough', textX=0.5, textY=0.1)),
+ ([71], dict(card='your plan')),
+ ([72], dict(reps='2 – 3 times a week', sets=0)),
+ ([73], dict(img='oh_up', enter='fade', cam=F, seq=[{'at': 0.33, 'img': 'ic_up'}, {'at': 0.66, 'img': 'hc_up'}], text='triceps · biceps · hammer', textX=0.5, textY=0.08)),
+ ([74], dict(reps='8 – 12 reps', sets=3)),
+ ([75], rep('oh_up', 'oh_down', 1.6, text='3 seconds down', textX=0.78)),
+ ([76], dict(img='arm', enter='fade', cam=ARM, text='+1 rep every week', textX=0.82)),
+ ([77], dict(card='so what happens after 30 days?')),
+ ([78], dict(img='arm', cam=ARM, hl='arm_bi', hlAt=0.1, seq=[{'at': 0.5, 'img': 'arm', 'hl': 'arm_tri'}], text='stronger · crazy pump', textX=0.82, textY=0.18)),
+ ([79], dict(img='tshirt', enter='fade', cam=cam(1.0, 0.5, 0.5, 1.6, 0.5, 0.3), **say(79, 'sleeves feel *tighter*', sayY=0.88))),
+ ([80], dict(img='arm_thin', enter='fade', cam=ARM, seq=[{'at': 0.5, 'img': 'arm'}], text='a few months later', textX=0.82)),
+ ([81], dict(card='no magic. just the right exercises')),
+ ([82], dict(img='flex', enter='fade', cam=F, slide={'to': 0.3, 'at': 0.1}, text='only one part of the picture')),
+ ([83, 84], dict(img='flex', x=0.2, cam=[0.85, 0.5, 0.5, 0.9, 0.5, 0.5], next={'img': 'thumb_strength', 'title': 'Why Some Skinny Guys Are Stronger Than Big Guys'})),
+ ([85, 86], dict(subscribe=True, clickAt=0.25, text='new videos every Tuesday & Saturday', hold=1.5)),
+]
+scenes = []
+for lines, d in S:
+    d = dict(d)
+    if str(d.get('img', '')).startswith('arm') and 'x' not in d: d['x'] = 0.4   # bras à gauche, texte à droite
+    d['segs'] = [sg for l in lines for sg in LINES[l]['segs']]
+    d['voice'] = ' '.join(LINES[l]['text'] for l in lines); scenes.append(d)
+json.dump({'png': 'png_kai', 'scenes': scenes}, open(sys.argv[2], 'w'), indent=1, ensure_ascii=False)
+print(len(scenes), 'scènes')

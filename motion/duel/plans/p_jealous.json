@@ -1,0 +1,144 @@
+{
+ "pseudo": "@exxtory",
+ "bg": "fond",
+ "style": "count",
+ "banner": "COUNT HER YES 👀",
+ "hookImg": "x_j_hook",
+ "lines": [
+  {
+   "segs": [
+    0
+   ],
+   "text": "Only send this to your girlfriend if she's *jealous.*",
+   "role": "hook",
+   "newScene": true
+  },
+  {
+   "segs": [
+    1
+   ],
+   "text": "*5* questions.",
+   "role": "intro",
+   "newScene": true
+  },
+  {
+   "segs": [
+    2
+   ],
+   "text": "Count her *YES.*",
+   "role": "intro"
+  },
+  {
+   "segs": [
+    3
+   ],
+   "text": "Number five.",
+   "role": "num",
+   "n": 5,
+   "newScene": true
+  },
+  {
+   "segs": [
+    4
+   ],
+   "text": "Would she check who you *follow?*",
+   "role": "q",
+   "n": 5,
+   "img": "x_j5"
+  },
+  {
+   "segs": [
+    5
+   ],
+   "text": "Number four.",
+   "role": "num",
+   "n": 4,
+   "newScene": true
+  },
+  {
+   "segs": [
+    6
+   ],
+   "text": "Get *mad* if you like a girl's photo?",
+   "role": "q",
+   "n": 4,
+   "img": "x_j4"
+  },
+  {
+   "segs": [
+    7
+   ],
+   "text": "Number three.",
+   "role": "num",
+   "n": 3,
+   "newScene": true
+  },
+  {
+   "segs": [
+    8
+   ],
+   "text": "Ask for your *location* all day?",
+   "role": "q",
+   "n": 3,
+   "img": "x_j3"
+  },
+  {
+   "segs": [
+    9
+   ],
+   "text": "Number two.",
+   "role": "num",
+   "n": 2,
+   "newScene": true
+  },
+  {
+   "segs": [
+    10
+   ],
+   "text": "Read your *DMs* while you sleep?",
+   "role": "q",
+   "n": 2,
+   "img": "x_j2"
+  },
+  {
+   "segs": [
+    11
+   ],
+   "text": "Number one.",
+   "role": "num",
+   "n": 1,
+   "newScene": true
+  },
+  {
+   "segs": [
+    12
+   ],
+   "text": "Would she break up over *one text?*",
+   "role": "q",
+   "n": 1,
+   "img": "x_j1"
+  },
+  {
+   "segs": [
+    13
+   ],
+   "text": "*3 YES* or more?",
+   "role": "end",
+   "newScene": true
+  },
+  {
+   "segs": [
+    14
+   ],
+   "text": "Comment your *score…*",
+   "role": "end"
+  },
+  {
+   "segs": [
+    15
+   ],
+   "text": "and watch it *again* with her.",
+   "role": "end"
+  }
+ ]
+}

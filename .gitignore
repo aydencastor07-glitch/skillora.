@@ -2,3 +2,6 @@
 # Python
 __pycache__/
 *.pyc
+
+# images temporaires des rendus vidéo (dossier <sortie>_fr, supprimé en fin de rendu)
+*_fr/

@@ -1,0 +1,2788 @@
+{
+ "png": "png_kai",
+ "dur": 293.35,
+ "scenes": [
+  {
+   "img": "big_kb",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.15,
+    0.5,
+    0.53
+   ],
+   "seq": [
+    {
+     "at": 0.62,
+     "img": "kb_up"
+    }
+   ],
+   "say": "a big guy *couldn't*",
+   "spoken": "Have you ever seen a skinny guy lift something a big guy couldn't?",
+   "sayFrom": 9,
+   "sayY": 0.9,
+   "voice": "Have you ever seen a skinny guy lift something a big guy couldn't?",
+   "t0": 0.2,
+   "t1": 3.95,
+   "parts": [
+    [
+     0.2,
+     3.95
+    ]
+   ]
+  },
+  {
+   "img": "kb_up",
+   "cam": [
+    1.15,
+    0.48,
+    0.45,
+    1.5,
+    0.48,
+    0.35
+   ],
+   "text": "impossible?",
+   "textAt": 0.3,
+   "voice": "It looks impossible.",
+   "t0": 4.25,
+   "t1": 5.55,
+   "parts": [
+    [
+     4.25,
+     5.55
+    ]
+   ]
+  },
+  {
+   "card": "it happens all the time",
+   "voice": "But it happens all the time.",
+   "t0": 5.85,
+   "t1": 7.55,
+   "parts": [
+    [
+     5.85,
+     7.55
+    ]
+   ]
+  },
+  {
+   "img": "kb_hold",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "you'll train differently",
+   "voice": "And once you understand why, you'll never train the same way again.",
+   "t0": 7.85,
+   "t1": 12.05,
+   "parts": [
+    [
+     7.85,
+     9.49
+    ],
+    [
+     9.79,
+     12.05
+    ]
+   ]
+  },
+  {
+   "card": "here's the truth",
+   "voice": "Here's the truth.",
+   "t0": 12.35,
+   "t1": 13.04,
+   "parts": [
+    [
+     12.35,
+     13.04
+    ]
+   ]
+  },
+  {
+   "img": "big",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "kb_hold"
+    }
+   ],
+   "text": "size ≠ strength",
+   "textAt": 0.55,
+   "voice": "Big muscles and real strength are not the same thing.",
+   "t0": 13.34,
+   "t1": 17.15,
+   "parts": [
+    [
+     13.34,
+     15.42
+    ],
+    [
+     15.72,
+     17.15
+    ]
+   ]
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.5,
+    0.42
+   ],
+   "say": "*size*",
+   "spoken": "Size is how much muscle you have.",
+   "sayY": 0.18,
+   "voice": "Size is how much muscle you have.",
+   "t0": 17.45,
+   "t1": 19.59,
+   "parts": [
+    [
+     17.45,
+     19.59
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.3,
+    0.5,
+    0.42
+   ],
+   "say": "*strength*",
+   "spoken": "Strength is how well your body can use it.",
+   "sayY": 0.18,
+   "voice": "Strength is how well your body can use it.",
+   "t0": 19.89,
+   "t1": 22.73,
+   "parts": [
+    [
+     19.89,
+     20.36
+    ],
+    [
+     20.66,
+     22.73
+    ]
+   ]
+  },
+  {
+   "img": "kb_up3",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.12,
+    0.5,
+    0.5
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.1
+   },
+   "text": "4 reasons",
+   "voice": "And there are four reasons why a skinny guy can be stronger than a man twice his size.",
+   "t0": 23.03,
+   "t1": 28.42,
+   "parts": [
+    [
+     23.03,
+     28.42
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "label": "#1. Your nervous system",
+   "voice": "Reason number one. Your nervous system.",
+   "t0": 28.72,
+   "t1": 31.11,
+   "parts": [
+    [
+     28.72,
+     29.72
+    ],
+    [
+     30.02,
+     31.11
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.2,
+    0.5,
+    0.35,
+    1.7,
+    0.5,
+    0.25
+   ],
+   "text": "brain → nerves → muscle",
+   "textAt": 0.35,
+   "voice": "Every muscle is controlled by your brain, through your nerves.",
+   "t0": 31.41,
+   "t1": 34.87,
+   "parts": [
+    [
+     31.41,
+     33.72
+    ],
+    [
+     34.02,
+     34.87
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.7,
+    0.4,
+    0.4,
+    1.9,
+    0.35,
+    0.45
+   ],
+   "text": "the signal",
+   "textAt": 0.5,
+   "voice": "When you lift something heavy, your brain sends a signal to your muscle fibers.",
+   "t0": 35.17,
+   "t1": 39.32,
+   "parts": [
+    [
+     35.17,
+     36.46
+    ],
+    [
+     36.76,
+     39.32
+    ]
+   ]
+  },
+  {
+   "img": "skinny2",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "only part of the fibers",
+   "textAt": 0.4,
+   "voice": "An untrained person can only switch on part of them.",
+   "t0": 39.62,
+   "t1": 42.56,
+   "parts": [
+    [
+     39.62,
+     42.56
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.45
+   ],
+   "say": "almost *all* of them",
+   "spoken": "A trained lifter can switch on almost all of them, at the same time, and much faster.",
+   "sayFrom": 6,
+   "voice": "A trained lifter can switch on almost all of them, at the same time, and much faster.",
+   "t0": 42.86,
+   "t1": 48.63,
+   "parts": [
+    [
+     42.86,
+     45.88
+    ],
+    [
+     46.18,
+     47.28
+    ],
+    [
+     47.58,
+     48.63
+    ]
+   ]
+  },
+  {
+   "img": "lean_pu_down",
+   "alt": "lean_pu_up",
+   "period": 1.0,
+   "cam": [
+    1.0,
+    0.5,
+    0.52,
+    1.08,
+    0.5,
+    0.52
+   ],
+   "text": "stronger before bigger",
+   "textAt": 0.5,
+   "textX": 0.85,
+   "voice": "That's why strength can go up in the first weeks of training, before your muscles even get bigger.",
+   "t0": 48.93,
+   "t1": 54.08,
+   "parts": [
+    [
+     48.93,
+     52.08
+    ],
+    [
+     52.38,
+     54.08
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.6,
+    0.5,
+    0.25,
+    1.8,
+    0.5,
+    0.22
+   ],
+   "text": "your brain is learning",
+   "textAt": 0.3,
+   "voice": "Your brain is learning to use what you already have.",
+   "t0": 54.38,
+   "t1": 57.55,
+   "parts": [
+    [
+     54.38,
+     57.55
+    ]
+   ]
+  },
+  {
+   "card": "think of it like an engine",
+   "voice": "Think of it like an engine.",
+   "t0": 57.85,
+   "t1": 59.03,
+   "parts": [
+    [
+     57.85,
+     59.03
+    ]
+   ]
+  },
+  {
+   "card": "the better driver wins",
+   "voice": "Two cars can have the same engine, but the one with the better driver wins the race.",
+   "t0": 59.33,
+   "t1": 64.15,
+   "parts": [
+    [
+     59.33,
+     61.14
+    ],
+    [
+     61.44,
+     64.15
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "the *driver*",
+   "spoken": "Your nervous system is the driver.",
+   "voice": "Your nervous system is the driver.",
+   "t0": 64.45,
+   "t1": 66.49,
+   "parts": [
+    [
+     64.45,
+     66.49
+    ]
+   ]
+  },
+  {
+   "medal": "p_barbell",
+   "name": "Reason #2 · Technique",
+   "medalZoom": 1.0,
+   "voice": "Reason number two. Technique.",
+   "t0": 66.79,
+   "t1": 68.56,
+   "parts": [
+    [
+     66.79,
+     67.85
+    ],
+    [
+     68.15,
+     68.56
+    ]
+   ]
+  },
+  {
+   "img": "lean_dl_down",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.53,
+    0.5,
+    1.08,
+    0.53,
+    0.5
+   ],
+   "text": "lifting is a skill",
+   "textAt": 0.5,
+   "textX": 0.2,
+   "voice": "Lifting is a skill, just like throwing a punch or kicking a ball.",
+   "t0": 68.86,
+   "t1": 72.86,
+   "parts": [
+    [
+     68.86,
+     70.17
+    ],
+    [
+     70.47,
+     72.86
+    ]
+   ]
+  },
+  {
+   "img": "big_deadlift",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.08,
+    0.5,
+    0.53
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.55
+    }
+   ],
+   "voice": "A big guy with bad form leaks power everywhere.",
+   "t0": 73.16,
+   "t1": 76.75,
+   "parts": [
+    [
+     73.16,
+     76.75
+    ]
+   ]
+  },
+  {
+   "img": "big_deadlift",
+   "cam": [
+    1.1,
+    0.5,
+    0.5,
+    1.35,
+    0.45,
+    0.45
+   ],
+   "text": "back rounds · knees cave",
+   "textAt": 0.15,
+   "textY": 0.12,
+   "textX": 0.5,
+   "voice": "His back rounds, his knees cave in, and the weight drifts away from his body.",
+   "t0": 77.05,
+   "t1": 82.0,
+   "parts": [
+    [
+     77.05,
+     79.56
+    ],
+    [
+     79.86,
+     82.0
+    ]
+   ]
+  },
+  {
+   "img": "lean_dl_down",
+   "cam": [
+    1.0,
+    0.53,
+    0.5,
+    1.08,
+    0.53,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.55,
+     "img": "lean_dl_up"
+    }
+   ],
+   "icons": [
+    {
+     "kind": "v",
+     "at": 0.7
+    }
+   ],
+   "voice": "A skinny guy with perfect form puts all his force in one direction.",
+   "t0": 82.3,
+   "t1": 86.96,
+   "parts": [
+    [
+     82.3,
+     86.96
+    ]
+   ]
+  },
+  {
+   "img": "lean_dl_up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.5
+   ],
+   "say": "less *effort*",
+   "spoken": "Same weight, less effort.",
+   "sayY": 0.12,
+   "voice": "Same weight, less effort.",
+   "t0": 87.26,
+   "t1": 88.92,
+   "parts": [
+    [
+     87.26,
+     87.93
+    ],
+    [
+     88.23,
+     88.92
+    ]
+   ]
+  },
+  {
+   "img": "lean_dl_up",
+   "cam": [
+    1.15,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.5
+   ],
+   "text": "smaller can out-lift bigger",
+   "textAt": 0.4,
+   "textY": 0.12,
+   "textX": 0.5,
+   "voice": "This is also why a smaller lifter can out-lift a bigger one in competition.",
+   "t0": 89.22,
+   "t1": 93.6,
+   "parts": [
+    [
+     89.22,
+     93.6
+    ]
+   ]
+  },
+  {
+   "img": "lean_dl_down",
+   "cam": [
+    1.0,
+    0.53,
+    0.5,
+    1.08,
+    0.53,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "lean_dl_up"
+    }
+   ],
+   "text": "efficient",
+   "textAt": 0.6,
+   "textX": 0.2,
+   "voice": "Every inch of the movement is efficient.",
+   "t0": 93.9,
+   "t1": 96.25,
+   "parts": [
+    [
+     93.9,
+     96.25
+    ]
+   ]
+  },
+  {
+   "img": "big",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "label": "#3. Body weight",
+   "voice": "Reason number three. Body weight.",
+   "t0": 96.55,
+   "t1": 98.58,
+   "parts": [
+    [
+     96.55,
+     97.65
+    ],
+    [
+     97.95,
+     98.58
+    ]
+   ]
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.47
+   ],
+   "text": "he carries himself first",
+   "textAt": 0.3,
+   "voice": "A big guy has to carry his own body before he lifts anything.",
+   "t0": 98.88,
+   "t1": 102.57,
+   "parts": [
+    [
+     98.88,
+     102.57
+    ]
+   ]
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.15,
+    0.5,
+    0.47,
+    1.8,
+    0.5,
+    0.5
+   ],
+   "text": "not muscle",
+   "textAt": 0.5,
+   "voice": "And a lot of that weight is not muscle.",
+   "t0": 102.87,
+   "t1": 104.98,
+   "parts": [
+    [
+     102.87,
+     104.98
+    ]
+   ]
+  },
+  {
+   "img": "big",
+   "cam": [
+    1.8,
+    0.5,
+    0.5,
+    2.0,
+    0.5,
+    0.52
+   ],
+   "say": "*fat*",
+   "spoken": "It's fat.",
+   "sayY": 0.15,
+   "voice": "It's fat.",
+   "t0": 105.28,
+   "t1": 105.93,
+   "parts": [
+    [
+     105.28,
+     105.93
+    ]
+   ]
+  },
+  {
+   "img": "big_kb2",
+   "cam": [
+    1.0,
+    0.5,
+    0.53,
+    1.08,
+    0.5,
+    0.53
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.4
+    }
+   ],
+   "voice": "Fat doesn't lift anything.",
+   "t0": 106.23,
+   "t1": 107.86,
+   "parts": [
+    [
+     106.23,
+     107.86
+    ]
+   ]
+  },
+  {
+   "img": "kb_hold",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.05
+   },
+   "text": "everything works for him",
+   "voice": "A lean guy has less dead weight, so almost everything he carries is working for him.",
+   "t0": 108.16,
+   "t1": 113.37,
+   "parts": [
+    [
+     108.16,
+     110.26
+    ],
+    [
+     110.56,
+     113.37
+    ]
+   ]
+  },
+  {
+   "img": "lean_pu_down",
+   "alt": "lean_pu_up",
+   "period": 0.8,
+   "cam": [
+    1.0,
+    0.5,
+    0.52,
+    1.08,
+    0.5,
+    0.52
+   ],
+   "voice": "That's why skinny guys are often amazing at pull-ups, dips and push-ups.",
+   "t0": 113.67,
+   "t1": 118.11,
+   "parts": [
+    [
+     113.67,
+     118.11
+    ]
+   ]
+  },
+  {
+   "img": "lean",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "pound for *pound*",
+   "spoken": "Pound for pound, they're stronger.",
+   "voice": "Pound for pound, they're stronger.",
+   "t0": 118.41,
+   "t1": 120.32,
+   "parts": [
+    [
+     118.41,
+     120.32
+    ]
+   ]
+  },
+  {
+   "img": "big_pullup",
+   "cam": [
+    1.0,
+    0.5,
+    0.51,
+    1.08,
+    0.5,
+    0.51
+   ],
+   "seq": [
+    {
+     "at": 0.45,
+     "img": "lean_pu_up"
+    }
+   ],
+   "text": "x2 reps",
+   "textAt": 0.6,
+   "textX": 0.85,
+   "voice": "Put a big guy and a lean guy on a pull-up bar, and the lean guy will often do twice as many reps.",
+   "t0": 120.62,
+   "t1": 126.7,
+   "parts": [
+    [
+     120.62,
+     123.38
+    ],
+    [
+     123.68,
+     126.7
+    ]
+   ]
+  },
+  {
+   "img": "lean_climb",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.55,
+    0.5,
+    1.08,
+    0.55,
+    0.5
+   ],
+   "label": "#4. Tendons & muscle quality",
+   "voice": "Reason number four. Tendons and muscle quality.",
+   "t0": 127.0,
+   "t1": 130.03,
+   "parts": [
+    [
+     127.0,
+     128.08
+    ],
+    [
+     128.38,
+     130.03
+    ]
+   ]
+  },
+  {
+   "img": "lean_climb",
+   "cam": [
+    1.1,
+    0.55,
+    0.45,
+    1.3,
+    0.6,
+    0.35
+   ],
+   "voice": "Strength doesn't only come from muscle.",
+   "t0": 130.33,
+   "t1": 132.51,
+   "parts": [
+    [
+     130.33,
+     132.51
+    ]
+   ]
+  },
+  {
+   "img": "lean",
+   "cam": [
+    1.6,
+    0.38,
+    0.45,
+    2.0,
+    0.36,
+    0.5
+   ],
+   "text": "tendons = cables",
+   "textAt": 0.5,
+   "voice": "It also comes from your tendons, the cables that connect your muscles to your bones.",
+   "t0": 132.81,
+   "t1": 137.58,
+   "parts": [
+    [
+     132.81,
+     134.66
+    ],
+    [
+     134.96,
+     137.58
+    ]
+   ]
+  },
+  {
+   "img": "lean_climb",
+   "cam": [
+    1.3,
+    0.6,
+    0.35,
+    1.5,
+    0.62,
+    0.3
+   ],
+   "text": "like steel",
+   "textAt": 0.6,
+   "textX": 0.2,
+   "voice": "Years of heavy, controlled training make them thick and stiff, like steel.",
+   "t0": 137.88,
+   "t1": 142.77,
+   "parts": [
+    [
+     137.88,
+     141.77
+    ],
+    [
+     142.07,
+     142.77
+    ]
+   ]
+  },
+  {
+   "img": "lean_pistol",
+   "enter": "right",
+   "cam": [
+    1.0,
+    0.56,
+    0.52,
+    1.08,
+    0.56,
+    0.52
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "lean_climb"
+    }
+   ],
+   "voice": "That's how some lean athletes, like climbers or gymnasts, can do things that look unreal.",
+   "t0": 143.07,
+   "t1": 148.42,
+   "parts": [
+    [
+     143.07,
+     146.39
+    ],
+    [
+     146.69,
+     148.42
+    ]
+   ]
+  },
+  {
+   "img": "kb_up3",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "text": "their muscles aren't huge",
+   "textAt": 0.2,
+   "voice": "Their muscles aren't huge.",
+   "t0": 148.72,
+   "t1": 150.16,
+   "parts": [
+    [
+     148.72,
+     150.16
+    ]
+   ]
+  },
+  {
+   "img": "kb_up2",
+   "cam": [
+    1.0,
+    0.48,
+    0.5,
+    1.15,
+    0.48,
+    0.45
+   ],
+   "say": "transfer *force*",
+   "spoken": "But every part of their body is built to transfer force.",
+   "sayY": 0.9,
+   "voice": "But every part of their body is built to transfer force.",
+   "t0": 150.46,
+   "t1": 153.95,
+   "parts": [
+    [
+     150.46,
+     153.95
+    ]
+   ]
+  },
+  {
+   "card": "how do you train for this?",
+   "voice": "So how do you train to become this kind of strong?",
+   "t0": 154.25,
+   "t1": 156.97,
+   "parts": [
+    [
+     154.25,
+     156.97
+    ]
+   ]
+  },
+  {
+   "card": "4 rules",
+   "voice": "Here are the four rules.",
+   "t0": 157.27,
+   "t1": 158.83,
+   "parts": [
+    [
+     157.27,
+     158.83
+    ]
+   ]
+  },
+  {
+   "medal": "p_barbell",
+   "name": "Rule #1 · Heavy, low reps",
+   "medalZoom": 1.0,
+   "voice": "Rule number one. Lift heavy, with low reps.",
+   "t0": 159.13,
+   "t1": 162.3,
+   "parts": [
+    [
+     159.13,
+     160.04
+    ],
+    [
+     160.34,
+     162.3
+    ]
+   ]
+  },
+  {
+   "reps": "3 – 6 reps",
+   "sets": 0,
+   "voice": "For strength, work in the range of three to six reps.",
+   "t0": 162.6,
+   "t1": 165.86,
+   "parts": [
+    [
+     162.6,
+     165.86
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.5
+   ],
+   "text": "more fibers switched on",
+   "textAt": 0.4,
+   "voice": "Heavy weights teach your nervous system to switch on more muscle fibers.",
+   "t0": 166.16,
+   "t1": 170.01,
+   "parts": [
+    [
+     166.16,
+     170.01
+    ]
+   ]
+  },
+  {
+   "img": "lean_squat_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.25,
+     "img": "lean_dl_down"
+    },
+    {
+     "at": 0.5,
+     "img": "bench_up"
+    },
+    {
+     "at": 0.72,
+     "img": "lean_squat_up"
+    }
+   ],
+   "text": "squat · deadlift · bench · press",
+   "textAt": 0.1,
+   "textY": 0.08,
+   "textX": 0.5,
+   "voice": "Use the big lifts. Squats, deadlifts, bench press, overhead press.",
+   "t0": 170.31,
+   "t1": 175.31,
+   "parts": [
+    [
+     170.31,
+     171.57
+    ],
+    [
+     171.87,
+     172.43
+    ],
+    [
+     172.73,
+     173.29
+    ],
+    [
+     173.59,
+     175.31
+    ]
+   ]
+  },
+  {
+   "img": "lean_pistol",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.56,
+    0.52,
+    1.08,
+    0.56,
+    0.52
+   ],
+   "seq": [
+    {
+     "at": 0.35,
+     "img": "lean_pu_up"
+    },
+    {
+     "at": 0.6,
+     "img": "dip_down"
+    },
+    {
+     "at": 0.8,
+     "img": "deep_down"
+    }
+   ],
+   "text": "at home: hard variations",
+   "textAt": 0.1,
+   "textY": 0.08,
+   "textX": 0.5,
+   "voice": "At home, use hard variations. Pistol squats, pull-ups, dips and one-arm push-up progressions.",
+   "t0": 175.61,
+   "t1": 182.33,
+   "parts": [
+    [
+     175.61,
+     177.79
+    ],
+    [
+     178.09,
+     180.28
+    ],
+    [
+     180.58,
+     182.33
+    ]
+   ]
+  },
+  {
+   "medal": "p_phone",
+   "name": "Rule #2 · Practice the skill",
+   "medalZoom": 1.05,
+   "voice": "Rule number two. Practice your lifts like a skill.",
+   "t0": 182.63,
+   "t1": 185.84,
+   "parts": [
+    [
+     182.63,
+     183.61
+    ],
+    [
+     183.91,
+     185.84
+    ]
+   ]
+  },
+  {
+   "card": "don't just do exercises. master them",
+   "voice": "Don't just do exercises. Master them.",
+   "t0": 186.14,
+   "t1": 188.86,
+   "parts": [
+    [
+     186.14,
+     187.84
+    ],
+    [
+     188.14,
+     188.86
+    ]
+   ]
+  },
+  {
+   "img": "lean_squat_down",
+   "alt": "lean_squat_up",
+   "period": 1.3,
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "text": "film your sets",
+   "textAt": 0.2,
+   "textX": 0.82,
+   "voice": "Film your sets. Keep the same perfect form on every single rep.",
+   "t0": 189.16,
+   "t1": 193.66,
+   "parts": [
+    [
+     189.16,
+     190.07
+    ],
+    [
+     190.37,
+     193.66
+    ]
+   ]
+  },
+  {
+   "img": "lean_squat_down",
+   "alt": "lean_squat_up",
+   "period": 1.3,
+   "cam": [
+    1.05,
+    0.45,
+    0.5,
+    1.1340000000000001,
+    0.45,
+    0.5
+   ],
+   "text": "clean form = more weight",
+   "textAt": 0.3,
+   "textX": 0.82,
+   "voice": "The cleaner your technique, the more weight you can move safely.",
+   "t0": 193.96,
+   "t1": 197.13,
+   "parts": [
+    [
+     193.96,
+     195.1
+    ],
+    [
+     195.4,
+     197.13
+    ]
+   ]
+  },
+  {
+   "medal": "p_bolt",
+   "name": "Rule #3 · Move with intent",
+   "medalZoom": 1.0,
+   "voice": "Rule number three. Move with intent.",
+   "t0": 197.43,
+   "t1": 200.09,
+   "parts": [
+    [
+     197.43,
+     198.48
+    ],
+    [
+     198.78,
+     200.09
+    ]
+   ]
+  },
+  {
+   "img": "lean_squat_down",
+   "alt": "lean_squat_up",
+   "period": 0.55,
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.2,
+    0.45,
+    0.5
+   ],
+   "text": "explode up",
+   "textAt": 0.4,
+   "textX": 0.82,
+   "voice": "On every rep, push as fast and as hard as you can, even when the weight moves slowly.",
+   "t0": 200.39,
+   "t1": 205.7,
+   "parts": [
+    [
+     200.39,
+     203.8
+    ],
+    [
+     204.1,
+     205.7
+    ]
+   ]
+  },
+  {
+   "img": "lean_nerves",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.2,
+    0.5,
+    0.42
+   ],
+   "say": "recruit *everything*",
+   "spoken": "That tells your brain to recruit everything.",
+   "voice": "That tells your brain to recruit everything.",
+   "t0": 206.0,
+   "t1": 208.44,
+   "parts": [
+    [
+     206.0,
+     208.44
+    ]
+   ]
+  },
+  {
+   "medal": "p_timer",
+   "name": "Rule #4 · Rest longer",
+   "medalZoom": 1.05,
+   "voice": "Rule number four. Rest longer.",
+   "t0": 208.74,
+   "t1": 211.13,
+   "parts": [
+    [
+     208.74,
+     209.77
+    ],
+    [
+     210.07,
+     211.13
+    ]
+   ]
+  },
+  {
+   "card": "strength training is not cardio",
+   "voice": "Strength training is not cardio.",
+   "t0": 211.43,
+   "t1": 213.5,
+   "parts": [
+    [
+     211.43,
+     213.5
+    ]
+   ]
+  },
+  {
+   "img": "lean_rest",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.08,
+    0.5,
+    0.48
+   ],
+   "text": "2 – 3 minutes",
+   "textAt": 0.4,
+   "textY": 0.08,
+   "textX": 0.5,
+   "voice": "Take two to three minutes between heavy sets, so your muscles and your nerves can recover.",
+   "t0": 213.8,
+   "t1": 218.89,
+   "parts": [
+    [
+     213.8,
+     218.89
+    ]
+   ]
+  },
+  {
+   "img": "lean_rest",
+   "cam": [
+    1.05,
+    0.5,
+    0.48,
+    1.2,
+    0.5,
+    0.48
+   ],
+   "text": "don't rush",
+   "textAt": 0.3,
+   "textY": 0.08,
+   "textX": 0.5,
+   "voice": "If you rush, you lift less, and you get weaker results.",
+   "t0": 219.19,
+   "t1": 222.62,
+   "parts": [
+    [
+     219.19,
+     222.62
+    ]
+   ]
+  },
+  {
+   "img": "lean_rest",
+   "cam": [
+    1.2,
+    0.5,
+    0.4,
+    1.7,
+    0.5,
+    0.3
+   ],
+   "text": "breathe · focus · prepare",
+   "textAt": 0.15,
+   "textY": 0.08,
+   "textX": 0.5,
+   "voice": "Use that time to breathe, focus, and prepare for the next set.",
+   "t0": 222.92,
+   "t1": 226.82,
+   "parts": [
+    [
+     222.92,
+     224.36
+    ],
+    [
+     224.66,
+     226.82
+    ]
+   ]
+  },
+  {
+   "card": "3 mistakes that keep you weak",
+   "voice": "Now, the mistakes that keep you weak.",
+   "t0": 227.12,
+   "t1": 229.32,
+   "parts": [
+    [
+     227.12,
+     229.32
+    ]
+   ]
+  },
+  {
+   "img": "bench_up",
+   "alt": "bench_down",
+   "period": 0.5,
+   "cam": [
+    1.15,
+    0.5,
+    0.56,
+    1.242,
+    0.5,
+    0.56
+   ],
+   "label": "#1. Light weights to failure",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "size, not max strength",
+   "textAt": 0.6,
+   "textY": 0.2,
+   "textX": 0.5,
+   "voice": "One. Always training to failure with light weights. That builds size and endurance, but not maximum strength.",
+   "t0": 229.62,
+   "t1": 236.51,
+   "parts": [
+    [
+     229.62,
+     229.95
+    ],
+    [
+     230.25,
+     232.85
+    ],
+    [
+     233.15,
+     236.51
+    ]
+   ]
+  },
+  {
+   "img": "lean",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "label": "#2. A new program every week",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.3
+    }
+   ],
+   "text": "repeat + add weight",
+   "textAt": 0.6,
+   "voice": "Two. Changing your program every week. Strength comes from repeating the same lifts and slowly adding weight.",
+   "t0": 236.81,
+   "t1": 243.68,
+   "parts": [
+    [
+     236.81,
+     237.12
+    ],
+    [
+     237.42,
+     239.26
+    ],
+    [
+     239.56,
+     243.68
+    ]
+   ]
+  },
+  {
+   "img": "lean_sleep",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.6,
+     "img": "p_food"
+    }
+   ],
+   "label": "#3. No sleep, no food",
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.25
+    }
+   ],
+   "text": "sleep + protein",
+   "textAt": 0.7,
+   "textY": 0.12,
+   "textX": 0.5,
+   "voice": "Three. Ignoring sleep and food. Your nervous system and your tendons recover while you sleep, and they need protein to rebuild.",
+   "t0": 243.98,
+   "t1": 251.86,
+   "parts": [
+    [
+     243.98,
+     244.35
+    ],
+    [
+     244.65,
+     246.32
+    ],
+    [
+     246.62,
+     249.84
+    ],
+    [
+     250.14,
+     251.86
+    ]
+   ]
+  },
+  {
+   "card": "a simple plan",
+   "voice": "Here's a simple plan.",
+   "t0": 252.16,
+   "t1": 253.2,
+   "parts": [
+    [
+     252.16,
+     253.2
+    ]
+   ]
+  },
+  {
+   "reps": "3 days a week",
+   "sets": 0,
+   "voice": "Three days a week.",
+   "t0": 253.5,
+   "t1": 254.28,
+   "parts": [
+    [
+     253.5,
+     254.28
+    ]
+   ]
+  },
+  {
+   "img": "lean_squat_down",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.45,
+    0.5,
+    1.08,
+    0.45,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.38,
+     "img": "bench_up"
+    },
+    {
+     "at": 0.7,
+     "img": "lean_pu_up"
+    }
+   ],
+   "text": "legs · push · pull",
+   "textAt": 0.1,
+   "textY": 0.08,
+   "textX": 0.5,
+   "voice": "Pick one lower body lift and one upper body push and pull.",
+   "t0": 254.58,
+   "t1": 258.26,
+   "parts": [
+    [
+     254.58,
+     258.26
+    ]
+   ]
+  },
+  {
+   "reps": "3 – 6 reps",
+   "sets": 4,
+   "voice": "Do four sets of three to six reps.",
+   "t0": 258.56,
+   "t1": 260.88,
+   "parts": [
+    [
+     258.56,
+     260.88
+    ]
+   ]
+  },
+  {
+   "img": "p_timer",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.49,
+    1.08,
+    0.5,
+    0.49
+   ],
+   "text": "2 – 3 min",
+   "textAt": 0.3,
+   "textX": 0.82,
+   "voice": "Rest two to three minutes.",
+   "t0": 261.18,
+   "t1": 262.51,
+   "parts": [
+    [
+     261.18,
+     262.51
+    ]
+   ]
+  },
+  {
+   "img": "lean_dl_down",
+   "cam": [
+    1.0,
+    0.53,
+    0.5,
+    1.08,
+    0.53,
+    0.5
+   ],
+   "seq": [
+    {
+     "at": 0.5,
+     "img": "lean_dl_up"
+    }
+   ],
+   "text": "+1 rep every week",
+   "textAt": 0.4,
+   "textX": 0.2,
+   "voice": "And add a little weight, or one more rep, every week.",
+   "t0": 262.81,
+   "t1": 265.95,
+   "parts": [
+    [
+     262.81,
+     265.95
+    ]
+   ]
+  },
+  {
+   "img": "kb_up",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.48,
+    0.5,
+    1.12,
+    0.48,
+    0.45
+   ],
+   "say": "the big guys *can't*",
+   "spoken": "Do this for a few months, and you'll be the skinny guy who lifts what the big guys can't.",
+   "sayY": 0.9,
+   "voice": "Do this for a few months, and you'll be the skinny guy who lifts what the big guys can't.",
+   "t0": 266.25,
+   "t1": 271.07,
+   "parts": [
+    [
+     266.25,
+     271.07
+    ]
+   ]
+  },
+  {
+   "card": "and the best part?",
+   "voice": "And the best part?",
+   "t0": 271.37,
+   "t1": 272.06,
+   "parts": [
+    [
+     271.37,
+     272.06
+    ]
+   ]
+  },
+  {
+   "img": "lean",
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.47
+   ],
+   "seq": [
+    {
+     "at": 0.4,
+     "img": "flex"
+    }
+   ],
+   "slide": {
+    "to": 0.3,
+    "at": 0.45
+   },
+   "text": "your muscles grow too",
+   "voice": "Your muscles will grow too.",
+   "t0": 272.36,
+   "t1": 273.94,
+   "parts": [
+    [
+     272.36,
+     273.94
+    ]
+   ]
+  },
+  {
+   "img": "base",
+   "hl": "hl_all",
+   "hlAt": 0.4,
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    2.2,
+    0.5,
+    0.27
+   ],
+   "say": "your *chest*",
+   "spoken": "Now, if you want that strength to show on your body, start with your chest.",
+   "sayY": 0.12,
+   "voice": "Now, if you want that strength to show on your body, start with your chest.",
+   "t0": 274.24,
+   "t1": 278.43,
+   "parts": [
+    [
+     274.24,
+     276.96
+    ],
+    [
+     277.26,
+     278.43
+    ]
+   ]
+  },
+  {
+   "img": "flex",
+   "x": 0.2,
+   "cam": [
+    0.85,
+    0.5,
+    0.5,
+    0.9,
+    0.5,
+    0.5
+   ],
+   "next": {
+    "img": "thumb_chest",
+    "title": "How Skinny Guys Build a Chest (3 Parts Most Ignore)"
+   },
+   "voice": "Watch this video next. It shows you the three parts of your chest, and how to build each one, at the gym or at home.",
+   "t0": 278.73,
+   "t1": 285.6,
+   "parts": [
+    [
+     278.73,
+     280.0
+    ],
+    [
+     280.3,
+     285.6
+    ]
+   ]
+  },
+  {
+   "subscribe": true,
+   "clickAt": 0.25,
+   "text": "new videos every Tuesday & Saturday",
+   "hold": 1.5,
+   "voice": "And subscribe to Linework Fit. A new video comes out every Tuesday and Saturday.",
+   "t0": 285.9,
+   "t1": 290.95,
+   "parts": [
+    [
+     285.9,
+     287.63
+    ],
+    [
+     287.93,
+     290.95
+    ]
+   ]
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.08,
+    3.83
+   ],
+   "at": 0.2
+  },
+  {
+   "src": [
+    4.39,
+    5.69
+   ],
+   "at": 4.25
+  },
+  {
+   "src": [
+    6.39,
+    8.09
+   ],
+   "at": 5.85
+  },
+  {
+   "src": [
+    8.77,
+    10.41
+   ],
+   "at": 7.85
+  },
+  {
+   "src": [
+    10.83,
+    13.09
+   ],
+   "at": 9.79
+  },
+  {
+   "src": [
+    13.83,
+    14.52
+   ],
+   "at": 12.35
+  },
+  {
+   "src": [
+    15.21,
+    17.29
+   ],
+   "at": 13.34
+  },
+  {
+   "src": [
+    17.73,
+    19.16
+   ],
+   "at": 15.72
+  },
+  {
+   "src": [
+    19.92,
+    22.06
+   ],
+   "at": 17.45
+  },
+  {
+   "src": [
+    22.71,
+    23.18
+   ],
+   "at": 19.89
+  },
+  {
+   "src": [
+    23.63,
+    25.7
+   ],
+   "at": 20.66
+  },
+  {
+   "src": [
+    26.17,
+    31.56
+   ],
+   "at": 23.03
+  },
+  {
+   "src": [
+    32.14,
+    33.14
+   ],
+   "at": 28.72
+  },
+  {
+   "src": [
+    33.69,
+    34.78
+   ],
+   "at": 30.02
+  },
+  {
+   "src": [
+    35.45,
+    37.76
+   ],
+   "at": 31.41
+  },
+  {
+   "src": [
+    38.06,
+    38.91
+   ],
+   "at": 34.02
+  },
+  {
+   "src": [
+    39.6,
+    40.89
+   ],
+   "at": 35.17
+  },
+  {
+   "src": [
+    41.28,
+    43.84
+   ],
+   "at": 36.76
+  },
+  {
+   "src": [
+    44.54,
+    47.48
+   ],
+   "at": 39.62
+  },
+  {
+   "src": [
+    48.16,
+    51.18
+   ],
+   "at": 42.86
+  },
+  {
+   "src": [
+    51.49,
+    52.59
+   ],
+   "at": 46.18
+  },
+  {
+   "src": [
+    52.89,
+    53.94
+   ],
+   "at": 47.58
+  },
+  {
+   "src": [
+    54.61,
+    57.76
+   ],
+   "at": 48.93
+  },
+  {
+   "src": [
+    58.09,
+    59.79
+   ],
+   "at": 52.38
+  },
+  {
+   "src": [
+    60.57,
+    63.74
+   ],
+   "at": 54.38
+  },
+  {
+   "src": [
+    64.4,
+    65.58
+   ],
+   "at": 57.85
+  },
+  {
+   "src": [
+    66.11,
+    67.92
+   ],
+   "at": 59.33
+  },
+  {
+   "src": [
+    68.33,
+    71.04
+   ],
+   "at": 61.44
+  },
+  {
+   "src": [
+    71.68,
+    73.72
+   ],
+   "at": 64.45
+  },
+  {
+   "src": [
+    74.35,
+    75.41
+   ],
+   "at": 66.79
+  },
+  {
+   "src": [
+    75.94,
+    76.35
+   ],
+   "at": 68.15
+  },
+  {
+   "src": [
+    77.08,
+    78.39
+   ],
+   "at": 68.86
+  },
+  {
+   "src": [
+    78.8,
+    81.19
+   ],
+   "at": 70.47
+  },
+  {
+   "src": [
+    81.91,
+    85.5
+   ],
+   "at": 73.16
+  },
+  {
+   "src": [
+    86.06,
+    88.57
+   ],
+   "at": 77.05
+  },
+  {
+   "src": [
+    88.87,
+    91.01
+   ],
+   "at": 79.86
+  },
+  {
+   "src": [
+    91.76,
+    96.42
+   ],
+   "at": 82.3
+  },
+  {
+   "src": [
+    96.94,
+    97.61
+   ],
+   "at": 87.26
+  },
+  {
+   "src": [
+    97.98,
+    98.67
+   ],
+   "at": 88.23
+  },
+  {
+   "src": [
+    99.25,
+    103.63
+   ],
+   "at": 89.22
+  },
+  {
+   "src": [
+    104.24,
+    106.59
+   ],
+   "at": 93.9
+  },
+  {
+   "src": [
+    107.1,
+    108.2
+   ],
+   "at": 96.55
+  },
+  {
+   "src": [
+    108.74,
+    109.37
+   ],
+   "at": 97.95
+  },
+  {
+   "src": [
+    109.93,
+    113.62
+   ],
+   "at": 98.88
+  },
+  {
+   "src": [
+    114.16,
+    116.27
+   ],
+   "at": 102.87
+  },
+  {
+   "src": [
+    116.71,
+    117.36
+   ],
+   "at": 105.28
+  },
+  {
+   "src": [
+    117.99,
+    119.62
+   ],
+   "at": 106.23
+  },
+  {
+   "src": [
+    120.19,
+    122.29
+   ],
+   "at": 108.16
+  },
+  {
+   "src": [
+    122.57,
+    125.38
+   ],
+   "at": 110.56
+  },
+  {
+   "src": [
+    126.1,
+    130.54
+   ],
+   "at": 113.67
+  },
+  {
+   "src": [
+    131.12,
+    133.03
+   ],
+   "at": 118.41
+  },
+  {
+   "src": [
+    133.59,
+    136.35
+   ],
+   "at": 120.62
+  },
+  {
+   "src": [
+    136.67,
+    139.69
+   ],
+   "at": 123.68
+  },
+  {
+   "src": [
+    140.18,
+    141.26
+   ],
+   "at": 127.0
+  },
+  {
+   "src": [
+    141.79,
+    143.44
+   ],
+   "at": 128.38
+  },
+  {
+   "src": [
+    144.06,
+    146.24
+   ],
+   "at": 130.33
+  },
+  {
+   "src": [
+    146.71,
+    148.56
+   ],
+   "at": 132.81
+  },
+  {
+   "src": [
+    148.93,
+    151.55
+   ],
+   "at": 134.96
+  },
+  {
+   "src": [
+    152.09,
+    155.98
+   ],
+   "at": 137.88
+  },
+  {
+   "src": [
+    156.38,
+    157.08
+   ],
+   "at": 142.07
+  },
+  {
+   "src": [
+    157.79,
+    161.11
+   ],
+   "at": 143.07
+  },
+  {
+   "src": [
+    161.43,
+    163.16
+   ],
+   "at": 146.69
+  },
+  {
+   "src": [
+    163.78,
+    165.22
+   ],
+   "at": 148.72
+  },
+  {
+   "src": [
+    165.57,
+    169.06
+   ],
+   "at": 150.46
+  },
+  {
+   "src": [
+    169.54,
+    172.26
+   ],
+   "at": 154.25
+  },
+  {
+   "src": [
+    172.94,
+    174.5
+   ],
+   "at": 157.27
+  },
+  {
+   "src": [
+    174.99,
+    175.9
+   ],
+   "at": 159.13
+  },
+  {
+   "src": [
+    176.37,
+    178.33
+   ],
+   "at": 160.34
+  },
+  {
+   "src": [
+    178.66,
+    181.92
+   ],
+   "at": 162.6
+  },
+  {
+   "src": [
+    182.45,
+    186.3
+   ],
+   "at": 166.16
+  },
+  {
+   "src": [
+    186.79,
+    188.05
+   ],
+   "at": 170.31
+  },
+  {
+   "src": [
+    188.5,
+    189.06
+   ],
+   "at": 171.87
+  },
+  {
+   "src": [
+    189.39,
+    189.95
+   ],
+   "at": 172.73
+  },
+  {
+   "src": [
+    190.24,
+    191.96
+   ],
+   "at": 173.59
+  },
+  {
+   "src": [
+    192.49,
+    194.67
+   ],
+   "at": 175.61
+  },
+  {
+   "src": [
+    195.07,
+    197.26
+   ],
+   "at": 178.09
+  },
+  {
+   "src": [
+    197.55,
+    199.3
+   ],
+   "at": 180.58
+  },
+  {
+   "src": [
+    199.92,
+    200.9
+   ],
+   "at": 182.63
+  },
+  {
+   "src": [
+    201.39,
+    203.32
+   ],
+   "at": 183.91
+  },
+  {
+   "src": [
+    203.86,
+    205.56
+   ],
+   "at": 186.14
+  },
+  {
+   "src": [
+    205.84,
+    206.56
+   ],
+   "at": 188.14
+  },
+  {
+   "src": [
+    207.09,
+    208.0
+   ],
+   "at": 189.16
+  },
+  {
+   "src": [
+    208.39,
+    211.68
+   ],
+   "at": 190.37
+  },
+  {
+   "src": [
+    212.12,
+    213.26
+   ],
+   "at": 193.96
+  },
+  {
+   "src": [
+    213.66,
+    215.39
+   ],
+   "at": 195.4
+  },
+  {
+   "src": [
+    215.99,
+    217.04
+   ],
+   "at": 197.43
+  },
+  {
+   "src": [
+    217.52,
+    218.83
+   ],
+   "at": 198.78
+  },
+  {
+   "src": [
+    219.29,
+    222.7
+   ],
+   "at": 200.39
+  },
+  {
+   "src": [
+    223.09,
+    224.69
+   ],
+   "at": 204.1
+  },
+  {
+   "src": [
+    225.12,
+    227.56
+   ],
+   "at": 206.0
+  },
+  {
+   "src": [
+    228.16,
+    229.19
+   ],
+   "at": 208.74
+  },
+  {
+   "src": [
+    229.64,
+    230.7
+   ],
+   "at": 210.07
+  },
+  {
+   "src": [
+    231.21,
+    233.28
+   ],
+   "at": 211.43
+  },
+  {
+   "src": [
+    233.7,
+    238.79
+   ],
+   "at": 213.8
+  },
+  {
+   "src": [
+    239.25,
+    242.68
+   ],
+   "at": 219.19
+  },
+  {
+   "src": [
+    243.1,
+    244.54
+   ],
+   "at": 222.92
+  },
+  {
+   "src": [
+    244.97,
+    247.13
+   ],
+   "at": 224.66
+  },
+  {
+   "src": [
+    247.75,
+    249.95
+   ],
+   "at": 227.12
+  },
+  {
+   "src": [
+    250.55,
+    250.88
+   ],
+   "at": 229.62
+  },
+  {
+   "src": [
+    251.27,
+    253.87
+   ],
+   "at": 230.25
+  },
+  {
+   "src": [
+    254.26,
+    257.62
+   ],
+   "at": 233.15
+  },
+  {
+   "src": [
+    258.23,
+    258.54
+   ],
+   "at": 236.81
+  },
+  {
+   "src": [
+    258.88,
+    260.72
+   ],
+   "at": 237.42
+  },
+  {
+   "src": [
+    261.23,
+    265.35
+   ],
+   "at": 239.56
+  },
+  {
+   "src": [
+    265.85,
+    266.22
+   ],
+   "at": 243.98
+  },
+  {
+   "src": [
+    266.58,
+    268.25
+   ],
+   "at": 244.65
+  },
+  {
+   "src": [
+    268.67,
+    271.89
+   ],
+   "at": 246.62
+  },
+  {
+   "src": [
+    272.32,
+    274.04
+   ],
+   "at": 250.14
+  },
+  {
+   "src": [
+    274.7,
+    275.74
+   ],
+   "at": 252.16
+  },
+  {
+   "src": [
+    276.19,
+    276.97
+   ],
+   "at": 253.5
+  },
+  {
+   "src": [
+    277.36,
+    281.04
+   ],
+   "at": 254.58
+  },
+  {
+   "src": [
+    281.45,
+    283.77
+   ],
+   "at": 258.56
+  },
+  {
+   "src": [
+    284.12,
+    285.45
+   ],
+   "at": 261.18
+  },
+  {
+   "src": [
+    285.85,
+    288.99
+   ],
+   "at": 262.81
+  },
+  {
+   "src": [
+    289.55,
+    294.37
+   ],
+   "at": 266.25
+  },
+  {
+   "src": [
+    294.77,
+    295.46
+   ],
+   "at": 271.37
+  },
+  {
+   "src": [
+    295.84,
+    297.42
+   ],
+   "at": 272.36
+  },
+  {
+   "src": [
+    298.0,
+    300.72
+   ],
+   "at": 274.24
+  },
+  {
+   "src": [
+    301.01,
+    302.18
+   ],
+   "at": 277.26
+  },
+  {
+   "src": [
+    302.55,
+    303.82
+   ],
+   "at": 278.73
+  },
+  {
+   "src": [
+    304.21,
+    309.51
+   ],
+   "at": 280.3
+  },
+  {
+   "src": [
+    309.9,
+    311.63
+   ],
+   "at": 285.9
+  },
+  {
+   "src": [
+    311.99,
+    315.01
+   ],
+   "at": 287.93
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+{"images": ["V2_1.jpg", "V2_2.jpg", "V2_3.jpg", "V2_4.jpg", "V2_5.jpg"],
+ "dur": [3.0, 2.6, 2.6, 2.8, 3.4],
+ "trans": ["zoom", "whip", "up", "flash"],
+ "pan": ["in", "left", "up", "in", "out"],
+ "music": [47, 118, 62],
+ "titles": ["KITCHEN FINDS I LOVE", "Chopping in seconds", "Pantry glow-up", "Sunday pancakes", "Cooking is fun again"],
+ "code": ["Search code", "alq393258", "for Gifts at $0 in TEMU app"]}

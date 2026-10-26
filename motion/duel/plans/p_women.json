@@ -1,0 +1,140 @@
+{
+ "pseudo": "@exxtory",
+ "bg": "fond",
+ "style": "pct",
+ "hookImg": "x_w_hook",
+ "banner": "WHAT WOMEN WANT 💅",
+ "lines": [
+  {
+   "segs": [
+    0
+   ],
+   "text": "What do women *really* want?",
+   "role": "hook",
+   "newScene": true
+  },
+  {
+   "segs": [
+    1
+   ],
+   "text": "Number three is *crazy.*",
+   "role": "hook"
+  },
+  {
+   "segs": [
+    2
+   ],
+   "text": "Does he have to be *taller* than her?",
+   "role": "ask",
+   "img": "x_w1",
+   "src": "Source: Rice University study, 2014",
+   "newScene": true
+  },
+  {
+   "segs": [
+    3
+   ],
+   "text": "*55%* of women said…",
+   "role": "reveal",
+   "value": 55,
+   "label": "of women said YES"
+  },
+  {
+   "segs": [
+    4
+   ],
+   "text": "YES!",
+   "role": "punch"
+  },
+  {
+   "segs": [
+    5
+   ],
+   "text": "Beard or *clean-shaven?*",
+   "role": "ask",
+   "img": "x_w2",
+   "src": "Source: YouGov UK survey",
+   "newScene": true
+  },
+  {
+   "segs": [
+    6
+   ],
+   "text": "*36%* picked clean-shaven…",
+   "role": "reveal",
+   "value": 36,
+   "label": "CLEAN-SHAVEN"
+  },
+  {
+   "segs": [
+    7
+   ],
+   "text": "but *44%* don't care.",
+   "role": "reveal",
+   "value": 44,
+   "label": "DON'T CARE",
+   "punchAtEnd": true
+  },
+  {
+   "segs": [
+    8
+   ],
+   "text": "Should he *pay* on the first date?",
+   "role": "ask",
+   "img": "x_w3",
+   "src": "Source: NerdWallet survey, 2016",
+   "newScene": true
+  },
+  {
+   "segs": [
+    9
+   ],
+   "text": "*72%* of women said…",
+   "role": "reveal",
+   "value": 72,
+   "label": "of women said YES"
+  },
+  {
+   "segs": [
+    10
+   ],
+   "text": "YES!",
+   "role": "punch"
+  },
+  {
+   "segs": [
+    11
+   ],
+   "text": "Does a guy with a *dog* look more attractive?",
+   "role": "ask",
+   "img": "x_w4",
+   "src": "Source: YouGov US poll, 2019",
+   "newScene": true
+  },
+  {
+   "segs": [
+    12
+   ],
+   "text": "*54%* of women said… *yes.*",
+   "role": "reveal",
+   "value": 54,
+   "label": "of women said YES",
+   "punchAtEnd": true
+  },
+  {
+   "segs": [
+    13
+   ],
+   "text": "Did you guess *right?*",
+   "role": "end",
+   "newScene": true
+  },
+  {
+   "segs": [
+    14
+   ],
+   "text": "Comment your *score.*",
+   "role": "end"
+  }
+ ]
+}

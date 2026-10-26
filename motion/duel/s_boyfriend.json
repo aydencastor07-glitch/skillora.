@@ -1,0 +1,270 @@
+{
+ "pseudo": "@exxtory",
+ "bg": "fond",
+ "style": "count",
+ "banner": "COUNT HIS YES 👀",
+ "hookImg": "x_b_hook",
+ "dur": 26.21,
+ "lines": [
+  {
+   "text": "Send this to your *boyfriend*…",
+   "role": "hook",
+   "t0": 0.15,
+   "t1": 1.48,
+   "scene": 1
+  },
+  {
+   "text": "if you *dare.*",
+   "role": "hook",
+   "t0": 1.68,
+   "t1": 2.64,
+   "scene": 1
+  },
+  {
+   "text": "*5* questions.",
+   "role": "intro",
+   "t0": 2.84,
+   "t1": 3.65,
+   "scene": 2
+  },
+  {
+   "text": "Count his *YES.*",
+   "role": "intro",
+   "t0": 3.85,
+   "t1": 4.63,
+   "scene": 2
+  },
+  {
+   "text": "Number five.",
+   "role": "num",
+   "n": 5,
+   "t0": 4.83,
+   "t1": 5.46,
+   "scene": 3
+  },
+  {
+   "text": "Would he check your *phone?*",
+   "role": "q",
+   "n": 5,
+   "img": "x_b5",
+   "t0": 5.66,
+   "t1": 6.64,
+   "scene": 3,
+   "yn": 6.69
+  },
+  {
+   "text": "Number four.",
+   "role": "num",
+   "n": 4,
+   "t0": 7.74,
+   "t1": 8.42,
+   "scene": 4
+  },
+  {
+   "text": "Keep his *ex's* number?",
+   "role": "q",
+   "n": 4,
+   "img": "x_b4",
+   "t0": 8.62,
+   "t1": 9.91,
+   "scene": 4,
+   "yn": 9.96
+  },
+  {
+   "text": "Number three.",
+   "role": "num",
+   "n": 3,
+   "t0": 11.01,
+   "t1": 11.7,
+   "scene": 5
+  },
+  {
+   "text": "Go to a *party* without telling you?",
+   "role": "q",
+   "n": 3,
+   "img": "x_b3",
+   "t0": 11.9,
+   "t1": 13.61,
+   "scene": 5,
+   "yn": 13.66
+  },
+  {
+   "text": "Number two.",
+   "role": "num",
+   "n": 2,
+   "t0": 14.71,
+   "t1": 15.39,
+   "scene": 6
+  },
+  {
+   "text": "*Hide* his phone when you walk in?",
+   "role": "q",
+   "n": 2,
+   "img": "x_b2",
+   "t0": 15.59,
+   "t1": 17.1,
+   "scene": 6,
+   "yn": 17.15
+  },
+  {
+   "text": "Number one.",
+   "role": "num",
+   "n": 1,
+   "t0": 18.2,
+   "t1": 18.9,
+   "scene": 7
+  },
+  {
+   "text": "Would he choose his *friends* over you?",
+   "role": "q",
+   "n": 1,
+   "img": "x_b1",
+   "t0": 19.1,
+   "t1": 20.96,
+   "scene": 7,
+   "yn": 21.01
+  },
+  {
+   "text": "*3 YES* or more?",
+   "role": "end",
+   "t0": 22.06,
+   "t1": 22.87,
+   "scene": 8
+  },
+  {
+   "text": "Comment his *score…*",
+   "role": "end",
+   "t0": 23.07,
+   "t1": 24.01,
+   "scene": 8
+  },
+  {
+   "text": "and watch it *again* with him.",
+   "role": "end",
+   "t0": 24.21,
+   "t1": 25.51,
+   "scene": 8
+  }
+ ],
+ "clips": [
+  {
+   "src": [
+    0.16,
+    1.49
+   ],
+   "at": 0.15
+  },
+  {
+   "src": [
+    1.89,
+    2.85
+   ],
+   "at": 1.68
+  },
+  {
+   "src": [
+    3.43,
+    4.24
+   ],
+   "at": 2.84
+  },
+  {
+   "src": [
+    4.66,
+    5.44
+   ],
+   "at": 3.85
+  },
+  {
+   "src": [
+    6.13,
+    6.76
+   ],
+   "at": 4.83
+  },
+  {
+   "src": [
+    7.29,
+    8.27
+   ],
+   "at": 5.66
+  },
+  {
+   "src": [
+    8.77,
+    9.45
+   ],
+   "at": 7.74
+  },
+  {
+   "src": [
+    9.88,
+    11.17
+   ],
+   "at": 8.62
+  },
+  {
+   "src": [
+    11.65,
+    12.34
+   ],
+   "at": 11.01
+  },
+  {
+   "src": [
+    12.75,
+    14.46
+   ],
+   "at": 11.9
+  },
+  {
+   "src": [
+    14.93,
+    15.61
+   ],
+   "at": 14.71
+  },
+  {
+   "src": [
+    16.02,
+    17.53
+   ],
+   "at": 15.59
+  },
+  {
+   "src": [
+    18.07,
+    18.77
+   ],
+   "at": 18.2
+  },
+  {
+   "src": [
+    19.21,
+    21.07
+   ],
+   "at": 19.1
+  },
+  {
+   "src": [
+    21.64,
+    22.45
+   ],
+   "at": 22.06
+  },
+  {
+   "src": [
+    22.9,
+    23.84
+   ],
+   "at": 23.07
+  },
+  {
+   "src": [
+    24.2,
+    25.5
+   ],
+   "at": 24.21
+  }
+ ]
+}

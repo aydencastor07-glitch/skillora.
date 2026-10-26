@@ -1,0 +1,435 @@
+{
+ "scenes": [
+  {
+   "segs": [
+    0
+   ],
+   "img": "back",
+   "enter": "up",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.25,
+    0.5,
+    0.3
+   ],
+   "say": "shoulders look *small*",
+   "spoken": "Your shoulders look small for one simple reason.",
+   "sayFrom": 1
+  },
+  {
+   "segs": [
+    1
+   ],
+   "img": "base",
+   "hl": "delt_front",
+   "hlAt": 0.25,
+   "cam": [
+    1.0,
+    0.5,
+    0.45,
+    1.35,
+    0.5,
+    0.28
+   ],
+   "tags": [
+    {
+     "name": "Front Delts",
+     "color": "red",
+     "x": 0.39,
+     "y": 0.22,
+     "side": "left",
+     "at": 0.35
+    }
+   ],
+   "say": "you only train the *front*"
+  },
+  {
+   "segs": [
+    2,
+    3
+   ],
+   "img": "bench",
+   "enter": "left",
+   "cam": [
+    1.0,
+    0.5,
+    0.45,
+    1.05,
+    0.5,
+    0.42
+   ],
+   "text": "…and still look narrow",
+   "textAt": 0.6,
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.7
+    }
+   ]
+  },
+  {
+   "segs": [
+    4
+   ],
+   "card": "your shoulder has three parts"
+  },
+  {
+   "segs": [
+    5,
+    6
+   ],
+   "img": "base",
+   "cam": [
+    1.0,
+    0.5,
+    0.42,
+    1.3,
+    0.5,
+    0.3
+   ],
+   "seq": [
+    {
+     "at": 0.0,
+     "img": "base",
+     "hl": "delt_front"
+    },
+    {
+     "at": 0.42,
+     "img": "base",
+     "hl": "delt_side"
+    },
+    {
+     "at": 0.78,
+     "img": "back",
+     "hl": "delt_rear"
+    }
+   ],
+   "tags": [
+    {
+     "name": "Front",
+     "color": "red",
+     "x": 0.39,
+     "y": 0.22,
+     "side": "left",
+     "at": 0.05,
+     "until": 0.78
+    },
+    {
+     "name": "Side",
+     "color": "yellow",
+     "x": 0.665,
+     "y": 0.24,
+     "side": "right",
+     "at": 0.45,
+     "until": 0.78
+    },
+    {
+     "name": "Rear",
+     "color": "orange",
+     "x": 0.6,
+     "y": 0.22,
+     "side": "right",
+     "at": 0.8
+    }
+   ]
+  },
+  {
+   "segs": [
+    7
+   ],
+   "img": "base",
+   "hl": "delt_side",
+   "hlAt": 0.1,
+   "enter": "fade",
+   "x": 0.5,
+   "cam": [
+    1.0,
+    0.5,
+    0.45,
+    1.2,
+    0.5,
+    0.3
+   ],
+   "tags": [
+    {
+     "name": "Side Delts",
+     "color": "yellow",
+     "x": 0.665,
+     "y": 0.24,
+     "side": "right",
+     "at": 0.2
+    }
+   ],
+   "say": "makes you look *wide*",
+   "spoken": "The side delt is what makes you look wide."
+  },
+  {
+   "segs": [
+    8,
+    9
+   ],
+   "img": "base",
+   "alt": "lat_up",
+   "period": 0.85,
+   "label": "#1. Lateral Raise",
+   "enter": "up",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.0,
+    0.5,
+    0.48
+   ]
+  },
+  {
+   "segs": [
+    10,
+    11
+   ],
+   "img": "base",
+   "alt": "lat_up",
+   "period": 0.85,
+   "label": "#1. Lateral Raise",
+   "guide": 0.235,
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.05,
+    0.5,
+    0.45
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.78
+    }
+   ]
+  },
+  {
+   "segs": [
+    12
+   ],
+   "img": "base",
+   "alt": "lat_up",
+   "period": 1.5,
+   "label": "#1. Lateral Raise",
+   "cam": [
+    1.05,
+    0.5,
+    0.45,
+    1.1,
+    0.5,
+    0.42
+   ],
+   "say": "slow on the way *down*"
+  },
+  {
+   "segs": [
+    13,
+    14
+   ],
+   "img": "ohp_down",
+   "alt": "ohp_up",
+   "period": 0.9,
+   "label": "#2. Overhead Press",
+   "enter": "right",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.0,
+    0.5,
+    0.48
+   ]
+  },
+  {
+   "segs": [
+    15
+   ],
+   "img": "ohp_down",
+   "alt": "ohp_up",
+   "period": 0.9,
+   "label": "#2. Overhead Press",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.15,
+    0.5,
+    0.4
+   ],
+   "icons": [
+    {
+     "kind": "check",
+     "at": 0.8
+    }
+   ]
+  },
+  {
+   "segs": [
+    16,
+    17
+   ],
+   "img": "rdf_down",
+   "alt": "rdf_up",
+   "period": 0.95,
+   "label": "#3. Rear Delt Fly",
+   "enter": "left",
+   "cam": [
+    0.95,
+    0.5,
+    0.5,
+    1.0,
+    0.5,
+    0.48
+   ]
+  },
+  {
+   "segs": [
+    18,
+    19
+   ],
+   "img": "rdf_down",
+   "alt": "rdf_up",
+   "period": 0.95,
+   "label": "#3. Rear Delt Fly",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.25,
+    0.45,
+    0.35
+   ],
+   "say": "*squeeze*",
+   "spoken": "Lean forward, pull wide, and squeeze.",
+   "sayX": 0.68,
+   "sayY": 0.3
+  },
+  {
+   "segs": [
+    20
+   ],
+   "card": "now, the biggest mistake…"
+  },
+  {
+   "segs": [
+    21
+   ],
+   "img": "heavy",
+   "enter": "up",
+   "cam": [
+    1.0,
+    0.5,
+    0.5,
+    1.08,
+    0.5,
+    0.45
+   ],
+   "icons": [
+    {
+     "kind": "x",
+     "at": 0.45
+    }
+   ],
+   "say": "going too *heavy*",
+   "sfx": [
+    {
+     "at": 0.35,
+     "type": "thud"
+    }
+   ],
+   "sayY": 0.1
+  },
+  {
+   "segs": [
+    22,
+    23
+   ],
+   "img": "base",
+   "alt": "lat_up",
+   "period": 1.6,
+   "enter": "fade",
+   "cam": [
+    1.0,
+    0.5,
+    0.48,
+    1.05,
+    0.5,
+    0.45
+   ],
+   "text": "light weight · slow reps · full control",
+   "textX": 0.5,
+   "textY": 0.93,
+   "textAt": 0.1,
+   "icons": [
+    {
+     "kind": "check",
+     "at": 0.85
+    }
+   ]
+  },
+  {
+   "segs": [
+    24
+   ],
+   "img": "base",
+   "hl": "delt_side",
+   "hlAt": 0.1,
+   "cam": [
+    1.1,
+    0.5,
+    0.4,
+    1.45,
+    0.5,
+    0.26
+   ]
+  },
+  {
+   "segs": [
+    25
+   ],
+   "card": "twice a week"
+  },
+  {
+   "segs": [
+    26,
+    27
+   ],
+   "img": "proud",
+   "enter": "up",
+   "cam": [
+    0.9,
+    0.5,
+    0.5,
+    1.15,
+    0.5,
+    0.38
+   ],
+   "say": "people will *notice*",
+   "spoken": "and in a few months, people will notice."
+  },
+  {
+   "segs": [
+    28
+   ],
+   "img": "back",
+   "enter": "fade",
+   "cam": [
+    1.1,
+    0.5,
+    0.4,
+    1.0,
+    0.5,
+    0.45
+   ],
+   "text": "part 2 →",
+   "textAt": 0.3,
+   "hold": 0.8
+  }
+ ]
+}

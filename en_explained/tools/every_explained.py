@@ -135,6 +135,24 @@ def show(img, n, cx, cy, w, h, t0, t, out=None, mode='pop', float_=10, wob=2.0):
     if al < 0.99: im = im.copy(); im.putalpha(im.getchannel('A').point(lambda v: int(v * al)))
     fy = float_ * math.sin(t * 2.1 + n * 0.7) * k
     comp(img, im, S(cx) - im.width // 2, S(cy + fy) - im.height // 2)
+# ---------- clips vidéo (image animée) : vid/<k>.mp4, joués plein écran, images extraites une fois (30 i/s, 1080x1920)
+def clip_frames(k):
+    src = os.path.join(DIR, 'vid', f'{k}.mp4'); dd = os.path.join(DIR, 'vid', f'{k}_fr')
+    if not os.path.exists(src): return None, 0
+    if not os.path.isdir(dd) or not os.listdir(dd):
+        os.makedirs(dd, exist_ok=True)
+        subprocess.run([FF, '-v', 'error', '-i', src, '-vf', f'fps=30,scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos,crop={W}:{H}', '-q:v', '2', os.path.join(dd, '%04d.jpg')])
+    return dd, len(os.listdir(dd))
+def clip(img, k, t0, t, speed=1.0, start=0.0, end=None, fade=0.12):
+    # plein écran : image du clip à l'instant (t - t0) x vitesse ; la dernière image reste si le clip est fini
+    if t0 is None or t < t0: return
+    dd, n = clip_frames(k)
+    if not n: return
+    last = n - 1 if end is None else min(n - 1, int(end * 30)); fi = max(0, min(last, int((start + (t - t0) * speed) * 30)))
+    im = Image.open(os.path.join(dd, f'{fi + 1:04d}.jpg')).convert('RGBA').resize((W * SS, H * SS), Image.BILINEAR)
+    a = since(t, t0, fade)
+    if a < 0.99: im.putalpha(int(255 * a))
+    img.alpha_composite(im)
 # ---------- bonhomme bâton
 def stick(d, x, y, s=1.0, pose='stand', mouth='flat', p=1.0, t=0, eyes=INK, look=0):
     # (x, y) = pieds ; tête ronde, yeux, bouche ; poses : stand, think, point, up, shrug
@@ -238,6 +256,9 @@ def stamp(img, xy, s, size, col, t, t0, rot=-8):
     text(img, (xy[0] + j, xy[1]), s, AF(size), col, k, rot=rot, scale=2.0 - ease(k))
 # ---------- l'épisode : repères temporels, scènes, source, effets (dossier/scenes.py)
 exec(open(os.path.join(DIR, 'scenes.py')).read())
+if os.path.isdir(os.path.join(DIR, 'vid')):     # extraction des clips AVANT le travail en parallèle
+    for f_ in sorted(os.listdir(os.path.join(DIR, 'vid'))):
+        if f_.endswith('.mp4'): clip_frames(f_[:-4])
 def camera(t, sc):
     # zoom lent continu + léger balancement + zooms d'impact et secousses
     a0, a1 = SC[sc], SC[sc + 1]; z = 1.0 + 0.045 * eio((t - a0) / max(0.5, a1 - a0)); rot = 0.6 * math.sin(t * 0.9)

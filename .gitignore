@@ -8,3 +8,6 @@ __pycache__/
 
 # dépendances des fonctions /api (installées par Vercel)
 node_modules/
+
+# images extraites des clips vidéo (recréées au rendu)
+en_explained/*/vid/*_fr/

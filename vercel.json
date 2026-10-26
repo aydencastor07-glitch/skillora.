@@ -21,7 +21,7 @@
   ],
   "redirects": [
     {
-      "source": "/:path((?!gesetze/).*)",
+      "source": "/:path((?!gesetze/|_vercel/).*)",
       "has": [
         {
           "type": "host",

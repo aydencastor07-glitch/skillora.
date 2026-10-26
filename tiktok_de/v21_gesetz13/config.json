@@ -1,0 +1,49 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_seneca.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 13",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.55,
+  "dur": 0.6
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "13:",
+  "Schütze deine Zeit wie dein Geld.",
+  "Will jemand zehn Euro von dir, fragst du:",
+  "wofür?",
+  "Will jemand eine Stunde von dir, sagst du sofort ja.",
+  "Dabei kannst du Geld zurückverdienen.",
+  "Zeit nie.",
+  "Seneca sagte:",
+  "„Es ist nicht wenig Zeit, die wir haben, sondern es ist viel, die wir nicht nutzen.“",
+  "Stell dir vor, du bist Herr über deine Zeit, dein Geld – und wirst respektiert, wo immer du hinkommst.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Link in Bio."
+ ],
+ "cta": {
+  "t": 27.77,
+  "click": 1.5,
+  "avatar": "avatar_profil.png",
+  "x": 540,
+  "y": 930,
+  "r": 165,
+  "hide_text": true,
+  "swap": true
+ },
+ "hot": "^(gesetz|schütze|zeit|geld|zehn|euro|wofür|stunde|sofort|zurückverdienen|nie|seneca|wenig|viel|nutzen|herr|respektiert|hinkommst|21|gesetze|buch|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 23.93
+ }
+}

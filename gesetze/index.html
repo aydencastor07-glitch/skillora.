@@ -84,6 +84,10 @@ footer { text-align: center; color: #7d705c; font-size: 14px; padding: 30px 20px
   .sticky.show { display: block; }
 }
 </style>
+<!-- Statistiques Vercel (visiteurs, pays, sources, clics « Acheter » = visites de /gesetze/kaufen/) -->
+<script>try{if(new URLSearchParams(location.search).has('moi')){localStorage.setItem('va-disable','true');localStorage.setItem('gz_moi','1');}}catch(e){}
+window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <header class="hero">
@@ -193,7 +197,7 @@ function buyBox(id) {
   var el = document.getElementById(id);
   el.innerHTML =
     '<div class="price"><b>' + PRICE + '</b><span>einmalig · sofortiger Download (PDF)</span></div>' +
-    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? GUMROAD_URL + (GUMROAD_URL.indexOf('?') < 0 ? '?' : '&') + 'wanted=true' : '#') + '">' + (GUMROAD_URL ? 'Jetzt holen – ' + PRICE : 'Bald verfügbar') + '</a>' +
+    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? '/gesetze/kaufen/' : '#') + '">' + (GUMROAD_URL ? 'Jetzt holen – ' + PRICE : 'Bald verfügbar') + '</a>' +
     '<p class="small">Sofort-Download nach der Zahlung · Sichere Zahlung über Gumroad</p>';
   var btn = el.querySelector('.btn');
   btn.addEventListener('click', function (e) { if (btn.classList.contains('off')) e.preventDefault(); });
@@ -222,7 +226,7 @@ window.addEventListener('scroll', function () { st.classList.toggle('show', wind
   }
   envoi({ type: 'view', referrer: document.referrer || '', utm: q.get('utm_source') || q.get('src') || '', lang: navigator.language || '' });
   document.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('a[href*="gumroad.com"]');
+    var a = e.target.closest && e.target.closest('a[href*="gumroad.com"], a[href*="/kaufen/"]');
     if (a) envoi({ type: 'buy_click' }, true);
   }, true);
   var cumul = 0, depuis = document.visibilityState === 'visible' ? Date.now() : 0;

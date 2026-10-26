@@ -39,8 +39,6 @@ section { padding: 64px 0; }
 .buy { background: var(--dark2); border: 1px solid #3a3124; border-radius: 14px; padding: 18px; }
 .price { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
 .price b { font-family: Cinzel, serif; font-size: 34px; color: var(--ivory); white-space: nowrap; } .price span { color: var(--muted); font-size: 16px; }
-.consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.4; color: var(--muted); margin: 6px 0 14px; cursor: pointer; }
-.consent input { margin-top: 3px; width: 18px; height: 18px; accent-color: #c9a25a; flex: none; }
 .btn { display: block; width: 100%; text-align: center; background: linear-gradient(180deg, #d8b46c, #a8803a); color: #1a140b; font-family: Cinzel, serif; font-weight: 700; letter-spacing: .08em;
        font-size: 17px; padding: 17px 18px; border-radius: 10px; text-decoration: none; border: 0; cursor: pointer; transition: transform .15s, filter .15s; }
 .btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
@@ -195,20 +193,10 @@ function buyBox(id) {
   var el = document.getElementById(id);
   el.innerHTML =
     '<div class="price"><b>' + PRICE + '</b><span>einmalig · sofortiger Download (PDF)</span></div>' +
-    '<label class="consent"><input type="checkbox"> <span>Ich stimme zu, dass ich das E-Book sofort herunterladen kann, und weiß, dass mein Widerrufsrecht damit erlischt.</span></label>' +
-    '<a class="btn off" href="#" role="button" aria-disabled="true">' + (GUMROAD_URL ? 'Jetzt herunterladen – ' + PRICE : 'Bald verfügbar') + '</a>' +
-    '<p class="small">Sichere Zahlung über Gumroad · Karte oder PayPal</p>';
-  var box = el.querySelector('input'), btn = el.querySelector('.btn');
-  function sync() {
-    var ok = box.checked && !!GUMROAD_URL;
-    btn.classList.toggle('off', !ok); btn.setAttribute('aria-disabled', ok ? 'false' : 'true');
-    btn.href = ok ? GUMROAD_URL + (GUMROAD_URL.indexOf('?') < 0 ? '?' : '&') + 'wanted=true' : '#';
-  }
-  box.addEventListener('change', sync);
-  btn.addEventListener('click', function (e) {
-    if (btn.classList.contains('off')) { e.preventDefault(); if (GUMROAD_URL) { box.parentNode.style.color = '#e8c47a'; box.focus(); } }
-  });
-  sync();
+    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? GUMROAD_URL + (GUMROAD_URL.indexOf('?') < 0 ? '?' : '&') + 'wanted=true' : '#') + '">' + (GUMROAD_URL ? 'Jetzt holen – ' + PRICE : 'Bald verfügbar') + '</a>' +
+    '<p class="small">Sofort-Download nach der Zahlung · Sichere Zahlung über Gumroad</p>';
+  var btn = el.querySelector('.btn');
+  btn.addEventListener('click', function (e) { if (btn.classList.contains('off')) e.preventDefault(); });
 }
 buyBox('buy1'); buyBox('buy2');
 if (IMPRESSUM) document.getElementById('imp').innerHTML = '<br><br><b>Impressum:</b> ' + IMPRESSUM;

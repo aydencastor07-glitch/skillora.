@@ -23,11 +23,30 @@ serve(async (req) => {
     const refunded = (p.get("refunded") === "true") || (p.get("dispute") === "true");
     const cancelled = p.get("cancelled") === "true";
 
-    if (!uid && !email) return new Response("no-user", { status: 200 });
-
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
       { auth: { persistSession: false } });
+
+    // E-BOOK : une vente du livre est notee pour les statistiques et ne donne
+    // JAMAIS Skillora Pro (sinon un acheteur du livre inscrit sur Skillora
+    // serait passe Pro gratuitement). Gumroad livre le PDF lui-meme.
+    const lien = (p.get("permalink") || p.get("product_permalink") || "").toLowerCase();
+    if (/gesetzbuch/.test(lien) || /gesetzbuch/i.test(p.get("product_name") || "")) {
+      if (p.get("test") === "true") return new Response("ok-ebook-test", { status: 200 });
+      const saleId = p.get("sale_id") || p.get("order_number") || "";
+      if (saleId) {
+        await admin.from("ebook_sales").upsert({
+          sale_id: saleId, product: "gesetzbuch",
+          price_cents: Number(p.get("price")) || null,
+          currency: (p.get("currency") || "").toLowerCase() || null,
+          country: p.get("ip_country") || p.get("country") || null,
+          refunded,
+        }, { onConflict: "sale_id" });
+      }
+      return new Response("ok-ebook", { status: 200 });
+    }
+
+    if (!uid && !email) return new Response("no-user", { status: 200 });
 
     // Retrouver l'utilisateur (priorité à l'uid passé au checkout)
     let userId = uid;

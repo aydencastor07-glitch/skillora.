@@ -203,6 +203,37 @@ if (IMPRESSUM) document.getElementById('imp').innerHTML = '<br><br><b>Impressum:
 // bouton collant sur mobile, une fois l'accroche dépassée
 var hero = document.querySelector('.hero'), st = document.getElementById('sticky');
 window.addEventListener('scroll', function () { st.classList.toggle('show', window.scrollY > hero.offsetHeight - 80); }, { passive: true });
+
+// ---- Statistiques (espace dev → E-book) : une vue par ouverture, les clics « Acheter »,
+// le temps passé (seulement quand la page est visible). Aucun email, aucune IP.
+// Le propriétaire n'est pas compté : ouvrir une fois la page avec ?moi (ou l'espace dev) suffit.
+(function () { try {
+  var API = 'https://fkjqlmtugzdluzshxqsk.supabase.co/functions/v1/ebook-track', P = 'gesetzbuch';
+  var q = new URLSearchParams(location.search);
+  try { if (q.has('moi')) localStorage.setItem('gz_moi', '1'); if (localStorage.getItem('gz_moi')) return; } catch (e) {}
+  var vis = '';
+  try { vis = localStorage.getItem('sk_vis') || ''; if (!vis) { vis = Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('sk_vis', vis); } } catch (e) {}
+  var ses = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);   // une vue = une ouverture de page
+  function envoi(o, beacon) {
+    o.product = P; o.session = ses; o.visitor = vis;
+    var b = JSON.stringify(o);
+    if (beacon && navigator.sendBeacon) { try { if (navigator.sendBeacon(API, new Blob([b], { type: 'text/plain' }))) return; } catch (e) {} }
+    fetch(API, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: b }).catch(function () {});
+  }
+  envoi({ type: 'view', referrer: document.referrer || '', utm: q.get('utm_source') || q.get('src') || '', lang: navigator.language || '' });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href*="gumroad.com"]');
+    if (a) envoi({ type: 'buy_click' }, true);
+  }, true);
+  var cumul = 0, depuis = document.visibilityState === 'visible' ? Date.now() : 0;
+  function temps() { return cumul + (depuis ? Date.now() - depuis : 0); }
+  function quitte() { var s = Math.round(temps() / 1000); if (s > 0) envoi({ type: 'leave', seconds: s }, true); }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') { cumul = temps(); depuis = 0; quitte(); }
+    else depuis = Date.now();
+  });
+  window.addEventListener('pagehide', quitte);
+} catch (e) {} })();
 </script>
 </body>
 </html>

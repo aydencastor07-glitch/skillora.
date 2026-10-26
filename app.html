@@ -1945,13 +1945,12 @@
   .own-tabs button svg{width:15px;height:15px;flex:none;}
   .own-tabs button.on{background:linear-gradient(135deg,#2f7bff,#1a5fd8);color:#fff;
     box-shadow:0 6px 16px -6px rgba(47,123,255,.8);}
-  /* 4 onglets sur petit écran : largeur selon le texte, icônes plus petites */
+  /* 5 onglets sur petit écran : le texte seul, sans icône */
   @media (max-width:480px){
     .own-tabs{gap:2px;padding:4px;}
-    .own-tabs button{flex:1 1 auto;padding:10px 5px;gap:4px;font-size:.72rem;letter-spacing:-.03em;}
-    .own-tabs button svg{width:13px;height:13px;}
+    .own-tabs button{flex:1 1 auto;padding:10px 4px;gap:4px;font-size:.7rem;letter-spacing:-.03em;}
+    .own-tabs button svg{display:none;}
   }
-  @media (max-width:375px){ .own-tabs button svg{display:none;} }
   .own-jeux{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
   .own-jeux button{padding:8px 13px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-weight:700;font-size:.8rem;cursor:pointer;}
   .own-jeux button.on{background:rgba(47,123,255,.18);border-color:rgba(47,123,255,.6);color:#fff;}
@@ -2042,6 +2041,28 @@
   .own-tag{flex:none;font-size:.63rem;font-weight:800;padding:4px 8px;border-radius:999px;}
   .own-tag.pro{color:#5ee79c;background:rgba(61,220,132,.14);}
   .own-tag.free{color:var(--muted);background:rgba(255,255,255,.055);}
+  /* E-books : la liste comme des videos, le detail comme une campagne */
+  .own-eb{display:flex;gap:14px;align-items:stretch;width:100%;text-align:left;padding:12px;border-radius:18px;border:1px solid var(--border);
+    background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.012));color:inherit;cursor:pointer;margin-bottom:10px;font:inherit;}
+  .own-eb:hover{border-color:rgba(94,155,255,.5);}
+  .own-eb-c{position:relative;flex:none;width:96px;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:#14120f;}
+  .own-eb-c img{width:100%;height:100%;object-fit:contain;display:block;}
+  .own-eb-v{position:absolute;left:6px;bottom:6px;display:inline-flex;align-items:center;gap:3px;font-size:.66rem;font-weight:800;color:#fff;
+    background:rgba(0,0,0,.62);padding:3px 7px 3px 5px;border-radius:999px;}
+  .own-eb-v svg{width:10px;height:10px;}
+  .own-eb-i{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+  .own-eb-i b{font-family:'Fraunces',serif;font-weight:800;font-size:1.02rem;color:#fff;line-height:1.2;}
+  .own-eb-i small{font-size:.72rem;color:var(--muted);}
+  .own-eb-s{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:6px;font-size:.74rem;color:var(--muted);}
+  .own-eb-s b{color:#fff;font-size:.9rem;} .own-eb-s b.vert{color:#5ee79c;} .own-eb-s .err{color:#ff8f8f;}
+  .own-eb-back{display:inline-flex;align-items:center;gap:4px;border:none;background:none;color:#9ec2ff;font:inherit;font-weight:700;font-size:.82rem;cursor:pointer;padding:4px 0;margin-bottom:10px;}
+  .own-eb-back svg{width:16px;height:16px;}
+  .own-eb-h{display:flex;gap:14px;align-items:center;margin-bottom:14px;}
+  .own-eb-h img{width:74px;aspect-ratio:3/4;object-fit:contain;border-radius:10px;background:#14120f;flex:none;}
+  .own-eb-h b{display:block;font-family:'Fraunces',serif;font-weight:800;font-size:1.15rem;color:#fff;line-height:1.2;}
+  .own-eb-h small{display:block;font-size:.74rem;color:var(--muted);margin:3px 0 6px;}
+  .own-eb-h a{font-size:.78rem;color:#9ec2ff;text-decoration:none;font-weight:600;}
+  .own-eb-mini{font-size:.62rem;color:var(--muted2);font-weight:600;}
   .own-vide{text-align:center;color:var(--muted2);font-size:.8rem;padding:26px 10px;line-height:1.6;}
   .own-plus{width:100%;padding:12px;border-radius:13px;border:1px dashed var(--border2);background:transparent;
     color:var(--muted);font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .16s;}
@@ -2428,6 +2449,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>Publication</button>
       <button data-o="jeu" onclick="ownTab('jeu')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4"/><circle cx="15.5" cy="11" r=".6" fill="currentColor"/><circle cx="17.5" cy="13" r=".6" fill="currentColor"/></svg>Jeu</button>
+      <button data-o="ebook" onclick="ownTab('ebook')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>E-book</button>
     </div>
 
     <!-- ════ ONGLET 1 : VUE COMPLETE ════════════════════════════════════ -->
@@ -2503,6 +2526,13 @@
       </div>
       <iframe id="ownJeuFrame" title="Jeu 3D" allow="fullscreen; autoplay"
         style="display:block;width:100%;height:calc(100vh - 170px);min-height:520px;border:1px solid var(--border);border-radius:14px;background:#14120f;"></iframe>
+    </div>
+    <!-- ════ ONGLET 5 : E-BOOKS ═════════════════════════════════════════
+         La liste montre chaque livre comme une video (couverture + vues) ;
+         un clic ouvre tout le detail : pays, temps, clics, achats. -->
+    <div class="own-pan" id="ownPanEbook">
+      <div id="ownEbListe"></div>
+      <div id="ownEbDetail" style="display:none;"></div>
     </div>
   </div>
 
@@ -4237,7 +4267,7 @@
     document.querySelectorAll('#ownTabs button').forEach(function(b){
       b.classList.toggle('on', b.getAttribute('data-o') === nom);
     });
-    ['vue','comptes','pub','jeu'].forEach(function(k){
+    ['vue','comptes','pub','jeu','ebook'].forEach(function(k){
       var el = document.getElementById('ownPan' + k.charAt(0).toUpperCase() + k.slice(1));
       if (el) el.classList.toggle('on', k === nom);
     });
@@ -4247,6 +4277,7 @@
       if (nom === 'jeu') { if (!jeu.getAttribute('src') || jeu.getAttribute('src') === 'about:blank') jeu.setAttribute('src', OWN_JEU); }
       else if (jeu.getAttribute('src') && jeu.getAttribute('src') !== 'about:blank') jeu.setAttribute('src', 'about:blank');
     }
+    if (nom === 'ebook') ownEbooks();
     // Publication : on DEPLACE l'ecran existant dans l'onglet, une seule fois.
     if (nom === 'pub') {
       var hote = document.getElementById('ownPanPub');
@@ -4265,6 +4296,185 @@
     document.querySelectorAll('#ownJeux button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-j') === src); });
     var f = document.getElementById('ownJeuFrame'); if (f) f.setAttribute('src', src);
     var a = document.getElementById('ownJeuFull'); if (a) a.setAttribute('href', src);
+  }
+
+  /* ══ E-BOOKS ══════════════════════════════════════════════════════════
+     Chaque livre se lit comme une video : couverture, vues, clics. Une vue =
+     une ouverture de la page de vente ; un clic = « Acheter » touche (le
+     visiteur part chez Gumroad) ; un achat = vente confirmee par Gumroad. */
+  var OWN_EBOOKS = [
+    { id:'gesetzbuch', nom:'Das Gesetzbuch des Geistes', image:'gesetze/livre.webp',
+      prix:'9,99 €', page:'https://gesetze.skillora.me' }
+  ];
+  var OWN_EB = { ouvert:null, periode:'30j', metrique:'vues', data:null };
+  function ownDrapeau(c){
+    c = String(c||'').toUpperCase();
+    if (!/^[A-Z]{2}$/.test(c)) return '🌍';
+    return String.fromCodePoint(127397 + c.charCodeAt(0), 127397 + c.charCodeAt(1));
+  }
+  function ownNomPays(c){
+    try { return new Intl.DisplayNames(['fr'], { type:'region' }).of(c) || c; } catch(e){ return c; }
+  }
+  function ownDuree(s){
+    s = Math.round(Number(s)||0);
+    if (s < 60) return s + ' s';
+    return Math.floor(s/60) + ' min ' + (s%60 ? (s%60) + ' s' : '');
+  }
+  function ownTaux(a, b){ return b ? (Math.round(a*1000/b)/10).toString().replace('.', ',') + ' %' : '0 %'; }
+
+  async function ownEbooks(){
+    try { localStorage.setItem('gz_moi','1'); } catch(e){}   // le proprietaire ne se compte pas lui-meme
+    if (OWN_EB.ouvert) return ownEbDetail(OWN_EB.ouvert);
+    var box = document.getElementById('ownEbListe'); if (!box) return;
+    document.getElementById('ownEbDetail').style.display = 'none'; box.style.display = '';
+    box.innerHTML = '<div class="own-secT"><b>Mes e-books</b><span>touche un livre pour tout voir</span></div>' +
+      OWN_EBOOKS.map(function(b){
+        return '<button class="own-eb" onclick="ownEbDetail(\''+b.id+'\')">'+
+          '<span class="own-eb-c"><img src="'+b.image+'" alt=""><span class="own-eb-v" id="ownEbV_'+b.id+'">'+
+            '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>…</span></span>'+
+          '<span class="own-eb-i"><b>'+genEsc(b.nom)+'</b><small>'+genEsc(b.prix)+' · Gumroad</small>'+
+          '<span class="own-eb-s" id="ownEbS_'+b.id+'"><span>Chargement…</span></span></span></button>';
+      }).join('');
+    OWN_EBOOKS.forEach(async function(b){
+      try {
+        var d = await ownAppel({ action:'ebook', produit:b.id, periode:'tout' });
+        if (!d.success) throw new Error(d.error || 'Erreur');
+        var s = d.stats || {};
+        var v = document.getElementById('ownEbV_'+b.id);
+        if (v) v.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' + ownNb(s.vues_total) + ' vues';
+        var st = document.getElementById('ownEbS_'+b.id);
+        if (st) st.innerHTML = '<span><b>'+ownNb(s.vues_total)+'</b> vues</span><span><b>'+ownNb(s.clics_total)+'</b> clics</span>'+
+          '<span><b class="vert">'+ownNb(s.ventes_total)+'</b> achats</span>';
+      } catch(e){
+        var st2 = document.getElementById('ownEbS_'+b.id);
+        if (st2) st2.innerHTML = '<span class="err">'+genEsc(String(e.message||e))+'</span>';
+      }
+    });
+  }
+
+  function ownEbFermer(){ OWN_EB.ouvert = null; OWN_EB.data = null; ownEbooks(); }
+  function ownEbPer(p){ OWN_EB.periode = p; ownEbDetail(OWN_EB.ouvert); }
+  function ownEbMet(m){ OWN_EB.metrique = m; ownEbCourbe(); ownEbKpis(); }
+
+  async function ownEbDetail(id){
+    var b = OWN_EBOOKS.filter(function(x){ return x.id === id; })[0]; if (!b) return;
+    OWN_EB.ouvert = id;
+    var box = document.getElementById('ownEbDetail');
+    document.getElementById('ownEbListe').style.display = 'none'; box.style.display = '';
+    box.innerHTML =
+      '<button class="own-eb-back" onclick="ownEbFermer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>Mes e-books</button>'+
+      '<div class="own-eb-h"><img src="'+b.image+'" alt=""><div><b>'+genEsc(b.nom)+'</b><small>'+genEsc(b.prix)+'</small>'+
+        '<a href="'+b.page+'" target="_blank" rel="noopener">Voir la page ↗</a></div></div>'+
+      '<div class="own-per">'+OWN_PER.map(function(p){
+        return '<button class="'+(OWN_EB.periode===p[0]?'on':'')+'" onclick="ownEbPer(\''+p[0]+'\')">'+p[1]+'</button>'; }).join('')+'</div>'+
+      '<div class="own-kpis" id="ownEbKpis"><div class="own-k" style="grid-column:1/-1"><div class="own-k-l">Chargement…</div><div class="own-k-v">·</div></div></div>'+
+      '<div class="own-card"><div class="own-card-h"><span class="own-card-t" id="ownEbChartT">Vues</span><span class="own-card-x" id="ownEbChartX"></span></div><div id="ownEbChart"></div></div>'+
+      '<div class="own-card"><div class="own-card-h"><span class="own-card-t">Le parcours</span><span class="own-card-x">sur cette période</span></div><div id="ownEbTunnel"></div></div>'+
+      '<div class="own-card"><div class="own-card-h"><span class="own-card-t">D\'où ils viennent</span><span class="own-card-x">visiteurs · clics</span></div><div class="own-bars" id="ownEbPays"></div></div>'+
+      '<div class="own-duo">'+
+        '<div class="own-card"><div class="own-card-h"><span class="own-card-t">Comment ils arrivent</span><span class="own-card-x">source</span></div><div class="own-bars" id="ownEbSources"></div></div>'+
+        '<div class="own-card"><div class="own-card-h"><span class="own-card-t">Sur quoi</span><span class="own-card-x">appareil</span></div><div class="own-bars" id="ownEbApp"></div></div>'+
+      '</div>'+
+      '<div class="own-duo">'+
+        '<div class="own-card"><div class="own-card-h"><span class="own-card-t">Combien de temps ils restent</span><span class="own-card-x">par visite</span></div><div class="own-bars" id="ownEbDurees"></div></div>'+
+        '<div class="own-card"><div class="own-card-h"><span class="own-card-t">Villes</span><span class="own-card-x">visiteurs</span></div><div class="own-bars" id="ownEbVilles"></div></div>'+
+      '</div>'+
+      '<div class="own-card"><div class="own-card-h"><span class="own-card-t">Achats par pays</span><span class="own-card-x">Gumroad</span></div><div class="own-bars" id="ownEbVentesPays"></div></div>'+
+      '<div class="own-card"><div class="own-card-h"><span class="own-card-t">Dernières visites</span><span class="own-card-x">en direct</span></div><div id="ownEbDern"></div></div>';
+    try {
+      var d = await ownAppel({ action:'ebook', produit:id, periode:OWN_EB.periode });
+      if (!d.success) throw new Error(d.error || 'Erreur');
+      if (OWN_EB.ouvert !== id) return;
+      OWN_EB.data = d.stats || {};
+      ownEbKpis(); ownEbCourbe(); ownEbReste();
+    } catch(e){
+      var k = document.getElementById('ownEbKpis');
+      if (k) k.innerHTML = '<div class="own-k" style="grid-column:1/-1"><div class="own-k-l">Impossible de charger</div>'+
+        '<div class="own-k-v" style="font-size:.95rem">'+genEsc(String(e.message||e))+'</div></div>';
+    }
+  }
+
+  function ownEbKpis(){
+    var s = OWN_EB.data, kp = document.getElementById('ownEbKpis'); if (!s || !kp) return;
+    var euros = (Number(s.revenu_cents)||0) / 100;
+    var t = [
+      ['vues','Vues', s.vues, ownNb(s.visiteurs)+' visiteurs uniques', 'rgba(47,123,255,.18)'],
+      ['clics','Clics « Acheter »', s.clics, ownTaux(s.cliqueurs, s.visiteurs)+' des visiteurs', 'rgba(155,114,203,.16)'],
+      ['ventes','Achats', s.ventes, 'taux d\'achat '+ownTaux(s.ventes, s.visiteurs), 'rgba(61,220,132,.18)'],
+      [null,'Temps moyen', null, 'médiane '+ownDuree(s.temps_median), 'rgba(255,159,74,.16)', ownDuree(s.temps_moyen)],
+      [null,'Revenu', null, ownTaux(s.ventes, s.cliqueurs)+' des clics achètent', 'rgba(245,192,67,.18)',
+        euros.toFixed(2).replace('.', ',')+' '+(s.devise==='usd'?'$':'€')],
+      [null,'Taux d\'achat', null, 'achats ÷ visiteurs', 'rgba(94,155,255,.16)', ownTaux(s.ventes, s.visiteurs)]
+    ];
+    kp.innerHTML = '';
+    t.forEach(function(x){
+      var el = document.createElement(x[0] ? 'button' : 'div');
+      el.className = 'own-k' + (x[0] && OWN_EB.metrique === x[0] ? ' on' : '');
+      el.style.setProperty('--kc', x[4]);
+      if (x[0]) el.onclick = function(){ ownEbMet(x[0]); };
+      el.innerHTML = '<span class="own-k-l">'+x[1]+'</span><span class="own-k-v">'+(x[5]||'0')+'</span><span class="own-k-s">'+x[3]+'</span>';
+      kp.appendChild(el);
+      if (x[0]) ownAnime(el.querySelector('.own-k-v'), Number(x[2])||0, '');
+    });
+  }
+
+  function ownEbCourbe(){
+    var box = document.getElementById('ownEbChart'), s = OWN_EB.data; if (!box || !s) return;
+    var m = OWN_EB.metrique, ser = s.series || [];
+    var T = document.getElementById('ownEbChartT'); if (T) T.textContent = { vues:'Vues', clics:'Clics « Acheter »', ventes:'Achats' }[m];
+    var v = ser.map(function(x){ return Number(x[m])||0; });
+    var tot = v.reduce(function(a,b){ return a+b; }, 0);
+    var X = document.getElementById('ownEbChartX'); if (X) X.textContent = ownNb(tot) + ' au total';
+    if (!ser.length || !tot){ box.innerHTML = '<div class="own-vide">Pas encore de données sur cette période.</div>'; return; }
+    var mx = Math.max.apply(null, v.concat([1])), W = 1000, H = 132, n = v.length;
+    var px = function(i){ return n>1 ? (i*(W/(n-1))) : W/2; };
+    var py = function(k){ return H - 10 - (k/mx)*(H-30); };
+    var pts = v.map(function(k,i){ return px(i).toFixed(1)+','+py(k).toFixed(1); }).join(' ');
+    var haut = v.indexOf(mx);
+    box.innerHTML = '<svg class="own-chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
+      '<defs><linearGradient id="ownEbG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f7bff" stop-opacity=".38"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/></linearGradient></defs>'+
+      '<polygon class="aire" style="fill:url(#ownEbG)" points="0,'+H+' '+pts+' '+W+','+H+'"/><polyline class="trait" points="'+pts+'"/>'+
+      '<circle class="pt" cx="'+px(haut).toFixed(1)+'" cy="'+py(mx).toFixed(1)+'" r="4"/></svg>'+
+      '<div class="own-axe"><span>'+String(ser[0].j||'').slice(5)+'</span><span>pic : '+ownNb(mx)+'</span><span>'+String(ser[n-1].j||'').slice(5)+'</span></div>';
+  }
+
+  function ownEbReste(){
+    var s = OWN_EB.data || {};
+    // Le parcours : vues → visiteurs → clics → achats
+    var tu = document.getElementById('ownEbTunnel');
+    if (tu) tu.innerHTML = '<div class="own-tunnel">'+
+      '<div class="own-tu"><b>'+ownNb(s.vues)+'</b><small>vues</small></div>'+
+      '<div class="own-tu"><b>'+ownNb(s.visiteurs)+'</b><small>visiteurs</small></div>'+
+      '<div class="own-tu"><b>'+ownNb(s.cliqueurs)+'</b><small>ont cliqué</small></div>'+
+      '<div class="own-tu vert"><b>'+ownNb(s.ventes)+'</b><small>ont acheté</small></div></div>';
+    ownBarres('ownEbPays', (s.pays||[]).map(function(p){
+      return { nom: ownDrapeau(p.code)+' '+genEsc(p.code==='?'?'Inconnu':ownNomPays(p.code))+
+        (p.clics ? ' <small class="own-eb-mini">'+p.clics+' clic'+(p.clics>1?'s':'')+'</small>' : '')+
+        (p.temps ? ' <small class="own-eb-mini">'+ownDuree(p.temps)+'</small>' : ''), n:Number(p.n)||0 };
+    }));
+    var LOGO = { TikTok:'🎵', Instagram:'📸', YouTube:'▶️', Facebook:'👍', Google:'🔎', Snapchat:'👻', direct:'🔗' };
+    ownBarres('ownEbSources', (s.sources||[]).map(function(p){
+      return { nom:(LOGO[p.k]||'🌐')+' '+genEsc(p.k==='direct'?'Direct / bio':p.k), n:Number(p.n)||0 }; }));
+    var NOMS = { mobile:'📱 Téléphone', desktop:'💻 Ordinateur', tablette:'📟 Tablette' };
+    ownBarres('ownEbApp', (s.appareils||[]).map(function(p){ return { nom:(NOMS[p.k]||genEsc(p.k)), n:Number(p.n)||0 }; }));
+    var du = s.durees || {};
+    ownBarres('ownEbDurees', [['moins10','moins de 10 s'],['de10a30','10 – 30 s'],['de30a60','30 s – 1 min'],['de1a3m','1 – 3 min'],['plus3m','plus de 3 min']]
+      .map(function(k){ return { nom:k[1], n:Number(du[k[0]])||0 }; })
+      .filter(function(){ return Object.keys(du).some(function(k){ return du[k]; }); }));
+    ownBarres('ownEbVilles', (s.villes||[]).map(function(p){ return { nom:'📍 '+genEsc(p.k), n:Number(p.n)||0 }; }));
+    ownBarres('ownEbVentesPays', (s.ventes_pays||[]).map(function(p){ return { nom:'🛒 '+genEsc(p.k), n:Number(p.n)||0 }; }));
+    var de = document.getElementById('ownEbDern');
+    if (de) {
+      var l = s.dernieres || [];
+      de.innerHTML = l.length ? l.map(function(x){
+        var quand = new Date(x.t), h = quand.toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        return '<div class="own-mem"><span class="own-mem-a">'+ownDrapeau(x.pays)+'</span>'+
+          '<span class="own-mem-m"><b>'+genEsc((x.ville ? x.ville+', ' : '')+(x.pays ? ownNomPays(x.pays) : 'Pays inconnu'))+'</b>'+
+          '<small>'+h+' · '+(NOMS[x.appareil]||'')+' · '+genEsc(x.source==='direct'?'Direct / bio':(x.source||''))+
+          (x.secondes ? ' · '+ownDuree(x.secondes) : '')+'</small></span>'+
+          (x.clic ? '<span class="own-tag pro">a cliqué</span>' : '<span class="own-tag free">a regardé</span>')+'</div>';
+      }).join('') : '<div class="own-vide">Personne encore sur cette période.</div>';
+    }
   }
 
   var OWN_PER = [['auj',"Aujourd'hui"],['7j','7 jours'],['30j','30 jours'],['90j','90 jours'],['365j','1 an'],['tout','Tout']];

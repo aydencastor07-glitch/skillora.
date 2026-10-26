@@ -141,10 +141,28 @@ POR_XY = (PX1 - por.width - 10, PY1 - ph)
 SWAP = C.get('cta', {}).get('swap')
 if not SWAP: base.alpha_composite(por, POR_XY)
 PMASK = Image.new('L', (W, H), 0); ImageDraw.Draw(PMASK).rounded_rectangle([PX0, PY0, PX1, PY1], 22, fill=255)   # rien ne dépasse du bandeau
+BK = C.get('book')   # carte « livre » de fin : le livre remplace la statue pendant la phrase sur le livre, avec « Link in Bio »
+if BK:
+    BKIM = Image.open(os.path.join(DIR, BK.get('image', '../../livre/livre_3d.png'))).convert('RGBA'); bh = PY1 - PY0 - 40
+    BKIM = BKIM.resize((int(BKIM.width * bh / BKIM.height), bh), Image.LANCZOS)
+def draw_book(img, t):
+    if not BK or t < BK['t']: return
+    t1 = CTA['t'] if CTA else DUR; u_in = min(1, (t - BK['t']) / 0.5); u_out = min(1, max(0, (t - t1) / 0.5))
+    if u_out >= 1: return
+    x = PX1 - BKIM.width - 30 + (W - PX1 + BKIM.width) * ((1 - u_in) ** 2 + u_out ** 2)
+    y = PY0 + 20 + 8 * math.sin(t * 2.2)
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); lay.alpha_composite(BKIM.rotate(2 * math.sin(t * 1.4), resample=Image.BICUBIC, expand=False), (int(x), int(y)))
+    lay.putalpha(Image.fromarray(np.minimum(np.asarray(lay.getchannel('A')), np.asarray(PMASK)))); img.alpha_composite(lay)
+    a = min(1, max(0, (t - BK['t'] - 0.4) / 0.3)) * (1 - u_out)   # « Link in Bio » sous le bandeau, avec un doigt qui pointe vers le haut
+    if a > 0.01:
+        d = ImageDraw.Draw(img); f = F('Poppins-ExtraBold.ttf', 50); txt = BK.get('label', 'Das Buch: Link in Bio'); tw = f.getbbox(txt)[2]; by = PY1 + 95 + 6 * math.sin(t * 5)
+        d.rounded_rectangle([W / 2 - tw / 2 - 40, by - 50, W / 2 + tw / 2 + 40, by + 50], 50, fill=(201, 162, 90, int(255 * a)))
+        d.text((W / 2, by), txt, font=f, fill=(25, 18, 10, int(255 * a)), anchor='mm')
 def draw_portrait(img, t):
     if not SWAP: return
     dx = 0
-    if CTA and t > CTA['t']: u = (t - CTA['t']) / 0.6; dx = (W - POR_XY[0]) * (min(1, max(0, u)) ** 2)   # glisse vers la droite et sort
+    t_out = BK['t'] if BK else (CTA['t'] if CTA else None)
+    if t_out is not None and t > t_out: u = (t - t_out) / 0.6; dx = (W - POR_XY[0]) * (min(1, max(0, u)) ** 2)   # glisse vers la droite et sort
     lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); lay.alpha_composite(por, (int(POR_XY[0] + dx), POR_XY[1]))
     lay.putalpha(Image.fromarray(np.minimum(np.asarray(lay.getchannel('A')), np.asarray(PMASK)))); img.alpha_composite(lay)
 if C.get('handle'): ImageDraw.Draw(base).text((W / 2, PY1 + 50), C['handle'], font=F('Poppins-ExtraBold.ttf', 30), fill=(90, 70, 70), anchor='mm')
@@ -206,7 +224,7 @@ def quote_poem(img, g, t):
 # ---------- images
 T_TITLE_END = WORDS[NT][1] - 0.15
 def frame(t):
-    img = base.copy(); draw_portrait(img, t)
+    img = base.copy(); draw_portrait(img, t); draw_book(img, t)
     if t < T_TITLE_END:   # carte titre : lettres qui entrent, puis glitch de sortie
         lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ttl = C['title']; sz = 150
         while True:

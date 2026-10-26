@@ -1,0 +1,59 @@
+{
+ "font": "ArchivoBlack-Regular.ttf",
+ "palette": {
+  "c1": [
+   255,
+   236,
+   200
+  ],
+  "c2": [
+   255,
+   140,
+   40
+  ],
+  "dark": [
+   48,
+   28,
+   18
+  ],
+  "acc": [
+   226,
+   78,
+   38
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "push",
+ "sfx": "whoosh",
+ "music_seed": 1031,
+ "bpm": 100,
+ "key": 55,
+ "slides": [
+  {
+   "img": "V10/V10_1.jpg",
+   "title": "COZY|NIGHTS|START|HERE",
+   "layout": "A"
+  },
+  {
+   "img": "V10/V10_2.jpg",
+   "title": "RAINY DAY,|WARM BLANKET",
+   "layout": "D"
+  },
+  {
+   "img": "V10/V10_3.jpg",
+   "title": "MOVIE|NIGHT GLOW",
+   "layout": "C"
+  },
+  {
+   "img": "V10/V10_4.jpg",
+   "layout": "E"
+  },
+  {
+   "img": "V10/V10_5.jpg",
+   "title": "EVEN THE CAT|APPROVES",
+   "layout": "B"
+  }
+ ],
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app"
+}

@@ -147,7 +147,7 @@ def frame(T):
     if t > TR * 0.8:
         if s.get('comment'): comment(img, t - TR * 0.8, s.get('comment_y', 1060))
         else: label(img, s['label'], 90 + (x - W / 2), s.get('label_y', 1390), t - TR * 0.8)
-        if not s.get('no_tag'): tag(img, W - 230 + (x - W / 2), 300, T, t - TR * 0.8)
+        if not s.get('no_tag'): tag(img, s.get('tag_x', W - 230) + (x - W / 2), s.get('tag_y', 300), T, t - TR * 0.8)
     header(img, T, i, t); plate(img, T)   # la plaque est dessinée en dernier : ni neige ni reflet sur le code
     return img.convert('RGB')
 if __name__ == '__main__':

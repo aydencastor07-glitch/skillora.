@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Trafic Skillora</title>
+<!-- Tableau de trafic SANS CONNEXION : la cle est dans le lien (#k=…), jamais
+     envoyee au serveur du site. La fonction public-stats verifie son empreinte. -->
+<style>
+  :root{--bg:#070a12;--card:#0e1320;--line:rgba(255,255,255,.08);--fg:#eaf1ff;--mut:#8c97ad;--mut2:#5f6a80;
+        --blue:#2f7bff;--blue2:#7ea8ff;--green:#5ee79c;--gold:#f5c043;--red:#ff8f8f}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--fg)}
+  body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:18px 16px 60px;max-width:880px;margin:0 auto}
+  h1{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+  .live{font-size:.68rem;font-weight:700;color:var(--green);border:1px solid rgba(61,220,132,.35);border-radius:99px;padding:4px 10px;display:inline-flex;gap:6px;align-items:center}
+  .live i{width:6px;height:6px;border-radius:50%;background:#3ddc84;animation:p 1.8s infinite}
+  @keyframes p{50%{opacity:.3}}
+  .maj{color:var(--mut2);font-size:.72rem;margin:4px 0 14px}
+  .per{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none}
+  .per::-webkit-scrollbar{display:none}
+  .per button{flex:none;padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:.8rem;font-weight:600;cursor:pointer}
+  .per button.on{background:rgba(47,123,255,.16);border-color:rgba(94,155,255,.55);color:#fff}
+  .sec{display:flex;align-items:center;gap:12px;margin:26px 2px 12px}
+  .sec b{font-size:1.1rem}
+  .sec img{width:44px;aspect-ratio:3/4;object-fit:contain;border-radius:6px;background:#14120f}
+  .sec small{display:block;color:var(--mut);font-size:.74rem}
+  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  @media(min-width:640px){.kpis{grid-template-columns:repeat(4,1fr)}}
+  .k{background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.014));border:1px solid var(--line);border-radius:16px;padding:13px 13px 12px;min-width:0}
+  .k .l{font-size:.7rem;color:var(--mut);font-weight:600}
+  .k .v{font-size:1.65rem;font-weight:800;letter-spacing:-.02em;margin-top:5px;line-height:1.1}
+  .k .s{font-size:.68rem;color:var(--mut);margin-top:4px}
+  .k .v.g{color:var(--green)} .k .v.o{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 14px;margin-top:12px}
+  .ch{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px}
+  .ch b{font-size:.9rem} .ch span{font-size:.7rem;color:var(--mut)}
+  .duo{display:grid;gap:12px} @media(min-width:640px){.duo{grid-template-columns:1fr 1fr}.duo .card{margin-top:0}} .duo{margin-top:12px}
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar{display:grid;grid-template-columns:minmax(0,auto) 1fr auto;gap:10px;align-items:center;font-size:.78rem}
+  .bar .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+  .bar .t{height:7px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+  .bar .t i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--blue2))}
+  .bar .x{color:var(--mut);font-variant-numeric:tabular-nums;font-weight:600}
+  svg.c{width:100%;height:120px;display:block}
+  .axe{display:flex;justify-content:space-between;font-size:.65rem;color:var(--mut2);margin-top:6px}
+  .tun{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+  .tun div{text-align:center;padding:9px 2px;background:rgba(255,255,255,.03)}
+  .tun div:first-child{border-radius:10px 0 0 10px} .tun div:last-child{border-radius:0 10px 10px 0}
+  .tun b{display:block;font-size:1.05rem} .tun small{font-size:.62rem;color:var(--mut2)}
+  .tun .g b{color:var(--green)}
+  .row{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.78rem}
+  .row:last-child{border-bottom:none}
+  .row .f{font-size:1.2rem;flex:none} .row .m{flex:1;min-width:0} .row .m small{display:block;color:var(--mut2);font-size:.68rem}
+  .tag{font-size:.62rem;font-weight:800;padding:4px 8px;border-radius:99px;flex:none}
+  .tag.y{color:var(--green);background:rgba(61,220,132,.14)} .tag.n{color:var(--mut);background:rgba(255,255,255,.055)}
+  .vide{color:var(--mut2);font-size:.8rem;text-align:center;padding:18px 6px}
+  .err{background:rgba(255,90,90,.08);border:1px solid rgba(255,90,90,.3);color:#ffd3d3;border-radius:14px;padding:14px;font-size:.85rem;margin-top:10px}
+  .err b{color:#fff}
+</style>
+</head>
+<body>
+<h1>Trafic Skillora <span class="live"><i></i>en direct</span></h1>
+<div class="maj" id="maj">Chargement…</div>
+<div class="per" id="per"></div>
+<div id="app"></div>
+
+<script>
+(function(){
+  var API = 'https://fkjqlmtugzdluzshxqsk.supabase.co/functions/v1/public-stats';
+  // La cle : dans le lien (#k=…) la premiere fois, puis gardee sur l'appareil.
+  var k = '';
+  try { var m = /[#&?]k=([\w-]+)/.exec(location.hash + '&' + location.search); if (m) { k = m[1]; localStorage.setItem('sk_stats_k', k); }
+        if (!k) k = localStorage.getItem('sk_stats_k') || ''; } catch(e){}
+  try { localStorage.setItem('gz_moi','1'); localStorage.setItem('va-disable','true'); } catch(e){}   // le proprietaire ne se compte pas
+  var PER = [['auj',"Aujourd'hui"],['7j','7 jours'],['30j','30 jours'],['90j','90 jours'],['365j','1 an'],['tout','Tout']];
+  var per = '30j'; try { per = localStorage.getItem('sk_stats_per') || '30j'; } catch(e){}
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function nb(n){ n = Number(n)||0; if (n >= 1e6) return (n/1e6).toFixed(1).replace('.0','')+' M'; if (n >= 1e4) return (n/1e3).toFixed(1).replace('.0','')+' k'; return n.toLocaleString('fr-FR'); }
+  function taux(a,b){ return b ? (Math.round(a*1000/b)/10).toString().replace('.',',')+' %' : '0 %'; }
+  function duree(s){ s = Math.round(Number(s)||0); return s < 60 ? s+' s' : Math.floor(s/60)+' min'+(s%60?' '+(s%60)+' s':''); }
+  function drap(c){ c = String(c||'').toUpperCase(); return /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(127397+c.charCodeAt(0),127397+c.charCodeAt(1)) : '🌍'; }
+  function pays(c){ if (!c || c === '?' || c === '??') return 'Inconnu'; try { return new Intl.DisplayNames(['fr'],{type:'region'}).of(c) || c; } catch(e){ return c; } }
+
+  function kpi(l, v, s, cls){ return '<div class="k"><div class="l">'+l+'</div><div class="v '+(cls||'')+'">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>'; }
+  function bars(titre, sous, lignes){
+    var mx = Math.max.apply(null, lignes.map(function(l){ return l.n; }).concat([1]));
+    return '<div class="card"><div class="ch"><b>'+titre+'</b><span>'+sous+'</span></div>'+
+      (lignes.length ? '<div class="bars">'+lignes.map(function(l){
+        return '<div class="bar"><span class="n">'+l.nom+'</span><span class="t"><i style="width:'+Math.max(4,l.n/mx*100)+'%"></i></span><span class="x">'+nb(l.n)+'</span></div>'; }).join('')+'</div>'
+      : '<div class="vide">Rien encore sur cette période.</div>')+'</div>';
+  }
+  function courbe(titre, ser, cle){
+    var v = (ser||[]).map(function(x){ return Number(x[cle])||0; }), tot = v.reduce(function(a,b){ return a+b; }, 0);
+    var h = '<div class="card"><div class="ch"><b>'+titre+'</b><span>'+nb(tot)+' au total</span></div>';
+    if (!v.length || !tot) return h + '<div class="vide">Pas encore de données sur cette période.</div></div>';
+    var mx = Math.max.apply(null, v.concat([1])), W = 1000, H = 120, n = v.length;
+    var X = function(i){ return n > 1 ? i*W/(n-1) : W/2; }, Y = function(q){ return H-8-(q/mx)*(H-24); };
+    var pts = v.map(function(q,i){ return X(i).toFixed(1)+','+Y(q).toFixed(1); }).join(' ');
+    return h + '<svg class="c" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><defs><linearGradient id="g'+cle+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f7bff" stop-opacity=".38"/><stop offset="1" stop-color="#2f7bff" stop-opacity="0"/></linearGradient></defs>'+
+      '<polygon fill="url(#g'+cle+')" points="0,'+H+' '+pts+' '+W+','+H+'"/><polyline fill="none" stroke="#5e9bff" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'+
+      '<div class="axe"><span>'+String(ser[0].j||'').slice(5)+'</span><span>pic : '+nb(mx)+'</span><span>'+String(ser[n-1].j||'').slice(5)+'</span></div></div>';
+  }
+
+  function rendu(d){
+    var s = d.site || {}, e = d.ebook || {}, NOMS = { mobile:'📱 Téléphone', desktop:'💻 Ordinateur', tablette:'📟 Tablette' };
+    var LOGO = { TikTok:'🎵', Instagram:'📸', YouTube:'▶️', Facebook:'👍', Google:'🔎', Snapchat:'👻', direct:'🔗' };
+    var euros = (Number(e.revenu_cents)||0)/100;
+    var serieSite = ((s.series||{}).vues || []).map(function(x){ return { j:x.j, vues:x.n }; });
+    var h = '';
+    // ── LIVRE ──
+    h += '<div class="sec"><img src="/gesetze/livre.webp" alt=""><div><b>Das Gesetzbuch des Geistes</b><small>page du livre · gesetze.skillora.me</small></div></div>';
+    h += '<div class="kpis">'+
+      kpi('Vues', nb(e.vues), nb(e.visiteurs)+' visiteurs uniques')+
+      kpi('Clics « Acheter »', nb(e.clics), taux(e.cliqueurs, e.visiteurs)+' des visiteurs')+
+      kpi('Achats', nb(e.ventes), 'taux d\'achat '+taux(e.ventes, e.visiteurs), 'g')+
+      kpi('Temps moyen', duree(e.temps_moyen), 'médiane '+duree(e.temps_median))+
+      kpi('Revenu', euros.toFixed(2).replace('.',',')+' '+(e.devise==='usd'?'$':'€'), taux(e.ventes, e.cliqueurs)+' des clics achètent', 'o')+
+      kpi('Depuis le début', nb(e.vues_total)+' vues', nb(e.clics_total)+' clics · '+nb(e.ventes_total)+' achats')+'</div>';
+    h += courbe('Vues du livre par jour', e.series, 'vues');
+    h += '<div class="card"><div class="ch"><b>Le parcours</b><span>sur cette période</span></div><div class="tun">'+
+      '<div><b>'+nb(e.vues)+'</b><small>vues</small></div><div><b>'+nb(e.visiteurs)+'</b><small>visiteurs</small></div>'+
+      '<div><b>'+nb(e.cliqueurs)+'</b><small>ont cliqué</small></div><div class="g"><b>'+nb(e.ventes)+'</b><small>ont acheté</small></div></div></div>';
+    h += bars('D\'où ils viennent', 'visiteurs', (e.pays||[]).map(function(p){ return { nom: drap(p.code)+' '+esc(pays(p.code))+(p.clics?' · '+p.clics+' clic'+(p.clics>1?'s':''):''), n:Number(p.n)||0 }; }));
+    h += '<div class="duo">'+
+      bars('Comment ils arrivent', 'source', (e.sources||[]).map(function(p){ return { nom:(LOGO[p.k]||'🌐')+' '+esc(p.k==='direct'?'Direct / bio':p.k), n:Number(p.n)||0 }; }))+
+      bars('Sur quoi', 'appareil', (e.appareils||[]).map(function(p){ return { nom:NOMS[p.k]||esc(p.k), n:Number(p.n)||0 }; }))+'</div>';
+    var du = e.durees || {}, aDu = Object.keys(du).some(function(x){ return du[x]; });
+    h += '<div class="duo">'+
+      bars('Combien de temps ils restent', 'par visite', aDu ? [['moins10','moins de 10 s'],['de10a30','10 – 30 s'],['de30a60','30 s – 1 min'],['de1a3m','1 – 3 min'],['plus3m','plus de 3 min']].map(function(x){ return { nom:x[1], n:Number(du[x[0]])||0 }; }) : [])+
+      bars('Achats par pays', 'Gumroad', (e.ventes_pays||[]).map(function(p){ return { nom:'🛒 '+esc(p.k), n:Number(p.n)||0 }; }))+'</div>';
+    var de = e.dernieres || [];
+    h += '<div class="card"><div class="ch"><b>Dernières visites du livre</b><span>en direct</span></div>'+(de.length ? de.map(function(x){
+      var t = new Date(x.t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      return '<div class="row"><span class="f">'+drap(x.pays)+'</span><span class="m"><b>'+esc((x.ville?x.ville+', ':'')+pays(x.pays))+'</b><small>'+t+' · '+(NOMS[x.appareil]||'')+' · '+esc(x.source==='direct'?'Direct / bio':(x.source||''))+(x.secondes?' · '+duree(x.secondes):'')+'</small></span>'+
+        (x.clic?'<span class="tag y">a cliqué</span>':'<span class="tag n">a regardé</span>')+'</div>'; }).join('') : '<div class="vide">Personne encore sur cette période.</div>')+'</div>';
+    // ── SITE SKILLORA ──
+    h += '<div class="sec"><div><b>Site Skillora</b><small>skillora.me</small></div></div>';
+    h += '<div class="kpis">'+
+      kpi('Visiteurs', nb(s.visiteurs_periode), nb(s.vues_periode)+' vues')+
+      kpi('Inscrits', nb(s.membres_periode), 'total '+nb(s.membres_total))+
+      kpi('Abonnés Pro', nb(s.abos_periode), 'actifs '+nb(s.abos_actifs), 'g')+
+      kpi('Revenu', '$'+nb(s.revenu_periode), 'MRR $'+nb(s.mrr), 'o')+'</div>';
+    h += courbe('Visites du site par jour', serieSite, 'vues');
+    h += '<div class="duo">'+
+      bars('Pays', 'visites', (s.pays||[]).map(function(p){ return { nom:drap(p.code)+' '+esc(pays(p.code)), n:Number(p.n)||0 }; }))+
+      bars('Appareils', 'visites', (s.appareils||[]).map(function(p){ return { nom:NOMS[p.k]||esc(p.k||'?'), n:Number(p.n)||0 }; }))+'</div>';
+    h += bars('Liens de pub', 'clics · inscrits · payants', (d.campagnes||[]).map(function(c){ return { nom:esc(c.nom)+' · '+c.inscrits+' inscrit'+(c.inscrits>1?'s':'')+' · '+c.payants+' payant'+(c.payants>1?'s':''), n:c.clics }; }));
+    document.getElementById('app').innerHTML = h;
+  }
+
+  function periodes(){
+    document.getElementById('per').innerHTML = PER.map(function(p){
+      return '<button class="'+(per===p[0]?'on':'')+'" data-p="'+p[0]+'">'+p[1]+'</button>'; }).join('');
+  }
+  document.getElementById('per').addEventListener('click', function(ev){
+    var b = ev.target.closest('button'); if (!b) return;
+    per = b.getAttribute('data-p'); try { localStorage.setItem('sk_stats_per', per); } catch(e){}
+    periodes(); charger();
+  });
+
+  function erreur(msg){
+    document.getElementById('maj').textContent = 'Pas de données';
+    document.getElementById('app').innerHTML = '<div class="err">'+msg+'</div>';
+  }
+  var enCours = false;
+  function charger(){
+    if (!k) return erreur('<b>Lien incomplet.</b> Ouvre le lien complet (avec <code>#k=…</code>) une fois sur cet appareil.');
+    if (enCours) return; enCours = true;
+    fetch(API, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify({ k:k, periode:per }) })
+      .then(function(r){ return r.text().then(function(t){ var j = {}; try { j = JSON.parse(t); } catch(e){} return { st:r.status, j:j, t:t }; }); })
+      .then(function(x){
+        enCours = false;
+        if (x.st === 402 || /restricted/i.test(x.t)) return erreur('<b>Supabase est bloqué</b> (stockage gratuit dépassé). Les chiffres reviendront dès qu\'il sera débloqué.');
+        if (x.st === 403) return erreur('<b>Lien invalide.</b>');
+        if (!x.j.success) return erreur('<b>Erreur :</b> '+esc(x.j.error || ('code '+x.st)));
+        rendu(x.j);
+        document.getElementById('maj').textContent = 'Actualisé à '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+' · se met à jour toute seule chaque minute';
+      })
+      .catch(function(){ enCours = false; erreur('<b>Connexion impossible.</b> Vérifie ta connexion internet.'); });
+  }
+  periodes(); charger();
+  setInterval(function(){ if (document.visibilityState === 'visible') charger(); }, 60000);
+})();
+</script>
+</body>
+</html>

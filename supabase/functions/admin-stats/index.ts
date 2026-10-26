@@ -111,6 +111,16 @@ serve(async (req) => {
       return json({ success: true });
     }
 
+    // ── E-books : vues, clics « Acheter », ventes, temps, pays ────────────
+    if (action === "ebook") {
+      const produit = String(body.produit || "gesetzbuch").slice(0, 60);
+      const { data, error } = await admin.rpc("admin_ebook", {
+        p_product: produit, p_from: from.toISOString(), p_to: to.toISOString(),
+      });
+      if (error) return json({ success: false, error: error.message }, 500);
+      return json({ success: true, produit, periode: { debut: from.toISOString(), fin: to.toISOString(), type: String(body.periode || "auj") }, stats: data });
+    }
+
     // ── Liste des membres (paginee, filtrable) ────────────────────────────
     if (action === "membres") {
       const { data, error } = await admin.rpc("admin_membres", {

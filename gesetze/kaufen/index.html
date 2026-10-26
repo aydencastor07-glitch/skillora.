@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Weiter zur Zahlung…</title>
+<!-- Page relais du bouton « Acheter » : chaque visite ici = un clic sur Acheter dans les statistiques
+     Vercel. Elle renvoie aussitôt vers Gumroad (paiement + téléchargement automatique du PDF). -->
+<noscript><meta http-equiv="refresh" content="0; url=https://aydenverse42.gumroad.com/l/gesetzbuch?wanted=true"></noscript>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<style>
+  :root{--bg:#17140f;--fg:#f1e6cf;--gold:#c9a25a}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:16px/1.4 Georgia,serif}
+  body{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 16px}
+  .r{width:28px;height:28px;border:3px solid rgba(201,162,90,.25);border-top-color:var(--gold);border-radius:50%;margin:0 auto 14px;animation:t .8s linear infinite}
+  @keyframes t{to{transform:rotate(360deg)}}
+  a{color:var(--gold)}
+</style>
+</head>
+<body>
+<div><div class="r"></div>Weiter zur sicheren Zahlung…<br><small><a id="go" href="https://aydenverse42.gumroad.com/l/gesetzbuch?wanted=true">Hier klicken, falls nichts passiert</a></small></div>
+<script>
+// Laisse ~0,4 s au script Vercel pour compter la visite, puis part sur Gumroad (2 s maximum).
+(function(){
+  var url = document.getElementById('go').href, parti = false;
+  function go(){ if (parti) return; parti = true; location.replace(url); }
+  window.addEventListener('load', function(){ setTimeout(go, 400); });
+  setTimeout(go, 2000);
+})();
+</script>
+</body>
+</html>

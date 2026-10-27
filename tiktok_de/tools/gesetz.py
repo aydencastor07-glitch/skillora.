@@ -145,16 +145,49 @@ BK = C.get('book')   # carte « livre » de fin : le livre remplace la statue pe
 if BK:
     BKIM = Image.open(os.path.join(DIR, BK.get('image', '../../livre/livre_3d.png'))).convert('RGBA'); bh = PY1 - PY0 - 40
     BKIM = BKIM.resize((int(BKIM.width * bh / BKIM.height), bh), Image.LANCZOS)
+    BKGLOW = Image.new('RGBA', (BKIM.width + 240, BKIM.height + 120), (0, 0, 0, 0))
+    ImageDraw.Draw(BKGLOW).ellipse([60, 30, BKGLOW.width - 60, BKGLOW.height - 30], fill=(230, 180, 90, 110)); BKGLOW = BKGLOW.filter(ImageFilter.GaussianBlur(45))
+def draw_link(img, t):
+    # « LINK IN BIO » DANS le bandeau (là où s'écrivent tous les textes), à gauche du livre : bouton doré qui arrive,
+    # respire et reçoit un reflet ; petite flèche qui monte vers le profil. Remplace les sous-titres de la dernière phrase.
+    u = t - BK['link_t']; k = min(1, max(0, u / 0.35)); e = 1 + 2.7 * (k - 1) ** 3 + 1.7 * (k - 1) ** 2
+    if k <= 0: return
+    cx = (PX0 + PX1 - BKIM.width - 30) / 2 + 10; cy = (PY0 + PY1) / 2
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    f1 = F('Poppins-ExtraBold.ttf', 44); d.text((cx, cy - 120), 'Alle 21 Gesetze', font=f1, fill=(245, 240, 235, int(255 * k)), anchor='mm')
+    sc = e * (1 + 0.03 * math.sin(u * 5)); bw, bh_ = 220 * sc, 62 * sc
+    d.rounded_rectangle([cx - bw - 6, cy - bh_ - 6, cx + bw + 6, cy + bh_ + 6], int(bh_ + 6), fill=(120, 80, 30, int(200 * k)))
+    d.rounded_rectangle([cx - bw, cy - bh_, cx + bw, cy + bh_], int(bh_), fill=(222, 178, 92, int(255 * k)))
+    ph = (u % 1.6) / 0.6
+    if 0 <= ph <= 1:   # reflet sur le bouton
+        sh = Image.new('L', (W, H), 0); sx = cx - bw + ph * 2 * bw
+        ImageDraw.Draw(sh).polygon([(sx, cy - bh_), (sx + 40, cy - bh_), (sx - 20, cy + bh_), (sx - 60, cy + bh_)], fill=150)
+        m = Image.new('L', (W, H), 0); ImageDraw.Draw(m).rounded_rectangle([cx - bw, cy - bh_, cx + bw, cy + bh_], int(bh_), fill=255)
+        wl = Image.new('RGBA', (W, H), (255, 250, 230, 0)); wl.putalpha(Image.fromarray(np.minimum(np.asarray(sh.filter(ImageFilter.GaussianBlur(6))), np.asarray(m)))); lay.alpha_composite(wl)
+    f2 = F('Poppins-ExtraBold.ttf', int(54 * sc)); d.text((cx + 22 * sc, cy + 2), 'LINK IN BIO', font=f2, fill=(30, 20, 10, int(255 * k)), anchor='mm')
+    ax = cx - bw + 48 * sc; ay = cy + 18 * sc - 10 * abs(math.sin(u * 4))   # flèche qui monte
+    d.polygon([(ax, ay - 34 * sc), (ax - 20 * sc, ay - 8 * sc), (ax - 7 * sc, ay - 8 * sc), (ax - 7 * sc, ay + 18 * sc), (ax + 7 * sc, ay + 18 * sc), (ax + 7 * sc, ay - 8 * sc), (ax + 20 * sc, ay - 8 * sc)], fill=(30, 20, 10, int(255 * k)))
+    f3 = F('Poppins-ExtraBold.ttf', 36); d.text((cx, cy + 115), 'im Profil', font=f3, fill=(222, 178, 92, int(255 * min(1, max(0, (u - 0.3) / 0.3)))), anchor='mm')
+    img.alpha_composite(lay)
 def draw_book(img, t):
     if not BK or t < BK['t']: return
     t1 = CTA['t'] if CTA else DUR; u_in = min(1, (t - BK['t']) / 0.5); u_out = min(1, max(0, (t - t1) / 0.5))
     if u_out >= 1: return
     x = PX1 - BKIM.width - 30 + (W - PX1 + BKIM.width) * ((1 - u_in) ** 2 + u_out ** 2)
     y = PY0 + 20 + 8 * math.sin(t * 2.2)
-    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); lay.alpha_composite(BKIM.rotate(2 * math.sin(t * 1.4), resample=Image.BICUBIC, expand=False), (int(x), int(y)))
+    lay = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    gl = BKGLOW.copy(); gl.putalpha(BKGLOW.getchannel('A').point(lambda v: int(v * (0.75 + 0.25 * math.sin(t * 3)) * u_in)))   # halo doré qui respire
+    lay.alpha_composite(gl, (int(x + BKIM.width / 2 - gl.width / 2), int(y + BKIM.height / 2 - gl.height / 2)))
+    bk = BKIM.copy(); ph = ((t - BK['t'] - 0.6) % 2.2) / 0.7   # reflet qui balaie la couverture toutes les 2,2 s
+    if 0 <= ph <= 1:
+        sh = Image.new('L', bk.size, 0); sx = -bk.width * 0.5 + ph * bk.width * 2
+        ImageDraw.Draw(sh).polygon([(sx, 0), (sx + 70, 0), (sx - 90, bk.height), (sx - 160, bk.height)], fill=120)
+        sh = Image.fromarray(np.minimum(np.asarray(sh.filter(ImageFilter.GaussianBlur(12))), np.asarray(bk.getchannel('A'))))
+        wl = Image.new('RGBA', bk.size, (255, 248, 225, 0)); wl.putalpha(sh); bk.alpha_composite(wl)
+    lay.alpha_composite(bk.rotate(2 * math.sin(t * 1.4), resample=Image.BICUBIC, expand=False), (int(x), int(y)))
     lay.putalpha(Image.fromarray(np.minimum(np.asarray(lay.getchannel('A')), np.asarray(PMASK)))); img.alpha_composite(lay)
-    a = min(1, max(0, (t - BK['t'] - 0.4) / 0.3)) * (1 - u_out)   # « Link in Bio » sous le bandeau, avec un doigt qui pointe vers le haut
-    if a > 0.01:
+    a = min(1, max(0, (t - BK['t'] - 0.4) / 0.3)) * (1 - u_out)   # ancienne pastille sous le bandeau : DÉSACTIVÉE par défaut (écrite dans la bande noire → 10 vues)
+    if BK.get('pill') and a > 0.01:
         d = ImageDraw.Draw(img); f = F('Poppins-ExtraBold.ttf', 50); txt = BK.get('label', 'Das Buch: Link in Bio'); tw = f.getbbox(txt)[2]; by = PY1 + 95 + 6 * math.sin(t * 5)
         d.rounded_rectangle([W / 2 - tw / 2 - 40, by - 50, W / 2 + tw / 2 + 40, by + 50], 50, fill=(201, 162, 90, int(255 * a)))
         d.text((W / 2, by), txt, font=f, fill=(25, 18, 10, int(255 * a)), anchor='mm')
@@ -251,6 +284,7 @@ def frame(t):
         return img.convert('RGB')
     cta_button(img, t)
     if CTA and CTA.get('hide_text') and t >= CTA['t']: return img.convert('RGB')
+    if BK and BK.get('link_t') and t >= BK['link_t'] - 0.05: draw_link(img, t); return img.convert('RGB')
     gi = max([i for i, g in enumerate(groups) if WORDS[g[0]][1] - 0.1 <= t] or [0]); g = groups[gi]
     if C.get('quote_poem') and all(k in QUOTE for k in g): quote_poem(img, g, t); return img.convert('RGB')
     if SUBS2:

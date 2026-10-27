@@ -1,0 +1,44 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_marc.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 14",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.12,
+  "dur": 0.6
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "14:",
+  "Das Hindernis ist der Weg.",
+  "Du fällst durch eine Prüfung.",
+  "Du bekommst den Job nicht.",
+  "Jemand lässt dich fallen.",
+  "Und du denkst, alles ist vorbei.",
+  "Aber die Stärksten gehen Hindernissen nicht aus dem Weg.",
+  "Sie nutzen sie.",
+  "Marc Aurel sagte:",
+  "„Das Hindernis für die Handlung fördert die Handlung.",
+  "Was im Weg steht, wird zum Weg.“",
+  "Jedes Scheitern lehrt dich, was dich kein Erfolg je lehren wird.",
+  "Stell dir vor, du wirst nach jedem Rückschlag stärker:",
+  "ruhiger, selbstsicherer, respektierter.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|hindernis|weg|prüfung|job|fallen|vorbei|stärksten|nutzen|marc|aurel|handlung|fördert|scheitern|erfolg|stärker|ruhiger|selbstsicherer|respektierter|21|gesetze|buch|link|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 28.03,
+  "link_t": 31.34
+ }
+}

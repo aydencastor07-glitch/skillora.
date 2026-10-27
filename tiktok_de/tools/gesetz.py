@@ -138,7 +138,7 @@ glow = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(glow).rounded_rec
 base.alpha_composite(glow); m = Image.new('L', pan.size, 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, pan.width - 1, pan.height - 1], 22, fill=255); base.paste(pan, (PX0, PY0), m)
 por = Image.open(os.path.join(DIR, C['portrait'])).convert('RGBA'); ph = C.get('portrait_h', 400); por = por.resize((int(por.width * ph / por.height), ph), Image.LANCZOS)
 POR_XY = (PX1 - por.width - 10, PY1 - ph)
-SWAP = C.get('cta', {}).get('swap')
+SWAP = C.get('cta', {}).get('swap') or bool(C.get('book'))   # la statue doit pouvoir sortir quand le livre arrive
 if not SWAP: base.alpha_composite(por, POR_XY)
 PMASK = Image.new('L', (W, H), 0); ImageDraw.Draw(PMASK).rounded_rectangle([PX0, PY0, PX1, PY1], 22, fill=255)   # rien ne dépasse du bandeau
 BK = C.get('book')   # carte « livre » de fin : le livre remplace la statue pendant la phrase sur le livre, avec « Link in Bio »

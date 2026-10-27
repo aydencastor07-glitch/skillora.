@@ -7,6 +7,7 @@
 6. Warum reißen Strumpfhosen so schnell? – fil très fin = transparent mais fragile ; plus solide = plus épais et moins joli.
 
 ## Règle (après Gesetz 13 : 10 vues)
-- JAMAIS de « Link in Bio » ni de texte promotionnel écrit à l'écran, surtout pas en bas : TikTok y voit un changement de format / de niche.
-- Tout texte reste au MILIEU de l'écran, là où sont d'habitude les images et les textes de la vidéo. Le format ne change jamais.
-- Pour mettre un produit en avant : il apparaît comme une image/scène normale de la vidéo, au même endroit, et c'est la voix qui en parle.
+- La cause : le texte « Das Buch: Link in Bio » était ÉCRIT DANS LES BANDES NOIRES (en haut / en bas de la vidéo), où on n'écrit jamais.
+- JAMAIS de texte dans les bandes noires. Tout texte reste dans la partie centrale, là où sont d'habitude les images et les textes.
+- Dire « Der Link ist in der Bio » dans la voix (et donc dans les sous-titres habituels) est OK.
+- Pour le livre : il apparaît dans le cadre central (à la place de la statue), comme une image normale.

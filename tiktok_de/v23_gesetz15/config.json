@@ -1,0 +1,41 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_nietzsche.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 15",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 2.93,
+  "dur": 0.6
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "15:",
+  "Werde, der du bist.",
+  "Du lachst über Witze, die du nicht lustig findest.",
+  "Du sagst Ja, obwohl du Nein meinst.",
+  "Du spielst eine Rolle, damit dich alle mögen.",
+  "Und irgendwann weißt du selbst nicht mehr, wer du bist.",
+  "Nietzsche sagte:",
+  "„Du sollst der werden, der du bist.“",
+  "Hör auf, dich kleiner zu machen, damit andere sich wohlfühlen.",
+  "Stell dir vor, du bist endlich du selbst:",
+  "frei, selbstsicher, respektiert.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|werde|witze|lustig|ja|nein|rolle|mögen|selbst|nietzsche|werden|bist|kleiner|wohlfühlen|frei|selbstsicher|respektiert|21|gesetze|buch|link|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 24.09,
+  "link_t": 27.35
+ }
+}

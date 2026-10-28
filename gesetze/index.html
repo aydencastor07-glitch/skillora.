@@ -93,7 +93,9 @@ section { padding: 64px 0; }
 .kwait { text-align: center; color: var(--muted); font-size: 15px; margin-top: 8px; } .kerr { text-align: center; color: #ff8a80; font-size: 15px; }
 .kcode { display: none; gap: 8px; margin-bottom: 10px; } .kcode input { flex: 1; min-width: 0; height: 44px; border-radius: 8px; border: 1px solid #3a3124; background: #120f0b; color: var(--ivory); padding: 0 12px; font: 600 16px system-ui, sans-serif; letter-spacing: .06em; }
 .kcode button { height: 44px; border: 0; border-radius: 8px; padding: 0 14px; background: var(--gold); color: #1a1408; font: 700 15px system-ui, sans-serif; }
-.kok { text-align: center; } .kok h3 { font-family: Cinzel, serif; font-size: 24px; margin: 6px 0; } .kok p { color: #e6dccb; margin-bottom: 12px; }
+.kok { text-align: center; }
+.ksave { text-align: left; background: #120f0b; border: 1px solid #3a3124; border-radius: 12px; padding: 12px 14px; margin: 4px 0 12px; font: 15px/1.45 system-ui, sans-serif; color: #e6dccb; }
+.ksave b { color: var(--gold); } .ksave ol { margin: 6px 0 0 20px; } .ksave li { margin-bottom: 4px; } .kok h3 { font-family: Cinzel, serif; font-size: 24px; margin: 6px 0; } .kok p { color: #e6dccb; margin-bottom: 12px; }
 .kcheck { width: 64px; height: 64px; border-radius: 50%; background: #3fa564; color: #fff; font-size: 38px; line-height: 64px; margin: 0 auto; }
 .promo .cd { font-size: 15px; color: #f1e6cf; margin-top: 2px; } .promo .cd b { font-variant-numeric: tabular-nums; color: #ffd36b; }
 .topbar { position: sticky; top: 0; z-index: 10; background: linear-gradient(90deg, #7a1f18, #b8322a); color: #fff; text-align: center; font-size: 15px; padding: 8px 12px; display: none; }
@@ -284,6 +286,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
       <p>Dein E-Book ist bereit. Speichere es jetzt auf deinem Handy:</p>
       <a class="btn" id="k-dl" href="#">⬇ PDF herunterladen</a>
       <p class="small" id="k-mail"></p>
+      <div class="ksave" id="k-save"></div>
       <p class="small">Fang mit Gesetz Nr. 1 an: „Handle nie aus Wut“ – lies es heute und mach die Übung.</p>
     </div>
   </div>
@@ -403,6 +406,12 @@ function kasseOk(r) {
   document.getElementById('kbox').style.display = 'none'; var ok = document.getElementById('k-ok'); ok.style.display = 'block';
   document.getElementById('k-dl').href = r.lien; if (r.email) document.getElementById('k-mail').textContent = 'Bestätigung von PayPal an ' + r.email;
   try { localStorage.setItem('gz_lien', r.lien); } catch (e) {}
+  // Sauvegarder le livre pour le lire hors connexion (l'iPhone affiche le PDF au lieu de l'enregistrer)
+  var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent), aide = '';
+  if (ios && IN_APP) aide = '<b>📲 Auf dem iPhone speichern (offline lesen):</b><ol><li>Tippe oben rechts auf <b>•••</b> → <b>„Im Browser öffnen“</b></li><li>In Safari auf <b>„Bereits gekauft – herunterladen“</b> tippen</li><li>Unten auf <b>Teilen</b> (□↑) → <b>„In Bücher sichern“</b> oder <b>„In Dateien sichern“</b></li></ol>';
+  else if (ios) aide = '<b>📲 Auf dem iPhone speichern (offline lesen):</b><ol><li>Tippe auf <b>PDF herunterladen</b></li><li>Unten auf <b>Teilen</b> (□↑) tippen</li><li><b>„In Bücher sichern“</b> oder <b>„In Dateien sichern“</b> wählen</li></ol>';
+  else aide = '<b>📲 Offline lesen:</b> Nach dem Tippen auf <b>PDF herunterladen</b> liegt das Buch in deinem Ordner <b>„Downloads“</b>. Falls es sich nur öffnet: oben auf <b>⋮</b> → <b>„Herunterladen“</b>.';
+  document.getElementById('k-save').innerHTML = aide;
   kasseOpen();
 }
 function encaisser(orderID) {

@@ -4,13 +4,15 @@ const crypto = require('crypto');
 
 const BASE = 'https://api-m.paypal.com';
 // Prix réellement encaissés (TVA allemande comprise) : les mêmes que ceux affichés sur la page.
-const PRIX = { normal: '23.79', promo: '11.89', promoActive: true };
+// Prix normal 19,99 € ; avec le code MAGNIIZZ (visiteurs TikTok, ou code tapé) : 9,99 €.
+const PRIX = { normal: '19.99', promo: '9.99', code: 'MAGNIIZZ' };
 const TEST = '0.90';   // TEMPORAIRE : prix de test (achat réel de 1 €), à retirer juste après le test
 const PRODUIT = 'gesetzbuch';
 const LIEN_JOURS = 30;   // durée de validité du lien de téléchargement
 
 function configure() { return !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET); }
-function prix() { if (TEST) return TEST; return PRIX.promoActive ? PRIX.promo : PRIX.normal; }
+function prix(code) { if (TEST) return TEST; return String(code || '').trim().toUpperCase() === PRIX.code ? PRIX.promo : PRIX.normal; }
+function prixMin() { return TEST || PRIX.promo; }
 
 async function jeton() {
   const r = await fetch(BASE + '/v1/oauth2/token', {
@@ -71,4 +73,4 @@ function lireCorps(req) {
   return new Promise((ok) => { let d = ''; req.on('data', (c) => { d += c; }); req.on('end', () => { try { ok(JSON.parse(d || '{}')); } catch (e) { ok({}); } }); });
 }
 
-module.exports = { configure, prix, paypal, lien, lienValide, lireCorps, cookieAchat, lireCookieAchat, PRODUIT };
+module.exports = { configure, prix, prixMin, paypal, lien, lienValide, lireCorps, cookieAchat, lireCookieAchat, PRODUIT };

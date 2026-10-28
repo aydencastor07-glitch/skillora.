@@ -91,6 +91,8 @@ section { padding: 64px 0; }
 .ksum small { color: var(--muted); font-size: 12px; }
 #pp-buttons { min-height: 50px; background: #fff; border-radius: 12px; padding: 12px 10px 4px; }
 .kwait { text-align: center; color: var(--muted); font-size: 15px; margin-top: 8px; } .kerr { text-align: center; color: #ff8a80; font-size: 15px; }
+.kcode { display: none; gap: 8px; margin-bottom: 10px; } .kcode input { flex: 1; min-width: 0; height: 44px; border-radius: 8px; border: 1px solid #3a3124; background: #120f0b; color: var(--ivory); padding: 0 12px; font: 600 16px system-ui, sans-serif; letter-spacing: .06em; }
+.kcode button { height: 44px; border: 0; border-radius: 8px; padding: 0 14px; background: var(--gold); color: #1a1408; font: 700 15px system-ui, sans-serif; }
 .kok { text-align: center; } .kok h3 { font-family: Cinzel, serif; font-size: 24px; margin: 6px 0; } .kok p { color: #e6dccb; margin-bottom: 12px; }
 .kcheck { width: 64px; height: 64px; border-radius: 50%; background: #3fa564; color: #fff; font-size: 38px; line-height: 64px; margin: 0 auto; }
 .promo .cd { font-size: 15px; color: #f1e6cf; margin-top: 2px; } .promo .cd b { font-variant-numeric: tabular-nums; color: #ffd36b; }
@@ -265,6 +267,8 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
     <div class="kbox" id="kbox">
       <div class="ksum"><img src="livre.webp" alt="" width="90" height="135"><div><b>Das Gesetzbuch des Geistes</b><span>E-Book · PDF · 29 Seiten · Deutsch</span>
         <div class="kp"><s id="k-old"></s> <b id="k-price"></b> <i id="k-code"></i></div><small>inkl. MwSt. · einmalig · kein Abo</small></div></div>
+      <div class="kcode" id="kcode"><input id="kc-in" placeholder="Gutscheincode" autocapitalize="characters" autocomplete="off"><button type="button" id="kc-ok">Einlösen</button></div>
+      <p class="kerr" id="kc-msg"></p>
       <div id="pp-buttons"></div>
       <div id="pp-redirect" style="display:none">
         <button class="ppb ppy" type="button" data-carte="0">Mit <b><i>Pay</i><i>Pal</i></b> zahlen</button>
@@ -294,13 +298,20 @@ var GUMROAD_URL = 'https://payhip.com/b/qDfB0';
 var SHOP_URL = 'https://shop.skillora.me/b/qDfB0';   // même produit, boutique Payhip sur notre domaine
 // Paiement Payhip ouvert PAR-DESSUS la page (overlay) : on ne quitte pas le site, donc TikTok ne bloque pas.
 var PAYHIP_ATTR = ' data-product="qDfB0" data-theme="none" data-method="overlay"';
-var PRICE = '0,90 €';   // TEMPORAIRE : test d'achat à 1 € (remettre '23,79 €')   // prix réel payé sur Payhip sans code (TVA allemande 19 % comprise)
-// ---- Code promo : un VRAI code Payhip, avec sa VRAIE date de fin (la même que dans Payhip → Marketing → Coupons).
-// « on » : le code existe dans Payhip. « ends » vide = pas de compte à rebours ; sinon la vraie date de fin, ex. '2026-10-29T03:00:00+01:00'
-// Prix = ce que le client paie vraiment sur Payhip en Allemagne (TVA comprise).
-var PROMO = { on: false,   // TEMPORAIRE pendant le test à 1 € (remettre true)
-              code: 'MAGNIIZZ', normal: '23,79 €', price: '11,89 €', pct: '−50 %', ends: '' };
-function promoOn() { return PROMO.on && (!PROMO.ends || new Date(PROMO.ends).getTime() > Date.now()); }
+// ---- Prix (les mêmes que dans api/_paypal.js, c'est le serveur qui décide du montant encaissé)
+// Prix normal 19,99 € : payé par tous ceux qui arrivent sans code (Google, lien partagé…).
+// Code MAGNIIZZ (−50 % → 9,99 €) : appliqué automatiquement aux visiteurs venus de TikTok (navigateur TikTok
+// ou lien de la bio …/?von=tiktok), et à quiconque le tape dans la case « Gutscheincode ».
+var TEST_PRIX = '0,90 €';   // TEMPORAIRE : achat de vérification ; remettre '' après le test
+var PRICE = TEST_PRIX || '19,99 €';
+var PROMO = { on: true, code: 'MAGNIIZZ', normal: '19,99 €', price: '9,99 €', pct: '−50 %', ends: '' };
+var VIENT_TIKTOK = /musical_ly|BytedanceWebview|TikTok|trill/i.test(navigator.userAgent || '') || /[?&]von=tiktok/i.test(location.search);
+try { if (VIENT_TIKTOK) localStorage.setItem('gz_tt', '1'); } catch (e) {}
+function codeActif() {
+  if (VIENT_TIKTOK) return true;
+  try { return localStorage.getItem('gz_tt') === '1' || localStorage.getItem('gz_code') === PROMO.code; } catch (e) { return false; }
+}
+function promoOn() { return !TEST_PRIX && PROMO.on && codeActif() && (!PROMO.ends || new Date(PROMO.ends).getTime() > Date.now()); }
 function aRebours() { return !!PROMO.ends; }
 function restant() {
   var ms = Math.max(0, new Date(PROMO.ends).getTime() - Date.now()), s = Math.floor(ms / 1000);
@@ -313,7 +324,7 @@ function buyBox(id) {
   var el = document.getElementById(id);
   var on = promoOn();
   el.innerHTML = (on
-    ? '<div class="promo"><div class="for">🎁 Dein persönlicher Code – nur für dich</div><div class="pc" title="Code kopieren"><img src="avatar.webp" alt="@magniizz" width="40" height="40"><span class="code">' + PROMO.code + '</span><button type="button" class="cp">📋 Kopieren</button></div>' +
+    ? '<div class="promo"><div class="for">🎁 Dein Code von TikTok @magniizz</div><div class="pc" title="Code kopieren"><img src="avatar.webp" alt="@magniizz" width="40" height="40"><span class="code">' + PROMO.code + '</span><button type="button" class="cp">📋 Kopieren</button></div>' +
       (aRebours() ? '<div class="cd">Code läuft ab in <b class="cdv">' + restant() + '</b></div>' : '<div class="cd">Code kopieren &amp; an der Kasse einfügen</div>') + '</div>' +
       '<div class="price"><s>' + PROMO.normal + '</s><b>' + PROMO.price + '</b><span class="off50">' + PROMO.pct + '</span></div><div class="vat">inkl. MwSt. · einmalig · sofortiger Download (PDF)</div>'
     : '<div class="price"><b>' + PRICE + '</b><span>inkl. MwSt. · einmalig · sofortiger Download (PDF)</span></div>') +
@@ -413,23 +424,36 @@ function redirection(carte, btn) {
   document.querySelectorAll('.ppb').forEach(function (b) { if (!LABELS[b.dataset.carte]) LABELS[b.dataset.carte] = b.innerHTML; });
   setTimeout(resetPP, 8000);   // filet de sécurité : jamais bloqué plus de 8 s
   kasseErr(''); document.querySelectorAll('.ppb').forEach(function (b) { b.disabled = true; }); btn.textContent = 'Weiter zu PayPal …';
-  fetch('/api/paypal-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'redirect', carte: carte }) })
+  fetch('/api/paypal-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'redirect', carte: carte, code: codeEnvoye() }) })
     .then(function (r) { return r.json(); }).then(function (j) {
       if (!j.approuver) throw new Error('order');
       try { sessionStorage.setItem('gz_order', j.id); } catch (e) {}
       location.href = j.approuver;
     }).catch(function () { document.querySelectorAll('.ppb').forEach(function (b) { b.disabled = false; }); kasseErr('Da ist etwas schiefgelaufen. Bitte versuche es nochmal.'); });
 }
-function kasseInit(cfg) {
-  KASSE = true;
-  var ft = document.querySelector('footer'); ft.innerHTML = ft.innerHTML.replace('über Payhip', 'über PayPal');
+function kasseUI() {   // prix de la caisse + boutons d'achat qui ouvrent la caisse
   var on = promoOn();
   document.getElementById('k-old').textContent = on ? PROMO.normal : ''; document.getElementById('k-price').textContent = on ? PROMO.price : PRICE;
   document.getElementById('k-code').textContent = on ? PROMO.code + ' ✓' : '';
+  document.getElementById('kcode').style.display = on || TEST_PRIX ? 'none' : 'flex';
   document.querySelectorAll('a.payhip-buy-button').forEach(function (a) { a.classList.remove('payhip-buy-button'); a.href = '#kasse'; });
   document.querySelectorAll('.promo .cd').forEach(function (x) { x.textContent = '✓ Code wird automatisch angewendet'; });
   document.querySelectorAll('.promo .cp').forEach(function (x) { x.style.display = 'none'; });
   document.querySelectorAll('.buy .small').forEach(function (x) { if (/Add coupon/.test(x.textContent)) x.style.display = 'none'; });
+  if (DEJA) document.querySelectorAll('.buy .btn, #sticky a').forEach(function (a) { a.textContent = '⬇ Bereits gekauft – herunterladen'; });
+}
+function codeEnvoye() { return promoOn() ? PROMO.code : ''; }
+function kasseInit(cfg) {
+  KASSE = true;
+  var ft = document.querySelector('footer'); ft.innerHTML = ft.innerHTML.replace('über Payhip', 'über PayPal');
+  kasseUI();
+  document.getElementById('kc-ok').addEventListener('click', function () {
+    var v = (document.getElementById('kc-in').value || '').trim().toUpperCase();
+    if (v !== PROMO.code) { document.getElementById('kc-msg').textContent = 'Dieser Code ist ungültig.'; return; }
+    try { localStorage.setItem('gz_code', v); } catch (e) {}
+    document.getElementById('kc-msg').textContent = '';
+    afficherPrix(); kasseUI();
+  });
   document.getElementById('k-x').addEventListener('click', kasseClose);
   document.getElementById('kasse').addEventListener('click', function (e) { if (e.target.id === 'kasse') kasseClose(); });
   // retour de PayPal (mode redirection)
@@ -446,8 +470,7 @@ function kasseInit(cfg) {
   // déjà acheté (même navigateur, ou même IP + appareil) : on ne repaie pas, on télécharge
   fetch('/api/mon-achat').then(function (r) { return r.json(); }).then(function (m) {
     if (!m || !m.achete) return;
-    DEJA = m;
-    document.querySelectorAll('.buy .btn, #sticky a').forEach(function (a) { a.textContent = '⬇ Bereits gekauft – herunterladen'; });
+    DEJA = m; kasseUI();
   }).catch(function () {});
   if (IN_APP) {
     document.getElementById('k-wait').textContent = document.getElementById('k-wait').textContent === 'Zahlung wird geladen …' ? '' : document.getElementById('k-wait').textContent;
@@ -462,7 +485,7 @@ function kasseInit(cfg) {
     if (document.getElementById('k-wait').textContent === 'Zahlung wird geladen …') document.getElementById('k-wait').textContent = '';
     paypal.Buttons({
       style: { layout: 'vertical', shape: 'rect', height: 48, label: 'pay' },
-      createOrder: function () { kasseErr(''); return fetch('/api/paypal-order', { method: 'POST' }).then(function (r) { return r.json(); }).then(function (j) { if (!j.id) throw new Error('order'); return j.id; }); },
+      createOrder: function () { kasseErr(''); return fetch('/api/paypal-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: codeEnvoye() }) }).then(function (r) { return r.json(); }).then(function (j) { if (!j.id) throw new Error('order'); return j.id; }); },
       onApprove: function (d) { return encaisser(d.orderID); },
       onError: function () { kasseErr('Da ist etwas schiefgelaufen. Bitte versuche es nochmal.'); }
     }).render('#pp-buttons');
@@ -488,19 +511,23 @@ document.addEventListener('click', function (e) {
   if (IN_APP) { setTimeout(function () { location.href = SHOP_URL; }, promoOn() ? 700 : 0); return; }
   setTimeout(function () { location.href = '/gesetze/kaufen/'; }, promoOn() ? 700 : 0);
 }, true);
-buyBox('buy1'); buyBox('buy2');
-if (!promoOn()) document.querySelector('#sticky a').textContent = 'Jetzt holen – ' + PRICE;
-if (promoOn()) {   // bandeau du haut + bouton collant, compte à rebours mis à jour chaque seconde
-  var tb = document.getElementById('topbar'); tb.style.display = 'block';
+// Affiche les prix (avec ou sans code) partout : cases d'achat, bouton collant, bandeau du haut.
+var TICK = null;
+function afficherPrix() {
+  buyBox('buy1'); buyBox('buy2');
+  var tb = document.getElementById('topbar');
+  if (!promoOn()) { document.querySelector('#sticky a').textContent = 'Jetzt holen – ' + PRICE; tb.style.display = 'none'; return; }
+  tb.style.display = 'block';
   document.querySelector('#sticky a').textContent = 'Jetzt holen – ' + PROMO.price + ' statt ' + PROMO.normal;
   var tick = function () {
     if (!promoOn()) { location.reload(); return; }
     var r = restant();
-    tb.innerHTML = '🎁 Nur für dich: <img src="avatar.webp" alt=""><span class="c">' + PROMO.code + '</span> ' + PROMO.pct + (aRebours() ? ' · endet in <b>' + r + '</b>' : ' auf das E-Book');
+    tb.innerHTML = '🎁 Für TikTok-Follower: <img src="avatar.webp" alt=""><span class="c">' + PROMO.code + '</span> ' + PROMO.pct + (aRebours() ? ' · endet in <b>' + r + '</b>' : ' auf das E-Book');
     document.querySelectorAll('.cdv').forEach(function (x) { x.textContent = r; });
   };
-  tick(); setInterval(tick, 1000);
+  clearInterval(TICK); tick(); TICK = setInterval(tick, 1000);
 }
+afficherPrix();
 if (IMPRESSUM) document.getElementById('imp').innerHTML = '<br><br><b>Impressum:</b> ' + IMPRESSUM;
 // bouton collant sur mobile, une fois l'accroche dépassée
 var hero = document.querySelector('.hero'), st = document.getElementById('sticky');

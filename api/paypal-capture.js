@@ -1,5 +1,5 @@
 // Encaisse la commande, vérifie montant + produit, puis renvoie le lien de téléchargement signé.
-const { configure, prix, paypal, lien, lireCorps, cookieAchat, PRODUIT } = require('./_paypal');
+const { configure, prixMin, paypal, lien, lireCorps, cookieAchat, PRODUIT } = require('./_paypal');
 const { requete, empreinte } = require('./_db');
 
 module.exports = async (req, res) => {
@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
     const u = (j.purchase_units || [])[0] || {};
     const cap = ((u.payments || {}).captures || [])[0] || {};
     const ok = j.status === 'COMPLETED' && cap.status === 'COMPLETED' && cap.amount && cap.amount.currency_code === 'EUR'
-      && Number(cap.amount.value) >= Number(prix()) - 0.001 && (u.custom_id || cap.custom_id) === PRODUIT;
+      && Number(cap.amount.value) >= Number(prixMin()) - 0.001 && (u.custom_id || cap.custom_id) === PRODUIT;
     if (!ok) { console.error('capture', r.status, JSON.stringify(j).slice(0, 800)); return res.status(402).json({ erreur: 'paiement', detail: (j.details || [])[0] && j.details[0].issue }); }
     console.log('VENTE', orderID, cap.amount.value, (j.payer || {}).email_address || '');
     try {   // la vente apparaît dans /stats/ ; une erreur ici ne doit jamais bloquer le téléchargement

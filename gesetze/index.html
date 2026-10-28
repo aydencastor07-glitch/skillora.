@@ -341,7 +341,7 @@ document.addEventListener('click', function (e) {
   var a = e.target.closest && e.target.closest('a.payhip-buy-button');
   if (!a || a.classList.contains('off')) return;
   if (promoOn()) copier();
-  if (window.PAYHIP_OK) return;
+  if (window.PAYHIP_OK && !IN_APP) return;   // dans TikTok, Payhip repasse par payhip.com (bloqué par TikTok) : on garde notre aide
   e.preventDefault(); e.stopPropagation();
   if (IN_APP) { sortir(); return; }
   setTimeout(function () { location.href = '/gesetze/kaufen/'; }, promoOn() ? 700 : 0);

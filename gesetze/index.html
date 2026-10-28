@@ -94,6 +94,11 @@ section { padding: 64px 0; }
 .kcode { display: none; gap: 8px; margin-bottom: 10px; } .kcode input { flex: 1; min-width: 0; height: 44px; border-radius: 8px; border: 1px solid #3a3124; background: #120f0b; color: var(--ivory); padding: 0 12px; font: 600 16px system-ui, sans-serif; letter-spacing: .06em; }
 .kcode button { height: 44px; border: 0; border-radius: 8px; padding: 0 14px; background: var(--gold); color: #1a1408; font: 700 15px system-ui, sans-serif; }
 .kok { text-align: center; }
+#k-dl { margin-bottom: 12px; }
+.kmail { text-align: left; background: #120f0b; border: 1px solid var(--gold2); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; }
+.kmail b { display: block; font: 700 15px system-ui, sans-serif; color: var(--ivory); margin-bottom: 8px; }
+.kmail input { width: 100%; height: 46px; border-radius: 8px; border: 1px solid #3a3124; background: #1d1913; color: var(--ivory); padding: 0 12px; font: 16px system-ui, sans-serif; margin-bottom: 8px; }
+.kmail .btn { font-size: 15px; padding: 13px; } .kmail .small { text-align: left; margin-top: 8px; }
 .ksave { text-align: left; background: #120f0b; border: 1px solid #3a3124; border-radius: 12px; padding: 12px 14px; margin: 4px 0 12px; font: 15px/1.45 system-ui, sans-serif; color: #e6dccb; }
 .ksave b { color: var(--gold); } .ksave ol { margin: 6px 0 0 20px; } .ksave li { margin-bottom: 4px; } .kok h3 { font-family: Cinzel, serif; font-size: 24px; margin: 6px 0; } .kok p { color: #e6dccb; margin-bottom: 12px; }
 .kcheck { width: 64px; height: 64px; border-radius: 50%; background: #3fa564; color: #fff; font-size: 38px; line-height: 64px; margin: 0 auto; }
@@ -285,6 +290,12 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
       <div class="kcheck">✓</div><h3>Danke für deinen Kauf!</h3>
       <p>Dein E-Book ist bereit. Speichere es jetzt auf deinem Handy:</p>
       <a class="btn" id="k-dl" href="#">⬇ PDF herunterladen</a>
+      <div class="kmail" id="k-mailbox" style="display:none">
+        <b>📧 Wohin sollen wir dein E-Book schicken?</b>
+        <input type="email" id="km-in" placeholder="deine@email.de" autocomplete="email">
+        <button class="btn" type="button" id="km-ok">📧 Mein E-Book senden</button>
+        <p class="small" id="km-msg">Das PDF kommt als Anhang – so hast du es immer, auch ohne Internet.</p>
+      </div>
       <p class="small" id="k-mail"></p>
       <div class="ksave" id="k-save"></div>
       <p class="small">Fang mit Gesetz Nr. 1 an: „Handle nie aus Wut“ – lies es heute und mach die Übung.</p>
@@ -398,13 +409,26 @@ if (!IN_APP && /[?&]go=1/.test(location.search)) {
 }
 // ---- Kasse PayPal sur la page même (bouton PayPal + carte) : actif seulement quand les clés PayPal sont dans Vercel.
 // Sinon, rien ne change (paiement Payhip). Le prix est fixé par le serveur, le code MAGNIIZZ est déjà appliqué.
-var KASSE = false, DEJA = null;
+var KASSE = false, DEJA = null, MAIL_ACTIF = false;
+// « Mein E-Book senden » : l'acheteur confirme ou corrige son adresse, puis on envoie le PDF
+function envoyerMail() {
+  var b = document.getElementById('km-ok'), m = document.getElementById('km-msg'), v = document.getElementById('km-in').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v)) { m.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.'; return; }
+  b.disabled = true; b.textContent = 'Wird gesendet …';
+  fetch('/api/envoyer-livre', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: v }) })
+    .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); }).then(function (x) {
+      if (x.j.ok) { b.textContent = '✓ Gesendet'; m.innerHTML = '✓ Dein E-Book ist unterwegs an <b>' + v.replace(/</g, '') + '</b>. Schau auch im Spam-Ordner nach.'; setTimeout(function () { b.disabled = false; b.textContent = '📧 Nochmal senden'; }, 8000); return; }
+      b.disabled = false; b.textContent = '📧 Mein E-Book senden';
+      m.textContent = x.s === 429 ? 'Du hast das E-Book schon mehrmals gesendet. Schreib uns auf TikTok @magniizz.' : 'Senden hat nicht geklappt. Bitte prüfe die Adresse und versuche es nochmal.';
+    }).catch(function () { b.disabled = false; b.textContent = '📧 Mein E-Book senden'; m.textContent = 'Keine Verbindung. Bitte versuche es nochmal.'; });
+}
 function kasseErr(m) { document.getElementById('k-err').textContent = m || ''; }
 function kasseOpen() { document.getElementById('kasse').classList.add('open'); document.body.style.overflow = 'hidden'; if (window.resetPP) resetPP(); }
 function kasseClose() { document.getElementById('kasse').classList.remove('open'); document.body.style.overflow = ''; }
 function kasseOk(r) {
   document.getElementById('kbox').style.display = 'none'; var ok = document.getElementById('k-ok'); ok.style.display = 'block';
-  document.getElementById('k-dl').href = r.lien; if (r.email) document.getElementById('k-mail').textContent = r.mail ? '📧 Wir haben dir das E-Book auch per E-Mail geschickt (an ' + r.email + ') – schau auch im Spam-Ordner.' : 'Bestätigung von PayPal an ' + r.email;
+  document.getElementById('k-dl').href = r.lien; if (MAIL_ACTIF) { document.getElementById('k-mailbox').style.display = 'block'; if (r.email && !document.getElementById('km-in').value) document.getElementById('km-in').value = r.email; }
+  else if (r.email) document.getElementById('k-mail').textContent = 'Bestätigung von PayPal an ' + r.email;
   try { localStorage.setItem('gz_lien', r.lien); } catch (e) {}
   // Sauvegarder le livre pour le lire hors connexion (l'iPhone affiche le PDF au lieu de l'enregistrer)
   var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent), aide = '';
@@ -453,7 +477,8 @@ function kasseUI() {   // prix de la caisse + boutons d'achat qui ouvrent la cai
 }
 function codeEnvoye() { return promoOn() ? PROMO.code : ''; }
 function kasseInit(cfg) {
-  KASSE = true;
+  KASSE = true; MAIL_ACTIF = !!cfg.mail;
+  document.getElementById('km-ok').addEventListener('click', envoyerMail);
   var ft = document.querySelector('footer'); ft.innerHTML = ft.innerHTML.replace('über Payhip', 'über PayPal');
   kasseUI();
   document.getElementById('kc-ok').addEventListener('click', function () {

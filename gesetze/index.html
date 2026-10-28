@@ -44,6 +44,13 @@ section { padding: 64px 0; }
 .btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
 .btn.off { filter: grayscale(.8) brightness(.6); cursor: not-allowed; transform: none; }
 .small { font-size: 14px; color: var(--muted); text-align: center; margin-top: 10px; }
+/* ----- code promo (affiché seulement si PROMO.ends est dans le futur) ----- */
+.price s { color: var(--muted); font-size: 20px; } .price .off50 { background: #b8322a; color: #fff; font-weight: 700; font-size: 14px; padding: 3px 8px; border-radius: 6px; letter-spacing: .04em; }
+.promo { border: 1px dashed var(--gold); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; text-align: center; background: rgba(201,162,90,.08); }
+.promo .for { font-size: 14px; color: var(--muted); } .promo .code { font-family: Cinzel, serif; font-weight: 700; font-size: 22px; color: var(--gold2); letter-spacing: .12em; }
+.promo .cd { font-size: 15px; color: #f1e6cf; margin-top: 2px; } .promo .cd b { font-variant-numeric: tabular-nums; color: #ffd36b; }
+.topbar { position: sticky; top: 0; z-index: 10; background: linear-gradient(90deg, #7a1f18, #b8322a); color: #fff; text-align: center; font-size: 15px; padding: 8px 12px; display: none; }
+.topbar b { font-variant-numeric: tabular-nums; } .topbar .c { background: rgba(255,255,255,.18); padding: 1px 7px; border-radius: 5px; letter-spacing: .08em; font-weight: 700; }
 /* ----- douleur ----- */
 .pain { background: var(--ivory); color: #2a2622; }
 .pain p { max-width: 640px; margin: 0 auto 14px; font-size: 21px; text-align: center; }
@@ -90,6 +97,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
+<div class="topbar" id="topbar"></div>
 <header class="hero">
   <div class="wrap grid">
     <img src="livre.webp" alt="Das Gesetzbuch des Geistes – E-Book von @magniizz" width="900" height="1350">
@@ -191,18 +199,43 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
 // ---- À remplir : lien du produit Gumroad (Gumroad livre le PDF automatiquement après le paiement)
 var GUMROAD_URL = 'https://aydenverse42.gumroad.com/l/gesetzbuch';
 var PRICE = '9,99 €';
+// ---- Code promo : un VRAI code Gumroad, avec sa VRAIE date de fin (la même que dans Gumroad → Offer codes).
+// Tant que « ends » est vide ou passé : pas de bandeau, prix normal. Exemple : ends: '2026-10-29T03:00:00+01:00'
+var PROMO = { code: 'FUERDICH', normal: '19,99 €', price: '9,99 €', pct: '−50 %', ends: '' };
+function promoOn() { return PROMO.ends && new Date(PROMO.ends).getTime() > Date.now(); }
+function restant() {
+  var ms = Math.max(0, new Date(PROMO.ends).getTime() - Date.now()), s = Math.floor(ms / 1000);
+  function z(n) { return (n < 10 ? '0' : '') + n; }
+  return z(Math.floor(s / 3600)) + ':' + z(Math.floor(s / 60) % 60) + ':' + z(s % 60);
+}
 var IMPRESSUM = '';   // mentions légales (nom, adresse, e-mail) : obligatoire pour vendre en Allemagne
 
 function buyBox(id) {
   var el = document.getElementById(id);
-  el.innerHTML =
-    '<div class="price"><b>' + PRICE + '</b><span>einmalig · sofortiger Download (PDF)</span></div>' +
-    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? '/gesetze/kaufen/' : '#') + '">' + (GUMROAD_URL ? 'Jetzt holen – ' + PRICE : 'Bald verfügbar') + '</a>' +
-    '<p class="small">Sofort-Download nach der Zahlung · Sichere Zahlung über Gumroad</p>';
+  var on = promoOn();
+  el.innerHTML = (on
+    ? '<div class="promo"><div class="for">🎁 Dein persönlicher Code – nur für dich</div><div class="code">' + PROMO.code + '</div>' +
+      '<div class="cd">Code läuft ab in <b class="cdv">' + restant() + '</b></div></div>' +
+      '<div class="price"><s>' + PROMO.normal + '</s><b>' + PROMO.price + '</b><span class="off50">' + PROMO.pct + '</span></div>'
+    : '<div class="price"><b>' + PRICE + '</b><span>einmalig · sofortiger Download (PDF)</span></div>') +
+    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? '/gesetze/kaufen/' + (on ? '?c=' + encodeURIComponent(PROMO.code) : '') : '#') + '">' +
+      (GUMROAD_URL ? 'Jetzt holen – ' + (on ? PROMO.price : PRICE) : 'Bald verfügbar') + '</a>' +
+    '<p class="small">' + (on ? 'Code wird automatisch angewendet · ' : '') + 'Sofort-Download nach der Zahlung · Sichere Zahlung über Gumroad</p>';
   var btn = el.querySelector('.btn');
   btn.addEventListener('click', function (e) { if (btn.classList.contains('off')) e.preventDefault(); });
 }
 buyBox('buy1'); buyBox('buy2');
+if (promoOn()) {   // bandeau du haut + bouton collant, compte à rebours mis à jour chaque seconde
+  var tb = document.getElementById('topbar'); tb.style.display = 'block';
+  document.querySelector('#sticky a').textContent = 'Jetzt holen – ' + PROMO.price + ' statt ' + PROMO.normal;
+  var tick = function () {
+    if (!promoOn()) { location.reload(); return; }
+    var r = restant();
+    tb.innerHTML = '🎁 Nur für dich: <span class="c">' + PROMO.code + '</span> ' + PROMO.pct + ' · endet in <b>' + r + '</b>';
+    document.querySelectorAll('.cdv').forEach(function (x) { x.textContent = r; });
+  };
+  tick(); setInterval(tick, 1000);
+}
 if (IMPRESSUM) document.getElementById('imp').innerHTML = '<br><br><b>Impressum:</b> ' + IMPRESSUM;
 // bouton collant sur mobile, une fois l'accroche dépassée
 var hero = document.querySelector('.hero'), st = document.getElementById('sticky');

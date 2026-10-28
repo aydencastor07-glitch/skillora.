@@ -25,6 +25,8 @@
 // Laisse ~0,4 s au script Vercel pour compter la visite, puis part sur Gumroad (2 s maximum).
 (function(){
   var url = document.getElementById('go').href, parti = false;
+  var c = new URLSearchParams(location.search).get('c');   // code promo : Gumroad l'applique s'il est dans l'adresse
+  if (c && /^[A-Za-z0-9_-]{2,40}$/.test(c)) url = url.replace('/l/gesetzbuch?', '/l/gesetzbuch/' + encodeURIComponent(c) + '?');
   function go(){ if (parti) return; parti = true; location.replace(url); }
   window.addEventListener('load', function(){ setTimeout(go, 400); });
   setTimeout(go, 2000);

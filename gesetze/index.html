@@ -418,7 +418,7 @@ function envoyerMail() {
   b.disabled = true; b.textContent = 'Wird gesendet …';
   fetch('/api/envoyer-livre', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: v }) })
     .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); }).then(function (x) {
-      if (x.j.ok) { try { localStorage.setItem('gz_email', v); } catch (e) {} b.textContent = '✓ Gesendet'; m.innerHTML = '✓ Dein E-Book ist unterwegs an <b>' + v.replace(/</g, '') + '</b>. Schau auch im Spam-Ordner nach.'; setTimeout(function () { b.disabled = false; b.textContent = '📧 Nochmal senden'; }, 8000); return; }
+      if (x.j.ok) { try { localStorage.setItem('gz_email', v); } catch (e) {} b.textContent = '✓ Gesendet'; m.innerHTML = '✓ Gesendet an <b>' + v.replace(/</g, '') + '</b> – kommt in 1–2 Minuten. Nicht da? Schau unter „Spam“ oder „Werbung“.'; setTimeout(function () { b.disabled = false; b.textContent = '📧 Nochmal senden'; }, 8000); return; }
       b.disabled = false; b.textContent = '📧 Mein E-Book senden';
       m.className = 'small kmerr'; m.textContent = x.s === 429 ? 'Du hast das E-Book schon mehrmals gesendet. Schreib uns auf TikTok @magniizz.' : 'Senden hat nicht geklappt. Bitte prüfe die Adresse und versuche es nochmal.';
     }).catch(function () { b.disabled = false; b.textContent = '📧 Mein E-Book senden'; m.className = 'small kmerr'; m.textContent = 'Keine Verbindung. Bitte versuche es nochmal.'; });

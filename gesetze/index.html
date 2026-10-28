@@ -48,6 +48,12 @@ section { padding: 64px 0; }
 .price s { color: var(--muted); font-size: 20px; } .price .off50 { background: #b8322a; color: #fff; font-weight: 700; font-size: 14px; padding: 3px 8px; border-radius: 6px; letter-spacing: .04em; }
 .promo { border: 1px dashed var(--gold); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; text-align: center; background: rgba(201,162,90,.08); }
 .promo .for { font-size: 14px; color: var(--muted); } .promo .code { font-family: Cinzel, serif; font-weight: 700; font-size: 22px; color: var(--gold2); letter-spacing: .12em; }
+.promo .pc { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 6px 0 4px; cursor: pointer; }
+.promo .pc img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold); }
+.promo .cp { font: 600 13px system-ui, sans-serif; white-space: nowrap; color: #1a1408; background: var(--gold); border: 0; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.promo .cp.ok { background: #3fa564; color: #fff; }
+.topbar img { width: 22px; height: 22px; border-radius: 50%; vertical-align: -6px; margin-right: 4px; border: 1px solid rgba(255,255,255,.6); }
+.toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: #3fa564; color: #fff; font-size: 15px; padding: 10px 16px; border-radius: 8px; z-index: 30; white-space: nowrap; display: none; }
 .promo .cd { font-size: 15px; color: #f1e6cf; margin-top: 2px; } .promo .cd b { font-variant-numeric: tabular-nums; color: #ffd36b; }
 .topbar { position: sticky; top: 0; z-index: 10; background: linear-gradient(90deg, #7a1f18, #b8322a); color: #fff; text-align: center; font-size: 15px; padding: 8px 12px; display: none; }
 .topbar b { font-variant-numeric: tabular-nums; } .topbar .c { background: rgba(255,255,255,.18); padding: 1px 7px; border-radius: 5px; letter-spacing: .08em; font-weight: 700; }
@@ -98,6 +104,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
 </head>
 <body>
 <div class="topbar" id="topbar"></div>
+<div class="toast" id="toast"></div>
 <header class="hero">
   <div class="wrap grid">
     <img src="livre.webp" alt="Das Gesetzbuch des Geistes – E-Book von @magniizz" width="900" height="1350">
@@ -201,7 +208,7 @@ var GUMROAD_URL = 'https://aydenverse42.gumroad.com/l/gesetzbuch';
 var PRICE = '9,99 €';
 // ---- Code promo : un VRAI code Gumroad, avec sa VRAIE date de fin (la même que dans Gumroad → Offer codes).
 // Tant que « ends » est vide ou passé : pas de bandeau, prix normal. Exemple : ends: '2026-10-29T03:00:00+01:00'
-var PROMO = { code: 'FUERDICH', normal: '19,99 €', price: '9,99 €', pct: '−50 %', ends: '' };
+var PROMO = { code: 'MAGNIIZZ', normal: '19,99 €', price: '9,99 €', pct: '−50 %', ends: '' };
 function promoOn() { return PROMO.ends && new Date(PROMO.ends).getTime() > Date.now(); }
 function restant() {
   var ms = Math.max(0, new Date(PROMO.ends).getTime() - Date.now()), s = Math.floor(ms / 1000);
@@ -214,16 +221,41 @@ function buyBox(id) {
   var el = document.getElementById(id);
   var on = promoOn();
   el.innerHTML = (on
-    ? '<div class="promo"><div class="for">🎁 Dein persönlicher Code – nur für dich</div><div class="code">' + PROMO.code + '</div>' +
+    ? '<div class="promo"><div class="for">🎁 Dein persönlicher Code – nur für dich</div><div class="pc" title="Code kopieren"><img src="avatar.webp" alt="@magniizz" width="40" height="40"><span class="code">' + PROMO.code + '</span><button type="button" class="cp">📋 Kopieren</button></div>' +
       '<div class="cd">Code läuft ab in <b class="cdv">' + restant() + '</b></div></div>' +
       '<div class="price"><s>' + PROMO.normal + '</s><b>' + PROMO.price + '</b><span class="off50">' + PROMO.pct + '</span></div>'
     : '<div class="price"><b>' + PRICE + '</b><span>einmalig · sofortiger Download (PDF)</span></div>') +
     '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? '/gesetze/kaufen/' + (on ? '?c=' + encodeURIComponent(PROMO.code) : '') : '#') + '">' +
       (GUMROAD_URL ? 'Jetzt holen – ' + (on ? PROMO.price : PRICE) : 'Bald verfügbar') + '</a>' +
-    '<p class="small">' + (on ? 'Code wird automatisch angewendet · ' : '') + 'Sofort-Download nach der Zahlung · Sichere Zahlung über Gumroad</p>';
+    '<p class="small">' + (on ? 'Code wird beim Klick automatisch kopiert und angewendet · ' : '') + 'Sofort-Download nach der Zahlung · Sichere Zahlung über Gumroad</p>';
   var btn = el.querySelector('.btn');
   btn.addEventListener('click', function (e) { if (btn.classList.contains('off')) e.preventDefault(); });
+  var pc = el.querySelector('.pc');
+  if (pc) pc.addEventListener('click', function () { copier(); });
 }
+// copie du code : bouton « Kopieren » + automatiquement au clic sur « Acheter »
+function copier() {
+  var ok = false;
+  try {
+    var ta = document.createElement('textarea'); ta.value = PROMO.code; ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, 99); ok = document.execCommand('copy'); document.body.removeChild(ta);
+  } catch (e) {}
+  try { if (navigator.clipboard) navigator.clipboard.writeText(PROMO.code); } catch (e) {}
+  document.querySelectorAll('.promo .cp').forEach(function (b) {
+    b.textContent = '✓ Kopiert!'; b.classList.add('ok');
+    setTimeout(function () { b.textContent = '📋 Kopieren'; b.classList.remove('ok'); }, 2500);
+  });
+  var t = document.getElementById('toast'); t.textContent = '✓ Code ' + PROMO.code + ' kopiert'; t.style.display = 'block';
+  clearTimeout(copier.t); copier.t = setTimeout(function () { t.style.display = 'none'; }, 2500);
+  return ok;
+}
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="/kaufen/"]');
+  if (!a || !promoOn()) return;
+  e.preventDefault(); copier();
+  setTimeout(function () { location.href = a.href; }, 700);   // le temps de voir « kopiert »
+});
 buyBox('buy1'); buyBox('buy2');
 if (promoOn()) {   // bandeau du haut + bouton collant, compte à rebours mis à jour chaque seconde
   var tb = document.getElementById('topbar'); tb.style.display = 'block';
@@ -231,7 +263,7 @@ if (promoOn()) {   // bandeau du haut + bouton collant, compte à rebours mis à
   var tick = function () {
     if (!promoOn()) { location.reload(); return; }
     var r = restant();
-    tb.innerHTML = '🎁 Nur für dich: <span class="c">' + PROMO.code + '</span> ' + PROMO.pct + ' · endet in <b>' + r + '</b>';
+    tb.innerHTML = '🎁 Nur für dich: <img src="avatar.webp" alt=""><span class="c">' + PROMO.code + '</span> ' + PROMO.pct + ' · endet in <b>' + r + '</b>';
     document.querySelectorAll('.cdv').forEach(function (x) { x.textContent = r; });
   };
   tick(); setInterval(tick, 1000);

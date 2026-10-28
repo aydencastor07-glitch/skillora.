@@ -8,8 +8,8 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ erreur: 'POST' });
   if (!configure()) return res.status(503).json({ erreur: 'PayPal non configuré' });
   try {
-    const { mode, carte } = await lireCorps(req);
-    const unite = { amount: { currency_code: 'EUR', value: prix() }, description: 'Das Gesetzbuch des Geistes – E-Book (PDF)', custom_id: PRODUIT };
+    const { mode, carte, code } = await lireCorps(req);
+    const unite = { amount: { currency_code: 'EUR', value: prix(code) }, description: 'Das Gesetzbuch des Geistes – E-Book (PDF)', custom_id: PRODUIT };
     const corps = { intent: 'CAPTURE', purchase_units: [unite] };
     if (mode === 'redirect') {
       corps.payment_source = { paypal: { experience_context: {

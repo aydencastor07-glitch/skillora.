@@ -54,6 +54,15 @@ section { padding: 64px 0; }
 .promo .cp.ok { background: #3fa564; color: #fff; }
 .topbar img { width: 22px; height: 22px; border-radius: 50%; vertical-align: -6px; margin-right: 4px; border: 1px solid rgba(255,255,255,.6); }
 .toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: #3fa564; color: #fff; font-size: 15px; padding: 10px 16px; border-radius: 8px; z-index: 30; white-space: nowrap; display: none; }
+.vat { font-size: 13px; color: var(--muted); margin: -8px 0 12px; }
+.pay { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.pay > span { background: #fff; border-radius: 6px; height: 30px; padding: 0 10px; display: inline-flex; align-items: center; font: 800 15px/1 system-ui, sans-serif; }
+.pay .pp i { font-style: italic; color: #003087; } .pay .pp i + i { color: #009cde; }
+.pay .visa { color: #1a1f71; font-style: italic; letter-spacing: .02em; }
+.pay .mc i { width: 18px; height: 18px; border-radius: 50%; background: #eb001b; display: block; } .pay .mc i + i { background: #f79e1b; margin-left: -7px; opacity: .9; }
+.pay .card2 { background: #2a241b; color: #e6dccb; font: 600 12px system-ui, sans-serif; border: 1px solid #3a3124; }
+.trust { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #3a3124; text-align: center; font: 600 12.5px/1.35 system-ui, sans-serif; color: #e6dccb; }
+.trust small { font-weight: 400; color: var(--muted); font-size: 11.5px; }
 .promo .cd { font-size: 15px; color: #f1e6cf; margin-top: 2px; } .promo .cd b { font-variant-numeric: tabular-nums; color: #ffd36b; }
 .topbar { position: sticky; top: 0; z-index: 10; background: linear-gradient(90deg, #7a1f18, #b8322a); color: #fff; text-align: center; font-size: 15px; padding: 8px 12px; display: none; }
 .topbar b { font-variant-numeric: tabular-nums; } .topbar .c { background: rgba(255,255,255,.18); padding: 1px 7px; border-radius: 5px; letter-spacing: .08em; font-weight: 700; }
@@ -200,16 +209,18 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
 </section>
 
 <footer>© 2026 @magniizz · Zahlungsabwicklung und Auslieferung über Payhip<br>Dieses Buch ersetzt keine medizinische oder psychologische Beratung.<span id="imp"></span></footer>
-<div class="sticky" id="sticky"><a class="btn" href="#buy1">Jetzt holen – 19,99 €</a></div>
+<div class="sticky" id="sticky"><a class="btn" href="#buy1">Jetzt holen – 23,79 €</a></div>
 
 <script>
 // ---- Lien du produit Payhip (Payhip livre le PDF automatiquement après le paiement)
 var GUMROAD_URL = 'https://payhip.com/b/qDfB0';
-var PRICE = '19,99 €';   // prix réel sur Payhip sans code
+var PRICE = '23,79 €';   // prix réel payé sur Payhip sans code (TVA allemande 19 % comprise)
 // ---- Code promo : un VRAI code Payhip, avec sa VRAIE date de fin (la même que dans Payhip → Marketing → Coupons).
-// Tant que « ends » est vide ou passé : pas de bandeau, prix normal. Exemple : ends: '2026-10-29T03:00:00+01:00'
-var PROMO = { code: 'MAGNIIZZ', normal: '19,99 €', price: '9,99 €', pct: '−50 %', ends: '' };
-function promoOn() { return PROMO.ends && new Date(PROMO.ends).getTime() > Date.now(); }
+// « on » : le code existe dans Payhip. « ends » vide = pas de compte à rebours ; sinon la vraie date de fin, ex. '2026-10-29T03:00:00+01:00'
+// Prix = ce que le client paie vraiment sur Payhip en Allemagne (TVA comprise).
+var PROMO = { on: true, code: 'MAGNIIZZ', normal: '23,79 €', price: '11,89 €', pct: '−50 %', ends: '' };
+function promoOn() { return PROMO.on && (!PROMO.ends || new Date(PROMO.ends).getTime() > Date.now()); }
+function aRebours() { return !!PROMO.ends; }
 function restant() {
   var ms = Math.max(0, new Date(PROMO.ends).getTime() - Date.now()), s = Math.floor(ms / 1000);
   function z(n) { return (n < 10 ? '0' : '') + n; }
@@ -222,12 +233,14 @@ function buyBox(id) {
   var on = promoOn();
   el.innerHTML = (on
     ? '<div class="promo"><div class="for">🎁 Dein persönlicher Code – nur für dich</div><div class="pc" title="Code kopieren"><img src="avatar.webp" alt="@magniizz" width="40" height="40"><span class="code">' + PROMO.code + '</span><button type="button" class="cp">📋 Kopieren</button></div>' +
-      '<div class="cd">Code läuft ab in <b class="cdv">' + restant() + '</b></div></div>' +
-      '<div class="price"><s>' + PROMO.normal + '</s><b>' + PROMO.price + '</b><span class="off50">' + PROMO.pct + '</span></div>'
-    : '<div class="price"><b>' + PRICE + '</b><span>einmalig · sofortiger Download (PDF)</span></div>') +
+      (aRebours() ? '<div class="cd">Code läuft ab in <b class="cdv">' + restant() + '</b></div>' : '<div class="cd">Code kopieren &amp; an der Kasse einfügen</div>') + '</div>' +
+      '<div class="price"><s>' + PROMO.normal + '</s><b>' + PROMO.price + '</b><span class="off50">' + PROMO.pct + '</span></div><div class="vat">inkl. MwSt. · einmalig · sofortiger Download (PDF)</div>'
+    : '<div class="price"><b>' + PRICE + '</b><span>inkl. MwSt. · einmalig · sofortiger Download (PDF)</span></div>') +
     '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? '/gesetze/kaufen/' + '' : '#') + '">' +
       (GUMROAD_URL ? 'Jetzt holen – ' + (on ? PROMO.price : PRICE) : 'Bald verfügbar') + '</a>' +
-    '<p class="small">' + (on ? 'Code wird beim Klick automatisch kopiert – an der Kasse einfach einfügen · ' : '') + 'Sofort-Download nach der Zahlung · Sicher bezahlen mit PayPal oder Karte</p>';
+    (on ? '<p class="small">Der Code wird beim Klick automatisch kopiert – an der Kasse unter „Add coupon“ einfügen.</p>' : '') +
+    '<div class="pay"><span class="pp"><i>Pay</i><i>Pal</i></span><span class="visa">VISA</span><span class="mc"><i></i><i></i></span></div>' +
+    '<div class="trust"><span>🔒 Sichere Zahlung<br><small>SSL-verschlüsselt</small></span><span>⚡ Sofort lesen<br><small>Link per E-Mail</small></span><span>📱 PDF-E-Book<br><small>29 Seiten · Handy &amp; PC</small></span></div>';
   var btn = el.querySelector('.btn');
   btn.addEventListener('click', function (e) { if (btn.classList.contains('off')) e.preventDefault(); });
   var pc = el.querySelector('.pc');
@@ -263,7 +276,7 @@ if (promoOn()) {   // bandeau du haut + bouton collant, compte à rebours mis à
   var tick = function () {
     if (!promoOn()) { location.reload(); return; }
     var r = restant();
-    tb.innerHTML = '🎁 Nur für dich: <img src="avatar.webp" alt=""><span class="c">' + PROMO.code + '</span> ' + PROMO.pct + ' · endet in <b>' + r + '</b>';
+    tb.innerHTML = '🎁 Nur für dich: <img src="avatar.webp" alt=""><span class="c">' + PROMO.code + '</span> ' + PROMO.pct + (aRebours() ? ' · endet in <b>' + r + '</b>' : ' auf das E-Book');
     document.querySelectorAll('.cdv').forEach(function (x) { x.textContent = r; });
   };
   tick(); setInterval(tick, 1000);

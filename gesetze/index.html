@@ -316,7 +316,7 @@ var PAYHIP_ATTR = ' data-product="qDfB0" data-theme="none" data-method="overlay"
 // Prix normal 19,99 € : payé par tous ceux qui arrivent sans code (Google, lien partagé…).
 // Code MAGNIIZZ (−50 % → 9,99 €) : appliqué automatiquement aux visiteurs venus de TikTok (navigateur TikTok
 // ou lien de la bio …/?von=tiktok), et à quiconque le tape dans la case « Gutscheincode ».
-var TEST_PRIX = '0,90 €';   // TEMPORAIRE : achat de vérification ; remettre '' après le test
+var TEST_PRIX = '';   // prix de test temporaire (ex. '0,90 €') ; vide = vrais prix
 var PRICE = TEST_PRIX || '19,99 €';
 var PROMO = { on: true, code: 'MAGNIIZZ', normal: '19,99 €', price: '9,99 €', pct: '−50 %', ends: '' };
 var VIENT_TIKTOK = /musical_ly|BytedanceWebview|TikTok|trill/i.test(navigator.userAgent || '') || /[?&]von=tiktok/i.test(location.search);

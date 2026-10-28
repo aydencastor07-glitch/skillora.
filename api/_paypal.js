@@ -6,7 +6,7 @@ const BASE = 'https://api-m.paypal.com';
 // Prix réellement encaissés (TVA allemande comprise) : les mêmes que ceux affichés sur la page.
 // Prix normal 19,99 € ; avec le code MAGNIIZZ (visiteurs TikTok, ou code tapé) : 9,99 €.
 const PRIX = { normal: '19.99', promo: '9.99', code: 'MAGNIIZZ' };
-const TEST = '0.90';   // TEMPORAIRE : prix de test (achat réel de 1 €), à retirer juste après le test
+const TEST = '';   // prix de test temporaire (ex. '0.90') ; vide = vrais prix
 const PRODUIT = 'gesetzbuch';
 const LIEN_JOURS = 30;   // durée de validité du lien de téléchargement
 

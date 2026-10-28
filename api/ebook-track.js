@@ -2,6 +2,16 @@
 // Vercel : le pays et la ville viennent des en-tetes de Vercel, l'appareil de
 // la signature du navigateur. Aucun email, aucune adresse IP.
 const { requete, corps } = require('./_db');
+const crypto = require('crypto');
+
+/* Un visiteur = une adresse IP (+ appareil) : revenir sur la page ne compte pas une nouvelle personne,
+   même si le navigateur de TikTok a oublié son identifiant. L'IP n'est jamais enregistrée : seule une
+   empreinte salée (impossible à retransformer en IP) est gardée. */
+function empreinte(req, ua) {
+  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || String(req.headers['x-real-ip'] || '');
+  if (!ip) return '';
+  return 'ip_' + crypto.createHmac('sha256', 'vis:' + (process.env.STATS_DB_PASSWORD || '')).update(ip + '|' + appareil(ua).os).digest('hex').slice(0, 24);
+}
 
 const ROBOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|headless|lighthouse/i;
 
@@ -49,7 +59,7 @@ module.exports = async (req, res) => {
     try { ville = decodeURIComponent(ville); } catch {}
     const ref = String(b.referrer || '');
     await requete('select public.ebook_enregistrer($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)', [
-      String(b.type || ''), String(b.product || ''), String(b.session || ''), String(b.visitor || ''),
+      String(b.type || ''), String(b.product || ''), String(b.session || ''), empreinte(req, ua) || String(b.visitor || ''),
       /^[A-Z]{2}$/.test(pays) ? pays : null, ville || null, device, os, browser, ref || null,
       b.type === 'view' ? source(ua, ref, String(b.utm || '')) : null, String(b.lang || '') || null,
       b.type === 'leave' ? Math.round(Number(b.seconds) || 0) : null,

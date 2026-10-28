@@ -50,10 +50,25 @@ function lienValide(commande, e, s) {
   return s.length === attendu.length && crypto.timingSafeEqual(Buffer.from(s), Buffer.from(attendu));
 }
 
+// Cookie posé chez l'acheteur après le paiement : « ce navigateur a acheté la commande X » (signé, infalsifiable).
+const COOKIE = 'gz_achat';
+function cookieAchat(commande) {
+  const v = commande + '.' + crypto.createHmac('sha256', 'ck:' + process.env.PAYPAL_SECRET).update(commande).digest('hex').slice(0, 24);
+  return COOKIE + '=' + encodeURIComponent(v) + '; Path=/; Max-Age=34560000; HttpOnly; Secure; SameSite=Lax';
+}
+function lireCookieAchat(req) {
+  const m = String(req.headers.cookie || '').match(new RegExp('(?:^|; )' + COOKIE + '=([^;]+)'));
+  if (!m) return null;
+  const v = decodeURIComponent(m[1]); const i = v.lastIndexOf('.'); if (i < 1) return null;
+  const commande = v.slice(0, i), s = v.slice(i + 1);
+  const attendu = crypto.createHmac('sha256', 'ck:' + process.env.PAYPAL_SECRET).update(commande).digest('hex').slice(0, 24);
+  return s.length === attendu.length && crypto.timingSafeEqual(Buffer.from(s), Buffer.from(attendu)) ? commande : null;
+}
+
 function lireCorps(req) {
   if (req.body && typeof req.body === 'object') return Promise.resolve(req.body);
   if (typeof req.body === 'string') { try { return Promise.resolve(JSON.parse(req.body)); } catch (e) { return Promise.resolve({}); } }
   return new Promise((ok) => { let d = ''; req.on('data', (c) => { d += c; }); req.on('end', () => { try { ok(JSON.parse(d || '{}')); } catch (e) { ok({}); } }); });
 }
 
-module.exports = { configure, prix, paypal, lien, lienValide, lireCorps, PRODUIT };
+module.exports = { configure, prix, paypal, lien, lienValide, lireCorps, cookieAchat, lireCookieAchat, PRODUIT };

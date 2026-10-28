@@ -384,7 +384,7 @@ if (!IN_APP && /[?&]go=1/.test(location.search)) {
 }
 // ---- Kasse PayPal sur la page même (bouton PayPal + carte) : actif seulement quand les clés PayPal sont dans Vercel.
 // Sinon, rien ne change (paiement Payhip). Le prix est fixé par le serveur, le code MAGNIIZZ est déjà appliqué.
-var KASSE = false;
+var KASSE = false, DEJA = null;
 function kasseErr(m) { document.getElementById('k-err').textContent = m || ''; }
 function kasseOpen() { document.getElementById('kasse').classList.add('open'); document.body.style.overflow = 'hidden'; if (window.resetPP) resetPP(); }
 function kasseClose() { document.getElementById('kasse').classList.remove('open'); document.body.style.overflow = ''; }
@@ -441,6 +441,14 @@ function kasseInit(cfg) {
   } else if (q.get('pp') === 'cancel') {
     history.replaceState(null, '', location.pathname); kasseOpen(); kasseErr('Zahlung abgebrochen – es wurde nichts abgebucht.');
   }
+  // lien de téléchargement partagé, ouvert par quelqu'un qui n'a pas acheté
+  if (q.get('lien') === 'fremd') { history.replaceState(null, '', location.pathname); kasseOpen(); kasseErr('Dieser Download-Link gehört zu einem anderen Kauf. Hol dir hier dein eigenes Exemplar:'); }
+  // déjà acheté (même navigateur, ou même IP + appareil) : on ne repaie pas, on télécharge
+  fetch('/api/mon-achat').then(function (r) { return r.json(); }).then(function (m) {
+    if (!m || !m.achete) return;
+    DEJA = m;
+    document.querySelectorAll('.buy .btn, #sticky a').forEach(function (a) { a.textContent = '⬇ Bereits gekauft – herunterladen'; });
+  }).catch(function () {});
   if (IN_APP) {
     document.getElementById('k-wait').textContent = document.getElementById('k-wait').textContent === 'Zahlung wird geladen …' ? '' : document.getElementById('k-wait').textContent;
     document.getElementById('pp-buttons').style.display = 'none'; document.getElementById('pp-redirect').style.display = 'block';
@@ -468,7 +476,7 @@ fetch('/api/paypal-config').then(function (r) { return r.json(); }).then(functio
 document.addEventListener('click', function (e) {
   if (KASSE) {   // kasse PayPal sur la page : on descend jusqu'au paiement
     var k = e.target.closest && e.target.closest('a[href="#kasse"], #sticky a');
-    if (k) { e.preventDefault(); e.stopPropagation(); kasseOpen(); }
+    if (k) { e.preventDefault(); e.stopPropagation(); if (DEJA) kasseOk(DEJA); else kasseOpen(); }
     return;
   }
   var a = e.target.closest && e.target.closest('a.payhip-buy-button');

@@ -87,7 +87,7 @@ section { padding: 64px 0; }
 .pps { text-align: center; font-size: 12.5px; color: #6b6b6b; margin: 2px 0 4px; } #pp-redirect { background: #fff; border-radius: 12px; padding: 12px 10px 6px; }
 .ksum { display: flex; gap: 14px; align-items: center; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #3a3124; }
 .ksum img { width: 70px; height: auto; border-radius: 4px; } .ksum b { font-family: Cinzel, serif; display: block; line-height: 1.2; } .ksum span { display: block; font-size: 14px; color: var(--muted); }
-.kp { margin-top: 4px; } .kp s { color: var(--muted); font-size: 16px; } .kp b { display: inline; font-size: 26px; color: var(--ivory); } .kp i { font-style: normal; font-size: 12px; background: #3fa564; color: #fff; padding: 2px 6px; border-radius: 5px; vertical-align: 4px; }
+.kp { margin-top: 4px; } .kp i:empty { display: none; } .kp s { color: var(--muted); font-size: 16px; } .kp b { display: inline; font-size: 26px; color: var(--ivory); } .kp i { font-style: normal; font-size: 12px; background: #3fa564; color: #fff; padding: 2px 6px; border-radius: 5px; vertical-align: 4px; }
 .ksum small { color: var(--muted); font-size: 12px; }
 #pp-buttons { min-height: 50px; background: #fff; border-radius: 12px; padding: 12px 10px 4px; }
 .kwait { text-align: center; color: var(--muted); font-size: 15px; margin-top: 8px; } .kerr { text-align: center; color: #ff8a80; font-size: 15px; }
@@ -294,7 +294,7 @@ var GUMROAD_URL = 'https://payhip.com/b/qDfB0';
 var SHOP_URL = 'https://shop.skillora.me/b/qDfB0';   // même produit, boutique Payhip sur notre domaine
 // Paiement Payhip ouvert PAR-DESSUS la page (overlay) : on ne quitte pas le site, donc TikTok ne bloque pas.
 var PAYHIP_ATTR = ' data-product="qDfB0" data-theme="none" data-method="overlay"';
-var PRICE = '1,00 €';   // TEMPORAIRE : test d'achat à 1 € (remettre '23,79 €')   // prix réel payé sur Payhip sans code (TVA allemande 19 % comprise)
+var PRICE = '0,90 €';   // TEMPORAIRE : test d'achat à 1 € (remettre '23,79 €')   // prix réel payé sur Payhip sans code (TVA allemande 19 % comprise)
 // ---- Code promo : un VRAI code Payhip, avec sa VRAIE date de fin (la même que dans Payhip → Marketing → Coupons).
 // « on » : le code existe dans Payhip. « ends » vide = pas de compte à rebours ; sinon la vraie date de fin, ex. '2026-10-29T03:00:00+01:00'
 // Prix = ce que le client paie vraiment sur Payhip en Allemagne (TVA comprise).

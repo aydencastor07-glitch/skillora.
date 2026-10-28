@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const BASE = 'https://api-m.paypal.com';
 // Prix réellement encaissés (TVA allemande comprise) : les mêmes que ceux affichés sur la page.
 const PRIX = { normal: '23.79', promo: '11.89', promoActive: true };
-const TEST = '1.00';   // TEMPORAIRE : prix de test (achat réel de 1 €), à retirer juste après le test
+const TEST = '0.90';   // TEMPORAIRE : prix de test (achat réel de 1 €), à retirer juste après le test
 const PRODUIT = 'gesetzbuch';
 const LIEN_JOURS = 30;   // durée de validité du lien de téléchargement
 

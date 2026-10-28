@@ -25,6 +25,7 @@ module.exports = async (req, res) => {
     if (n < 0) return res.status(403).json({ erreur: 'acheteur' });
     if (n > 5) return res.status(429).json({ erreur: 'limite' });
     const ok = await envoyerLivre(adresse, lien(commande, true));
+    if (ok) await requete('select public.ebook_email($1,$2)', ['pp_' + commande, adresse]).catch(() => {});
     console.log('MAIL', commande, ok ? 'envoyé' : 'échec');
     res.status(ok ? 200 : 502).json({ ok });
   } catch (e) { console.error('envoyer-livre', String(e.message || e)); res.status(500).json({ erreur: 'serveur' }); }

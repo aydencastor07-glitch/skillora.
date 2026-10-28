@@ -1,6 +1,7 @@
 // Encaisse la commande, vérifie montant + produit, puis renvoie le lien de téléchargement signé.
 const { configure, prixMin, paypal, lien, lireCorps, cookieAchat, PRODUIT } = require('./_paypal');
 const { requete, empreinte } = require('./_db');
+const { envoyerLivre } = require('./_mail');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ erreur: 'POST' });
@@ -21,7 +22,10 @@ module.exports = async (req, res) => {
       const pays = ((j.payer || {}).address || {}).country_code || String(req.headers['x-vercel-ip-country'] || '');
       await requete('select public.ebook_vente($1,$2,$3,$4,$5,$6)', ['pp_' + orderID, PRODUIT, Math.round(Number(cap.amount.value) * 100), 'EUR', pays, empreinte(req)]);
     } catch (e) { console.error('ebook_vente', String(e.message || e)); }
+    const email = (j.payer || {}).email_address || '';
+    let mailOk = false;
+    try { mailOk = await envoyerLivre(email, lien(orderID, true)); } catch (e) { console.error('mail', String(e.message || e)); }
     res.setHeader('Set-Cookie', cookieAchat(orderID));   // ce navigateur est reconnu comme acheteur
-    res.status(200).json({ lien: lien(orderID), email: (j.payer || {}).email_address || '' });
+    res.status(200).json({ lien: lien(orderID), email, mail: mailOk });
   } catch (e) { console.error(e); res.status(500).json({ erreur: 'serveur' }); }
 };

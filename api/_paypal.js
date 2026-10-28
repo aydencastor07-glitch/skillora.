@@ -39,16 +39,17 @@ async function paypal(chemin, corps) {
 }
 
 // Lien de téléchargement signé : seul le serveur (qui connaît le secret) peut en fabriquer un.
-function signer(commande, expire) {
-  return crypto.createHmac('sha256', 'dl:' + process.env.PAYPAL_SECRET).update(commande + '.' + expire).digest('hex').slice(0, 32);
+// m = 1 : lien envoyé par e-mail à l'acheteur (valable 1 an, ouvrable depuis n'importe quel appareil de l'acheteur).
+function signer(commande, expire, m) {
+  return crypto.createHmac('sha256', 'dl:' + process.env.PAYPAL_SECRET).update(commande + '.' + expire + (m ? '.m' : '')).digest('hex').slice(0, 32);
 }
-function lien(commande) {
-  const e = Math.floor(Date.now() / 1000) + LIEN_JOURS * 86400;
-  return '/api/download?o=' + encodeURIComponent(commande) + '&e=' + e + '&s=' + signer(commande, e);
+function lien(commande, m) {
+  const e = Math.floor(Date.now() / 1000) + (m ? 365 : LIEN_JOURS) * 86400;
+  return '/api/download?o=' + encodeURIComponent(commande) + '&e=' + e + (m ? '&m=1' : '') + '&s=' + signer(commande, e, m);
 }
-function lienValide(commande, e, s) {
+function lienValide(commande, e, s, m) {
   if (!commande || !e || !s || Number(e) < Date.now() / 1000) return false;
-  const attendu = signer(commande, e);
+  const attendu = signer(commande, e, m);
   return s.length === attendu.length && crypto.timingSafeEqual(Buffer.from(s), Buffer.from(attendu));
 }
 

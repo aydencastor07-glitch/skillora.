@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import imageio_ffmpeg
 FF = imageio_ffmpeg.get_ffmpeg_exe(); DIR = sys.argv[1]; OUT = sys.argv[2]
 C = json.load(open(os.path.join(DIR, 'config.json')))
+HOTC = tuple(C.get('hot_color', (255, 222, 30)))   # couleur des mots clés des sous-titres
 W, H, FPS = 1080, 1920, 30; FD = '/home/user/skillora./temu/fonts/'
 def F(n, s): return ImageFont.truetype(FD + n, s)
 YEL = (255, 222, 30); PANEL = (52, 4, 6)
@@ -88,7 +89,8 @@ def layout(g):
     return pos
 SUBS2 = C.get('subs') == 'v2'
 if SUBS2:   # une page = plusieurs phrases tant qu'elles tiennent sur 4 lignes ; la citation commence toujours une nouvelle page
-    TF = F('Poppins-ExtraBold.ttf', C.get('font', 66)); LH = int(TF.size * 1.32); MAXW = C.get('maxw', 480)
+    SUBF = C.get('sub_font', 'Poppins-ExtraBold.ttf')   # police des sous-titres (changer de style d'une vidéo à l'autre)
+    TF = F(SUBF, C.get('font', 66)); LH = int(TF.size * (1.12 if 'Bebas' in SUBF else 1.32)); MAXW = C.get('maxw', 480)
     def wrap(ws):   # lignes d'une page ; une nouvelle phrase commence toujours sur une nouvelle ligne
         ls = [[]]
         for k in ws:
@@ -294,8 +296,13 @@ def frame(t):
         for k in g:
             w, t0, t1 = WORDS[k]; u = (t - t0 + 0.03) / 0.12
             if u <= 0: continue
-            x, y = LAY[gi][k]; col = YEL if HOT.search(re.sub(r'[^\wäöüß]', '', w)) else (QC if k in QUOTE else (255, 255, 255))
-            sc_ = 1 + 0.12 * math.sin(min(1, u) * math.pi) if u < 1 else 1; f_ = TF if sc_ == 1 else F('Poppins-ExtraBold.ttf', int(TF.size * sc_))
+            x, y = LAY[gi][k]; col = HOTC if HOT.search(re.sub(r'[^\wäöüß]', '', w)) else (QC if k in QUOTE else (255, 255, 255))
+            if C.get('sub_anim') == 'rise':   # le mot monte doucement en apparaissant (au lieu du « pop »)
+                k2 = ease(min(1, u)); dl.text((x, y + (1 - k2) * 22), w, font=TF, fill=col + (int(255 * k2 * out),), anchor='la')
+                if col == HOTC and k2 >= 1:   # trait sous les mots clés
+                    ww = TF.getbbox(w.rstrip('.,:;!?“'))[2]; dl.rectangle([x, y + TF.size * 0.98, x + ww * min(1, (t - t0) / 0.25), y + TF.size * 0.98 + 5], fill=HOTC + (int(200 * out),))
+                continue
+            sc_ = 1 + 0.12 * math.sin(min(1, u) * math.pi) if u < 1 else 1; f_ = TF if sc_ == 1 else F(SUBF, int(TF.size * sc_))
             ww = TF.getbbox(w)[2]; dw = (f_.getbbox(w)[2] - ww) / 2
             dl.text((x - dw, y - (f_.size - TF.size) / 2), w, font=f_, fill=col + (int(255 * min(1, u) * out),), anchor='la')
         img.alpha_composite(lay); return img.convert('RGB')

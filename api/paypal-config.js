@@ -4,5 +4,5 @@ const { configure, prix } = require('./_paypal');
 module.exports = (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   if (!configure()) return res.status(200).json({ actif: false });
-  res.status(200).json({ actif: true, clientId: process.env.PAYPAL_CLIENT_ID, prix: prix(), prixCode: prix('MAGNIIZZ') });
+  res.status(200).json({ actif: true, mail: !!process.env.RESEND_API_KEY, clientId: process.env.PAYPAL_CLIENT_ID, prix: prix(), prixCode: prix('MAGNIIZZ') });
 };

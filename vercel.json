@@ -41,7 +41,7 @@
     "api/download.js": {
       "includeFiles": "api/_livre/**"
     },
-    "api/paypal-capture.js": {
+    "api/envoyer-livre.js": {
       "includeFiles": "api/_livre/**"
     }
   }

@@ -131,7 +131,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
     <button class="ia-x" id="go-x" aria-label="Schließen">×</button>
     <b>Gleich hast du es! 📖</b>
     <p>Dein Code <b>MAGNIIZZ</b> wird automatisch kopiert – an der Kasse unter „Add coupon“ einfügen.</p>
-    <a class="btn" id="go-btn" href="/gesetze/kaufen/">Weiter zur Zahlung</a>
+    <a class="btn payhip-buy-button" id="go-btn" href="https://payhip.com/b/qDfB0" data-product="qDfB0" data-theme="none" data-method="overlay">Weiter zur Zahlung</a>
   </div>
 </div>
 <div class="inapp" id="inapp">
@@ -246,6 +246,8 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
 <script>
 // ---- Lien du produit Payhip (Payhip livre le PDF automatiquement après le paiement)
 var GUMROAD_URL = 'https://payhip.com/b/qDfB0';
+// Paiement Payhip ouvert PAR-DESSUS la page (overlay) : on ne quitte pas le site, donc TikTok ne bloque pas.
+var PAYHIP_ATTR = ' data-product="qDfB0" data-theme="none" data-method="overlay"';
 var PRICE = '23,79 €';   // prix réel payé sur Payhip sans code (TVA allemande 19 % comprise)
 // ---- Code promo : un VRAI code Payhip, avec sa VRAIE date de fin (la même que dans Payhip → Marketing → Coupons).
 // « on » : le code existe dans Payhip. « ends » vide = pas de compte à rebours ; sinon la vraie date de fin, ex. '2026-10-29T03:00:00+01:00'
@@ -268,7 +270,7 @@ function buyBox(id) {
       (aRebours() ? '<div class="cd">Code läuft ab in <b class="cdv">' + restant() + '</b></div>' : '<div class="cd">Code kopieren &amp; an der Kasse einfügen</div>') + '</div>' +
       '<div class="price"><s>' + PROMO.normal + '</s><b>' + PROMO.price + '</b><span class="off50">' + PROMO.pct + '</span></div><div class="vat">inkl. MwSt. · einmalig · sofortiger Download (PDF)</div>'
     : '<div class="price"><b>' + PRICE + '</b><span>inkl. MwSt. · einmalig · sofortiger Download (PDF)</span></div>') +
-    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? '/gesetze/kaufen/' + '' : '#') + '">' +
+    '<a class="btn payhip-buy-button' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL || '#') + '"' + PAYHIP_ATTR + '>' +
       (GUMROAD_URL ? 'Jetzt holen – ' + (on ? PROMO.price : PRICE) : 'Bald verfügbar') + '</a>' +
     (on ? '<p class="small">Der Code wird beim Klick automatisch kopiert – an der Kasse unter „Add coupon“ einfügen.</p>' : '') +
     '<div class="pay"><span class="pp"><i>Pay</i><i>Pal</i></span><span class="visa">VISA</span><span class="mc"><i></i><i></i></span></div>' +
@@ -333,14 +335,17 @@ if (!IN_APP && /[?&]go=1/.test(location.search)) {
   document.getElementById('go-btn').textContent = 'Weiter zur Zahlung – ' + (promoOn() ? PROMO.price : PRICE);
   document.getElementById('go-x').addEventListener('click', function () { g.style.display = 'none'; });
 }
+// Clic sur « Acheter » : on copie le code, puis Payhip ouvre son paiement par-dessus la page.
+// Si le script Payhip n'a pas pu charger : ancien chemin (page relais, ou sortie de TikTok).
 document.addEventListener('click', function (e) {
-  var a = e.target.closest && e.target.closest('a[href*="/kaufen/"]');
-  if (!a) return;
-  if (IN_APP) { e.preventDefault(); sortir(); return; }
-  if (!promoOn()) return;
-  e.preventDefault(); copier();
-  setTimeout(function () { location.href = a.href; }, 700);   // le temps de voir « kopiert »
-});
+  var a = e.target.closest && e.target.closest('a.payhip-buy-button');
+  if (!a || a.classList.contains('off')) return;
+  if (promoOn()) copier();
+  if (window.PAYHIP_OK) return;
+  e.preventDefault(); e.stopPropagation();
+  if (IN_APP) { sortir(); return; }
+  setTimeout(function () { location.href = '/gesetze/kaufen/'; }, promoOn() ? 700 : 0);
+}, true);
 buyBox('buy1'); buyBox('buy2');
 if (promoOn()) {   // bandeau du haut + bouton collant, compte à rebours mis à jour chaque seconde
   var tb = document.getElementById('topbar'); tb.style.display = 'block';
@@ -389,5 +394,6 @@ window.addEventListener('scroll', function () { st.classList.toggle('show', wind
   window.addEventListener('pagehide', quitte);
 } catch (e) {} })();
 </script>
+<script src="https://payhip.com/payhip.js" onload="window.PAYHIP_OK = 1"></script>
 </body>
 </html>

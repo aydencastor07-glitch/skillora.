@@ -481,6 +481,7 @@ document.addEventListener('click', function (e) {
   setTimeout(function () { location.href = '/gesetze/kaufen/'; }, promoOn() ? 700 : 0);
 }, true);
 buyBox('buy1'); buyBox('buy2');
+if (!promoOn()) document.querySelector('#sticky a').textContent = 'Jetzt holen – ' + PRICE;
 if (promoOn()) {   // bandeau du haut + bouton collant, compte à rebours mis à jour chaque seconde
   var tb = document.getElementById('topbar'); tb.style.display = 'block';
   document.querySelector('#sticky a').textContent = 'Jetzt holen – ' + PROMO.price + ' statt ' + PROMO.normal;

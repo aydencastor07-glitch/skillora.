@@ -294,11 +294,12 @@ var GUMROAD_URL = 'https://payhip.com/b/qDfB0';
 var SHOP_URL = 'https://shop.skillora.me/b/qDfB0';   // même produit, boutique Payhip sur notre domaine
 // Paiement Payhip ouvert PAR-DESSUS la page (overlay) : on ne quitte pas le site, donc TikTok ne bloque pas.
 var PAYHIP_ATTR = ' data-product="qDfB0" data-theme="none" data-method="overlay"';
-var PRICE = '23,79 €';   // prix réel payé sur Payhip sans code (TVA allemande 19 % comprise)
+var PRICE = '1,00 €';   // TEMPORAIRE : test d'achat à 1 € (remettre '23,79 €')   // prix réel payé sur Payhip sans code (TVA allemande 19 % comprise)
 // ---- Code promo : un VRAI code Payhip, avec sa VRAIE date de fin (la même que dans Payhip → Marketing → Coupons).
 // « on » : le code existe dans Payhip. « ends » vide = pas de compte à rebours ; sinon la vraie date de fin, ex. '2026-10-29T03:00:00+01:00'
 // Prix = ce que le client paie vraiment sur Payhip en Allemagne (TVA comprise).
-var PROMO = { on: true, code: 'MAGNIIZZ', normal: '23,79 €', price: '11,89 €', pct: '−50 %', ends: '' };
+var PROMO = { on: false,   // TEMPORAIRE pendant le test à 1 € (remettre true)
+              code: 'MAGNIIZZ', normal: '23,79 €', price: '11,89 €', pct: '−50 %', ends: '' };
 function promoOn() { return PROMO.on && (!PROMO.ends || new Date(PROMO.ends).getTime() > Date.now()); }
 function aRebours() { return !!PROMO.ends; }
 function restant() {
@@ -480,6 +481,7 @@ document.addEventListener('click', function (e) {
   setTimeout(function () { location.href = '/gesetze/kaufen/'; }, promoOn() ? 700 : 0);
 }, true);
 buyBox('buy1'); buyBox('buy2');
+if (!promoOn()) document.querySelector('#sticky a').textContent = 'Jetzt holen – ' + PRICE;
 if (promoOn()) {   // bandeau du haut + bouton collant, compte à rebours mis à jour chaque seconde
   var tb = document.getElementById('topbar'); tb.style.display = 'block';
   document.querySelector('#sticky a').textContent = 'Jetzt holen – ' + PROMO.price + ' statt ' + PROMO.normal;

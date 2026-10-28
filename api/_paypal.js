@@ -5,11 +5,12 @@ const crypto = require('crypto');
 const BASE = 'https://api-m.paypal.com';
 // Prix réellement encaissés (TVA allemande comprise) : les mêmes que ceux affichés sur la page.
 const PRIX = { normal: '23.79', promo: '11.89', promoActive: true };
+const TEST = '1.00';   // TEMPORAIRE : prix de test (achat réel de 1 €), à retirer juste après le test
 const PRODUIT = 'gesetzbuch';
 const LIEN_JOURS = 30;   // durée de validité du lien de téléchargement
 
 function configure() { return !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET); }
-function prix() { return PRIX.promoActive ? PRIX.promo : PRIX.normal; }
+function prix() { if (TEST) return TEST; return PRIX.promoActive ? PRIX.promo : PRIX.normal; }
 
 async function jeton() {
   const r = await fetch(BASE + '/v1/oauth2/token', {

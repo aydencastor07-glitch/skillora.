@@ -1,0 +1,42 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_seneca.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 16",
+ "title_words": 3,
+ "music": "../v2_gesetz10/musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 2.94,
+  "dur": 0.6
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "16:",
+  "Wähle deinen Umgang.",
+  "Du willst mehr Geld, mehr Ruhe, mehr Respekt.",
+  "Aber jeden Abend sitzt du mit Leuten, die über alles jammern und nichts ändern.",
+  "Ihre Ausreden werden deine Ausreden.",
+  "Ihr Niveau wird dein Niveau.",
+  "Seneca sagte:",
+  "„Geh mit denen um, die dich besser machen können.“",
+  "Du musst niemanden hassen.",
+  "Aber du darfst wählen, wer Zugang zu dir hat.",
+  "Stell dir vor, du wirst der Mensch, mit dem jeder Umgang haben will:",
+  "ruhig, selbstsicher, respektiert.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|wähle|umgang|geld|ruhe|respekt|jammern|nichts|ausreden|niveau|seneca|besser|niemanden|hassen|wählen|zugang|mensch|ruhig|selbstsicher|respektiert|21|gesetze|buch|link|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 26.78,
+  "link_t": 29.95
+ }
+}

@@ -185,7 +185,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
     <h2>Fragen</h2><div class="rule"><i></i></div>
     <details><summary>Wie bekomme ich das Buch?</summary><p>Sofort nach der Zahlung: Der Download-Link erscheint direkt auf der Bestätigungsseite und kommt zusätzlich per E-Mail. Du musst auf nichts warten.</p></details>
     <details><summary>In welchem Format?</summary><p>PDF (29 Seiten). Lesbar auf Handy, Tablet, E-Reader und Computer – auch zum Ausdrucken.</p></details>
-    <details><summary>Wie kann ich bezahlen?</summary><p>Sicher über Gumroad – mit Karte oder PayPal (je nach Land). Deine Zahlungsdaten sehen wir nie.</p></details>
+    <details><summary>Wie kann ich bezahlen?</summary><p>Sicher über Payhip – mit PayPal oder Karte. Deine Zahlungsdaten sehen wir nie.</p></details>
     <details><summary>Muss ich Philosophie kennen?</summary><p>Nein. Jedes Gesetz ist in einfacher Sprache erklärt, mit Beispielen aus dem Alltag.</p></details>
     <details><summary>Wer steckt dahinter?</summary><p>@magniizz – der Kanal mit den „Gesetz Nr. …“-Videos. Dieses Buch sammelt die Gesetze an einem Ort, mit Übungen zu jedem einzelnen.</p></details>
   </div>
@@ -199,14 +199,14 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
   </div>
 </section>
 
-<footer>© 2026 @magniizz · Zahlungsabwicklung und Auslieferung über Gumroad<br>Dieses Buch ersetzt keine medizinische oder psychologische Beratung.<span id="imp"></span></footer>
-<div class="sticky" id="sticky"><a class="btn" href="#buy1">Jetzt holen – 9,99 €</a></div>
+<footer>© 2026 @magniizz · Zahlungsabwicklung und Auslieferung über Payhip<br>Dieses Buch ersetzt keine medizinische oder psychologische Beratung.<span id="imp"></span></footer>
+<div class="sticky" id="sticky"><a class="btn" href="#buy1">Jetzt holen – 19,99 €</a></div>
 
 <script>
-// ---- À remplir : lien du produit Gumroad (Gumroad livre le PDF automatiquement après le paiement)
-var GUMROAD_URL = 'https://aydenverse42.gumroad.com/l/gesetzbuch';
-var PRICE = '9,99 €';
-// ---- Code promo : un VRAI code Gumroad, avec sa VRAIE date de fin (la même que dans Gumroad → Offer codes).
+// ---- Lien du produit Payhip (Payhip livre le PDF automatiquement après le paiement)
+var GUMROAD_URL = 'https://payhip.com/b/qDfB0';
+var PRICE = '19,99 €';   // prix réel sur Payhip sans code
+// ---- Code promo : un VRAI code Payhip, avec sa VRAIE date de fin (la même que dans Payhip → Marketing → Coupons).
 // Tant que « ends » est vide ou passé : pas de bandeau, prix normal. Exemple : ends: '2026-10-29T03:00:00+01:00'
 var PROMO = { code: 'MAGNIIZZ', normal: '19,99 €', price: '9,99 €', pct: '−50 %', ends: '' };
 function promoOn() { return PROMO.ends && new Date(PROMO.ends).getTime() > Date.now(); }
@@ -225,9 +225,9 @@ function buyBox(id) {
       '<div class="cd">Code läuft ab in <b class="cdv">' + restant() + '</b></div></div>' +
       '<div class="price"><s>' + PROMO.normal + '</s><b>' + PROMO.price + '</b><span class="off50">' + PROMO.pct + '</span></div>'
     : '<div class="price"><b>' + PRICE + '</b><span>einmalig · sofortiger Download (PDF)</span></div>') +
-    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? '/gesetze/kaufen/' + (on ? '?c=' + encodeURIComponent(PROMO.code) : '') : '#') + '">' +
+    '<a class="btn' + (GUMROAD_URL ? '' : ' off') + '" href="' + (GUMROAD_URL ? '/gesetze/kaufen/' + '' : '#') + '">' +
       (GUMROAD_URL ? 'Jetzt holen – ' + (on ? PROMO.price : PRICE) : 'Bald verfügbar') + '</a>' +
-    '<p class="small">' + (on ? 'Code wird beim Klick automatisch kopiert und angewendet · ' : '') + 'Sofort-Download nach der Zahlung · Sichere Zahlung über Gumroad</p>';
+    '<p class="small">' + (on ? 'Code wird beim Klick automatisch kopiert – an der Kasse einfach einfügen · ' : '') + 'Sofort-Download nach der Zahlung · Sicher bezahlen mit PayPal oder Karte</p>';
   var btn = el.querySelector('.btn');
   btn.addEventListener('click', function (e) { if (btn.classList.contains('off')) e.preventDefault(); });
   var pc = el.querySelector('.pc');
@@ -291,7 +291,7 @@ window.addEventListener('scroll', function () { st.classList.toggle('show', wind
   }
   envoi({ type: 'view', referrer: document.referrer || '', utm: q.get('utm_source') || q.get('src') || '', lang: navigator.language || '' });
   document.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('a[href*="gumroad.com"], a[href*="/kaufen/"]');
+    var a = e.target.closest && e.target.closest('a[href*="payhip.com"], a[href*="/kaufen/"]');
     if (a) envoi({ type: 'buy_click' }, true);
   }, true);
   var cumul = 0, depuis = document.visibilityState === 'visible' ? Date.now() : 0;

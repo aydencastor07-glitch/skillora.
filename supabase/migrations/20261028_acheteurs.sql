@@ -22,11 +22,15 @@ returns text language sql stable security definer set search_path = public as $$
    order by created_at desc limit 1;
 $$;
 
--- Cette vente appartient-elle à cette empreinte ?
+-- Cette vente appartient-elle à cette empreinte ? Vente faite avant le suivi des acheteurs (buyer_fp vide) :
+-- le premier qui l'ouvre avec le lien signé en devient l'acheteur.
 create or replace function public.ebook_achat_ok(p_sale_id text, p_fp text)
-returns boolean language sql stable security definer set search_path = public as $$
-  select exists(select 1 from ebook_sales where sale_id = p_sale_id and buyer_fp = p_fp and coalesce(p_fp, '') <> '' and not refunded);
-$$;
+returns boolean language plpgsql security definer set search_path = public as $$
+begin
+  if coalesce(p_fp, '') = '' then return false; end if;
+  update ebook_sales set buyer_fp = p_fp where sale_id = p_sale_id and buyer_fp is null and not refunded;
+  return exists(select 1 from ebook_sales where sale_id = p_sale_id and buyer_fp = p_fp and not refunded);
+end $$;
 
 revoke all on function public.ebook_vente(text, text, int, text, text, text) from public, anon, authenticated;
 revoke all on function public.ebook_achat_fp(text, text) from public, anon, authenticated;

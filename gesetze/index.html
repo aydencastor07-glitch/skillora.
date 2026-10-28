@@ -68,7 +68,7 @@ section { padding: 64px 0; }
 .ia-box > b { font: 700 21px Cinzel, serif; display: block; margin-bottom: 6px; }
 .ia-box ol { text-align: left; margin: 12px 0 14px 22px; } .ia-box li { margin-bottom: 6px; }
 .ia-box .dots { background: #2a2622; color: #fff; border-radius: 6px; padding: 0 6px; letter-spacing: .1em; }
-.ia-box .btn { margin-bottom: 10px; }
+.ia-box .btn { margin-bottom: 10px; } #go-btn { font-size: 15px; padding: 16px 10px; margin: 14px 0 0; }
 .ia-copy { width: 100%; border: 2px solid var(--gold2); background: #fff; color: #2a2622; font: 700 15px system-ui, sans-serif; border-radius: 10px; padding: 12px; cursor: pointer; }
 .ia-copy.ok { background: #3fa564; border-color: #3fa564; color: #fff; }
 .ia-s { font-size: 14px; color: #6b5f4d; margin-top: 10px; }
@@ -126,6 +126,14 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
 <body>
 <div class="topbar" id="topbar"></div>
 <div class="toast" id="toast"></div>
+<div class="inapp" id="goPay">
+  <div class="ia-box">
+    <button class="ia-x" id="go-x" aria-label="Schließen">×</button>
+    <b>Gleich hast du es! 📖</b>
+    <p>Dein Code <b>MAGNIIZZ</b> wird automatisch kopiert – an der Kasse unter „Add coupon“ einfügen.</p>
+    <a class="btn" id="go-btn" href="/gesetze/kaufen/">Weiter zur Zahlung</a>
+  </div>
+</div>
 <div class="inapp" id="inapp">
   <div class="ia-arrow">↗</div>
   <div class="ia-box">
@@ -133,7 +141,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
     <b>Fast geschafft! 🔒</b>
     <p>TikTok erlaubt keine Zahlungen in der App. Öffne die Seite in deinem Browser – dauert 2 Sekunden:</p>
     <ol><li>Tippe oben rechts auf <span class="dots">•••</span></li><li>Wähle <b>„Im Browser öffnen“</b></li><li>Dort auf <b>„Jetzt holen“</b> tippen</li></ol>
-    <button class="btn" id="ia-android" type="button">Im Browser öffnen</button>
+    <button class="btn" id="ia-android" type="button">Nochmal versuchen</button>
     <button class="ia-copy" id="ia-copy" type="button">🔗 Link kopieren</button>
     <p class="ia-s">Dein Code <b>MAGNIIZZ</b> wartet dort auf dich.</p>
   </div>
@@ -301,21 +309,34 @@ function copierTexte(t) {
   try { if (navigator.clipboard) navigator.clipboard.writeText(t); } catch (e) {}
 }
 function ouvrirAide() {
-  var o = document.getElementById('inapp');
-  document.getElementById('ia-android').style.display = ANDROID ? 'block' : 'none';
-  o.style.display = 'flex';
+  document.getElementById('inapp').style.display = 'flex';
+}
+// Un seul toucher : on demande au téléphone d'ouvrir la page dans Safari / Chrome.
+// iPhone : schéma x-safari-https (iOS 17+). Android : lien « intent ».
+// Si TikTok bloque quand même (la page reste visible), on affiche l'aide.
+var GO_URL = 'gesetze.skillora.me/?go=1';
+function sortir() {
+  var parti = false;
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') parti = true; }, { once: true });
+  if (ANDROID) location.href = 'intent://' + GO_URL + '#Intent;scheme=https;S.browser_fallback_url=' + encodeURIComponent('https://' + GO_URL) + ';end';
+  else location.href = 'x-safari-https://' + GO_URL;
+  setTimeout(function () { if (!parti) ouvrirAide(); }, 1500);
 }
 document.getElementById('ia-x').addEventListener('click', function () { document.getElementById('inapp').style.display = 'none'; });
 document.getElementById('ia-copy').addEventListener('click', function () {
   copierTexte(PAGE_URL); this.textContent = '✓ Link kopiert – jetzt im Browser einfügen'; this.classList.add('ok');
 });
-document.getElementById('ia-android').addEventListener('click', function () {
-  location.href = 'intent://gesetze.skillora.me/#Intent;scheme=https;end';
-});
+document.getElementById('ia-android').addEventListener('click', sortir);
+// Arrivée depuis TikTok dans le vrai navigateur (?go=1) : un bouton pour finir l'achat en un toucher.
+if (!IN_APP && /[?&]go=1/.test(location.search)) {
+  var g = document.getElementById('goPay'); g.style.display = 'flex';
+  document.getElementById('go-btn').textContent = 'Weiter zur Zahlung – ' + (promoOn() ? PROMO.price : PRICE);
+  document.getElementById('go-x').addEventListener('click', function () { g.style.display = 'none'; });
+}
 document.addEventListener('click', function (e) {
   var a = e.target.closest && e.target.closest('a[href*="/kaufen/"]');
   if (!a) return;
-  if (IN_APP) { e.preventDefault(); ouvrirAide(); return; }
+  if (IN_APP) { e.preventDefault(); sortir(); return; }
   if (!promoOn()) return;
   e.preventDefault(); copier();
   setTimeout(function () { location.href = a.href; }, 700);   // le temps de voir « kopiert »

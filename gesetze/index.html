@@ -75,8 +75,16 @@ section { padding: 64px 0; }
 .ia-x { position: absolute; top: 6px; right: 10px; border: 0; background: none; font-size: 28px; color: #6b5f4d; cursor: pointer; }
 .ia-arrow { position: fixed; top: 6px; right: 14px; font-size: 54px; color: #ffd36b; animation: ia 1s ease-in-out infinite; }
 @keyframes ia { 50% { transform: translate(4px, -6px); } }
-.kasse { background: radial-gradient(ellipse at 50% 30%, #2b241a 0%, var(--dark) 70%); scroll-margin-top: 50px; }
-.kbox { max-width: 460px; margin: 0 auto; background: var(--dark2); border: 1px solid var(--gold2); border-radius: 16px; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.kasse { position: fixed; inset: 0; z-index: 40; background: rgba(8,6,4,.78); display: none; align-items: flex-end; justify-content: center; }
+.kasse.open { display: flex; }
+.ksheet { position: relative; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; background: #17140f; border-radius: 20px 20px 0 0; padding: 18px 14px 22px; border-top: 1px solid var(--gold2); }
+@media (min-width: 821px) { .kasse { align-items: center; } .ksheet { border-radius: 20px; border: 1px solid var(--gold2); } }
+.kx { color: var(--muted); top: 4px; right: 8px; }
+.kbox { max-width: 460px; margin: 0 auto; background: var(--dark2); border: 1px solid #3a3124; border-radius: 16px; padding: 16px; }
+.ppb { display: block; width: 100%; height: 50px; border: 0; border-radius: 8px; margin-bottom: 10px; font: 600 18px system-ui, sans-serif; cursor: pointer; }
+.ppy { background: #ffc439; color: #111; } .ppy i { font-style: italic; font-weight: 800; color: #003087; } .ppy i + i { color: #009cde; }
+.ppk { background: #2c2e2f; color: #fff; } .ppb[disabled] { opacity: .6; }
+.pps { text-align: center; font-size: 12.5px; color: #6b6b6b; margin: 2px 0 4px; } #pp-redirect { background: #fff; border-radius: 12px; padding: 12px 10px 6px; }
 .ksum { display: flex; gap: 14px; align-items: center; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #3a3124; }
 .ksum img { width: 70px; height: auto; border-radius: 4px; } .ksum b { font-family: Cinzel, serif; display: block; line-height: 1.2; } .ksum span { display: block; font-size: 14px; color: var(--muted); }
 .kp { margin-top: 4px; } .kp s { color: var(--muted); font-size: 16px; } .kp b { display: inline; font-size: 26px; color: var(--ivory); } .kp i { font-style: normal; font-size: 12px; background: #3fa564; color: #fff; padding: 2px 6px; border-radius: 5px; vertical-align: 4px; }
@@ -250,14 +258,19 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
   </div>
 </section>
 
-<section class="kasse" id="kasse" style="display:none">
-  <div class="wrap">
-    <div class="k" style="text-align:center">Sichere Kasse</div>
-    <h2>Dein E-Book</h2><div class="rule"><i></i></div>
+<div class="kasse" id="kasse">
+  <div class="ksheet">
+    <button class="ia-x kx" id="k-x" aria-label="Schließen">×</button>
+    <div class="k" style="text-align:center;margin-bottom:10px">🔒 Sichere Kasse</div>
     <div class="kbox" id="kbox">
       <div class="ksum"><img src="livre.webp" alt="" width="90" height="135"><div><b>Das Gesetzbuch des Geistes</b><span>E-Book · PDF · 29 Seiten · Deutsch</span>
         <div class="kp"><s id="k-old"></s> <b id="k-price"></b> <i id="k-code"></i></div><small>inkl. MwSt. · einmalig · kein Abo</small></div></div>
       <div id="pp-buttons"></div>
+      <div id="pp-redirect" style="display:none">
+        <button class="ppb ppy" type="button" data-carte="0">Mit <b><i>Pay</i><i>Pal</i></b> zahlen</button>
+        <button class="ppb ppk" type="button" data-carte="1">💳 Debit- oder Kreditkarte</button>
+        <p class="pps">Abgewickelt durch <b>PayPal</b> · du kommst danach automatisch hierher zurück</p>
+      </div>
       <p class="kwait" id="k-wait">Zahlung wird geladen …</p>
       <p class="kerr" id="k-err"></p>
       <div class="trust"><span>🔒 Sichere Zahlung<br><small>über PayPal</small></span><span>⚡ Sofort lesen<br><small>Download hier</small></span><span>💳 PayPal oder Karte<br><small>kein Konto nötig</small></span></div>
@@ -270,7 +283,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
       <p class="small">Fang mit Gesetz Nr. 1 an: „Handle nie aus Wut“ – lies es heute und mach die Übung.</p>
     </div>
   </div>
-</section>
+</div>
 
 <footer>© 2026 @magniizz · Zahlungsabwicklung und Auslieferung über Payhip<br>Dieses Buch ersetzt keine medizinische oder psychologische Beratung.<span id="imp"></span></footer>
 <div class="sticky" id="sticky"><a class="btn" href="#buy1">Jetzt holen – 23,79 €</a></div>
@@ -372,14 +385,33 @@ if (!IN_APP && /[?&]go=1/.test(location.search)) {
 // Sinon, rien ne change (paiement Payhip). Le prix est fixé par le serveur, le code MAGNIIZZ est déjà appliqué.
 var KASSE = false;
 function kasseErr(m) { document.getElementById('k-err').textContent = m || ''; }
+function kasseOpen() { document.getElementById('kasse').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function kasseClose() { document.getElementById('kasse').classList.remove('open'); document.body.style.overflow = ''; }
 function kasseOk(r) {
   document.getElementById('kbox').style.display = 'none'; var ok = document.getElementById('k-ok'); ok.style.display = 'block';
   document.getElementById('k-dl').href = r.lien; if (r.email) document.getElementById('k-mail').textContent = 'Bestätigung von PayPal an ' + r.email;
   try { localStorage.setItem('gz_lien', r.lien); } catch (e) {}
-  ok.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  kasseOpen();
+}
+function encaisser(orderID) {
+  return fetch('/api/paypal-capture', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderID: orderID }) })
+    .then(function (r) { return r.json(); }).then(function (j) {
+      if (j.lien) kasseOk(j);
+      else kasseErr('Zahlung nicht abgeschlossen. Bitte versuche es nochmal – es wurde nichts abgebucht.');
+    });
+}
+// Dans TikTok / Instagram : la page entière va chez PayPal puis revient ici (?pp=ok&token=…), pas de fenêtre à part.
+function redirection(carte, btn) {
+  kasseErr(''); document.querySelectorAll('.ppb').forEach(function (b) { b.disabled = true; }); btn.textContent = 'Weiter zu PayPal …';
+  fetch('/api/paypal-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'redirect', carte: carte }) })
+    .then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.approuver) throw new Error('order');
+      try { sessionStorage.setItem('gz_order', j.id); } catch (e) {}
+      location.href = j.approuver;
+    }).catch(function () { document.querySelectorAll('.ppb').forEach(function (b) { b.disabled = false; }); kasseErr('Da ist etwas schiefgelaufen. Bitte versuche es nochmal.'); });
 }
 function kasseInit(cfg) {
-  KASSE = true; document.getElementById('kasse').style.display = 'block';
+  KASSE = true;
   var ft = document.querySelector('footer'); ft.innerHTML = ft.innerHTML.replace('über Payhip', 'über PayPal');
   var on = promoOn();
   document.getElementById('k-old').textContent = on ? PROMO.normal : ''; document.getElementById('k-price').textContent = on ? PROMO.price : PRICE;
@@ -388,21 +420,32 @@ function kasseInit(cfg) {
   document.querySelectorAll('.promo .cd').forEach(function (x) { x.textContent = '✓ Code wird automatisch angewendet'; });
   document.querySelectorAll('.promo .cp').forEach(function (x) { x.style.display = 'none'; });
   document.querySelectorAll('.buy .small').forEach(function (x) { if (/Add coupon/.test(x.textContent)) x.style.display = 'none'; });
+  document.getElementById('k-x').addEventListener('click', kasseClose);
+  document.getElementById('kasse').addEventListener('click', function (e) { if (e.target.id === 'kasse') kasseClose(); });
+  // retour de PayPal (mode redirection)
+  var q = new URLSearchParams(location.search);
+  if (q.get('pp') === 'ok' && q.get('token')) {
+    history.replaceState(null, '', location.pathname);
+    document.getElementById('k-wait').textContent = 'Zahlung wird abgeschlossen …'; kasseOpen();
+    encaisser(q.get('token')).then(function () { document.getElementById('k-wait').textContent = ''; });
+  } else if (q.get('pp') === 'cancel') {
+    history.replaceState(null, '', location.pathname); kasseOpen(); kasseErr('Zahlung abgebrochen – es wurde nichts abgebucht.');
+  }
+  if (IN_APP) {
+    document.getElementById('k-wait').textContent = document.getElementById('k-wait').textContent === 'Zahlung wird geladen …' ? '' : document.getElementById('k-wait').textContent;
+    document.getElementById('pp-buttons').style.display = 'none'; document.getElementById('pp-redirect').style.display = 'block';
+    document.querySelectorAll('.ppb').forEach(function (b) { b.addEventListener('click', function () { redirection(b.dataset.carte === '1', b); }); });
+    return;
+  }
   var sc = document.createElement('script');
   sc.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(cfg.clientId) + '&currency=EUR&intent=capture&components=buttons&enable-funding=card&disable-funding=paylater,venmo,sepa&locale=de_DE';
   sc.onerror = function () { document.getElementById('k-wait').textContent = ''; kasseErr('PayPal konnte nicht geladen werden. Bitte Seite neu laden.'); };
   sc.onload = function () {
-    document.getElementById('k-wait').textContent = '';
+    if (document.getElementById('k-wait').textContent === 'Zahlung wird geladen …') document.getElementById('k-wait').textContent = '';
     paypal.Buttons({
       style: { layout: 'vertical', shape: 'rect', height: 48, label: 'pay' },
       createOrder: function () { kasseErr(''); return fetch('/api/paypal-order', { method: 'POST' }).then(function (r) { return r.json(); }).then(function (j) { if (!j.id) throw new Error('order'); return j.id; }); },
-      onApprove: function (d) {
-        return fetch('/api/paypal-capture', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderID: d.orderID }) })
-          .then(function (r) { return r.json(); }).then(function (j) {
-            if (j.lien) { kasseOk(j); }
-            else kasseErr('Zahlung nicht abgeschlossen. Bitte versuche es nochmal – es wurde nichts abgebucht.');
-          });
-      },
+      onApprove: function (d) { return encaisser(d.orderID); },
       onError: function () { kasseErr('Da ist etwas schiefgelaufen. Bitte versuche es nochmal.'); }
     }).render('#pp-buttons');
   };
@@ -415,7 +458,7 @@ fetch('/api/paypal-config').then(function (r) { return r.json(); }).then(functio
 document.addEventListener('click', function (e) {
   if (KASSE) {   // kasse PayPal sur la page : on descend jusqu'au paiement
     var k = e.target.closest && e.target.closest('a[href="#kasse"], #sticky a');
-    if (k) { e.preventDefault(); e.stopPropagation(); document.getElementById('kasse').scrollIntoView({ behavior: 'smooth' }); }
+    if (k) { e.preventDefault(); e.stopPropagation(); kasseOpen(); }
     return;
   }
   var a = e.target.closest && e.target.closest('a.payhip-buy-button');

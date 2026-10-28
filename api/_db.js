@@ -41,4 +41,16 @@ function corps(req) {
   });
 }
 
-module.exports = { requete, corps };
+// Empreinte d'un visiteur : IP + système du téléphone, salée puis hachée. L'IP n'est jamais enregistrée
+// (impossible de la retrouver à partir de l'empreinte).
+function empreinte(req) {
+  const crypto = require('crypto');
+  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || String(req.headers['x-real-ip'] || '');
+  if (!ip) return '';
+  const u = String(req.headers['user-agent'] || '').toLowerCase();
+  const os = /iphone|ipad|ipod|ios/.test(u) ? 'iOS' : /android/.test(u) ? 'Android' : /windows/.test(u) ? 'Windows'
+    : /mac os|macintosh/.test(u) ? 'macOS' : /linux/.test(u) ? 'Linux' : null;
+  return 'ip_' + crypto.createHmac('sha256', 'vis:' + (process.env.STATS_DB_PASSWORD || '')).update(ip + '|' + os).digest('hex').slice(0, 24);
+}
+
+module.exports = { requete, corps, empreinte };

@@ -15,5 +15,7 @@ module.exports = async (req, res) => {
     } catch (e) { console.error('mon-achat', String(e.message || e)); }
   }
   if (!commande) return res.status(200).json({ achete: false });
-  res.status(200).json({ achete: true, lien: lien(commande) });
+  let email = '';
+  try { const r = await requete('select public.ebook_email_lire($1) as v', ['pp_' + commande]); email = (r.rows[0] && r.rows[0].v) || ''; } catch (e) {}
+  res.status(200).json({ achete: true, lien: lien(commande), email });
 };

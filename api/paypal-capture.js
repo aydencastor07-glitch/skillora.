@@ -20,6 +20,7 @@ module.exports = async (req, res) => {
     try {   // la vente apparaît dans /stats/ ; une erreur ici ne doit jamais bloquer le téléchargement
       const pays = ((j.payer || {}).address || {}).country_code || String(req.headers['x-vercel-ip-country'] || '');
       await requete('select public.ebook_vente($1,$2,$3,$4,$5,$6)', ['pp_' + orderID, PRODUIT, Math.round(Number(cap.amount.value) * 100), 'EUR', pays, empreinte(req)]);
+      await requete('select public.ebook_email($1,$2)', ['pp_' + orderID, (j.payer || {}).email_address || '']);
     } catch (e) { console.error('ebook_vente', String(e.message || e)); }
     // l'e-mail n'est PAS envoyé ici : l'acheteur confirme ou corrige son adresse sur l'écran « Danke » (api/envoyer-livre.js)
     res.setHeader('Set-Cookie', cookieAchat(orderID));   // ce navigateur est reconnu comme acheteur

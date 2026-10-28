@@ -36,5 +36,10 @@
       "destination": "/gesetze/",
       "permanent": true
     }
-  ]
+  ],
+  "functions": {
+    "api/download.js": {
+      "includeFiles": "api/_livre/**"
+    }
+  }
 }

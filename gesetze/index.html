@@ -404,7 +404,7 @@ function kasseOpen() { document.getElementById('kasse').classList.add('open'); d
 function kasseClose() { document.getElementById('kasse').classList.remove('open'); document.body.style.overflow = ''; }
 function kasseOk(r) {
   document.getElementById('kbox').style.display = 'none'; var ok = document.getElementById('k-ok'); ok.style.display = 'block';
-  document.getElementById('k-dl').href = r.lien; if (r.email) document.getElementById('k-mail').textContent = 'Bestätigung von PayPal an ' + r.email;
+  document.getElementById('k-dl').href = r.lien; if (r.email) document.getElementById('k-mail').textContent = r.mail ? '📧 Wir haben dir das E-Book auch per E-Mail geschickt (an ' + r.email + ') – schau auch im Spam-Ordner.' : 'Bestätigung von PayPal an ' + r.email;
   try { localStorage.setItem('gz_lien', r.lien); } catch (e) {}
   // Sauvegarder le livre pour le lire hors connexion (l'iPhone affiche le PDF au lieu de l'enregistrer)
   var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent), aide = '';

@@ -15,13 +15,14 @@ async function estAcheteur(req, commande) {
 
 module.exports = async (req, res) => {
   const q = req.query || {};
-  if (!process.env.PAYPAL_SECRET || !lienValide(String(q.o || ''), String(q.e || ''), String(q.s || ''))) {
+  const mail = q.m === '1';   // lien de l'e-mail d'achat : il arrive dans la boîte de l'acheteur, on ne revérifie pas l'appareil
+  if (!process.env.PAYPAL_SECRET || !lienValide(String(q.o || ''), String(q.e || ''), String(q.s || ''), mail)) {
     res.status(403).setHeader('Content-Type', 'text/plain; charset=utf-8');
     return res.end('Link ungültig oder abgelaufen. Schreib uns auf TikTok @magniizz.');
   }
-  const ok = await estAcheteur(req, String(q.o));
+  const ok = mail ? 'mail' : await estAcheteur(req, String(q.o));
   if (!ok) { res.statusCode = 302; res.setHeader('Location', VENTE); return res.end(); }
-  if (ok === 'fp') res.setHeader('Set-Cookie', cookieAchat(String(q.o)));   // reconnu par IP + appareil : on marque aussi ce navigateur
+  if (ok === 'fp' || ok === 'mail') res.setHeader('Set-Cookie', cookieAchat(String(q.o)));   // reconnu par IP + appareil : on marque aussi ce navigateur
   const f = path.join(process.cwd(), 'api', '_livre', 'gesetzbuch.pdf');
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename="Das_Gesetzbuch_des_Geistes.pdf"');

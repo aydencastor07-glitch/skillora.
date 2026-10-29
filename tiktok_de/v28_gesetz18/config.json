@@ -1,0 +1,52 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_machiavelli.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 18",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 4.12,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "18:",
+  "Zeig niemals alle deine Absichten.",
+  "Wenn du jedem sagst, was du vorhast, gibst du anderen die Mittel, dich vorherzusehen … und manchmal, dich aufzuhalten.",
+  "Totale Offenheit ist nicht immer Stärke.",
+  "Manchmal ist sie eine Schwäche.",
+  "Machiavelli sagte:",
+  "„Jeder sieht, was du scheinst.",
+  "Nur wenige wissen, was du bist.“",
+  "Also:",
+  "Rechtfertige dich nicht mit Worten.",
+  "Werde unberechenbar durch deine Taten.",
+  "Stell dir vor, niemand kann dich mehr lesen:",
+  "ruhig, unberechenbar, respektiert.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|niemals|absichten|vorhast|mittel|vorherzusehen|aufzuhalten|offenheit|stärke|schwäche|machiavelli|scheinst|bist|rechtfertige|worten|unberechenbar|taten|lesen|ruhig|respektiert|21|gesetze|buch|link|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 32.21,
+  "link_t": 35.72
+ },
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

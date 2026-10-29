@@ -19,3 +19,6 @@
 
 ## Temu (code alq393258)
 - Le code, les titres, le $0 et le logo Temu sont toujours posés par Claude, jamais générés dans les images IA.
+
+## Sons (compte philosophie)
+- Bibliothèque des sons fournis : `tiktok_de/sons/` (voir LISEZMOI.md). Les réutiliser et en changer d'une vidéo à l'autre ; si l'utilisateur envoie un son pour une vidéo, l'utiliser et l'ajouter à la bibliothèque.

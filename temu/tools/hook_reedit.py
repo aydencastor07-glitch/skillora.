@@ -1,6 +1,6 @@
 # Remontage d'une vidéo Temu refusée pour « Missing a Strong Hook in the First 3 Seconds » :
 # le plan le plus accrocheur passe en premier (zoom d'impact + flash), une grosse question à l'écran dès la 1re image,
-# le reste accéléré, et des effets sonores (la vidéo source est muette).
+# le reste accéléré, le son d'origine suit le remontage, avec des effets sonores par-dessus.
 # usage : hook_reedit.py source.mp4 sortie.mp4
 import sys, math, subprocess, wave
 import numpy as np, imageio_ffmpeg
@@ -28,13 +28,18 @@ def put(img, lab, cy, k, a=1.0):
     s = max(0.05, k); im = lab.resize((max(1, int(lab.width * s)), max(1, int(lab.height * s))), Image.LANCZOS)
     if a < 1: im.putalpha(im.getchannel('A').point(lambda v: int(v * a)))
     img.alpha_composite(im, (W // 2 - im.width // 2, int(cy - im.height / 2)))
-# --- son : whoosh + pop + hit au début, swish à chaque changement de plan (la source est muette)
-SR = 44100; N = int(DUR * SR) + SR; mix = np.zeros(N)
+# --- son : le son d'origine remonté plan par plan (même ordre, même vitesse), effets par-dessus
+SR = 44100; N = int(DUR * SR) + SR; mix = np.zeros(N); pos = 0
+for a, b, v in PLAN:
+    seg = np.frombuffer(subprocess.run([FF, '-v', 'error', '-ss', str(a), '-t', str(b - a), '-i', SRC, '-vn', '-af', f'atempo={v}', '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'],
+                                       capture_output=True).stdout, np.int16).astype(float) / 32768
+    L = min(len(seg), N - pos); mix[pos:pos + L] += seg[:L]; pos += int((b - a) / v * SR)
+SG = 0.35 if np.abs(mix).max() > 0.01 else 1.0
 def sfx(name, t0, g):
     w = wave.open(SFXD + name + '.wav'); s = np.frombuffer(w.readframes(w.getnframes()), '<i2').astype(float) / 32768
     if w.getnchannels() == 2: s = s.reshape(-1, 2).mean(1)
     if w.getframerate() != SR: s = np.interp(np.arange(0, len(s), w.getframerate() / SR), np.arange(len(s)), s)
-    i0 = int(t0 * SR); L = min(len(s), N - i0); mix[i0:i0 + L] += s[:L] * g
+    i0 = int(t0 * SR); L = min(len(s), N - i0); mix[i0:i0 + L] += s[:L] * g * SG
 sfx('whoosh', 0.0, 0.5); sfx('hit', 0.05, 0.6); sfx('pop', 0.55, 0.5); sfx('hit', 0.95, 0.7); sfx('ding', 1.9, 0.4)
 t = 0
 for a, b, v in PLAN[:-1]: t += (b - a) / v; sfx('swish', t - 0.05, 0.5)

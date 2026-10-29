@@ -1,7 +1,7 @@
-# Vidéo Temu générée (IA, souvent 720p et muette) → version à publier : 1080x1920 net (Lanczos + accentuation),
+# Vidéo Temu générée (IA, souvent 720p) → version à publier : 1080x1920 net (Lanczos + accentuation),
 # accroche en gros dans les 2,4 premières secondes (zoom d'impact + flash), puis « GIFT TEMU $0 » et le cadre du code,
 # le cadre du code sur le pull (entre le visage et le carton) : il ne cache ni le logo ni les produits ;
-# effets sonores. Le code, le $0 et les titres sont toujours posés ici, jamais générés par l'IA.
+# la voix d'origine gardée + effets sonores. Le code, le $0 et les titres sont toujours posés ici, jamais générés par l'IA.
 # usage : ugc_overlay.py source.mp4 sortie.mp4 ["LIGNE 1|LIGNE 2"]
 import sys, math, subprocess, wave, os
 import numpy as np, imageio_ffmpeg
@@ -33,15 +33,17 @@ def put(img, lab, cx, cy, k, a=1.0):
     if a < 0.99: im = im.copy(); im.putalpha(im.getchannel('A').point(lambda v: int(v * a)))
     img.alpha_composite(im, (int(cx - im.width / 2), int(cy - im.height / 2)))
 HOOK_END = 2.4
-# --- son (la vidéo IA est muette) : whoosh + impacts sur l'accroche, pop à l'arrivée du code
+# --- son : la voix / le son d'origine de la vidéo, avec whoosh + impacts sur l'accroche et pop à l'arrivée du code par-dessus
 SR = 44100; N = int(DUR * SR); mix = np.zeros(N + SR)
+orig = np.frombuffer(subprocess.run([FF, '-v', 'error', '-i', SRC, '-vn', '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'], capture_output=True).stdout, np.int16).astype(float) / 32768
+mix[:min(len(orig), N)] += orig[:N]; SG = 0.35 if np.abs(orig).max() > 0.01 else 1.0      # effets discrets quand il y a une voix
 def sfx(name, t0, g):
     w = wave.open(SFXD + name + '.wav'); s = np.frombuffer(w.readframes(w.getnframes()), '<i2').astype(float) / 32768
     if w.getnchannels() == 2: s = s.reshape(-1, 2).mean(1)
     if w.getframerate() != SR: s = np.interp(np.arange(0, len(s), w.getframerate() / SR), np.arange(len(s)), s)
-    i0 = int(t0 * SR); L = min(len(s), len(mix) - i0); mix[i0:i0 + L] += s[:L] * g
+    i0 = int(t0 * SR); L = min(len(s), len(mix) - i0); mix[i0:i0 + L] += s[:L] * g * SG
 sfx('whoosh', 0.0, 0.5); sfx('hit', 0.05, 0.6); sfx('pop', 0.4, 0.45); sfx('hit', 0.9, 0.7); sfx('swish', HOOK_END - 0.1, 0.45); sfx('pop', HOOK_END + 0.1, 0.5); sfx('ding', HOOK_END + 0.35, 0.35)
-mix = mix[:N]; mix = mix / max(1e-6, np.abs(mix).max()) * 0.9
+mix = mix[:N]; mix = mix / max(1e-6, np.abs(mix).max()) * 0.95
 wo = wave.open(OUT + '.wav', 'wb'); wo.setnchannels(1); wo.setsampwidth(2); wo.setframerate(SR); wo.writeframes((mix * 32767).astype('<i2').tobytes()); wo.close()
 enc = subprocess.Popen([FF, '-y', '-v', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-', '-i', OUT + '.wav',
                         '-c:v', 'libx264', '-crf', '16', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', OUT],

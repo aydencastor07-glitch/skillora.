@@ -1,0 +1,62 @@
+{
+ "font": "Anton-Regular.ttf",
+ "particles": "gold",
+ "palette": {
+  "c1": [
+   255,
+   226,
+   150
+  ],
+  "c2": [
+   251,
+   119,
+   1
+  ],
+  "dark": [
+   14,
+   14,
+   16
+  ],
+  "acc": [
+   251,
+   119,
+   1
+  ]
+ },
+ "strip": [
+  14,
+  14,
+  16
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 1201,
+ "bpm": 124,
+ "key": 50,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "header": "THE BIG UNBOXING",
+ "slides": [
+  {
+   "img": "V12/V12_1.jpg",
+   "label": "\"JUST ONE SMALL ORDER\"",
+   "tag_y": 330
+  },
+  {
+   "img": "V12/V12_2.jpg",
+   "label": "EVERYTHING INSIDE"
+  },
+  {
+   "img": "V12/V12_3.jpg",
+   "label": "FITS BETTER THAN I THOUGHT"
+  },
+  {
+   "img": "V12/V12_4.jpg",
+   "comment": true,
+   "comment_y": 1240
+  },
+  {
+   "img": "V12/V12_5.jpg",
+   "label": "MY NEW GAMING THRONE"
+  }
+ ]
+}

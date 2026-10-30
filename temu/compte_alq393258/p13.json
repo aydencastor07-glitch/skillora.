@@ -1,0 +1,59 @@
+{
+ "font": "ArchivoBlack-Regular.ttf",
+ "palette": {
+  "c1": [
+   255,
+   236,
+   200
+  ],
+  "c2": [
+   255,
+   140,
+   40
+  ],
+  "dark": [
+   48,
+   28,
+   18
+  ],
+  "acc": [
+   226,
+   78,
+   38
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "push",
+ "sfx": "whoosh",
+ "music_seed": 1301,
+ "bpm": 100,
+ "key": 55,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "V13/V13_1.jpg",
+   "title": "MY NIGHT|ROUTINE",
+   "layout": "C"
+  },
+  {
+   "img": "V13/V13_2.jpg",
+   "title": "STEP 1:|FOAM",
+   "layout": "B"
+  },
+  {
+   "img": "V13/V13_3.jpg",
+   "title": "WASH,|RINSE, DONE",
+   "layout": "D"
+  },
+  {
+   "img": "V13/V13_4.jpg",
+   "layout": "E"
+  },
+  {
+   "img": "V13/V13_5.jpg",
+   "title": "SHELF|ORGANIZED",
+   "layout": "A"
+  }
+ ]
+}

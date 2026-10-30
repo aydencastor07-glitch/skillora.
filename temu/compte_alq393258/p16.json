@@ -1,0 +1,62 @@
+{
+ "font": "Anton-Regular.ttf",
+ "particles": "gold",
+ "palette": {
+  "c1": [
+   255,
+   226,
+   150
+  ],
+  "c2": [
+   251,
+   119,
+   1
+  ],
+  "dark": [
+   14,
+   14,
+   16
+  ],
+  "acc": [
+   251,
+   119,
+   1
+  ]
+ },
+ "strip": [
+  14,
+  14,
+  16
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 1603,
+ "bpm": 124,
+ "key": 50,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "header": "WHAT I GOT HIM",
+ "slides": [
+  {
+   "img": "V16/V16_1.jpg",
+   "label": "HE HAS NO IDEA",
+   "tag_y": 760
+  },
+  {
+   "img": "V16/V16_2.jpg",
+   "label": "HIS REACTION"
+  },
+  {
+   "img": "V16/V16_3.jpg",
+   "label": "THE SHIRT = A HIT"
+  },
+  {
+   "img": "V16/V16_4.jpg",
+   "comment": true,
+   "comment_y": 1240
+  },
+  {
+   "img": "V16/V16_5.jpg",
+   "label": "THE SKINCARE WAS FOR ME"
+  }
+ ]
+}

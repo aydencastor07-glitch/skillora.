@@ -1,0 +1,59 @@
+{
+ "font": "ArchivoBlack-Regular.ttf",
+ "palette": {
+  "c1": [
+   255,
+   236,
+   200
+  ],
+  "c2": [
+   255,
+   140,
+   40
+  ],
+  "dark": [
+   48,
+   28,
+   18
+  ],
+  "acc": [
+   226,
+   78,
+   38
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "push",
+ "sfx": "whoosh",
+ "music_seed": 1501,
+ "bpm": 100,
+ "key": 55,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "V15/V15_1.jpg",
+   "title": "BEFORE:|SAD CORNER",
+   "layout": "A"
+  },
+  {
+   "img": "V15/V15_2.jpg",
+   "title": "WHAT'S|IN THE BOX?",
+   "layout": "D"
+  },
+  {
+   "img": "V15/V15_3.jpg",
+   "title": "AFTER:|MY FAVORITE SPOT",
+   "layout": "B"
+  },
+  {
+   "img": "V15/V15_4.jpg",
+   "layout": "E"
+  },
+  {
+   "img": "V15/V15_5.jpg",
+   "title": "EVEN ON|THE BALCONY",
+   "layout": "C"
+  }
+ ]
+}

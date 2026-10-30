@@ -1,0 +1,52 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_epiktet.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 20",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.5,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "20:",
+  "Beschwer dich niemals.",
+  "Wenn du dich ständig beschwerst, zeigst du allen, was dich verletzt … und manchmal, dass du keine Kontrolle über dein Leben hast.",
+  "Jammern fühlt sich an wie Erleichterung.",
+  "In Wahrheit macht es dich kleiner.",
+  "Epiktet sagte:",
+  "„Nicht die Dinge selbst beunruhigen die Menschen, sondern ihre Meinungen über die Dinge.“",
+  "Also:",
+  "Schweig.",
+  "Ändere, was du ändern kannst.",
+  "Den Rest akzeptierst du.",
+  "Stell dir vor, nichts kann dich mehr runterziehen:",
+  "ruhig, stark, respektiert.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|beschwer|niemals|beschwerst|verletzt|kontrolle|leben|jammern|erleichterung|wahrheit|kleiner|epiktet|dinge|beunruhigen|meinungen|schweig|ändere|ändern|rest|akzeptierst|runterziehen|ruhig|stark|respektiert|21|gesetze|buch|link|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 32.14,
+  "link_t": 35.65
+ },
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

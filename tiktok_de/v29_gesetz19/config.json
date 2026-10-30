@@ -1,0 +1,52 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_seneca.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 19",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.8,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "19:",
+  "Zeig niemals deine Wut.",
+  "Wenn du vor allen explodierst, zeigst du jedem, welcher Knopf dich steuert … und manchmal, wie man dich zerstört.",
+  "Wut fühlt sich an wie Stärke.",
+  "In Wahrheit ist sie Kontrollverlust.",
+  "Seneca sagte:",
+  "„Das größte Heilmittel gegen den Zorn ist der Aufschub.“",
+  "Also:",
+  "Atme.",
+  "Warte.",
+  "Antworte erst, wenn du ruhig bist.",
+  "Stell dir vor, niemand kann dich mehr provozieren:",
+  "ruhig, kontrolliert, respektiert.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|niemals|wut|explodierst|knopf|steuert|zerstört|stärke|wahrheit|kontrollverlust|seneca|heilmittel|zorn|aufschub|atme|warte|ruhig|provozieren|kontrolliert|respektiert|21|gesetze|buch|link|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 30.34,
+  "link_t": 33.89
+ },
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

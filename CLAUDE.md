@@ -22,3 +22,8 @@
 
 ## Sons (compte philosophie)
 - Bibliothèque des sons fournis : `tiktok_de/sons/` (voir LISEZMOI.md). Les réutiliser et en changer d'une vidéo à l'autre ; si l'utilisateur envoie un son pour une vidéo, l'utiliser et l'ajouter à la bibliothèque.
+
+## Prompts d'images IA (Temu et autres) : réalisme + Google Flow
+- Doit avoir l'air d'une vraie photo de téléphone, PAS d'une image IA : **arrière-plan net (pas de flou, pas de bokeh)**, maison ordinaire et un peu en désordre (pas une déco de magazine), visages normaux (pores, petits boutons, peau irrégulière, pas lisse), lumière plate du quotidien, cadrage un peu de travers, pas de look « cinéma ».
+- Doit passer les règles de Google Flow : adultes uniquement (« adults in their 20s »), toujours habillés (pas de serviette / douche / épaules nues), pas d'enfants, pas de vraies marques ni logos (préciser « no brand logos on the shoes / clothes »), pas de célébrités, pas de mots violents ou médicaux forts.
+- Bloc de fin à utiliser : voir `temu/prompt_realiste.md`.

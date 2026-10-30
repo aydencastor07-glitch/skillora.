@@ -1,5 +1,6 @@
 {
  "font": "Anton-Regular.ttf",
+ "header": "I PAID $0 FOR THIS",
  "particles": "gold",
  "palette": {
   "c1": [
@@ -34,29 +35,32 @@
  "key": 50,
  "code": "alq393258",
  "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
- "header": "THE BIG UNBOXING",
  "slides": [
   {
-   "img": "V12/V12_1.jpg",
-   "label": "\"JUST ONE SMALL ORDER\"",
-   "tag_y": 330
+   "img": "hook/H12.jpg",
+   "label": "MY TEMU HAUL JUST CAME",
+   "no_tag": true
   },
   {
    "img": "V12/V12_2.jpg",
-   "label": "EVERYTHING INSIDE"
+   "label": "EVERYTHING IN ONE BOX"
   },
   {
    "img": "V12/V12_3.jpg",
-   "label": "FITS BETTER THAN I THOUGHT"
+   "label": "SHIRT · $4.74 → $0"
   },
   {
    "img": "V12/V12_4.jpg",
-   "comment": true,
-   "comment_y": 1240
+   "label": "SNEAKERS · $41.23 → $0"
   },
   {
    "img": "V12/V12_5.jpg",
-   "label": "MY NEW GAMING THRONE"
+   "label": "SOFA + POUF · $14.31 → $0"
+  },
+  {
+   "img": "preuve/proof12.jpg",
+   "label": "WORTH $124.24 · I PAID $0",
+   "no_tag": true
   }
  ]
 }

@@ -33,8 +33,8 @@
  "slides": [
   {
    "img": "V15/V15_1.jpg",
-   "title": "BEFORE:|SAD CORNER",
-   "layout": "A"
+   "title": "MY ROOM GLOW-UP|COST ME $0?!",
+   "layout": "C"
   },
   {
    "img": "V15/V15_2.jpg",
@@ -43,7 +43,7 @@
   },
   {
    "img": "V15/V15_3.jpg",
-   "title": "AFTER:|MY FAVORITE SPOT",
+   "title": "SOFA + POUF|$14.31 → $0",
    "layout": "B"
   },
   {
@@ -53,6 +53,11 @@
   {
    "img": "V15/V15_5.jpg",
    "title": "EVEN ON|THE BALCONY",
+   "layout": "A"
+  },
+  {
+   "img": "preuve/proof15.jpg",
+   "title": "WORTH $14.31|I PAID $0",
    "layout": "C"
   }
  ]

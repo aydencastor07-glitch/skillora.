@@ -33,27 +33,32 @@
  "slides": [
   {
    "img": "V13/V13_1.jpg",
-   "title": "MY NIGHT|ROUTINE",
+   "title": "MY SKINCARE|COST ME $0?!",
    "layout": "C"
   },
   {
    "img": "V13/V13_2.jpg",
-   "title": "STEP 1:|FOAM",
-   "layout": "B"
+   "title": "CLEANSER|$11.79 → $0",
+   "layout": "D"
   },
   {
    "img": "V13/V13_3.jpg",
    "title": "WASH,|RINSE, DONE",
-   "layout": "D"
+   "layout": "B"
   },
   {
    "img": "V13/V13_4.jpg",
-   "layout": "E"
+   "title": "ACNE GEL|$29.49 → $0",
+   "layout": "A"
   },
   {
    "img": "V13/V13_5.jpg",
-   "title": "SHELF|ORGANIZED",
-   "layout": "A"
+   "layout": "E"
+  },
+  {
+   "img": "preuve/proof13.jpg",
+   "title": "WORTH $41.28|I PAID $0",
+   "layout": "C"
   }
  ]
 }

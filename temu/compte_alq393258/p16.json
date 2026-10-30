@@ -1,5 +1,6 @@
 {
  "font": "Anton-Regular.ttf",
+ "header": "HIS GIFTS: $0",
  "particles": "gold",
  "palette": {
   "c1": [
@@ -34,12 +35,11 @@
  "key": 50,
  "code": "alq393258",
  "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
- "header": "WHAT I GOT HIM",
  "slides": [
   {
-   "img": "V16/V16_1.jpg",
+   "img": "hook/H16.jpg",
    "label": "HE HAS NO IDEA",
-   "tag_y": 760
+   "no_tag": true
   },
   {
    "img": "V16/V16_2.jpg",
@@ -47,16 +47,21 @@
   },
   {
    "img": "V16/V16_3.jpg",
-   "label": "THE SHIRT = A HIT"
+   "label": "SHIRT · $4.74 → $0"
   },
   {
    "img": "V16/V16_4.jpg",
+   "label": "SNEAKERS · $41.23 → $0"
+  },
+  {
+   "img": "V16/V16_5.jpg",
    "comment": true,
    "comment_y": 1240
   },
   {
-   "img": "V16/V16_5.jpg",
-   "label": "THE SKINCARE WAS FOR ME"
+   "img": "preuve/proof16.jpg",
+   "label": "WORTH $101.56 · I PAID $0",
+   "no_tag": true
   }
  ]
 }

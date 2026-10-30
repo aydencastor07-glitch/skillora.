@@ -1,5 +1,6 @@
 {
  "font": "Anton-Regular.ttf",
+ "header": "GAME DAY FOR $0",
  "particles": "gold",
  "palette": {
   "c1": [
@@ -34,28 +35,33 @@
  "key": 50,
  "code": "alq393258",
  "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
- "header": "GAME DAY FIT",
  "slides": [
   {
-   "img": "V14/V14_1.jpg",
-   "label": "RIGHT BEFORE THE GAME"
+   "img": "hook/H14.jpg",
+   "label": "RIGHT BEFORE THE GAME",
+   "no_tag": true
   },
   {
    "img": "V14/V14_2.jpg",
-   "label": "NO MORE FLAT BALL"
+   "label": "BALL PUMP · $3.71 → $0"
   },
   {
    "img": "V14/V14_3.jpg",
-   "label": "NEW KICKS ON"
+   "label": "SNEAKERS · $41.23 → $0"
   },
   {
    "img": "V14/V14_4.jpg",
+   "label": "SHIRT · $4.74 → $0"
+  },
+  {
+   "img": "V14/V14_5.jpg",
    "comment": true,
    "comment_y": 1240
   },
   {
-   "img": "V14/V14_5.jpg",
-   "label": "THE BOYS WANT ONE TOO"
+   "img": "preuve/proof14.jpg",
+   "label": "WORTH $68.65 · I PAID $0",
+   "no_tag": true
   }
  ]
 }

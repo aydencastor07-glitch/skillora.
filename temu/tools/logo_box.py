@@ -13,19 +13,29 @@ def coeffs(dst, src):
         A.append([x, y, 1, 0, 0, 0, -u * x, -u * y]); A.append([0, 0, 0, x, y, 1, -v * x, -v * y])
     return np.linalg.solve(np.array(A, float), np.array([c for p in src for c in p], float))
 def labels(im):
+    # 1er essai : seuil large (étiquettes teintées par la lumière) ; sinon seuil strict (blanc franc), utile quand le fond
+    # gris ou blanc (draps, murs) touche l'étiquette et la noie dans une grande zone claire
+    # puis, en dernier, une étiquette vue de biais (remplit mal son rectangle) mais entièrement entourée d'orange
+    for strict, minfill, minring in ((False, 0.75, 0.25), (True, 0.6, 0.4), (True, 0.48, 0.8), (False, 0.48, 0.8)):
+        q = _labels(im, strict, minfill, minring)
+        if q: return q
+    return []
+def _labels(im, strict, minfill, minring):
     a = np.asarray(im.convert('RGB')).astype(int); r, g, b = a[..., 0], a[..., 1], a[..., 2]
-    mx, mn = np.max(a, 2), np.min(a, 2); white = (mx > 150) & ((mx - mn) / np.maximum(mx, 1) < 0.3)   # clair et peu coloré (la lumière teinte l'étiquette)
+    mx, mn = np.max(a, 2), np.min(a, 2)
+    if strict: white = (mn > 205) & ((mx - mn) / np.maximum(mx, 1) < 0.12)
+    else: white = (mx > 150) & ((mx - mn) / np.maximum(mx, 1) < 0.3)   # clair et peu coloré (la lumière teinte l'étiquette)
     orange = (r > 165) & (g > 55) & (g < 195) & (b < 135) & (r - b > 80)
     lab, n = ndimage.label(ndimage.binary_opening(white, iterations=2)); out = []
     for k in range(1, n + 1):
         ys, xs = np.nonzero(lab == k); area = len(xs)
         if area < 0.0012 * a.shape[0] * a.shape[1]: continue
         x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max(); fill = area / ((x1 - x0 + 1) * (y1 - y0 + 1))
-        if fill < 0.75 or not 0.45 < (x1 - x0 + 1) / (y1 - y0 + 1) < 2.6: continue   # étiquette : à peu près carrée ou rectangulaire, pas une bande
+        if fill < minfill or not 0.45 < (x1 - x0 + 1) / (y1 - y0 + 1) < 2.6: continue   # étiquette : à peu près carrée ou rectangulaire, pas une bande
         if x0 <= 2 or y0 <= 2 or x1 >= a.shape[1] - 3 or y1 >= a.shape[0] - 3 or area > 0.05 * a.shape[0] * a.shape[1]: continue   # fenêtres, murs : pas des étiquettes
         m = max(8, int(0.15 * (x1 - x0))); big = orange[max(0, y0 - m):y1 + m, max(0, x0 - m):x1 + m]; inner = orange[y0:y1 + 1, x0:x1 + 1]
         ring = (big.sum() - inner.sum()) / max(1, big.size - inner.size)   # bord autour de l'étiquette : surtout orange
-        if ring < 0.25: continue
+        if ring < minring: continue
         s, d = xs + ys, xs - ys
         out.append([(xs[s.argmin()], ys[s.argmin()]), (xs[d.argmax()], ys[d.argmax()]), (xs[s.argmax()], ys[s.argmax()]), (xs[d.argmin()], ys[d.argmin()])])
     return out

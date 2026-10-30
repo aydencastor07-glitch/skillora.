@@ -1,9 +1,9 @@
 # Règles de l'utilisateur pour les vidéos (à respecter TOUJOURS)
 
 ## Voix off : découpage du script
-- **Uniquement le compte allemand MONÉTISÉ** (explications techniques : téléphones, machines, fours, pneus, ampoules… dossier `tiktok_de/v*_…`, moteurs `explain_*.py`) :
+- **Le compte allemand MONÉTISÉ** (explications techniques : téléphones, machines, fours, pneus, ampoules… dossier `tiktok_de/v*_…`, moteurs `explain_*.py`) **et le nouveau compte américain qui le copie** (dossier `tiktok_us/`, même voix clonée) :
   voix copiée qui demande un abonnement → chaque partie fait **500 caractères MAXIMUM**. Au-delà, couper en plusieurs parties (ex. 400 + 100).
-- **Tous les autres comptes** (compte philosophie allemand « Gesetz », comptes américains `en_explained/`, etc.) :
+- **Tous les autres comptes** (compte philosophie allemand « Gesetz », compte américain `en_explained/`, etc.) :
   **le script en UNE SEULE partie**, à copier-coller tel quel. Ne jamais le découper.
 
 ## Écran

@@ -1,0 +1,46 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_machiavelli.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 1",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 4.2,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law No.",
+  "1:",
+  "Never reveal all your intentions.",
+  "When you tell everyone what you're planning, you give them the tools to predict you…",
+  "and sometimes, to stop you.",
+  "Total honesty isn't always strength.",
+  "Sometimes, it's a weakness.",
+  "Machiavelli said:",
+  "\"Everyone sees what you appear to be.",
+  "Few really know what you are.\"",
+  "So stop explaining yourself.",
+  "Let your actions speak.",
+  "Become unpredictable.",
+  "Follow for Law No. 2."
+ ],
+ "hot": "^(law|never|reveal|intentions|planning|tools|predict|stop|total|honesty|strength|weakness|machiavelli|appear|few|know|explaining|actions|speak|unpredictable|follow)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

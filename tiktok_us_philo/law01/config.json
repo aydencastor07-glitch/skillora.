@@ -27,7 +27,7 @@
   "So stop explaining yourself.",
   "Let your actions speak.",
   "Become unpredictable.",
-  "Follow for Law No. 2."
+  "Follow for Law No 2."
  ],
  "hot": "^(law|never|reveal|intentions|planning|tools|predict|stop|total|honesty|strength|weakness|machiavelli|appear|few|know|explaining|actions|speak|unpredictable|follow)$",
  "tail": 2.0,

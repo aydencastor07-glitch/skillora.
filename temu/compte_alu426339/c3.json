@@ -1,0 +1,13 @@
+{
+ "style": "white",
+ "size": 56,
+ "video": "C3_car.mp4",
+ "slides": [
+  {"img": "C3/C3_1.jpg", "text": "my old car finally got a glow up 🚗", "y": 260},
+  {"img": "C3/C3_2.jpg", "text": "no more phone in my lap while driving 📍", "y": 320},
+  {"img": "C3/C3_3.jpg", "text": "the purple lights at night though 💜", "y": 300},
+  {"img": "C3/C3_4.jpg", "text": "trunk organizer = no more groceries rolling around 🛒", "y": 1700},
+  {"img": "C3/C3_5.jpg", "text": "6 months of crumbs gone in 2 minutes 😭", "y": 1400,
+   "code": "Search code alu426339 for Gifts at $0 in TEMU app", "code_y": 1680}
+ ]
+}

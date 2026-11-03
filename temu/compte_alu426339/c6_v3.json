@@ -1,0 +1,20 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "HOME RESET HAUL",
+ "particles": "gold",
+ "palette": {"c1": [215, 245, 245], "c2": [251, 119, 1], "dark": [14, 38, 42], "acc": [251, 119, 1]},
+ "strip": [14, 38, 42],
+ "slide_dur": 2.8,
+ "music_seed": 6637,
+ "bpm": 116,
+ "key": 55,
+ "code": "alu426339",
+ "code_text": "Search code alu426339 for Gifts at $0 in TEMU app",
+ "slides": [
+  {"img": "C6/C6_1.jpg", "label": "CLEANING DELIVERY DAY"},
+  {"img": "C6/C6_2.jpg", "label": "ELECTRIC SPIN SCRUBBER"},
+  {"img": "C6/C6_3.jpg", "label": "VELVET HANGERS"},
+  {"img": "C6/C6_4.jpg", "comment": true, "comment_y": 1240},
+  {"img": "C6/C6_5.jpg", "label": "LINT SHAVER", "label_y": 1468}
+ ]
+}

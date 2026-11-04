@@ -3,7 +3,7 @@
 À coller à la fin de chaque prompt :
 
 ```
-Everyday amateur photo taken with an older smartphone, deep focus: the whole background is sharp and in focus, no blur, no bokeh, no depth of field. Ordinary lived-in home with normal everyday clutter, nothing staged or decorated. Flat natural indoor light, slightly crooked framing, slight phone-camera noise. Average-looking adults with normal skin: visible pores, small blemishes, uneven skin tone, natural flyaway hair, real wrinkles in clothes, fully dressed. No retouching, no beauty filter, no cinematic look, no studio lighting. Vertical 9:16. No text, no letters, no numbers, no logos, no brand names, no watermark.
+Everyday amateur photo taken with an older smartphone, deep focus: the whole background is sharp and in focus, no blur, no bokeh, no depth of field. Ordinary lived-in home with normal everyday clutter, nothing staged or decorated. Flat natural indoor light, slightly crooked framing, slight phone-camera noise. Average-looking adults with normal skin: visible pores, small blemishes, uneven skin tone, natural flyaway hair, real wrinkles in clothes, fully dressed. No retouching, no beauty filter, no cinematic look, no studio lighting.
 ```
 
 Règles en plus :

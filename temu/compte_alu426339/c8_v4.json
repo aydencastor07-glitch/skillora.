@@ -1,0 +1,58 @@
+{
+ "header": "grandpa's new gadgets",
+ "hand": "Caveat.ttf",
+ "palette": {
+  "paper": [
+   232,
+   238,
+   244
+  ],
+  "ink": [
+   30,
+   40,
+   70
+  ],
+  "acc": [
+   240,
+   110,
+   20
+  ],
+  "tape": [
+   240,
+   170,
+   180
+  ]
+ },
+ "slide_dur": 2.6,
+ "music_seed": 8203,
+ "bpm": 96,
+ "key": 52,
+ "code": "alu426339",
+ "code_text": "Search code alu426339 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "C8/C8_1.jpg",
+   "caption": "delivery for grandpa!",
+   "fy": 0.35
+  },
+  {
+   "img": "C8/C8_2.jpg",
+   "caption": "video calls, hands-free",
+   "fy": 0.4
+  },
+  {
+   "img": "C8/C8_3.jpg",
+   "caption": "he can read again",
+   "fy": 0.5
+  },
+  {
+   "img": "C8/C8_4.jpg",
+   "caption": "new doorbell, finally",
+   "fy": 0.3
+  },
+  {
+   "img": "C8/C8_1.jpg",
+   "postit": true
+  }
+ ]
+}

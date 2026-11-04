@@ -1,0 +1,58 @@
+{
+ "header": "christmas came early",
+ "hand": "PermanentMarker.ttf",
+ "palette": {
+  "paper": [
+   246,
+   236,
+   222
+  ],
+  "ink": [
+   24,
+   64,
+   44
+  ],
+  "acc": [
+   214,
+   40,
+   40
+  ],
+  "tape": [
+   220,
+   180,
+   90
+  ]
+ },
+ "slide_dur": 2.6,
+ "music_seed": 7101,
+ "bpm": 104,
+ "key": 55,
+ "code": "alu426339",
+ "code_text": "Search code alu426339 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "C7/C7_1.jpg",
+   "caption": "the cat found it first",
+   "fy": 0.55
+  },
+  {
+   "img": "C7/C7_2.jpg",
+   "caption": "untangling ALL the lights",
+   "fy": 0.5
+  },
+  {
+   "img": "C7/C7_3.jpg",
+   "caption": "she got the star on top!",
+   "fy": 0.3
+  },
+  {
+   "img": "C7/C7_4.jpg",
+   "caption": "matching stockings :)",
+   "fy": 0.45
+  },
+  {
+   "img": "C7/C7_1.jpg",
+   "postit": true
+  }
+ ]
+}

@@ -37,7 +37,7 @@ def card(img, t):
 def render(n):
     t = n / FPS
     a = np.asarray(Image.open(f'{FR}/f{n:05d}.jpg').convert('RGB')).astype(np.float32)
-    rs = np.random.RandomState(n); a = a * VIG + rs.normal(0, 6, (H, W, 1))
+    rs = np.random.RandomState(n); a = a * VIG + rs.normal(0, 2.0, (H, W, 1))
     if t > DUR - 0.9: a *= max(0, (DUR - t) / 0.9)
     img = Image.fromarray(a.clip(0, 255).astype(np.uint8)).convert('RGBA')
     card(img, t)
@@ -91,6 +91,6 @@ if __name__ == '__main__':
     shutil.rmtree(TMP, ignore_errors=True); os.makedirs(TMP)
     with Pool(4) as p: p.map(render, range(NF), chunksize=20)
     audio(f'{TMP}/a.wav')
-    subprocess.run([FF, '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{TMP}/g%05d.jpg', '-i', f'{TMP}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p',
+    subprocess.run([FF, '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', f'{TMP}/g%05d.jpg', '-i', f'{TMP}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '21', '-pix_fmt', 'yuv420p',
                     '-c:a', 'aac', '-b:a', '192k', '-ac', '2', '-shortest', '-movflags', '+faststart', OUT], check=True)
     shutil.rmtree(TMP); print('ok', OUT, round(DUR, 2))

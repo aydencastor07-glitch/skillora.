@@ -1,0 +1,40 @@
+{
+ "acc": [
+  214,
+  40,
+  40
+ ],
+ "font": "Poppins-ExtraBold.ttf",
+ "slide_dur": 2.4,
+ "music_seed": 7111,
+ "bpm": 112,
+ "key": 55,
+ "code": "alu426339",
+ "slides": [
+  {
+   "img": "C7/C7_1.jpg",
+   "caption": "the cat found it first \ud83d\ude39",
+   "fy": 0.55
+  },
+  {
+   "img": "C7/C7_2.jpg",
+   "caption": "untangling ALL the lights",
+   "fy": 0.5
+  },
+  {
+   "img": "C7/C7_3.jpg",
+   "caption": "she got the star on top!",
+   "fy": 0.3
+  },
+  {
+   "img": "C7/C7_4.jpg",
+   "caption": "matching stockings \u2728",
+   "fy": 0.45
+  },
+  {
+   "img": "C7/C7_1.jpg",
+   "final": true,
+   "fy": 0.55
+  }
+ ]
+}

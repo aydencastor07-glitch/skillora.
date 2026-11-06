@@ -17,9 +17,9 @@
 ## 2. Nos personnages (même rôles, animaux à la place des fruits)
 | Rôle | Animal | Pourquoi |
 |---|---|---|
-| **Le patron qui donne l'argent (personnage principal de TOUTES nos histoires)** | **le POULET** (style envoyé par l'utilisateur) | personnage récurrent, reconnaissable |
+| Le patron | un **lion** (costume noir, lunettes dorées) | riche, impressionnant |
 | L'épouse qui trahit | une **renarde** élégante (robe rouge, collier de perles) | rusée = parfait pour la trahison |
-| L'ouvrier honnête | une **souris** grise (salopette, casque de mineur) | petit, pauvre, attachant |
+| **L'ouvrier honnête qui reçoit et rend l'argent (personnage principal de TOUTES nos histoires)** | **le COQ** (style envoyé par l'utilisateur) | personnage récurrent, reconnaissable |
 | (épisodes suivants) | pigeon, rat, cochon, lion, chat, corbeau… | on change à chaque histoire |
 
 Règle de cohérence : on génère d'abord **une image de référence par personnage** (face + plein pied), puis chaque plan est généré **à partir de ces références** (Flow → ajouter l'image comme « ingrédient »), sinon le poulet change de tête à chaque plan.

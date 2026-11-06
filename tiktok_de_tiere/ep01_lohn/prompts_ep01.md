@@ -4,7 +4,20 @@ Style visuel commun (déjà dans chaque prompt) : film d'animation 3D haut de ga
 ⚠️ Le coq est décrit provisoirement : je remplacerai sa description dès que tu m'envoies ton style.
 Dans Flow : génère d'abord les 3 fiches personnages, puis ajoute-les comme « ingrédients » dans chaque image, pour que les personnages restent identiques.
 
-## A. Fiches personnages
+## A0. IMAGE DE RÉFÉRENCE DE GROUPE (à générer en premier, format paysage, avec ton image de style en pièce jointe)
+```
+Use the attached image only as a STYLE reference (same rendering, lighting, level of detail and expressive faces), not as a character. Hyper-detailed 3D animated film character render of three anthropomorphic animal characters standing side by side, full body from head to shoes, upright human posture and human body proportions, each with a real animal head and animal-textured hands shaped like human hands with five fingers.
+
+LEFT – the lion boss: a big, broad-shouldered anthropomorphic lion in his fifties with a thick, well-groomed golden mane, calm amber eyes, heavy eyebrows and a confident slight smile, small round gold glasses on his muzzle. He wears a perfectly tailored charcoal three-piece suit, crisp white shirt, dark burgundy tie, a gold pocket watch chain across the vest, a heavy gold ring and polished black leather shoes. His hands are human-shaped but covered in short golden fur, with dark leathery pads and short dark claw-like nails. Arms crossed, standing tall like the owner of everything.
+
+CENTER – the rooster worker Max, the hero: a slim anthropomorphic rooster in his thirties with glossy copper, brown and dark green feathers, a slightly droopy bright red comb and wattles, kind tired honest eyes and expressive eyebrows, a few smudges of coal dust on his face. He wears faded worn blue denim work overalls with a patched knee over a grey long-sleeve henley with rolled-up sleeves, a scratched yellow miner helmet with a headlamp, and old dusty brown work boots. His hands are human-shaped with feathered wrists and yellow scaly fingers ending in small blunt claws; he holds a brown paper pay envelope with both hands in front of his chest. Humble, shy posture, a small hopeful smile.
+
+RIGHT – the fox wife: an elegant slender anthropomorphic red fox woman in her thirties with sleek orange-red fur, a white chest and muzzle, sharp amber eyes with long lashes and a sly knowing smirk. She wears a fitted deep red satin evening dress with long sleeves, a pearl necklace, small gold earrings and red heels. Her hands are slim and human-shaped, covered in red fur that turns black toward the fingertips like elegant gloves, with neat dark nails; one hand on her hip, the other touching her pearl necklace.
+
+All three clearly separated so their full outfits are visible, looking toward the camera. Plain warm dark grey studio background, soft cinematic key light with gentle rim light, everything in sharp focus, ultra-detailed fur, feather and fabric textures, rich colors, expressive cartoon faces with realistic materials.
+```
+
+## A. Fiches personnages (optionnelles, pour les gros plans)
 
 ### Fiche personnage – le LION (patron)
 ```

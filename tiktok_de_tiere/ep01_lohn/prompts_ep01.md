@@ -116,11 +116,11 @@ The chicken boss asks with hopeful raised eyebrows, the fox shakes her head inno
 ### PLAN 10 – Le patron furieux
 **Image :**
 ```
-Inside the mine office lit by lanterns, the chicken boss (a stout anthropomorphic chicken with white feathers, a bright red comb, small round gold glasses, a tailored black three-piece suit and a gold pocket watch chain) furious with an open beak and feathers ruffled, pointing angrily toward the exit, the mouse worker (a small thin anthropomorphic grey mouse with big tired eyes and coal dust on his face, worn patched blue overalls and a yellow miner helmet with a headlamp) standing small and scared in front of him. High-end 3D animated feature film still, anthropomorphic animals with very expressive faces and realistic fabric clothing, rich cinematic lighting, warm and dramatic colors, highly detailed fur and feather textures, sharp focus.
+Inside the mine office lit by lanterns, the chicken boss (a stout anthropomorphic chicken with white feathers, a bright red comb, small round gold glasses, a tailored black three-piece suit and a gold pocket watch chain) looking coldly disappointed with his wings crossed, nodding toward the exit, the mouse worker (a small thin anthropomorphic grey mouse with big tired eyes and coal dust on his face, worn patched blue overalls and a yellow miner helmet with a headlamp) standing small and scared in front of him. High-end 3D animated feature film still, anthropomorphic animals with very expressive faces and realistic fabric clothing, rich cinematic lighting, warm and dramatic colors, highly detailed fur and feather textures, sharp focus.
 ```
 **Animation :**
 ```
-The chicken boss shouts and points toward the exit, his feathers puff up, the mouse flinches backward, slight camera shake.
+The chicken boss looks away coldly and nods toward the exit, the mouse's ears drop, slow push-in.
 ```
 
 ### PLAN 11 – La souris se défend
@@ -130,13 +130,13 @@ Close-up of the mouse worker (a small thin anthropomorphic grey mouse with big t
 ```
 **Animation :**
 ```
-The mouse pleads with tears in his eyes and points toward the chicken's phone, his ears drop.
+The mouse pleads with tears in his eyes, hands open, his voice shaking.
 ```
 
 ### PLAN 12 – La caméra de la porte
 **Image :**
 ```
-Over-the-shoulder shot of the chicken boss (a stout anthropomorphic chicken with white feathers, a bright red comb, small round gold glasses, a tailored black three-piece suit and a gold pocket watch chain) holding a smartphone, the screen shows a doorbell camera video of the fox taking an envelope from the mouse at the mansion door, the chicken's eyes wide in shock behind his gold glasses. High-end 3D animated feature film still, anthropomorphic animals with very expressive faces and realistic fabric clothing, rich cinematic lighting, warm and dramatic colors, highly detailed fur and feather textures, sharp focus.
+Over-the-shoulder shot of the chicken boss (a stout anthropomorphic chicken with white feathers, a bright red comb, small round gold glasses, a tailored black three-piece suit and a gold pocket watch chain) holding a smartphone, the screen shows a home security camera app with a video of the fox taking an envelope from the mouse at the mansion door, the chicken's eyes wide in shock behind his gold glasses. High-end 3D animated feature film still, anthropomorphic animals with very expressive faces and realistic fabric clothing, rich cinematic lighting, warm and dramatic colors, highly detailed fur and feather textures, sharp focus.
 ```
 **Animation :**
 ```
@@ -150,15 +150,15 @@ The mansion study, the chicken boss (a stout anthropomorphic chicken with white 
 ```
 **Animation :**
 ```
-The chicken boss points at the open safe, the fox steps back with a frightened face, a banknote slowly falls to the floor.
+The chicken boss holds up his phone toward the fox and points at the open safe, the fox steps back with a frightened face, a banknote slowly falls to the floor.
 ```
 
 ### PLAN 14 – La belle fin
 **Image :**
 ```
-A bright sunny mine entrance, the chicken boss (a stout anthropomorphic chicken with white feathers, a bright red comb, small round gold glasses, a tailored black three-piece suit and a gold pocket watch chain) shaking hands warmly with the mouse worker (a small thin anthropomorphic grey mouse with big tired eyes and coal dust on his face, worn patched blue overalls and a yellow miner helmet with a headlamp), who now wears a clean new grey suit with a small gold director pin, tears of joy in his eyes, other miners clapping in the background. High-end 3D animated feature film still, anthropomorphic animals with very expressive faces and realistic fabric clothing, rich cinematic lighting, warm and dramatic colors, highly detailed fur and feather textures, sharp focus.
+A bright sunny mine entrance, the chicken boss (a stout anthropomorphic chicken with white feathers, a bright red comb, small round gold glasses, a tailored black three-piece suit and a gold pocket watch chain) shaking hands warmly with the mouse worker (a small thin anthropomorphic grey mouse with big tired eyes and coal dust on his face, worn patched blue overalls and a yellow miner helmet with a headlamp), handing him a shiny new white foreman helmet, tears of joy in his eyes, other miners clapping in the background. High-end 3D animated feature film still, anthropomorphic animals with very expressive faces and realistic fabric clothing, rich cinematic lighting, warm and dramatic colors, highly detailed fur and feather textures, sharp focus.
 ```
 **Animation :**
 ```
-The chicken boss shakes the mouse's hand and pats his shoulder, the mouse wipes a tear of joy, the miners in the background clap, slow camera pull-back.
+The chicken boss hands the white foreman helmet to the mouse and shakes his hand, the mouse wipes a tear of joy, the miners in the background clap, slow camera pull-back.
 ```

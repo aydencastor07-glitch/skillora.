@@ -1,0 +1,35 @@
+{
+ "acc": [
+  200,
+  90,
+  40
+ ],
+ "font": "Righteous.ttf",
+ "slide_dur": 2.4,
+ "music_seed": 1409,
+ "bpm": 96,
+ "key": 54,
+ "code": "alu426339",
+ "slides": [
+  {
+   "img": "C14/C14_1.jpg",
+   "caption": "sunday baking with mom"
+  },
+  {
+   "img": "C14/C14_2.jpg",
+   "caption": "digital scale, no more guessing"
+  },
+  {
+   "img": "C14/C14_3.jpg",
+   "caption": "silicone mat = no sticky mess"
+  },
+  {
+   "img": "C14/C14_4.jpg",
+   "caption": "cookie jars for the whole week"
+  },
+  {
+   "img": "C14/C14_1.jpg",
+   "final": true
+  }
+ ]
+}

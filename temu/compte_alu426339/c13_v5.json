@@ -1,0 +1,35 @@
+{
+ "acc": [
+  230,
+  110,
+  20
+ ],
+ "font": "Poppins-ExtraBold.ttf",
+ "slide_dur": 2.4,
+ "music_seed": 1307,
+ "bpm": 108,
+ "key": 54,
+ "code": "alu426339",
+ "slides": [
+  {
+   "img": "C13/C13_1.jpg",
+   "caption": "garage clean out with dad"
+  },
+  {
+   "img": "C13/C13_2.jpg",
+   "caption": "pegboard hooks for every tool"
+  },
+  {
+   "img": "C13/C13_3.jpg",
+   "caption": "headlamp = both hands free"
+  },
+  {
+   "img": "C13/C13_4.jpg",
+   "caption": "magnetic tray, no lost bolts"
+  },
+  {
+   "img": "C13/C13_1.jpg",
+   "final": true
+  }
+ ]
+}

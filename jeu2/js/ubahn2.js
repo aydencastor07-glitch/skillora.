@@ -288,7 +288,7 @@ function shot(T, tx) {
   if (T < K.bahn) return [V(tx + DX + 7.5, 1.75, ZC - 0.1), V(tx + DX - 2, 1.2, ZC + 0.2), 46];
   if (T < K.ohne) return [V(tx + HX + 0.45, 1.62, IN_Z + 0.5), V(H.x, H.y - 0.02, H.z), 36];
   if (T < K.dann2) { const u = ss(K.ohne, K.dann2, T); return [V(tx + HX + lerp(1.9, 1.5, u), 1.55, ZN - 0.25), V(H.x, H.y - 0.1, H.z), 42]; }
-  if (T < K.naechster) return [V(tx + HX + 0.1, 1.72, IN_Z - 0.15), V(tx + DX, 2.13, ZN), 40];
+  if (T < K.naechster) return [V(tx + HX - 0.75, 1.45, IN_Z + 0.15), V(tx + DX, 2.08, ZN), 62];
   if (T < K.aber) return [V(tx + HX + 0.1, 1.58, IN_Z + 0.6), V(H.x, H.y + 0.03, H.z), 36];
   if (T < K.haelt) { const u = ss(K.aber, K.haelt, T); return [V(tx + HX - 0.35, 1.62, lerp(IN_Z + 0.7, IN_Z + 0.5, u)), V(H.x, H.y, H.z), lerp(38, 30, u)]; }
   if (T < K.bahnsteig) return [V(-6.5, 1.5, 2.8), V(-1.5, 0.9, -2.0), 44];
@@ -305,16 +305,16 @@ const SHOTS = [K.du_drehst, K.und, K.laechelt, K.dann, K.diesmal - 0.15, K.tuere
 
 function frame(T) {
   // lumières de la station : le noir total à « das Licht aus », retour quand il remonte le temps
-  const off = T >= K.licht && T < K.diesmal - 0.15;
-  const offK = off ? ss(K.licht, K.aus + 0.15, T) : 0;
-  tubes.forEach((tb, i) => { const out = off && (T > K.licht + i * 0.04 || offK > 0.9); const f = out ? 0 : (Math.sin(T * 31 + i) > 0.85 && T > K.du_drehst && T < K.licht ? 0.25 : 1); tb.mat.emissiveIntensity = 2.2 * f * 0.75; tb.l.intensity = 9 * f * 0.75; });
-  key.intensity = off ? 0 : 22; hemi.intensity = off ? 0.0 : 0.3; paperLight.intensity = off ? 0 : 6;
+  const offL = T >= K.licht && T < K.diesmal - 0.15; const off_ = offL;
+  const offK = offL ? ss(K.licht, K.aus + 0.15, T) : 0;
+  tubes.forEach((tb, i) => { const out = offL && (T > K.licht + i * 0.04 || offK > 0.9); const f = out ? 0 : (Math.sin(T * 31 + i) > 0.85 && T > K.du_drehst && T < K.licht ? 0.25 : 1); tb.mat.emissiveIntensity = 2.2 * f * 0.75; tb.l.intensity = 9 * f * 0.75; });
+  key.intensity = offL ? 0 : 22; hemi.intensity = offL ? 0.0 : 0.3; paperLight.intensity = offL ? 0 : 6;
   setBoard('01:13'); gate.position.y = 1.6;
   // rame
   const tx = trainX(T); train.position.x = tx;
   const op = doorsOpen(T); for (const d of doors) { d.L.position.x = d.x - 0.39 - op * 0.75; d.R.position.x = d.x + 0.39 + op * 0.75; }
   const inside = T >= K.diesmal; const emer = inside ? (T > K.schreib ? 1.8 : 1) : 0.35;
-  strips.forEach(m => (m.emissiveIntensity = 0.45 * emer)); inLights.forEach(l => (l.intensity = off ? 0 : 1.4 * emer));
+  strips.forEach(m => (m.emissiveIntensity = 0.45 * emer)); inLights.forEach(l => (l.intensity = offL ? 0 : 1.4 * emer));
   setDisp(T > K.leuchtet && !(T < K.leuchtet + 0.6 && Math.sin(T * 60) > 0)); dispL.intensity = dispOn ? 1.6 : 0;
   setRule3(ss(K.wer - 0.1, K.und2 - 0.2, T) * (T > K.nur ? 1 : 0));
   // lampes du tunnel qui défilent : éclair sur le visage du héros
@@ -348,11 +348,14 @@ function frame(T) {
   // caméra : coupe nette à chaque plan, puis légère caméra portée
   const [p, tgt, fov] = shot(T, tx);
   const sid = SHOTS.filter(x => x <= T).length;
+  // dans la rame qui roule, la caméra suit le wagon (lissage en coordonnées du wagon, sinon elle reste en arrière)
+  const off = V(T >= K.tueren + 0.1 && T < K.haelt + 0.5 ? tx : 0, 0, 0); p.sub(off); tgt.sub(off);
   if (sid !== lastShot) { camPos.copy(p); camTgt.copy(tgt); lastShot = sid; } else { camPos.lerp(p, 0.35); camTgt.lerp(tgt, 0.35); }
+  camPos.add(off); camTgt.add(off);
   const shake = (T > K.ganz && T < K.falsche) || (T > K.und2 && T < K.eins) ? 0.006 : 0.0022;
   camera.position.copy(camPos).add(V(Math.sin(T * 1.3) * shake + Math.sin(T * 7.1) * shake * 0.3, Math.sin(T * 1.7) * shake, 0));
-  camera.lookAt(camTgt); camera.fov = fov;
-  fillL.position.copy(camera.position).add(V(0, 0.25, 0)); fillL.target.position.copy(camTgt); fillL.intensity = off ? 0 : (inside ? 3.2 : 4.0);
+  camera.lookAt(camTgt); camera.fov = fov; camPos.sub(off); camTgt.sub(off);
+  fillL.position.copy(camera.position).add(V(0, 0.25, 0)); fillL.target.position.copy(camTgt).add(off); fillL.intensity = offL ? 0 : (inside ? 3.2 : 4.0);
   const w2 = innerWidth, h2 = innerHeight;
   if (canvas.width !== w2) renderer.setSize(w2, h2, false);
   camera.aspect = w2 / h2; camera.updateProjectionMatrix();

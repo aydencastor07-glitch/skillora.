@@ -1,3 +1,20 @@
+# Horreur DE « Die letzte U-Bahn » – TEIL 2 – VERSION FINALE (≈ 48 s)
+Remplace les 2 versions précédentes (gardées plus bas pour mémoire). Structure inspirée de leur partie 2 :
+on montre d'abord la MAUVAISE fin (il se retourne → il est là → noir), « on rembobine », puis l'autre choix
+(il monte) → nouveau piège → nouveau choix. Ça marche quel que soit le choix gagnant dans les commentaires.
+
+## Voix off allemande (UNE seule partie, à copier-coller telle quelle)
+Teil zwei. Ihr wolltet wissen, was passiert, wenn du dich umdrehst. Du drehst dich um … und da steht er. Ganz nah. Er lächelt. Dann geht das Licht aus. Falsche Wahl. Spulen wir zurück. Diesmal steigst du ein. Die Türen schließen sich hinter dir. Der Wagen ist leer. Die Bahn fährt los. Ohne Licht. In den Tunnel. Dann leuchtet die Anzeige auf: „Nächster Halt: Lindenplatz.“ Aber da kommst du doch gerade her. Die Bahn hält. Derselbe Bahnsteig. Derselbe Zettel. Nur steht jetzt eine dritte Regel darauf: „Wer einsteigt, steigt nie wieder aus.“ Und die Türen bleiben zu. Also, was machst du? Eins: Du ziehst die Notbremse. Zwei: Du schließt die Augen und wartest. Schreib's in die Kommentare. Teil drei hängt von dir ab.
+
+## Traduction
+Partie deux. Vous vouliez savoir ce qui se passe si tu te retournes. Tu te retournes… et il est là. Tout près. Il sourit. Puis la lumière s'éteint. Mauvais choix. On rembobine. Cette fois, tu montes. Les portes se ferment derrière toi. Le wagon est vide. La rame démarre. Sans lumière. Dans le tunnel. Puis l'écran s'allume : « Prochain arrêt : Lindenplatz. » Mais tu viens justement de là. La rame s'arrête. Le même quai. La même feuille. Sauf qu'il y a maintenant une troisième règle : « Celui qui monte ne descend plus jamais. » Et les portes restent fermées. Alors, tu fais quoi ? 1 : tu tires le frein d'urgence. 2 : tu fermes les yeux et tu attends. Écris-le en commentaire. La partie 3 dépend de toi.
+
+## Description
+Teil 2 – was passiert, wenn du dich umdrehst … 😨 Und jetzt: 1 oder 2? 👇
+#horror #gruselig #creepypasta #teil2 #ubahn #fyp #fürdich
+
+---
+# (anciennes versions, non utilisées)
 # Horreur DE « Die letzte U-Bahn » – TEIL 2 (≈ 45–50 s). Deux versions : selon le choix gagnant dans les commentaires.
 
 ## VERSION 1 – les commentaires ont choisi « 1 : Du steigst ein » (voix en UNE seule partie)

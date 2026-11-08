@@ -91,11 +91,7 @@ def audio(path):
     while t < K['rennst'] + 2.5:
         b = np.concatenate([tone(950, 0.25), tone(700, 0.25)]) * 0.5; put(fx, b * env(len(b), 0.005, 0.02), t, 0.07 if t < K['rotes'] else 0.11); t += 0.55
     hs = lp(noise(1.0, 5), 3) * env(int(1.0 * SR), 0.02, 0.6); put(fx, hs, K['tueren'], 0.14)                 # portes
-    def step(seed, g): return lp(noise(0.08, seed), 4) * np.exp(-ar(0.08) * 50) * g
-    t = K['rennst']                                                                                             # ses pas (course)
-    while t < K['schild']: put(fx, step(int(t * 100), 1), t, 0.55); t += 0.36
-    t = K['hinter']                                                                                             # les pas derrière lui, plus rapides
-    while t < K['vorne'] + 0.4: put(fx, step(int(t * 77), 1), t, 0.35); put(fx, step(int(t * 79), 1), t + 0.09, 0.15); t += 0.27
+    # (pas de bruits de pas : retirés à la demande)
     put(fx, boom, K['gesicht'] - 0.02, 1.0)                                                                     # « dein Gesicht »
     def heart(t0, t1, g=0.5, per=0.62):
         t = t0

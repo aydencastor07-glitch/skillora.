@@ -275,10 +275,10 @@ function shot(T) {
   if (T < K.aber) return [V(DOORW - 3.4, 1.55, ZC - 0.3), V(DOORW + 0.2, 1.15, ZN), 50];                     // les portes s'ouvrent
   if (T < K.sondern) return [V(DOORW + 0.2, 1.6, ZN - 0.3), V(DOORW + 3, 1.25, 1.4), 54];                // vue subjective : le tunnel
   if (T < RUN0) return [V(DOORW + 0.6, 1.2, 1.25), H.clone(), 40];                                          // depuis le tunnel : lui dans la porte, rouge
-  if (T < K.hinter) { const p = HERO.root.position; return [V(p.x - 2.2, 1.45, 1.05), V(p.x + 1, 1.2, 0.7), 50]; }   // derrière lui, il court
+  if (T < K.hinter) return [H.clone().add(V(-0.75, 0.18, 0.18)), H.clone().add(V(2.0, -0.35, 0.05)), 52];   // par-dessus l'épaule, serré   // derrière lui, il court
   if (T < K.schneller) { const p = HERO.root.position; return [V(p.x + 0.4, 1.8, 1.25), V(p.x - 10, 1.4, 0.7), 46]; } // regard en arrière : la silhouette
-  if (T < K.vorne) { const p = HERO.root.position; return [V(p.x + 2.6, 1.55, 0.95), H.clone().add(V(0, -0.15, 0)), 40]; }   // devant lui, panique
-  if (T < K.schild) { const p = HERO.root.position; return [V(p.x - 1.0, 1.5, 0.85), V(p.x + 14, 1.4, 1.5), 52]; }  // la lumière de la station devant
+  if (T < K.vorne) return [H.clone().add(V(0.75, -0.02, 0.12)), H.clone().add(V(0, -0.08, 0)), 36];   // visage de face, serré   // devant lui, panique
+  if (T < K.schild) return [H.clone().add(V(-0.8, 0.15, 0.2)), H.clone().add(V(4, -0.3, 0.1)), 54];   // la lumière devant, par-dessus l'épaule  // la lumière de la station devant
   if (T < K.schon) return [V(-6, 2.6, 3.8), V(-1.2, 2.85, 6.99), 40];                                       // panneau Lindenplatz
   if (T < K.auf) return [H.clone().add(V(0.45, 0.0, 0.3)), H.clone(), 34];                                  // « schon wieder »
   if (T < K.er_traegt) return [V(PLAT.x - 1.2, 1.55, 2.9), TWINP.clone().add(V(0, 1.2, 0)), 42];            // le double, de dos
@@ -326,12 +326,12 @@ function frame(T) {
   if (ch) { SHADOW.root.position.copy(ch.pos); SHADOW.root.rotation.y = ch.yaw; SHADOW.setPose({ mo: [{ clip: 'run', mode: 'abs', t: loopT('run', ch.t), k: 1, w: FULL }] }, {}, null, T);
     SHADOW.headWorld(_sw); eyes.forEach(([e, s]) => e.position.copy(_sw).add(V(0.08, 0.0, s * 0.035))); }
   // caméra
+  const run = T > RUN0 && T < K.schild;
   const [p, tgt, fov] = shot(T);
   const sid = SHOTS.filter(x => x <= T).length;
-  if (sid !== lastShot) { camPos.copy(p); camTgt.copy(tgt); lastShot = sid; } else { camPos.lerp(p, 0.4); camTgt.lerp(tgt, 0.4); }
-  const run = T > RUN0 && T < K.schild;
+  if (sid !== lastShot || run) { camPos.copy(p); camTgt.copy(tgt); lastShot = sid; } else { camPos.lerp(p, 0.4); camTgt.lerp(tgt, 0.4); }
   const shake = T > K.bahn && T < K.rotes ? 0.025 * (1 - ss(K.bahn, K.rotes, T)) + 0.004 : run ? 0.012 : (T > K.dreht && T < K.also ? 0.004 : 0.002);
-  camera.position.copy(camPos).add(V(Math.sin(T * 17) * shake, Math.sin(T * 23) * shake + (run ? Math.abs(Math.sin(T * 8.5)) * 0.03 : 0), Math.sin(T * 13) * shake));
+  camera.position.copy(camPos).add(V(Math.sin(T * 17) * shake, Math.sin(T * 23) * shake, Math.sin(T * 13) * shake));
   camera.lookAt(camTgt); camera.fov = fov;
   fillL.position.copy(camera.position).add(V(0, 0.25, 0)); fillL.target.position.copy(camTgt); fillL.intensity = run ? 2.2 : 3.2;
   fillL.color.set(alarm > 0.5 ? '#ff6a5a' : '#c9d8f0');

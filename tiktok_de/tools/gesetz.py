@@ -9,7 +9,7 @@ C = json.load(open(os.path.join(DIR, 'config.json')))
 HOTC = tuple(C.get('hot_color', (255, 222, 30)))   # couleur des mots clés des sous-titres
 W, H, FPS = 1080, 1920, 30; FD = '/home/user/skillora./temu/fonts/'
 def F(n, s): return ImageFont.truetype(FD + n, s)
-YEL = (255, 222, 30); PANEL = (52, 4, 6)
+YEL = (255, 222, 30); PANEL = tuple(C.get('panel_color', (52, 4, 6)))   # couleur du bandeau (modifiable)
 PX0, PY0, PX1, PY1 = 48, 680, 1032, 1240
 # ---------- voix + calage
 SR = 16000
@@ -141,7 +141,8 @@ base.alpha_composite(glow); m = Image.new('L', pan.size, 0); ImageDraw.Draw(m).r
 por = Image.open(os.path.join(DIR, C['portrait'])).convert('RGBA'); ph = C.get('portrait_h', 400); por = por.resize((int(por.width * ph / por.height), ph), Image.LANCZOS)
 POR_XY = (PX1 - por.width - 10, PY1 - ph)
 SWAP = C.get('cta', {}).get('swap') or bool(C.get('book'))   # la statue doit pouvoir sortir quand le livre arrive
-if not SWAP: base.alpha_composite(por, POR_XY)
+BG = C.get('bg')   # images d'arrière-plan dans le bandeau (zoom lent, changement avec un « whoosh »)
+if not SWAP and not BG: base.alpha_composite(por, POR_XY)
 PMASK = Image.new('L', (W, H), 0); ImageDraw.Draw(PMASK).rounded_rectangle([PX0, PY0, PX1, PY1], 22, fill=255)   # rien ne dépasse du bandeau
 BK = C.get('book')   # carte « livre » de fin : le livre remplace la statue pendant la phrase sur le livre, avec « Link in Bio »
 if BK:
@@ -256,10 +257,35 @@ def quote_poem(img, g, t):
                 d.line([bx0, by, bx1, by], fill=YEL + (al,), width=6); d.ellipse([bx1 - 3, by - 3, bx1 + 3, by + 3], fill=YEL + (al,))
             x += ww + QF.getbbox(' ')[2] + 4
     img.alpha_composite(lay)
+# ---------- arrière-plans animés dans le bandeau
+if BG:
+    BGW, BGH = PX1 - PX0, PY1 - PY0; BGIM = {}
+    for b in BG:
+        if b['img'] not in BGIM:
+            im = Image.open(os.path.join(DIR, b['img'])).convert('RGB'); sc = 1.25 * max(BGW / im.width, BGH / im.height)
+            BGIM[b['img']] = im.resize((int(im.width * sc), int(im.height * sc)), Image.LANCZOS)
+    BGDIM = C.get('bg_dim', 0.42); BGTINT = np.array(C.get('bg_tint', (1.0, 0.92, 0.88)))
+    byy, bxx = np.mgrid[0:BGH, 0:BGW]; BGV = (1 - 0.6 * (((bxx - BGW * 0.35) / BGW) ** 2 + ((byy - BGH / 2) / BGH) ** 2)).clip(0.3, 1)[..., None]
+def draw_bg(img, t):
+    i = max([k for k, b in enumerate(BG) if b['t'] <= t] or [0]); b = BG[i]; t0 = b['t']; t1 = BG[i + 1]['t'] if i + 1 < len(BG) else DUR
+    im = BGIM[b['img']]; u = min(1, max(0, (t - t0) / max(0.5, t1 - t0)))
+    z = 1.0 + 0.12 * u + 0.08 * max(0, 1 - (t - t0) / 0.3) ** 2          # zoom lent + petit « punch » à l'arrivée
+    cw, ch = BGW * 1.2 / z, BGH * 1.2 / z
+    dx = (b.get('pan', 1) * 40) * (u - 0.5); cx, cy = im.width / 2 + dx, im.height / 2
+    a = np.asarray(im.resize((BGW, BGH), Image.BILINEAR, box=(cx - cw / 2, cy - ch / 2, cx + cw / 2, cy + ch / 2))).astype(float)
+    fade = min(1, (t - t0) / 0.25) if i > 0 or t0 > 0 else 1
+    a = a * BGDIM * BGTINT * BGV * fade + np.array(PANEL) * (1 - fade) * 0.6
+    fl = max(0, 1 - (t - t0) / 0.18) * (0.35 if i > 0 else 0); a = a * (1 - fl) + 255 * fl   # petit flash à la transition
+    lay = Image.fromarray(a.clip(0, 255).astype('uint8')).convert('RGBA')
+    m = Image.new('L', (BGW, BGH), 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, BGW - 1, BGH - 1], 22, fill=255)
+    img.paste(lay, (PX0, PY0), m)
+    if not SWAP: img.alpha_composite(por, (POR_XY[0], POR_XY[1] + int(4 * math.sin(t * 1.3))))
 # ---------- images
 T_TITLE_END = WORDS[NT][1] - 0.15
 def frame(t):
-    img = base.copy(); draw_portrait(img, t); draw_book(img, t)
+    img = base.copy()
+    if BG: draw_bg(img, t)
+    draw_portrait(img, t); draw_book(img, t)
     if t < T_TITLE_END:   # carte titre : lettres qui entrent, puis glitch de sortie
         lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ttl = C['title']; sz = 150
         while True:
@@ -347,6 +373,13 @@ if GV:   # coup de marteau synthétisé : claquement bois + choc grave + petite 
     if C.get('gavel_sfx'):   # vrai son de marteau fourni
         w3 = wave.open(os.path.join(DIR, C['gavel_sfx'])); hit = np.frombuffer(w3.readframes(w3.getnframes()), '<i2').astype(float) / 32768; n = len(hit)
     hit = hit / np.abs(hit).max(); i0 = int(G_IMP * SR2); L = min(n, N - i0); mix[i0:i0 + L] += hit[:L] * 0.9
+if BG and C.get('bg_whoosh', True):   # son de transition à chaque changement d'image
+    w5 = wave.open('/home/user/skillora./motion/sfx/' + C.get('bg_sfx', 'swish') + '.wav'); ws = np.frombuffer(w5.readframes(w5.getnframes()), '<i2').astype(float) / 32768
+    if w5.getnchannels() == 2: ws = ws.reshape(-1, 2).mean(1)
+    if w5.getframerate() != SR2: ws = np.interp(np.arange(0, len(ws), w5.getframerate() / SR2), np.arange(len(ws)), ws)
+    for b in BG[1:]:
+        i0 = int((b['t'] - 0.12) * SR2); L = min(len(ws), N - i0)
+        if L > 0: mix[i0:i0 + L] += ws[:L] * C.get('bg_sfx_gain', 0.3)
 if CTA:   # petit clic sur le bouton
     w4 = wave.open('/home/user/skillora./motion/sfx/click.wav'); ck = np.frombuffer(w4.readframes(w4.getnframes()), '<i2').astype(float) / 32768
     if w4.getnchannels() == 2: ck = ck.reshape(-1, 2).mean(1)

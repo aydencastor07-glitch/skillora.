@@ -1,0 +1,19 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#222}canvas{display:block}</style>
+<script type="importmap">{ "imports": { "three": "../jeu/vendor/three.module.min.js", "three/addons/": "./vendor/addons/" } }</script></head>
+<body><canvas id="c"></canvas><script type="module">
+import * as THREE from 'three';
+import { RealHuman } from './js/rig.js';
+const Q = new URLSearchParams(location.search), clip = Q.get('clip') || 'walk';
+const r = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true }); r.setSize(innerWidth, innerHeight);
+const s = new THREE.Scene(); s.background = new THREE.Color('#888'); s.add(new THREE.HemisphereLight('#fff', '#444', 2.5));
+const g = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: '#666' })); g.rotation.x = -Math.PI / 2; s.add(g);
+await RealHuman.loadClips([clip, 'walk'], './mocap/');
+const H = await RealHuman.create('./models/g_Male_Adult_04.glb', { heightM: 1.8 }); s.add(H.root);
+const cam = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.05, 50);
+window.renderAt = (t, view) => {
+  const c = RealHuman.clips[clip];
+  H.setPose({ mo: [{ clip, mode: 'abs', t, k: 1, w: { pelvis: 1, spineAbs: 1, legs: 1, arms: 1, root: 1, headAbs: 1 } }] }, {}, null, t);
+  const v = view === 'side' ? [3.2, 1.0, 0] : [0, 1.0, 3.2]; cam.position.set(...v); cam.lookAt(0, 0.9, 0); r.render(s, cam);
+};
+window.READY = true;
+</script></body></html>

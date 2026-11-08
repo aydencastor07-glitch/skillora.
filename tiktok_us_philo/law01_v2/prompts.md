@@ -1,8 +1,8 @@
-# Law No. 3 – 9 images (format CARRÉ 1:1 dans Flow), dans l'ordre
+# Law No. 1 – 9 images (format CARRÉ 1:1 dans Flow), dans l'ordre
 
 Style commun : noir et blanc sombre (sauf la 06 et un peu de rouge sur la 09), statues, chevaliers, brouillard. Je fais les révélations, les textes et le son.
 
-## IMAGE 01 – titre (LAW NO. 3)
+## IMAGE 01 – titre (LAW NO. 1)
 ```
 Close-up of an ancient white marble statue of a man's face cracked down the middle, one half crumbling into dust, eyes closed, black background, thin rim light from the left. Dark cinematic black and white photograph, deep blacks, subtle film grain, dramatic single light source, moody stormy atmosphere, sharp details, square composition, no text, no letters, no watermark.
 ```

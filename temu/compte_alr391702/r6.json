@@ -1,0 +1,47 @@
+{
+ "code": "alr391702",
+ "title": "MY CATS APPROVED THESE",
+ "slide_dur": 2.5,
+ "music_seed": 3906,
+ "bpm": 103,
+ "key": 58,
+ "acc": [
+  200,
+  70,
+  140
+ ],
+ "hl": [
+  255,
+  214,
+  232
+ ],
+ "head": "stroke",
+ "chip": "pill",
+ "tick": "sticker",
+ "tag": "price",
+ "trans": "swipe",
+ "final": "blur",
+ "font": "ArchivoBlack-Regular.ttf",
+ "tick_y": 1500,
+ "slides": [
+  {
+   "img": "R6/R6_1.jpg",
+   "ty": 1660,
+   "ts": 0.72
+  },
+  {
+   "img": "R6/R6_2.jpg",
+   "item": "cat water fountain"
+  },
+  {
+   "img": "R6/R6_3.jpg",
+   "item": "corner self-groomer"
+  },
+  {
+   "img": "R6/R6_4.jpg",
+   "item": "radiator hammock bed"
+  }
+ ],
+ "bars": false,
+ "head_y": 220
+}

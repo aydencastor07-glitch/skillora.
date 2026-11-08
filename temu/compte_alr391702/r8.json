@@ -1,0 +1,43 @@
+{
+ "code": "alr391702",
+ "title": "NAIL NIGHT WITH MY SISTER",
+ "slide_dur": 2.5,
+ "music_seed": 3908,
+ "bpm": 117,
+ "key": 55,
+ "acc": [
+  220,
+  60,
+  90
+ ],
+ "hl": [
+  255,
+  225,
+  235
+ ],
+ "head": "tape",
+ "chip": "stroke",
+ "tick": "pill2",
+ "tag": "burst",
+ "trans": "zoom",
+ "final": "polaroid",
+ "font": "PermanentMarker.ttf",
+ "tick_y": 1540,
+ "slides": [
+  {
+   "img": "R8/R8_1.jpg"
+  },
+  {
+   "img": "R8/R8_2.jpg",
+   "item": "mini UV nail lamp"
+  },
+  {
+   "img": "R8/R8_3.jpg",
+   "item": "makeup organizer"
+  },
+  {
+   "img": "R8/R8_4.jpg",
+   "item": "heated lash curler"
+  }
+ ]
+}

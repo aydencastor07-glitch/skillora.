@@ -1,0 +1,43 @@
+{
+ "code": "alr391702",
+ "title": "NEW PUPPY CHECKLIST",
+ "slide_dur": 2.5,
+ "music_seed": 3902,
+ "bpm": 103,
+ "key": 55,
+ "acc": [
+  32,
+  150,
+  120
+ ],
+ "hl": [
+  255,
+  236,
+  120
+ ],
+ "head": "box",
+ "chip": "tab",
+ "tick": "band",
+ "tag": "burst",
+ "trans": "up",
+ "final": "polaroid",
+ "font": "Anton-Regular.ttf",
+ "tick_y": 1540,
+ "slides": [
+  {
+   "img": "R2/R2_1.jpg"
+  },
+  {
+   "img": "R2/R2_2.jpg",
+   "item": "washable dog bed"
+  },
+  {
+   "img": "R2/R2_3.jpg",
+   "item": "lick mat for calm"
+  },
+  {
+   "img": "R2/R2_4.jpg",
+   "item": "reflective harness"
+  }
+ ]
+}

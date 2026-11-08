@@ -1,0 +1,42 @@
+{
+ "code": "alr391702",
+ "title": "ADVENT AT GRANDMA & GRANDPA'S",
+ "slide_dur": 2.5,
+ "music_seed": 3901,
+ "bpm": 96,
+ "key": 52,
+ "acc": [
+  214,
+  40,
+  40
+ ],
+ "hl": [
+  255,
+  222,
+  60
+ ],
+ "head": "hl",
+ "chip": "pill",
+ "tick": "stub",
+ "tag": "price",
+ "trans": "swipe",
+ "final": "mosaic",
+ "font": "ArchivoBlack-Regular.ttf",
+ "slides": [
+  {
+   "img": "R1/R1_1.jpg"
+  },
+  {
+   "img": "R1/R1_2.jpg",
+   "item": "LED advent candles"
+  },
+  {
+   "img": "R1/R1_3.jpg",
+   "item": "paper star window light"
+  },
+  {
+   "img": "R1/R1_4.jpg",
+   "item": "refillable felt calendar"
+  }
+ ]
+}

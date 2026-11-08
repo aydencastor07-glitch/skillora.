@@ -1,0 +1,44 @@
+{
+ "code": "alr391702",
+ "title": "OUR COFFEE CORNER",
+ "slide_dur": 2.5,
+ "music_seed": 3910,
+ "bpm": 103,
+ "key": 52,
+ "acc": [
+  120,
+  72,
+  40
+ ],
+ "hl": [
+  255,
+  226,
+  170
+ ],
+ "head": "hl",
+ "chip": "tab",
+ "tick": "sticker",
+ "tag": "burst",
+ "trans": "up",
+ "final": "polaroid",
+ "font": "ArchivoBlack-Regular.ttf",
+ "tick_y": 1500,
+ "bars": false,
+ "slides": [
+  {
+   "img": "R10/R10_1.jpg"
+  },
+  {
+   "img": "R10/R10_2.jpg",
+   "item": "electric milk frother"
+  },
+  {
+   "img": "R10/R10_3.jpg",
+   "item": "double-wall glasses"
+  },
+  {
+   "img": "R10/R10_4.jpg",
+   "item": "pod holder + mug tree"
+  }
+ ]
+}

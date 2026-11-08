@@ -1,0 +1,42 @@
+{
+ "code": "alr391702",
+ "title": "MOVIE NIGHT AT HOME",
+ "slide_dur": 2.5,
+ "music_seed": 3909,
+ "bpm": 96,
+ "key": 58,
+ "acc": [
+  90,
+  50,
+  170
+ ],
+ "hl": [
+  255,
+  222,
+  60
+ ],
+ "head": "box",
+ "chip": "note",
+ "tick": "stub",
+ "tag": "circle",
+ "trans": "flash",
+ "final": "blur",
+ "font": "Anton-Regular.ttf",
+ "slides": [
+  {
+   "img": "R9/R9_2.jpg"
+  },
+  {
+   "img": "R9/R9_1.jpg",
+   "item": "mini projector"
+  },
+  {
+   "img": "R9/R9_3.jpg",
+   "item": "sherpa blanket + silicone bowls"
+  },
+  {
+   "img": "R9/R9_4.jpg",
+   "item": "galaxy star projector"
+  }
+ ]
+}

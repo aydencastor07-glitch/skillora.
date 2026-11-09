@@ -8,12 +8,14 @@ const r = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antial
 const s = new THREE.Scene(); s.background = new THREE.Color('#888'); s.add(new THREE.HemisphereLight('#fff', '#444', 2.5));
 const g = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: '#666' })); g.rotation.x = -Math.PI / 2; s.add(g);
 await RealHuman.loadClips([clip, 'walk'], './mocap/');
-const H = await RealHuman.create('./models/g_Male_Adult_04.glb', { heightM: 1.8 }); s.add(H.root);
+const H = await RealHuman.create('./models/' + (Q.get('m') || 'g_Male_Adult_04') + '.glb', { heightM: 1.8 }); s.add(H.root);
+const FACE = JSON.parse(Q.get('face') || '{}');
 const cam = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.05, 50);
 window.renderAt = (t, view) => {
   const c = RealHuman.clips[clip];
-  H.setPose({ mo: [{ clip, mode: 'abs', t, k: 1, w: { pelvis: 1, spineAbs: 1, legs: 1, arms: 1, root: 1, headAbs: 1 } }] }, {}, null, t);
-  const v = view === 'side' ? [3.2, 1.0, 0] : [0, 1.0, 3.2]; cam.position.set(...v); cam.lookAt(0, 0.9, 0); r.render(s, cam);
+  H.setPose({ mo: [{ clip, mode: 'abs', t, k: 1, w: { pelvis: 1, spineAbs: 1, legs: 1, arms: 1, root: 1, headAbs: view === 'face' ? 0 : 1 } }] }, FACE, view === 'face' ? new THREE.Vector3(0, 1.65, 2) : null, t);
+  if (view === 'face') { const hp = H.headWorld(); cam.position.set(hp.x, hp.y, hp.z + 0.6); cam.lookAt(hp); cam.fov = 30; cam.updateProjectionMatrix(); r.render(s, cam); return; }
+  const v = view === 'side' ? [3.2, 1.0, 0] : view === 'top' ? [0.01, 4, 0] : [0, 1.0, 3.2]; cam.position.set(...v); cam.lookAt(0, view === 'top' ? 0 : 0.9, 0); r.render(s, cam);
 };
 window.READY = true;
 </script></body></html>

@@ -43,7 +43,7 @@ def analyse(path):
     for s in range(0, int(len(data) * ft)):
         a, b = int(s * fps), min(len(data) - 1, int((s + 1) * fps))
         v = np.linalg.norm(p[b, [0, 2]] - p[a, [0, 2]]) / hh; print(f'{s:3d}s  hanche {p[a,1]/hh:5.2f}  vitesse {v:4.2f}')
-def convert(path, out, t0, t1, loop=False, inplace=True, fps_out=30, heading=None):
+def convert(path, out, t0, t1, loop=False, inplace=True, fps_out=30, heading=None, legfix=True):
     joints, ft, data = parse(path); hh = rest_hip(joints)
     i0, i1 = int(t0 / ft), int(t1 / ft); step = max(1, int(round(1 / fps_out / ft)))
     d = data[i0:i1:step]; R, P = world_rots(joints, d); p = P['root']
@@ -54,7 +54,15 @@ def convert(path, out, t0, t1, loop=False, inplace=True, fps_out=30, heading=Non
         else:
             fwd = R['Hips'].apply([0, 0, 1]); heading = np.arctan2(fwd[:, 0].mean(), fwd[:, 2].mean())
     Y = Rot.from_euler('y', -heading)
-    q = np.stack([(Y * R[MAP[n]]).as_quat() for n in NAMES], 1)
+    # jambes : au repos, le squelette CMU a les cuisses et les tibias écartés (~20°) alors que le personnage les a verticaux ;
+    # sans correction les pieds se croisent devant. On compose avec la rotation « vertical -> direction de repos du BVH ».
+    by = {j['name']: j for j in joints if j['name']}; child = {j['parent']: j['name'] for j in joints if j['name'] and j['parent']}
+    FIX = {}
+    if legfix:
+        for n in ('lThigh', 'rThigh', 'lCalf', 'rCalf'):
+            off = by[child[MAP[n]]]['off']; dv = off / np.linalg.norm(off); dv = np.array([dv[0], dv[1], 0]); dv /= np.linalg.norm(dv)
+            FIX[n] = Rot.align_vectors([dv], [[0, -1, 0]])[0]
+    q = np.stack([((Y * R[MAP[n]] * FIX[n]) if n in FIX else (Y * R[MAP[n]])).as_quat() for n in NAMES], 1)
     for b in range(q.shape[1]):                     # continuité des quaternions
         for f in range(1, len(q)):
             if np.dot(q[f, b], q[f - 1, b]) < 0: q[f, b] *= -1
@@ -76,4 +84,4 @@ def cycle(path, t0, tmin=0.45, tmax=1.3):
 if __name__ == '__main__':
     a = sys.argv
     if a[1] == 'analyse': analyse(a[2])
-    else: convert(a[1], a[2], float(a[3]), float(a[4]), loop='--loop' in a, inplace='--root' not in a)
+    else: convert(a[1], a[2], float(a[3]), float(a[4]), loop='--loop' in a, inplace='--root' not in a, legfix='--nolegfix' not in a)

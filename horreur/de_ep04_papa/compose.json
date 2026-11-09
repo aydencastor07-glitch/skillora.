@@ -1,0 +1,15 @@
+{
+ "knocks": [0.81, 1.05, 1.29],
+ "stingers": [3.25],
+ "heart": [3.9, 10.4],
+ "buzz": [7.6],
+ "msg": [8.74],
+ "subs": [
+  {"t0": 0.17, "t1": 2.1, "txt": "Dein Vater klopft an die Tür."},
+  {"t0": 2.26, "t1": 4.75, "txt": "Aber dein Vater … steht hinter dir."},
+  {"t0": 6.24, "t1": 7.6, "txt": "Du bist allein zu Hause."},
+  {"t0": 7.75, "t1": 8.65, "txt": "Papa schreibt:"},
+  {"t0": 8.74, "t1": 10.45, "who": "PAPA", "txt": "„Bin in zehn Minuten da.“"}
+ ],
+ "chapter": {"t0": 4.85, "t1": 6.15, "top": "02:00 UHR  ·  ZUHAUSE", "title": "Die Tür"}
+}

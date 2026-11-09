@@ -28,3 +28,8 @@
 - VARIER à chaque fois (demande de l'utilisateur) : pas toujours « un homme puis des femmes ». Mélanger hommes, femmes, couples, familles, personnes âgées, amis, enfants (scènes de famille), animaux ; varier les angles (selfie miroir, vue du dessus, POV, mains seules). Les montages aussi : copier les styles approuvés mais changer mises en page, ordre, couleurs, titres.
 - Doit passer les règles de Google Flow : enfants seulement dans des scènes de famille (prévoir une variante adulte si Flow refuse), tout le monde toujours habillé (pas de serviette / douche / épaules nues), pas de vraies marques ni logos (préciser « no brand logos on the shoes / clothes »), pas de célébrités, pas de mots violents ou médicaux forts.
 - Bloc de fin à utiliser : voir `temu/prompt_realiste.md`. NE PLUS ajouter « Vertical 9:16. No text, no letters, no numbers, no logos, no brand names, no watermark. » à la fin des prompts (demande de l'utilisateur).
+
+## Vidéos horreur 3D (retour sur « Ich bin's. Mach auf. »)
+- Sous-titres SANS fond noir derrière le texte.
+- Les cartes de choix « 1 / 2 » ne doivent pas ressembler au style générique des vidéos faites par IA : inventer un style à nous (différent à chaque fois).
+- Toujours bien montrer le personnage quand la voix parle de lui (pas de plan où on devrait le voir mais où il est caché).

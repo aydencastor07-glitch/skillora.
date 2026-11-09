@@ -12,3 +12,4 @@ node_modules/
 # images extraites des clips vidéo (recréées au rendu)
 en_explained/*/vid/*_fr/
 horreur/de_ep04_papa/frames/
+horreur/de_ep04_papa/frames_v2/

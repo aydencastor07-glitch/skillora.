@@ -1,0 +1,100 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_smoke.png",
+ "portrait_h": 560,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 1",
+ "title_words": 3,
+ "music": "musique.wav",
+ "music_gain": 0.3,
+ "gavel": {
+  "t": 1.222,
+  "dur": 1.252
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number one.",
+  "Never suffer twice.",
+  "Most of your pain has not happened yet.",
+  "You replay the argument.",
+  "You imagine the failure.",
+  "You lose the battle in your head before it even begins.",
+  "Seneca said:",
+  "\"We suffer more often in imagination than in reality.\"",
+  "So stop feeding the fear.",
+  "Face what is real.",
+  "Ignore what is not.",
+  "The man who controls his mind cannot be controlled.",
+  "Follow for law number two."
+ ],
+ "hot": "^(never|suffer|twice|pain|yet|argument|failure|battle|head|begins|seneca|imagination|reality|fear|real|not|mind|controlled|follow)$",
+ "tail": 2.0,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  226,
+  186,
+  96
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  14,
+  16,
+  24
+ ],
+ "bg": [
+  {
+   "img": "img/01.jpg",
+   "t": 0.0
+  },
+  {
+   "img": "img/02.jpg",
+   "t": 4.29,
+   "pan": -1
+  },
+  {
+   "img": "img/03.jpg",
+   "t": 6.68
+  },
+  {
+   "img": "img/04.jpg",
+   "t": 8.52,
+   "pan": -1
+  },
+  {
+   "img": "img/07.jpg",
+   "t": 10.33
+  },
+  {
+   "img": "img/06.jpg",
+   "t": 13.95,
+   "pan": 0
+  },
+  {
+   "img": "img/08.jpg",
+   "t": 19.38,
+   "pan": -1
+  },
+  {
+   "img": "img/09.jpg",
+   "t": 25.89
+  },
+  {
+   "img": "img/02.jpg",
+   "t": 29.97,
+   "pan": 1
+  }
+ ],
+ "bg_dim": 0.5,
+ "bg_tint": [
+  0.95,
+  0.97,
+  1.05
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.32
+}

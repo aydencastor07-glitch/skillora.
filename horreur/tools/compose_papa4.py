@@ -82,8 +82,8 @@ _dr = np.random.RandomState(5)
 DROPS = [(int(_dr.randint(0, W)), int(_dr.randint(0, H)), float(_dr.uniform(1.5, 4.5))) for _ in range(900)]
 def fogify(a, k):
     """Vitre embuée : image floue, éclaircie et refroidie + petites gouttelettes."""
-    im = Image.fromarray(a.clip(0, 255).astype(np.uint8)); sm = im.resize((W // 6, H // 6), Image.BILINEAR).filter(ImageFilter.GaussianBlur(3)).resize((W, H), Image.BILINEAR)
-    f = np.asarray(sm).astype(np.float32) * 0.5 + np.array([150, 160, 172], np.float32) * 0.5
+    im = Image.fromarray(a.clip(0, 255).astype(np.uint8)); sm = im.resize((W // 5, H // 5), Image.BILINEAR).filter(ImageFilter.GaussianBlur(2)).resize((W, H), Image.BILINEAR)
+    f = np.asarray(sm).astype(np.float32) * 0.42 + np.array([178, 186, 196], np.float32) * 0.58
     return a * (1 - k) + f * k
 def stroke_mask(texts, t):
     """Masque des lettres « essuyées » au doigt. texts = [(texte, cx, cy, taille, révélé 0..1, brillance, coulure 0..1)]."""
@@ -91,11 +91,11 @@ def stroke_mask(texts, t):
     for txt, cx, cy, sz, rev, br, drip in texts:
         if rev <= 0: continue
         f = F('PermanentMarker.ttf', sz); bb = d.textbbox((cx, cy), txt, font=f, anchor='mm')
-        lay = Image.new('L', (W, H), 0); ImageDraw.Draw(lay).text((cx, cy), txt, font=f, fill=255, anchor='mm')
+        lay = Image.new('L', (W, H), 0); ImageDraw.Draw(lay).text((cx, cy), txt, font=f, fill=255, anchor='mm', stroke_width=max(4, sz // 22), stroke_fill=255)
         cut = Image.new('L', (W, H), 0); ImageDraw.Draw(cut).rectangle([0, 0, W, bb[1] + (bb[3] - bb[1]) * rev], fill=255)   # écrit de haut en bas
         lay = Image.fromarray(np.minimum(np.asarray(lay), np.asarray(cut)))
         m = Image.fromarray(np.maximum(np.asarray(m), np.asarray(lay)))
-        if br > 0: g.text((cx, cy), txt, font=f, fill=int(255 * br), anchor='mm')
+        if br > 0: g.text((cx, cy), txt, font=f, fill=int(255 * br), anchor='mm', stroke_width=max(4, sz // 22), stroke_fill=int(255 * br))
         if drip > 0 and rev >= 1:   # coulures sous les lettres
             rs = np.random.RandomState(abs(hash(txt)) % 999)
             for _ in range(5 if sz > 150 else 2):
@@ -108,8 +108,10 @@ def fog_screen(a, t, items, k):
     fa = fogify(a, k)
     if not items: return fa
     m, gl = stroke_mask(items, t)
-    out = fa * (1 - m) + np.minimum(255, a * 1.12 + 8) * m
-    return out + gl * np.array([90, 55, 10], np.float32) * k
+    rim = np.clip(np.asarray(Image.fromarray((m[..., 0] * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(4))).astype(np.float32)[..., None] / 255 - m, 0, 1)
+    clear = a * 0.62 + gl * np.array([150, 95, 25], np.float32)
+    out = fa * (1 - m) + clear * m + rim * 55 * k
+    return out
 def choice_items(ch, t):
     hi = 0
     for tt, which in ch['hi']:

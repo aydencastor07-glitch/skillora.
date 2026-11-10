@@ -20,6 +20,8 @@
 ## Temu (code alq393258)
 - Le code, les titres, le $0 et le logo Temu sont toujours posés par Claude, jamais générés dans les images IA.
 
+- Carrousels / vidéos Temu : le bloc du code (« Search code … for Gifts at 0€/$0 in TEMU app ») doit rester bien lisible MAIS changer de place d'une image à l'autre (haut, milieu, bas — pas toujours en bas), avec des styles de bloc différents. La carte finale du code ne doit pas toujours être la dernière ni toujours la même : la mettre parfois en 1er, au milieu ou à la fin, avec un dessin et une hauteur différents (outil `temu/tools/posterv7.py`).
+
 ## Sons (compte philosophie)
 - Bibliothèque des sons fournis : `tiktok_de/sons/` (voir LISEZMOI.md). Les réutiliser et en changer d'une vidéo à l'autre ; si l'utilisateur envoie un son pour une vidéo, l'utiliser et l'ajouter à la bibliothèque.
 

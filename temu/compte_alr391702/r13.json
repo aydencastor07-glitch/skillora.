@@ -1,0 +1,81 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "MY BUNNY'S NEW SETUP",
+ "acc": [
+  120,
+  80,
+  170
+ ],
+ "hl": [
+  255,
+  214,
+  120
+ ],
+ "head": "tape",
+ "chip": "note",
+ "tick": "band",
+ "tag": "price",
+ "trans": "zoom",
+ "font": "PermanentMarker.ttf",
+ "music_seed": 3913,
+ "bpm": 98,
+ "key": 52,
+ "seq": [
+  {
+   "img": "R13/R13_1.jpg",
+   "title": true,
+   "hy": 250,
+   "ty": 1000,
+   "ts": 0.8,
+   "tick": "sticker",
+   "tag": "none"
+  },
+  {
+   "img": "R13/R13_2.jpg",
+   "item": "foldable play pen",
+   "num": 1,
+   "hy": 300,
+   "chip": "pill",
+   "ty": 1570,
+   "tick": "band",
+   "tag": "price",
+   "tag_at": [
+    905,
+    -300
+   ]
+  },
+  {
+   "img": "R13/R13_3.jpg",
+   "item": "wooden hay rack",
+   "num": 2,
+   "hy": 1480,
+   "chip": "note",
+   "ty": 370,
+   "ts": 0.9,
+   "tick": "pill2",
+   "tag": "none"
+  },
+  {
+   "card": true,
+   "kind": "receipt",
+   "cy": 0.47,
+   "bg": "polaroid"
+  },
+  {
+   "img": "R13/R13_4.jpg",
+   "item": "bunny approved",
+   "hy": 260,
+   "chip": "stroke",
+   "ty": 1340,
+   "ts": 0.9,
+   "tick": "stub",
+   "tag": "circle",
+   "tag_at": [
+    150,
+    -300
+   ]
+  }
+ ]
+}

@@ -317,7 +317,7 @@ function papaState(T) {     // celui de la chambre
 function papa2State(T) {    // celui de la porte
   if (T < 31.0) return null;
   const u = ss(34.8, 35.75, T), pos = POUT.clone().lerp(PIN, u);
-  return { pos, yaw: 0, layers: u > 0 && u < 1 ? CLIP('walk2', T) : IDLE(2 + T), face: talk(DADOK, T, inR(T, 32.75, 34.85)), hug: ss(35.45, 36.1, T), look: 'hero' };
+  return { pos, yaw: 0, layers: u > 0 && u < 1 ? CLIP('walk2', T) : IDLE(2 + Math.min(T, 36.1)), face: talk(DADOK, T, inR(T, 32.75, 34.85)), hug: ss(35.45, 36.1, T), look: 'hero' };
 }
 let T_ = 0;
 function placePhone(h) {
@@ -341,8 +341,8 @@ const CAM = [
   { t: 1.4, pov: 'phone', d: 0.31, fov: 36 },
   { t: 3.3, pov: 'phone', d: 0.25, fov: 36 },
   { t: 4.2, f: 'papa', az: 6, el: -2, d: 0.66, fov: 36 },
-  { t: 5.35, f: 'papa', az: 2, el: -3, d: 0.5, fov: 32 },
-  { t: 6.1, f: 'papa', az: -5, el: -3, d: 0.5, fov: 31 },
+  { t: 5.35, f: 'papa', az: 2, el: -3, d: 0.6, fov: 34 },
+  { t: 6.1, f: 'papa', az: -5, el: -3, d: 0.56, fov: 32 },
   { t: 6.55, f: 'mid', az: -92, el: 2, d: 1.75, fov: 48 },
   { t: 7.05, f: 'hero', az: 207, el: 2, d: 0.6, fov: 36 },
   { t: 8.0, f: 'hero', az: 198, el: 0, d: 0.52, fov: 34 },
@@ -351,8 +351,8 @@ const CAM = [
   { t: 9.2, cut: 1, f: 'hero', az: 180, el: 3, d: 0.85, fov: 24 },
   { t: 10.6, f: 'hero', az: 183, el: 2, d: 0.7, fov: 22 },
   // C — vu de l'armoire : celui de la chambre
-  { t: 10.62, cut: 1, p: () => FOC.eye(), l: () => FOC.papa(), fov: 46 },
-  { t: 12.26, p: () => FOC.eye(), l: () => FOC.papa(), fov: 34 },
+  { t: 10.62, cut: 1, p: () => V(WPOS.x + 0.05, 1.5, WZ - 0.12), l: () => FOC.papa().add(V(0, -0.25, 0)), fov: 50 },
+  { t: 12.26, p: () => V(WPOS.x - 0.05, 1.55, WZ - 0.3), l: () => FOC.papa().add(V(0, -0.1, 0)), fov: 36 },
   // D — la porte d'entrée : on cogne
   { t: 12.27, cut: 1, f: 'door', az: 9, el: 2, d: 1.7, fov: 40 },
   { t: 15.15, f: 'door', az: -1, el: 0, d: 0.9, fov: 34 },
@@ -381,14 +381,14 @@ const CAM = [
   { t: 31.5, f: 'hero', az: 28, el: 8, d: 1.0, lk: 'doorway', fov: 46 },
   { t: 32.3, f: 'papa2', az: 6, el: -2, d: 0.95, fov: 36 },
   { t: 34.6, f: 'papa2', az: -4, el: -2, d: 0.62, fov: 32 },
-  { t: 35.2, f: 'papa2', az: 42, el: 4, d: 0.72, fov: 40 },
-  { t: 35.48, f: 'hero', az: 122, el: 10, d: 0.55, fov: 44 },
-  { t: 36.25, f: 'hero', az: 158, el: 10, d: 0.85, fov: 38 },
-  { t: 37.3, f: 'hero', az: 162, el: 8, d: 0.6, fov: 34 },
+  { t: 34.94, f: 'papa2', az: -6, el: -2, d: 0.58, fov: 32 },
+  { t: 34.95, cut: 1, f: 'hero', az: 126, el: 10, d: 0.58, fov: 46 },
+  { t: 36.25, f: 'hero', az: 150, el: 10, d: 0.85, fov: 38 },
+  { t: 37.3, f: 'hero', az: 148, el: 9, d: 0.72, fov: 32 },
   { t: 38.6, pov: 'phone', d: 0.27, fov: 36 },
   { t: 41.0, pov: 'phone', d: 0.22, fov: 36 },
-  { t: 42.0, f: 'hero', az: 160, el: 8, d: 0.72, fov: 36 },
-  { t: 48.3, f: 'hero', az: 166, el: 5, d: 0.48, fov: 32 },
+  { t: 42.0, f: 'hero', az: 149, el: 9, d: 0.76, fov: 36 },
+  { t: 48.3, f: 'hero', az: 148, el: 8, d: 0.74, fov: 24 },
 ];
 const HIDE_HERO = [[1.25, 3.75], [10.6, 12.27], [15.15, 16.51], [21.0, 25.3], [38.1, 41.45]];
 const DEG = Math.PI / 180;
@@ -428,7 +428,7 @@ function posePapa(P, ps, out, T) {
   const look = ps.look === 'hero' || ps.look === 'herohead' ? _hw : ps.look === 'ward' ? V(WPOS.x, 1.55, WPOS.z) : null;
   const pose = { mo: ps.layers, lookW: 1, headZ: ps.tilt || 0, spineX: ps.lean || 0 };
   if (ps.hug > 0) {     // les bras autour du fils
-    Object.assign(pose, { rW: ps.hug, rwx: HG.x + 0.2, rwy: 1.24, rwz: HG.z + 0.16, rCurl: 0.3, lW: ps.hug, lwx: HG.x - 0.2, lwy: 1.16, lwz: HG.z + 0.16, lCurl: 0.3 });
+    Object.assign(pose, { rW: ps.hug, rwx: HG.x + 0.2, rwy: 1.12, rwz: HG.z + 0.2, rCurl: 0.3, lW: ps.hug, lwx: HG.x - 0.2, lwy: 1.04, lwz: HG.z + 0.2, lCurl: 0.3 });
   }
   P.setPose(pose, ps.face, look, T); P.headWorld(out);
 }

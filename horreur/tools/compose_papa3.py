@@ -115,7 +115,15 @@ def choice_frame(a, ch, t, n):
     lcx = W / 2 + (ch['left'].get('cx', 540) - W / 2) * u; x0 = int(clamp((lcx - xs / 2) / max(1, W - xs)) * (W - xs)) if xs < W else 0
     out = np.empty_like(a); L = a[:, x0:x0 + xs]; out[:, :xs] = dim(L, u) if hi == 2 else L
     if xs < W:
-        wr = W - xs; rx = int(min(W - wr, max(0, r.get('cx', 540) - wr / 2))); R = b[:, rx:rx + wr]; out[:, xs:] = dim(R, u) if hi == 1 else R
+        wr = W - xs
+        if r.get('scale'):   # image réduite et centrée dans le panneau (pour montrer tout l'écran du téléphone), fond sombre flou
+            sc = r['scale']; im = Image.fromarray(b.clip(0, 255).astype(np.uint8)); sm = im.resize((int(W * sc), int(H * sc)), Image.LANCZOS)
+            bg = im.resize((W // 8, H // 8)).filter(ImageFilter.GaussianBlur(6)).resize((W, H)); pan = Image.blend(bg, Image.new('RGB', (W, H), (4, 5, 8)), 0.72).crop((W // 2 - 270, 0, W // 2 + 270, H))
+            cxs = int(r.get('cx', 540) * sc); pan.paste(sm.crop((cxs - 270, 0, cxs + 270, sm.height)), (0, int(r.get('cy', 1010) - sm.height / 2)))
+            R = np.asarray(pan).astype(np.float32)[:, :wr]
+        else:
+            rx = int(min(W - wr, max(0, r.get('cx', 540) - wr / 2))); R = b[:, rx:rx + wr]
+        out[:, xs:] = dim(R, u) if hi == 1 else R
     lay = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     if u > 0.5:
         k = (u - 0.5) * 2; cy = C.get('num_y', 470)

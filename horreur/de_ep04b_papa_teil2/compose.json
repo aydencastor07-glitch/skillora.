@@ -69,7 +69,7 @@
    "t1": 48.3,
    "left": {
     "label": "IHM\nGLAUBEN",
-    "cx": 540
+    "cx": 520
    },
    "right": {
     "label": "DER\nNACHRICHT",
@@ -78,7 +78,9 @@
      40.9
     ],
     "rate": 0.25,
-    "cx": 540
+    "cx": 540,
+    "scale": 0.55,
+    "cy": 1290
    },
    "hi": [
     [

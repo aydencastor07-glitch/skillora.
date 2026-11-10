@@ -1,0 +1,61 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_zeno.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 3",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.446,
+  "dur": 1.237
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number three.",
+  "Say less than necessary.",
+  "When you explain too much, you are not being honest, you are being predictable.",
+  "Every extra word is information someone can use.",
+  "The quiet person in the room is the one everyone tries to read.",
+  "Zeno said:",
+  "\"We have two ears and one mouth, so that we may listen more and talk less.\"",
+  "So today, listen twice as long as you speak.",
+  "Then watch what people tell you.",
+  "Save this, and follow for law number four."
+ ],
+ "hot": "^(less|necessary|explain|honest|predictable|extra|word|information|quiet|read|zeno|ears|mouth|listen|twice|speak|watch|save|follow)$",
+ "tail": 2.0,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  240,
+  196,
+  96
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  14,
+  18,
+  24
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": -1
+  }
+ ],
+ "bg_dim": 0.42,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0
+}

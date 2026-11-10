@@ -3,32 +3,33 @@
 Voix : UNE seule partie. ElevenLabs v3, Stability « Creative ». Pas de murmure au début.
 Fin de la voix = fin de la vidéo (reboucle sur le hook).
 
-## Français (à valider)
-Tu écris à ton père : « Tu es où ? » Et le téléphone sonne… dans la veste de l'homme qui te serre dans ses bras.
-Partie trois. Deux hommes disent qu'ils sont ton père. L'un te tient. L'autre est dans l'escalier.
-« Chéri… il a mon téléphone. Viens vers moi. »
-Celui de la porte te serre plus fort. « Ne l'écoute pas. »
-Un : tu montes l'escalier en courant. Deux : tu cours dehors, dans la rue.
-Si tu montes… l'escalier est vide. Et la porte d'entrée se ferme derrière toi.
-Alors dehors. Pieds nus. Tu te retournes. Ils sont tous les deux dans l'encadrement de la porte. Côte à côte. Et ils sourient… exactement pareil.
-Des phares. La voiture de Papa. Il descend. « Qu'est-ce que tu fais dehors ? Qui est dans la maison ? »
-Un : tu montes dans la voiture. Deux : tu retournes dans la maison. Trois pères. Un seul est vrai. Où… tu vas ?
+## Version v2 — hook de l'utilisateur (câlin + appel de Papa au téléphone)
+L'effet « voix au téléphone » (son étouffé, bande étroite, petits grésillements) est ajouté par Claude au montage sur les répliques au téléphone.
 
-## Allemand (voix, à copier-coller tel quel)
-[tense, fast] Du schreibst deinem Vater: „Wo bist du?“ [gasps] Und das Handy klingelt … in der Jacke des Mannes, der dich umarmt.
-[calm, storytelling] Teil drei. Zwei Männer sagen, sie sind dein Vater. Einer hält dich fest. Einer steht auf der Treppe.
-[sweet, too calm, deep voice] „Schatz … er hat mein Handy. Komm zu mir.“
-[tense] Der an der Tür drückt dich fester. [low, urgent] „Hör nicht auf ihn.“
-[serious] Eins: Du rennst die Treppe hoch. Zwei: Du rennst raus auf die Straße.
-[short pause] [dark, slow] Wenn du hochrennst … ist die Treppe leer. Und hinter dir geht die Haustür zu.
-[panicked, fast] Also raus. Barfuß. Du drehst dich um. [scared, slow] Beide stehen in der Tür. Nebeneinander. Und lächeln … genau gleich.
-[tense] Scheinwerfer. Papas Auto. Er steigt aus. [confused, worried] „Was machst du draußen? Wer ist da drin?“
-[slow, deep, serious] Eins: Du steigst ins Auto. Zwei: Du gehst zurück ins Haus. Drei Väter. Nur einer ist echt. [short pause] Wohin … gehst du?
+### Français (à valider)
+Ton père te serre dans ses bras. Et ton téléphone sonne. « Allô, mon fils ? Je suis dehors. Viens m'ouvrir la porte. » Alors… qui est en train de te serrer ?
+Partie trois. Un homme te tient. Un autre est dans l'escalier. Et ton père t'appelle de dehors.
+Celui qui te serre se penche à ton oreille : « Raccroche. »
+Un : tu raccroches. Deux : tu cours dehors.
+Si tu raccroches… il sourit. « C'est bien. » Et il ne te lâche plus jamais.
+Alors tu te dégages. Tu cours dehors. Pieds nus. La rue est vide. Dans le téléphone : « Je te vois. Ne te retourne pas. »
+Derrière toi : des pas. Lents.
+Un : tu te retournes. Deux : tu continues à courir. Qu'est-ce… que tu fais ?
+
+### Allemand (voix, à copier-coller tel quel)
+[warm, calm] Dein Vater nimmt dich in den Arm. [tense] Und dein Handy klingelt. [on the phone, warm deep father voice] „Hallo, mein Sohn? Ich steh draußen. Mach mir die Tür auf.“ [gasps, slow] Also … wer hält dich gerade fest?
+[calm, storytelling] Teil drei. Einer hält dich fest. Einer steht auf der Treppe. Und dein Vater ruft von draußen an.
+[tense] Der, der dich festhält, beugt sich zu deinem Ohr. [sweet, too calm, deep voice] „Leg auf.“
+[serious] Eins: Du legst auf. Zwei: Du rennst raus.
+[short pause] [dark, slow] Wenn du auflegst … lächelt er. [sweet, too calm, deep voice] „Gut gemacht.“ [dark] Und lässt dich nie wieder los.
+[panicked, fast] Also reißt du dich los. Raus. Barfuß. Die Straße ist leer. [on the phone, low father voice] „Ich seh dich. Dreh dich nicht um.“
+[scared, slow] Hinter dir: Schritte. Langsam.
+[slow, deep, serious] Eins: Du drehst dich um. Zwei: Du rennst weiter. [short pause] Was … machst du?
 
 ## Écran
-- Hook (0–4 s), d'un seul mouvement : le fils dans les bras du père à la porte, il tape sur son téléphone ; la caméra glisse vers la veste du père qui s'allume et sonne ; elle remonte sur le visage du père (sourire figé) puis tourne sur la peur du fils.
+- Hook (0–5 s), d'un seul mouvement : le père serre le fils, visage chaleureux ; le téléphone sonne dans la main du fils (écran « Papa »), il décroche ; la caméra tourne lentement autour d'eux pendant la voix au téléphone ; sur « wer hält dich gerade fest? », zoom sur le visage du père par-dessus l'épaule du fils : le sourire se fige.
 - Rappel : 2 plans très courts (le fils tenu à la porte / l'homme dans l'escalier).
 - Choix : NOUVEAU style (pas celui de la partie 2) : les chiffres « 1 » et « 2 » écrits au doigt dans la buée de la vitre de la porte d'entrée, éclairés par les phares / le téléphone ; le chiffre nommé s'illumine.
 - Sous-titres : mot par mot, sans fond noir.
 - Mauvaise fin (escalier vide, porte qui se ferme) : rembobinage.
-- Fin : la rue la nuit, les deux pères côte à côte dans la porte éclairée, les phares de la voiture, le visage du fils entre les deux ; coupe sèche sur « gehst du? ».
+- Fin : la rue vide la nuit, le fils de face, téléphone à l'oreille, une silhouette qui approche lentement derrière lui (floue) ; coupe sèche sur « machst du? ».

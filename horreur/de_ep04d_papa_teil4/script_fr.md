@@ -25,3 +25,12 @@ Un : celui qui est devant toi. Deux : celui derrière la vitre. Lequel… est to
 ## Pour les partages (les gens regardent jusqu'au bout mais partagent peu)
 - Une ligne à l'écran au début, 2 s, dans le décor (pas dans les bandes noires) : « Schick das jemandem, der die Tür aufgemacht hätte. »
 - En description : « Markier jemanden, der sofort aufgemacht hätte 👇 »
+
+## Version 1 – v2 (validée en principe : nouveau hook façon partie 3, « Option 1 / Option 2 », plus de fenêtre)
+Tu te retournes. Ton père te serre dans ses bras, au milieu de la rue. Et ton téléphone sonne. « Allô, mon fils ? Je suis toujours coincé sur l'autoroute. » Alors… qui te serre dans ses bras ?
+Partie quatre. L'homme recule. Il lève les mains. « Pose-moi une question. N'importe laquelle. Je vais te prouver que c'est moi. »
+Alors tu lui demandes quoi ? Option 1 : « Comment s'appelait notre chien ? » Option 2 : « Qu'est-ce que tu m'as offert pour mes dix ans ? »
+Si tu choisis l'option 1… il sourit. « Rex. » Et au téléphone, ton père dit en même temps : « Rex. »
+Alors, option 2. Il hésite. Il regarde ton téléphone. Puis : « Un vélo rouge. » C'est vrai.
+Au téléphone, ton père : « Il sait tout ce que je sais. Demande-lui un truc que je ne sais pas. »
+Alors tu fais quoi ? Option 1 : tu lui demandes ton secret. Option 2 : tu cours chez le voisin. Tu choisis quoi… ?

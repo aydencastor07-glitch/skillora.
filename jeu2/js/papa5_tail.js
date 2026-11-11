@@ -239,8 +239,8 @@ const CAM = [
   { t: 60.85, cut: 1, p: () => V(BX + 1.05, 0.11, 2.45), l: () => FOC.rifle(), fov: 50 },
   { t: 62.98, p: () => V(BX + 0.95, 0.1, 2.2), l: () => FOC.rifle(), fov: 46 },
   // L — elle encore
-  { t: 63.0, cut: 1, p: () => V(0.72, 1.55, 2.15), l: () => FOC.weber(), fov: 33 },
-  { t: 64.45, p: () => V(0.6, 1.5, 1.95), l: () => FOC.weber(), fov: 30 },
+  { t: 63.0, cut: 1, p: () => V(0.76, 1.62, 0.95), l: () => FOC.weber(), fov: 33 },
+  { t: 64.45, p: () => V(0.7, 1.56, 1.05), l: () => FOC.weber(), fov: 30 },
   // M — la porte secrète dans la cave
   { t: 64.47, cut: 1, p: () => V(KX + 0.8, 1.4, 1.2), l: () => FOC.cellar(), fov: 46 },
   { t: 66.78, p: () => V(KX + 0.15, 1.2, 2.7), l: () => FOC.cellar(), fov: 40 },

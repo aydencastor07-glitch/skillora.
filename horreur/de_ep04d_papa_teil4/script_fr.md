@@ -1,0 +1,27 @@
+# « Ich bin's. Mach auf. » – Teil 4 : deux versions en français (à valider, l'allemand ensuite)
+Suite de la partie 3 (la rue vide, des pas derrière lui, « Du drehst dich um / Du rennst weiter »).
+Les répliques entre guillemets sont dites À L'ÉCRAN par le personnage (bouche qui bouge + gestes, caméra tournée vers lui).
+
+## Version 1 – « La fenêtre »
+Tu te retournes. Ton père est là, dans la rue. Il pleure. « C'est moi, mon grand. » Mais à la fenêtre de ta chambre… ton père te fait coucou.
+Partie quatre. Cette nuit, trois hommes t'ont dit : « Je suis ton père. »
+Celui de la rue lève les mains. « Pose-moi une question. N'importe laquelle. Je vais te le prouver. »
+Un : « Comment s'appelait notre chien ? » Deux : « Qu'est-ce que tu m'as offert pour mes dix ans ? »
+Si tu demandes le chien… il sourit. « Rex. » Et derrière la vitre, l'autre articule… « Rex. »
+Alors tu demandes pour tes dix ans. Il hésite. Il regarde la fenêtre. « Un vélo rouge. » C'est vrai.
+Ton téléphone vibre. Papa : « Il lit dans ta tête. Demande-lui un truc que tu n'as jamais dit à personne. »
+Un : tu lui dis ton secret. Deux : tu cours chez le voisin. Tu fais quoi… ?
+
+## Version 2 – « La même chanson »
+« Pose-moi une question que seul ton père connaît », dit l'homme dans la rue. Tu demandes. Il répond juste. Et l'homme derrière la fenêtre… aussi.
+Partie quatre. Tu t'es retourné. Ils sont deux. Un dans la rue. Un derrière la vitre.
+Celui de la rue avance doucement, les mains ouvertes. « N'aie pas peur. Je ne te ferai rien. »
+Un : tu recules vers la route. Deux : tu le laisses approcher.
+Si tu recules… des phares derrière toi. Une voiture freine. Personne au volant.
+Il s'approche. Il s'accroupit devant toi. « Tu te souviens de ce que je te chantais quand tu avais peur du noir ? » Et il chante. Doucement. La chanson que seul ton père connaît.
+Derrière la vitre… l'autre chante la même chanson. Au même moment.
+Un : celui qui est devant toi. Deux : celui derrière la vitre. Lequel… est ton père ?
+
+## Pour les partages (les gens regardent jusqu'au bout mais partagent peu)
+- Une ligne à l'écran au début, 2 s, dans le décor (pas dans les bandes noires) : « Schick das jemandem, der die Tür aufgemacht hätte. »
+- En description : « Markier jemanden, der sofort aufgemacht hätte 👇 »

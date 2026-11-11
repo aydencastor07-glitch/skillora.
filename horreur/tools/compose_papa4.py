@@ -187,7 +187,8 @@ def bandpass(x, lo, hi):
 def phone_fx(seg, seed):
     y = bandpass(seg, 320, 3300); y = np.tanh(y * 3.0) / 3.0 * 1.6
     cr = (np.random.RandomState(seed).rand(len(y)) > 0.9996).astype(np.float32); cr = np.convolve(cr, np.exp(-np.arange(200) / 30), 'same')
-    return y + bandpass(noise(len(y) / SR, seed), 800, 3000) * 0.006 + cr * 0.05
+    nz = bandpass(np.resize(noise(len(y) / SR + 0.01, seed), len(y)), 800, 3000)
+    return y + nz * 0.006 + cr * 0.05
 def ringtone(d):
     n = int(d * SR); tt = np.arange(n) / SR; on = ((tt % 1.6) < 0.9).astype(np.float32)
     s = (np.sin(2 * np.pi * 784 * tt) * (np.sin(2 * np.pi * 8 * tt) > 0) + np.sin(2 * np.pi * 988 * tt) * (np.sin(2 * np.pi * 8 * tt) <= 0)) * on

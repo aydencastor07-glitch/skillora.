@@ -33,5 +33,9 @@
 
 ## Vidéos horreur 3D (retour sur « Ich bin's. Mach auf. »)
 - Sous-titres SANS fond noir derrière le texte.
-- Les cartes de choix « 1 / 2 » ne doivent pas ressembler au style générique des vidéos faites par IA : inventer un style à nous (différent à chaque fois).
+- Les cartes de choix « 1 / 2 » ne doivent pas ressembler au style générique des vidéos faites par IA. NOUVEAU (partie 5) : ne plus changer de style à chaque fois → garder le style de texte de la PARTIE 3 (chiffres écrits au doigt dans la buée, `horreur/tools/compose_papa6.py`), c'est la vidéo qui a eu le plus de commentaires.
+- Sous-titres mot par mot classiques : blanc, mot prononcé en jaune.
+- Téléphone : il ne colle pas à l'oreille (petit espace, la main le tient et il bouge) ; on voit la main le monter de la main à l'oreille et le redescendre. Les objets restent à leur place.
+- Caméra qui bouge : tourne autour, passe devant / derrière, vue d'en haut, vue de côté.
+- Musique : si l'utilisateur envoie un son, l'utiliser (le prolonger en boucle calée sur le temps si trop court) et suivre son rythme.
 - Toujours bien montrer le personnage quand la voix parle de lui (pas de plan où on devrait le voir mais où il est caché).

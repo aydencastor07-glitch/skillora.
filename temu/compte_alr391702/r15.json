@@ -1,0 +1,81 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "WINTER BALCONY GARDEN",
+ "acc": [
+  170,
+  58,
+  48
+ ],
+ "hl": [
+  214,
+  236,
+  255
+ ],
+ "head": "stroke",
+ "chip": "tab",
+ "tick": "stub",
+ "tag": "price",
+ "trans": "up",
+ "font": "BebasNeue-Regular.ttf",
+ "music_seed": 3915,
+ "bpm": 92,
+ "key": 50,
+ "seq": [
+  {
+   "img": "R15/R15_2.jpg",
+   "title": true,
+   "hy": 200,
+   "ty": 1580,
+   "ts": 0.95,
+   "tick": "stub",
+   "tag": "price",
+   "tag_at": [
+    905,
+    -300
+   ]
+  },
+  {
+   "card": true,
+   "kind": "receipt",
+   "cy": 0.47,
+   "bg": "blur",
+   "bg_src": 1
+  },
+  {
+   "img": "R15/R15_1.jpg",
+   "item": "frost protection covers",
+   "num": 1,
+   "hy": 1730,
+   "ty": 330,
+   "ts": 0.85,
+   "tick": "band",
+   "tag": "none"
+  },
+  {
+   "img": "R15/R15_3.jpg",
+   "item": "window bird feeder",
+   "num": 2,
+   "hy": 290,
+   "ty": 1360,
+   "ts": 0.9,
+   "tick": "sticker",
+   "tag": "circle",
+   "tag_at": [
+    900,
+    -320
+   ]
+  },
+  {
+   "img": "R15/R15_4.jpg",
+   "item": "balcony thermometer",
+   "num": 3,
+   "hy": 1640,
+   "ty": 420,
+   "ts": 0.88,
+   "tick": "pill2",
+   "tag": "none"
+  }
+ ]
+}

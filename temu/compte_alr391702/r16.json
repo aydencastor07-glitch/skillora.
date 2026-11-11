@@ -1,0 +1,84 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "WORKING FROM HOME TOGETHER",
+ "acc": [
+  88,
+  70,
+  196
+ ],
+ "hl": [
+  176,
+  250,
+  196
+ ],
+ "head": "tape",
+ "chip": "pill",
+ "tick": "band",
+ "tag": "circle",
+ "trans": "zoom",
+ "font": "ArchivoBlack-Regular.ttf",
+ "music_seed": 3916,
+ "bpm": 108,
+ "key": 55,
+ "seq": [
+  {
+   "card": true,
+   "kind": "wide",
+   "scheme": "hl",
+   "cy": 0.5,
+   "bg": "mosaic"
+  },
+  {
+   "img": "R16/R16_1.jpg",
+   "title": true,
+   "hy": 190,
+   "ty": 1660,
+   "ts": 0.9,
+   "tick": "band",
+   "tag": "none"
+  },
+  {
+   "img": "R16/R16_2.jpg",
+   "item": "foldable laptop stand",
+   "num": 1,
+   "hy": 1590,
+   "chip": "tab",
+   "ty": 360,
+   "ts": 0.88,
+   "tick": "stub",
+   "tag": "circle",
+   "tag_at": [
+    905,
+    330
+   ]
+  },
+  {
+   "img": "R16/R16_3.jpg",
+   "item": "LED desk lamp",
+   "num": 2,
+   "hy": 230,
+   "ty": 1250,
+   "ts": 0.7,
+   "tx": -170,
+   "tick": "pill2",
+   "tag": "none"
+  },
+  {
+   "img": "R16/R16_4.jpg",
+   "item": "cable tidy box",
+   "num": 3,
+   "hy": 1480,
+   "chip": "note",
+   "ty": 470,
+   "ts": 0.9,
+   "tick": "sticker",
+   "tag": "price",
+   "tag_at": [
+    170,
+    360
+   ]
+  }
+ ]
+}

@@ -1,0 +1,82 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "OUR LITTLE HAMSTER'S NEW HOME",
+ "acc": [
+  52,
+  140,
+  100
+ ],
+ "hl": [
+  255,
+  206,
+  96
+ ],
+ "head": "box",
+ "chip": "note",
+ "tick": "pill2",
+ "tag": "burst",
+ "trans": "flash",
+ "font": "Righteous.ttf",
+ "music_seed": 3914,
+ "bpm": 118,
+ "key": 60,
+ "seq": [
+  {
+   "img": "R14/R14_1.jpg",
+   "title": true,
+   "hy": 230,
+   "ty": 1290,
+   "ts": 0.78,
+   "tick": "pill2",
+   "tag": "none"
+  },
+  {
+   "img": "R14/R14_2.jpg",
+   "item": "2-floor hamster cage",
+   "num": 1,
+   "hy": 1450,
+   "ty": 360,
+   "ts": 0.85,
+   "tick": "stub",
+   "tag": "burst",
+   "tag_at": [
+    905,
+    330
+   ]
+  },
+  {
+   "img": "R14/R14_3.jpg",
+   "item": "wooden tunnel",
+   "num": 2,
+   "hy": 170,
+   "chip": "pill",
+   "ty": 1480,
+   "ts": 0.85,
+   "tick": "sticker",
+   "tag": "none"
+  },
+  {
+   "img": "R14/R14_4.jpg",
+   "item": "hamster approved",
+   "hy": 200,
+   "chip": "pill",
+   "ty": 1640,
+   "ts": 0.85,
+   "tick": "band",
+   "tag": "circle",
+   "tag_at": [
+    170,
+    -300
+   ]
+  },
+  {
+   "card": true,
+   "kind": "stack",
+   "scheme": "dark",
+   "cy": 0.5,
+   "bg": "polaroid"
+  }
+ ]
+}

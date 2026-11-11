@@ -34,3 +34,12 @@ Si tu choisis l'option 1… il sourit. « Rex. » Et au téléphone, ton père d
 Alors, option 2. Il hésite. Il regarde ton téléphone. Puis : « Un vélo rouge. » C'est vrai.
 Au téléphone, ton père : « Il sait tout ce que je sais. Demande-lui un truc que je ne sais pas. »
 Alors tu fais quoi ? Option 1 : tu lui demandes ton secret. Option 2 : tu cours chez le voisin. Tu choisis quoi… ?
+
+## Version 1 – v3 (plus de détails concrets, hook clair)
+Tu cours pieds nus dans la rue. L'homme sorti de ta maison te rattrape. Il a le visage de ton père, la veste de ton père. Il te serre fort contre lui : « C'est fini, je suis là. » Ton téléphone sonne. C'est Papa. « Allô, mon fils ? Je suis encore bloqué sur l'autoroute. Avec qui tu es ? » Alors… qui te serre dans ses bras ?
+Partie quatre. Tu le repousses. Il lève les deux mains, doucement. « Pose-moi une question. Une question que seul ton père connaît. »
+Alors tu lui demandes quoi ? Option 1 : « Comment s'appelait notre chien ? » Option 2 : « Qu'est-ce que tu m'as offert pour mes dix ans ? »
+Si tu choisis l'option 1… il sourit. « Rex. » Et dans ton téléphone, ton père dit exactement au même moment : « Rex. »
+Alors, option 2. Il hésite. Il regarde ton téléphone. Puis : « Un vélo rouge. Avec une sonnette cassée. » C'est vrai. Même la sonnette.
+Dans le téléphone, la voix de ton père tremble : « Il sait tout ce que je sais. Demande-lui un truc que moi, je ne sais pas. »
+Alors tu fais quoi ? Option 1 : tu lui dis le secret que tu n'as jamais dit à personne. Option 2 : tu cours frapper chez le voisin. Tu choisis quoi… ?

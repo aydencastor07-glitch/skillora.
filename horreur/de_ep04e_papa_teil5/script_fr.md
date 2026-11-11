@@ -28,3 +28,17 @@ Alors, tu fais quoi ? Option 1 : tu rentres avec lui. Option 2 : tu cours chez l
 - Personnages bien visibles quand la voix parle d'eux, lèvres et gestes quand ils parlent.
 - Cartes de choix : un style nouveau (différent des parties 2, 3 et 4).
 - Sous-titres mot par mot sans fond noir. Mauvaise fin → rembobinage.
+
+## Version B2 – retenue par l'utilisateur (suite de l'option 2 : la police) – à valider
+Hook = rappel de l'histoire + quelque chose de bizarre tout de suite. Puis on continue l'histoire (pas de nouvelle histoire).
+
+Un homme avec le visage de ton père est devant toi. Ton vrai père est au téléphone, sur l'autoroute. Alors tu appelles la police… et c'est toi que la police menace.
+Partie cinq. La policière soupire : « Ton père nous a déjà appelés. Il dit que tu as pris quelque chose. Que tu vois des choses qui n'existent pas. »
+Puis sa voix devient froide : « Si tu rappelles encore une fois, je viens te chercher moi-même. Et tu passes la nuit en cellule. » Elle raccroche.
+L'homme au visage de Papa sourit doucement : « Tu vois ? Personne ne va te croire. »
+Alors, tu fais quoi ? Option 1 : tu rappelles la police. Option 2 : tu cours chez la voisine.
+Si tu choisis l'option 1… ça sonne. Mais pas dans ton téléphone. Ça sonne dans la poche de l'homme.
+Alors option 2. Tu cours chez Madame Weber. Tu frappes. Elle ouvre, elle voit l'homme derrière toi… et elle devient toute blanche. « Entre. Vite. » Elle ferme à clé.
+« Ton père est parti ce soir avec sa valise. Je l'ai vu. Il n'est jamais revenu. »
+Et là, on sonne à la porte. « Madame Weber ? C'est moi. Ouvrez. »
+Alors, tu fais quoi ? Option 1 : tu laisses Madame Weber ouvrir. Option 2 : tu te caches. Écris 1 ou 2 en commentaire. Et envoie ça à un ami… pour voir ce qu'il aurait choisi.

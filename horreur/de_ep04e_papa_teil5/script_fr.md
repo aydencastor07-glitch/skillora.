@@ -42,3 +42,10 @@ Alors option 2. Tu cours chez Madame Weber. Tu frappes. Elle ouvre, elle voit l'
 « Ton père est parti ce soir avec sa valise. Je l'ai vu. Il n'est jamais revenu. »
 Et là, on sonne à la porte. « Madame Weber ? C'est moi. Ouvrez. »
 Alors, tu fais quoi ? Option 1 : tu laisses Madame Weber ouvrir. Option 2 : tu te caches. Écris 1 ou 2 en commentaire. Et envoie ça à un ami… pour voir ce qu'il aurait choisi.
+
+## Version B3 – nouvelle fin (Madame Weber panique) – à valider
+(début identique à B2 jusqu'à « Ouvrez. »)
+Et là, on sonne à la porte. « Madame Weber ? C'est moi. Ouvrez. »
+Tu paniques : « On fait quoi, Madame Weber ?! »
+Elle panique aussi : « Je… je sais pas ! Il y a le fusil de mon mari, sous mon lit… mais je sais pas m'en servir ! Ou… il y a une porte secrète, derrière, dans la cave… mais je sais pas où elle mène ! »
+Alors, tu choisis quoi ? Option 1 : le fusil. Option 2 : la porte secrète. Écris 1 ou 2 en commentaire. Et envoie ça à un ami… pour voir ce qu'il aurait choisi.

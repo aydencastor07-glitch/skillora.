@@ -61,7 +61,7 @@ def subs(img, t):
         if not (a <= t < b): continue
         lay = Image.new('RGBA', (W, 420), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
         toks = [WORDS[i][0].replace('»', '').replace('«', '').strip().upper() for i in ch]
-        f = F(C.get('font', 'Poppins-ExtraBold.ttf'), 100); sp = 30
+        f = F(C.get('font', 'Poppins-ExtraBold.ttf'), 100); sp = 46
         kk = [1.14 if norm(WORDS[i][0]) in KEY else 1.0 for i in ch]   # place réservée pour le mot fort agrandi
         ws = [f.getbbox(x)[2] * q for x, q in zip(toks, kk)]; tot = sum(ws) + sp * (len(ws) - 1)
         if tot > W - 110: f = F(C.get('font', 'Poppins-ExtraBold.ttf'), int(100 * (W - 110) / tot)); ws = [f.getbbox(x)[2] * q for x, q in zip(toks, kk)]; tot = sum(ws) + sp * (len(ws) - 1)
@@ -121,6 +121,8 @@ def clip_fx(a, t, n):
             a = a + m * np.array([255, 120, 40], np.float32) * 0.55
     return np.clip(a, 0, 255)
 def render(n, src, out):
+    if C.get('style') == 'plain':   # UNIQUEMENT les sous-titres sur la vidéo d'origine (pas d'effet, pas d'autre texte)
+        img = Image.open(src).convert('RGBA'); subs(img, n / FPS); img.convert('RGB').save(out, quality=95); return
     t = n / FPS; im = Image.open(src).convert('RGB'); z, (sx, sy) = zoom_at(t)
     cw, ch = W / z, H / z; cx, cy = W / 2 + sx, H * C.get('zoom_cy', 0.42) + sy
     x0 = min(max(0, cx - cw / 2), W - cw); y0 = min(max(0, cy - ch * C.get('zoom_cy', 0.42)), H - ch)
@@ -189,6 +191,10 @@ if __name__ == '__main__':
         if prev and n not in idx: continue
         render(n, f'{tmp}/{srcs[min(n, len(srcs) - 1)]}', f'{tmp}/g{n:05d}.jpg' if not prev else os.path.join(os.environ.get('PDIR', tmp), f'p_{n / FPS:.2f}.jpg'))
     if prev: shutil.rmtree(tmp); sys.exit(0)
-    audio(f'{tmp}/a.wav'); out = os.path.join(D, C['out'])
+    out = os.path.join(D, C['out'])
+    if C.get('style') == 'plain':   # son d'origine tel quel
+        subprocess.run([FF, '-y', '-v', 'error', '-framerate', str(FPS), '-i', f'{tmp}/g%05d.jpg', '-i', os.path.join(D, C['src']), '-map', '0:v', '-map', '1:a', '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-shortest', '-movflags', '+faststart', out], check=True)
+        shutil.rmtree(tmp); print('ok', out); sys.exit(0)
+    audio(f'{tmp}/a.wav')
     subprocess.run([FF, '-y', '-v', 'error', '-framerate', str(FPS), '-i', f'{tmp}/g%05d.jpg', '-i', f'{tmp}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '23', '-vf', 'hqdn3d=1.2:1.2:3:3', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ac', '2', '-shortest', '-movflags', '+faststart', out], check=True)
     shutil.rmtree(tmp); print('ok', out)

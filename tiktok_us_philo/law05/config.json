@@ -1,0 +1,61 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_suntzu.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 5",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.37,
+  "dur": 1.244
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number five.",
+  "Let them underestimate you.",
+  "When people think you are weak, they stop watching you.",
+  "They talk too much, they relax, and they show you every move before they make it.",
+  "Sun Tzu said:",
+  "\"When able to attack, we must seem unable; when using our forces, we must seem inactive.\"",
+  "So stay quiet.",
+  "Let them laugh.",
+  "Keep working while they sleep.",
+  "Save this, and follow for law number six."
+ ],
+ "hot": "^(underestimate|weak|stop|watching|talk|relax|every|move|sun|tzu|attack|unable|forces|inactive|quiet|laugh|working|sleep|save|follow)$",
+ "tail": 1.0,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  236,
+  196,
+  110
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  12,
+  16,
+  22
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": -1
+  }
+ ],
+ "bg_dim": 0.42,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0
+}

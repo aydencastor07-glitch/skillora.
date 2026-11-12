@@ -152,5 +152,5 @@ if __name__ == '__main__':
     for n in idx: render(n, f'{tmp}/{srcs[min(n, len(srcs) - 1)]}', f'{tmp}/g{n:05d}.jpg' if not prev else os.path.join(os.environ.get('PDIR', tmp), f'p_{n / FPS:.2f}.jpg'))
     if prev: shutil.rmtree(tmp); sys.exit(0)
     audio(f'{tmp}/a.wav'); out = os.path.join(D, C['out'])
-    subprocess.run([FF, '-y', '-v', 'error', '-framerate', str(FPS), '-i', f'{tmp}/g%05d.jpg', '-i', f'{tmp}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '19', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ac', '2', '-shortest', '-movflags', '+faststart', out], check=True)
+    subprocess.run([FF, '-y', '-v', 'error', '-framerate', str(FPS), '-i', f'{tmp}/g%05d.jpg', '-i', f'{tmp}/a.wav', '-c:v', 'libx264', '-preset', 'slow', '-crf', '23', '-vf', 'hqdn3d=1.2:1.2:3:3', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-ac', '2', '-shortest', '-movflags', '+faststart', out], check=True)
     shutil.rmtree(tmp); print('ok', out)

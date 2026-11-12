@@ -1,0 +1,73 @@
+{
+ "src": "src.mp4",
+ "out": "motivasyon_v01.mp4",
+ "words": "words.json",
+ "dur": 15.4,
+ "sub_y": 1330,
+ "zoom_cy": 0.4,
+ "keywords": [
+  "sove",
+  "espwa",
+  "soufrans",
+  "fòs",
+  "detèmine",
+  "silans",
+  "rezilta",
+  "pesonn",
+  "janm",
+  "bwi"
+ ],
+ "punch": [
+  [
+   2.25,
+   1.16
+  ],
+  [
+   5.44,
+   1.14
+  ],
+  [
+   7.07,
+   1.08
+  ],
+  [
+   10.02,
+   1.18
+  ],
+  [
+   11.37,
+   1.13
+  ],
+  [
+   12.38,
+   1.2
+  ],
+  [
+   14.28,
+   1.12
+  ],
+  [
+   15.0,
+   1.2
+  ]
+ ],
+ "flash": [
+  2.25,
+  10.02,
+  12.38,
+  15.0
+ ],
+ "hook": {
+  "t1": 2.2,
+  "y": 360,
+  "lines": [
+   "PESONN",
+   "PAP VIN SOVE OU"
+  ],
+  "size": 118,
+  "box_line": 1
+ },
+ "bpm": 84,
+ "music_gain": 0.16,
+ "drums_from": 6.9
+}

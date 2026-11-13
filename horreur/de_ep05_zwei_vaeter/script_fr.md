@@ -24,3 +24,15 @@ Sur le crochet près de la porte, la clé de la cave a disparu. Et dans sa poche
 Dans la cave, quelqu'un gratte à la porte. Et ton père, sans lever les yeux, dit doucement : « Ne descends pas. C'est juste la chaudière. »
 Alors, tu fais quoi ? Option 1 : tu descends ouvrir la cave. Option 2 : tu restes avec lui à la cuisine.
 Écris 1 ou 2 en commentaire. Et envoie ça à un ami… pour voir ce qu'il aurait choisi.
+
+## Version C – même formule que la partie qui a marché (le père devant toi + le père au téléphone), sans phrases inutiles
+Ton père est devant toi, il te serre dans ses bras. Et ton téléphone vibre : « Papa : Je suis enfermé dans la cave. Viens m'ouvrir. »
+Tu le repousses doucement. Il sourit. « Qu'est-ce qu'il y a, mon grand ? »
+Tu regardes ses mains. Sa montre est au poignet droit. Ton père la porte toujours à gauche.
+Il prend son café. Trois sucres. Ton père ne prend jamais de sucre.
+Ton téléphone vibre encore : « Il va te dire que c'est la chaudière. Ne le crois pas. »
+Sous tes pieds, trois coups. Lents. Depuis la cave.
+Et ton père, sans te quitter des yeux : « Ne descends pas. C'est juste la chaudière. »
+Mais il connaît ton surnom. Il connaît le nom de ton chien. Il sait tout.
+Alors, qui est ton vrai père ? Option 1 : tu descends ouvrir la cave. Option 2 : tu restes avec lui.
+Écris 1 ou 2 en commentaire. Et envoie ça à un ami… pour voir ce qu'il aurait choisi.

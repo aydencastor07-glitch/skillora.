@@ -117,6 +117,7 @@ if SUBS2:   # une page = plusieurs phrases tant qu'elles tiennent sur 4 lignes ;
         while nlines(un) > MAXL:
             n = len(un)
             while nlines(un[:n]) > MAXL: n -= 1
+            if len(un) - n < 3: n = min(n, (len(un) + 1) // 2)   # pas un mot tout seul sur la page suivante : coupe équilibrée
             split.append(un[:n]); un = un[n:]
         split.append(un)
     groups = []; pg = []

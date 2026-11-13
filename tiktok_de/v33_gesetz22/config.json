@@ -1,0 +1,53 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_nietzsche.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 22",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.73,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "22:",
+  "Liebe dein Schicksal.",
+  "Wenn du ständig wünschst, alles wäre anders gekommen, kämpfst du gegen etwas, das du nie gewinnen kannst … und verlierst dabei das Einzige, was du noch ändern kannst:",
+  "das Jetzt.",
+  "Bedauern fühlt sich an wie Nachdenken.",
+  "In Wahrheit ist es Stillstand.",
+  "Nietzsche sagte:",
+  "„Meine Formel für die Größe am Menschen ist amor fati:",
+  "dass man nichts anders haben will.“",
+  "Also:",
+  "Hör auf, deine Vergangenheit umzuschreiben.",
+  "Mach sie zu deinem Fundament.",
+  "Stell dir vor, nichts aus deiner Vergangenheit hält dich mehr fest:",
+  "ruhig, stark, respektiert.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|22|liebe|schicksal|ständig|anders|kämpfst|nie|gewinnen|einzige|ändern|jetzt|bedauern|nachdenken|wahrheit|stillstand|nietzsche|formel|größe|amor|fati|nichts|vergangenheit|umzuschreiben|fundament|fest|ruhig|stark|respektiert|gesetze|buch|link|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 34.12,
+  "link_t": 37.73
+ },
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

@@ -62,8 +62,8 @@ def prep():
 def frame_src(n, srcs):
     if srcs: return Image.open(f'{TMP}/{srcs[min(n, len(srcs) - 1)]}').convert('RGB')
     im = Image.open(SRC).convert('RGB'); s = max(W / im.width, H / im.height) * 1.12; im = im.resize((int(im.width * s), int(im.height * s)), Image.LANCZOS)
-    u = n / (C['dur'] * FPS); z = 1.0 + 0.1 * u; cw, ch = W * 1.12 / z, H * 1.12 / z
-    x0 = min(max(0, (im.width - cw) / 2 + 30 * math.sin(u * 3)), im.width - cw); y0 = (im.height - ch) / 2
+    u = n / (C['dur'] * FPS); z = 1.0 + 0.1 * u; cw, ch = min(im.width, W * 1.12 / z), min(im.height, H * 1.12 / z)
+    x0 = min(max(0, (im.width - cw) / 2 + 30 * math.sin(u * 3)), im.width - cw); y0 = max(0, (im.height - ch) / 2)
     return im.resize((W, H), Image.BICUBIC, box=(x0, y0, x0 + cw, y0 + ch))
 def render(n, srcs):
     t = n / FPS; img = frame_src(n, srcs).convert('RGBA')

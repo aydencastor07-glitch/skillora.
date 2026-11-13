@@ -1,0 +1,69 @@
+{
+ "src": "img.jpg",
+ "dur": 13,
+ "style": 2,
+ "music_seed": 4103,
+ "bpm": 92,
+ "key": 52,
+ "seq": [
+  {
+   "t0": 0,
+   "t1": 3.2,
+   "boxes": [
+    {
+     "txt": "Les trouvailles Temu\nde la semaine",
+     "y": 420,
+     "kind": "a",
+     "size": 50
+    }
+   ],
+   "logo": [
+    860,
+    500
+   ],
+   "logo_s": 180
+  },
+  {
+   "t0": 3.2,
+   "t1": 6.4,
+   "boxes": [
+    {
+     "txt": "code : alr391702",
+     "y": 1660,
+     "kind": "b",
+     "size": 58
+    },
+    {
+     "txt": "Recherchez le code alr391702 de\nCadeaux à 0€ dans l'application TEMU",
+     "y": 1800,
+     "kind": "a",
+     "size": 42
+    }
+   ]
+  },
+  {
+   "t0": 6.4,
+   "t1": 9.4,
+   "boxes": [
+    {
+     "txt": "Cadeaux à 0€ avec\nles commandes éligibles\ncode : alr391702",
+     "y": 430,
+     "kind": "a",
+     "size": 46
+    }
+   ]
+  },
+  {
+   "t0": 9.4,
+   "t1": 13,
+   "boxes": [
+    {
+     "txt": "Recherchez ce code dans l'application\nTemu pour des cadeaux à 0€ avec les\ncommandes éligibles.\nConditions applicables.",
+     "y": 1690,
+     "kind": "c",
+     "size": 38
+    }
+   ]
+  }
+ ]
+}

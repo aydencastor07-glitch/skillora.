@@ -11,7 +11,7 @@
    "t1": 3,
    "boxes": [
     {
-     "txt": "These Temu finds can't be missed!",
+     "txt": "Des trouvailles Temu\nà ne pas manquer !",
      "y": 560,
      "kind": "a",
      "size": 50
@@ -27,16 +27,16 @@
    "t1": 6.5,
    "boxes": [
     {
-     "txt": "Gifts at 0€\ncode: alr391702",
+     "txt": "Cadeaux à 0€\ncode : alr391702",
      "y": 430,
      "kind": "a",
      "size": 54
     },
     {
-     "txt": "Search this code in the TEMU app",
-     "y": 590,
+     "txt": "Recherchez ce code dans\nl'application TEMU",
+     "y": 600,
      "kind": "b",
-     "size": 46
+     "size": 44
     }
    ]
   },
@@ -45,7 +45,7 @@
    "t1": 9.3,
    "boxes": [
     {
-     "txt": "code: alr391702",
+     "txt": "code : alr391702",
      "y": 1010,
      "kind": "a",
      "size": 56
@@ -57,16 +57,16 @@
    "t1": 12,
    "boxes": [
     {
-     "txt": "Gifts at 0€ with qualifying orders\ncode: alr391702",
+     "txt": "Cadeaux à 0€ avec\nles commandes éligibles\ncode : alr391702",
      "y": 1150,
      "kind": "a",
-     "size": 48
+     "size": 46
     },
     {
-     "txt": "Search this code in the TEMU app for 0€ gifts with qualifying orders. T&Cs apply.",
-     "y": 1370,
+     "txt": "Recherchez ce code dans l'application\nTemu pour des cadeaux à 0€ avec les\ncommandes éligibles.\nConditions applicables.",
+     "y": 1390,
      "kind": "c",
-     "size": 42
+     "size": 40
     }
    ]
   }

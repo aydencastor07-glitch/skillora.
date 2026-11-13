@@ -1,0 +1,52 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style>
+<script type="importmap">{ "imports": { "three": "../jeu/vendor/three.module.min.js", "three/addons/": "./vendor/addons/" } }</script></head>
+<body><canvas id="c"></canvas><script type="module">
+// Démo : un mouvement Mixamo (vrai acteur) sur le fils, dans une cuisine le matin ; le téléphone suit la main.
+import * as THREE from 'three';
+import { RealHuman } from './js/rig.js';
+const Q = new URLSearchParams(location.search), CL = Q.get('clip') || 'phone_talk', T0 = +(Q.get('t0') || 0);
+const r = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true }); r.setSize(innerWidth, innerHeight);
+r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.15; r.outputColorSpace = THREE.SRGBColorSpace;
+const s = new THREE.Scene(); s.background = new THREE.Color('#cfd8e0');
+s.add(new THREE.HemisphereLight('#dfe9f5', '#8a7a66', 1.1));
+const sun = new THREE.DirectionalLight('#ffe2b8', 3.2); sun.position.set(-3, 4, 2.5); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.camera.left = -3; sun.shadow.camera.right = 3; sun.shadow.camera.top = 3; sun.shadow.camera.bottom = -3; s.add(sun);
+const M = (c, r_ = 0.85) => new THREE.MeshStandardMaterial({ color: c, roughness: r_ });
+const box = (w, h, d, m, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.castShadow = b.receiveShadow = true; s.add(b); return b; };
+box(8, 0.1, 8, M('#b89a76', 0.6), 0, -0.05, 0); box(8, 3, 0.1, M('#e9e2d4'), 0, 1.5, -1.6); box(0.1, 3, 8, M('#e3dccd'), 2.2, 1.5, 0);
+box(2.4, 0.9, 0.6, M('#f2efe8'), -0.6, 0.45, -1.25); box(2.4, 0.04, 0.62, M('#6b5a48', 0.4), -0.6, 0.92, -1.25);   // plan de travail
+box(1.2, 0.05, 0.8, M('#8a6a48', 0.5), 1.2, 0.76, 0.3); for (const [dx, dz] of [[-0.55, -0.35], [0.55, -0.35], [-0.55, 0.35], [0.55, 0.35]]) box(0.05, 0.76, 0.05, M('#6b5038'), 1.2 + dx, 0.38, 0.3 + dz);
+const win = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.0), new THREE.MeshBasicMaterial({ color: '#fff6e0' })); win.position.set(-1.2, 1.7, -1.54); s.add(win);
+await RealHuman.loadClips([CL], './mocap/');
+const H = await RealHuman.create('./models/kid.glb', { heightM: 1.72, seed: 2 }); s.add(H.root); H.root.traverse(o => { if (o.isMesh) o.castShadow = o.receiveShadow = true; });
+const phone = new THREE.Group(); s.add(phone);
+const pb = new THREE.Mesh(new THREE.BoxGeometry(0.074, 0.152, 0.009), new THREE.MeshStandardMaterial({ color: '#2a2d33', roughness: 0.3, metalness: 0.7 })); pb.castShadow = true; phone.add(pb);
+const cam = new THREE.PerspectiveCamera(36, innerWidth / innerHeight, 0.05, 50);
+const bw = (k) => H.bones[H.B[k]].getWorldPosition(new THREE.Vector3());
+window.renderAt = (t) => {
+  const tt = T0 + t;
+  H.setPose({ mo: [{ clip: CL, mode: 'abs', t: tt, k: 1, w: { pelvis: 1, spineAbs: 1, legs: 1, arms: 1, root: 1, headAbs: 1 } }] }, { raw: { MouthSmileLeft: 0.1 } }, null, tt);
+  let hw = H.headWorld(new THREE.Vector3());
+  // correction : la main du téléphone va VRAIMENT près de l'oreille (sans la toucher), le reste du corps garde le vrai mouvement
+  const le = bw('lEye'), re = bw('rEye'), mid = le.clone().add(re).multiplyScalar(0.5); let lat = re.clone().sub(le).normalize();
+  const rc = bw('rClav'), nk = bw('neck'); if (lat.dot(rc.clone().sub(nk)) < 0) lat.negate();   // lat -> côté DROIT du corps
+  const up = new THREE.Vector3(0, 1, 0), fwd = new THREE.Vector3().crossVectors(up, lat).normalize();
+  const dh = bw('rHand').distanceTo(mid), k = Q.has('k1') ? 1 : Math.min(1, Math.max(0, (0.56 - dh) / 0.1));
+  if (k > 0) {
+    const tg = mid.clone().addScaledVector(lat, 0.15 + 0.006 * Math.sin(tt * 2.1)).addScaledVector(up, -0.12 + 0.005 * Math.sin(tt * 1.6)).addScaledVector(fwd, -0.01);
+    const aim = tg.clone();
+    for (let it = 0; it < 3; it++) {   // la cible est corrigée de l'écart mesuré (le bassin du mouvement réel tourne le corps)
+      H.setPose({ mo: [{ clip: CL, mode: 'abs', t: tt, k: 1, w: { pelvis: 1, spineAbs: 1, legs: 1, arms: 1, root: 1, headAbs: 1 } }], rW: k, rwx: aim.x, rwy: aim.y, rwz: aim.z, rCurl: 0.7 }, { raw: { MouthSmileLeft: 0.1 } }, null, tt);
+      aim.add(tg.clone().sub(bw('rHand')).multiplyScalar(k));
+    }
+    hw = H.headWorld(new THREE.Vector3()); window.DBG = { tg: tg.toArray(), hand: bw('rHand').toArray(), mid: mid.toArray(), lat: lat.toArray(), k };
+  }
+  // main la plus proche de la tête = main du téléphone
+  const side = bw('rHand').distanceTo(hw) < bw('lHand').distanceTo(hw) ? 'r' : 'l';
+  const h = bw(side + 'Hand'), fo = bw(side + 'Fore'), dir = h.clone().sub(fo).normalize();
+  const p = h.clone().addScaledVector(dir, 0.07); const z = hw.clone().sub(p).normalize(); const y = dir.clone().addScaledVector(z, -dir.dot(z)).normalize(); const x = new THREE.Vector3().crossVectors(y, z);
+  phone.position.copy(p).addScaledVector(z, 0.012); phone.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z));
+  const a = 0.35 + 0.25 * Math.sin(tt * 0.35);   // caméra qui tourne doucement
+  cam.position.set(hw.x + Math.sin(a) * 2.3, hw.y - 0.35, hw.z + Math.cos(a) * 2.3); cam.lookAt(hw.x, hw.y - 0.55, hw.z); r.render(s, cam);
+};
+window.READY = true;
+</script></body></html>

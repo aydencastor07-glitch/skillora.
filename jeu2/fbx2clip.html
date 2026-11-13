@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "../jeu/vendor/three.module.min.js", "three/addons/": "./vendor/addons/" } }</script></head>
+<body><script type="module">
+// Convertit une animation Mixamo (FBX « Without Skin ») au format des clips de rig.js : orientation de chaque os
+// par rapport à la pose en T (repère du personnage, +Z devant), hanche relative à sa hauteur debout.
+import * as THREE from 'three';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+const Q = new URLSearchParams(location.search);
+const MAP = { pelvis: 'Hips', sp0: 'Spine', sp1: 'Spine1', sp2: 'Spine2', neck: 'Neck', head: 'Head',
+  lClav: 'LeftShoulder', lUp: 'LeftArm', lFore: 'LeftForeArm', lHand: 'LeftHand', rClav: 'RightShoulder', rUp: 'RightArm', rFore: 'RightForeArm', rHand: 'RightHand',
+  lThigh: 'LeftUpLeg', lCalf: 'LeftLeg', lFoot: 'LeftFoot', rThigh: 'RightUpLeg', rCalf: 'RightLeg', rFoot: 'RightFoot' };
+const NAMES = Object.keys(MAP);
+const fbx = await new FBXLoader().loadAsync(Q.get('f'));
+const bones = {}; fbx.traverse(o => { const n = o.name.replace(/^mixamorig\d*:?/, ''); if (MAP && Object.values(MAP).includes(n) && !bones[n]) bones[n] = o; });
+fbx.updateMatrixWorld(true);
+const W = (o) => o.getWorldQuaternion(new THREE.Quaternion()), P = (o) => o.getWorldPosition(new THREE.Vector3());
+const rest = NAMES.map(k => W(bones[MAP[k]]));
+const h0 = P(bones.Hips), f0 = P(bones.LeftFoot); const hh = h0.y - f0.y + 0.08 * (h0.y - f0.y) / 0.92;
+const arm = P(bones.LeftForeArm).sub(P(bones.LeftArm)).normalize();
+const clip = fbx.animations[0]; const mixer = new THREE.AnimationMixer(fbx); mixer.clipAction(clip).play();
+const fps = 30, n = Math.floor(clip.duration * fps); const q = [], p = []; let x0 = null;
+for (let f = 0; f < n; f++) {
+  mixer.setTime(f / fps); fbx.updateMatrixWorld(true);
+  for (let i = 0; i < NAMES.length; i++) { const d = W(bones[MAP[NAMES[i]]]).multiply(rest[i].clone().invert()); q.push(+d.x.toFixed(4), +d.y.toFixed(4), +d.z.toFixed(4), +d.w.toFixed(4)); }
+  const hp = P(bones.Hips); if (!x0) x0 = hp.clone();
+  p.push(+((hp.x - x0.x) / hh).toFixed(4), +((hp.y - h0.y) / hh).toFixed(4), +((hp.z - x0.z) / hh).toFixed(4));
+}
+// continuité des quaternions
+for (let b = 0; b < NAMES.length; b++) for (let f = 1; f < n; f++) { const i = (f * NAMES.length + b) * 4, j = ((f - 1) * NAMES.length + b) * 4; if (q[i] * q[j] + q[i + 1] * q[j + 1] + q[i + 2] * q[j + 2] + q[i + 3] * q[j + 3] < 0) for (let k = 0; k < 4; k++) q[i + k] = -q[i + k]; }
+window.RESULT = { fps, names: NAMES, hipH: 1, frames: n, q, p, loop: false, speed: 0, info: { dur: clip.duration, restArm: arm.toArray().map(v => +v.toFixed(2)), hh } };
+</script></body></html>

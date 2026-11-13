@@ -214,6 +214,15 @@ def audio(path):
     for b in A.get('lock', []):
         for j in range(2): cl = noise(0.05, 30 + j); put(fx, (lp(cl, 3) * np.exp(-np.arange(len(cl)) / SR * 90)).astype(np.float32), b + j * 0.12, 0.6)
     for b in A.get('thud', []): put(fx, knock(3, True), b, 1.0)
+    for k_ in A.get('steps_wood', []): put(fx, step(), k_, 0.7)
+    for a_, b_ in A.get('rattle', []):   # poignée qu'on secoue : petits chocs métalliques rapides
+        t_ = a_
+        while t_ < b_: put(fx, knock(int(t_ * 1000) % 97) * 0.5, t_, 0.25); t_ += 0.085 + 0.03 * math.sin(t_ * 13)
+    for a_, b_ in A.get('jingle', []):   # trousseau de clés qui tinte
+        rs = np.random.RandomState(int(a_ * 10)); t_ = a_
+        while t_ < b_:
+            nn = int(0.12 * SR); tb = np.arange(nn) / SR; f0 = rs.uniform(2600, 5200)
+            put(fx, (np.sin(2 * np.pi * f0 * tb) * np.exp(-tb * 45) + 0.5 * np.sin(2 * np.pi * f0 * 1.51 * tb) * np.exp(-tb * 60)).astype(np.float32), t_, 0.12 * rs.uniform(0.5, 1)); t_ += rs.uniform(0.03, 0.14)
     for b in A.get('buzz', []): put(fx, wavf('buzz') * 0.6, b, 0.55)
     for b in A.get('beep', []):
         d = 0.18; tb = np.arange(int(d * SR)) / SR; bp = (np.sin(2 * np.pi * 425 * tb) * 0.5).astype(np.float32); put(fx, bp, b, 0.3); put(fx, bp, b + 0.35, 0.3); put(fx, bp, b + 0.7, 0.3)

@@ -1,0 +1,74 @@
+{
+ "src": "../R20/R20_2.jpg",
+ "dur": 12,
+ "style": 0,
+ "music_seed": 4001,
+ "bpm": 98,
+ "key": 55,
+ "seq": [
+  {
+   "t0": 0,
+   "t1": 3,
+   "boxes": [
+    {
+     "txt": "These Temu finds can't be missed!",
+     "y": 560,
+     "kind": "a",
+     "size": 50
+    }
+   ],
+   "logo": [
+    760,
+    900
+   ]
+  },
+  {
+   "t0": 3,
+   "t1": 6.5,
+   "boxes": [
+    {
+     "txt": "Gifts at 0€\ncode: alr391702",
+     "y": 430,
+     "kind": "a",
+     "size": 54
+    },
+    {
+     "txt": "Search this code in the TEMU app",
+     "y": 590,
+     "kind": "b",
+     "size": 46
+    }
+   ]
+  },
+  {
+   "t0": 6.5,
+   "t1": 9.3,
+   "boxes": [
+    {
+     "txt": "code: alr391702",
+     "y": 1010,
+     "kind": "a",
+     "size": 56
+    }
+   ]
+  },
+  {
+   "t0": 9.3,
+   "t1": 12,
+   "boxes": [
+    {
+     "txt": "Gifts at 0€ with qualifying orders\ncode: alr391702",
+     "y": 1150,
+     "kind": "a",
+     "size": 48
+    },
+    {
+     "txt": "Search this code in the TEMU app for 0€ gifts with qualifying orders. T&Cs apply.",
+     "y": 1370,
+     "kind": "c",
+     "size": 42
+    }
+   ]
+  }
+ ]
+}

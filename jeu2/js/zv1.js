@@ -261,8 +261,8 @@ const CAM = [
   { t: 13.86, cut: 1, f: 'mid', az: 25, el: 6, d: 1.7, fov: 40 },
   { t: 15.9, f: 'papa', az: 80, el: 3, d: 0.85, fov: 34 },
   { t: 17.3, f: 'papa', az: 92, el: 2, d: 0.62, fov: 30 },
-  { t: 17.4, f: 'hero', az: 300, el: 3, d: 0.7, fov: 32 },
-  { t: 19.6, f: 'hero', az: 285, el: 2, d: 0.6, fov: 30 },
+  { t: 17.4, p: () => V(-0.52, 1.72, 2.27), l: () => FOC.hero(), fov: 32 },
+  { t: 19.6, p: () => V(-0.5, 1.7, 2.2), l: () => FOC.hero(), fov: 29 },
   // E — la montre au poignet droit pendant qu'il boit
   { t: 20.0, f: 'watch', az: 55, el: 22, d: 0.55, fov: 34 },
   { t: 22.6, f: 'watch', az: 45, el: 18, d: 0.48, fov: 30 },

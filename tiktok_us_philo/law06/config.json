@@ -1,0 +1,61 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_seneca.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 6",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.386,
+  "dur": 1.297
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number six.",
+  "Choose your circle carefully.",
+  "You slowly become the people you spend your time with.",
+  "Their habits become your habits.",
+  "Their excuses become your excuses.",
+  "Seneca said:",
+  "\"Associate with those who will make a better man of you.\"",
+  "So look at the five people closest to you.",
+  "If they keep pulling you down, step back.",
+  "Save this, and follow for law number seven."
+ ],
+ "hot": "^(circle|carefully|slowly|become|habits|excuses|seneca|associate|better|man|five|closest|pulling|down|step|back|save|follow)$",
+ "tail": 1.0,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  230,
+  190,
+  120
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  16,
+  14,
+  12
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": -1
+  }
+ ],
+ "bg_dim": 0.42,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0
+}

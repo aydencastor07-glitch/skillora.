@@ -7,3 +7,4 @@ Sons fournis par l'utilisateur, à réutiliser et alterner d'une vidéo à l'aut
 | son_gesetz10.mp3 | 35,6 s | vidéo Gesetz 10 |
 | son_gesetz17_marc_aurel.mp3 | 49,6 s | mp4 envoyé pour Gesetz 17 |
 | son_gesetz18.mp3 | 64,8 s | mp4 envoyé pour Gesetz 18 |
+| son_law01_nov08.mp3 | 53 s | mp4 envoyé le 8 nov. (Law 1 v2), utilisé pour Gesetz 24 et Law 7 |

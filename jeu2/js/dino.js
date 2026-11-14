@@ -367,6 +367,19 @@ const CAM = [
   { t: 33.0, cut: 1, f: 'flowers', az: 8, el: 28, d: 2.3, fov: 44 },
   { t: END, f: 'flowers', az: 0, el: 22, d: 1.8, fov: 42 },
 ];
+if (BLOCKY) CAM.splice(0, CAM.length,   // personnage en blocs : plans plus larges, caméra face à lui (il regarde vers +x)
+  { t: 0.0, f: 'seat', az: 55, el: 4, d: 3.4, fov: 42 },
+  { t: 2.2, f: 'seat', az: 80, el: 10, d: 2.5, fov: 40 },
+  { t: 2.3, cut: 1, f: 'slot', az: 70, el: 42, d: 2.3, fov: 40 },
+  { t: 3.35, f: 'slot', az: 50, el: 52, d: 2.0, fov: 38 },
+  { t: 3.4, cut: 1, f: 'statue', az: -60, el: 18, d: 9.0, fov: 46 },
+  { t: 5.95, f: 'statue', az: -45, el: 15, d: 8.0, fov: 44 },
+  { t: 6.0, cut: 1, f: 'slot', az: 50, el: 42, d: 2.9, fov: 42 },
+  { t: 7.95, f: 'slot', az: 62, el: 36, d: 2.2, fov: 38 },
+  { t: 8.0, cut: 1, f: 'slot', az: 25, el: 25, d: 3.8, fov: 42 },
+  { t: 10.0, f: 'slot', az: 40, el: 30, d: 3.3, fov: 40 },
+  { t: 10.05, cut: 1, clip: 'body', f: 'hero', az: -5, el: 8, d: 2.7, fov: 42 },
+  { t: 10.85, clip: 'body', f: 'hero', az: 5, el: 6, d: 2.5, fov: 40 });
 const DEG = Math.PI / 180;
 function keyVec(k) { if (k.p) { const F = k.p(), L = k.l(); return [F.x, F.y, F.z, 0, 0, 0, L.x, L.y, L.z, k.fov]; } const F = FOC[k.f](), L = k.lk ? FOC[k.lk]() : F.clone(); return [F.x, F.y, F.z, k.az, k.el, k.d, L.x, L.y, L.z, k.fov]; }
 function camAt(T) {

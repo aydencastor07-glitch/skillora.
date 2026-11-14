@@ -10,6 +10,7 @@
 - Jamais de texte dans les **bandes noires** (haut / bas) de la vidéo : tout texte reste dans la partie centrale, là où sont les images et les textes habituels.
   (Gesetz 13 : « Das Buch: Link in Bio » écrit dans la bande noire → 10 vues.)
 - Dire « Der Link ist in der Bio » dans la voix est OK.
+- Fin des vidéos (Gesetz / Law / toutes) : la vidéo s'arrête NET juste après le dernier mot (« … Bio. »), sans 1-2 s de plus (sinon les gens scrollent avant la fin → mauvais signal). Dans gesetz.py : `"tail": 0.1`.
 
 ## Scripts
 - Ne jamais changer un script déjà donné sans le dire clairement.

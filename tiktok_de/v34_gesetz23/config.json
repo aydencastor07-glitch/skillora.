@@ -1,0 +1,51 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_suntzu.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 23",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 4.49,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "23:",
+  "Kenne dich selbst und dein Gegenüber.",
+  "Wenn du handelst, ohne zu wissen, wer vor dir steht, spielst du ein Spiel, dessen Regeln nur der andere kennt … und manchmal verlierst du, bevor du es überhaupt merkst.",
+  "Sofort reagieren fühlt sich an wie Stärke.",
+  "In Wahrheit ist es Blindheit.",
+  "Sun Tzu sagte:",
+  "„Wenn du den Feind und dich selbst kennst, brauchst du den Ausgang von hundert Schlachten nicht zu fürchten.“",
+  "Also:",
+  "Beobachte zuerst.",
+  "Erkenne deine Schwächen, bevor es andere tun.",
+  "Stell dir vor, niemand kann dich mehr überraschen:",
+  "ruhig, wachsam, respektiert.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|23|kenne|selbst|gegenüber|handelst|wissen|spiel|regeln|verlierst|merkst|sofort|reagieren|stärke|wahrheit|blindheit|sun|tzu|feind|kennst|hundert|schlachten|fürchten|beobachte|zuerst|schwächen|überraschen|ruhig|wachsam|respektiert|gesetze|buch|link|bio)$",
+ "tail": 0.1,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 35.32,
+  "link_t": 38.46
+ },
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

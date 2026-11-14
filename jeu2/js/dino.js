@@ -6,9 +6,11 @@
 // ?manual : rendu image par image (window.renderAt(T)).  ?cam=x,y,z,tx,ty,tz : caméra libre (réglages).
 import * as THREE from 'three';
 import { RealHuman } from './rig.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const Q = new URLSearchParams(location.search);
 const MANUAL = Q.has('manual');
+const BLOCKY = Q.has('blocky');   // personnage « en blocs » (test de style)
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(1); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -197,8 +199,66 @@ function walkPath(a, b, t0, t1, T, clip = 'walk', speed = 1) {   // marche de a 
   return { pos, yaw: yawTo(a, b), layers: moving ? CLIPL(clip, (T - t0) * speed) : IDLEM(T), moving };
 }
 
+// ---------- personnage « en blocs » (style jeu de construction, original) ----------
+const BK = (() => {
+  const S = 0.92, g = new THREE.Group(); g.rotation.order = 'YXZ'; scene.add(g);
+  const plastic = (c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.45, metalness: 0.0 });
+  const RB = (w, h, d, m, r = 0.05) => { const x = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, r), m); x.castShadow = true; x.receiveShadow = true; return x; };
+  const skin = plastic('#f2c79a'), shirt = plastic('#8e9aa8'), pants = plastic('#2c2f36'), shoe = plastic('#e9e9e9'), hairM = plastic('#3a2a20');
+  const hip = new THREE.Group(); hip.position.y = 0.8 * S; g.add(hip);
+  const upper = new THREE.Group(); hip.add(upper);
+  const torso = RB(0.76 * S, 0.76 * S, 0.38 * S, shirt); torso.position.y = 0.38 * S; upper.add(torso);
+  const head = new THREE.Group(); head.position.y = 0.76 * S + 0.02; upper.add(head);
+  const hd = new THREE.Mesh(new THREE.CylinderGeometry(0.235 * S, 0.235 * S, 0.42 * S, 32), skin); hd.position.y = 0.21 * S; hd.castShadow = true; head.add(hd);
+  for (const y of [0, 0.42]) { const cap = new THREE.Mesh(new THREE.SphereGeometry(0.235 * S, 32, 8, 0, Math.PI * 2, y ? 0 : Math.PI / 2, Math.PI / 2), skin); cap.scale.y = 0.25; cap.position.y = y * S; head.add(cap); }
+  const hair = RB(0.5 * S, 0.16 * S, 0.5 * S, hairM, 0.06); hair.position.set(0, 0.47 * S, -0.02); head.add(hair);
+  const fringe = RB(0.46 * S, 0.1 * S, 0.12 * S, hairM, 0.04); fringe.position.set(0, 0.4 * S, 0.19 * S); head.add(fringe);
+  const faces = {}; const faceC = document.createElement('canvas'); faceC.width = 256; faceC.height = 256; const fg = faceC.getContext('2d'); const faceT = new THREE.CanvasTexture(faceC); faceT.colorSpace = THREE.SRGBColorSpace;
+  function drawFace(k) {
+    fg.clearRect(0, 0, 256, 256); fg.fillStyle = '#1b1b1b'; fg.strokeStyle = '#1b1b1b'; fg.lineCap = 'round';
+    const wide = k === 'shock' ? 1.35 : k === 'strain' ? 0.55 : 1;
+    for (const x of [88, 168]) { fg.beginPath(); fg.ellipse(x, 112, 13, 19 * wide, 0, 0, 7); fg.fill(); fg.fillStyle = '#fff'; fg.beginPath(); fg.arc(x + 4, 104, 4.5, 0, 7); fg.fill(); fg.fillStyle = '#1b1b1b'; }
+    fg.lineWidth = 7; fg.beginPath();
+    if (k === 'shock') { fg.moveTo(68, 76); fg.lineTo(104, 70); fg.moveTo(188, 76); fg.lineTo(152, 70); } else if (k === 'strain') { fg.moveTo(68, 78); fg.lineTo(106, 90); fg.moveTo(188, 78); fg.lineTo(150, 90); } else { fg.moveTo(70, 82); fg.lineTo(104, 80); fg.moveTo(186, 82); fg.lineTo(152, 80); }
+    fg.stroke(); fg.lineWidth = 7; fg.beginPath();
+    if (k === 'shock') { fg.ellipse(128, 176, 18, 24, 0, 0, 7); fg.fill(); } else if (k === 'strain') { fg.fillStyle = '#fff'; fg.fillRect(100, 164, 56, 20); fg.strokeRect(100, 164, 56, 20); fg.moveTo(100, 174); fg.lineTo(156, 174); fg.stroke(); }
+    else if (k === 'smile') { fg.arc(128, 150, 32, 0.25 * Math.PI, 0.75 * Math.PI); fg.stroke(); } else { fg.moveTo(108, 172); fg.lineTo(148, 172); fg.stroke(); }
+    faceT.needsUpdate = true;
+  }
+  const face = new THREE.Mesh(new THREE.CylinderGeometry(0.237 * S, 0.237 * S, 0.42 * S, 32, 1, true, -Math.PI / 2, Math.PI), new THREE.MeshStandardMaterial({ map: faceT, transparent: true, roughness: 0.45 })); face.position.y = 0.21 * S; head.add(face);
+  const limb = (m, hand) => { const pv = new THREE.Group(); const b = RB(0.37 * S, 0.76 * S, 0.37 * S, m); b.position.y = -0.38 * S; pv.add(b); if (hand) { const h = RB(0.36 * S, 0.14 * S, 0.36 * S, skin, 0.05); h.position.y = -0.7 * S; pv.add(h); } return pv; };
+  const lArm = limb(shirt, true), rArm = limb(shirt, true); lArm.position.set(0.57 * S, 0.66 * S, 0); rArm.position.set(-0.57 * S, 0.66 * S, 0); upper.add(lArm, rArm);
+  const lLeg = limb(pants), rLeg = limb(pants); lLeg.position.set(0.19 * S, 0, 0); rLeg.position.set(-0.19 * S, 0, 0); hip.add(lLeg, rLeg);
+  for (const L of [lLeg, rLeg]) { const sh = RB(0.38 * S, 0.12 * S, 0.42 * S, shoe, 0.04); sh.position.set(0, -0.74 * S, 0.02); L.add(sh); }
+  const handR = new THREE.Object3D(); handR.position.set(0, -0.76 * S, 0.12 * S); rArm.add(handR);
+  let cur = ''; return { g, hip, upper, head, lArm, rArm, lLeg, rLeg, handR, setFace(k) { if (k !== cur) { cur = k; drawFace(k); } }, S };
+})();
+BK.g.visible = false;
+function poseBlocky(T, h) {
+  const B = BK; B.g.visible = h.vis && BLOCKY; B.g.position.copy(h.pos); B.g.rotation.set(h.pitch || 0, h.yaw, 0);
+  const sit = h.sit || 0; B.hip.position.y = 0.8 * B.S - sit * 0.78 * B.S;
+  const sway = Math.sin(T * 1.7) * 0.03;
+  B.upper.rotation.set((h.lean || 0) * 0.9 + sway, 0, 0); B.head.rotation.set(h.look === 'slot' || h.look === 'phoneDown' ? 0.35 : h.look === 'phone' ? 0.15 : 0, 0, 0);
+  // jambes
+  for (const [L, sd] of [[B.lLeg, 1], [B.rLeg, -1]]) {
+    if (h.legs === 'astride') L.rotation.set(-0.55, 0, sd * 1.05);
+    else if (h.legs === 'kick') L.rotation.set(0.5 * Math.sin(T * 13 + (sd > 0 ? 0 : Math.PI)), 0, sd * 0.12);
+    else if (h.legs === 'crawl') L.rotation.set(0.25 * Math.sin(T * 6 + (sd > 0 ? 0 : Math.PI)), 0, sd * 0.08);
+    else L.rotation.set(0, 0, 0);
+  }
+  // bras
+  const A = h.arms; const r = B.rArm.rotation, l = B.lArm.rotation; r.set(0.05 * Math.sin(T * 1.3), 0, 0.06); l.set(-0.05 * Math.sin(T * 1.3), 0, -0.06);
+  if (A.phoneR) { r.set(-1.75, 0.35, -0.25); }
+  if (A.grab > 0) { r.set(lerp(-1.75, -1.05, A.grab), lerp(0.35, 0, A.grab), -0.1); l.set(-0.4 * A.grab, 0, -0.2); }
+  if (A.reach > 0) { r.set(lerp(-0.6, -1.2, A.reach) + 0.12 * Math.sin(T * 13) * A.reach, 0, -0.05); l.set(-0.9 * A.reach, 0, -0.35); }
+  if (A.dive > 0) { r.set(lerp(r.x, -3.0, A.dive), 0, -0.1); l.set(lerp(l.x, -3.0, A.dive), 0, 0.1); }
+  if (A.crawl) { r.set(-2.7 + 0.35 * Math.sin(T * 6), 0, -0.1); l.set(-2.7 - 0.35 * Math.sin(T * 6), 0, 0.1); }
+  B.setFace(h.face === SHOCK ? 'shock' : h.face === STRAIN ? 'strain' : (h.face && h.face.raw && (h.face.raw.EyeWideLeft || 0) > 0.8) ? 'shock' : T < 2.3 ? 'smile' : 'neutral');
+  B.g.updateMatrixWorld(true); B.head.getWorldPosition(_hw); _hw.add(V(0, 0.2, 0).applyQuaternion(B.g.quaternion));
+}
+
 // ---------- chronologie (voix : horreur/de_ep06_dino/words.json, 34,5 s) ----------
-const END = 34.62;
+const END = BLOCKY ? 10.85 : 34.62;
 const SEAT = topAt(0.255), SLOTP = SLOT_TOP.clone();
 const LEG = LEGS.hindR; const LEGTOP = V(LEG.top.x + 0.05, 2.2, LEG.top.z + 0.05), LEGBOT = V(LEG.foot.x + 0.05, 0.42, LEG.foot.z);
 const PHONE_DOWN = V(LEG.foot.x + 0.27, 0.36, LEG.foot.z - 0.02);
@@ -376,8 +436,10 @@ function frame(T) {
   for (const [s, w] of [['r', tgt.r], ['l', tgt.l]]) if (w) Object.assign(pose, { [s + 'W']: 1, [s + 'wx']: w.x, [s + 'wy']: w.y, [s + 'wz']: w.z, [s + 'Curl']: A.push ? 0.2 : 0.6 });
   if (tgt.r || tgt.l) { HERO.setPose(pose, h.face, h.lookP, T); for (const [s, w, b] of [['r', tgt.r, 'rHand'], ['l', tgt.l, 'lHand']]) if (w) { const e = w.clone().sub(boneW(HERO, b)); pose[s + 'wx'] += e.x; pose[s + 'wy'] += e.y; pose[s + 'wz'] += e.z; } HERO.setPose(pose, h.face, h.lookP, T); }
   HERO.headWorld(_hw); HERO.root.visible = h.vis && (!h.inside || inside) && camera.position.distanceTo(_hw) > 0.2;
+  if (BLOCKY) { HERO.root.visible = false; poseBlocky(T, h); BK.g.visible = h.vis && (!h.inside || inside) && camera.position.distanceTo(_hw) > 0.25; }
   // téléphone : dans la main, puis il tombe dans la fente, puis il éclaire le fond de la patte
-  if (T < 2.45) { const P = palmIn(HERO, 'R'); const n = _hw.clone().sub(P.c).normalize(); const yv = V(0, 1, 0).addScaledVector(n, -n.y).normalize(); const xv = new THREE.Vector3().crossVectors(yv, n);
+  if (BLOCKY && T < 2.45) { BK.handR.getWorldPosition(phone.position); const q = BK.rArm.getWorldQuaternion(new THREE.Quaternion()); phone.quaternion.copy(q).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, Math.PI, 0))); phone.visible = true; }
+  else if (T < 2.45) { const P = palmIn(HERO, 'R'); const n = _hw.clone().sub(P.c).normalize(); const yv = V(0, 1, 0).addScaledVector(n, -n.y).normalize(); const xv = new THREE.Vector3().crossVectors(yv, n);
     phone.position.copy(P.c).addScaledVector(n, 0.02).addScaledVector(yv, 0.03); phone.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(xv, yv, n)); phone.visible = true; }
   else if (T < 3.0) { const u = ss(2.45, 2.95, T); const a = phone.userData.a || phone.position.clone(); phone.userData.a = a; phone.position.copy(a.clone().lerp(SLOTP.clone().add(V(0, -0.35, 0)), u)).add(V(0, 0.18 * Math.sin(u * Math.PI), 0)); phone.rotation.set(u * 4.5, u * 1.3, u * 2.1); phone.visible = true; }
   else { phone.position.copy(PHONE_DOWN); phone.rotation.set(-Math.PI / 2 + 0.25, 0.4, 0); phone.visible = inside; }

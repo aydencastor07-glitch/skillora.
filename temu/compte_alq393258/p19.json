@@ -1,0 +1,64 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "GRANDPA'S GIFT: $0",
+ "particles": "gold",
+ "palette": {
+  "c1": [
+   255,
+   236,
+   200
+  ],
+  "c2": [
+   251,
+   119,
+   1
+  ],
+  "dark": [
+   20,
+   14,
+   10
+  ],
+  "acc": [
+   251,
+   119,
+   1
+  ]
+ },
+ "strip": [
+  14,
+  14,
+  16
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 1901,
+ "bpm": 110,
+ "key": 50,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "hook/H19.jpg",
+   "label": "WHAT'S IN THE BOX?",
+   "no_tag": true
+  },
+  {
+   "img": "V19/V19_2.jpg",
+   "label": "DRONE · $24.55 → $0",
+   "tag_x": 230
+  },
+  {
+   "img": "V19/V19_3.jpg",
+   "label": "FIRST FLIGHT"
+  },
+  {
+   "img": "V19/V19_4.jpg",
+   "comment": true,
+   "comment_y": 1240
+  },
+  {
+   "img": "preuve/proof17.jpg",
+   "label": "WORTH $180.08 · I PAID $0",
+   "no_tag": true
+  }
+ ]
+}

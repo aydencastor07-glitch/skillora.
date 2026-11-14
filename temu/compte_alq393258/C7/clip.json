@@ -1,0 +1,69 @@
+{
+ "src": "img.jpg",
+ "dur": 13,
+ "style": 0,
+ "music_seed": 4701,
+ "bpm": 96,
+ "key": 55,
+ "seq": [
+  {
+   "t0": 0,
+   "t1": 3.2,
+   "boxes": [
+    {
+     "txt": "Family movie night\nbut the projector cost me $0",
+     "y": 230,
+     "kind": "a",
+     "size": 48
+    }
+   ],
+   "logo": [
+    850,
+    1180
+   ],
+   "logo_s": 180
+  },
+  {
+   "t0": 3.2,
+   "t1": 6.4,
+   "boxes": [
+    {
+     "txt": "code: alq393258",
+     "y": 1560,
+     "kind": "b",
+     "size": 58
+    },
+    {
+     "txt": "Search code alq393258\nfor Gifts at $0 in TEMU app",
+     "y": 1720,
+     "kind": "a",
+     "size": 44
+    }
+   ]
+  },
+  {
+   "t0": 6.4,
+   "t1": 9.4,
+   "boxes": [
+    {
+     "txt": "Gifts at $0 with qualifying orders\ncode: alq393258",
+     "y": 260,
+     "kind": "a",
+     "size": 46
+    }
+   ]
+  },
+  {
+   "t0": 9.4,
+   "t1": 13,
+   "boxes": [
+    {
+     "txt": "Search my code alq393258 in the Temu app\nto unlock $0 gifts with qualifying orders.\nT&Cs apply.",
+     "y": 1650,
+     "kind": "c",
+     "size": 38
+    }
+   ]
+  }
+ ]
+}

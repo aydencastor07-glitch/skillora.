@@ -25,8 +25,8 @@ def mat_skin(name, base=(0.085, 0.115, 0.055), dark=(0.03, 0.042, 0.022), light=
     geo = N.new('ShaderNodeNewGeometry'); sep = N.new('ShaderNodeSeparateXYZ'); L.new(geo.outputs['Normal'], sep.inputs[0]); belly = N.new('ShaderNodeMapRange'); belly.inputs['From Min'].default_value = -0.85; belly.inputs['From Max'].default_value = -0.2; L.new(sep.outputs['Z'], belly.inputs['Value'])
     inv = N.new('ShaderNodeMath'); inv.operation = 'SUBTRACT'; inv.inputs[0].default_value = 1.0; L.new(belly.outputs['Result'], inv.inputs[1])
     bm_ = N.new('ShaderNodeMix'); bm_.data_type = 'RGBA'; bm_.blend_type = 'MIX'; L.new(inv.outputs[0], bm_.inputs['Factor']); L.new(mul.outputs[2], bm_.inputs[6]); bm_.inputs[7].default_value = (0.22, 0.2, 0.12, 1) if belly_ else (0, 0, 0, 1)
-    if belly_: L.new(bm_.outputs[2], bsdf.inputs['Base Color'])
-    else: L.new(mul.outputs[2], bsdf.inputs['Base Color'])
+    bf = N.new('ShaderNodeMix'); bf.data_type = 'RGBA'; L.new(geo.outputs['Backfacing'] if belly_ else N.new('ShaderNodeNewGeometry').outputs['Backfacing'], bf.inputs['Factor']); bf.inputs[7].default_value = (0.012, 0.01, 0.007, 1)   # intérieur sombre
+    L.new(bm_.outputs[2] if belly_ else mul.outputs[2], bf.inputs[6]); L.new(bf.outputs[2], bsdf.inputs['Base Color'])
     b1 = N.new('ShaderNodeBump'); b1.inputs['Strength'].default_value = bump; b1.inputs['Distance'].default_value = 0.02; L.new(vor.outputs['Distance'], b1.inputs['Height'])
     b2 = N.new('ShaderNodeBump'); b2.inputs['Strength'].default_value = 0.25; b2.inputs['Distance'].default_value = 0.05; L.new(wr.outputs['Fac'], b2.inputs['Height']); L.new(b1.outputs['Normal'], b2.inputs['Normal'])
     L.new(b2.outputs['Normal'], bsdf.inputs['Normal'])
@@ -43,7 +43,7 @@ def build(spec_path, coll=None):
     darkM = bpy.data.materials.new('statue_dark'); darkM.use_nodes = True; darkM.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.01, 0.01, 0.008, 1); darkM.node_tree.nodes['Principled BSDF'].inputs['Roughness'].default_value = 0.9
     eyeM = bpy.data.materials.new('statue_eye'); eyeM.use_nodes = True; eyeM.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.02, 0.018, 0.012, 1); eyeM.node_tree.nodes['Principled BSDF'].inputs['Roughness'].default_value = 0.15
     # --- corps + pattes en « metaballs » (sphères qui fusionnent) -> maillage lisse, sans couture
-    mb = bpy.data.metaballs.new('STATUE_mb'); mb.resolution = 0.06; mb.render_resolution = 0.035; mb.threshold = 0.6
+    mb = bpy.data.metaballs.new('STATUE_mb'); mb.resolution = 0.05; mb.render_resolution = 0.05; mb.threshold = 0.6
     mo = bpy.data.objects.new('STATUE_mbobj', mb); coll.objects.link(mo)
     def ball(c, r, sx=1.0, sy=1.0, sz=1.0, q=None):
         e = mb.elements.new(); e.co = c; e.radius = r * 1.4; e.stiffness = 2.0
@@ -116,6 +116,11 @@ def build(spec_path, coll=None):
     hx, hy, hz = S['spine'][-1][:3]
     for s in (-1, 1):
         bpy.ops.mesh.primitive_uv_sphere_add(radius=0.03, location=P(hx - 0.12, hy + 0.05, s * 0.07)); o = bpy.context.active_object; o.data.materials.append(darkM)
+    # on fige le corps (modificateurs appliqués une fois) : le rendu de chaque image est beaucoup plus rapide
+    dc = body.modifiers.new('dec', 'DECIMATE'); dc.ratio = float(os.environ.get('DECIM', 0.25))
+    dg = bpy.context.evaluated_depsgraph_get(); me = bpy.data.meshes.new_from_object(body.evaluated_get(dg)); body.modifiers.clear(); old = body.data; body.data = me; bpy.data.meshes.remove(old)
+    for pg in body.data.polygons: pg.use_smooth = True
+    print('STATUE faces', len(body.data.polygons))
     return body
 
 
@@ -124,7 +129,6 @@ def cutaway(body, clip_by_frame):
     bpy.ops.mesh.primitive_cube_add(size=1); c = bpy.context.active_object; c.name = 'STATUE_cutter'; c.hide_render = True; c.hide_viewport = True
     c.scale = (30, 10, 30)
     b = body.modifiers.new('cut', 'BOOLEAN'); b.object = c; b.operation = 'DIFFERENCE'; b.solver = 'FAST'
-    body.modifiers.move(len(body.modifiers) - 1, len(body.modifiers) - 2)   # avant l'épaisseur (Solidify)
     for fr, clip in clip_by_frame:
         on = clip is not None
         b.show_render = on; b.show_viewport = on; b.keyframe_insert('show_render', frame=fr); b.keyframe_insert('show_viewport', frame=fr)

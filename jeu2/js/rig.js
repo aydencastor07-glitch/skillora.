@@ -372,7 +372,7 @@ export class RealHuman {
 
     // Visage
     const blinkPh = (t + (this.o.seed || 0) * 1.37) % 3.9;
-    const blink = blinkPh < 0.15 ? Math.sin((blinkPh / 0.15) * Math.PI) : 0;
+    const blink = f.noBlink ? 0 : blinkPh < 0.15 ? Math.sin((blinkPh / 0.15) * Math.PI) : 0;   // f.noBlink : regard fixe (somnambule)
     const smile = f.smile || 0;
     const M = {
       EyeBlinkLeft: Math.max(blink, f.closed || 0), EyeBlinkRight: Math.max(blink, f.closed || 0),

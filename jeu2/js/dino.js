@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { RealHuman } from './rig.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 const Q = new URLSearchParams(location.search);
 const MANUAL = Q.has('manual');
@@ -231,7 +232,8 @@ const BK = (() => {
   const lLeg = limb(pants), rLeg = limb(pants); lLeg.position.set(0.19 * S, 0, 0); rLeg.position.set(-0.19 * S, 0, 0); hip.add(lLeg, rLeg);
   for (const L of [lLeg, rLeg]) { const sh = RB(0.38 * S, 0.12 * S, 0.42 * S, shoe, 0.04); sh.position.set(0, -0.74 * S, 0.02); L.add(sh); }
   const handR = new THREE.Object3D(); handR.position.set(0, -0.76 * S, 0.12 * S); rArm.add(handR);
-  let cur = ''; return { g, hip, upper, head, lArm, rArm, lLeg, rLeg, handR, setFace(k) { if (k !== cur) { cur = k; drawFace(k); } }, S };
+  g.name = 'BK_root'; hip.name = 'BK_hip'; upper.name = 'BK_upper'; head.name = 'BK_head'; lArm.name = 'BK_lArm'; rArm.name = 'BK_rArm'; lLeg.name = 'BK_lLeg'; rLeg.name = 'BK_rLeg';
+  let cur = ''; return { g, hip, upper, head, lArm, rArm, lLeg, rLeg, handR, setFace(k) { if (k !== cur) { cur = k; drawFace(k); } this.cur = k; }, faceDataURL(k) { drawFace(k); const d = faceC.toDataURL('image/png'); cur = ''; return d; }, S };
 })();
 BK.g.visible = false;
 function poseBlocky(T, h) {
@@ -498,3 +500,28 @@ window.renderAt = (T) => {
 window.dbg = (T) => { frame(T); const r = (v) => [v.x, v.y, v.z].map(x => +x.toFixed(2)); return { cam: r(camera.position), tgt: r(camera.getWorldDirection(new THREE.Vector3())), hero: r(_hw), woman: r(WOMAN.root.position), man2: r(MAN2.root.position), wv: WOMAN.root.visible, near: r(NEAR) }; };
 window.READY = true;
 if (!MANUAL) { const c0 = performance.now(); const loop = () => { frame(((performance.now() - c0) / 1000) % END); requestAnimationFrame(loop); }; loop(); } else frame(0);
+
+// ---------- export vers Blender : décor (glb), personnage en blocs (glb), animation (json) ----------
+async function glb(obj) { const ex = new GLTFExporter(); const buf = await ex.parseAsync(obj, { binary: true, onlyVisible: true }); let b = ''; const u = new Uint8Array(buf); for (let i = 0; i < u.length; i += 0x8000) b += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(b); }
+window.exportScene = async () => {
+  frame(0.5); const hide = [];
+  const keep = (o) => !(o.isLight || o.isSprite || o === BK.g || o === phone || o === torch || o === wphone || o === memorial || [HERO, WOMAN, MAN2, COP1, COP2, ...EXTRA].some(H => H.root === o));
+  for (const o of [...scene.children]) if (!keep(o) && o.visible) { o.visible = false; hide.push(o); }
+  scene.traverse(o => { if (o.isMesh && o.material === innerM && o.visible) { o.visible = false; hide.push(o); } });
+  const r = await glb(scene); hide.forEach(o => o.visible = true); return r;
+};
+window.exportBlocky = async () => { const B = BK; const v = B.g.visible; B.g.visible = true; const p = B.g.position.clone(), q = B.g.quaternion.clone(); B.g.position.set(0, 0, 0); B.g.quaternion.identity();
+  for (const o of [B.hip, B.upper, B.head, B.lArm, B.rArm, B.lLeg, B.rLeg]) o.userData.r = o.rotation.clone();
+  for (const o of [B.upper, B.head, B.lArm, B.rArm, B.lLeg, B.rLeg]) o.rotation.set(0, 0, 0); B.hip.position.y = 0.8 * B.S; B.setFace('neutral');
+  const r = await glb(B.g); B.g.position.copy(p); B.g.quaternion.copy(q); B.g.visible = v; return r; };
+window.exportPhone = async () => { const p = phone.position.clone(), q = phone.quaternion.clone(); phone.position.set(0, 0, 0); phone.quaternion.identity(); phone.visible = true; phone.name = 'PHONE'; const r = await glb(phone); phone.position.copy(p); phone.quaternion.copy(q); return r; };
+window.bake = (n0, n1, fps = 30) => {
+  const out = []; const B = BK; const T3 = (o) => [o.position.x, o.position.y, o.position.z, o.quaternion.w, o.quaternion.x, o.quaternion.y, o.quaternion.z];
+  for (let n = n0; n < n1; n++) { const T = n / fps; frame(T);
+    const f = { T, cam: [...camera.position.toArray(), camera.quaternion.w, camera.quaternion.x, camera.quaternion.y, camera.quaternion.z, camera.fov], bk: B.g.visible ? {} : null, face: null, phone: phone.visible ? [...phone.position.toArray(), phone.quaternion.w, phone.quaternion.x, phone.quaternion.y, phone.quaternion.z] : null, clip: CLIP.length ? CLIP[0].constant : null };
+    if (f.bk) { for (const o of [B.g, B.hip, B.upper, B.head, B.lArm, B.rArm, B.lLeg, B.rLeg]) f.bk[o.name] = T3(o); f.face = B.cur || null; }
+    out.push(f); }
+  return out;
+};
+
+window.__BKface = (k) => BK.faceDataURL(k);

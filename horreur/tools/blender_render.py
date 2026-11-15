@@ -2,7 +2,7 @@
 # usage : blender -b -P blender_render.py -- DIR OUT_FRAMES n0 n1 [W H SAMPLES]
 #   DIR : scene.glb, blocky.glb, phone.glb, face_*.png, anim.json      OUT_FRAMES : dossier des images f00000.png
 import bpy, sys, json, os, math, shutil
-from mathutils import Quaternion
+from mathutils import Quaternion, Vector
 argv = sys.argv[sys.argv.index('--') + 1:]
 D, OUT, n0, n1 = argv[0], argv[1], int(argv[2]), int(argv[3])
 W = int(argv[4]) if len(argv) > 4 else 1080; H = int(argv[5]) if len(argv) > 5 else 1920; SPP = int(argv[6]) if len(argv) > 6 else 48
@@ -12,6 +12,10 @@ sc = bpy.context.scene
 def imp(f):
     before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=os.path.join(D, f)); return [o for o in bpy.data.objects if o not in before]
 env = imp('scene.glb'); bk = imp('blocky.glb'); ph = imp('phone.glb')
+STATUE = None
+if os.path.exists(os.path.join(D, 'statue.json')) and os.environ.get('STATUE', 'blender') == 'blender':
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import blender_statue
+    STATUE = blender_statue.build(os.path.join(D, 'statue.json'))
 O = {o.name.split('.')[0]: o for o in bk}
 PHONE = [o for o in ph if o.parent is None][0]
 # three (y en haut) -> blender (z en haut)
@@ -41,7 +45,7 @@ cd = bpy.data.cameras.new('CAM'); cam = bpy.data.objects.new('CAM', cd); sc.coll
 wo = bpy.data.worlds.new('W'); sc.world = wo; wo.use_nodes = True; nt = wo.node_tree; bg = nt.nodes['Background']
 sky = nt.nodes.new('ShaderNodeTexSky'); sky.sky_type = 'NISHITA'; sky.sun_elevation = math.radians(16); sky.sun_rotation = math.radians(215); sky.air_density = 1.6; sky.dust_density = 2.5
 nt.links.new(sky.outputs[0], bg.inputs[0]); bg.inputs[1].default_value = 0.55
-sd = bpy.data.lights.new('SUN', 'SUN'); sd.energy = 3.2; sd.angle = math.radians(2.5); sd.color = (1.0, 0.9, 0.78); sun = bpy.data.objects.new('SUN', sd); sc.collection.objects.link(sun)
+sd = bpy.data.lights.new('SUN', 'SUN'); sd.energy = 2.6; sd.angle = math.radians(2.5); sd.color = (1.0, 0.9, 0.78); sun = bpy.data.objects.new('SUN', sd); sc.collection.objects.link(sun)
 sun.rotation_euler = (math.radians(74), 0, math.radians(215 - 180))
 pl = bpy.data.lights.new('PHL', 'POINT'); pl.energy = 0; pl.color = (0.75, 0.82, 1.0); pl.shadow_soft_size = 0.05; phl = bpy.data.objects.new('PHL', pl); sc.collection.objects.link(phl)
 # images clés
@@ -49,7 +53,7 @@ for i, f in enumerate(A):
     fr = i + 1
     c = f['cam']; cam.location = P(*c[:3]); cam.rotation_quaternion = Quaternion((math.cos(math.pi / 4), math.sin(math.pi / 4), 0, 0)) @ Quaternion(c[3:7]); cd.angle = math.radians(c[7])
     cd.clip_start = 0.05
-    if f.get('clip') is not None:   # vue en coupe : on coupe tout ce qui est devant le plan z = clip (three)
+    if f.get('clip') is not None and STATUE is None:   # vue en coupe : on coupe tout ce qui est devant le plan z = clip (three)
         cd.clip_start = max(0.05, (c[2] - f['clip']) * 0.97)
     cam.keyframe_insert('location', frame=fr); cam.keyframe_insert('rotation_quaternion', frame=fr); cd.keyframe_insert('lens', frame=fr); cd.keyframe_insert('clip_start', frame=fr)
     if f['bk']:
@@ -65,6 +69,7 @@ for i, f in enumerate(A):
     else: PHONE.hide_render = True; pl.energy = 0
     for o in [PHONE] + list(PHONE.children_recursive): o.hide_render = PHONE.hide_render; o.keyframe_insert('hide_render', frame=fr)
     PHONE.keyframe_insert('location', frame=fr); PHONE.keyframe_insert('rotation_quaternion', frame=fr); phl.keyframe_insert('location', frame=fr); pl.keyframe_insert('energy', frame=fr)
+if STATUE is not None: blender_statue.cutaway(STATUE, [(i + 1, f.get('clip')) for i, f in enumerate(A)])
 # toutes les clés en « constant » (une image = un état exact)
 for a in bpy.data.actions:
     for fc in a.fcurves:
@@ -80,7 +85,10 @@ try: pass
 except Exception: pass
 sc.cycles.max_bounces = 4; sc.render.resolution_x = W; sc.render.resolution_y = H; sc.render.resolution_percentage = 100
 sc.view_settings.view_transform = os.environ.get('VT', 'Standard')
-sc.view_settings.look = 'None'; sc.view_settings.exposure = float(os.environ.get('EXPO', -0.45)); sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
+sc.view_settings.look = 'None'; sc.view_settings.exposure = float(os.environ.get('EXPO', -0.7)); sc.render.image_settings.file_format = 'JPEG'; sc.render.image_settings.quality = 92
+if os.environ.get('CAMOVR'):   # aperçu : caméra fixe (coordonnées three : x,y,z,tx,ty,tz,fov)
+    c = [float(v) for v in os.environ['CAMOVR'].split(',')]; cam.animation_data_clear(); cd.animation_data_clear()
+    cam.location = P(*c[:3]); d_ = Vector(P(*c[3:6])) - Vector(cam.location); cam.rotation_quaternion = d_.to_track_quat('-Z', 'Y'); cd.angle = math.radians(c[6] if len(c) > 6 else 40); cd.clip_start = 0.05
 for n in range(n0, n1):
     sc.frame_set(n + 1); sc.render.filepath = os.path.join(OUT, f'f{n:05d}.jpg'); bpy.ops.render.render(write_still=True)
 print('DONE', n0, n1)

@@ -227,11 +227,17 @@ const BK = (() => {
     faceT.needsUpdate = true;
   }
   const face = new THREE.Mesh(new THREE.CylinderGeometry(0.237 * S, 0.237 * S, 0.42 * S, 32, 1, true, -Math.PI / 2, Math.PI), new THREE.MeshStandardMaterial({ map: faceT, transparent: true, roughness: 0.45 })); face.position.y = 0.21 * S; head.add(face);
-  const limb = (m, hand) => { const pv = new THREE.Group(); const b = RB(0.37 * S, 0.76 * S, 0.37 * S, m); b.position.y = -0.38 * S; pv.add(b); if (hand) { const h = RB(0.36 * S, 0.14 * S, 0.36 * S, skin, 0.05); h.position.y = -0.7 * S; pv.add(h); } return pv; };
-  const lArm = limb(shirt, true), rArm = limb(shirt, true); lArm.position.set(0.57 * S, 0.66 * S, 0); rArm.position.set(-0.57 * S, 0.66 * S, 0); upper.add(lArm, rArm);
+  const limb = (m, hand, side = 1) => { const pv = new THREE.Group(); const L = hand ? 0.6 : 0.76; const b = RB(0.37 * S, L * S, 0.37 * S, m); b.position.y = -L / 2 * S; pv.add(b);
+    if (hand) {   // vraie main : paume, 4 doigts légèrement repliés, pouce
+      const hg = new THREE.Group(); hg.position.y = -0.62 * S; pv.add(hg); hg.name = 'hand';
+      const palm = RB(0.24 * S, 0.2 * S, 0.13 * S, skin, 0.045); palm.position.y = -0.1 * S; hg.add(palm);
+      for (let k = 0; k < 4; k++) { const f = RB(0.055 * S, 0.12 * S, 0.075 * S, skin, 0.024); f.position.set((-0.09 + k * 0.06) * S, -0.25 * S, 0.012 * S); f.rotation.x = 0.35; hg.add(f); }
+      const th = RB(0.06 * S, 0.11 * S, 0.07 * S, skin, 0.025); th.position.set(side * -0.135 * S, -0.1 * S, 0.06 * S); th.rotation.set(0.3, 0, side * 0.6); hg.add(th);
+    } return pv; };
+  const lArm = limb(shirt, true, 1), rArm = limb(shirt, true, -1); lArm.position.set(0.57 * S, 0.66 * S, 0); rArm.position.set(-0.57 * S, 0.66 * S, 0); upper.add(lArm, rArm);
   const lLeg = limb(pants), rLeg = limb(pants); lLeg.position.set(0.19 * S, 0, 0); rLeg.position.set(-0.19 * S, 0, 0); hip.add(lLeg, rLeg);
   for (const L of [lLeg, rLeg]) { const sh = RB(0.38 * S, 0.12 * S, 0.42 * S, shoe, 0.04); sh.position.set(0, -0.74 * S, 0.02); L.add(sh); }
-  const handR = new THREE.Object3D(); handR.position.set(0, -0.76 * S, 0.12 * S); rArm.add(handR);
+  const handR = new THREE.Object3D(); handR.position.set(0, -0.8 * S, 0.1 * S); rArm.add(handR);
   g.name = 'BK_root'; hip.name = 'BK_hip'; upper.name = 'BK_upper'; head.name = 'BK_head'; lArm.name = 'BK_lArm'; rArm.name = 'BK_rArm'; lLeg.name = 'BK_lLeg'; rLeg.name = 'BK_rLeg';
   let cur = ''; return { g, hip, upper, head, lArm, rArm, lLeg, rLeg, handR, setFace(k) { if (k !== cur) { cur = k; drawFace(k); } this.cur = k; }, faceDataURL(k) { drawFace(k); const d = faceC.toDataURL('image/png'); cur = ''; return d; }, S };
 })();
@@ -503,8 +509,8 @@ if (!MANUAL) { const c0 = performance.now(); const loop = () => { frame(((perfor
 
 // ---------- export vers Blender : décor (glb), personnage en blocs (glb), animation (json) ----------
 async function glb(obj) { const ex = new GLTFExporter(); const buf = await ex.parseAsync(obj, { binary: true, onlyVisible: true }); let b = ''; const u = new Uint8Array(buf); for (let i = 0; i < u.length; i += 0x8000) b += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(b); }
-window.exportScene = async () => {
-  frame(0.5); const hide = [];
+window.exportScene = async (noStatue) => {
+  frame(0.5); const hide = []; if (noStatue) { statue.visible = false; hide.push(statue); }
   const keep = (o) => !(o.isLight || o.isSprite || o === BK.g || o === phone || o === torch || o === wphone || o === memorial || [HERO, WOMAN, MAN2, COP1, COP2, ...EXTRA].some(H => H.root === o));
   for (const o of [...scene.children]) if (!keep(o) && o.visible) { o.visible = false; hide.push(o); }
   scene.traverse(o => { if (o.isMesh && o.material === innerM && o.visible) { o.visible = false; hide.push(o); } });
@@ -525,3 +531,12 @@ window.bake = (n0, n1, fps = 30) => {
 };
 
 window.__BKface = (k) => BK.faceDataURL(k);
+// description de la statue pour la reconstruire dans Blender (mêmes dimensions / positions)
+window.statueSpec = () => {
+  const sp = []; for (let i = 0; i <= 48; i++) { const u = i / 48, c = BODY.curve.getPointAt(u), t = BODY.curve.getTangentAt(u); const up = new THREE.Vector3().crossVectors(V(0, 0, 1), t).normalize();
+    const pr = prof([[0, 0.05, 0.05], [0.12, 0.22, 0.2], [0.28, 0.62, 0.52], [0.43, 1.0, 0.9, -0.05], [0.56, 0.98, 0.92, -0.08], [0.7, 0.72, 0.66], [0.8, 0.38, 0.32], [0.88, 0.4, 0.33], [0.95, 0.3, 0.26], [1, 0.08, 0.08]])(u);
+    const cc = c.clone().addScaledVector(up, pr[2] || 0); sp.push([cc.x, cc.y, cc.z, pr[0], pr[1]]); }
+  const legs = Object.values(LEGS).map(L => ({ top: L.top.toArray(), knee: L.knee.toArray(), foot: L.foot.toArray(), r0: L.r0, r1: L.r1, name: L.name }));
+  const plates = PLATES.map(p => ({ pos: p.position.toArray(), rot: [p.rotation.x, p.rotation.y, p.rotation.z], scale: p.scale.toArray() }));
+  return { spine: sp, legs, plates, slot: SLOT_TOP.toArray(), slotRot: slotM.rotation.z, eyes: [[3.72, 1.4, 0.2], [3.72, 1.4, -0.2]] };
+};

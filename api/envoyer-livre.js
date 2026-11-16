@@ -1,6 +1,6 @@
 // « Mein E-Book senden » : l'acheteur (reconnu par son cookie d'achat ou son IP + appareil) reçoit le PDF
 // à l'adresse qu'il a confirmée ou corrigée. Maximum 5 envois par achat.
-const { configure, lien, lireCorps, lireCookieAchat, PRODUIT } = require('./_paypal');
+const { configure, lien, lireCorps, lireCookieAchat, produit } = require('./_paypal');
 const { requete, empreinte } = require('./_db');
 const { envoyerLivre } = require('./_mail');
 
@@ -10,13 +10,13 @@ module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') return res.status(405).json({ erreur: 'POST' });
   if (!configure() || !process.env.RESEND_API_KEY) return res.status(503).json({ erreur: 'indisponible' });
-  const { email } = await lireCorps(req);
+  const b = await lireCorps(req); const email = b.email; const p = produit(String(b.produit || ''));
   const adresse = String(email || '').trim();
   if (!EMAIL.test(adresse)) return res.status(400).json({ erreur: 'adresse' });
   try {
-    let commande = lireCookieAchat(req);
+    let commande = lireCookieAchat(req, p);
     if (!commande) {
-      const r = await requete('select public.ebook_achat_fp($1,$2) as v', [PRODUIT, empreinte(req)]);
+      const r = await requete('select public.ebook_achat_fp($1,$2) as v', [p, empreinte(req)]);
       const v = r.rows[0] && r.rows[0].v; if (v && v.startsWith('pp_')) commande = v.slice(3);
     }
     if (!commande) return res.status(403).json({ erreur: 'acheteur' });
@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
     const n = c.rows[0] ? c.rows[0].n : -1;
     if (n < 0) return res.status(403).json({ erreur: 'acheteur' });
     if (n > 5) return res.status(429).json({ erreur: 'limite' });
-    const ok = await envoyerLivre(adresse, lien(commande, true));
+    const ok = await envoyerLivre(adresse, lien(commande, true, p), p);
     if (ok) await requete('select public.ebook_email($1,$2)', ['pp_' + commande, adresse]).catch(() => {});
     console.log('MAIL', commande, ok ? 'envoyé' : 'échec');
     res.status(ok ? 200 : 502).json({ ok });

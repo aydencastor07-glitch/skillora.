@@ -4,10 +4,10 @@ Citation : Benjamin Franklin, Poor Richard's Almanack (1735) : « Three may keep
 Lien : https://gesetze.skillora.me/laws/ (Facebook : ?utm_source=facebook ; bio Instagram : ?utm_source=instagram)
 
 ## Voix (texte_voix.txt)
-Law number nine. Keep your plans to yourself. Every time you announce your goal, your brain celebrates like you already did it, and the hunger is gone. Then come the doubts, the envy, and the advice you never asked for. Benjamin Franklin said: "Three may keep a secret, if two of them are dead." So work in silence. Let the result speak. Imagine being the one nobody saw coming. That's exactly what the 21 laws in this book give you. The link is in the bio.
+Law number nine. Keep your plans to yourself. Every time you announce your goal, your brain celebrates like you already did it, and the hunger is gone. Then come the doubts, the envy, and the advice you never asked for. Benjamin Franklin said: "Three may keep a secret, if two of them are dead." So work in silence. Let the result speak. Imagine being the one nobody saw coming. That's exactly what the 21 laws in this book give you. The link is below.
 
 ## Français
-Loi numéro neuf. Garde tes plans pour toi. Chaque fois que tu annonces ton objectif, ton cerveau fête comme si c'était déjà fait, et la faim disparaît. Ensuite viennent les doutes, la jalousie et les conseils que tu n'as jamais demandés. Benjamin Franklin disait : « Trois personnes peuvent garder un secret, si deux d'entre elles sont mortes. » Alors travaille en silence. Laisse le résultat parler. Imagine être celui que personne n'a vu venir. C'est exactement ce que t'apportent les 21 lois de ce livre. Le lien est dans la bio.
+Loi numéro neuf. Garde tes plans pour toi. Chaque fois que tu annonces ton objectif, ton cerveau fête comme si c'était déjà fait, et la faim disparaît. Ensuite viennent les doutes, la jalousie et les conseils que tu n'as jamais demandés. Benjamin Franklin disait : « Trois personnes peuvent garder un secret, si deux d'entre elles sont mortes. » Alors travaille en silence. Laisse le résultat parler. Imagine être celui que personne n'a vu venir. C'est exactement ce que t'apportent les 21 lois de ce livre. Le lien est juste en dessous.
 
 ## Image (portrait)
 ```

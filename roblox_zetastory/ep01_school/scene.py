@@ -281,8 +281,8 @@ def s_lights(t, u):      # « Then the lights turned on. And a giant voice said:
 def s_strange(t, u):     # « Strange. I don't remember shrinking you yet. »
     world('#1a1620', 0.5); on(OD, OJ); OT.data.energy = 9000; OB.data.energy = 500; jar_kids(t); x, y, z = JPOS[13 + 6]
     HERO.put(x + 0.33, 3.85, z + 0.005, 180, HS); HERO.pose(lArm=(0, -35, 0), rArm=(0, 35, 0), head=(-30, 0, 0)); HERO.face('shock')
-    d = ss(0.0, 1.0, u); BOSS.put(OX + 0.8, lerp(0.6, 2.3, d), 0, 180, 2.6); BOSS.pose(head=(34, 0, 0), upper=(lerp(12, 34, d), 0, 0), rArm=(lerp(0, -105, ss(0.45, 1, u)), 0, 0)); BOSS.face('smile' if u > 0.35 else 'neutral')
-    camlerp((x + 0.36, 4.0, z + 0.2), (OX + 0.8, 1.2, 3.9), (x + 0.36, 4.0, z + 0.2), (OX + 0.8, 2.3, 3.5), u, 28, 44)
+    d = ss(0.0, 1.0, u); BOSS.put(OX + 0.8, lerp(0.6, 1.3, d), 0, 180, 2.6); BOSS.pose(head=(34, 0, 0), upper=(lerp(12, 22, d), 0, 0), rArm=(lerp(0, -60, ss(0.45, 1, u)), 0, 0)); BOSS.face('smile' if u > 0.35 else 'neutral')
+    camlerp((x + 0.36, 4.0, z + 0.2), (OX + 0.8, 1.2, 3.9), (x + 0.36, 4.0, z + 0.2), (OX + 0.8, 2.1, 3.8), u, 28, 38)
 SHOTS = [(0.0, s_school), (2.86, s_grow), (4.46, s_shrink), (6.3, s_fail), (8.76, s_shoe), (10.58, s_tall), (13.28, s_step), (15.2, s_nobody), (17.08, s_called), (21.95, s_teacher),
          (25.86, s_night), (30.74, s_dark), (32.5, s_jars), (37.9, s_climb), (39.98, s_them), (44.68, s_hit), (50.76, s_under), (55.1, s_grows), (57.9, s_lights), (60.86, s_strange), (63.95, None)]
 def setup(n):

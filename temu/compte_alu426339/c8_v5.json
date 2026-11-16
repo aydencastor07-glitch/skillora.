@@ -1,0 +1,40 @@
+{
+ "acc": [
+  240,
+  110,
+  20
+ ],
+ "font": "Nunito.ttf",
+ "slide_dur": 2.4,
+ "music_seed": 8211,
+ "bpm": 112,
+ "key": 55,
+ "code": "alu426339",
+ "slides": [
+  {
+   "img": "C8/C8_1.jpg",
+   "caption": "delivery for grandpa!",
+   "fy": 0.35
+  },
+  {
+   "img": "C8/C8_2.jpg",
+   "caption": "video calls, hands-free",
+   "fy": 0.4
+  },
+  {
+   "img": "C8/C8_3.jpg",
+   "caption": "he can read again \ud83e\udd79",
+   "fy": 0.5
+  },
+  {
+   "img": "C8/C8_4.jpg",
+   "caption": "new doorbell, finally",
+   "fy": 0.3
+  },
+  {
+   "img": "C8/C8_1.jpg",
+   "final": true,
+   "fy": 0.35
+  }
+ ]
+}

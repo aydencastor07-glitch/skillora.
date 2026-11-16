@@ -1,0 +1,82 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "GRANDPA'S GARAGE GLOW-UP",
+ "acc": [
+  168,
+  52,
+  40
+ ],
+ "hl": [
+  255,
+  214,
+  140
+ ],
+ "head": "tape",
+ "chip": "tab",
+ "tick": "stub",
+ "tag": "burst",
+ "trans": "up",
+ "font": "PermanentMarker.ttf",
+ "music_seed": 3918,
+ "bpm": 100,
+ "key": 53,
+ "seq": [
+  {
+   "img": "R18/R18_1.jpg",
+   "title": true,
+   "hy": 1520,
+   "ty": 330,
+   "ts": 0.85,
+   "tick": "band",
+   "tag": "none"
+  },
+  {
+   "img": "R18/R18_2.jpg",
+   "item": "metal pegboard + hooks",
+   "num": 1,
+   "hy": 1720,
+   "ty": 1450,
+   "ts": 0.82,
+   "tick": "sticker",
+   "tag": "burst",
+   "tag_at": [
+    900,
+    -300
+   ]
+  },
+  {
+   "card": true,
+   "kind": "receipt",
+   "cy": 0.48,
+   "bg": "polaroid"
+  },
+  {
+   "img": "R18/R18_3.jpg",
+   "item": "LED head torch",
+   "num": 2,
+   "hy": 180,
+   "chip": "note",
+   "ty": 1580,
+   "ts": 0.88,
+   "tick": "pill2",
+   "tag": "none"
+  },
+  {
+   "img": "R18/R18_4.jpg",
+   "item": "grandpa approved",
+   "hy": 200,
+   "chip": "pill",
+   "ty": 1040,
+   "ts": 0.8,
+   "tx": 60,
+   "tick": "stub",
+   "tag": "price",
+   "tag_at": [
+    160,
+    -310
+   ]
+  }
+ ]
+}

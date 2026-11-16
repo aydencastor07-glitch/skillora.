@@ -1,0 +1,35 @@
+{
+ "acc": [
+  226,
+  70,
+  110
+ ],
+ "font": "Poppins-ExtraBold.ttf",
+ "slide_dur": 2.4,
+ "music_seed": 1101,
+ "bpm": 100,
+ "key": 54,
+ "code": "alu426339",
+ "slides": [
+  {
+   "img": "C11/C11_1.jpg",
+   "caption": "baby's first winter haul"
+  },
+  {
+   "img": "C11/C11_2.jpg",
+   "caption": "star night light for the nursery"
+  },
+  {
+   "img": "C11/C11_3.jpg",
+   "caption": "hands-free walks with the carrier"
+  },
+  {
+   "img": "C11/C11_4.jpg",
+   "caption": "diaper station finally organized"
+  },
+  {
+   "img": "C11/C11_1.jpg",
+   "final": true
+  }
+ ]
+}

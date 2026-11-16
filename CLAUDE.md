@@ -1,15 +1,16 @@
 # Règles de l'utilisateur pour les vidéos (à respecter TOUJOURS)
 
 ## Voix off : découpage du script
-- **Uniquement le compte allemand MONÉTISÉ** (explications techniques : téléphones, machines, fours, pneus, ampoules… dossier `tiktok_de/v*_…`, moteurs `explain_*.py`) :
+- **Le compte allemand MONÉTISÉ** (explications techniques : téléphones, machines, fours, pneus, ampoules… dossier `tiktok_de/v*_…`, moteurs `explain_*.py`) **et le nouveau compte américain qui le copie** (dossier `tiktok_us/`, même voix clonée) :
   voix copiée qui demande un abonnement → chaque partie fait **500 caractères MAXIMUM**. Au-delà, couper en plusieurs parties (ex. 400 + 100).
-- **Tous les autres comptes** (compte philosophie allemand « Gesetz », comptes américains `en_explained/`, etc.) :
+- **Tous les autres comptes** (compte philosophie allemand « Gesetz », compte américain `en_explained/`, etc.) :
   **le script en UNE SEULE partie**, à copier-coller tel quel. Ne jamais le découper.
 
 ## Écran
 - Jamais de texte dans les **bandes noires** (haut / bas) de la vidéo : tout texte reste dans la partie centrale, là où sont les images et les textes habituels.
   (Gesetz 13 : « Das Buch: Link in Bio » écrit dans la bande noire → 10 vues.)
 - Dire « Der Link ist in der Bio » dans la voix est OK.
+- Fin des vidéos (Gesetz / Law / toutes) : la vidéo s'arrête NET juste après le dernier mot (« … Bio. »), sans 1-2 s de plus (sinon les gens scrollent avant la fin → mauvais signal). Dans gesetz.py : `"tail": 0.1`.
 
 ## Scripts
 - Ne jamais changer un script déjà donné sans le dire clairement.
@@ -19,3 +20,23 @@
 
 ## Temu (code alq393258)
 - Le code, les titres, le $0 et le logo Temu sont toujours posés par Claude, jamais générés dans les images IA.
+
+- Carrousels / vidéos Temu : le bloc du code (« Search code … for Gifts at 0€/$0 in TEMU app ») doit rester bien lisible MAIS changer de place d'une image à l'autre (haut, milieu, bas — pas toujours en bas), avec des styles de bloc différents. La carte finale du code ne doit pas toujours être la dernière ni toujours la même : la mettre parfois en 1er, au milieu ou à la fin, avec un dessin et une hauteur différents (outil `temu/tools/posterv7.py`).
+
+## Sons (compte philosophie)
+- Bibliothèque des sons fournis : `tiktok_de/sons/` (voir LISEZMOI.md). Les réutiliser et en changer d'une vidéo à l'autre ; si l'utilisateur envoie un son pour une vidéo, l'utiliser et l'ajouter à la bibliothèque.
+
+## Prompts d'images IA (Temu et autres) : réalisme + Google Flow
+- Doit avoir l'air d'une vraie photo de téléphone, PAS d'une image IA : **arrière-plan net (pas de flou, pas de bokeh)**, maison ordinaire et un peu en désordre (pas une déco de magazine), visages normaux (pores, petits boutons, peau irrégulière, pas lisse), lumière plate du quotidien, cadrage un peu de travers, pas de look « cinéma ».
+- VARIER à chaque fois (demande de l'utilisateur) : pas toujours « un homme puis des femmes ». Mélanger hommes, femmes, couples, familles, personnes âgées, amis, enfants (scènes de famille), animaux ; varier les angles (selfie miroir, vue du dessus, POV, mains seules). Les montages aussi : copier les styles approuvés mais changer mises en page, ordre, couleurs, titres.
+- Doit passer les règles de Google Flow : enfants seulement dans des scènes de famille (prévoir une variante adulte si Flow refuse), tout le monde toujours habillé (pas de serviette / douche / épaules nues), pas de vraies marques ni logos (préciser « no brand logos on the shoes / clothes »), pas de célébrités, pas de mots violents ou médicaux forts.
+- Bloc de fin à utiliser : voir `temu/prompt_realiste.md`. NE PLUS ajouter « Vertical 9:16. No text, no letters, no numbers, no logos, no brand names, no watermark. » à la fin des prompts (demande de l'utilisateur).
+
+## Vidéos horreur 3D (retour sur « Ich bin's. Mach auf. »)
+- Sous-titres SANS fond noir derrière le texte.
+- Les cartes de choix « 1 / 2 » ne doivent pas ressembler au style générique des vidéos faites par IA. NOUVEAU (partie 5) : ne plus changer de style à chaque fois → garder le style de texte de la PARTIE 3 (chiffres écrits au doigt dans la buée, `horreur/tools/compose_papa6.py`), c'est la vidéo qui a eu le plus de commentaires.
+- Sous-titres mot par mot classiques : blanc, mot prononcé en jaune.
+- Téléphone : il ne colle pas à l'oreille (petit espace, la main le tient et il bouge) ; on voit la main le monter de la main à l'oreille et le redescendre. Les objets restent à leur place.
+- Caméra qui bouge : tourne autour, passe devant / derrière, vue d'en haut, vue de côté.
+- Musique : si l'utilisateur envoie un son, l'utiliser (le prolonger en boucle calée sur le temps si trop court) et suivre son rythme.
+- Toujours bien montrer le personnage quand la voix parle de lui (pas de plan où on devrait le voir mais où il est caché).

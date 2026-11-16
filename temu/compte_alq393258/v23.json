@@ -1,0 +1,20 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "COLD MORNINGS HAUL",
+ "particles": "gold",
+ "palette": {"c1": [225, 240, 255], "c2": [251, 119, 1], "dark": [18, 40, 66], "acc": [251, 119, 1]},
+ "strip": [18, 40, 66],
+ "slide_dur": 2.6,
+ "music_seed": 2341,
+ "bpm": 104,
+ "key": 50,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {"img": "V23/V23_1.jpg", "label": "A BOX FOR GRANDMA"},
+  {"img": "V23/V23_2.jpg", "label": "HEATED BLANKET"},
+  {"img": "V23/V23_3.jpg", "label": "ICE SCRAPER", "tag_x": 230},
+  {"img": "V23/V23_4.jpg", "comment": true, "comment_y": 1100},
+  {"img": "V23/V23_5.jpg", "label": "HIS WINTER SWEATER", "label_y": 1468}
+ ]
+}

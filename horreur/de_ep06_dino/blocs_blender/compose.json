@@ -1,0 +1,23 @@
+{
+ "words": "words.json",
+ "voice": "voix_clean.mp3",
+ "sub_y": 1450,
+ "num_y": 560,
+ "labels": [[0.05, 3.3, "WAHRE GESCHICHTE"], [21.44, 24.6, "TAGE SPÄTER"]],
+ "choices": [],
+ "black": [],
+ "rewind": [],
+ "glitch": [13.95, 33.0],
+ "flash": [13.95],
+ "audio": {
+  "phone_voice": [],
+  "thud": [2.95, 14.05],
+  "stingers": [13.95, 33.0],
+  "heart": [[16.2, 21.3]],
+  "riser": [[31.6, 33.0]],
+  "steps_out": [24.9, 25.4, 25.9, 30.05, 30.45, 30.85, 31.25],
+  "music": "musique.mp3",
+  "music_gain": 0.2,
+  "wind": [[21.3, 24.7]]
+ }
+}

@@ -1,0 +1,51 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_marc.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 21",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 4.01,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "21:",
+  "Bettle niemals um Bestätigung.",
+  "Wenn du ständig auf Lob und Zustimmung wartest, gibst du jedem die Macht über deinen Wert … und manchmal, die Macht, dich zu brechen.",
+  "Bestätigung fühlt sich an wie Selbstvertrauen.",
+  "In Wahrheit ist sie Abhängigkeit.",
+  "Marc Aurel sagte:",
+  "„Jeder liebt sich selbst mehr als alle anderen – und doch legt er mehr Wert auf ihre Meinung als auf seine eigene.“",
+  "Also:",
+  "Hör auf zu fragen.",
+  "Entscheide selbst, was du wert bist.",
+  "Stell dir vor, niemand muss dir mehr applaudieren:",
+  "ruhig, frei, respektiert.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|21|bettle|niemals|bestätigung|lob|zustimmung|macht|wert|brechen|selbstvertrauen|wahrheit|abhängigkeit|marc|aurel|liebt|selbst|meinung|eigene|fragen|entscheide|applaudieren|ruhig|frei|respektiert|gesetze|buch|link|bio)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 34.97,
+  "link_t": 38.42
+ },
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

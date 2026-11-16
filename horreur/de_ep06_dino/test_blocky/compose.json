@@ -1,0 +1,38 @@
+{
+ "words": "words.json",
+ "voice": "voix_clean.mp3",
+ "sub_y": 1450,
+ "num_y": 560,
+ "labels": [
+  [
+   0.05,
+   3.3,
+   "WAHRE GESCHICHTE"
+  ]
+ ],
+ "choices": [],
+ "black": [],
+ "rewind": [],
+ "glitch": [],
+ "flash": [],
+ "audio": {
+  "phone_voice": [],
+  "thud": [
+   2.95
+  ],
+  "stingers": [
+   8.05
+  ],
+  "heart": [],
+  "riser": [
+   [
+    6.0,
+    8.0
+   ]
+  ],
+  "steps_out": [],
+  "music": "musique.mp3",
+  "music_gain": 0.2,
+  "wind": []
+ }
+}

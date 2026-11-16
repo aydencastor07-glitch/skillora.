@@ -1,0 +1,84 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "MY PARROT'S NEW PLAY CORNER",
+ "acc": [
+  40,
+  110,
+  90
+ ],
+ "hl": [
+  255,
+  206,
+  110
+ ],
+ "head": "stroke",
+ "chip": "note",
+ "tick": "sticker",
+ "tag": "price",
+ "trans": "swipe",
+ "font": "Bangers-Regular.ttf",
+ "music_seed": 3920,
+ "bpm": 110,
+ "key": 57,
+ "seq": [
+  {
+   "img": "R20/R20_1.jpg",
+   "title": true,
+   "hy": 800,
+   "ty": 330,
+   "ts": 0.8,
+   "tick": "stub",
+   "tag": "none"
+  },
+  {
+   "img": "R20/R20_2.jpg",
+   "item": "wooden bird play stand",
+   "num": 1,
+   "hy": 1480,
+   "chip": "pill",
+   "ty": 330,
+   "ts": 0.86,
+   "tick": "band",
+   "tag": "circle",
+   "tag_at": [
+    900,
+    330
+   ]
+  },
+  {
+   "img": "R20/R20_3.jpg",
+   "item": "foraging toy",
+   "num": 2,
+   "hy": 200,
+   "chip": "tab",
+   "ty": 1600,
+   "ts": 0.9,
+   "tick": "pill2",
+   "tag": "burst",
+   "tag_at": [
+    880,
+    -300
+   ]
+  },
+  {
+   "img": "R20/R20_4.jpg",
+   "item": "he loves it",
+   "hy": 230,
+   "ty": 980,
+   "ts": 0.78,
+   "tx": -50,
+   "tick": "sticker",
+   "tag": "none"
+  },
+  {
+   "card": true,
+   "kind": "stack",
+   "scheme": "hl",
+   "cy": 0.52,
+   "bg": "blur",
+   "bg_src": 1
+  }
+ ]
+}

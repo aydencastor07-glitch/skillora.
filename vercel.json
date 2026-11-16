@@ -21,7 +21,7 @@
   ],
   "redirects": [
     {
-      "source": "/:path((?!gesetze/|_vercel/|api/).*)",
+      "source": "/:path((?!gesetze/|laws|_vercel/|api/).*)",
       "has": [
         {
           "type": "host",
@@ -34,6 +34,11 @@
     {
       "source": "/gesetze",
       "destination": "/gesetze/",
+      "permanent": true
+    },
+    {
+      "source": "/laws",
+      "destination": "/laws/",
       "permanent": true
     }
   ],

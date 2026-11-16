@@ -1,0 +1,66 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "I PAID $0 FOR THIS",
+ "particles": "gold",
+ "palette": {
+  "c1": [
+   255,
+   226,
+   150
+  ],
+  "c2": [
+   251,
+   119,
+   1
+  ],
+  "dark": [
+   14,
+   14,
+   16
+  ],
+  "acc": [
+   251,
+   119,
+   1
+  ]
+ },
+ "strip": [
+  14,
+  14,
+  16
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 1201,
+ "bpm": 124,
+ "key": 50,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "hook/H12.jpg",
+   "label": "MY TEMU HAUL JUST CAME",
+   "no_tag": true
+  },
+  {
+   "img": "V12/V12_2.jpg",
+   "label": "EVERYTHING IN ONE BOX"
+  },
+  {
+   "img": "V12/V12_3.jpg",
+   "label": "SHIRT · $4.74 → $0"
+  },
+  {
+   "img": "V12/V12_4.jpg",
+   "label": "SNEAKERS · $41.23 → $0"
+  },
+  {
+   "img": "V12/V12_5.jpg",
+   "label": "SOFA + POUF · $14.31 → $0"
+  },
+  {
+   "img": "preuve/proof12.jpg",
+   "label": "WORTH $124.24 · I PAID $0",
+   "no_tag": true
+  }
+ ]
+}

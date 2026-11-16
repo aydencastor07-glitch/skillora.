@@ -1,0 +1,85 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "BABY-PROOFING OUR FLAT",
+ "acc": [
+  230,
+  96,
+  60
+ ],
+ "hl": [
+  190,
+  240,
+  220
+ ],
+ "head": "box",
+ "chip": "pill",
+ "tick": "pill2",
+ "tag": "burst",
+ "trans": "up",
+ "font": "ArchivoBlack-Regular.ttf",
+ "music_seed": 3912,
+ "bpm": 112,
+ "key": 57,
+ "seq": [
+  {
+   "card": true,
+   "kind": "stack",
+   "scheme": "hl",
+   "cy": 0.5,
+   "bg": "mosaic"
+  },
+  {
+   "img": "R12/R12_1.jpg",
+   "title": true,
+   "hy": 250,
+   "ty": 1600,
+   "tick": "pill2",
+   "tag": "burst",
+   "tag_at": [
+    905,
+    -290
+   ]
+  },
+  {
+   "img": "R12/R12_2.jpg",
+   "item": "socket safety covers",
+   "num": 1,
+   "hy": 1500,
+   "chip": "tab",
+   "ty": 370,
+   "ts": 0.9,
+   "tick": "stub",
+   "tag": "price",
+   "tag_at": [
+    900,
+    420
+   ]
+  },
+  {
+   "img": "R12/R12_3.jpg",
+   "item": "cabinet safety lock",
+   "num": 2,
+   "hy": 1600,
+   "ty": 700,
+   "ts": 0.88,
+   "tick": "band",
+   "tag": "none"
+  },
+  {
+   "img": "R12/R12_4.jpg",
+   "item": "soft corner guards",
+   "num": 3,
+   "hy": 300,
+   "chip": "stroke",
+   "ty": 1570,
+   "tick": "sticker",
+   "tag": "burst",
+   "tag_at": [
+    150,
+    -330
+   ]
+  }
+ ]
+}

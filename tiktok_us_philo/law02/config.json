@@ -1,0 +1,46 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_seneca.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 2",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.37,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law No.",
+  "2:",
+  "Never show your anger.",
+  "When you explode in front of everyone, you show them exactly which button controls you… and sometimes, how to destroy you.",
+  "Anger feels like strength.",
+  "In reality, it's losing control.",
+  "Seneca said:",
+  "\"The greatest remedy for anger is delay.\"",
+  "So breathe.",
+  "Wait.",
+  "Only answer once you're calm.",
+  "Imagine nobody can provoke you anymore:",
+  "calm, in control, respected.",
+  "Follow for Law No 3."
+ ],
+ "hot": "^(law|never|anger|explode|everyone|button|controls|destroy|strength|reality|losing|control|seneca|greatest|remedy|delay|breathe|wait|calm|provoke|respected|follow)$",
+ "tail": 2.0,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

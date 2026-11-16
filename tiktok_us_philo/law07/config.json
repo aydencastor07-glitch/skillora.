@@ -1,0 +1,63 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_epictetus.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 7",
+ "title_words": 3,
+ "music": "musique.wav",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.438,
+  "dur": 1.036
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number seven.",
+  "Master yourself first.",
+  "If you can't control your phone, your anger, or your appetite,",
+  "you will never control your life.",
+  "Every time you give in,",
+  "something else decides for you.",
+  "Epictetus said:",
+  "\"No man is free who is not master of himself.\"",
+  "So start small.",
+  "Wake up when you said you would.",
+  "Finish what you start.",
+  "Save this, and follow for law number eight."
+ ],
+ "hot": "^(master|yourself|first|control|phone|anger|appetite|never|life|decides|epictetus|free|himself|small|wake|finish|start|save|follow)$",
+ "tail": 0.1,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  230,
+  190,
+  120
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  16,
+  14,
+  12
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": 1
+  }
+ ],
+ "bg_dim": 0.42,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0
+}

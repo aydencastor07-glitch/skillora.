@@ -1,0 +1,69 @@
+{
+ "src": "img.jpg",
+ "dur": 13,
+ "style": 1,
+ "music_seed": 4801,
+ "bpm": 108,
+ "key": 57,
+ "seq": [
+  {
+   "t0": 0,
+   "t1": 3.2,
+   "boxes": [
+    {
+     "txt": "$0 gifts\ncode: alq393258",
+     "y": 260,
+     "kind": "b",
+     "size": 56
+    }
+   ]
+  },
+  {
+   "t0": 3.2,
+   "t1": 6.4,
+   "boxes": [
+    {
+     "txt": "He thinks the drone\nis a giant bird",
+     "y": 1500,
+     "kind": "a",
+     "size": 48
+    }
+   ],
+   "logo": [
+    540,
+    1700
+   ],
+   "logo_s": 180
+  },
+  {
+   "t0": 6.4,
+   "t1": 9.4,
+   "boxes": [
+    {
+     "txt": "Search code alq393258\nfor Gifts at $0 in TEMU app",
+     "y": 280,
+     "kind": "c",
+     "size": 44
+    },
+    {
+     "txt": "code: alq393258",
+     "y": 440,
+     "kind": "b",
+     "size": 56
+    }
+   ]
+  },
+  {
+   "t0": 9.4,
+   "t1": 13,
+   "boxes": [
+    {
+     "txt": "Search my code alq393258 in the Temu app\nto unlock $0 gifts with qualifying orders.\nT&Cs apply.",
+     "y": 1640,
+     "kind": "a",
+     "size": 38
+    }
+   ]
+  }
+ ]
+}

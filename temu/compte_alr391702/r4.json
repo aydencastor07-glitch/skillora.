@@ -1,0 +1,43 @@
+{
+ "code": "alr391702",
+ "title": "GAMING ROOM ON A BUDGET",
+ "slide_dur": 2.5,
+ "music_seed": 3904,
+ "bpm": 117,
+ "key": 52,
+ "acc": [
+  130,
+  60,
+  220
+ ],
+ "hl": [
+  120,
+  255,
+  200
+ ],
+ "head": "tape",
+ "chip": "note",
+ "tick": "pill2",
+ "tag": "price",
+ "trans": "flash",
+ "final": "mosaic",
+ "font": "PermanentMarker.ttf",
+ "tick_y": 1540,
+ "slides": [
+  {
+   "img": "R4/R4_1.jpg"
+  },
+  {
+   "img": "R4/R4_2.jpg",
+   "item": "LED strip + headset stand"
+  },
+  {
+   "img": "R4/R4_3.jpg",
+   "item": "controller charging dock"
+  },
+  {
+   "img": "R4/R4_4.jpg",
+   "item": "cable sleeve"
+  }
+ ]
+}

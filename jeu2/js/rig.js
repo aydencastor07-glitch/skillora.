@@ -372,7 +372,7 @@ export class RealHuman {
 
     // Visage
     const blinkPh = (t + (this.o.seed || 0) * 1.37) % 3.9;
-    const blink = blinkPh < 0.15 ? Math.sin((blinkPh / 0.15) * Math.PI) : 0;
+    const blink = f.noBlink ? 0 : blinkPh < 0.15 ? Math.sin((blinkPh / 0.15) * Math.PI) : 0;   // f.noBlink : regard fixe (somnambule)
     const smile = f.smile || 0;
     const M = {
       EyeBlinkLeft: Math.max(blink, f.closed || 0), EyeBlinkRight: Math.max(blink, f.closed || 0),
@@ -391,9 +391,12 @@ export class RealHuman {
       NoseSneerLeft: (f.angry || 0) * 0.35, NoseSneerRight: (f.angry || 0) * 0.35,
       MouthShrugLower: (f.sad || 0) * 0.4,
     };
+    // f.raw : valeurs directes par expression ; f.maxM > 1 : expressions poussées au-delà du modèle (sourire « trop large »)
+    if (f.raw) for (const key in f.raw) M[key] = Math.max(M[key] || 0, f.raw[key]);
+    const mx = f.maxM || 1;
     for (const m of this.face) {
       const d = m.morphTargetDictionary, inf = m.morphTargetInfluences;
-      for (const key in d) inf[d[key]] = Math.min(1, Math.max(0, M[key] || 0));
+      for (const key in d) inf[d[key]] = Math.min(mx, Math.max(0, M[key] || 0));
     }
     if (this.headMat) this.headMat.color.copy(this.baseHead).lerp(new THREE.Color('#ff2f22'), (f.red || 0) * 0.62);
 

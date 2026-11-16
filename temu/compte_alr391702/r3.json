@@ -1,0 +1,40 @@
+{
+ "code": "alr391702",
+ "title": "MY RAINY BIKE COMMUTE",
+ "slide_dur": 2.5,
+ "music_seed": 3903,
+ "bpm": 110,
+ "key": 58,
+ "acc": [
+  30,
+  110,
+  220
+ ],
+ "hl": [
+  255,
+  230,
+  70
+ ],
+ "head": "stroke",
+ "chip": "stroke",
+ "tick": "sticker",
+ "tag": "circle",
+ "trans": "zoom",
+ "final": "blur",
+ "font": "Anton-Regular.ttf",
+ "tick_y": 1500,
+ "bars": false,
+ "slides": [
+  {
+   "img": "R3/R3_1.jpg"
+  },
+  {
+   "img": "R3/R3_3.jpg",
+   "item": "waterproof saddle cover"
+  },
+  {
+   "img": "R3/R3_4.jpg",
+   "item": "reflective bands"
+  }
+ ]
+}

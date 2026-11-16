@@ -1,0 +1,62 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_pascal.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 8",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.198,
+  "dur": 1.416
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number eight.",
+  "Learn to be alone.",
+  "Most people can't sit with their own thoughts for ten minutes.",
+  "So they scroll, they text,",
+  "they chase people who don't even care about them.",
+  "Blaise Pascal said:",
+  "\"All of humanity's problems stem from man's inability to sit quietly in a room alone.\"",
+  "The person who is at peace alone",
+  "can't be controlled, can't be bought,",
+  "and never begs for attention.",
+  "Save this, and follow for law number nine."
+ ],
+ "hot": "^(learn|alone|thoughts|ten|minutes|scroll|text|chase|care|pascal|humanity's|problems|quietly|room|alone\\.\"|peace|controlled|bought|never|begs|attention|save|follow)$",
+ "tail": 0.1,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  230,
+  190,
+  120
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  16,
+  14,
+  12
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": -1
+  }
+ ],
+ "bg_dim": 0.42,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0
+}

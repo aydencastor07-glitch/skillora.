@@ -1,0 +1,82 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "MY DOG HATES THE RAIN",
+ "acc": [
+  28,
+  40,
+  66
+ ],
+ "hl": [
+  255,
+  212,
+  0
+ ],
+ "head": "hl",
+ "chip": "stroke",
+ "tick": "sticker",
+ "tag": "tag",
+ "trans": "swipe",
+ "font": "Bangers-Regular.ttf",
+ "music_seed": 3917,
+ "bpm": 126,
+ "key": 62,
+ "seq": [
+  {
+   "img": "R17/R17_1.jpg",
+   "title": true,
+   "hy": 1500,
+   "ty": 380,
+   "ts": 0.88,
+   "tick": "band",
+   "tag": "none"
+  },
+  {
+   "img": "R17/R17_2.jpg",
+   "item": "it all came in this box",
+   "hy": 230,
+   "ty": 1630,
+   "ts": 0.9,
+   "tick": "stub",
+   "tag": "price",
+   "tag_at": [
+    905,
+    -310
+   ]
+  },
+  {
+   "card": true,
+   "kind": "stack",
+   "scheme": "light",
+   "cy": 0.55,
+   "bg": "blur",
+   "bg_src": 2
+  },
+  {
+   "img": "R17/R17_3.jpg",
+   "item": "dog drying mitt",
+   "num": 1,
+   "hy": 330,
+   "chip": "tab",
+   "ty": 1460,
+   "ts": 0.9,
+   "tick": "sticker",
+   "tag": "none"
+  },
+  {
+   "img": "R17/R17_4.jpg",
+   "item": "absorbent door mat",
+   "num": 2,
+   "hy": 1720,
+   "ty": 880,
+   "ts": 0.85,
+   "tick": "pill2",
+   "tag": "burst",
+   "tag_at": [
+    900,
+    -300
+   ]
+  }
+ ]
+}

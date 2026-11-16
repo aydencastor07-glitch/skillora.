@@ -105,6 +105,8 @@ def ill(n, w, h):
     key = (n, int(w), int(h))
     if key not in _ill:
         src = load_ill(n); s = min(S(w) / src.width, S(h) / src.height); col = src.resize((max(1, int(src.width * s)), max(1, int(src.height * s))), Image.LANCZOS)
+        if s > 1.2 and globals().get('SHARPEN'):     # image source petite et très agrandie : on raffermit les traits
+            rgb = col.convert('RGB').filter(ImageFilter.UnsharpMask(radius=S(2), percent=SHARPEN, threshold=2)); rgb.putalpha(col.getchannel('A')); col = rgb
         g = col.convert('L'); e = g.filter(ImageFilter.FIND_EDGES).point(lambda v: 255 if v > 40 else 0).filter(ImageFilter.MaxFilter(3))
         e = ImageChops.multiply(e, col.getchannel('A').point(lambda v: 255 if v > 60 else 0))
         sk = Image.new('RGBA', col.size, (110, 110, 115, 0)); sk.putalpha(e)
@@ -141,7 +143,7 @@ def clip_frames(k):
     if not os.path.exists(src): return None, 0
     if not os.path.isdir(dd) or not os.listdir(dd):
         os.makedirs(dd, exist_ok=True)
-        subprocess.run([FF, '-v', 'error', '-i', src, '-vf', f'fps=30,scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos,crop={W}:{H}', '-q:v', '2', os.path.join(dd, '%04d.jpg')])
+        subprocess.run([FF, '-v', 'error', '-i', src, '-vf', f'fps=30,scale={W}:{H}:force_original_aspect_ratio=increase:flags=lanczos,crop={W}:{H}', '-q:v', '1', os.path.join(dd, '%04d.jpg')])
     return dd, len(os.listdir(dd))
 def clip(img, k, t0, t, speed=1.0, start=0.0, end=None, fade=0.12):
     # plein écran : image du clip à l'instant (t - t0) x vitesse ; la dernière image reste si le clip est fini
@@ -149,7 +151,7 @@ def clip(img, k, t0, t, speed=1.0, start=0.0, end=None, fade=0.12):
     dd, n = clip_frames(k)
     if not n: return
     last = n - 1 if end is None else min(n - 1, int(end * 30)); fi = max(0, min(last, int((start + (t - t0) * speed) * 30)))
-    im = Image.open(os.path.join(dd, f'{fi + 1:04d}.jpg')).convert('RGBA').resize((W * SS, H * SS), Image.BILINEAR)
+    im = Image.open(os.path.join(dd, f'{fi + 1:04d}.jpg')).convert('RGBA').resize((W * SS, H * SS), Image.LANCZOS)
     a = since(t, t0, fade)
     if a < 0.99: im.putalpha(int(255 * a))
     img.alpha_composite(im)

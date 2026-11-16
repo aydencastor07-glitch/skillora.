@@ -1,0 +1,74 @@
+{
+ "src": "../R20/R20_2.jpg",
+ "dur": 12,
+ "style": 0,
+ "music_seed": 4001,
+ "bpm": 98,
+ "key": 55,
+ "seq": [
+  {
+   "t0": 0,
+   "t1": 3,
+   "boxes": [
+    {
+     "txt": "Des trouvailles Temu\nà ne pas manquer !",
+     "y": 560,
+     "kind": "a",
+     "size": 50
+    }
+   ],
+   "logo": [
+    760,
+    900
+   ]
+  },
+  {
+   "t0": 3,
+   "t1": 6.5,
+   "boxes": [
+    {
+     "txt": "Cadeaux à 0€\ncode : alr391702",
+     "y": 430,
+     "kind": "a",
+     "size": 54
+    },
+    {
+     "txt": "Recherchez ce code dans\nl'application TEMU",
+     "y": 600,
+     "kind": "b",
+     "size": 44
+    }
+   ]
+  },
+  {
+   "t0": 6.5,
+   "t1": 9.3,
+   "boxes": [
+    {
+     "txt": "code : alr391702",
+     "y": 1010,
+     "kind": "a",
+     "size": 56
+    }
+   ]
+  },
+  {
+   "t0": 9.3,
+   "t1": 12,
+   "boxes": [
+    {
+     "txt": "Cadeaux à 0€ avec\nles commandes éligibles\ncode : alr391702",
+     "y": 1150,
+     "kind": "a",
+     "size": 46
+    },
+    {
+     "txt": "Recherchez ce code dans l'application\nTemu pour des cadeaux à 0€ avec les\ncommandes éligibles.\nConditions applicables.",
+     "y": 1390,
+     "kind": "c",
+     "size": 40
+    }
+   ]
+  }
+ ]
+}

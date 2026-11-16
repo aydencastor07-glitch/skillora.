@@ -1,0 +1,51 @@
+{
+ "voice": "voix_gavel.mp3",
+ "align_voice": "voix_clean.mp3",
+ "portrait": "portrait_tolstoi.png",
+ "portrait_h": 520,
+ "title_overlap": 0.78,
+ "title": "GESETZ NR. 24",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.22,
+ "gavel": {
+  "t": 3.18,
+  "dur": 1.0
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Gesetz Nr.",
+  "24:",
+  "Sei geduldig.",
+  "Wenn du alles sofort willst, triffst du schlechte Entscheidungen … und andere nutzen deine Eile gegen dich aus.",
+  "Wer drängt, verrät, wie sehr er etwas braucht.",
+  "Wer warten kann, bestimmt den Preis.",
+  "Leo Tolstoi sagte:",
+  "„Die zwei stärksten Krieger sind Geduld und Zeit.“",
+  "Also:",
+  "Lass dich nicht hetzen.",
+  "Arbeite still weiter, auch wenn noch niemand etwas sieht.",
+  "Stell dir vor, du bist der Einzige im Raum, der es nicht eilig hat:",
+  "ruhig, sicher, unantastbar.",
+  "Genau das bringen dir die 21 Gesetze in diesem Buch.",
+  "Der Link ist in der Bio."
+ ],
+ "hot": "^(gesetz|24|geduldig|sofort|schlechte|entscheidungen|eile|drängt|verrät|braucht|warten|bestimmt|preis|leo|tolstoi|stärksten|krieger|geduld|zeit|hetzen|still|niemand|einzige|eilig|ruhig|sicher|unantastbar|gesetze|buch|link|bio)$",
+ "tail": 0.1,
+ "word_align": "words.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "book": {
+  "t": 29.13,
+  "link_t": 32.29
+ },
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  150,
+  40
+ ],
+ "sub_anim": "rise"
+}

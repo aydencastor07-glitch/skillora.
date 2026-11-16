@@ -1,0 +1,33 @@
+{
+ "style": "dark",
+ "video": "V15_beforeafter.mp4",
+ "slides": [
+  {
+   "img": "V15/V15_1.jpg",
+   "text": "my sad empty corner… BEFORE 😐",
+   "y": 420
+  },
+  {
+   "img": "V15/V15_2.jpg",
+   "text": "ok what's in this box",
+   "y": 700
+  },
+  {
+   "img": "V15/V15_3.jpg",
+   "text": "AFTER ✨ my favorite spot now",
+   "y": 300
+  },
+  {
+   "img": "V15/V15_4.jpg",
+   "text": "sunday reset mode 📖",
+   "y": 300
+  },
+  {
+   "img": "V15/V15_5.jpg",
+   "text": "it even works on the balcony ☀️",
+   "y": 300,
+   "code": "Search code alq393258 in the Temu app 🎁",
+   "code_y": 510
+  }
+ ]
+}

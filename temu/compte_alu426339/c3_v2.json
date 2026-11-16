@@ -1,0 +1,19 @@
+{
+ "font": "Anton-Regular.ttf",
+ "palette": {"c1": [220, 232, 250], "c2": [255, 140, 40], "dark": [16, 24, 40], "acc": [226, 78, 38]},
+ "slide_dur": 2.8,
+ "transition": "push",
+ "sfx": "whoosh",
+ "music_seed": 3307,
+ "bpm": 104,
+ "key": 52,
+ "slides": [
+  {"img": "C3/C3_1.jpg", "title": "MY CAR|GLOW UP|STARTS|HERE", "layout": "A"},
+  {"img": "C3/C3_2.jpg", "title": "NO MORE PHONE|IN MY LAP", "layout": "D"},
+  {"img": "C3/C3_3.jpg", "title": "NIGHT DRIVE|VIBES", "layout": "C"},
+  {"img": "C3/C3_4.jpg", "layout": "E"},
+  {"img": "C3/C3_5.jpg", "title": "BYE BYE|CRUMBS", "layout": "B"}
+ ],
+ "code": "alu426339",
+ "code_text": "Search code alu426339 for Gifts at $0 in TEMU app"
+}

@@ -1,0 +1,84 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "FROSTY MORNING CAR KIT",
+ "acc": [
+  24,
+  110,
+  190
+ ],
+ "hl": [
+  255,
+  226,
+  80
+ ],
+ "head": "hl",
+ "chip": "tab",
+ "tick": "stub",
+ "tag": "circle",
+ "trans": "swipe",
+ "font": "Anton-Regular.ttf",
+ "music_seed": 3911,
+ "bpm": 104,
+ "key": 55,
+ "seq": [
+  {
+   "img": "R11/R11_1.jpg",
+   "title": true,
+   "hy": 300,
+   "ty": 760,
+   "ts": 0.9,
+   "tick": "stub",
+   "tag": "circle",
+   "tag_at": [
+    170,
+    330
+   ]
+  },
+  {
+   "img": "R11/R11_2.jpg",
+   "item": "it all came in this box",
+   "hy": 1490,
+   "ty": 370,
+   "ts": 0.88,
+   "tick": "band",
+   "tag": "burst",
+   "tag_at": [
+    165,
+    340
+   ]
+  },
+  {
+   "card": true,
+   "kind": "wide",
+   "scheme": "light",
+   "cy": 0.36,
+   "bg": "blur",
+   "bg_src": 3
+  },
+  {
+   "img": "R11/R11_3.jpg",
+   "item": "anti-frost windshield cover",
+   "num": 1,
+   "hy": 300,
+   "ty": 1545,
+   "tick": "sticker",
+   "tag": "none"
+  },
+  {
+   "img": "R11/R11_4.jpg",
+   "item": "heated seat cushion",
+   "num": 2,
+   "hy": 300,
+   "ty": 1190,
+   "ts": 0.86,
+   "tick": "pill2",
+   "tag": "circle",
+   "tag_at": [
+    905,
+    -290
+   ]
+  }
+ ]
+}

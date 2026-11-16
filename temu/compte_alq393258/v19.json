@@ -1,0 +1,20 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "BATHROOM GLOW UP",
+ "particles": "confetti",
+ "palette": {"c1": [220, 245, 240], "c2": [251, 119, 1], "dark": [14, 70, 72], "acc": [251, 119, 1]},
+ "strip": [14, 70, 72],
+ "slide_dur": 2.7,
+ "music_seed": 1931,
+ "bpm": 110,
+ "key": 50,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {"img": "V19/V19_1.jpg", "label": "BATHROOM UPGRADE INCOMING"},
+  {"img": "V19/V19_2.jpg", "label": "TOOTHPASTE DISPENSER"},
+  {"img": "V19/V19_3.jpg", "label": "MOTION NIGHT LIGHT"},
+  {"img": "V19/V19_4.jpg", "label": "TOUCHLESS SOAP", "tag_x": 230},
+  {"img": "V19/V19_5.jpg", "comment": true, "comment_y": 1300}
+ ]
+}

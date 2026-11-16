@@ -1,0 +1,33 @@
+{
+ "style": "white",
+ "video": "V12_bigunboxing.mp4",
+ "slides": [
+  {
+   "img": "V12/V12_1.jpg",
+   "text": "I said \"just one small order\"… 📦",
+   "y": 300
+  },
+  {
+   "img": "V12/V12_2.jpg",
+   "text": "everything that was inside 👀",
+   "y": 300
+  },
+  {
+   "img": "V12/V12_3.jpg",
+   "text": "the shirt fits better than I expected",
+   "y": 1560
+  },
+  {
+   "img": "V12/V12_4.jpg",
+   "text": "and these sneakers… 🔥",
+   "y": 1500
+  },
+  {
+   "img": "V12/V12_5.jpg",
+   "text": "my new gaming throne 🎮",
+   "y": 250,
+   "code": "Search code alq393258 in the Temu app 🎁",
+   "code_y": 1640
+  }
+ ]
+}

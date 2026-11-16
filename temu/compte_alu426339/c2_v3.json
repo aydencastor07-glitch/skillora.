@@ -1,0 +1,20 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "KITCHEN FINDS HAUL",
+ "particles": "gold",
+ "palette": {"c1": [225, 245, 230], "c2": [251, 119, 1], "dark": [20, 32, 24], "acc": [251, 119, 1]},
+ "strip": [20, 32, 24],
+ "slide_dur": 2.8,
+ "music_seed": 2291,
+ "bpm": 118,
+ "key": 53,
+ "code": "alu426339",
+ "code_text": "Search code alu426339 for Gifts at $0 in TEMU app",
+ "slides": [
+  {"img": "C2/C2_1.jpg", "label": "KITCHEN DELIVERY DAY"},
+  {"img": "C2/C2_2.jpg", "label": "NO-TEARS ONION CHOPPER"},
+  {"img": "C2/C2_3.jpg", "comment": true, "comment_y": 1240},
+  {"img": "C2/C2_4.jpg", "label": "PANTRY GLOW UP"},
+  {"img": "C2/C2_5.jpg", "label": "FRIDGE SPICE RACK", "label_y": 1468}
+ ]
+}

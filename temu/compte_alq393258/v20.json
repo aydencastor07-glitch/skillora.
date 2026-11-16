@@ -1,0 +1,19 @@
+{
+ "font": "BebasNeue-Regular.ttf",
+ "palette": {"c1": [225, 238, 255], "c2": [255, 150, 40], "dark": [24, 34, 70], "acc": [240, 90, 30]},
+ "slide_dur": 2.8,
+ "transition": "blinds",
+ "sfx": "whoosh",
+ "music_seed": 2027,
+ "bpm": 104,
+ "key": 58,
+ "slides": [
+  {"img": "V20/V20_1.jpg", "title": "TRIP PREP|STARTS NOW", "layout": "C"},
+  {"img": "V20/V20_2.jpg", "title": "MOM'S|READY|FOR THE|FLIGHT", "layout": "A"},
+  {"img": "V20/V20_3.jpg", "title": "THE CAT|IS COMING TOO", "layout": "D"},
+  {"img": "V20/V20_4.jpg", "layout": "E"},
+  {"img": "V20/V20_5.jpg", "title": "UNDER|50 LBS?", "layout": "B"}
+ ],
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app"
+}

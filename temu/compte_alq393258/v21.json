@@ -1,0 +1,20 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "FIRST APARTMENT HAUL",
+ "particles": "confetti",
+ "palette": {"c1": [255, 232, 214], "c2": [251, 119, 1], "dark": [58, 36, 30], "acc": [251, 119, 1]},
+ "strip": [58, 36, 30],
+ "slide_dur": 2.7,
+ "music_seed": 2131,
+ "bpm": 118,
+ "key": 52,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {"img": "V21/V21_1.jpg", "label": "OUR FIRST PLACE!"},
+  {"img": "V21/V21_2.jpg", "label": "FAIRY LIGHTS FIRST"},
+  {"img": "V21/V21_3.jpg", "label": "BLACKOUT CURTAINS", "tag_x": 230, "tag_y": 760},
+  {"img": "V21/V21_4.jpg", "comment": true, "comment_y": 1240},
+  {"img": "V21/V21_5.jpg", "label": "DINNER ON THE FLOOR", "label_y": 1468}
+ ]
+}

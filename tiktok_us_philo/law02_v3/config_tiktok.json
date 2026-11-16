@@ -1,0 +1,50 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_epictetus.png",
+ "portrait_h": 560,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 2",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.326,
+  "dur": 1.288
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number two.",
+  "Never let them see you angry.",
+  "The moment you explode, you hand them the remote control to your mind.",
+  "They push one button, and you react.",
+  "Every single time.",
+  "Anger feels like power.",
+  "It's the opposite.",
+  "Epictetus said:",
+  "\"Remember that it is not he who reviles or strikes you who insults you, but your opinion that these things are insulting.\"",
+  "So when they push, stay still.",
+  "Say nothing.",
+  "Let them wonder.",
+  "The calmest person in the room always holds the power.",
+  "Follow for law number three."
+ ],
+ "hot": "^(never|angry|explode|remote|control|mind|button|react|anger|power|opposite|epictetus|insults|opinion|insulting|still|nothing|wonder|calmest|holds|follow)$",
+ "tail": 2.0,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  110,
+  200,
+  255
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  14,
+  30,
+  46
+ ]
+}

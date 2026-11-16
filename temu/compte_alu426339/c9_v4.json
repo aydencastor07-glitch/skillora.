@@ -1,0 +1,58 @@
+{
+ "header": "roommate glow up",
+ "hand": "PermanentMarker.ttf",
+ "palette": {
+  "paper": [
+   236,
+   236,
+   232
+  ],
+  "ink": [
+   25,
+   25,
+   25
+  ],
+  "acc": [
+   250,
+   120,
+   0
+  ],
+  "tape": [
+   140,
+   200,
+   120
+  ]
+ },
+ "slide_dur": 2.6,
+ "music_seed": 9307,
+ "bpm": 122,
+ "key": 57,
+ "code": "alu426339",
+ "code_text": "Search code alu426339 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "C9/C9_1.jpg",
+   "caption": "who gets to open it?",
+   "fy": 0.4
+  },
+  {
+   "img": "C9/C9_2.jpg",
+   "caption": "no more shoe pile",
+   "fy": 0.55
+  },
+  {
+   "img": "C9/C9_3.jpg",
+   "caption": "door hooks = more space",
+   "fy": 0.3
+  },
+  {
+   "img": "C9/C9_4.jpg",
+   "caption": "laundry basketball",
+   "fy": 0.55
+  },
+  {
+   "img": "C9/C9_1.jpg",
+   "postit": true
+  }
+ ]
+}

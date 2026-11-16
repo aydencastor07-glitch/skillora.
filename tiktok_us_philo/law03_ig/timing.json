@@ -1,0 +1,35 @@
+{
+"sent": [
+"Law number three.",
+"Say less than necessary.",
+"When you explain too much,",
+"you are not being honest,",
+"you are being predictable.",
+"Every extra word is information someone can use.",
+"The quiet person in the room is the one everyone tries to read.",
+"Zeno said:",
+"\"We have two ears and one mouth,",
+"so that we may listen more and talk less.\" So today,",
+"listen twice as long as you speak.",
+"Then watch what people tell you.",
+"Save this,",
+"and follow for law number four."
+],
+"bounds": [
+0.2,
+2.0,
+3.1101811472660184,
+4.52,
+6.495,
+8.065,
+13.465,
+17.61,
+19.11,
+21.09,
+24.845,
+27.05,
+29.435,
+30.62,
+32.45
+]
+}

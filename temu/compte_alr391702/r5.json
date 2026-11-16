@@ -1,0 +1,43 @@
+{
+ "code": "alr391702",
+ "title": "LAUNDRY DAY WITH DAD",
+ "slide_dur": 2.5,
+ "music_seed": 3905,
+ "bpm": 96,
+ "key": 55,
+ "acc": [
+  28,
+  52,
+  96
+ ],
+ "hl": [
+  180,
+  230,
+  255
+ ],
+ "head": "hl",
+ "chip": "tab",
+ "tick": "stub",
+ "tag": "burst",
+ "trans": "zoom",
+ "final": "polaroid",
+ "font": "Poppins-ExtraBold.ttf",
+ "bars": false,
+ "slides": [
+  {
+   "img": "R5/R5_1.jpg"
+  },
+  {
+   "img": "R5/R5_2.jpg",
+   "item": "2-in-1 laundry hamper"
+  },
+  {
+   "img": "R5/R5_3.jpg",
+   "item": "fabric shaver"
+  },
+  {
+   "img": "R5/R5_4.jpg",
+   "item": "drawer organizers"
+  }
+ ]
+}

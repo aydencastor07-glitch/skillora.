@@ -1,0 +1,65 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "HIS GIFT: $0",
+ "particles": "gold",
+ "palette": {
+  "c1": [
+   255,
+   226,
+   150
+  ],
+  "c2": [
+   251,
+   119,
+   1
+  ],
+  "dark": [
+   14,
+   14,
+   16
+  ],
+  "acc": [
+   251,
+   119,
+   1
+  ]
+ },
+ "strip": [
+  14,
+  14,
+  16
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 1701,
+ "bpm": 118,
+ "key": 52,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "hook/H17.jpg",
+   "label": "HE HAS NO IDEA",
+   "no_tag": true
+  },
+  {
+   "img": "V17/V17_2.jpg",
+   "label": "PROJECTOR · $20.12 → $0",
+   "tag_y": 300
+  },
+  {
+   "img": "V17/V17_3.jpg",
+   "label": "MOVIE NIGHT IN BED",
+   "label_y": 1300
+  },
+  {
+   "img": "V17/V17_4.jpg",
+   "comment": true,
+   "comment_y": 1240
+  },
+  {
+   "img": "preuve/proof17.jpg",
+   "label": "WORTH $180.08 · I PAID $0",
+   "no_tag": true
+  }
+ ]
+}

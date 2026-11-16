@@ -1,0 +1,35 @@
+{
+ "acc": [
+  120,
+  70,
+  200
+ ],
+ "font": "ArchivoBlack-Regular.ttf",
+ "slide_dur": 2.4,
+ "music_seed": 1203,
+ "bpm": 118,
+ "key": 54,
+ "code": "alu426339",
+ "slides": [
+  {
+   "img": "C12/C12_1.jpg",
+   "caption": "dorm upgrade with my roomie"
+  },
+  {
+   "img": "C12/C12_2.jpg",
+   "caption": "clip-on lamp for late study nights"
+  },
+  {
+   "img": "C12/C12_3.jpg",
+   "caption": "under-bed storage saved us"
+  },
+  {
+   "img": "C12/C12_4.jpg",
+   "caption": "mini fridge, actually organized"
+  },
+  {
+   "img": "C12/C12_1.jpg",
+   "final": true
+  }
+ ]
+}

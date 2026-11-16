@@ -1,0 +1,47 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_marcus.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 4",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.26,
+  "dur": 1.098
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number four.",
+  "Never take revenge.",
+  "The moment you strike back, you show them exactly where it hurts.",
+  "Revenge keeps you tied to the person who hurt you, for weeks, sometimes for years.",
+  "And they win twice: once when they hurt you, and again when they turn you into someone you are not.",
+  "Marcus Aurelius said:",
+  "\"The best way of avenging thyself is not to become like the wrongdoer.\"",
+  "So don't answer.",
+  "Don't explain.",
+  "Become better, and let them watch.",
+  "Follow for law number five."
+ ],
+ "hot": "^(never|revenge|strike|hurts|tied|years|twice|someone|marcus|aurelius|best|avenging|wrongdoer|answer|explain|better|watch|follow)$",
+ "tail": 1.0,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  255,
+  172,
+  92
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  38,
+  12,
+  16
+ ]
+}

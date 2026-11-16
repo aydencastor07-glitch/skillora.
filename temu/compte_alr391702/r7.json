@@ -1,0 +1,43 @@
+{
+ "code": "alr391702",
+ "title": "WEEKEND HIKE ESSENTIALS",
+ "slide_dur": 2.5,
+ "music_seed": 3907,
+ "bpm": 110,
+ "key": 52,
+ "acc": [
+  60,
+  120,
+  50
+ ],
+ "hl": [
+  255,
+  200,
+  80
+ ],
+ "head": "stroke",
+ "chip": "note",
+ "tick": "band",
+ "tag": "circle",
+ "trans": "up",
+ "final": "mosaic",
+ "font": "Anton-Regular.ttf",
+ "tick_y": 1540,
+ "slides": [
+  {
+   "img": "R7/R7_1.jpg"
+  },
+  {
+   "img": "R7/R7_2.jpg",
+   "item": "insulated travel mug"
+  },
+  {
+   "img": "R7/R7_3.jpg",
+   "item": "hand warmer + touch gloves"
+  },
+  {
+   "img": "R7/R7_4.jpg",
+   "item": "pocket headlamp"
+  }
+ ]
+}

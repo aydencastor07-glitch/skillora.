@@ -1,0 +1,83 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "BAKING WITH MY ROOMMATES",
+ "acc": [
+  226,
+  92,
+  140
+ ],
+ "hl": [
+  255,
+  236,
+  120
+ ],
+ "head": "box",
+ "chip": "pill",
+ "tick": "pill2",
+ "tag": "circle",
+ "trans": "zoom",
+ "font": "Pacifico.ttf",
+ "music_seed": 3919,
+ "bpm": 120,
+ "key": 60,
+ "seq": [
+  {
+   "card": true,
+   "kind": "wide",
+   "scheme": "light",
+   "cy": 0.42,
+   "bg": "mosaic"
+  },
+  {
+   "img": "R19/R19_1.jpg",
+   "title": true,
+   "hy": 230,
+   "ty": 1650,
+   "ts": 0.88,
+   "tick": "band",
+   "tag": "circle",
+   "tag_at": [
+    905,
+    -300
+   ]
+  },
+  {
+   "img": "R19/R19_2.jpg",
+   "item": "silicone baking mat",
+   "num": 1,
+   "hy": 1740,
+   "chip": "stroke",
+   "ty": 230,
+   "ts": 0.82,
+   "tick": "stub",
+   "tag": "none"
+  },
+  {
+   "img": "R19/R19_3.jpg",
+   "item": "piping bag + 12 tips",
+   "num": 2,
+   "hy": 230,
+   "chip": "tab",
+   "ty": 1150,
+   "ts": 0.8,
+   "tx": -60,
+   "tick": "sticker",
+   "tag": "price",
+   "tag_at": [
+    880,
+    360
+   ]
+  },
+  {
+   "img": "R19/R19_4.jpg",
+   "item": "roommates approved",
+   "hy": 1560,
+   "ty": 420,
+   "ts": 0.85,
+   "tick": "pill2",
+   "tag": "none"
+  }
+ ]
+}

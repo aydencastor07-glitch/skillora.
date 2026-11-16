@@ -1,0 +1,84 @@
+{
+ "code": "alr391702",
+ "slide_dur": 2.5,
+ "bars": false,
+ "title": "ROAD TRIP WITH THE KIDS",
+ "acc": [
+  30,
+  80,
+  150
+ ],
+ "hl": [
+  255,
+  200,
+  60
+ ],
+ "head": "hl",
+ "chip": "stroke",
+ "tick": "band",
+ "tag": "burst",
+ "trans": "flash",
+ "font": "Anton-Regular.ttf",
+ "music_seed": 3921,
+ "bpm": 124,
+ "key": 55,
+ "seq": [
+  {
+   "img": "R21/R21_1.jpg",
+   "title": true,
+   "hy": 1700,
+   "ty": 360,
+   "ts": 0.86,
+   "tick": "stub",
+   "tag": "burst",
+   "tag_at": [
+    900,
+    330
+   ]
+  },
+  {
+   "card": true,
+   "kind": "stack",
+   "scheme": "dark",
+   "cy": 0.55,
+   "bg": "blur",
+   "bg_src": 0
+  },
+  {
+   "img": "R21/R21_2.jpg",
+   "item": "back-seat organiser",
+   "num": 1,
+   "hy": 1760,
+   "chip": "tab",
+   "ty": 1500,
+   "ts": 0.8,
+   "tick": "pill2",
+   "tag": "none"
+  },
+  {
+   "img": "R21/R21_3.jpg",
+   "item": "travel lap tray",
+   "num": 2,
+   "hy": 200,
+   "ty": 1620,
+   "ts": 0.85,
+   "tick": "sticker",
+   "tag": "price",
+   "tag_at": [
+    160,
+    -310
+   ]
+  },
+  {
+   "img": "R21/R21_4.jpg",
+   "item": "best road trip snacks",
+   "num": 3,
+   "hy": 1680,
+   "chip": "pill",
+   "ty": 1100,
+   "ts": 0.78,
+   "tick": "band",
+   "tag": "none"
+  }
+ ]
+}

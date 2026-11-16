@@ -1,0 +1,64 @@
+{
+ "font": "Anton-Regular.ttf",
+ "header": "HIS GIFTS: $0",
+ "particles": "gold",
+ "palette": {
+  "c1": [
+   200,
+   230,
+   255
+  ],
+  "c2": [
+   251,
+   119,
+   1
+  ],
+  "dark": [
+   12,
+   16,
+   26
+  ],
+  "acc": [
+   251,
+   119,
+   1
+  ]
+ },
+ "strip": [
+  14,
+  14,
+  16
+ ],
+ "slide_dur": 2.8,
+ "music_seed": 1801,
+ "bpm": 126,
+ "key": 55,
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app",
+ "slides": [
+  {
+   "img": "hook/H18.jpg",
+   "label": "HE HAS NO IDEA",
+   "no_tag": true
+  },
+  {
+   "img": "V18/V18_2.jpg",
+   "label": "SNEAKERS · $21.97 → $0"
+  },
+  {
+   "img": "V18/V18_3.jpg",
+   "comment": true,
+   "comment_y": 1240
+  },
+  {
+   "img": "V18/V18_4.jpg",
+   "label": "DRONE · $24.55 → $0",
+   "tag_x": 230
+  },
+  {
+   "img": "preuve/proof17.jpg",
+   "label": "WORTH $180.08 · I PAID $0",
+   "no_tag": true
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+{
+ "font": "Bangers-Regular.ttf",
+ "palette": {
+  "c1": [
+   235,
+   225,
+   255
+  ],
+  "c2": [
+   255,
+   150,
+   40
+  ],
+  "dark": [
+   40,
+   22,
+   70
+  ],
+  "acc": [
+   230,
+   70,
+   120
+  ]
+ },
+ "slide_dur": 2.8,
+ "transition": "flashzoom",
+ "sfx": "whoosh",
+ "music_seed": 2237,
+ "bpm": 124,
+ "key": 57,
+ "slides": [
+  {
+   "img": "V22/V22_1.jpg",
+   "title": "GAME NIGHT|SUPPLIES ARRIVED",
+   "layout": "D"
+  },
+  {
+   "img": "V22/V22_2.jpg",
+   "title": "BOARD GAME|NIGHT",
+   "layout": "C"
+  },
+  {
+   "img": "V22/V22_3.jpg",
+   "title": "POPCORN|MACHINE|FOR|MOVIES",
+   "layout": "A"
+  },
+  {
+   "img": "V22/V22_4.jpg",
+   "layout": "E"
+  },
+  {
+   "img": "V22/V22_5.jpg",
+   "title": "GRANDMA|WON AGAIN",
+   "layout": "B"
+  }
+ ],
+ "code": "alq393258",
+ "code_text": "Search code alq393258 for Gifts at $0 in TEMU app"
+}

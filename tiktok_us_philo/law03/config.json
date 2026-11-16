@@ -1,0 +1,47 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_zeno.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 3",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.366,
+  "dur": 1.317
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number three.",
+  "Talk less than you think you should.",
+  "Every time you over-explain, you hand people a map of your weaknesses.",
+  "The more you say, the more they can use against you.",
+  "Silence makes people uncomfortable, and uncomfortable people reveal themselves.",
+  "Zeno said:",
+  "\"We have two ears and one mouth, so that we may listen more and talk less.\"",
+  "So next time, answer in one sentence.",
+  "Then stop.",
+  "Let them fill the silence.",
+  "Follow for law number four."
+ ],
+ "hot": "^(talk|less|over-explain|map|weaknesses|more|against|silence|uncomfortable|reveal|themselves|zeno|ears|mouth|listen|sentence|stop|fill|follow)$",
+ "tail": 2.0,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  240,
+  196,
+  96
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  12,
+  34,
+  30
+ ]
+}

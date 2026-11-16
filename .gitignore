@@ -11,3 +11,20 @@ node_modules/
 
 # images extraites des clips vidéo (recréées au rendu)
 en_explained/*/vid/*_fr/
+horreur/de_ep04_papa/frames/
+horreur/de_ep04_papa/frames_v2/
+horreur/de_ep04b_papa_teil2/frames/
+horreur/de_ep04c_papa_teil3/frames/
+horreur/de_ep04d_papa_teil4/frames/
+horreur/de_ep04e_papa_teil5/frames/
+horreur/de_ep05_zwei_vaeter/frames/
+horreur/de_ep05_zwei_vaeter/v2/frames/
+horreur/de_ep05_zwei_vaeter/teil2/frames/
+horreur/de_ep06_dino/frames/
+horreur/de_ep06_dino/test_blocky/frames/
+horreur/de_ep06_dino/test_blocky/frames_blender/
+horreur/de_ep06_dino/test_blocky/frames_bl1080/
+horreur/de_ep06_dino/blocs_blender/frames/
+horreur/de_ep07_kamera/frames/
+horreur/de_ep07_kamera/frames720/
+horreur/de_ep06_dino/blocs_blender/frames1080/

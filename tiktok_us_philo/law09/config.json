@@ -1,0 +1,74 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_franklin.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 9",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.406,
+  "dur": 0.952
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number nine.",
+  "Keep your plans to yourself.",
+  "Every time you announce your goal,",
+  "your brain celebrates like you already did it,",
+  "and the hunger is gone.",
+  "Then come the doubts, the envy,",
+  "and the advice you never asked for.",
+  "Benjamin Franklin said:",
+  "\"Three may keep a secret, if two of them are dead.\"",
+  "So work in silence.",
+  "Let the result speak.",
+  "Imagine being the one nobody saw coming.",
+  "That's exactly what the 21 laws in this book give you.",
+  "The link is below."
+ ],
+ "hot": "^(keep|plans|yourself|announce|goal|celebrates|hunger|gone|doubts|envy|advice|franklin|secret|dead|silence|result|speak|nobody|coming|21|laws|book|link|below)$",
+ "tail": 0.1,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  230,
+  190,
+  120
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  16,
+  14,
+  12
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": 1
+  }
+ ],
+ "bg_dim": 0.42,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0,
+ "book": {
+  "t": 25.09,
+  "link_t": 28.75,
+  "image": "../../laws/book.webp",
+  "title": "All 21 laws",
+  "btn": "LINK BELOW",
+  "sub": "in the description",
+  "arrow": "down"
+ }
+}

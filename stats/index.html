@@ -59,6 +59,11 @@
   .vide{color:var(--mut2);font-size:.8rem;text-align:center;padding:18px 6px}
   .err{background:rgba(255,90,90,.08);border:1px solid rgba(255,90,90,.3);color:#ffd3d3;border-radius:14px;padding:14px;font-size:.85rem;margin-top:10px}
   .err b{color:#fff}
+  .livres{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
+  .livres button{display:flex;gap:10px;align-items:center;text-align:left;padding:10px;border-radius:14px;border:1px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:.78rem;cursor:pointer;min-width:0}
+  .livres button img{width:38px;aspect-ratio:3/4;object-fit:contain;border-radius:5px;background:#14120f;flex:none}
+  .livres button b{display:block;color:var(--fg);font-size:.84rem;line-height:1.2}
+  .livres button.on{background:rgba(245,192,67,.12);border-color:rgba(245,192,67,.55);color:#fff}
 </style>
 </head>
 <body>
@@ -77,6 +82,11 @@
   try { localStorage.setItem('gz_moi','1'); localStorage.setItem('va-disable','true'); } catch(e){}   // le proprietaire ne se compte pas
   var PER = [['auj',"Aujourd'hui"],['7j','7 jours'],['30j','30 jours'],['90j','90 jours'],['365j','1 an'],['tout','Tout']];
   var per = '30j'; try { per = localStorage.getItem('sk_stats_per') || '30j'; } catch(e){}
+  // deux livres : allemand (gesetzbuch) et anglais (laws) ; on choisit lequel on regarde
+  var LIVRES = { gesetzbuch: { titre:'Das Gesetzbuch des Geistes', img:'/gesetze/livre.webp', page:'gesetze.skillora.me', dev:'€', drap:'🇩🇪 Allemand' },
+                 laws: { titre:'The Laws of the Mind', img:'/laws/book.webp', page:'gesetze.skillora.me/laws', dev:'$', drap:'🇺🇸 Anglais' } };
+  var livre = 'gesetzbuch'; try { livre = localStorage.getItem('sk_stats_livre') || 'gesetzbuch'; } catch(e){} if (!LIVRES[livre]) livre = 'gesetzbuch';
+  var DERNIER = null;
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function nb(n){ n = Number(n)||0; if (n >= 1e6) return (n/1e6).toFixed(1).replace('.0','')+' M'; if (n >= 1e4) return (n/1e3).toFixed(1).replace('.0','')+' k'; return n.toLocaleString('fr-FR'); }
@@ -106,19 +116,22 @@
   }
 
   function rendu(d){
-    var s = d.site || {}, e = d.ebook || {}, NOMS = { mobile:'📱 Téléphone', desktop:'💻 Ordinateur', tablette:'📟 Tablette' };
+    DERNIER = d; var LV = LIVRES[livre];
+    var s = d.site || {}, e = (livre === 'laws' ? d.ebook_laws : d.ebook) || {}, NOMS = { mobile:'📱 Téléphone', desktop:'💻 Ordinateur', tablette:'📟 Tablette' };
     var LOGO = { TikTok:'🎵', Instagram:'📸', YouTube:'▶️', Facebook:'👍', Google:'🔎', Snapchat:'👻', direct:'🔗' };
     var euros = (Number(e.revenu_cents)||0)/100;
     var serieSite = ((s.series||{}).vues || []).map(function(x){ return { j:x.j, vues:x.n }; });
     var h = '';
     // ── LIVRE ──
-    h += '<div class="sec"><img src="/gesetze/livre.webp" alt=""><div><b>Das Gesetzbuch des Geistes</b><small>page du livre · gesetze.skillora.me</small></div></div>';
+    h += '<div class="livres" id="livres">'+Object.keys(LIVRES).map(function(id){ var x = LIVRES[id], ev = (id === 'laws' ? d.ebook_laws : d.ebook) || {};
+      return '<button class="'+(id===livre?'on':'')+'" data-l="'+id+'"><img src="'+x.img+'" alt=""><span><b>'+x.titre+'</b>'+x.drap+' · '+nb(ev.vues)+' vues · '+nb(ev.ventes)+' achat'+(Number(ev.ventes)>1?'s':'')+'</span></button>'; }).join('')+'</div>';
+    h += '<div class="sec"><img src="'+LV.img+'" alt=""><div><b>'+LV.titre+'</b><small>page du livre · '+LV.page+'</small></div></div>';
     h += '<div class="kpis">'+
       kpi('Vues', nb(e.vues), nb(e.visiteurs)+' visiteurs uniques')+
       kpi('Clics « Acheter »', nb(e.clics), taux(e.cliqueurs, e.visiteurs)+' des visiteurs')+
       kpi('Achats', nb(e.ventes), 'taux d\'achat '+taux(e.ventes, e.visiteurs), 'g')+
       kpi('Temps moyen', duree(e.temps_moyen), 'médiane '+duree(e.temps_median))+
-      kpi('Revenu', euros.toFixed(2).replace('.',',')+' '+(e.devise==='usd'?'$':'€'), taux(e.ventes, e.cliqueurs)+' des clics achètent', 'o')+
+      kpi('Revenu', euros.toFixed(2).replace('.',',')+' '+(e.devise ? (/usd/i.test(e.devise)?'$':'€') : LV.dev), taux(e.ventes, e.cliqueurs)+' des clics achètent', 'o')+
       kpi('Depuis le début', nb(e.vues_total)+' vues', nb(e.clics_total)+' clics · '+nb(e.ventes_total)+' achats')+'</div>';
     h += courbe('Vues du livre par jour', e.series, 'vues');
     h += '<div class="card"><div class="ch"><b>Le parcours</b><span>sur cette période</span></div><div class="tun">'+
@@ -131,7 +144,7 @@
     var du = e.durees || {}, aDu = Object.keys(du).some(function(x){ return du[x]; });
     h += '<div class="duo">'+
       bars('Combien de temps ils restent', 'par visite', aDu ? [['moins10','moins de 10 s'],['de10a30','10 – 30 s'],['de30a60','30 s – 1 min'],['de1a3m','1 – 3 min'],['plus3m','plus de 3 min']].map(function(x){ return { nom:x[1], n:Number(du[x[0]])||0 }; }) : [])+
-      bars('Achats par pays', 'Gumroad', (e.ventes_pays||[]).map(function(p){ return { nom:'🛒 '+esc(p.k), n:Number(p.n)||0 }; }))+'</div>';
+      bars('Achats par pays', 'PayPal', (e.ventes_pays||[]).map(function(p){ return { nom:'🛒 '+esc(p.k), n:Number(p.n)||0 }; }))+'</div>';
     var de = e.dernieres || [];
     h += '<div class="card"><div class="ch"><b>Dernières visites du livre</b><span>en direct</span></div>'+(de.length ? de.map(function(x){
       var t = new Date(x.t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -152,6 +165,11 @@
     document.getElementById('app').innerHTML = h;
   }
 
+  document.getElementById('app').addEventListener('click', function(ev){
+    var b = ev.target.closest && ev.target.closest('#livres button'); if (!b) return;
+    livre = b.getAttribute('data-l'); try { localStorage.setItem('sk_stats_livre', livre); } catch(e){}
+    if (DERNIER) rendu(DERNIER);
+  });
   function periodes(){
     document.getElementById('per').innerHTML = PER.map(function(p){
       return '<button class="'+(per===p[0]?'on':'')+'" data-p="'+p[0]+'">'+p[1]+'</button>'; }).join('');

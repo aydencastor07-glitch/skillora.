@@ -158,7 +158,7 @@ def draw_link(img, t):
     if k <= 0: return
     cx = (PX0 + PX1 - BKIM.width - 30) / 2 + 10; cy = (PY0 + PY1) / 2
     lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
-    f1 = F('Poppins-ExtraBold.ttf', 44); d.text((cx, cy - 120), 'Alle 21 Gesetze', font=f1, fill=(245, 240, 235, int(255 * k)), anchor='mm')
+    f1 = F('Poppins-ExtraBold.ttf', 44); d.text((cx, cy - 120), BK.get('title', 'Alle 21 Gesetze'), font=f1, fill=(245, 240, 235, int(255 * k)), anchor='mm')
     sc = e * (1 + 0.03 * math.sin(u * 5)); bw, bh_ = 220 * sc, 62 * sc
     d.rounded_rectangle([cx - bw - 6, cy - bh_ - 6, cx + bw + 6, cy + bh_ + 6], int(bh_ + 6), fill=(120, 80, 30, int(200 * k)))
     d.rounded_rectangle([cx - bw, cy - bh_, cx + bw, cy + bh_], int(bh_), fill=(222, 178, 92, int(255 * k)))
@@ -168,10 +168,11 @@ def draw_link(img, t):
         ImageDraw.Draw(sh).polygon([(sx, cy - bh_), (sx + 40, cy - bh_), (sx - 20, cy + bh_), (sx - 60, cy + bh_)], fill=150)
         m = Image.new('L', (W, H), 0); ImageDraw.Draw(m).rounded_rectangle([cx - bw, cy - bh_, cx + bw, cy + bh_], int(bh_), fill=255)
         wl = Image.new('RGBA', (W, H), (255, 250, 230, 0)); wl.putalpha(Image.fromarray(np.minimum(np.asarray(sh.filter(ImageFilter.GaussianBlur(6))), np.asarray(m)))); lay.alpha_composite(wl)
-    f2 = F('Poppins-ExtraBold.ttf', int(54 * sc)); d.text((cx + 22 * sc, cy + 2), 'LINK IN BIO', font=f2, fill=(30, 20, 10, int(255 * k)), anchor='mm')
-    ax = cx - bw + 48 * sc; ay = cy + 18 * sc - 10 * abs(math.sin(u * 4))   # flèche qui monte
-    d.polygon([(ax, ay - 34 * sc), (ax - 20 * sc, ay - 8 * sc), (ax - 7 * sc, ay - 8 * sc), (ax - 7 * sc, ay + 18 * sc), (ax + 7 * sc, ay + 18 * sc), (ax + 7 * sc, ay - 8 * sc), (ax + 20 * sc, ay - 8 * sc)], fill=(30, 20, 10, int(255 * k)))
-    f3 = F('Poppins-ExtraBold.ttf', 36); d.text((cx, cy + 115), 'im Profil', font=f3, fill=(222, 178, 92, int(255 * min(1, max(0, (u - 0.3) / 0.3)))), anchor='mm')
+    f2 = F('Poppins-ExtraBold.ttf', int(54 * sc)); d.text((cx + 22 * sc, cy + 2), BK.get('btn', 'LINK IN BIO'), font=f2, fill=(30, 20, 10, int(255 * k)), anchor='mm')
+    ax = cx - bw + 48 * sc; ay = cy + 18 * sc - 10 * abs(math.sin(u * 4))   # flèche qui monte (vers le profil) ; « down » : vers la description
+    sg = -1 if BK.get('arrow') == 'down' else 1; ay = ay if sg > 0 else cy - 18 * sc + 10 * abs(math.sin(u * 4))
+    d.polygon([(ax, ay - sg * 34 * sc), (ax - 20 * sc, ay - sg * 8 * sc), (ax - 7 * sc, ay - sg * 8 * sc), (ax - 7 * sc, ay + sg * 18 * sc), (ax + 7 * sc, ay + sg * 18 * sc), (ax + 7 * sc, ay - sg * 8 * sc), (ax + 20 * sc, ay - sg * 8 * sc)], fill=(30, 20, 10, int(255 * k)))
+    f3 = F('Poppins-ExtraBold.ttf', 36); d.text((cx, cy + 115), BK.get('sub', 'im Profil'), font=f3, fill=(222, 178, 92, int(255 * min(1, max(0, (u - 0.3) / 0.3)))), anchor='mm')
     img.alpha_composite(lay)
 def draw_book(img, t):
     if not BK or t < BK['t']: return

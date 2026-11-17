@@ -40,3 +40,6 @@
 - Caméra qui bouge : tourne autour, passe devant / derrière, vue d'en haut, vue de côté.
 - Musique : si l'utilisateur envoie un son, l'utiliser (le prolonger en boucle calée sur le temps si trop court) et suivre son rythme.
 - Toujours bien montrer le personnage quand la voix parle de lui (pas de plan où on devrait le voir mais où il est caché).
+
+## Vidéos ZetaStory (Roblox)
+- La musique de fond doit bien s'entendre (retour : « on n'entend presque pas »). Ne jamais baisser la musique avec un simple volume fixe : `roblox_zetastory/tools/compose_zeta.py` règle la musique à un niveau fixe (`MUS_LUFS`, -21 LUFS par défaut, voix ≈ -14). Avant de livrer, vérifier le niveau de la musique dans la vidéo finale.

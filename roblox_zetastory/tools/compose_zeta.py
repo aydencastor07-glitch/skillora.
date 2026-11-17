@@ -32,9 +32,12 @@ def render(n):
 if __name__ == '__main__':
     with Pool(4) as p: p.map(render, range(NF), chunksize=20)
     dur = NF / FPS; mus = os.path.join(EP, 'musique.mp3')
+    # Musique : niveau FIXE quel que soit le fichier (avant : volume 0.16 → la musique virale, déjà faible, devenait inaudible).
+    # Voix ≈ -14 LUFS, musique ramenée à MUS_LUFS (-21 par défaut) : bien audible, la voix reste devant.
+    ML = float(os.environ.get('MUS_LUFS', -21))
     cmd = [FF, '-y', '-v', 'error', '-framerate', str(FPS), '-i', os.path.join(TMP, 'g%05d.jpg'), '-i', os.path.join(EP, 'voix_clean.mp3'), '-stream_loop', '-1', '-i', mus,
-           '-filter_complex', f'[2:a]volume=0.16,afade=t=in:d=0.4[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]', '-map', '0:v', '-map', '[a]',
+           '-filter_complex', f'[2:a]loudnorm=I={ML}:TP=-3:LRA=11,afade=t=in:d=0.4[m];[1:a][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]', '-map', '0:v', '-map', '[a]',
            '-t', f'{dur:.3f}', '-c:v', 'libx264', '-preset', 'slow', '-crf', '19', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', OUT]
     subprocess.run(cmd, check=True)
     for f in os.listdir(TMP): os.remove(os.path.join(TMP, f))
-    os.rmdir(TMP); print('ok', OUT, round(dur, 2))
+    os.rmdir(TMP); print('ok', OUT, round(dur, 2), 'musique', ML, 'LUFS')

@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     const { mode, carte, code } = b; const p = produit(b.produit); const P = PRODUITS[p];
     const hote = HOTES.test(String(req.headers.host || '')) ? req.headers.host : 'gesetze.skillora.me';
     const RETOUR = 'https://' + hote + P.page;
-    const unite = { amount: { currency_code: P.devise, value: prix(code) }, description: P.desc, custom_id: p };
+    const unite = { amount: { currency_code: P.devise, value: prix(code, p) }, description: P.desc, custom_id: p };
     const corps = { intent: 'CAPTURE', purchase_units: [unite] };
     if (mode === 'redirect') {
       corps.payment_source = { paypal: { experience_context: {

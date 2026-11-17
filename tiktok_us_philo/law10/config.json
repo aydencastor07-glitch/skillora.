@@ -1,0 +1,73 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_machiavel.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 10",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.336,
+  "dur": 1.347
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number ten.",
+  "Never be too available.",
+  "If you answer every message in a second",
+  "and say yes to everything,",
+  "you're telling people your time is worth nothing.",
+  "Machiavelli said:",
+  "\"Everyone sees what you appear to be, few really know what you are.\"",
+  "So stop rushing to reply.",
+  "Say no without explaining.",
+  "Protect your time like it's money.",
+  "Imagine being the one people wait for.",
+  "That's exactly what the 21 laws in this book give you.",
+  "The link is below."
+ ],
+ "hot": "^(never|available|answer|second|yes|everything|worth|nothing|machiavelli|appear|few|know|stop|reply|no|explaining|protect|money|wait|21|laws|book|link|below)$",
+ "tail": 0.1,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  230,
+  190,
+  120
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  16,
+  14,
+  12
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": -1
+  }
+ ],
+ "bg_dim": 0.42,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0,
+ "book": {
+  "t": 26.75,
+  "link_t": 30.32,
+  "image": "../../laws/book.webp",
+  "title": "All 21 laws",
+  "btn": "LINK BELOW",
+  "sub": "in the description",
+  "arrow": "down"
+ }
+}

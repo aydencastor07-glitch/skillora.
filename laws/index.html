@@ -295,7 +295,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
 </div>
 
 <footer>© 2026 @magniizz · Payments processed securely by PayPal<br>This book is not a substitute for medical or psychological advice.<span id="imp"></span></footer>
-<div class="sticky" id="sticky"><a class="btn" href="#buy1">Get it now – $19.99</a></div>
+<div class="sticky" id="sticky"><a class="btn" href="#buy1">Get it now – $9.99</a></div>
 
 <script>
 // ---- Édition ANGLAISE « The Laws of the Mind » : même page et même caisse PayPal que /gesetze/, produit 'laws',
@@ -306,8 +306,8 @@ var PRODUIT = 'laws';
 // Code MAGNIIZZ (−50 % → 9,99 €) : appliqué automatiquement aux visiteurs venus de TikTok (navigateur TikTok
 // ou lien de la bio …/?von=tiktok), et à quiconque le tape dans la case « Gutscheincode ».
 var TEST_PRIX = '';   // prix de test temporaire (ex. '0,90 €') ; vide = vrais prix
-var PRICE = TEST_PRIX || '$19.99';
-var PROMO = { on: true, code: 'MAGNIIZZ', normal: '$19.99', price: '$9.99', pct: '−50%', ends: '' };
+var PRICE = TEST_PRIX || '$9.99';   // prix unique pour tout le monde (api/_paypal.js : PRIX_UNIQUE)
+var PROMO = { on: false, code: 'MAGNIIZZ', normal: '$9.99', price: '$9.99', pct: '', ends: '' };
 var VIENT_TIKTOK = /musical_ly|BytedanceWebview|TikTok|trill/i.test(navigator.userAgent || '') || /[?&]von=tiktok/i.test(location.search);
 try { if (VIENT_TIKTOK) localStorage.setItem('gz_tt', '1'); } catch (e) {}
 function codeActif() {
@@ -454,7 +454,7 @@ function kasseUI() {   // prix de la caisse + boutons d'achat qui ouvrent la cai
   var on = promoOn();
   document.getElementById('k-old').textContent = on ? PROMO.normal : ''; document.getElementById('k-price').textContent = on ? PROMO.price : PRICE;
   document.getElementById('k-code').textContent = on ? PROMO.code + ' ✓' : '';
-  document.getElementById('kcode').style.display = on || TEST_PRIX ? 'none' : 'flex';
+  document.getElementById('kcode').style.display = 'none';   // plus de code : même prix pour tout le monde
   document.querySelectorAll('.promo .cd').forEach(function (x) { x.textContent = '✓ Code applied automatically'; });
   document.querySelectorAll('.promo .cp').forEach(function (x) { x.style.display = 'none'; });
   if (DEJA) document.querySelectorAll('.buy .btn, #sticky a').forEach(function (a) { a.textContent = '⬇ Already bought – download'; });

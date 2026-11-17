@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     const p = u.custom_id || cap.custom_id;   // produit enregistré dans la commande par api/paypal-order.js
     const P = Object.prototype.hasOwnProperty.call(PRODUITS, p) ? PRODUITS[p] : null;
     const ok = !!P && j.status === 'COMPLETED' && cap.status === 'COMPLETED' && cap.amount && cap.amount.currency_code === P.devise
-      && Number(cap.amount.value) >= Number(prixMin()) - 0.001;
+      && Number(cap.amount.value) >= Number(prixMin(p)) - 0.001;
     if (!ok) { console.error('capture', r.status, JSON.stringify(j).slice(0, 800)); return res.status(402).json({ erreur: 'paiement', detail: (j.details || [])[0] && j.details[0].issue }); }
     console.log('VENTE', orderID, p, cap.amount.value, cap.amount.currency_code, (j.payer || {}).email_address || '');
     try {   // la vente apparaît dans /stats/ ; une erreur ici ne doit jamais bloquer le téléchargement

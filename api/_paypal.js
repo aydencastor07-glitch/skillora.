@@ -20,8 +20,10 @@ const suffixe = (p) => (produit(p) === PRODUIT ? '' : '.' + produit(p));   // l'
 const LIEN_JOURS = 30;   // durée de validité du lien de téléchargement
 
 function configure() { return !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_SECRET); }
-function prix(code) { if (TEST) return TEST; return String(code || '').trim().toUpperCase() === PRIX.code ? PRIX.promo : PRIX.normal; }
-function prixMin() { return TEST || PRIX.promo; }
+// Édition anglaise (laws) : prix unique 9,99 $ pour tout le monde, sans code.
+const PRIX_UNIQUE = { laws: '9.99' };
+function prix(code, p) { if (TEST) return TEST; if (PRIX_UNIQUE[p]) return PRIX_UNIQUE[p]; return String(code || '').trim().toUpperCase() === PRIX.code ? PRIX.promo : PRIX.normal; }
+function prixMin(p) { return TEST || PRIX_UNIQUE[p] || PRIX.promo; }
 
 async function jeton() {
   const r = await fetch(BASE + '/v1/oauth2/token', {

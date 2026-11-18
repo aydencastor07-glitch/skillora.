@@ -1,6 +1,7 @@
 # Montage ZetaStory : images Blender (720p) agrandies en 1080x1920, sous-titres UN mot à la fois (jaune-vert fluo, contour noir,
 # à 65 % de la hauteur, comme les vidéos de référence), voix + musique en boucle. La vidéo s'arrête net après le dernier mot.
 # usage : compose_zeta.py dossier_episode dossier_frames sortie.mp4     (episode : voix_clean.mp3, words.json, musique.mp3)
+# SUBS=ember : style « braise » (ép. 6, ambiance sombre) : petits groupes de 1 à 3 mots en blanc, le mot prononcé en orange braise #ff5a1f.
 import sys, os, json, re, subprocess
 from multiprocessing import Pool
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -19,9 +20,35 @@ _f = {}
 def font(s):
     if s not in _f: _f[s] = ImageFont.truetype(FONT, s)
     return _f[s]
+STYLE = os.environ.get('SUBS', 'neon'); EMBER = (255, 90, 31)
+def clean(w): return re.sub(r'[“”"«»…:.,;!?—–]', '', w).strip()
+GROUPS = []; _g = []
+for i, (w, a, b) in enumerate(WORDS):
+    _g.append(i)
+    if len(_g) == 3 or re.search(r'[.,!?:…]["”]?$', w) or i == len(WORDS) - 1: GROUPS.append(_g); _g = []
+def groupe(t):
+    for gi, g in enumerate(GROUPS):
+        a = WORDS[g[0]][1]; fin = WORDS[GROUPS[gi + 1][0]][1] if gi + 1 < len(GROUPS) else WORDS[g[-1]][2] + 0.25
+        fin = min(fin, WORDS[g[-1]][2] + 0.6)
+        if a - 0.03 <= t < fin - 0.03:
+            cur = max([i for i in g if WORDS[i][1] - 0.03 <= t] or [g[0]]); return g, cur, t - a
+    return None, None, 0
+def ember(im, t):
+    g, cur, dt = groupe(t)
+    if not g: return
+    ws = [clean(WORDS[i][0]).upper() for i in g]; size = 84; f = font(size); sp = f.getlength(' ')
+    while sum(f.getlength(w) for w in ws) + sp * (len(ws) - 1) > W - 170: size -= 4; f = font(size); sp = f.getlength(' ')
+    k = 1.0 + 0.08 * (1 - min(1, max(0, dt) / 0.12)); tot = sum(f.getlength(w) for w in ws) + sp * (len(ws) - 1)
+    d = ImageDraw.Draw(im); x = W / 2 - tot / 2
+    for i, w in zip(g, ws):
+        wl = f.getlength(w); col = EMBER if i == cur else (255, 255, 255)
+        ff = font(int(size * 1.08)) if i == cur else f
+        d.text((x + wl / 2 + 4, Y + 6), w, font=ff, fill=(0, 0, 0), anchor='mm', stroke_width=10, stroke_fill=(0, 0, 0))
+        d.text((x + wl / 2, Y), w, font=ff, fill=col, anchor='mm', stroke_width=10, stroke_fill=(12, 8, 6)); x += wl + sp
 def render(n):
     im = Image.open(os.path.join(FR, files[n])).convert('RGB').resize((W, H), Image.LANCZOS).filter(ImageFilter.UnsharpMask(1.2, 60, 2))
-    w, dt = mot(n / FPS)
+    w, dt = mot(n / FPS) if STYLE != 'ember' else (None, 0)
+    if STYLE == 'ember': ember(im, n / FPS)
     if w:
         k = 1.18 - 0.18 * min(1, max(0, dt + 0.03) / 0.09); size = int(96 * k)
         f = font(size)

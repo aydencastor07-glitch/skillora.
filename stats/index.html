@@ -64,6 +64,7 @@
   .livres button img{width:38px;aspect-ratio:3/4;object-fit:contain;border-radius:5px;background:#14120f;flex:none}
   .livres button b{display:block;color:var(--fg);font-size:.84rem;line-height:1.2}
   .livres button.on{background:rgba(245,192,67,.12);border-color:rgba(245,192,67,.55);color:#fff}
+.etp{margin:10px 0 12px}.etl{display:flex;justify-content:space-between;font-size:14.5px}.etl b{font-size:17px}.etb{height:10px;background:rgba(127,127,127,.15);border-radius:6px;overflow:hidden;margin:5px 0 3px}.etb i{display:block;height:100%;background:linear-gradient(90deg,#d4ae64,#3fa564);border-radius:6px}.etp small{font-size:12.5px;opacity:.7}.etn{font-size:13.5px;opacity:.8;margin-top:6px}
 </style>
 </head>
 <body>
@@ -128,15 +129,25 @@
     h += '<div class="sec"><img src="'+LV.img+'" alt=""><div><b>'+LV.titre+'</b><small>page du livre · '+LV.page+'</small></div></div>';
     h += '<div class="kpis">'+
       kpi('Vues', nb(e.vues), nb(e.visiteurs)+' visiteurs uniques')+
-      kpi('Clics « Acheter »', nb(e.clics), taux(e.cliqueurs, e.visiteurs)+' des visiteurs')+
+      kpi(livre === 'laws' ? 'Clics « I want the ebook »' : 'Clics « Acheter »', nb(e.clics), taux(e.cliqueurs, e.visiteurs)+' des visiteurs')+
       kpi('Achats', nb(e.ventes), 'taux d\'achat '+taux(e.ventes, e.visiteurs), 'g')+
       kpi('Temps moyen', duree(e.temps_moyen), 'médiane '+duree(e.temps_median))+
       kpi('Revenu', euros.toFixed(2).replace('.',',')+' '+(e.devise ? (/usd/i.test(e.devise)?'$':'€') : LV.dev), taux(e.ventes, e.cliqueurs)+' des clics achètent', 'o')+
       kpi('Depuis le début', nb(e.vues_total)+' vues', nb(e.clics_total)+' clics · '+nb(e.ventes_total)+' achats')+'</div>';
     h += courbe('Vues du livre par jour', e.series, 'vues');
-    h += '<div class="card"><div class="ch"><b>Le parcours</b><span>sur cette période</span></div><div class="tun">'+
+    var pc = e.parcours;
+    if (livre === 'laws' && pc) {   // nouvelle page /laws/ : chaque étape du parcours (visiteurs uniques)
+      var ET = [['visiteurs','👀 Arrivés sur la page'],['cta','👆 Cliqué « Get the ebook »'],['avis','⭐ Ont vu les avis'],['veut','🛒 Cliqué « I want the ebook »'],['email','📧 Ont mis leur email'],['ventes','💰 Ont payé']];
+      var base = Number(pc.visiteurs) || 0;
+      h += '<div class="card"><div class="ch"><b>Le parcours, étape par étape</b><span>depuis la nouvelle page (18/11) · visiteurs uniques</span></div>'+ET.map(function(x, k){
+        var n = Number(pc[x[0]]) || 0, prev = k ? (Number(pc[ET[k-1][0]]) || 0) : 0, w = base ? Math.max(2, Math.round(n / base * 100)) : 0;
+        return '<div class="etp"><div class="etl"><span>'+x[1]+'</span><b>'+nb(n)+'</b></div><div class="etb"><i style="width:'+w+'%"></i></div><small>'+(k ? taux(n, base)+' des visiteurs'+(k > 1 && x[0] !== 'avis' ? ' · '+taux(n, prev)+' de l\'étape d\'avant' : '') : '100 %')+'</small></div>'; }).join('')+
+        '<div class="etn">📧 Emails enregistrés : <b>'+nb(pc.emails)+'</b> · le texte qui accroche : « The rules nobody taught you. »</div></div>';
+    } else {
+      h += '<div class="card"><div class="ch"><b>Le parcours</b><span>sur cette période</span></div><div class="tun">'+
       '<div><b>'+nb(e.vues)+'</b><small>vues</small></div><div><b>'+nb(e.visiteurs)+'</b><small>visiteurs</small></div>'+
       '<div><b>'+nb(e.cliqueurs)+'</b><small>ont cliqué</small></div><div class="g"><b>'+nb(e.ventes)+'</b><small>ont acheté</small></div></div></div>';
+    }
     h += bars('D\'où ils viennent', 'visiteurs', (e.pays||[]).map(function(p){ return { nom: drap(p.code)+' '+esc(pays(p.code))+(p.clics?' · '+p.clics+' clic'+(p.clics>1?'s':''):''), n:Number(p.n)||0 }; }));
     h += '<div class="duo">'+
       bars('Comment ils arrivent', 'source', (e.sources||[]).map(function(p){ return { nom:(LOGO[p.k]||'🌐')+' '+esc(p.k==='direct'?'Direct / bio':p.k), n:Number(p.n)||0 }; }))+
@@ -149,7 +160,7 @@
     h += '<div class="card"><div class="ch"><b>Dernières visites du livre</b><span>en direct</span></div>'+(de.length ? de.map(function(x){
       var t = new Date(x.t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
       return '<div class="row"><span class="f">'+drap(x.pays)+'</span><span class="m"><b>'+esc((x.ville?x.ville+', ':'')+pays(x.pays))+'</b><small>'+t+' · '+(NOMS[x.appareil]||'')+' · '+esc(x.source==='direct'?'Direct / bio':(x.source||''))+(x.secondes?' · '+duree(x.secondes):'')+'</small></span>'+
-        (x.clic?'<span class="tag y">a cliqué</span>':'<span class="tag n">a regardé</span>')+'</div>'; }).join('') : '<div class="vide">Personne encore sur cette période.</div>')+'</div>';
+        (x.etape && livre === 'laws' ? '<span class="tag '+({paye:'y',email:'y',veut:'y'}[x.etape]||'n')+'">'+({paye:'💰 a payé',email:'📧 email',veut:'🛒 « I want »',avis:'⭐ avis vus',cta:'👆 a cliqué',vu:'👀 a regardé'}[x.etape])+'</span>' : x.clic?'<span class="tag y">a cliqué</span>':'<span class="tag n">a regardé</span>')+'</div>'; }).join('') : '<div class="vide">Personne encore sur cette période.</div>')+'</div>';
     // ── SITE SKILLORA ──
     h += '<div class="sec"><div><b>Site Skillora</b><small>skillora.me</small></div></div>';
     h += '<div class="kpis">'+

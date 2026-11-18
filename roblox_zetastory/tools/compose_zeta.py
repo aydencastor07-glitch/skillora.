@@ -38,13 +38,12 @@ def ember(im, t):
     if not g: return
     ws = [clean(WORDS[i][0]).upper() for i in g]; size = 84; f = font(size); sp = f.getlength(' ')
     while sum(f.getlength(w) for w in ws) + sp * (len(ws) - 1) > W - 170: size -= 4; f = font(size); sp = f.getlength(' ')
-    k = 1.0 + 0.08 * (1 - min(1, max(0, dt) / 0.12)); tot = sum(f.getlength(w) for w in ws) + sp * (len(ws) - 1)
+    fs = [font(int(size * 1.08)) if i == cur else f for i in g]; tot = sum(F.getlength(w) for F, w in zip(fs, ws)) + sp * 1.3 * (len(ws) - 1)
     d = ImageDraw.Draw(im); x = W / 2 - tot / 2
-    for i, w in zip(g, ws):
-        wl = f.getlength(w); col = EMBER if i == cur else (255, 255, 255)
-        ff = font(int(size * 1.08)) if i == cur else f
+    for i, w, ff in zip(g, ws, fs):
+        wl = ff.getlength(w); col = EMBER if i == cur else (255, 255, 255)
         d.text((x + wl / 2 + 4, Y + 6), w, font=ff, fill=(0, 0, 0), anchor='mm', stroke_width=10, stroke_fill=(0, 0, 0))
-        d.text((x + wl / 2, Y), w, font=ff, fill=col, anchor='mm', stroke_width=10, stroke_fill=(12, 8, 6)); x += wl + sp
+        d.text((x + wl / 2, Y), w, font=ff, fill=col, anchor='mm', stroke_width=10, stroke_fill=(12, 8, 6)); x += wl + sp * 1.3
 def render(n):
     im = Image.open(os.path.join(FR, files[n])).convert('RGB').resize((W, H), Image.LANCZOS).filter(ImageFilter.UnsharpMask(1.2, 60, 2))
     w, dt = mot(n / FPS) if STYLE != 'ember' else (None, 0)

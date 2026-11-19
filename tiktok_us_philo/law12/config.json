@@ -1,0 +1,71 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_seneca.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 12",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.488,
+  "dur": 1.126
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number twelve.",
+  "Stop giving your time away.",
+  "You would never hand a stranger your money.",
+  "But every day, you give your time to people and things that don't deserve it.",
+  "Seneca said:",
+  "\"It is not that we have a short time to live, but that we waste a lot of it.\"",
+  "So today, notice where your hours really go.",
+  "Cut one thing that steals them.",
+  "Imagine what you could build with that time.",
+  "That's exactly what the 21 laws in this book give you.",
+  "The link is below."
+ ],
+ "hot": "^(stop|time|away|never|stranger|money|every|day|deserve|seneca|short|live|waste|lot|today|hours|really|cut|one|steals|imagine|build|21|laws|book|link|below)$",
+ "tail": 0.1,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 500,
+ "hot_color": [
+  230,
+  190,
+  120
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  16,
+  14,
+  12
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": -1
+  }
+ ],
+ "bg_dim": 0.42,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0,
+ "book": {
+  "t": 26.77,
+  "link_t": 30.23,
+  "image": "../../laws/book.webp",
+  "title": "All 21 laws",
+  "btn": "LINK BELOW",
+  "sub": "in the description",
+  "arrow": "down"
+ }
+}

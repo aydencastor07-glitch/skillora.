@@ -20,7 +20,12 @@ module.exports = async (req, res) => {
   try {
     const per = PERIODES.includes(b.periode) ? b.periode : '30j';
     const r = await requete('select public.stats_publiques_cle($1, $2) as d', [String(b.k), per]);
-    return res.status(200).json({ success: true, ...r.rows[0].d });
+    const d = r.rows[0].d;
+    try {   // essais de paiement par livre (refus PayPal, annulations…)
+      const pe = await requete("select public.paiement_stats(array['gesetzbuch'], $1) as g, public.paiement_stats(array['laws'], $1) as l", [per]);
+      d.paiements = { gesetzbuch: pe.rows[0].g, laws: pe.rows[0].l };
+    } catch (e) { console.error('paiement_stats', String(e.message || e)); }
+    return res.status(200).json({ success: true, ...d });
   } catch (e) {
     return res.status(500).json({ success: false, error: 'Base injoignable : ' + String(e.message || e).slice(0, 160) });
   }

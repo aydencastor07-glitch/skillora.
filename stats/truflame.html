@@ -120,6 +120,26 @@
       '<div class="axe"><span>'+String(ser[0].j).slice(5)+'</span><span>pic : '+nb(mx)+'</span><span>'+String(ser[n-1].j).slice(5)+'</span></div></div>';
   }
   function adresse(a){ a = a || {}; return [a.address_line_1, a.address_line_2, [a.postal_code, a.admin_area_2].filter(Boolean).join(' '), a.admin_area_1, pays(a.country_code)].filter(Boolean).map(esc).join(', '); }
+  // ── Essais de paiement : qui a essayé de payer, et ce que PayPal a répondu ──
+  var RAISONS = { INSTRUMENT_DECLINED:'💳 Carte refusée', PAYER_ACTION_REQUIRED:'🔐 Vérification demandée', ORDER_NOT_APPROVED:'⏸ Paiement pas validé',
+    TRANSACTION_REFUSED:'⛔ Refusé par PayPal', PAYER_CANNOT_PAY:'⛔ Ce payeur ne peut pas payer', COMPLIANCE_VIOLATION:'⛔ Bloqué (règles PayPal)',
+    MAX_NUMBER_OF_PAYMENT_ATTEMPTS_EXCEEDED:'🔁 Trop d\'essais', DUPLICATE_INVOICE_ID:'🔁 Doublon' };
+  function cartePaiements(pe){
+    var h = '<div class="card"><div class="ch"><b>Essais de paiement</b><span>depuis le 19/11 · personnes</span></div>';
+    if (!pe || !Number(pe.personnes)) return h + '<div class="vide">Personne n\'a encore ouvert le paiement sur cette période.</div></div>';
+    h += '<div class="tun" style="grid-template-columns:repeat(5,1fr)">'+
+      '<div><b>'+nb(pe.personnes)+'</b><small>ont essayé</small></div><div class="g"><b>'+nb(pe.payes)+'</b><small>payé</small></div>'+
+      '<div><b>'+nb(pe.refuses)+'</b><small>refusé</small></div><div><b>'+nb(pe.annules)+'</b><small>annulé</small></div>'+
+      '<div><b>'+nb(pe.sans_suite)+'</b><small>sans suite</small></div></div>'+
+      '<p class="maj" style="margin:10px 0 0">« Sans suite » : a ouvert PayPal puis rien n\'est revenu (carte refusée dans le formulaire, ou abandon).</p>';
+    var R = pe.raisons || [];
+    if (R.length) h += '<div class="bars" style="margin-top:12px">'+R.map(function(r){ return '<div class="bar"><span class="n">'+esc(RAISONS[r.raison]||r.raison)+'</span><span class="t"><i style="width:100%"></i></span><span class="x">'+nb(r.n)+'</span></div>'; }).join('')+'</div>';
+    var P = pe.pays || [];
+    if (P.length) h += '<div style="margin-top:12px">'+P.map(function(p){
+      return '<div class="row"><span class="f">'+drap(p.pays)+'</span><span class="m"><b>'+esc(pays(p.pays))+'</b><small>'+nb(p.personnes)+' ont essayé</small></span>'+
+        (p.payes ? '<span class="tag y">'+p.payes+' payé'+(p.payes>1?'s':'')+'</span>' : '')+(p.bloques ? '<span class="tag n">'+p.bloques+' pas payé</span>' : '')+'</div>'; }).join('')+'</div>';
+    return h + '</div>';
+  }
   function rendu(d){
     var rev = (Number(d.revenu_cents)||0)/100, h = '';
     h += '<div class="kpis">'+
@@ -130,6 +150,7 @@
     h += '<div class="card"><div class="ch"><b>Le parcours</b><span>visiteurs uniques</span></div><div class="tun">'+
       '<div><b>'+nb(d.visiteurs)+'</b><small>arrivés</small></div><div><b>'+nb(d.offres)+'</b><small>choix d\'offre</small></div>'+
       '<div><b>'+nb(d.clics_paiement)+'</b><small>clic payer</small></div><div class="g"><b>'+nb(d.commandes)+'</b><small>ont payé</small></div></div></div>';
+    h += cartePaiements(d.paiements);
     var L = d.liste || [];
     h += '<div class="card"><div class="ch"><b>Commandes à envoyer</b><span>'+L.filter(function(o){ return o.status === 'a_commander'; }).length+' à commander</span></div>'+(L.length ? L.map(function(o){
       return '<div class="o"><div class="t1"><b>'+drap((o.address||{}).country_code)+' '+esc(o.name||'—')+'</b><span>'+heure(o.created_at)+'</span></div>'+

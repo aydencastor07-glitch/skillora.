@@ -1,7 +1,8 @@
 // Suivi de la page du livre (vue, clic « Acheter », temps passe), servi par
 // Vercel : le pays et la ville viennent des en-tetes de Vercel, l'appareil de
 // la signature du navigateur. Aucun email, aucune adresse IP.
-const { requete, corps, empreinte } = require('./_db');  // visiteur = empreinte IP + appareil (IP jamais stockée)
+const { requete, corps, empreinte } = require('./_db');
+const { noterEssai } = require('./_essai');  // visiteur = empreinte IP + appareil (IP jamais stockée)
 
 const ROBOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|headless|lighthouse/i;
 
@@ -43,6 +44,10 @@ module.exports = async (req, res) => {
     const b = await corps(req);
     const ua = String(req.headers['user-agent'] || '');
     if (ROBOTS.test(ua)) return res.status(200).json({ success: true, bot: true });
+    if (b.type === 'pay_cancel' || b.type === 'pay_error') {   // essai de paiement annulé / en erreur (voir api/_essai.js)
+      if (['gesetzbuch', 'laws'].includes(b.product)) await noterEssai(req, b.product, b.type === 'pay_cancel' ? 'annule' : 'erreur', String(b.order || '').slice(0, 30), String(b.detail || '').slice(0, 60));
+      return res.status(200).json({ success: true });
+    }
     const { device, os, browser } = appareil(ua);
     const pays = String(req.headers['x-vercel-ip-country'] || '').toUpperCase();
     let ville = String(req.headers['x-vercel-ip-city'] || '');

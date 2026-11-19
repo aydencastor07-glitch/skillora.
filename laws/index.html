@@ -409,8 +409,13 @@ function kasseOk(r) {
   document.getElementById('k-save').innerHTML = aide;
   kasseOpen();
 }
+function estMoi() { try { return !!localStorage.getItem('gz_moi'); } catch (e) { return false; } }
+function essaiPP(etape, orderID, detail) {   // annulation / erreur PayPal -> tableau « Paiements » (api/ebook-track.js)
+  if (estMoi()) return;
+  try { fetch('/api/ebook-track', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ type: etape === 'annule' ? 'pay_cancel' : 'pay_error', product: PRODUIT, order: orderID || '', detail: String(detail || '').slice(0, 60) }) }).catch(function () {}); } catch (e) {}
+}
 function encaisser(orderID) {
-  return fetch('/api/paypal-capture', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderID: orderID }) })
+  return fetch('/api/paypal-capture', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderID: orderID, moi: estMoi() }) })
     .then(function (r) { return r.json(); }).then(function (j) {
       if (j.lien) kasseOk(j);
       else kasseErr('Payment not completed. Please try again – you have not been charged.');
@@ -428,7 +433,7 @@ function redirection(carte, btn) {
   document.querySelectorAll('.ppb').forEach(function (b) { if (!LABELS[b.dataset.carte]) LABELS[b.dataset.carte] = b.innerHTML; });
   setTimeout(resetPP, 8000);   // filet de sécurité : jamais bloqué plus de 8 s
   kasseErr(''); document.querySelectorAll('.ppb').forEach(function (b) { b.disabled = true; }); btn.textContent = 'Going to PayPal …';
-  fetch('/api/paypal-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'redirect', carte: carte, code: codeEnvoye(), produit: PRODUIT }) })
+  fetch('/api/paypal-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'redirect', moi: estMoi(), carte: carte, code: codeEnvoye(), produit: PRODUIT }) })
     .then(function (r) { return r.json(); }).then(function (j) {
       if (!j.approuver) throw new Error('order');
       try { sessionStorage.setItem('gz_order', j.id); } catch (e) {}
@@ -465,6 +470,7 @@ function kasseInit(cfg) {
     document.getElementById('k-wait').textContent = 'Completing payment …'; kasseOpen();
     encaisser(q.get('token')).then(function () { document.getElementById('k-wait').textContent = ''; });
   } else if (q.get('pp') === 'cancel') {
+    essaiPP('annule', q.get('token'));
     history.replaceState(null, '', location.pathname); kasseOpen(); kasseErr('Payment cancelled – you have not been charged.');
   }
   // lien de téléchargement partagé, ouvert par quelqu'un qui n'a pas acheté
@@ -489,9 +495,10 @@ function kasseInit(cfg) {
     if (document.getElementById('k-wait').textContent === 'Loading payment …') document.getElementById('k-wait').textContent = '';
     paypal.Buttons({
       style: { layout: 'vertical', shape: 'rect', height: 48, label: 'pay' },
-      createOrder: function () { kasseErr(''); return fetch('/api/paypal-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: codeEnvoye(), produit: PRODUIT }) }).then(function (r) { return r.json(); }).then(function (j) { if (!j.id) throw new Error('order'); return j.id; }); },
+      createOrder: function () { kasseErr(''); return fetch('/api/paypal-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ moi: estMoi(), code: codeEnvoye(), produit: PRODUIT }) }).then(function (r) { return r.json(); }).then(function (j) { if (!j.id) throw new Error('order'); return j.id; }); },
       onApprove: function (d) { return encaisser(d.orderID); },
-      onError: function () { kasseErr('Something went wrong. Please try again.'); }
+      onCancel: function (d) { essaiPP('annule', d && d.orderID); },
+      onError: function (err) { essaiPP('erreur', '', err && err.message); kasseErr('Something went wrong. Please try again.'); }
     }).render('#pp-buttons');
   };
   document.head.appendChild(sc);

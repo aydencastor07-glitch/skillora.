@@ -65,4 +65,10 @@ async function creerCommande(v) {
   return d.orderCreate.order;
 }
 
-module.exports = { creerCommande, actif };
+async function verifier() {   // test de la clé, sans rien modifier
+  if (!actif()) return { shopify: 'cles absentes' };
+  const d = await gql('{ shop { name } }');
+  return { shopify: 'ok', boutique: d.shop.name };
+}
+
+module.exports = { creerCommande, actif, verifier };

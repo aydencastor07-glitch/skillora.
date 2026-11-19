@@ -3,11 +3,48 @@
 // POST { action: 'config' }                       -> { actif, clientId }
 // POST { action: 'order', qty, mode, carte, retour } -> { id, approuver }
 // POST { action: 'capture', orderID }              -> { ok, commande, nom, email }
+// POST { action: 'event', type: view|offer|pay_click, qty, referrer, utm } -> suivi (pays, appareil, source)
 const { configure, paypal, lireCorps } = require('./_paypal');
-const { requete } = require('./_db');
+const { requete, empreinte } = require('./_db');
+
+const ROBOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|headless|lighthouse/i;
+function appareil(ua) {
+  const u = ua.toLowerCase();
+  const device = /ipad|tablet|(android(?!.*mobi))/.test(u) ? 'tablette' : /iphone|ipod|android.*mobi|windows phone/.test(u) ? 'mobile' : 'desktop';
+  const os = /iphone|ipad|ipod/.test(u) ? 'iOS' : /android/.test(u) ? 'Android' : /windows/.test(u) ? 'Windows' : /mac os|macintosh/.test(u) ? 'macOS' : null;
+  return { device, os };
+}
+function source(ua, ref, utm) {
+  const NOMS = ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Google', 'Snapchat', 'Pinterest'];
+  if (utm) { const k = utm.toLowerCase(); return NOMS.find((n) => k.includes(n.toLowerCase())) || utm.slice(0, 40); }
+  const u = ua.toLowerCase();
+  if (/musical_ly|bytedance|tiktok/.test(u)) return 'TikTok';
+  if (/instagram/.test(u)) return 'Instagram';
+  if (/fban|fbav|fb_iab/.test(u)) return 'Facebook';
+  if (/snapchat/.test(u)) return 'Snapchat';
+  try {
+    const h = new URL(ref).hostname.replace(/^www\./, '').replace(/^(l|m|lm)\./, '');
+    if (!h || /myshopify\.com$|truflame/.test(h)) return 'direct';
+    return NOMS.find((x) => h.includes(x.toLowerCase())) || h.slice(0, 40);
+  } catch (e) { return 'direct'; }
+}
+async function suivre(req, type, qty, b) {   // un suivi perdu ne doit jamais gêner la page
+  try {
+    const ua = String(req.headers['user-agent'] || '');
+    if (ROBOTS.test(ua)) return;
+    const pays = String(req.headers['x-vercel-ip-country'] || '').toUpperCase();
+    let ville = String(req.headers['x-vercel-ip-city'] || ''); try { ville = decodeURIComponent(ville); } catch (e) {}
+    const { device, os } = appareil(ua);
+    await requete('select public.torch_event($1,$2,$3,$4,$5,$6,$7,$8)', [type, empreinte(req) || String((b || {}).visitor || ''), qty || null,
+      /^[A-Z]{2}$/.test(pays) ? pays : null, ville || null, device, os, type === 'view' ? source(ua, String((b || {}).referrer || ''), String((b || {}).utm || '')) : null]);
+  } catch (e) { console.error('torch_event', String(e.message || e)); }
+}
 
 const PRIX = { 1: '34.99', 2: '59.48', 3: '83.97' };   // 1 / 2 (-15 %) / 3 (-20 %) : les mêmes que sur la page
 const NOM = 'Truflame Jet Torch';
+// Test réel à 1 $ (page ouverte avec ?test=1) : accepté seulement jusqu'à cette date, puis plus jamais.
+const TEST_FIN = Date.parse('2026-11-23T00:00:00Z');
+const testActif = () => Date.now() < TEST_FIN;
 const ORIGINES = /^https:\/\/([a-z0-9-]+\.myshopify\.com|(www\.)?truflame\.[a-z.]+)$/i;
 
 function cors(req, res) {
@@ -23,16 +60,21 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ erreur: 'POST' });
   const b = await lireCorps(req);
+  if (b.action === 'event') {
+    if (['view', 'offer', 'pay_click'].includes(b.type)) await suivre(req, b.type, PRIX[b.qty] ? Number(b.qty) : null, b);
+    return res.status(200).json({ ok: true });
+  }
   if (b.action === 'config') return res.status(200).json(configure() ? { actif: true, clientId: process.env.PAYPAL_CLIENT_ID } : { actif: false });
   if (!configure()) return res.status(503).json({ erreur: 'PayPal non configuré' });
   try {
     if (b.action === 'order') {
-      const qty = PRIX[b.qty] ? Number(b.qty) : 1;
-      const value = PRIX[qty];
+      const test = b.test === true && testActif();
+      const qty = test ? 1 : PRIX[b.qty] ? Number(b.qty) : 1;
+      const value = test ? '1.00' : PRIX[qty];
       const unite = {
         amount: { currency_code: 'USD', value, breakdown: { item_total: { currency_code: 'USD', value } } },
         items: [{ name: qty > 1 ? NOM + ' × ' + qty : NOM, quantity: '1', unit_amount: { currency_code: 'USD', value }, category: 'PHYSICAL_GOODS' }],
-        description: NOM + ' × ' + qty, custom_id: 'torch:' + qty,
+        description: NOM + ' × ' + qty, custom_id: test ? 'torch:test' : 'torch:' + qty,
       };
       const contexte = { brand_name: 'Truflame', locale: 'en-US', shipping_preference: 'GET_FROM_FILE', user_action: 'PAY_NOW' };
       const corps = { intent: 'CAPTURE', purchase_units: [unite] };
@@ -54,16 +96,19 @@ module.exports = async (req, res) => {
       const j = r.j || {};
       const u = (j.purchase_units || [])[0] || {};
       const cap = ((u.payments || {}).captures || [])[0] || {};
-      const qty = Number(String(u.custom_id || cap.custom_id || '').replace('torch:', '')) || 0;
+      const cid = String(u.custom_id || cap.custom_id || '');
+      const test = cid === 'torch:test';
+      const qty = test ? 1 : Number(cid.replace('torch:', '')) || 0;
       const ok = !!PRIX[qty] && j.status === 'COMPLETED' && cap.status === 'COMPLETED' && cap.amount
-        && cap.amount.currency_code === 'USD' && Number(cap.amount.value) >= Number(PRIX[qty]) - 0.001;
+        && cap.amount.currency_code === 'USD' && Number(cap.amount.value) >= (test ? 1 : Number(PRIX[qty])) - 0.001;
       if (!ok) { console.error('torch capture', r.status, JSON.stringify(j).slice(0, 800)); return res.status(402).json({ erreur: 'paiement', detail: (j.details || [])[0] && j.details[0].issue }); }
       const liv = u.shipping || {};
       const nom = (liv.name || {}).full_name || [((j.payer || {}).name || {}).given_name, ((j.payer || {}).name || {}).surname].filter(Boolean).join(' ');
       const email = (j.payer || {}).email_address || '';
       console.log('TORCH VENTE', orderID, qty, cap.amount.value, nom, JSON.stringify(liv.address || {}));
-      try { await requete('select public.torch_commande($1,$2,$3,$4,$5,$6)', [orderID, qty, Math.round(Number(cap.amount.value) * 100), email, nom, JSON.stringify(liv.address || {})]); }
+      try { await requete('select public.torch_commande($1,$2,$3,$4,$5,$6)', [(test ? 'TEST-' : '') + orderID, qty, Math.round(Number(cap.amount.value) * 100), email, nom, JSON.stringify(liv.address || {})]); }
       catch (e) { console.error('torch_commande', String(e.message || e)); }   // la vente reste dans PayPal même si la base ne répond pas
+      await suivre(req, 'paid', qty, b);
       return res.status(200).json({ ok: true, commande: orderID, nom, email });
     }
     return res.status(400).json({ erreur: 'action' });

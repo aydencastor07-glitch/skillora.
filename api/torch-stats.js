@@ -21,6 +21,9 @@ module.exports = async (req, res) => {
       return res.status(200).json({ success: true });
     }
     const r = await requete('select public.torch_stats($1) as d', [PERIODES.includes(b.periode) ? b.periode : '30j']);
-    return res.status(200).json({ success: true, ...r.rows[0].d });
+    const d = r.rows[0].d;
+    try { d.paiements = (await requete("select public.paiement_stats(array['torch'], $1) as p", [PERIODES.includes(b.periode) ? b.periode : '30j'])).rows[0].p; }
+    catch (e) { console.error('paiement_stats', String(e.message || e)); }
+    return res.status(200).json({ success: true, ...d });
   } catch (e) { return res.status(500).json({ success: false, error: 'Base injoignable : ' + String(e.message || e).slice(0, 160) }); }
 };

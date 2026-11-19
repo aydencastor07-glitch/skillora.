@@ -7,6 +7,7 @@
 const { configure, paypal, lireCorps } = require('./_paypal');
 const { requete, empreinte } = require('./_db');
 const { creerCommande } = require('./_shopify');
+const { noterEssai } = require('./_essai');
 
 const ROBOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|headless|lighthouse/i;
 function appareil(ua) {
@@ -61,6 +62,10 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ erreur: 'POST' });
   const b = await lireCorps(req);
+  if (b.action === 'essai') {   // la page signale une annulation ou une erreur PayPal
+    if (['annule', 'erreur'].includes(b.etape)) await noterEssai(req, 'torch', b.etape, String(b.orderID || '').slice(0, 30), String(b.detail || '').slice(0, 60), b.moi);
+    return res.status(200).json({ ok: true });
+  }
   if (b.action === 'event') {
     if (['view', 'offer', 'pay_click'].includes(b.type)) await suivre(req, b.type, PRIX[b.qty] ? Number(b.qty) : null, b);
     return res.status(200).json({ ok: true });
@@ -85,9 +90,10 @@ module.exports = async (req, res) => {
           return_url: base + '?pp=ok', cancel_url: base + '?pp=cancel' } } };
       } else corps.application_context = contexte;
       const r = await paypal('/v2/checkout/orders', corps);
-      if (!r.ok) { console.error('torch order', r.status, JSON.stringify(r.j).slice(0, 500)); return res.status(502).json({ erreur: 'commande' }); }
+      if (!r.ok) { console.error('torch order', r.status, JSON.stringify(r.j).slice(0, 500)); await noterEssai(req, 'torch', 'erreur', '', 'commande ' + r.status, b.moi); return res.status(502).json({ erreur: 'commande' }); }
       const approuver = (r.j.links || []).find((l) => l.rel === 'payer-action' || l.rel === 'approve');
       console.log('TORCH COMMANDE', r.j.id, qty, b.mode || 'sdk', b.carte ? 'carte' : 'paypal');
+      if (!test) await noterEssai(req, 'torch', 'debut', r.j.id, b.mode === 'redirect' ? (b.carte ? 'carte (redirection)' : 'paypal (redirection)') : 'boutons', b.moi);
       return res.status(200).json({ id: r.j.id, approuver: approuver ? approuver.href : null });
     }
     if (b.action === 'capture') {
@@ -102,7 +108,7 @@ module.exports = async (req, res) => {
       const qty = test ? 1 : Number(cid.replace('torch:', '')) || 0;
       const ok = !!PRIX[qty] && j.status === 'COMPLETED' && cap.status === 'COMPLETED' && cap.amount
         && cap.amount.currency_code === 'USD' && Number(cap.amount.value) >= (test ? 1 : Number(PRIX[qty])) - 0.001;
-      if (!ok) { console.error('torch capture', r.status, JSON.stringify(j).slice(0, 800)); return res.status(402).json({ erreur: 'paiement', detail: (j.details || [])[0] && j.details[0].issue }); }
+      if (!ok) { console.error('torch capture', r.status, JSON.stringify(j).slice(0, 800)); if (cid !== 'torch:test') await noterEssai(req, 'torch', 'refus', orderID, ((j.details || [])[0] || {}).issue || ('statut ' + (j.status || r.status)), b.moi); return res.status(402).json({ erreur: 'paiement', detail: (j.details || [])[0] && j.details[0].issue }); }
       const liv = u.shipping || {};
       const nom = (liv.name || {}).full_name || [((j.payer || {}).name || {}).given_name, ((j.payer || {}).name || {}).surname].filter(Boolean).join(' ');
       const email = (j.payer || {}).email_address || '';
@@ -114,6 +120,7 @@ module.exports = async (req, res) => {
         if (cmd) console.log('TORCH SHOPIFY', orderID, cmd.name);
       } catch (e) { console.error('torch shopify', String(e.message || e)); }
       await suivre(req, 'paid', qty, b);
+      if (!test) await noterEssai(req, 'torch', 'paye', orderID, '', b.moi);
       return res.status(200).json({ ok: true, commande: orderID, nom, email });
     }
     return res.status(400).json({ erreur: 'action' });

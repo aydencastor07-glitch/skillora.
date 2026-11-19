@@ -6,6 +6,7 @@
 // POST { action: 'event', type: view|offer|pay_click, qty, referrer, utm } -> suivi (pays, appareil, source)
 const { configure, paypal, lireCorps } = require('./_paypal');
 const { requete, empreinte } = require('./_db');
+const { creerCommande } = require('./_shopify');
 
 const ROBOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|headless|lighthouse/i;
 function appareil(ua) {
@@ -108,6 +109,10 @@ module.exports = async (req, res) => {
       console.log('TORCH VENTE', orderID, qty, cap.amount.value, nom, JSON.stringify(liv.address || {}));
       try { await requete('select public.torch_commande($1,$2,$3,$4,$5,$6)', [(test ? 'TEST-' : '') + orderID, qty, Math.round(Number(cap.amount.value) * 100), email, nom, JSON.stringify(liv.address || {})]); }
       catch (e) { console.error('torch_commande', String(e.message || e)); }   // la vente reste dans PayPal même si la base ne répond pas
+      try {   // la même vente dans Shopify : notification + AutoDS
+        const cmd = await creerCommande({ orderID, captureID: cap.id, qty, montant: cap.amount.value, email, nom, adresse: liv.address, test });
+        if (cmd) console.log('TORCH SHOPIFY', orderID, cmd.name);
+      } catch (e) { console.error('torch shopify', String(e.message || e)); }
       await suivre(req, 'paid', qty, b);
       return res.status(200).json({ ok: true, commande: orderID, nom, email });
     }

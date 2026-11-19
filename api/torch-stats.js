@@ -2,6 +2,7 @@
 const crypto = require('crypto');
 const { requete, corps } = require('./_db');
 const { verifier } = require('./_shopify');
+const carte = require('./_stripe');
 
 const EMPREINTE = 'bdc6b46cb6a4b4e49b656f0e807106375b4975fd88ebe742fc02583536589873';
 const PERIODES = ['auj', '7j', '30j', '90j', 'tout'];
@@ -9,8 +10,15 @@ const PERIODES = ['auj', '7j', '30j', '90j', 'tout'];
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method === 'GET') {   // GET /api/torch-stats : la clé Shopify marche-t-elle ? (aucun chiffre, aucun secret)
-    try { return res.status(200).json(await verifier()); }
-    catch (e) { return res.status(200).json({ shopify: 'erreur', raison: String(e.message || e).slice(0, 200) }); }
+    const out = {};
+    try { Object.assign(out, await verifier()); } catch (e) { Object.assign(out, { shopify: 'erreur', raison: String(e.message || e).slice(0, 200) }); }
+    if (!carte.actif()) out.stripe = 'cle absente';
+    else try {   // pays du compte, paiements par carte actifs ?, rythme des virements (aucune donnée sensible)
+      const a = await carte.stripe('/account');
+      out.stripe = a.ok ? { ok: true, pays: a.j.country, devise: a.j.default_currency, paiements: a.j.charges_enabled, virements: a.j.payouts_enabled,
+        rythme: ((a.j.settings || {}).payouts || {}).schedule, a_fournir: ((a.j.requirements || {}).currently_due || []).length } : { erreur: a.status, code: (a.j.error || {}).code };
+    } catch (e) { out.stripe = { erreur: String(e.message || e).slice(0, 120) }; }
+    return res.status(200).json(out);
   }
   if (req.method !== 'POST') return res.status(405).json({ success: false });
   const b = await corps(req);

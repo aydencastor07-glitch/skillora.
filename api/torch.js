@@ -8,6 +8,7 @@ const { configure, paypal, lireCorps } = require('./_paypal');
 const { requete, empreinte } = require('./_db');
 const { creerCommande } = require('./_shopify');
 const { noterEssai } = require('./_essai');
+const carte = require('./_stripe');
 
 const ROBOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|headless|lighthouse/i;
 function appareil(ua) {
@@ -70,7 +71,37 @@ module.exports = async (req, res) => {
     if (['view', 'offer', 'pay_click'].includes(b.type)) await suivre(req, b.type, PRIX[b.qty] ? Number(b.qty) : null, b);
     return res.status(200).json({ ok: true });
   }
-  if (b.action === 'config') return res.status(200).json(configure() ? { actif: true, clientId: process.env.PAYPAL_CLIENT_ID } : { actif: false });
+  if (b.action === 'config') return res.status(200).json(Object.assign(configure() ? { actif: true, clientId: process.env.PAYPAL_CLIENT_ID } : { actif: false }, { stripe: carte.actif() }));
+  // ── Carte via Stripe Checkout ──
+  if (b.action === 'stripe') {
+    if (!carte.actif()) return res.status(503).json({ erreur: 'Stripe non configuré' });
+    const test = b.test === true && testActif();
+    const qty = test ? 1 : PRIX[b.qty] ? Number(b.qty) : 1;
+    let base = ''; try { const u = new URL(String(b.retour || '')); base = ORIGINES.test(u.origin) ? u.origin + u.pathname : ''; } catch (e) { base = ''; }
+    if (!base) base = 'https://truflame.store/';
+    try {
+      const sess = await carte.creerSession({ montant: test ? '1.00' : PRIX[qty], qty, nom: NOM, test, base });
+      console.log('TORCH STRIPE SESSION', sess.id, qty, test ? 'TEST' : '');
+      if (!test) await noterEssai(req, 'torch', 'debut', sess.id, 'carte (stripe)', b.moi);
+      return res.status(200).json({ url: sess.url });
+    } catch (e) {
+      console.error('torch stripe', String(e.message || e));
+      await noterEssai(req, 'torch', 'erreur', '', String(e.message || e).slice(0, 60), b.moi);
+      return res.status(502).json({ erreur: 'stripe' });
+    }
+  }
+  if (b.action === 'stripe_ok') {   // retour de Stripe : ?sc=ok&sid=…
+    const sid = String(b.sid || '');
+    if (!carte.actif() || !/^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(sid)) return res.status(400).json({ erreur: 'session' });
+    try {
+      const r = await carte.lireSession(sid);
+      if (!r.ok) { console.error('stripe session', r.status, JSON.stringify(r.j).slice(0, 300)); return res.status(502).json({ erreur: 'stripe' }); }
+      const f = await carte.finaliser(r.j);
+      if (!f.ok) { await noterEssai(req, 'torch', 'refus', sid, 'stripe ' + f.statut, b.moi); return res.status(402).json({ erreur: 'paiement' }); }
+      if (f.nouvelle && !f.test) { await noterEssai(req, 'torch', 'paye', sid, 'stripe', b.moi); await suivre(req, 'paid', f.qty, b); }
+      return res.status(200).json({ ok: true, commande: f.commande, nom: f.nom, email: f.email });
+    } catch (e) { console.error('torch stripe_ok', String(e.message || e)); return res.status(500).json({ erreur: 'serveur' }); }
+  }
   if (!configure()) return res.status(503).json({ erreur: 'PayPal non configuré' });
   try {
     if (b.action === 'order') {

@@ -50,9 +50,9 @@ async function creerCommande(v) {
     lineItems: [{ variantId: VARIANTE, quantity: v.qty, priceSet: argent(unite) }],
     shippingAddress: adresse, billingAddress: adresse,
     shippingLines: [{ title: 'Free shipping', priceSet: argent('0.00') }],
-    transactions: [{ kind: 'SALE', status: 'SUCCESS', gateway: 'PayPal', authorizationCode: v.captureID || v.orderID, amountSet: argent(v.montant) }],
-    sourceName: 'truflame-page', sourceIdentifier: v.orderID, note: 'PayPal ' + v.orderID + (v.test ? ' · TEST 1 $ (à rembourser, ne pas envoyer)' : ''),
-    tags: v.test ? ['truflame', 'paypal', 'TEST'] : ['truflame', 'paypal'],
+    transactions: [{ kind: 'SALE', status: 'SUCCESS', gateway: v.passerelle || 'PayPal', authorizationCode: v.captureID || v.orderID, amountSet: argent(v.montant) }],
+    sourceName: 'truflame-page', sourceIdentifier: v.orderID, note: (v.passerelle || 'PayPal') + ' ' + v.orderID + (v.test ? ' · TEST 1 $ (à rembourser, ne pas envoyer)' : ''),
+    tags: [ 'truflame', String(v.passerelle || 'paypal').toLowerCase() ].concat(v.test ? ['TEST'] : []),
   };
   const options = { sendReceipt: !v.test, sendFulfillmentReceipt: true, inventoryBehaviour: 'BYPASS' };
   let d = await gql(CREER, { order, options });

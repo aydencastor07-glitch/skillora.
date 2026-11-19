@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Truflame — ventes</title>
+<style>
+  :root{--bg:#070a12;--card:#0e1320;--line:rgba(255,255,255,.08);--fg:#eaf1ff;--mut:#8c97ad;--mut2:#5f6a80;
+        --blue:#2f7bff;--blue2:#7ea8ff;--green:#5ee79c;--gold:#f5c043;--red:#ff8f8f}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--fg)}
+  body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:18px 16px 60px;max-width:880px;margin:0 auto}
+  h1{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+  .live{font-size:.68rem;font-weight:700;color:var(--green);border:1px solid rgba(61,220,132,.35);border-radius:99px;padding:4px 10px;display:inline-flex;gap:6px;align-items:center}
+  .live i{width:6px;height:6px;border-radius:50%;background:#3ddc84;animation:p 1.8s infinite}
+  @keyframes p{50%{opacity:.3}}
+  .maj{color:var(--mut2);font-size:.72rem;margin:4px 0 14px}
+  .per{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none}
+  .per::-webkit-scrollbar{display:none}
+  .per button{flex:none;padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:.8rem;font-weight:600;cursor:pointer}
+  .per button.on{background:rgba(47,123,255,.16);border-color:rgba(94,155,255,.55);color:#fff}
+  .sec{display:flex;align-items:center;gap:12px;margin:26px 2px 12px}
+  .sec b{font-size:1.1rem}
+  .sec img{width:44px;aspect-ratio:3/4;object-fit:contain;border-radius:6px;background:#14120f}
+  .sec small{display:block;color:var(--mut);font-size:.74rem}
+  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  @media(min-width:640px){.kpis{grid-template-columns:repeat(4,1fr)}}
+  .k{background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.014));border:1px solid var(--line);border-radius:16px;padding:13px 13px 12px;min-width:0}
+  .k .l{font-size:.7rem;color:var(--mut);font-weight:600}
+  .k .v{font-size:1.65rem;font-weight:800;letter-spacing:-.02em;margin-top:5px;line-height:1.1}
+  .k .s{font-size:.68rem;color:var(--mut);margin-top:4px}
+  .k .v.g{color:var(--green)} .k .v.o{color:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 14px;margin-top:12px}
+  .ch{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px}
+  .ch b{font-size:.9rem} .ch span{font-size:.7rem;color:var(--mut)}
+  .duo{display:grid;gap:12px} @media(min-width:640px){.duo{grid-template-columns:1fr 1fr}.duo .card{margin-top:0}} .duo{margin-top:12px}
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar{display:grid;grid-template-columns:minmax(0,auto) 1fr auto;gap:10px;align-items:center;font-size:.78rem}
+  .bar .n{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+  .bar .t{height:7px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+  .bar .t i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--blue2))}
+  .bar .x{color:var(--mut);font-variant-numeric:tabular-nums;font-weight:600}
+  svg.c{width:100%;height:120px;display:block}
+  .axe{display:flex;justify-content:space-between;font-size:.65rem;color:var(--mut2);margin-top:6px}
+  .tun{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+  .tun div{text-align:center;padding:9px 2px;background:rgba(255,255,255,.03)}
+  .tun div:first-child{border-radius:10px 0 0 10px} .tun div:last-child{border-radius:0 10px 10px 0}
+  .tun b{display:block;font-size:1.05rem} .tun small{font-size:.62rem;color:var(--mut2)}
+  .tun .g b{color:var(--green)}
+  .row{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.78rem}
+  .row:last-child{border-bottom:none}
+  .row .f{font-size:1.2rem;flex:none} .row .m{flex:1;min-width:0} .row .m small{display:block;color:var(--mut2);font-size:.68rem}
+  .tag{font-size:.62rem;font-weight:800;padding:4px 8px;border-radius:99px;flex:none}
+  .tag.y{color:var(--green);background:rgba(61,220,132,.14)} .tag.n{color:var(--mut);background:rgba(255,255,255,.055)}
+  .vide{color:var(--mut2);font-size:.8rem;text-align:center;padding:18px 6px}
+  .err{background:rgba(255,90,90,.08);border:1px solid rgba(255,90,90,.3);color:#ffd3d3;border-radius:14px;padding:14px;font-size:.85rem;margin-top:10px}
+  .err b{color:#fff}
+  .livres{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
+  .livres button{display:flex;gap:10px;align-items:center;text-align:left;padding:10px;border-radius:14px;border:1px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:.78rem;cursor:pointer;min-width:0}
+  .livres button img{width:38px;aspect-ratio:3/4;object-fit:contain;border-radius:5px;background:#14120f;flex:none}
+  .livres button b{display:block;color:var(--fg);font-size:.84rem;line-height:1.2}
+  .livres button.on{background:rgba(245,192,67,.12);border-color:rgba(245,192,67,.55);color:#fff}
+.etp{margin:10px 0 12px}.etl{display:flex;justify-content:space-between;font-size:14.5px}.etl b{font-size:17px}.etb{height:10px;background:rgba(127,127,127,.15);border-radius:6px;overflow:hidden;margin:5px 0 3px}.etb i{display:block;height:100%;background:linear-gradient(90deg,#d4ae64,#3fa564);border-radius:6px}.etp small{font-size:12.5px;opacity:.7}.etn{font-size:13.5px;opacity:.8;margin-top:6px}
+
+  .o{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.8rem}
+  .o:last-child{border-bottom:none}
+  .o .t1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .o .t1 b{font-size:.92rem}
+  .o .ad{color:var(--mut);margin-top:4px;line-height:1.4;user-select:all}
+  .o .st{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .o .st button{padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:.7rem;font-weight:700;cursor:pointer}
+  .o .st button.on{background:rgba(255,90,31,.16);border-color:rgba(255,120,60,.6);color:#fff}
+  .k .v.r{color:#ff7a3d}
+</style>
+</head>
+<body>
+<h1>🔥 Truflame <span class="live"><i></i>en direct</span></h1>
+<div class="maj" id="maj">Chargement…</div>
+<div class="per" id="per"></div>
+<div id="app"></div>
+<script>
+(function(){
+  var API = '/api/torch-stats';
+  var k = '';
+  try { var m = /[#&?]k=([\w-]+)/.exec(location.hash + '&' + location.search); if (m) { k = m[1]; localStorage.setItem('sk_stats_k', k); }
+        if (!k) k = localStorage.getItem('sk_stats_k') || ''; } catch(e){}
+  var PER = [['auj',"Aujourd'hui"],['7j','7 jours'],['30j','30 jours'],['90j','90 jours'],['tout','Tout']];
+  var per = '7j'; try { per = localStorage.getItem('tf_stats_per') || '7j'; } catch(e){}
+  var NOMS = { mobile:'📱 Téléphone', desktop:'💻 Ordinateur', tablette:'📟 Tablette' };
+  var LOGO = { TikTok:'🎵', Instagram:'📸', YouTube:'▶️', Facebook:'👍', Google:'🔎', Snapchat:'👻', Pinterest:'📌', direct:'🔗' };
+  var STATUTS = [['a_commander','À commander'],['commande','Commandé AutoDS'],['expedie','Expédié'],['rembourse','Remboursé']];
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function nb(n){ n = Number(n)||0; return n.toLocaleString('fr-FR'); }
+  function taux(a,b){ return b ? (Math.round(a*1000/b)/10).toString().replace('.',',')+' %' : '0 %'; }
+  function drap(c){ c = String(c||'').toUpperCase(); return /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(127397+c.charCodeAt(0),127397+c.charCodeAt(1)) : '🌍'; }
+  function pays(c){ if (!c || c === '?') return 'Inconnu'; try { return new Intl.DisplayNames(['fr'],{type:'region'}).of(c) || c; } catch(e){ return c; } }
+  function heure(t){ return new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+  function kpi(l, v, s, cls){ return '<div class="k"><div class="l">'+l+'</div><div class="v '+(cls||'')+'">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>'; }
+  function bars(titre, sous, lignes){
+    var mx = Math.max.apply(null, lignes.map(function(l){ return l.n; }).concat([1]));
+    return '<div class="card"><div class="ch"><b>'+titre+'</b><span>'+sous+'</span></div>'+
+      (lignes.length ? '<div class="bars">'+lignes.map(function(l){
+        return '<div class="bar"><span class="n">'+l.nom+'</span><span class="t"><i style="width:'+Math.max(4,l.n/mx*100)+'%"></i></span><span class="x">'+nb(l.n)+'</span></div>'; }).join('')+'</div>'
+      : '<div class="vide">Rien encore sur cette période.</div>')+'</div>';
+  }
+  function courbe(ser){
+    var v = (ser||[]).map(function(x){ return Number(x.n)||0; }), tot = v.reduce(function(a,b){ return a+b; }, 0);
+    var h = '<div class="card"><div class="ch"><b>Visiteurs par jour</b><span>'+nb(tot)+' au total</span></div>';
+    if (!tot) return h + '<div class="vide">Pas encore de visiteurs sur cette période.</div></div>';
+    var mx = Math.max.apply(null, v.concat([1])), W = 1000, H = 120, n = v.length;
+    var X = function(i){ return n > 1 ? i*W/(n-1) : W/2; }, Y = function(q){ return H-8-(q/mx)*(H-24); };
+    var pts = v.map(function(q,i){ return X(i).toFixed(1)+','+Y(q).toFixed(1); }).join(' ');
+    return h + '<svg class="c" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><polyline fill="none" stroke="#ff7a3d" stroke-width="2.2" vector-effect="non-scaling-stroke" points="'+pts+'"/></svg>'+
+      '<div class="axe"><span>'+String(ser[0].j).slice(5)+'</span><span>pic : '+nb(mx)+'</span><span>'+String(ser[n-1].j).slice(5)+'</span></div></div>';
+  }
+  function adresse(a){ a = a || {}; return [a.address_line_1, a.address_line_2, [a.postal_code, a.admin_area_2].filter(Boolean).join(' '), a.admin_area_1, pays(a.country_code)].filter(Boolean).map(esc).join(', '); }
+  function rendu(d){
+    var rev = (Number(d.revenu_cents)||0)/100, h = '';
+    h += '<div class="kpis">'+
+      kpi('Visiteurs', nb(d.visiteurs), nb(d.vues)+' vues de page')+
+      kpi('Clics « payer »', nb(d.clics_paiement), taux(d.clics_paiement, d.visiteurs)+' des visiteurs')+
+      kpi('Commandes', nb(d.commandes), nb(d.briquets)+' briquet'+(d.briquets>1?'s':'')+' · '+taux(d.commandes, d.visiteurs)+' des visiteurs', 'g')+
+      kpi('Revenu', '$'+rev.toFixed(2), d.commandes ? 'panier moyen $'+(rev/d.commandes).toFixed(2) : 'PayPal + carte', 'r')+'</div>';
+    h += '<div class="card"><div class="ch"><b>Le parcours</b><span>visiteurs uniques</span></div><div class="tun">'+
+      '<div><b>'+nb(d.visiteurs)+'</b><small>arrivés</small></div><div><b>'+nb(d.offres)+'</b><small>choix d\'offre</small></div>'+
+      '<div><b>'+nb(d.clics_paiement)+'</b><small>clic payer</small></div><div class="g"><b>'+nb(d.commandes)+'</b><small>ont payé</small></div></div></div>';
+    var L = d.liste || [];
+    h += '<div class="card"><div class="ch"><b>Commandes à envoyer</b><span>'+L.filter(function(o){ return o.status === 'a_commander'; }).length+' à commander</span></div>'+(L.length ? L.map(function(o){
+      return '<div class="o"><div class="t1"><b>'+drap((o.address||{}).country_code)+' '+esc(o.name||'—')+'</b><span>'+heure(o.created_at)+'</span></div>'+
+        '<div class="ad">'+o.qty+' briquet'+(o.qty>1?'s':'')+' · $'+((Number(o.amount_cents)||0)/100).toFixed(2)+' · '+esc(o.email)+'<br>'+adresse(o.address)+'<br><small>PayPal '+esc(o.id)+'</small></div>'+
+        '<div class="st" data-id="'+esc(o.id)+'">'+STATUTS.map(function(s){ return '<button class="'+(o.status===s[0]?'on':'')+'" data-s="'+s[0]+'">'+s[1]+'</button>'; }).join('')+'</div></div>'; }).join('')
+      : '<div class="vide">Aucune commande sur cette période.</div>')+'</div>';
+    h += courbe(d.jours);
+    h += bars('Pays', 'visiteurs · clics payer · commandes', (d.pays||[]).map(function(p){
+      return { nom: drap(p.pays)+' '+esc(pays(p.pays))+(p.clics?' · '+p.clics+' clic'+(p.clics>1?'s':''):'')+(p.commandes?' · 🛒 '+p.commandes:''), n:Number(p.visiteurs)||0 }; }));
+    h += '<div class="duo">'+
+      bars('D\'où ils viennent', 'source', (d.sources||[]).map(function(p){ return { nom:(LOGO[p.source]||'🌐')+' '+esc(p.source==='direct'?'Direct / bio':p.source), n:Number(p.visiteurs)||0 }; }))+
+      bars('Sur quoi', 'appareil', (d.appareils||[]).map(function(p){ return { nom:NOMS[p.appareil]||esc(p.appareil), n:Number(p.visiteurs)||0 }; }))+'</div>';
+    h += bars('Offres cliquées', 'choix', (d.offres_choisies||[]).map(function(p){ return { nom:p.qty+' briquet'+(p.qty>1?'s':''), n:Number(p.n)||0 }; }));
+    var de = d.dernieres || [];
+    h += '<div class="card"><div class="ch"><b>Derniers visiteurs</b><span>en direct</span></div>'+(de.length ? de.map(function(x){
+      return '<div class="row"><span class="f">'+drap(x.pays)+'</span><span class="m"><b>'+esc((x.ville?x.ville+', ':'')+pays(x.pays))+'</b><small>'+heure(x.t)+' · '+(NOMS[x.appareil]||'')+' · '+esc(x.source==='direct'||!x.source?'Direct / bio':x.source)+(x.offre?' · offre '+x.offre:'')+'</small></span>'+
+        (x.paye ? '<span class="tag y">💰 a payé</span>' : x.clic ? '<span class="tag y">👆 clic payer</span>' : '<span class="tag n">a regardé</span>')+'</div>'; }).join('') : '<div class="vide">Personne encore sur cette période.</div>')+'</div>';
+    document.getElementById('app').innerHTML = h;
+  }
+  function erreur(msg){ document.getElementById('maj').textContent = 'Pas de données'; document.getElementById('app').innerHTML = '<div class="err">'+msg+'</div>'; }
+  function post(o){ o.k = k; return fetch(API, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify(o) })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j._st = r.status; return j; }); }); }
+  var enCours = false;
+  function charger(){
+    if (!k) return erreur('<b>Lien incomplet.</b> Ouvre le lien complet (avec <code>#k=…</code>) une fois sur cet appareil.');
+    if (enCours) return; enCours = true;
+    post({ periode:per }).then(function(j){
+      enCours = false;
+      if (j._st === 403) return erreur('<b>Lien invalide.</b>');
+      if (!j.success) return erreur('<b>Erreur :</b> '+esc(j.error || ('code '+j._st)));
+      rendu(j);
+      document.getElementById('maj').textContent = 'Actualisé à '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+' · mise à jour chaque minute';
+    }).catch(function(){ enCours = false; erreur('<b>Connexion impossible.</b>'); });
+  }
+  document.getElementById('app').addEventListener('click', function(ev){
+    var b = ev.target.closest && ev.target.closest('.st button'); if (!b) return;
+    var id = b.parentNode.getAttribute('data-id'), s = b.getAttribute('data-s');
+    Array.prototype.forEach.call(b.parentNode.children, function(x){ x.classList.toggle('on', x === b); });
+    post({ action:'statut', id:id, statut:s }).then(function(j){ if (!j.success) alert('Statut non enregistré.'); });
+  });
+  function periodes(){ document.getElementById('per').innerHTML = PER.map(function(p){ return '<button class="'+(per===p[0]?'on':'')+'" data-p="'+p[0]+'">'+p[1]+'</button>'; }).join(''); }
+  document.getElementById('per').addEventListener('click', function(ev){
+    var b = ev.target.closest('button'); if (!b) return;
+    per = b.getAttribute('data-p'); try { localStorage.setItem('tf_stats_per', per); } catch(e){}
+    periodes(); charger();
+  });
+  periodes(); charger();
+  setInterval(function(){ if (document.visibilityState === 'visible') charger(); }, 60000);
+})();
+</script>
+</body>
+</html>

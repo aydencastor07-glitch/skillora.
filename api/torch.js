@@ -75,7 +75,7 @@ module.exports = async (req, res) => {
       const unite = {
         amount: { currency_code: 'USD', value, breakdown: { item_total: { currency_code: 'USD', value } } },
         items: [{ name: qty > 1 ? NOM + ' × ' + qty : NOM, quantity: '1', unit_amount: { currency_code: 'USD', value }, category: 'PHYSICAL_GOODS' }],
-        description: NOM + ' × ' + qty, custom_id: test ? 'torch:test' : 'torch:' + qty,
+        description: NOM + ' × ' + qty, custom_id: test ? 'torch:test' : 'torch:' + qty, soft_descriptor: 'TRUFLAME',
       };
       const contexte = { brand_name: 'Truflame', locale: 'en-US', shipping_preference: 'GET_FROM_FILE', user_action: 'PAY_NOW' };
       const corps = { intent: 'CAPTURE', purchase_units: [unite] };

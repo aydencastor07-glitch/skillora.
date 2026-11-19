@@ -73,9 +73,13 @@
   .o .st button{padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--mut);font:inherit;font-size:.7rem;font-weight:700;cursor:pointer}
   .o .st button.on{background:rgba(255,90,31,.16);border-color:rgba(255,120,60,.6);color:#fff}
   .k .v.r{color:#ff7a3d}
+  .tabs{display:flex;gap:6px;margin:0 0 14px;padding:4px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px}
+  .tabs a{flex:1;text-align:center;padding:10px 6px;border-radius:10px;color:var(--mut);font-weight:700;font-size:.86rem;text-decoration:none}
+  .tabs a.on{background:rgba(255,255,255,.1);color:#fff}
 </style>
 </head>
 <body>
+<nav class="tabs"><a href="/stats/">📚 Livres &amp; site</a><a href="/stats/truflame.html" class="on">🔥 Dropshipping</a></nav>
 <h1>🔥 Truflame <span class="live"><i></i>en direct</span></h1>
 <div class="maj" id="maj">Chargement…</div>
 <div class="per" id="per"></div>

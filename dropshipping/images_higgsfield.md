@@ -27,3 +27,9 @@ Base : https://d8j0ntlcm91z4.cloudfront.net/user_39MSSSD01xwgIELb5AoUmQYOE1q/
 27. Bougies, cuisine (main) : hf_20261119_104755_1784902f-f966-4e77-89d3-06d98cfc30ce.png
 28. Feu d'artifice POV, allée au crépuscule : hf_20261119_104755_6478ad2a-6cf8-429f-946a-931f9f090b1a.png
 29. Feu d'artifice POV, Nouvel An : hf_20261119_104656_44b022c1-6445-426e-ae58-41b6d9dc4773.png
+
+## V3 – POV refaits (bras et poignet droits, briquet dans l'axe, flamme tout droit devant)
+30. POV camping : hf_20261119_112524_562fdd59-955f-4655-9792-3e541ef093b9.png
+31. POV plage dans le vent : hf_20261119_112523_16b7a4a0-bb8e-48b7-a1bd-8635c4d8ccd2.png
+32. POV feu d'artifice, allée : hf_20261119_112524_3f5b127d-0977-4ef8-8a0e-d000e747c4a5.png
+33. POV feu d'artifice, Nouvel An : hf_20261119_112523_6d6a78b1-eb1b-4bd2-8dc5-1f4ec1c2cf9e.png

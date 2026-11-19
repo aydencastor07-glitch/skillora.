@@ -15,3 +15,15 @@ Base : https://d8j0ntlcm91z4.cloudfront.net/user_39MSSSD01xwgIELb5AoUmQYOE1q/
 7. Bougies à la maison (4:5) : hf_20261119_104122_6737bb56-a4b0-424e-b728-6c8017f285ee.png
 8. Plage avec du vent (4:5) : hf_20261119_104123_b08d6fcf-ae4f-4e8a-a2c9-88472a870b5f.png
 9. Cadeau de Noël (4:5) : hf_20261119_104124_063b2b4d-03d9-49b0-93e5-e30abc213ee1.png
+
+## V2 – utilisations refaites (flamme longue et bien droite) + feu d'artifice POV
+20. Barbecue, homme en sweat gris : hf_20261119_104656_2dd2b668-36ff-4cf5-b0e6-ddb2ed621ff1.png
+21. Barbecue, cheminée d'allumage (vue de côté) : hf_20261119_104657_3a7ea891-684d-4d69-b2ba-938d80946e1a.png
+22. Camping, couple : hf_20261119_104656_08e3e66e-b777-4e96-b676-ee2b92223d31.png
+23. Camping, POV feu de bois : hf_20261119_104655_f718a079-08f9-430c-8af8-0a25f4ab97fa.png
+24. Plage, POV dans le vent : hf_20261119_104657_45319eb9-a7a4-4ae7-af9a-b345c922f319.png
+25. Bord de mer, homme dans le vent : hf_20261119_104656_90663a2b-83dc-4897-b4ef-d91fd794b99c.png
+26. Bougie à 3 mèches, salon : hf_20261119_104655_3d3b759b-b4df-4c6f-9e42-1c531847199a.png
+27. Bougies, cuisine (main) : hf_20261119_104755_1784902f-f966-4e77-89d3-06d98cfc30ce.png
+28. Feu d'artifice POV, allée au crépuscule : hf_20261119_104755_6478ad2a-6cf8-429f-946a-931f9f090b1a.png
+29. Feu d'artifice POV, Nouvel An : hf_20261119_104656_44b022c1-6445-426e-ae58-41b6d9dc4773.png

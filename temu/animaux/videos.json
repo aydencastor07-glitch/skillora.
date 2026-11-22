@@ -379,5 +379,101 @@
     "d": 2.8
    }
   ]
+ },
+ "v5_aigle": {
+  "img": "/home/user/skillora./temu/animaux/img/aigle.jpg",
+  "focus": [
+   0.5,
+   0.42
+  ],
+  "zoom": 0.11,
+  "pan": [
+   0,
+   -0.015
+  ],
+  "font": "BebasNeue-Regular.ttf",
+  "code_font": "Poppins-ExtraBold.ttf",
+  "tsz": 104,
+  "csz": 72,
+  "code_lbl": "Code :",
+  "styles": [
+   [
+    "#ffffff",
+    "#1a1a1a"
+   ],
+   [
+    "#c62828",
+    "#ffffff"
+   ],
+   [
+    "#ffd84a",
+    "#3b2414"
+   ],
+   [
+    "#2b1d14",
+    "#ffd84a"
+   ]
+  ],
+  "how_style": [
+   "#2b1d14",
+   "#ffffff"
+  ],
+  "entry": "slide",
+  "sfx": "snap",
+  "seed": 7,
+  "bpm": 108,
+  "key": 58,
+  "disc_y": 0.105,
+  "intro": [
+   "Offres Temu",
+   "à découvrir"
+  ],
+  "cards": [
+   {
+    "k": "intro",
+    "y": 0.62,
+    "st": 1,
+    "d": 2.6
+   },
+   {
+    "k": "offre",
+    "off": "100",
+    "y": 0.84,
+    "st": 2,
+    "al": "l",
+    "d": 2.8
+   },
+   {
+    "k": "offre",
+    "off": "40",
+    "y": 0.8,
+    "st": 0,
+    "how": true,
+    "d": 3.6
+   },
+   {
+    "k": "offre",
+    "off": "prix",
+    "y": 0.6,
+    "st": 3,
+    "al": "r",
+    "d": 2.7
+   },
+   {
+    "k": "offre",
+    "off": "200",
+    "y": 0.66,
+    "st": 1,
+    "d": 2.9
+   },
+   {
+    "k": "offre",
+    "off": "0",
+    "y": 0.84,
+    "st": 2,
+    "logo": true,
+    "d": 3.4
+   }
+  ]
  }
 }

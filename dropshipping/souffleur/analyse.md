@@ -16,3 +16,10 @@ Images générées sur Higgsfield (gpt_image_2_6, référence = ref_produit.jpg)
 studio-grey, kit-dark, pov-leaves, pov-windshield, pov-porch, car-interior, macro-nozzle, use-patio, use-desk, use-doorstep, use-garage, gift.
 Section « Demo video » (ta-video) placée juste sous l'achat : cachée tant qu'aucune vidéo n'est choisie.
 Paiement : réglages whop_1 / whop_2 / whop_3 du bloc d'achat (liens Whop 1, 2, 3 souffleurs). Avis de la torche désactivés (pas d'avis pour ce produit).
+
+## Vidéo fournisseur (55 s) : angles et taille réels (images dans ref_video/)
+- Taille : à peu près la longueur de la main (≈ 20 cm), poignée plus fine que la paume, tête de la taille d'un poing ; se tient comme un pistolet / sèche-cheveux de voyage.
+- Arrière de la tête : grille ronde d'entrée d'air avec turbine visible (t17). Côté : bouton marche près de la tête (t19).
+- Face avant de la poignée : long panneau ovale foncé + interrupteur coulissant ; bas de la poignée : ANNEAU DE LUMIÈRE LED autour d'une lentille (lampe intégrée, t29).
+- Accessoires : étui zippé, dragonne, buses (gonflage, dégonflage, plate, fine), brosses (douce, poils durs), câble, notice. Boîte « TURBO FAN ».
+- Usages montrés : clavier, filtre de clim, feuilles sur la voiture, séchage de la voiture après lavage (eau soufflée du pare-brise et des phares), gonfler bouée et matelas, attiser un feu de camp.

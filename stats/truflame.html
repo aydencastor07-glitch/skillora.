@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<title>Truflame — ventes</title>
+<title>Turbo Jet Blower — ventes</title>
 <style>
   :root{--bg:#070a12;--card:#0e1320;--line:rgba(255,255,255,.08);--fg:#eaf1ff;--mut:#8c97ad;--mut2:#5f6a80;
         --blue:#2f7bff;--blue2:#7ea8ff;--green:#5ee79c;--gold:#f5c043;--red:#ff8f8f}
@@ -79,8 +79,8 @@
 </style>
 </head>
 <body>
-<nav class="tabs"><a href="/stats/">📚 Livres &amp; site</a><a href="/stats/truflame.html" class="on">🔥 Dropshipping</a></nav>
-<h1>🔥 Truflame <span class="live"><i></i>en direct</span></h1>
+<nav class="tabs"><a href="/stats/">📚 Livres &amp; site</a><a href="/stats/truflame.html" class="on">💨 Dropshipping</a></nav>
+<h1>💨 Turbo Jet Blower <span class="live"><i></i>en direct</span></h1>
 <div class="maj" id="maj">Chargement…</div>
 <div class="per" id="per"></div>
 <div id="app"></div>
@@ -145,16 +145,16 @@
     h += '<div class="kpis">'+
       kpi('Visiteurs', nb(d.visiteurs), nb(d.vues)+' vues de page')+
       kpi('Clics « payer »', nb(d.clics_paiement), taux(d.clics_paiement, d.visiteurs)+' des visiteurs')+
-      kpi('Commandes', nb(d.commandes), nb(d.briquets)+' briquet'+(d.briquets>1?'s':'')+' · '+taux(d.commandes, d.visiteurs)+' des visiteurs', 'g')+
-      kpi('Revenu', '$'+rev.toFixed(2), d.commandes ? 'panier moyen $'+(rev/d.commandes).toFixed(2) : 'PayPal + carte', 'r')+'</div>';
+      kpi('Commandes', nb(d.commandes), nb(d.briquets)+' souffleur'+(d.briquets>1?'s':'')+' · '+taux(d.commandes, d.visiteurs)+' des visiteurs', 'g')+
+      kpi('Revenu', '$'+rev.toFixed(2), d.commandes ? 'panier moyen $'+(rev/d.commandes).toFixed(2) : 'carte · Whop', 'r')+'</div>';
     h += '<div class="card"><div class="ch"><b>Le parcours</b><span>visiteurs uniques</span></div><div class="tun">'+
       '<div><b>'+nb(d.visiteurs)+'</b><small>arrivés</small></div><div><b>'+nb(d.offres)+'</b><small>choix d\'offre</small></div>'+
       '<div><b>'+nb(d.clics_paiement)+'</b><small>clic payer</small></div><div class="g"><b>'+nb(d.commandes)+'</b><small>ont payé</small></div></div></div>';
-    h += cartePaiements(d.paiements);
+    // (essais de paiement PayPal : retiré, le paiement passe par Whop)
     var L = d.liste || [];
     h += '<div class="card"><div class="ch"><b>Commandes à envoyer</b><span>'+L.filter(function(o){ return o.status === 'a_commander'; }).length+' à commander</span></div>'+(L.length ? L.map(function(o){
       return '<div class="o"><div class="t1"><b>'+drap((o.address||{}).country_code)+' '+esc(o.name||'—')+'</b><span>'+heure(o.created_at)+'</span></div>'+
-        '<div class="ad">'+o.qty+' briquet'+(o.qty>1?'s':'')+' · $'+((Number(o.amount_cents)||0)/100).toFixed(2)+' · '+esc(o.email)+'<br>'+adresse(o.address)+'<br><small>PayPal '+esc(o.id)+'</small></div>'+
+        '<div class="ad">'+o.qty+' souffleur'+(o.qty>1?'s':'')+' · $'+((Number(o.amount_cents)||0)/100).toFixed(2)+' · '+esc(o.email)+'<br>'+adresse(o.address)+'<br><small>PayPal '+esc(o.id)+'</small></div>'+
         '<div class="st" data-id="'+esc(o.id)+'">'+STATUTS.map(function(s){ return '<button class="'+(o.status===s[0]?'on':'')+'" data-s="'+s[0]+'">'+s[1]+'</button>'; }).join('')+'</div></div>'; }).join('')
       : '<div class="vide">Aucune commande sur cette période.</div>')+'</div>';
     h += courbe(d.jours);
@@ -163,7 +163,7 @@
     h += '<div class="duo">'+
       bars('D\'où ils viennent', 'source', (d.sources||[]).map(function(p){ return { nom:(LOGO[p.source]||'🌐')+' '+esc(p.source==='direct'?'Direct / bio':p.source), n:Number(p.visiteurs)||0 }; }))+
       bars('Sur quoi', 'appareil', (d.appareils||[]).map(function(p){ return { nom:NOMS[p.appareil]||esc(p.appareil), n:Number(p.visiteurs)||0 }; }))+'</div>';
-    h += bars('Offres cliquées', 'choix', (d.offres_choisies||[]).map(function(p){ return { nom:p.qty+' briquet'+(p.qty>1?'s':''), n:Number(p.n)||0 }; }));
+    h += bars('Offres cliquées', 'choix', (d.offres_choisies||[]).map(function(p){ return { nom:p.qty+' souffleur'+(p.qty>1?'s':''), n:Number(p.n)||0 }; }));
     var de = d.dernieres || [];
     h += '<div class="card"><div class="ch"><b>Derniers visiteurs</b><span>en direct</span></div>'+(de.length ? de.map(function(x){
       return '<div class="row"><span class="f">'+drap(x.pays)+'</span><span class="m"><b>'+esc((x.ville?x.ville+', ':'')+pays(x.pays))+'</b><small>'+heure(x.t)+' · '+(NOMS[x.appareil]||'')+' · '+esc(x.source==='direct'||!x.source?'Direct / bio':x.source)+(x.offre?' · offre '+x.offre:'')+'</small></span>'+

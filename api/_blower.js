@@ -1,4 +1,5 @@
 // Souffleur (truflame.store) : le client saisit son adresse sur NOTRE site, puis paie sur Whop.
+// POST { action: 'event', type, qty, referrer, utm } -> suivi des visites
 // POST { nom, email, phone, address1, address2, city, state, zip, country, qty }
 //   -> enregistre la commande « en attente » (Supabase, blower_orders) et renvoie { url } : la page de paiement Whop.
 // Le webhook Whop (api/whop-webhook.js) marque la commande payée et la crée dans Shopify avec l'adresse.
@@ -6,7 +7,43 @@
 // Sans clé : lien de paiement Whop + e-mail pré-rempli, la liaison se fait par l'e-mail.
 const crypto = require('crypto');
 const { lireCorps } = require('./_paypal');
-const { requete } = require('./_db');
+const { requete, empreinte } = require('./_db');
+
+// Suivi des visites de la boutique (tableau /stats/truflame.html) : mêmes fonctions SQL que l'ancienne torche.
+const ROBOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegram|discord|headless|lighthouse/i;
+function appareil(ua) {
+  const u = ua.toLowerCase();
+  const device = /ipad|tablet|(android(?!.*mobi))/.test(u) ? 'tablette' : /iphone|ipod|android.*mobi|windows phone/.test(u) ? 'mobile' : 'desktop';
+  const os = /iphone|ipad|ipod/.test(u) ? 'iOS' : /android/.test(u) ? 'Android' : /windows/.test(u) ? 'Windows' : /mac os|macintosh/.test(u) ? 'macOS' : null;
+  return { device, os };
+}
+function source(ua, ref, utm) {
+  const NOMS = ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Google', 'Snapchat', 'Pinterest'];
+  if (utm) { const k = utm.toLowerCase(); return NOMS.find((n) => k.includes(n.toLowerCase())) || utm.slice(0, 40); }
+  const u = ua.toLowerCase();
+  if (/musical_ly|bytedance|tiktok/.test(u)) return 'TikTok';
+  if (/instagram/.test(u)) return 'Instagram';
+  if (/fban|fbav|fb_iab/.test(u)) return 'Facebook';
+  if (/snapchat/.test(u)) return 'Snapchat';
+  try {
+    const h = new URL(ref).hostname.replace(/^www\./, '').replace(/^(l|m|lm)\./, '');
+    if (!h || /myshopify\.com$|truflame/.test(h)) return 'direct';
+    return NOMS.find((x) => h.includes(x.toLowerCase())) || h.slice(0, 40);
+  } catch (e) { return 'direct'; }
+}
+async function suivre(req, type, qty, b) {   // un suivi perdu ne doit jamais gêner la page
+  try {
+    const ua = String(req.headers['user-agent'] || '');
+    if (ROBOTS.test(ua)) return;
+    const pays = String(req.headers['x-vercel-ip-country'] || '').toUpperCase();
+    let ville = String(req.headers['x-vercel-ip-city'] || ''); try { ville = decodeURIComponent(ville); } catch (e) {}
+    const { device, os } = appareil(ua);
+    await requete('select public.torch_event($1,$2,$3,$4,$5,$6,$7,$8)', [type, empreinte(req) || String((b || {}).visitor || ''), qty || null,
+      /^[A-Z]{2}$/.test(pays) ? pays : null, ville || null, device, os, type === 'view' ? source(ua, String((b || {}).referrer || ''), String((b || {}).utm || '')) : null]);
+  } catch (e) { console.error('torch_event', String(e.message || e)); }
+}
+
+
 
 const ORIGINES = /^https:\/\/([a-z0-9-]+\.myshopify\.com|(www\.)?truflame\.[a-z.]+)$/i;
 const PLANS = { 1: 'plan_bRnqMRMjsWz9f' };   // 49 $ ; offres 2 et 3 : à ajouter quand leurs liens Whop existent
@@ -38,6 +75,10 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ erreur: 'POST' });
   const b = await lireCorps(req);
+  if (b.action === 'event') {   // view (page ouverte), offer (1/2/3 choisi), pay_click (formulaire envoyé)
+    if (['view', 'offer', 'pay_click'].includes(b.type) && !b.moi) await suivre(req, b.type, [1, 2, 3].includes(Number(b.qty)) ? Number(b.qty) : null, b);
+    return res.status(200).json({ ok: true });
+  }
   const qty = PLANS[Number(b.qty)] ? Number(b.qty) : 1;
   const c = {
     nom: txt(b.nom, 120), email: txt(b.email, 200).toLowerCase(), phone: txt(b.phone, 40),
@@ -55,6 +96,7 @@ module.exports = async (req, res) => {
   catch (e) { console.error('blower_attente', String(e.message || e)); return res.status(500).json({ erreur: 'serveur' }); }
   const plan = PLANS[qty];
   const url = (await sessionWhop(plan, ref, c.email)) || ('https://whop.com/checkout/' + plan + '?email=' + encodeURIComponent(c.email));
+  if (!b.moi) await suivre(req, 'pay_click', qty, b);
   console.log('BLOWER attente', ref, qty, c.country, c.email.replace(/^(.).*@/, '$1***@'));
   return res.status(200).json({ ok: true, ref, url });
 };

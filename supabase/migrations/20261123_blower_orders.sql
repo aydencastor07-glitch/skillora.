@@ -1,0 +1,2 @@
+-- Souffleur truflame.store : commandes en attente (adresse saisie avant le paiement Whop). Appliquée via MCP le 23/11/2026.
+-- Voir api/blower.js et api/whop-webhook.js. Fonctions : blower_attente, blower_payer, blower_shopify (rôle skillora_stats).

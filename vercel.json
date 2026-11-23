@@ -49,5 +49,19 @@
     "api/envoyer-livre.js": {
       "includeFiles": "api/_livre/**"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/whop-webhook",
+      "destination": "/api/hook?src=whop"
+    },
+    {
+      "source": "/api/stripe-webhook",
+      "destination": "/api/hook?src=stripe"
+    },
+    {
+      "source": "/api/blower",
+      "destination": "/api/hook?src=blower"
+    }
+  ]
 }

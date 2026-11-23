@@ -1,0 +1,53 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 720
+PlayResY: 1280
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: PT,Poppins ExtraBold,54,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,2,2,50,50,300,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:02.08,PT,,0,0,0,,Todos nós sabemos que dia é hoje,
+Dialogue: 0,0:00:02.08,0:00:05.23,PT,,0,0,0,,então vim fazer uma boa sopa de abóbora com vocês.
+Dialogue: 0,0:00:05.23,0:00:07.05,PT,,0,0,0,,Vou começar limpando a carne.
+Dialogue: 0,0:00:07.05,0:00:08.50,PT,,0,0,0,,Vou usar laranja-azeda.
+Dialogue: 0,0:00:08.50,0:00:11.59,PT,,0,0,0,,Vou guardar o suco dessa laranja-azeda para dar acidez.
+Dialogue: 0,0:00:11.59,0:00:14.01,PT,,0,0,0,,Vou lavar a carne com sal, limão e vinagre.
+Dialogue: 0,0:00:14.01,0:00:16.54,PT,,0,0,0,,Depois enxáguo e tempero com tempero batido e
+Dialogue: 0,0:00:16.54,0:00:18.00,PT,,0,0,0,,também com temperos secos.
+Dialogue: 0,0:00:18.00,0:00:20.25,PT,,0,0,0,,Como pimenta-do-reino em pó, cravo,
+Dialogue: 0,0:00:20.25,0:00:23.21,PT,,0,0,0,,cúrcuma em pó, coentro em pó e pimenta-caiena.
+Dialogue: 0,0:00:23.21,0:00:26.36,PT,,0,0,0,,Adiciono o suco da laranja e coloco na geladeira.
+Dialogue: 0,0:00:26.36,0:00:29.00,PT,,0,0,0,,Normalmente deixo de um dia para o outro.
+Dialogue: 0,0:00:29.00,0:00:30.67,PT,,0,0,0,,No dia seguinte, de manhã,
+Dialogue: 0,0:00:30.67,0:00:32.40,PT,,0,0,0,,coloco a carne para ferver.
+Dialogue: 0,0:00:32.40,0:00:34.65,PT,,0,0,0,,Enquanto a carne começa a cozinhar,
+Dialogue: 0,0:00:34.65,0:00:37.60,PT,,0,0,0,,descasco a abóbora e coloco para ferver com um
+Dialogue: 0,0:00:37.60,0:00:38.50,PT,,0,0,0,,pouco de alho.
+Dialogue: 0,0:00:38.50,0:00:41.07,PT,,0,0,0,,Depois descasco os outros ingredientes,
+Dialogue: 0,0:00:41.07,0:00:42.92,PT,,0,0,0,,como cenoura, nabo e batata,
+Dialogue: 0,0:00:42.92,0:00:45.49,PT,,0,0,0,,e coloco para ferver junto com a carne.
+Dialogue: 0,0:00:45.49,0:00:48.00,PT,,0,0,0,,Assim, a sopa fica pronta mais rápido.
+Dialogue: 0,0:00:48.00,0:00:49.57,PT,,0,0,0,,Coloco o nabo primeiro,
+Dialogue: 0,0:00:49.57,0:00:52.11,PT,,0,0,0,,porque ele demora mais para cozinhar.
+Dialogue: 0,0:00:52.11,0:00:53.07,PT,,0,0,0,,Enquanto isso,
+Dialogue: 0,0:00:53.07,0:00:55.74,PT,,0,0,0,,pico o alho-poró e o salsão e adiciono.
+Dialogue: 0,0:00:55.74,0:00:57.38,PT,,0,0,0,,Depois coloco o repolho,
+Dialogue: 0,0:00:57.38,0:00:59.50,PT,,0,0,0,,e então a batata com a cenoura.
+Dialogue: 0,0:00:59.50,0:01:02.37,PT,,0,0,0,,A batata e a cenoura vão por último,
+Dialogue: 0,0:01:02.37,0:01:04.20,PT,,0,0,0,,porque cozinham rápido.
+Dialogue: 0,0:01:04.20,0:01:07.47,PT,,0,0,0,,Bato a abóbora no liquidificador e depois
+Dialogue: 0,0:01:07.47,0:01:08.99,PT,,0,0,0,,adiciono na panela.
+Dialogue: 0,0:01:08.99,0:01:10.50,PT,,0,0,0,,Assim é bem rápido.
+Dialogue: 0,0:01:10.50,0:01:13.34,PT,,0,0,0,,Coloquei três folhas de azedinha, pimenta,
+Dialogue: 0,0:01:13.34,0:01:15.58,PT,,0,0,0,,cravo e um pouquinho de manteiga.
+Dialogue: 0,0:01:15.58,0:01:18.62,PT,,0,0,0,,Agora é hora de provar para ver se precisa de
+Dialogue: 0,0:01:18.62,0:01:19.50,PT,,0,0,0,,mais tempero.
+Dialogue: 0,0:01:19.50,0:01:21.10,PT,,0,0,0,,E não podia faltar:
+Dialogue: 0,0:01:21.10,0:01:23.62,PT,,0,0,0,,coloquei espaguete e macarrão.
+Dialogue: 0,0:01:23.62,0:01:25.21,PT,,0,0,0,,A sopa ficou linda!
+Dialogue: 0,0:01:25.21,0:01:28.99,PT,,0,0,0,,Arrumei tudo na mesa e servi com pão baguete.
+Dialogue: 0,0:01:28.99,0:01:30.00,PT,,0,0,0,,Uma delícia!

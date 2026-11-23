@@ -1,0 +1,479 @@
+{
+ "v1_lion": {
+  "img": "/home/user/skillora./temu/animaux/img/lion.jpg",
+  "focus": [
+   0.62,
+   0.5
+  ],
+  "zoom": 0.1,
+  "pan": [
+   -0.03,
+   0
+  ],
+  "font": "Poppins-ExtraBold.ttf",
+  "code_font": "Poppins-ExtraBold.ttf",
+  "tsz": 82,
+  "csz": 76,
+  "code_lbl": "Code :",
+  "styles": [
+   [
+    "#ffffff",
+    "#111111"
+   ],
+   [
+    "#0d4d4d",
+    "#ffd84a"
+   ],
+   [
+    "#fb7701",
+    "#ffffff"
+   ],
+   [
+    "#ff9ec1",
+    "#2a0d1a"
+   ]
+  ],
+  "how_style": [
+   "#ffd84a",
+   "#111111"
+  ],
+  "entry": "pop",
+  "sfx": "pop",
+  "seed": 3,
+  "bpm": 112,
+  "key": 57,
+  "disc_y": 0.105,
+  "intro": [
+   "Les offres Temu",
+   "à découvrir"
+  ],
+  "cards": [
+   {
+    "k": "intro",
+    "y": 0.27,
+    "st": 0,
+    "d": 2.2
+   },
+   {
+    "k": "offre",
+    "off": "0",
+    "y": 0.75,
+    "st": 1,
+    "d": 2.4
+   },
+   {
+    "k": "offre",
+    "off": "100",
+    "y": 0.27,
+    "st": 2,
+    "d": 2.3
+   },
+   {
+    "k": "offre",
+    "off": "40",
+    "y": 0.83,
+    "st": 3,
+    "how": true,
+    "d": 3.2
+   },
+   {
+    "k": "offre",
+    "off": "prix",
+    "y": 0.27,
+    "st": 0,
+    "al": "l",
+    "d": 2.3
+   },
+   {
+    "k": "offre",
+    "off": "200",
+    "y": 0.76,
+    "st": 1,
+    "d": 2.6
+   }
+  ]
+ },
+ "v2_loups": {
+  "img": "/home/user/skillora./temu/animaux/img/loups.jpg",
+  "focus": [
+   0.5,
+   0.52
+  ],
+  "zoom": 0.12,
+  "pan": [
+   0,
+   0.02
+  ],
+  "font": "ArchivoBlack-Regular.ttf",
+  "code_font": "ArchivoBlack-Regular.ttf",
+  "tsz": 76,
+  "csz": 66,
+  "code_lbl": "CODE",
+  "styles": [
+   [
+    "#ffd400",
+    "#111111"
+   ],
+   [
+    "#13233f",
+    "#ffffff"
+   ],
+   [
+    "#e8283b",
+    "#ffffff"
+   ],
+   [
+    "#ffffff",
+    "#13233f"
+   ]
+  ],
+  "how_style": [
+   "#ffffff",
+   "#13233f"
+  ],
+  "entry": "slide",
+  "sfx": "swish",
+  "seed": 4,
+  "bpm": 104,
+  "key": 55,
+  "disc_y": 0.74,
+  "intro": [
+   "Offres Temu",
+   "du moment"
+  ],
+  "cards": [
+   {
+    "k": "intro",
+    "y": 0.25,
+    "st": 1,
+    "d": 2.5
+   },
+   {
+    "k": "offre",
+    "off": "200",
+    "y": 0.25,
+    "st": 0,
+    "al": "l",
+    "d": 2.6
+   },
+   {
+    "k": "offre",
+    "off": "prix",
+    "y": 0.62,
+    "st": 2,
+    "al": "r",
+    "d": 2.4
+   },
+   {
+    "k": "offre",
+    "off": "0",
+    "y": 0.3,
+    "st": 3,
+    "how": true,
+    "d": 3.6
+   },
+   {
+    "k": "offre",
+    "off": "100",
+    "y": 0.6,
+    "st": 1,
+    "d": 2.8
+   },
+   {
+    "k": "offre",
+    "off": "40",
+    "y": 0.26,
+    "st": 0,
+    "logo": true,
+    "d": 3.1
+   }
+  ]
+ },
+ "v3_renard": {
+  "img": "/home/user/skillora./temu/animaux/img/renard.jpg",
+  "focus": [
+   0.55,
+   0.35
+  ],
+  "zoom": 0.09,
+  "pan": [
+   0,
+   0.015
+  ],
+  "font": "Anton-Regular.ttf",
+  "code_font": "Poppins-ExtraBold.ttf",
+  "tsz": 96,
+  "csz": 74,
+  "code_lbl": "Code",
+  "styles": [
+   [
+    "#1d3a1f",
+    "#c6ff4d"
+   ],
+   [
+    "#ffffff",
+    "#e2541b"
+   ],
+   [
+    "#111111",
+    "#ffd84a"
+   ],
+   [
+    "#ffb3cf",
+    "#111111"
+   ]
+  ],
+  "how_style": [
+   "#c6ff4d",
+   "#1d3a1f"
+  ],
+  "entry": "drop",
+  "sfx": "tap",
+  "seed": 5,
+  "bpm": 120,
+  "key": 60,
+  "disc_y": 0.105,
+  "intro": [
+   "Codes Temu",
+   "à ne pas rater"
+  ],
+  "cards": [
+   {
+    "k": "intro",
+    "y": 0.72,
+    "st": 1,
+    "d": 2.0
+   },
+   {
+    "k": "offre",
+    "off": "40",
+    "y": 0.62,
+    "st": 2,
+    "d": 2.2
+   },
+   {
+    "k": "offre",
+    "off": "200",
+    "y": 0.78,
+    "st": 0,
+    "al": "l",
+    "d": 2.3
+   },
+   {
+    "k": "offre",
+    "off": "100",
+    "y": 0.66,
+    "st": 3,
+    "al": "r",
+    "d": 2.2
+   },
+   {
+    "k": "offre",
+    "off": "0",
+    "y": 0.76,
+    "st": 1,
+    "d": 2.5
+   },
+   {
+    "k": "offre",
+    "off": "prix",
+    "y": 0.82,
+    "st": 2,
+    "how": true,
+    "logo": true,
+    "d": 2.8
+   }
+  ]
+ },
+ "v4_elephants": {
+  "img": "/home/user/skillora./temu/animaux/img/elephants.jpg",
+  "focus": [
+   0.45,
+   0.5
+  ],
+  "zoom": 0.1,
+  "pan": [
+   0.03,
+   0
+  ],
+  "font": "Righteous.ttf",
+  "code_font": "ArchivoBlack-Regular.ttf",
+  "tsz": 84,
+  "csz": 70,
+  "code_lbl": "Code :",
+  "styles": [
+   [
+    "#5b2a86",
+    "#ffffff"
+   ],
+   [
+    "#ffd84a",
+    "#5b2a86"
+   ],
+   [
+    "#ffffff",
+    "#111111"
+   ],
+   [
+    "#0d4d4d",
+    "#ffd84a"
+   ]
+  ],
+  "how_style": [
+   "#ffffff",
+   "#5b2a86"
+  ],
+  "entry": "pop",
+  "sfx": "click",
+  "seed": 6,
+  "bpm": 98,
+  "key": 53,
+  "disc_y": 0.74,
+  "intro": [
+   "Les bons plans",
+   "Temu à découvrir"
+  ],
+  "cards": [
+   {
+    "k": "intro",
+    "y": 0.22,
+    "st": 2,
+    "d": 2.4
+   },
+   {
+    "k": "offre",
+    "off": "prix",
+    "y": 0.62,
+    "st": 0,
+    "d": 2.3
+   },
+   {
+    "k": "offre",
+    "off": "0",
+    "y": 0.2,
+    "st": 1,
+    "how": true,
+    "d": 3.4
+   },
+   {
+    "k": "offre",
+    "off": "200",
+    "y": 0.62,
+    "st": 3,
+    "al": "r",
+    "d": 2.5
+   },
+   {
+    "k": "offre",
+    "off": "40",
+    "y": 0.22,
+    "st": 2,
+    "al": "l",
+    "d": 2.6
+   },
+   {
+    "k": "offre",
+    "off": "100",
+    "y": 0.6,
+    "st": 0,
+    "d": 2.8
+   }
+  ]
+ },
+ "v5_aigle": {
+  "img": "/home/user/skillora./temu/animaux/img/aigle.jpg",
+  "focus": [
+   0.5,
+   0.42
+  ],
+  "zoom": 0.11,
+  "pan": [
+   0,
+   -0.015
+  ],
+  "font": "BebasNeue-Regular.ttf",
+  "code_font": "Poppins-ExtraBold.ttf",
+  "tsz": 104,
+  "csz": 72,
+  "code_lbl": "Code :",
+  "styles": [
+   [
+    "#ffffff",
+    "#1a1a1a"
+   ],
+   [
+    "#c62828",
+    "#ffffff"
+   ],
+   [
+    "#ffd84a",
+    "#3b2414"
+   ],
+   [
+    "#2b1d14",
+    "#ffd84a"
+   ]
+  ],
+  "how_style": [
+   "#2b1d14",
+   "#ffffff"
+  ],
+  "entry": "slide",
+  "sfx": "snap",
+  "seed": 7,
+  "bpm": 108,
+  "key": 58,
+  "disc_y": 0.105,
+  "intro": [
+   "Offres Temu",
+   "à découvrir"
+  ],
+  "cards": [
+   {
+    "k": "intro",
+    "y": 0.62,
+    "st": 1,
+    "d": 2.6
+   },
+   {
+    "k": "offre",
+    "off": "100",
+    "y": 0.84,
+    "st": 2,
+    "al": "l",
+    "d": 2.8
+   },
+   {
+    "k": "offre",
+    "off": "40",
+    "y": 0.8,
+    "st": 0,
+    "how": true,
+    "d": 3.6
+   },
+   {
+    "k": "offre",
+    "off": "prix",
+    "y": 0.6,
+    "st": 3,
+    "al": "r",
+    "d": 2.7
+   },
+   {
+    "k": "offre",
+    "off": "200",
+    "y": 0.66,
+    "st": 1,
+    "d": 2.9
+   },
+   {
+    "k": "offre",
+    "off": "0",
+    "y": 0.84,
+    "st": 2,
+    "logo": true,
+    "d": 3.4
+   }
+  ]
+ }
+}

@@ -1,8 +1,9 @@
 # Montage ZetaStory : images Blender (720p) agrandies en 1080x1920, sous-titres UN mot à la fois (jaune-vert fluo, contour noir,
 # à 65 % de la hauteur, comme les vidéos de référence), voix + musique en boucle. La vidéo s'arrête net après le dernier mot.
 # usage : compose_zeta.py dossier_episode dossier_frames sortie.mp4     (episode : voix_clean.mp3, words.json, musique.mp3)
+# SUBS=ref : comme la vidéo « HUSS » (ép. 7) : UN mot à la fois, blanc, gros contour sombre ; le mot-gag (GAG=boing) en jaune, plus gros, qui « saute ».
 # SUBS=ember : style « braise » (ép. 6, ambiance sombre) : petits groupes de 1 à 3 mots en blanc, le mot prononcé en orange braise #ff5a1f.
-import sys, os, json, re, subprocess
+import sys, os, json, re, subprocess, math
 from multiprocessing import Pool
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import imageio_ffmpeg
@@ -44,10 +45,24 @@ def ember(im, t):
         wl = ff.getlength(w); col = EMBER if i == cur else (255, 255, 255)
         d.text((x + wl / 2 + 4, Y + 6), w, font=ff, fill=(0, 0, 0), anchor='mm', stroke_width=10, stroke_fill=(0, 0, 0))
         d.text((x + wl / 2, Y), w, font=ff, fill=col, anchor='mm', stroke_width=10, stroke_fill=(12, 8, 6)); x += wl + sp * 1.3
+GAG = os.environ.get('GAG', 'boing').lower(); YREF = int(H * float(os.environ.get('SUB_Y', 0.6)))
+def refword(im, w, dt):
+    gag = w.lower() == GAG
+    k = (1.35 - 0.35 * min(1, max(0, dt + 0.03) / 0.12)) if gag else (1.12 - 0.12 * min(1, max(0, dt + 0.03) / 0.08))
+    size = int((150 if gag else 92) * k); f = font(size); txt = (w.upper() + '!') if gag else w
+    while f.getlength(txt) > W - 140: size -= 6; f = font(size)
+    col = (255, 214, 0) if gag else (255, 255, 255)
+    lay = Image.new('RGBA', (W, 420), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.text((W / 2 + 5, 217), txt, font=f, fill=(0, 0, 0, 200), anchor='mm', stroke_width=12, stroke_fill=(0, 0, 0, 200))
+    d.text((W / 2, 210), txt, font=f, fill=col, anchor='mm', stroke_width=12, stroke_fill=(20, 20, 26))
+    if gag: lay = lay.rotate(6 * math.sin(dt * 20) * max(0, 1 - dt * 2.5), resample=Image.BICUBIC, center=(W / 2, 210))
+    im.paste(lay, (0, YREF - 210), lay)
 def render(n):
     im = Image.open(os.path.join(FR, files[n])).convert('RGB').resize((W, H), Image.LANCZOS).filter(ImageFilter.UnsharpMask(1.2, 60, 2))
     w, dt = mot(n / FPS) if STYLE != 'ember' else (None, 0)
     if STYLE == 'ember': ember(im, n / FPS)
+    if STYLE == 'ref' and w:
+        refword(im, w, dt); w = None
     if w:
         k = 1.18 - 0.18 * min(1, max(0, dt + 0.03) / 0.09); size = int(96 * k)
         f = font(size)

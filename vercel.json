@@ -62,6 +62,10 @@
     {
       "source": "/api/blower",
       "destination": "/api/hook?src=blower"
+    },
+    {
+      "source": "/api/torch-stats",
+      "destination": "/api/hook?src=stats"
     }
   ]
 }

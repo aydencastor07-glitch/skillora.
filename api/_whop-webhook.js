@@ -74,6 +74,9 @@ async function souffleur(d, P, email) {
   const c = r.rows[0] && r.rows[0].c;
   if (!c) { console.error('BLOWER paiement sans commande en attente (ou déjà traité)', pay, ref, email ? email.replace(/^(.).*@/, '$1***@') : 'sans e-mail'); return { recu: true, commande: false }; }
   const montant = (P.cents / 100).toFixed(2);
+  try {   // la vente apparaît dans le tableau Dropshipping (/stats/truflame.html), avec l'adresse et le suivi d'envoi
+    await requete('select public.torch_commande_nouvelle($1,$2,$3,$4,$5,$6)', ['whop_' + pay, c.qty || P.qty, P.cents, c.email, c.nom, JSON.stringify(c.adresse)]);
+  } catch (e) { console.error('torch_commande_nouvelle', String(e.message || e)); }
   try {
     const cmd = await creerCommande({ orderID: 'whop_' + pay, captureID: pay, qty: c.qty || P.qty, montant, email: c.email, nom: c.nom, phone: c.phone,
       adresse: c.adresse, passerelle: 'Whop', variantId: VARIANTE_BLOWER, source: 'truflame-whop' });

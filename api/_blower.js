@@ -1,8 +1,8 @@
 // Souffleur (truflame.store) : le client saisit son adresse sur NOTRE site, puis paie sur Whop.
 // POST { action: 'event', type, qty, referrer, utm } -> suivi des visites
 // POST { nom, email, phone, address1, address2, city, state, zip, country, qty }
-//   -> enregistre la commande « en attente » (Supabase, blower_orders) et renvoie { plan, session, url } :
-//      la boutique affiche le paiement Whop intégré (e-mail et adresse pré-remplis) ; url = page Whop de secours.
+//   -> enregistre la commande « en attente » (Supabase, blower_orders) et renvoie { url } : la page Whop
+//      avec e-mail, nom et adresse pré-remplis (paiement intégré dans la boutique seulement si WHOP_EMBED=1).
 // Le webhook Whop (api/whop-webhook.js) marque la commande payée et la crée dans Shopify avec l'adresse.
 // Facultatif dans Vercel : WHOP_API_KEY -> session de paiement Whop avec notre numéro de commande (liaison exacte).
 // Sans clé : lien de paiement Whop + e-mail pré-rempli, la liaison se fait par l'e-mail.
@@ -98,9 +98,16 @@ module.exports = async (req, res) => {
   catch (e) { console.error('blower_attente', String(e.message || e)); return res.status(500).json({ erreur: 'serveur' }); }
   const plan = PLANS[qty];
   const sess = await sessionWhop(plan, ref, c.email);
-  const url = (sess && sess.url) || ('https://whop.com/checkout/' + plan + '?email=' + encodeURIComponent(c.email));
+  // Page Whop avec e-mail, nom et adresse de facturation déjà remplis : le client n'a plus que sa carte à saisir.
+  const u = new URL((sess && sess.url) || ('https://whop.com/checkout/' + plan));
+  const pre = { email: c.email, name: c.nom, 'address.line1': c.address1, 'address.line2': c.address2, 'address.city': c.city,
+    'address.state': c.state, 'address.postal_code': c.zip, 'address.country': c.country };
+  for (const [k, v] of Object.entries(pre)) if (v) u.searchParams.set(k, v);
+  const url = u.toString();
   if (!b.moi) await suivre(req, 'pay_click', qty, b);
   console.log('BLOWER attente', ref, qty, c.country, c.email.replace(/^(.).*@/, '$1***@'));
-  // plan (+ session si clé API) : la boutique affiche le paiement Whop dans sa propre page ; url = secours (page Whop).
-  return res.status(200).json({ ok: true, ref, url, plan, session: (sess && sess.id) || '' });
+  // Le paiement intégré dans la boutique (plan/session) est refusé par Whop pour ce lien (« checkout no longer available ») :
+  // il ne s'active que si WHOP_EMBED=1 dans Vercel. Sinon la boutique envoie le client sur url (page Whop pré-remplie).
+  if (process.env.WHOP_EMBED === '1') return res.status(200).json({ ok: true, ref, url, plan, session: (sess && sess.id) || '' });
+  return res.status(200).json({ ok: true, ref, url });
 };

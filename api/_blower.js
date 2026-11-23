@@ -94,17 +94,21 @@ module.exports = async (req, res) => {
   const ref = 'bl_' + crypto.randomBytes(6).toString('hex');
   const adresse = { address_line_1: c.address1, address_line_2: c.address2, admin_area_2: c.city, admin_area_1: c.state,
     postal_code: c.zip, country_code: c.country };   // même forme que PayPal (api/_shopify.js)
-  try { await requete('select public.blower_attente($1,$2,$3,$4,$5,$6)', [ref, c.email, c.nom, c.phone, JSON.stringify(adresse), qty]); }
-  catch (e) { console.error('blower_attente', String(e.message || e)); return res.status(500).json({ erreur: 'serveur' }); }
   const plan = PLANS[qty];
-  const sess = await sessionWhop(plan, ref, c.email);
+  // En parallèle (le client attend devant « Opening secure checkout… ») : commande en attente, session Whop, statistiques.
+  const [ok, sess] = await Promise.all([
+    requete('select public.blower_attente($1,$2,$3,$4,$5,$6)', [ref, c.email, c.nom, c.phone, JSON.stringify(adresse), qty]).then(() => true)
+      .catch((e) => { console.error('blower_attente', String(e.message || e)); return false; }),
+    sessionWhop(plan, ref, c.email),
+    b.moi ? null : suivre(req, 'pay_click', qty, b),
+  ]);
+  if (!ok) return res.status(500).json({ erreur: 'serveur' });
   // Page Whop avec e-mail, nom et adresse de facturation déjà remplis : le client n'a plus que sa carte à saisir.
   const u = new URL((sess && sess.url) || ('https://whop.com/checkout/' + plan));
   const pre = { email: c.email, name: c.nom, 'address.line1': c.address1, 'address.line2': c.address2, 'address.city': c.city,
     'address.state': c.state, 'address.postal_code': c.zip, 'address.country': c.country };
   for (const [k, v] of Object.entries(pre)) if (v) u.searchParams.set(k, v);
   const url = u.toString();
-  if (!b.moi) await suivre(req, 'pay_click', qty, b);
   console.log('BLOWER attente', ref, qty, c.country, c.email.replace(/^(.).*@/, '$1***@'));
   // Le paiement intégré dans la boutique (plan/session) est refusé par Whop pour ce lien (« checkout no longer available ») :
   // il ne s'active que si WHOP_EMBED=1 dans Vercel. Sinon la boutique envoie le client sur url (page Whop pré-remplie).

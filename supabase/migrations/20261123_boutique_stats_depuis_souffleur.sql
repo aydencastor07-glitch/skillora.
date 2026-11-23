@@ -1,0 +1,3 @@
+-- Tableau Dropshipping (torch_stats) : ne compte que depuis le 23/11/2026 16:00 UTC (lancement du souffleur).
+-- Appliquée via MCP. Les visites de l'ancienne torche restent dans torch_events mais ne s'affichent plus.
+-- (même fonction qu'avant, avec : debut = greatest('2026-11-23 16:00:00+00', début de la période))

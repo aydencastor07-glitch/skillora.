@@ -219,7 +219,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
   <div class="wrap">
     <details><summary>How do I get the book?</summary><p>Right after payment: the download link appears on screen, and the PDF is also sent to your email. No waiting.</p></details>
     <details><summary>What format is it?</summary><p>PDF (29 pages), in English. Readable on phone, tablet, e-reader and computer – and printable.</p></details>
-    <details><summary>How can I pay?</summary><p>Securely with PayPal or a debit / credit card – no PayPal account needed. We never see your payment details.</p></details>
+    <details><summary>How can I pay?</summary><p>Securely by debit / credit card, Apple Pay or Google Pay (checkout by Whop). We never see your payment details. Your ebook is emailed to you right after payment.</p></details>
     <details><summary>Do I need to know philosophy?</summary><p>No. Every law is explained in simple words, with everyday examples.</p></details>
   </div>
 </section>
@@ -246,15 +246,19 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
       <p class="kto" id="k-to"></p>
       <div class="kcode" id="kcode"><input id="kc-in" placeholder="Promo code" autocapitalize="characters" autocomplete="off"><button type="button" id="kc-ok">Apply</button></div>
       <p class="kerr" id="kc-msg"></p>
-      <div id="pp-buttons"></div>
+      <div id="wh-box">
+        <a class="btn" id="wh-pay" href="https://whop.com/checkout/plan_gyXbE45ZzCVab">💳 Pay now – card · Apple Pay · Google Pay</a>
+        <p class="pps">Secure checkout by <b>Whop</b> · your ebook is <b>emailed to you</b> right after payment (use the same email)</p>
+      </div>
+      <div id="pp-buttons" style="display:none"></div>
       <div id="pp-redirect" style="display:none">
         <button class="ppb ppy" type="button" data-carte="0">Pay with <b><i>Pay</i><i>Pal</i></b></button>
         <button class="ppb ppk" type="button" data-carte="1">💳 Debit or credit card</button>
         <p class="pps">Processed by <b>PayPal</b> · you'll come back here automatically</p>
       </div>
-      <p class="kwait" id="k-wait">Loading payment …</p>
+      <p class="kwait" id="k-wait"></p>
       <p class="kerr" id="k-err"></p>
-      <div class="trust"><span>🔒 Secure payment<br><small>via PayPal</small></span><span>⚡ Read instantly<br><small>download here</small></span><span>💳 PayPal or card<br><small>no account needed</small></span></div>
+      <div class="trust"><span>🔒 Secure payment<br><small>via Whop</small></span><span>⚡ Instant PDF<br><small>sent by email</small></span><span>💳 Card · Apple Pay<br><small>Google Pay</small></span></div>
     </div>
     <div class="kbox kok" id="k-ok" style="display:none">
       <div class="kcheck">✓</div><h3>Thank you for your purchase!</h3>
@@ -273,7 +277,7 @@ window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</
   </div>
 </div>
 
-<footer>© 2026 @magniizz · Payments processed securely by PayPal<br>This book is not a substitute for medical or psychological advice.<span id="imp"></span></footer>
+<footer>© 2026 @magniizz · Payments processed securely by Whop<br>This book is not a substitute for medical or psychological advice.<span id="imp"></span></footer>
 <div class="sticky" id="sticky"><a class="btn" href="#kasse">I want the ebook</a></div>
 <script>
 // ---- Édition ANGLAISE « The Laws of the Mind » : même page et même caisse PayPal que /gesetze/, produit 'laws',
@@ -503,7 +507,24 @@ function kasseInit(cfg) {
   };
   document.head.appendChild(sc);
 }
-fetch('/api/paypal-config').then(function (r) { return r.json(); }).then(function (c) { if (c && c.actif) kasseInit(c); }).catch(function () {});
+// Paiement Whop (lien de paiement plan_gyXbE45ZzCVab) : le PDF part par e-mail via api/whop-webhook.js.
+// L'ancienne caisse PayPal (kasseInit) n'est plus lancée : compte PayPal fermé.
+var WHOP_URL = 'https://whop.com/checkout/plan_gyXbE45ZzCVab';
+function whopInit() {
+  KASSE = true; MAIL_ACTIF = true; kasseUI();
+  document.getElementById('km-ok').addEventListener('click', envoyerMail);
+  document.getElementById('k-x').addEventListener('click', kasseClose);
+  document.getElementById('kasse').addEventListener('click', function (e) { if (e.target.id === 'kasse') kasseClose(); });
+  document.getElementById('wh-pay').addEventListener('click', function (e) {
+    e.preventDefault(); if (window.skTrack) skTrack('pay');
+    var m = emailConnu(); location.href = WHOP_URL + (m ? '?email=' + encodeURIComponent(m) : '');
+  });
+  var q = new URLSearchParams(location.search);
+  if (q.get('lien') === 'fremd') { history.replaceState(null, '', location.pathname); kasseOpen(); kasseErr('This download link belongs to another purchase. Get your own copy here:'); }
+  else if (!IN_APP && q.get('go') === '1') { history.replaceState(null, '', location.pathname); kasseOpen(); }
+  fetch('/api/mon-achat?produit=' + PRODUIT).then(function (r) { return r.json(); }).then(function (m) { if (m && m.achete) { DEJA = m; kasseUI(); } }).catch(function () {});
+}
+whopInit();
 
 // Clic sur « Acheter » : la caisse PayPal s'ouvre sur la page.
 document.addEventListener('click', function (e) {

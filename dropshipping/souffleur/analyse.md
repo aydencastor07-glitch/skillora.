@@ -10,3 +10,9 @@ Prix de vente prévu : 49 $.
 3. 12–18,8 s : vue POV, main qui tient le souffleur (écran de vitesse « 05 »), lunette arrière puis rétro qui se dégagent.
    Texte : « Comment “SNOW” if you need one! » → commentaires = algorithme + envoi du lien en message.
 Points forts : avant/après visible en 1 s, contraste 10 s / 10 min, 3 lieux / 3 angles, appel à commenter.
+
+## Site (thème Shopify « Torch Store », produit cordless-turbo-jet-blower, 49 $)
+Images générées sur Higgsfield (gpt_image_2_6, référence = ref_produit.jpg), fichiers Shopify `blower-*.png` :
+studio-grey, kit-dark, pov-leaves, pov-windshield, pov-porch, car-interior, macro-nozzle, use-patio, use-desk, use-doorstep, use-garage, gift.
+Section « Demo video » (ta-video) placée juste sous l'achat : cachée tant qu'aucune vidéo n'est choisie.
+Paiement : réglages whop_1 / whop_2 / whop_3 du bloc d'achat (liens Whop 1, 2, 3 souffleurs). Avis de la torche désactivés (pas d'avis pour ce produit).

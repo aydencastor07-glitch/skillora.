@@ -7,11 +7,16 @@ const { lien } = require('./_paypal');
 const { requete } = require('./_db');
 const { envoyerLivre } = require('./_mail');
 const { signatureValide: signatureStripe } = require('./_stripe');
+const { creerCommande } = require('./_shopify');
+const VARIANTE_BLOWER = 'gid://shopify/ProductVariant/67906945745186';
 
 // plan Whop (lien de paiement) -> livre
 const PLANS = {
   plan_gyXbE45ZzCVab: { p: 'laws', devise: 'USD', cents: 999 },        // The Laws of the Mind – $9.99
+  plan_bRnqMRMjsWz9f: { p: 'blower', devise: 'USD', cents: 4900, qty: 1 },   // souffleur truflame.store – $49
 };
+if (process.env.WHOP_PLAN_BLOWER_2) PLANS[process.env.WHOP_PLAN_BLOWER_2] = { p: 'blower', devise: 'USD', cents: 8330, qty: 2 };
+if (process.env.WHOP_PLAN_BLOWER_3) PLANS[process.env.WHOP_PLAN_BLOWER_3] = { p: 'blower', devise: 'USD', cents: 11760, qty: 3 };
 if (process.env.WHOP_PLAN_GESETZBUCH) PLANS[process.env.WHOP_PLAN_GESETZBUCH] = { p: 'gesetzbuch', devise: 'EUR', cents: 999 };
 
 const EMAIL = /^[^\s@<>"]{1,64}@[^\s@<>"]{1,180}\.[a-z]{2,24}$/i;
@@ -61,6 +66,22 @@ async function relirePaiement(id) {
   return null;
 }
 
+// Souffleur : retrouve l'adresse saisie sur truflame.store (par notre numéro, sinon par l'e-mail) et crée la commande Shopify.
+async function souffleur(d, P, email) {
+  const ref = String(chercher(d, (k, v) => (k === 'blower_ref' && typeof v === 'string' ? v : null)) || '');
+  const pay = String(d.id || '');
+  const r = await requete('select public.blower_payer($1,$2,$3) as c', [ref, email || '', pay]);
+  const c = r.rows[0] && r.rows[0].c;
+  if (!c) { console.error('BLOWER paiement sans commande en attente (ou déjà traité)', pay, ref, email ? email.replace(/^(.).*@/, '$1***@') : 'sans e-mail'); return { recu: true, commande: false }; }
+  const montant = (P.cents / 100).toFixed(2);
+  try {
+    const cmd = await creerCommande({ orderID: 'whop_' + pay, captureID: pay, qty: c.qty || P.qty, montant, email: c.email, nom: c.nom, phone: c.phone,
+      adresse: c.adresse, passerelle: 'Whop', variantId: VARIANTE_BLOWER, source: 'truflame-whop' });
+    if (cmd) { await requete('select public.blower_shopify($1,$2)', [c.ref, cmd.name]).catch(() => {}); console.log('BLOWER SHOPIFY', c.ref, cmd.name); }
+    return { recu: true, commande: c.ref, shopify: cmd ? cmd.name : null };
+  } catch (e) { console.error('BLOWER shopify', c.ref, String(e.message || e)); return { recu: true, commande: c.ref, shopify: false }; }
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();
   const secret = process.env.WHOP_WEBHOOK_SECRET;
@@ -76,7 +97,9 @@ module.exports = async (req, res) => {
     let plan = planDe(d), email = emailDe(d);
     if (!plan || !email) { const r = await relirePaiement(d.id); if (r) { plan = plan || planDe(r); email = email || emailDe(r); } }
     if (!plan) { console.log('whop : paiement hors ebook', d.id); return res.status(200).json({ recu: true, ignore: 'plan' }); }
-    const P = PLANS[plan]; const commande = 'wh' + String(d.id || '').replace(/[^A-Za-z0-9_]/g, '').slice(0, 40);
+    const P = PLANS[plan];
+    if (P.p === 'blower') return res.status(200).json(await souffleur(d, P, email));
+    const commande = 'wh' + String(d.id || '').replace(/[^A-Za-z0-9_]/g, '').slice(0, 40);
     if (commande === 'wh') return res.status(400).json({ erreur: 'id' });
     const pays = String(chercher(d, (k, v) => (/country/i.test(k) && typeof v === 'string' && /^[A-Z]{2}$/i.test(v) ? v : null)) || '');
     await requete('select public.ebook_vente($1,$2,$3,$4,$5,$6)', ['pp_' + commande, P.p, P.cents, P.devise, pays, '']);

@@ -1,7 +1,8 @@
 // Souffleur (truflame.store) : le client saisit son adresse sur NOTRE site, puis paie sur Whop.
 // POST { action: 'event', type, qty, referrer, utm } -> suivi des visites
 // POST { nom, email, phone, address1, address2, city, state, zip, country, qty }
-//   -> enregistre la commande « en attente » (Supabase, blower_orders) et renvoie { url } : la page de paiement Whop.
+//   -> enregistre la commande « en attente » (Supabase, blower_orders) et renvoie { plan, session, url } :
+//      la boutique affiche le paiement Whop intégré (e-mail et adresse pré-remplis) ; url = page Whop de secours.
 // Le webhook Whop (api/whop-webhook.js) marque la commande payée et la crée dans Shopify avec l'adresse.
 // Facultatif dans Vercel : WHOP_API_KEY -> session de paiement Whop avec notre numéro de commande (liaison exacte).
 // Sans clé : lien de paiement Whop + e-mail pré-rempli, la liaison se fait par l'e-mail.
@@ -54,16 +55,17 @@ const EMAIL = /^[^\s@<>"]{1,64}@[^\s@<>"]{1,180}\.[a-z]{2,24}$/i;
 const txt = (v, n) => String(v || '').replace(/[<>]/g, '').trim().slice(0, n);
 
 async function sessionWhop(plan, ref, email) {
-  const key = process.env.WHOP_API_KEY; if (!key) return '';
+  const key = process.env.WHOP_API_KEY; if (!key) return null;
   try {
     const r = await fetch('https://api.whop.com/api/v2/checkout_sessions', {
       method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
       body: JSON.stringify({ plan_id: plan, redirect_url: RETOUR, metadata: { blower_ref: ref, email } }),
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) { console.error('whop session', r.status, JSON.stringify(j).slice(0, 200)); return ''; }
-    return j.purchase_url || (j.id ? 'https://whop.com/checkout/' + j.id : '');
-  } catch (e) { console.error('whop session', String(e.message || e)); return ''; }
+    if (!r.ok) { console.error('whop session', r.status, JSON.stringify(j).slice(0, 200)); return null; }
+    const url = j.purchase_url || (j.id ? 'https://whop.com/checkout/' + j.id : '');
+    return url ? { url, id: String(j.id || '') } : null;
+  } catch (e) { console.error('whop session', String(e.message || e)); return null; }
 }
 
 module.exports = async (req, res) => {
@@ -95,8 +97,10 @@ module.exports = async (req, res) => {
   try { await requete('select public.blower_attente($1,$2,$3,$4,$5,$6)', [ref, c.email, c.nom, c.phone, JSON.stringify(adresse), qty]); }
   catch (e) { console.error('blower_attente', String(e.message || e)); return res.status(500).json({ erreur: 'serveur' }); }
   const plan = PLANS[qty];
-  const url = (await sessionWhop(plan, ref, c.email)) || ('https://whop.com/checkout/' + plan + '?email=' + encodeURIComponent(c.email));
+  const sess = await sessionWhop(plan, ref, c.email);
+  const url = (sess && sess.url) || ('https://whop.com/checkout/' + plan + '?email=' + encodeURIComponent(c.email));
   if (!b.moi) await suivre(req, 'pay_click', qty, b);
   console.log('BLOWER attente', ref, qty, c.country, c.email.replace(/^(.).*@/, '$1***@'));
-  return res.status(200).json({ ok: true, ref, url });
+  // plan (+ session si clé API) : la boutique affiche le paiement Whop dans sa propre page ; url = secours (page Whop).
+  return res.status(200).json({ ok: true, ref, url, plan, session: (sess && sess.id) || '' });
 };

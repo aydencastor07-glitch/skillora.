@@ -53,6 +53,15 @@ function chercher(o, test, prof = 0) {
   return null;
 }
 const emailDe = (o) => chercher(o, (k, v) => (/email/i.test(k) && typeof v === 'string' && EMAIL.test(v.trim()) ? v.trim() : null));
+// tous les e-mails du paiement (e-mail tapé au paiement, compte Whop de l'acheteur…) : ils peuvent être différents
+function emailsDe(o, out = new Set(), prof = 0) {
+  if (!o || typeof o !== 'object' || prof > 6) return out;
+  for (const [k, v] of Object.entries(o)) {
+    if (typeof v === 'string' && /email/i.test(k) && EMAIL.test(v.trim())) out.add(v.trim().toLowerCase());
+    else if (v && typeof v === 'object') emailsDe(v, out, prof + 1);
+  }
+  return out;
+}
 const planDe = (o) => chercher(o, (k, v) => (typeof v === 'string' && PLANS[v] ? v : null));
 
 async function relirePaiement(id) {
@@ -71,8 +80,18 @@ async function relirePaiement(id) {
 async function souffleur(d, P, email) {
   const ref = String(chercher(d, (k, v) => (k === 'blower_ref' && typeof v === 'string' ? v : null)) || '');
   const pay = String(d.id || '');
-  const r = await requete('select public.blower_payer($1,$2,$3) as c', [ref, email || '', pay]);
-  const c = r.rows[0] && r.rows[0].c;
+  // 1) notre numéro de commande ; 2) chacun des e-mails du paiement ; 3) nom + code postal de facturation (pré-remplis par la boutique)
+  let c = null;
+  if (ref) { const r = await requete('select public.blower_payer($1,$2,$3) as c', [ref, '', pay]); c = r.rows[0] && r.rows[0].c; }
+  if (!c) for (const e of new Set([email, ...emailsDe(d)].filter(Boolean).map((x) => x.toLowerCase()))) {
+    const r = await requete('select public.blower_payer($1,$2,$3) as c', ['', e, pay]); c = r.rows[0] && r.rows[0].c; if (c) break;
+  }
+  if (!c) {
+    const adr = chercher(d, (k, v) => (v && typeof v === 'object' && !Array.isArray(v) && (v.postal_code || v.postalCode || v.zip) ? v : null)) || {};
+    const zip = String(adr.postal_code || adr.postalCode || adr.zip || '').trim();
+    const nom = String(adr.name || '').trim();
+    if (zip && nom) { const r = await requete('select public.blower_payer_adresse($1,$2,$3) as c', [nom, zip, pay]); c = r.rows[0] && r.rows[0].c; }
+  }
   if (!c) { console.error('BLOWER paiement sans commande en attente (ou déjà traité)', pay, ref, email ? email.replace(/^(.).*@/, '$1***@') : 'sans e-mail'); return { recu: true, commande: false }; }
   const montant = (P.cents / 100).toFixed(2);
   try {   // la vente apparaît dans le tableau Dropshipping (/stats/truflame.html), avec l'adresse et le suivi d'envoi

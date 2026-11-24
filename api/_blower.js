@@ -47,7 +47,9 @@ async function suivre(req, type, qty, b) {   // un suivi perdu ne doit jamais g�
 
 
 const ORIGINES = /^https:\/\/([a-z0-9-]+\.myshopify\.com|(www\.)?truflame\.[a-z.]+)$/i;
-const PLANS = { 1: 'plan_bRnqMRMjsWz9f' };   // 49 $ ; offres 2 et 3 : à ajouter quand leurs liens Whop existent
+const PLANS_SOUFFLEUR = { 1: 'plan_bRnqMRMjsWz9f' };   // souffleur, 49 $
+const PLANS_SOS = { 1: 'plan_SW71FLmli4Bij' };          // spray SOS Tower 28, 49 $ (thème « Truflame SOS » : champ caché produit=sos)
+const PLANS = PLANS_SOUFFLEUR;
 if (process.env.WHOP_PLAN_BLOWER_2) PLANS[2] = process.env.WHOP_PLAN_BLOWER_2;
 if (process.env.WHOP_PLAN_BLOWER_3) PLANS[3] = process.env.WHOP_PLAN_BLOWER_3;
 const RETOUR = 'https://truflame.store/?wh=ok';
@@ -81,7 +83,8 @@ module.exports = async (req, res) => {
     if (['view', 'offer', 'pay_click'].includes(b.type) && !b.moi) await suivre(req, b.type, [1, 2, 3].includes(Number(b.qty)) ? Number(b.qty) : null, b);
     return res.status(200).json({ ok: true });
   }
-  const qty = PLANS[Number(b.qty)] ? Number(b.qty) : 1;
+  const P_ = b.produit === 'sos' ? PLANS_SOS : PLANS_SOUFFLEUR;
+  const qty = P_[Number(b.qty)] ? Number(b.qty) : 1;
   const c = {
     nom: txt(b.nom, 120), email: txt(b.email, 200).toLowerCase(), phone: txt(b.phone, 40),
     address1: txt(b.address1, 160), address2: txt(b.address2, 120), city: txt(b.city, 80),
@@ -94,7 +97,7 @@ module.exports = async (req, res) => {
   const ref = 'bl_' + crypto.randomBytes(6).toString('hex');
   const adresse = { address_line_1: c.address1, address_line_2: c.address2, admin_area_2: c.city, admin_area_1: c.state,
     postal_code: c.zip, country_code: c.country };   // même forme que PayPal (api/_shopify.js)
-  const plan = PLANS[qty];
+  const plan = P_[qty];
   // En parallèle (le client attend devant « Opening secure checkout… ») : commande en attente, session Whop, statistiques.
   const [ok, sess] = await Promise.all([
     requete('select public.blower_attente($1,$2,$3,$4,$5,$6)', [ref, c.email, c.nom, c.phone, JSON.stringify(adresse), qty]).then(() => true)

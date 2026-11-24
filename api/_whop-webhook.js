@@ -14,7 +14,6 @@ const VARIANTE_BLOWER = 'gid://shopify/ProductVariant/67906945745186';
 const PLANS = {
   plan_gyXbE45ZzCVab: { p: 'laws', devise: 'USD', cents: 999 },        // The Laws of the Mind – $9.99
   plan_bRnqMRMjsWz9f: { p: 'blower', devise: 'USD', cents: 4900, qty: 1 },   // souffleur truflame.store – $49
-  plan_GqYvz1D8W16a6: { p: 'blower', devise: 'USD', cents: 100, qty: 1, test: true },   // TEST souffleur – $1 (à retirer après le test)
 };
 if (process.env.WHOP_PLAN_BLOWER_2) PLANS[process.env.WHOP_PLAN_BLOWER_2] = { p: 'blower', devise: 'USD', cents: 8330, qty: 2 };
 if (process.env.WHOP_PLAN_BLOWER_3) PLANS[process.env.WHOP_PLAN_BLOWER_3] = { p: 'blower', devise: 'USD', cents: 11760, qty: 3 };

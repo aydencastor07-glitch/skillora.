@@ -1,14 +1,17 @@
 # Vidéos souffleur – Instagram / Facebook (puis TikTok)
 
-Style des références : filmé au téléphone, POV, neige poudreuse (2–5 cm), gros nuage blanc, vitre noire qui réapparaît d'un coup, très peu de texte.
-Références produit à mettre à CHAQUE image où le souffleur apparaît : t17 + t19 (forme, taille en main), + t29 si on doit voir la lampe.
-Cohérence : générer d'abord l'image 1, puis la mettre en référence des images suivantes (même personne, même voiture, même maison).
-Textes à l'écran : posés au montage, dans la zone centrale (jamais dans les bandes noires).
+Méthode (validée par l'utilisateur) : UNE vidéo continue (~20 s) générée par Kling à partir de 4 images de référence + un prompt minuté seconde par seconde.
 
-## Bloc produit (à coller dans chaque prompt où le souffleur apparaît)
-the exact cordless turbo jet blower from the reference images: a small hand-sized blower about 20 cm long, matte dark gunmetal grey; slim straight handle; round fist-sized head on top with a ribbed rotating nozzle ring at the front and a round air-intake grille with a visible turbine at the back; small power button on the side of the head; long dark oval panel on the front of the handle; ring of small white LEDs at the bottom of the handle. Held in one hand like a hairdryer, seen from behind / three-quarter back so the intake grille faces the camera and the nozzle points at the snow. No brand logo.
+## Les 4 images de référence
+1. Scène POV (à générer) : ce que voit le cameraman. On voit ses pieds en bas de l'image, sa main droite VIDE, la maison / la porte d'où la personne va sortir, la voiture couverte de neige poudreuse (2–5 cm, honnête : neige légère).
+2. Produit de dos : grille d'entrée d'air + turbine (ref_video/t17.jpg).
+3. Produit de face : panneau ovale + anneau LED allumé (images_site/01_photo-noire.jpg).
+4. Gros plan anneau LED / lentille (ref_video/t29.jpg).
 
-## Bloc réalisme (à la fin de chaque prompt image)
-Looks like a real vertical phone video frame, not AI: sharp, in-focus background (no blur, no bokeh), ordinary slightly messy American suburban street, flat overcast winter daylight, slightly tilted handheld framing, natural skin with pores and small imperfections, everyone fully dressed in normal winter clothes, no brand logos on cars or clothes, not cinematic.
+Le souffleur n'est PAS dans l'image 1 : le cameraman le sort de la poche de sa veste pendant la vidéo (montre qu'il est petit).
+La personne qui sort (tenue, âge, style) est décrite uniquement dans le prompt vidéo.
+Textes à l'écran : posés au montage, dans la zone centrale (jamais dans les bandes noires). Fin nette juste après la dernière action.
 
-Le détail des plans (idée 1 : la femme en tailleur ; idée 2 : « STOP ») est dans la conversation et repris ci-dessous au fil des validations.
+## Vidéo 1 – « late for work » (femme en tailleur, maison + berline)
+## Vidéo 2 – « STOP ✋ » (homme de 50 ans, pick-up)
+Prompts complets : voir la conversation du 24/11/2026 (repris ici après validation des premières générations).

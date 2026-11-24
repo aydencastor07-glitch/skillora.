@@ -14,6 +14,7 @@ const VARIANTE_BLOWER = 'gid://shopify/ProductVariant/67906945745186';
 const PLANS = {
   plan_gyXbE45ZzCVab: { p: 'laws', devise: 'USD', cents: 999 },        // The Laws of the Mind – $9.99
   plan_bRnqMRMjsWz9f: { p: 'blower', devise: 'USD', cents: 4900, qty: 1 },   // souffleur truflame.store – $49
+  plan_SW71FLmli4Bij: { p: 'blower', devise: 'USD', cents: 4900, qty: 1, variant: 'gid://shopify/ProductVariant/67926569091362' },   // spray SOS Tower 28 truflame.store – $49
 };
 if (process.env.WHOP_PLAN_BLOWER_2) PLANS[process.env.WHOP_PLAN_BLOWER_2] = { p: 'blower', devise: 'USD', cents: 8330, qty: 2 };
 if (process.env.WHOP_PLAN_BLOWER_3) PLANS[process.env.WHOP_PLAN_BLOWER_3] = { p: 'blower', devise: 'USD', cents: 11760, qty: 3 };
@@ -98,7 +99,7 @@ async function souffleur(d, P, email) {
   } catch (e) { console.error('torch_commande_nouvelle', String(e.message || e)); }
   try {
     const cmd = await creerCommande({ orderID: 'whop_' + pay, captureID: pay, qty: c.qty || P.qty, montant, email: c.email, nom: c.nom, phone: c.phone,
-      adresse: c.adresse, passerelle: 'Whop', variantId: VARIANTE_BLOWER, source: P.test ? 'truflame-whop-test' : 'truflame-whop' });
+      adresse: c.adresse, passerelle: 'Whop', variantId: P.variant || VARIANTE_BLOWER, source: P.test ? 'truflame-whop-test' : 'truflame-whop' });
     if (cmd) { await requete('select public.blower_shopify($1,$2)', [c.ref, cmd.name]).catch(() => {}); console.log('BLOWER SHOPIFY', c.ref, cmd.name); }
     return { recu: true, commande: c.ref, shopify: cmd ? cmd.name : null };
   } catch (e) { console.error('BLOWER shopify', c.ref, String(e.message || e)); return { recu: true, commande: c.ref, shopify: false }; }

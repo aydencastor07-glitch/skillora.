@@ -145,7 +145,7 @@
     h += '<div class="kpis">'+
       kpi('Visiteurs', nb(d.visiteurs), nb(d.vues)+' vues de page')+
       kpi('Clics « payer »', nb(d.clics_paiement), taux(d.clics_paiement, d.visiteurs)+' des visiteurs')+
-      kpi('Commandes', nb(d.commandes), nb(d.briquets)+' souffleur'+(d.briquets>1?'s':'')+' · '+taux(d.commandes, d.visiteurs)+' des visiteurs', 'g')+
+      kpi('Commandes', nb(d.commandes), nb(d.briquets)+' spray'+(d.briquets>1?'s':'')+' · '+taux(d.commandes, d.visiteurs)+' des visiteurs', 'g')+
       kpi('Revenu', '$'+rev.toFixed(2), d.commandes ? 'panier moyen $'+(rev/d.commandes).toFixed(2) : 'carte · Whop', 'r')+'</div>';
     h += '<div class="card"><div class="ch"><b>Le parcours</b><span>visiteurs uniques</span></div><div class="tun">'+
       '<div><b>'+nb(d.visiteurs)+'</b><small>arrivés</small></div><div><b>'+nb(d.offres)+'</b><small>choix d\'offre</small></div>'+
@@ -154,16 +154,16 @@
     var L = d.liste || [];
     h += '<div class="card"><div class="ch"><b>Commandes à envoyer</b><span>'+L.filter(function(o){ return o.status === 'a_commander'; }).length+' à commander</span></div>'+(L.length ? L.map(function(o){
       return '<div class="o"><div class="t1"><b>'+drap((o.address||{}).country_code)+' '+esc(o.name||'—')+'</b><span>'+heure(o.created_at)+'</span></div>'+
-        '<div class="ad">'+o.qty+' souffleur'+(o.qty>1?'s':'')+' · $'+((Number(o.amount_cents)||0)/100).toFixed(2)+' · '+esc(o.email)+'<br>'+adresse(o.address)+'<br><small>PayPal '+esc(o.id)+'</small></div>'+
+        '<div class="ad">'+o.qty+' spray'+(o.qty>1?'s':'')+' · $'+((Number(o.amount_cents)||0)/100).toFixed(2)+' · '+esc(o.email)+'<br>'+adresse(o.address)+'<br><small>PayPal '+esc(o.id)+'</small></div>'+
         '<div class="st" data-id="'+esc(o.id)+'">'+STATUTS.map(function(s){ return '<button class="'+(o.status===s[0]?'on':'')+'" data-s="'+s[0]+'">'+s[1]+'</button>'; }).join('')+'</div></div>'; }).join('')
       : '<div class="vide">Aucune commande sur cette période.</div>')+'</div>';
     h += courbe(d.jours);
     h += bars('Pays', 'visiteurs · clics payer · commandes', (d.pays||[]).map(function(p){
       return { nom: drap(p.pays)+' '+esc(pays(p.pays))+(p.clics?' · '+p.clics+' clic'+(p.clics>1?'s':''):'')+(p.commandes?' · 🛒 '+p.commandes:''), n:Number(p.visiteurs)||0 }; }));
     h += '<div class="duo">'+
-      bars('D\'où ils viennent', 'source', (d.sources||[]).map(function(p){ return { nom:(LOGO[p.source]||'🌐')+' '+esc(p.source==='direct'?'Direct / bio':p.source), n:Number(p.visiteurs)||0 }; }))+
+      bars('D\'où ils viennent', 'visiteurs · visites · clics Acheter', (d.sources||[]).map(function(p){ var v=Number(p.vues)||0, c=Number(p.clics)||0; return { nom:(LOGO[p.source]||'🌐')+' '+esc(p.source==='direct'?'Direct / bio':p.source)+' · '+v+' visite'+(v>1?'s':'')+' · '+c+' clic'+(c>1?'s':''), n:Number(p.visiteurs)||0 }; }))+
       bars('Sur quoi', 'appareil', (d.appareils||[]).map(function(p){ return { nom:NOMS[p.appareil]||esc(p.appareil), n:Number(p.visiteurs)||0 }; }))+'</div>';
-    h += bars('Offres cliquées', 'choix', (d.offres_choisies||[]).map(function(p){ return { nom:p.qty+' souffleur'+(p.qty>1?'s':''), n:Number(p.n)||0 }; }));
+    h += bars('Offres cliquées', 'choix', (d.offres_choisies||[]).map(function(p){ return { nom:p.qty+' spray'+(p.qty>1?'s':''), n:Number(p.n)||0 }; }));
     var de = d.dernieres || [];
     h += '<div class="card"><div class="ch"><b>Derniers visiteurs</b><span>en direct</span></div>'+(de.length ? de.map(function(x){
       return '<div class="row"><span class="f">'+drap(x.pays)+'</span><span class="m"><b>'+esc((x.ville?x.ville+', ':'')+pays(x.pays))+'</b><small>'+heure(x.t)+' · '+(NOMS[x.appareil]||'')+' · '+esc(x.source==='direct'||!x.source?'Direct / bio':x.source)+(x.offre?' · offre '+x.offre:'')+'</small></span>'+

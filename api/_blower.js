@@ -20,7 +20,7 @@ function appareil(ua) {
 }
 function source(ua, ref, utm) {
   const NOMS = ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Google', 'Snapchat', 'Pinterest'];
-  if (utm) { const k = utm.toLowerCase(); return NOMS.find((n) => k.includes(n.toLowerCase())) || utm.slice(0, 40); }
+  if (utm) { const k = utm.toLowerCase(); const ALIAS = { ig: 'Instagram', fb: 'Facebook', tt: 'TikTok', yt: 'YouTube' }; return ALIAS[k] || NOMS.find((n) => k.includes(n.toLowerCase())) || utm.slice(0, 40); }
   const u = ua.toLowerCase();
   if (/musical_ly|bytedance|tiktok/.test(u)) return 'TikTok';
   if (/instagram/.test(u)) return 'Instagram';

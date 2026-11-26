@@ -11,7 +11,7 @@ import json, math, os, random, re, subprocess, sys
 from PIL import Image, ImageDraw, ImageFont
 
 W, H, FPS = 1080, 1920, 30
-FONT = ImageFont.truetype('/usr/share/fonts/opentype/inter/InterDisplay-Black.otf', 76)
+FONT = ImageFont.truetype(os.environ.get('FONT', '/usr/share/fonts/opentype/inter/InterDisplay-Black.otf'), 76)
 RED = (226, 24, 45)
 SUB_Y = 1330          # centre vertical du bloc de sous-titres (zone centrale, au-dessus de l'interface TikTok)
 CENSURE = {'FUCKING': 'F*CKING', 'FUCK': 'F*CK'}

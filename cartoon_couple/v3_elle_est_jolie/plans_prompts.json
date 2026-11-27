@@ -1,0 +1,158 @@
+[
+ {
+  "index": 1,
+  "t": 0.0,
+  "refs": "DUO",
+  "prompt": "Evening living room, view from the TV toward a grey couch: the woman turns to the bald man with narrowed suspicious eyes and a sly smile; the bald man sits frozen, wide eyes, tiny sweat drops on his head. Blue TV light on their faces. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 2,
+  "t": 3.96,
+  "refs": "DUO",
+  "prompt": "Wide shot of a cozy small living room in the evening, seen from behind and slightly above a grey couch: the bald man and the woman sit side by side, a bowl of popcorn between them, a big TV glowing in front of them on a wooden TV stand, a lamp and a plant in the corner. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 3,
+  "t": 5.28,
+  "refs": "SALON",
+  "prompt": "View over the couple's shoulders toward the big TV: the screen shows a movie scene of a city street at night with warm lights. Popcorn bowl on the couch. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 4,
+  "t": 6.52,
+  "refs": "",
+  "prompt": "Close-up of a TV screen in a dark living room: on the screen, a glamorous cartoon actress with long wavy blonde hair and an elegant red dress walks into a fancy party scene, smiling, spotlight on her. Same low-poly style. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 5,
+  "t": 8.56,
+  "refs": "DUO+SALON",
+  "prompt": "On the couch, the woman points the TV remote at the screen to pause the movie, serious face, eyes on the TV. The bald man next to her holds a piece of popcorn halfway to his mouth. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 6,
+  "t": 9.54,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the woman on the couch turning her head toward the camera, one eyebrow raised, small sly smile, eyes half closed, holding the remote. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 7,
+  "t": 11.62,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the bald man on the couch, frozen, eyes looking sideways in panic, many tiny sweat drops on his round head, popcorn falling from his hand. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 8,
+  "t": 13.5,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the bald man on the couch wincing hard, eyes squeezed shut, teeth clenched, as if he just imagined a disaster. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 9,
+  "t": 14.74,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the woman on the couch, arms crossed, eyes narrowed, slow knowing nod, as if she can read his mind. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 10,
+  "t": 17.06,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the bald man on the couch with a forced casual smile and a small shrug, one hand waving lightly, trying to look relaxed. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 11,
+  "t": 19.26,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the woman on the couch, eyes wide open, mouth open in an offended gasp, one hand on her chest. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 12,
+  "t": 21.42,
+  "refs": "DUO+SALON",
+  "prompt": "The woman on the couch points her finger right at the bald man's face, accusing frown; he leans back away from her. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 13,
+  "t": 22.7,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the bald man on the couch holding both hands up in defense, shaking his head, eyebrows raised, innocent face. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 14,
+  "t": 23.88,
+  "refs": "DUO+SALON",
+  "prompt": "The bald man on the couch gestures toward the TV with both open hands, exasperated face, mouth open explaining. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 15,
+  "t": 27.42,
+  "refs": "DUO+SALON",
+  "prompt": "On the couch, the bald man gently holds the woman's hand with a charming confident smile, eyebrows raised. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 16,
+  "t": 29.58,
+  "refs": "DUO+SALON",
+  "prompt": "On the couch, the woman pulls her hand away and crosses her arms, eyes narrowed, head turned away from him; he freezes with his hand still in the air. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 17,
+  "t": 32.18,
+  "refs": "DUO+SALON",
+  "prompt": "The bald man slumps deep into the couch, staring at the ceiling, completely defeated, arms hanging down. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 18,
+  "t": 34.28,
+  "refs": "DUO+SALON",
+  "prompt": "The bald man on the couch holds the TV remote toward the screen with a hopeful little smile. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 19,
+  "t": 35.7,
+  "refs": "DUO+SALON",
+  "prompt": "The woman snatches the TV remote out of the bald man's hand, glaring at him with suspicious narrowed eyes. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 20,
+  "t": 38.8,
+  "refs": "DUO+SALON",
+  "prompt": "Wide shot from the TV toward the couch: the couple watching the movie in silence, the woman relaxed eating popcorn, the bald man stiff as a statue with his hands on his knees. Blue TV light. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 21,
+  "t": 40.02,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the bald man on the couch staring down at the floor, not daring to look at the TV, sweat drops on his head, lips pressed together. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 22,
+  "t": 42.4,
+  "refs": "",
+  "prompt": "Close-up of a TV screen in a dark living room: on the screen, a muscular cartoon action-movie hero with dark hair stands on a sunny beach in swim shorts, flexing his arms, heroic pose. Same low-poly style. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 23,
+  "t": 45.64,
+  "refs": "DUO+SALON",
+  "prompt": "On the couch, the woman grabs the bald man's arm with both hands, excited, eyes sparkling, staring at the TV; the bald man looks at her hands on his arm with a flat face. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 24,
+  "t": 46.6,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the woman on the couch with a dreamy face, blushing cheeks, little hearts floating around her head, hands pressed to her cheeks, looking at the TV. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 25,
+  "t": 49.46,
+  "refs": "DUO+SALON",
+  "prompt": "Close-up of the bald man on the couch, staring straight into the camera, completely deadpan, mouth shut, eyebrows flat. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ },
+ {
+  "index": 26,
+  "t": 50.7,
+  "refs": "DUO+SALON",
+  "prompt": "Final close-up of the bald man on the couch, slowly eating one piece of popcorn while staring into the camera with half-closed eyes, done with life; the woman next to him still smiling at the TV. Low-poly 3D cartoon render, same characters and style as the reference images: faceted flat-shaded surfaces with visible soft polygon facets, matte clay look, bright saturated colors, soft warm evening light, simple clean environment, gentle shadows. No writing anywhere in the image."
+ }
+]

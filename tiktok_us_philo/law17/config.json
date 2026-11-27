@@ -1,0 +1,72 @@
+{
+ "voice": "voix_final.wav",
+ "portrait": "portrait_heraclitus.png",
+ "portrait_h": 600,
+ "title_overlap": 0.78,
+ "title": "LAW NO. 17",
+ "title_words": 3,
+ "music": "musique.mp3",
+ "music_gain": 0.24,
+ "gavel": {
+  "t": 1.56,
+  "dur": 1.262
+ },
+ "gavel_sfx": "gavel/coup.wav",
+ "text": [
+  "Law number seventeen.",
+  "Your character is your fate.",
+  "You blame bad luck, the wrong people, the wrong timing.",
+  "But the same problems keep finding you.",
+  "Heraclitus said:",
+  "\"Character is destiny.\"",
+  "The way you speak, the way you work, the way you treat people when no one is watching.",
+  "That is what decides where you end up.",
+  "So this week, fix one small thing in yourself.",
+  "Your future will follow.",
+  "That's exactly what the 21 laws in this book give you.",
+  "The link is below."
+ ],
+ "hot": "^(character|fate|blame|luck|wrong|people|timing|same|problems|heraclitus|destiny|speak|work|treat|watching|decides|end|fix|one|small|yourself|future|follow|21|laws|book|link|below)$",
+ "tail": 0.1,
+ "word_align": "words_final.json",
+ "subs": "v2",
+ "max_lines": 4,
+ "sub_font": "BebasNeue-Regular.ttf",
+ "font": 88,
+ "maxw": 440,
+ "hot_color": [
+  230,
+  190,
+  120
+ ],
+ "sub_anim": "rise",
+ "panel_color": [
+  16,
+  14,
+  12
+ ],
+ "bg": [
+  {
+   "img": "img/bg.jpg",
+   "t": 0.0,
+   "pan": -1
+  }
+ ],
+ "bg_dim": 0.78,
+ "bg_tint": [
+  1.0,
+  1.0,
+  1.04
+ ],
+ "bg_sfx": "swish",
+ "bg_sfx_gain": 0.0,
+ "book": {
+  "t": 28.328,
+  "link_t": 31.731,
+  "image": "../../laws/book.webp",
+  "title": "All 21 laws",
+  "btn": "LINK BELOW",
+  "sub": "in the description",
+  "arrow": "down"
+ }
+}
